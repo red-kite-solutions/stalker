@@ -129,4 +129,4 @@ dmypy.json
 .pyre/
 
 # api key
-.api_key
+*.api_key
