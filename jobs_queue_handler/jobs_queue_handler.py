@@ -39,6 +39,20 @@ def add_job_to_queue():
                     status=200,
                     mimetype="application/json")
 
+
+@app.route('/job', methods=['GET'])
+def get_job_from_queue():
+    if jobs_queue.empty():
+        return Response(response='{"error": "The queue is empty"}',
+                    status=404,
+                    mimetype="application/json")
+
+    ret = json.dumps(jobs_queue.get(), default=lambda o: o.__dict__, indent=4)
+    return Response(response=ret,
+                    status=200,
+                    mimetype="application/json")
+
+
 @app.route('/jobs')
 def get_jobs():
     ret = json.dumps(jobs_queue.queue, default=lambda o: o.__dict__, indent=4)
