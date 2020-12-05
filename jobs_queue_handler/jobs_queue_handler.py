@@ -12,7 +12,7 @@ app = Flask(__name__)
 
 @app.before_request
 def validate_api_key():
-    if request.headers['API_KEY'] != API_KEY:
+    if request.headers.get('API_KEY') != API_KEY:
         abort(403, description='Missing API key')
 
 @app.route('/')
