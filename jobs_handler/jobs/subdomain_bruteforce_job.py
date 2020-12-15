@@ -23,6 +23,10 @@ class SubdomainBruteforceJob(JobInterface):
     def run(self):
         """Start the job"""
         print("brute force job is running")
+        print(self._domain_name)
+        print(self._wordlist)
+        print(self._config_file)
+        print(self._amass_bin_path)
         return
         # amass_string = ''
         # if self._domain_name != '':

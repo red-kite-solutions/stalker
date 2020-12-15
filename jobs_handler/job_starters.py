@@ -14,7 +14,7 @@ def start_subdomain_bruteforce_job(job_info: dict, config: dict):
             job_info['_id'], 
             job_info['_task'],
             job_info['_data']['domain_name'], 
-            config['amass_wordlists'] + wordlist, 
+            wordlist, 
             config['amass_config'],
             config['amass_bin_path'])
 
