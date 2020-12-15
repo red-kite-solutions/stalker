@@ -9,11 +9,10 @@ job_requester = JobRequester(config['job_queue_handler_address'], config['job_qu
 
 job_info = job_requester.get_job(config)
 
-if not job_info:
-    # The job is None because the queue is empty
-    exit()
+while job_info: # If the job is None, the queue is empty
+    switcher_dict = { 'subdomain bruteforce' : start_subdomain_bruteforce_job}
 
-switcher_dict = { 'subdomain bruteforce' : start_subdomain_bruteforce_job}
-
-if switcher_dict.get(job_info['_task']):
-    switcher_dict[job_info['_task']](job_info, config) 
+    if switcher_dict.get(job_info['_task']):
+        switcher_dict[job_info['_task']](job_info, config)
+    
+    job_info = job_requester.get_job(config)
