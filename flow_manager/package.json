@@ -1,0 +1,33 @@
+{
+  "name": "express-ts-seed",
+  "version": "1.0.0",
+  "description": "Express project seed in Typescript",
+  "scripts": {
+    "start": "node build/bin/www",
+    "dev": "gulp start",
+    "build": "gulp build"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "cookie-parser": "^1.4.3",
+    "cors": "^2.8.5",
+    "debug": "^2.6.0",
+    "express": "^4.16.4",
+    "morgan": "^1.9.1"
+  },
+  "devDependencies": {
+    "@types/body-parser": "^1.17.0",
+    "@types/cookie-parser": "^1.4.1",
+    "@types/debug": "^0.0.31",
+    "@types/express": "^4.16.0",
+    "@types/morgan": "^1.7.35",
+    "@types/node": "^10.0.0",
+    "dotenv": "^6.2.0",
+    "gulp": "^4.0.0",
+    "gulp-sourcemaps": "^2.6.4",
+    "gulp-typescript": "^5.0.0",
+    "tslint": "^5.12.0",
+    "tslint-eslint-rules": "^5.4.0",
+    "typescript": "^3.2.2"
+  }
+}

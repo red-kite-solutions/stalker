@@ -1,0 +1,9 @@
+node_modules/
+false/
+.tscache/
+
+build/
+
+.idea*
+
+.env
