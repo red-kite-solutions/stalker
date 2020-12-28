@@ -24,13 +24,14 @@ def add_job_to_queue():
     json_request_data = json.loads(request.data) 
 
     if (not json_request_data.get('task') or
+            not json_request_data.get('id') or
             json_request_data.get('priority') == None or 
             not json_request_data.get('data')):
         print(json_request_data)
         abort(400, description='The json object did not contain all the required fields.')
 
-    id = uuid.uuid4().__str__()
-    prioritized_job = PrioritizedJob(json_request_data['priority'], id, json_request_data['task'], json_request_data['data'] )
+    # id = uuid.uuid4().__str__()
+    prioritized_job = PrioritizedJob(json_request_data['priority'], json_request_data['id'], json_request_data['task'], json_request_data['data'] )
     jobs_queue.put(prioritized_job)
 
     ret = json.dumps(prioritized_job, default=lambda o: o.__dict__, indent=4)

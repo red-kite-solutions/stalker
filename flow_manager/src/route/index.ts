@@ -9,7 +9,7 @@ export class Index {
 
     private index(req: express.Request, res: express.Response) {
         res.json({
-            version: process.env.VERSION
+            hello: "world"
         });
     }
 }

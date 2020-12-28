@@ -1,33 +1,39 @@
 {
-  "name": "express-ts-seed",
+  "name": "flow_manager",
   "version": "1.0.0",
-  "description": "Express project seed in Typescript",
+  "description": "Manages the data storage and the general flow of the bug bounty",
   "scripts": {
     "start": "node build/bin/www",
     "dev": "gulp start",
-    "build": "gulp build"
+    "build": "gulp build",
+    "watch": "gulp watch"
   },
   "dependencies": {
-    "body-parser": "^1.18.3",
-    "cookie-parser": "^1.4.3",
+    "@types/uuid": "^8.3.0",
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
     "debug": "^2.6.0",
-    "express": "^4.16.4",
-    "morgan": "^1.9.1"
+    "express": "^4.17.1",
+    "express-validator": "^6.8.0",
+    "morgan": "^1.10.0",
+    "node-fetch": "^2.6.1",
+    "uuid": "^8.3.2",
+    "uuid-validate": "0.0.3"
   },
   "devDependencies": {
-    "@types/body-parser": "^1.17.0",
-    "@types/cookie-parser": "^1.4.1",
+    "@types/body-parser": "^1.19.0",
+    "@types/cookie-parser": "^1.4.2",
     "@types/debug": "^0.0.31",
-    "@types/express": "^4.16.0",
-    "@types/morgan": "^1.7.35",
-    "@types/node": "^10.0.0",
+    "@types/express": "^4.17.9",
+    "@types/morgan": "^1.9.2",
+    "@types/node": "^10.17.49",
     "dotenv": "^6.2.0",
-    "gulp": "^4.0.0",
-    "gulp-sourcemaps": "^2.6.4",
-    "gulp-typescript": "^5.0.0",
-    "tslint": "^5.12.0",
+    "gulp": "^4.0.2",
+    "gulp-sourcemaps": "^2.6.5",
+    "gulp-typescript": "^5.0.1",
+    "tslint": "^5.20.1",
     "tslint-eslint-rules": "^5.4.0",
-    "typescript": "^3.2.2"
+    "typescript": "^3.9.7"
   }
 }

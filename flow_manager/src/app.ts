@@ -5,6 +5,8 @@ import * as cookieParser from 'cookie-parser';
 import * as bodyParser from 'body-parser';
 import * as cors from 'cors';
 import { Index } from './route/index';
+import { Recon } from './route/recon';
+import { Jobs } from './route/jobs';
 
 export class Application {
 
@@ -18,6 +20,8 @@ export class Application {
         this.app = express();
 
         this.config();
+
+        this.middlewares();
 
         this.routes();
     }
@@ -33,7 +37,12 @@ export class Application {
 
     public routes() {
         const index: Index = new Index();
+        const recon: Recon = new Recon();
+        const jobs: Jobs = new Jobs();
+        
         this.app.use("/", index.router);
+        this.app.use("/recon/", recon.router);
+        this.app.use("/jobs/", jobs.router);
 
         this.app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
             let err = new Error('Not Found');
@@ -47,5 +56,9 @@ export class Application {
                 error: {}
             });
         });
+    }
+
+    public middlewares() {
+        
     }
 }

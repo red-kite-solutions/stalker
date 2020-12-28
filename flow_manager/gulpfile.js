@@ -31,8 +31,8 @@ gulp.task('start', gulp.series('build', function(done) {
     done();
 }));
 
-gulp.task('watch', gulp.series('build', 'start', function() {
-    gulp.watch(tsProject.config.include, gulp.series('build', 'start'));
+gulp.task('watch', gulp.series('start', function() {
+    gulp.watch(tsProject.config.include, gulp.series('start'));
 }));
 
 gulp.task('default', gulp.parallel('watch', 'start'));
