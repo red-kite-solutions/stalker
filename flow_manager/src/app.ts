@@ -4,6 +4,7 @@ import * as logger from 'morgan';
 import * as cookieParser from 'cookie-parser';
 import * as bodyParser from 'body-parser';
 import * as cors from 'cors';
+import * as mongoose from 'mongoose';
 import { Index } from './route/index';
 import { Recon } from './route/recon';
 import { Jobs } from './route/jobs';
@@ -24,6 +25,8 @@ export class Application {
         this.middlewares();
 
         this.routes();
+
+        this.connectToDatabase();
     }
 
     private config() {
@@ -60,5 +63,12 @@ export class Application {
 
     public middlewares() {
         
+    }
+
+    public connectToDatabase() {
+        let connectionString = 'mongodb://127.0.0.1:27017/recon_automation';
+        mongoose.connect(connectionString, {useNewUrlParser: true});
+        let connection = mongoose.connection;
+        connection.on('error', console.error.bind(console, 'MongoDB connection error:'));
     }
 }

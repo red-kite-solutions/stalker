@@ -20,6 +20,6 @@ export class JobsQueue {
             }
         });
 
-        
+        return response.ok;
     }
 }
