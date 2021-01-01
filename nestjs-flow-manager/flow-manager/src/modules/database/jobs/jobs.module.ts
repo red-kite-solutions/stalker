@@ -1,12 +1,16 @@
 import { Module } from '@nestjs/common';
-import { TypegooseModule } from "nestjs-typegoose";
+import { MongooseModule } from "@nestjs/mongoose";
 import { JobsController } from './jobs.controller';
-import { Job } from './jobs.model';
+import { jobSchema } from './jobs.model';
 import { JobsService } from './jobs.service';
 
 
 @Module({
-    imports: [TypegooseModule.forFeature([Job])],
+    imports: [MongooseModule.forFeature([{
+        name: "job",
+        schema: jobSchema
+        }]),
+    ],
     controllers: [JobsController],
     providers: [JobsService],
     exports: []

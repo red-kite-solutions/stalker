@@ -1,4 +1,4 @@
-import { getModelForClass, mongoose, prop } from '@typegoose/typegoose';
+import { getModelForClass, mongoose, prop, buildSchema } from '@typegoose/typegoose';
 
 export class Job extends mongoose.Document {
     @prop()
@@ -17,4 +17,4 @@ export class Job extends mongoose.Document {
     public jobId!: string;
 }
 
-export const jobModel = getModelForClass(Job);
+export const jobSchema = buildSchema(Job);

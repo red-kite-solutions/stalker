@@ -1,4 +1,4 @@
-import { InjectModel } from "nestjs-typegoose";
+import { InjectModel } from "@nestjs/mongoose";
 import { Injectable } from "@nestjs/common";
 import { ReturnModelType } from "@typegoose/typegoose";
 import * as idGenerator from 'uuid';
@@ -9,7 +9,7 @@ import { CreateJobDto } from "./jobs.dto";
 
 @Injectable()
 export class JobsService extends BaseService<Job, Job> {
-    constructor(@InjectModel(Job) private readonly jobModel: ReturnModelType<typeof Job>) {
+    constructor(@InjectModel("job") private readonly jobModel: ReturnModelType<typeof Job>) {
         super(jobModel);
     }
 

@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { JobsModule } from './jobs/jobs.module';
-import { TypegooseModule } from "nestjs-typegoose";
+import { MongooseModule } from "@nestjs/mongoose";
 
 @Module({
     imports: [
-        TypegooseModule.forRoot("mongodb://localhost:27017/recon_automation", {
+        MongooseModule.forRoot("mongodb://localhost:27017/recon_automation", {
             useNewUrlParser: true,
             useUnifiedTopology: true
         }),
