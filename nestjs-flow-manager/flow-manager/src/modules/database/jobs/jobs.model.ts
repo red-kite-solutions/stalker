@@ -1,20 +1,24 @@
-import { getModelForClass, mongoose, prop, buildSchema } from '@typegoose/typegoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
 
-export class Job extends mongoose.Document {
-    @prop()
+export type JobDocument = Job & Document;
+
+@Schema()
+export class Job {
+    @Prop()
     public task!: string;
 
-    @prop()
+    @Prop()
     public program!: string;
 
-    @prop()
+    @Prop()
     public priority!: number;
 
-    @prop()
-    public data!: object;
+    @Prop({ type: Object })
+    public data!: Object;
 
-    @prop()
+    @Prop()
     public jobId!: string;
 }
 
-export const jobSchema = buildSchema(Job);
+export const JobSchema = SchemaFactory.createForClass(Job);

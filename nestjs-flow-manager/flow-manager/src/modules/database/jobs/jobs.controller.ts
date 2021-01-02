@@ -9,14 +9,12 @@ export class JobsController {
     constructor(private readonly jobsService: JobsService) {}
 
     @Get()
-    getAllJobs(): Promise<any>{
-        return this.jobsService.findAll();
+    async getAllJobs(): Promise<any> {
+        return await this.jobsService.findAllJobs();
     }
 
     @Post('create')
     async createJob(@Body(new ValidationPipe()) unidentifiedJob: CreateJobDto): Promise<void> {
-        console.log("controller: ");
-        console.log(unidentifiedJob);
         return await this.jobsService.addJob(unidentifiedJob);
     }
 }

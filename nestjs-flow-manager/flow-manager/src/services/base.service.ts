@@ -9,14 +9,6 @@ export class BaseService<T extends Document, Dto> {
     async create(object: Partial<T>): Promise<T> {
         const instance = new this.model(<T>object);
         try {
-            console.log("creating");
-            console.log(this.model.db);
-            if (this.model.db.readyState === 0) {
-                console.log("database is disconnected? wtf? ");
-            }
-            if (instance.db.readyState === 0) {
-                console.log(">>>database is disconnected? wtf? ");
-            }
             return instance.save();
         } catch (e) {
             console.log(e);
