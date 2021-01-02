@@ -1,10 +1,7 @@
-import { json } from 'body-parser';
 import * as fetch from 'node-fetch';
 
 
-export class JobsQueue {
-    
-    
+export class JobsQueueUtils {
     public static async add(id: String, task: String, priority: Number, data: Object) {
         
         // add job to the database so that we remember what we sent

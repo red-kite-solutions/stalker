@@ -1,5 +1,5 @@
-// import { HttpException, HttpStatus } from "@nestjs/common";
-// import { MongoError } from "mongodb";
+import { HttpException, HttpStatus } from "@nestjs/common";
+import { MongoError } from "mongodb";
 import { Document, DocumentDefinition, Model, ModelPopulateOptions } from "mongoose";
 
 export class BaseService<T extends Document, Dto> {
@@ -11,16 +11,16 @@ export class BaseService<T extends Document, Dto> {
         try {
             return instance.save();
         } catch (e) {
-            throw e;
+            console.log(e);
             // Catch mongo errors like required, unique, min, max, etc...
-            // if (e instanceof MongoError) {
-            //     throw new HttpException({
-            //         message: e.message,
-            //         code: e.code
-            //     }, HttpStatus.PRECONDITION_FAILED);
-            // } else {
-            //     throw e;
-            // }
+            if (e instanceof MongoError) {
+                throw new HttpException({
+                    message: e.message,
+                    code: e.code
+                }, HttpStatus.PRECONDITION_FAILED);
+            } else {
+                throw e;
+            }
         }
     }
 
@@ -75,3 +75,4 @@ export class BaseService<T extends Document, Dto> {
     async remove(condition: any): Promise<void> {
         await this.model.remove(condition).exec();
     }
+}

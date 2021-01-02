@@ -1,16 +1,15 @@
 {
-  "compileOnSave": true,
   "compilerOptions": {
     "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
     "target": "es2017",
-    "moduleResolution": "node",
     "sourceMap": true,
-    "outDir": "build"
-  },
-  "include": [
-    "src/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true
+  }
 }
