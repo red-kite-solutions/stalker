@@ -1,7 +1,8 @@
-from job_starters import start_subdomain_bruteforce_job
 from parse_config import parse_config, config
 from job_requester import JobRequester
+from jobs.subdomain_bruteforce_job import SubdomainBruteforceJob
 import sys
+import time
 
 
 parse_config('./jobs_handler.config')
@@ -9,10 +10,18 @@ job_requester = JobRequester(config['job_queue_handler_address'], config['job_qu
 
 job_info = job_requester.get_job(config)
 
-while job_info: # If the job is None, the queue is empty
-    switcher_dict = { 'subdomain bruteforce' : start_subdomain_bruteforce_job}
+switcher_dict = { 'subdomain bruteforce' : SubdomainBruteforceJob}
 
-    if switcher_dict.get(job_info['_task']):
-        switcher_dict[job_info['_task']](job_info, config)
+start_time = time.time()
+current_time = start_time
+
+while job_info or current_time - start_time < 300: # If the job is None, the queue is empty
+    if not job_info:
+        #slow things down a bit to not spam too much
+        time.sleep(3)      
+    elif switcher_dict.get(job_info['_task']):
+        job = switcher_dict[job_info['_task']](job_info, config)
+        job.run()
     
     job_info = job_requester.get_job(config)
+    current_time = time.time()
