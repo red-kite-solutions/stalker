@@ -1,5 +1,5 @@
-from parse_config import parse_config, config
-from job_requester import JobRequester
+from utils.parse_config import parse_config, config
+from utils.job_requester import JobRequester
 from jobs.subdomain_bruteforce_job import SubdomainBruteforceJob
 import sys
 import time
@@ -15,7 +15,9 @@ switcher_dict = { 'subdomain bruteforce' : SubdomainBruteforceJob}
 start_time = time.time()
 current_time = start_time
 
-while job_info or current_time - start_time < 300: # If the job is None, the queue is empty
+# If the job_info is None, the queue is empty
+# We still want to run for at least 5 min for now, will see later
+while job_info or current_time - start_time < 300: 
     if not job_info:
         #slow things down a bit to not spam too much
         time.sleep(3)      

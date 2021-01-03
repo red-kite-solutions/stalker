@@ -11,6 +11,7 @@ class SubdomainBruteforceJob(JobInterface):
     _config_file: str
     _amass_bin_path: str
     _env: str
+    _output: str
 
     def __init__(self, job_info: dict, config: dict):
         super().__init__(job_info['_id'], job_info['_task'])
@@ -51,6 +52,6 @@ class SubdomainBruteforceJob(JobInterface):
 
             stream = os.popen(amass_string)
             output = stream.readlines()
-            fixed_output = [x[:-1] for x in output] # remove trailing \n
+            self._output = [x[:-1] for x in output] # remove trailing \n
 
 
