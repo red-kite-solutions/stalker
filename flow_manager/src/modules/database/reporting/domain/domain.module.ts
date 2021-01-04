@@ -4,6 +4,7 @@ import { DomainsController } from './domain.controller';
 import { DomainSchema } from './domain.model';
 import { DomainsService } from './domain.service';
 import { JobsModule } from '../../jobs/jobs.module';
+import { ProgramModule } from '../program.module';
 
 
 @Module({
@@ -11,7 +12,8 @@ import { JobsModule } from '../../jobs/jobs.module';
         name: "domain",
         schema: DomainSchema
         }]),
-        JobsModule
+        JobsModule,
+        ProgramModule
     ],
     controllers: [DomainsController],
     providers: [DomainsService],

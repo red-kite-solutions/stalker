@@ -12,11 +12,11 @@ export class JobsController {
 
     @Get()
     async getAllJobs(): Promise<any> {
-        return await this.jobsService.findAllJobs();
+        return await this.jobsService.findAll();
     }
 
     @Post('create')
-    async createJob(@Body(new ValidationPipe()) unidentifiedJob: CreateJobDto): Promise<void> {
+    async createJob(@Body(new ValidationPipe()) unidentifiedJob: CreateJobDto): Promise<Job> {
         let id: string = v4();
         let isOk: boolean = await JobsQueueUtils.add(id, unidentifiedJob.task, unidentifiedJob.priority, unidentifiedJob.data);
         if(!isOk) {

@@ -13,6 +13,6 @@ import { ProgramService } from './program.service';
     ],
     controllers: [ProgramController],
     providers: [ProgramService],
-    exports: []
+    exports: [ProgramService]
 })
 export class ProgramModule {}

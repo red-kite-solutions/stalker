@@ -17,7 +17,7 @@ class JobReporter():
             'API_KEY': self._key,
             'Content-Type': 'application/json'
         }
-        r = requests.post(f'http://{self._fm_address}:{self._fm_port}/job', output, headers=headers)
-        if r.status_code != 200:
+        r = requests.post(f'http://{self._fm_address}:{self._fm_port}' + path, output, headers=headers)
+        if r.status_code < 200 or r.status_code >= 300:
             print("ERROR sending output: ")
             print(output)

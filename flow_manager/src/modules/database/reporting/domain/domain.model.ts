@@ -5,6 +5,7 @@ export type DomainDocument = Domain & Document;
 
 @Schema()
 export class Domain {
+    
     @Prop()
     public name!: string;
 
@@ -12,10 +13,10 @@ export class Domain {
     public isRawIp!: boolean;
 
     @Prop()
-    public subdomains?: [Domain];
+    public subdomains?: Domain[];
 
     @Prop()
-    public ips?: [string];
+    public ips?: string[];
 }
 
 export const DomainSchema = SchemaFactory.createForClass(Domain);

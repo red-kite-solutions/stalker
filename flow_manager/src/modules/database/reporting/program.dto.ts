@@ -9,9 +9,9 @@ export class CreateProgramDto {
 
     @IsOptional()
     @IsArray()
-    public domains: [Domain]
+    public domains: Domain[]
 
     @IsOptional()
     @IsArray()
-    public ip_ranges: [Object]
+    public ip_ranges: Object[]
 }

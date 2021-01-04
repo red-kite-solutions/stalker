@@ -10,10 +10,10 @@ export class Program {
     public name: string;
 
     @Prop()
-    public domains?: [Domain];
+    public domains?: Domain[];
 
     @Prop()
-    public ip_ranges?: [Object];
+    public ip_ranges?: Object[];
 }
 
 export const ProgramSchema = SchemaFactory.createForClass(Program);

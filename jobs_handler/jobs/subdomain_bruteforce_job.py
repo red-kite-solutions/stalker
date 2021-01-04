@@ -40,7 +40,7 @@ class SubdomainBruteforceJob(JobInterface):
             print(self._wordlist)
             print(self._config_file)
             print(self._amass_bin_path)
-            self.output = '[app.bnc.ca, www.bnc.ca, asdf.test.bnc.ca, test.test.bnc.ca]'
+            self._output = '["app.bnc.ca", "www.bnc.ca", "asdf.test.bnc.ca", "test.test.bnc.ca"]'
         else:
             amass_string = ''
             if self._domain_name != '':
@@ -56,8 +56,9 @@ class SubdomainBruteforceJob(JobInterface):
 
             stream = os.popen(amass_string)
             output = stream.readlines()
-            self.output = [x[:-1] for x in output] # remove trailing \n
+            self._output = [x[:-1] for x in output] # remove trailing \n
 
     def report(self, job_reporter: JobReporter):
-        job_reporter.report(f'/report/domains/{self._id}', self.output)
+        self._output = '{ "subdomains" : ' + self._output + ' }'
+        job_reporter.report(f'/report/domains/{self._id}', self._output)
         return

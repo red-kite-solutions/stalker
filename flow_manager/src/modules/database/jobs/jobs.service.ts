@@ -12,17 +12,14 @@ export class JobsService extends BaseService<Job, Job> {
         super(jobModel);
     }
 
-    public async findAllJobs() {
-        return await this.findAll();
-    }
-
-    public async addJob(dto: CreateJobDto, jobId: string) {
-        await this.create({
-            task: dto.task,
-            program: dto.program,
-            priority: dto.priority,
-            jobId: jobId,
-            data: dto.data
-        });
+    public async addJob(dto: CreateJobDto, jobId: string): Promise<Job> {
+        let job = new Job();
+        job.jobId = jobId;
+        job.priority = dto.priority;
+        job.program = dto.program;
+        job.task = dto.task;
+        job.data = dto.data;
+        await this.create(job);
+        return job;
     }
 }

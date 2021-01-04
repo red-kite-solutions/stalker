@@ -16,6 +16,10 @@ export class ProgramService extends BaseService<Program, Program> {
         return await this.findAll();
     }
 
+    public async findOneByName(name: string): Promise<Program> {
+        return await this.findOne({ name: name });
+    }
+
     public async addProgram(dto: CreateProgramDto) {
         // create the program if not exist
         const program: Program = await this.findOne({

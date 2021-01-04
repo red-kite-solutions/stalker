@@ -10,6 +10,7 @@ export class DomainsController {
 
     @Post(':jobId')
     async submitSubdomains(@Param('jobId') jobId: string, @Body(new ValidationPipe()) subdomains: SubmitSubdomainDto): Promise<void> {
+        await this.domainsService.addDomains(subdomains, jobId);
         return;
     }
 }
