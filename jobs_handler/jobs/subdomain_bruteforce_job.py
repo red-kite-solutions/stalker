@@ -1,4 +1,5 @@
 from jobs.job_interface import JobInterface
+from utils.job_reporter import JobReporter
 import os
 
 
@@ -12,6 +13,7 @@ class SubdomainBruteforceJob(JobInterface):
     _amass_bin_path: str
     _env: str
     _output: str
+    _id: str
 
     def __init__(self, job_info: dict, config: dict):
         super().__init__(job_info['_id'], job_info['_task'])
@@ -28,6 +30,7 @@ class SubdomainBruteforceJob(JobInterface):
         self._config_file = config['amass_config']
         self._amass_bin_path = config['amass_bin_path']
         self._env = config['env']
+        self._id = job_info['_id']
 
     def run(self):
         """Start the job"""
@@ -37,6 +40,7 @@ class SubdomainBruteforceJob(JobInterface):
             print(self._wordlist)
             print(self._config_file)
             print(self._amass_bin_path)
+            self.output = '[app.bnc.ca, www.bnc.ca, asdf.test.bnc.ca, test.test.bnc.ca]'
         else:
             amass_string = ''
             if self._domain_name != '':
@@ -52,6 +56,8 @@ class SubdomainBruteforceJob(JobInterface):
 
             stream = os.popen(amass_string)
             output = stream.readlines()
-            self._output = [x[:-1] for x in output] # remove trailing \n
+            self.output = [x[:-1] for x in output] # remove trailing \n
 
-
+    def report(self, job_reporter: JobReporter):
+        job_reporter.report(f'/report/domains/{self._id}', self.output)
+        return

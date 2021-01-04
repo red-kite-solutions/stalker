@@ -13,6 +13,6 @@ import { JobsService } from './jobs.service';
     ],
     controllers: [JobsController],
     providers: [JobsService],
-    exports: []
+    exports: [JobsService]
 })
 export class JobsModule {}

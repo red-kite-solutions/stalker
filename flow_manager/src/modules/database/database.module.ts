@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { JobsModule } from './jobs/jobs.module';
 import { MongooseModule } from "@nestjs/mongoose";
+import { ProgramModule } from './reporting/program.module';
+import { DomainsModule } from './reporting/domain/domain.module';
 
 @Module({
     imports: [
@@ -8,16 +10,10 @@ import { MongooseModule } from "@nestjs/mongoose";
             useNewUrlParser: true,
             useUnifiedTopology: true
         }),
-        JobsModule
+        JobsModule,
+        ProgramModule,
+        DomainsModule
     ],
-    // imports: [
-    //     TypegooseModule.forRootAsync({
-    //         useFactory: () => ({
-    //           uri: 'mongodb://localhost:27017/recon_automation',
-    //         }),
-    //     }),
-    //     JobsModule
-    // ],
     exports: [JobsModule]
 })
 export class DatabaseModule {}

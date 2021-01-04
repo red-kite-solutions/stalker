@@ -12,7 +12,6 @@ class JobInterface:
 
     def run(self):
         pass
-
+    
     def report(self):
         pass
-
