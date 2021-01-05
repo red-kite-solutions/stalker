@@ -1,4 +1,5 @@
 
+import { HttpException } from "@nestjs/common";
 import { isDocument } from "@typegoose/typegoose";
 import { Domain } from "src/modules/database/reporting/domain/domain.model";
 import { Program } from "src/modules/database/reporting/program.model";
@@ -63,5 +64,31 @@ export namespace DomainTreeUtils {
         }
     }
 
-    // TODO: export function findDomainObject(fullDomainName: string): Domain
+    function recursiveFindDomainObject(domain: Domain, subdomains: string[], currentIndex: number = 0): Domain {
+        // return condition
+        if(currentIndex >= subdomains.length) {
+            return domain;
+        }
+        // domain has no following subdomains, but we are not done yet with subdomains
+        if(!domain.subdomains) {
+            throw new HttpException("The given subdomain is not part of the given program. Maybe it needs to be added.", 500);
+        }
+        domain.subdomains.forEach((subdomain, index) => {
+            if(subdomain.name === subdomains[currentIndex]) {
+                return recursiveFindDomainObject(subdomain, subdomains, currentIndex + 1);
+            }
+        });
+        throw new HttpException("The given subdomain is not part of the given program. Maybe it needs to be added.", 500)
+    }
+    // Used to find a domain object that we want to work with when given a program and a full domain name
+    // fullDomainName has the following format: sub2.sub1.example.com
+    export function findDomainObject(program: Program, fullDomainName: string): Domain {
+        let reversedStringArray = domainNameToReversedStringArray(fullDomainName);
+        program.domains.forEach((domain, index)=> {
+            if(domain.name === reversedStringArray[0]) {
+                return recursiveFindDomainObject(domain, reversedStringArray, 1);
+            }
+        });
+        throw new HttpException("The given subdomain is not part of the given program. Maybe it needs to be added.", 500)
+    }
 }
