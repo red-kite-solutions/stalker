@@ -48,10 +48,13 @@ Creates a new job to add to the queue. The job will be sorted according to the g
 
 ```
 { 
-    "task":"my task name here",
-    "id":"uuid of the job in the flow manager",
-    "priority":3,
-    "data": {}
+    "task":"subdomain bruteforce", 
+    "program":"{{program}}", 
+    "priority":1, 
+    "data": {
+        "domain_name":"example.com",
+        "wordlist":"wordlist.txt"
+    }
 }
 ```
 

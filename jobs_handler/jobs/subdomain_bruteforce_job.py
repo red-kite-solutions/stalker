@@ -40,7 +40,7 @@ class SubdomainBruteforceJob(JobInterface):
             print(self._wordlist)
             print(self._config_file)
             print(self._amass_bin_path)
-            self._output = '["app.bnc.ca", "www.bnc.ca", "asdf.test.bnc.ca", "test.test.bnc.ca"]'
+            self._output = '["sub1.example.com", "sub2.example.com", "sub4.example.com", "sub7.sub4.example.com", "sub8.sub4.example.com", "sub5.example.com", "sub3.example.com", "sub6.sub3.example.com"]'
         else:
             amass_string = ''
             if self._domain_name != '':

@@ -6,6 +6,13 @@ It could be nice to eventually build a dashboard to be able to see in real time 
 
 An API key mechanism should be added in the future. Right now, this service has no authentication.
 
+
+```
+npm i
+export API_KEY=wkahvejhsgjkshavwagfvlkaswjhe # This is obviously not a real key
+npm start
+```
+
 ## Database
 
 The Flow Manager uses MongoDB as its database for simplicity and its capacity to easily work with JSON objects and TypeScript. 
@@ -105,14 +112,16 @@ Submit the subdomains found in a job in the format of a string array. The JobId 
 `POST /report/domains/{jobId}`
 
 ```
-[
-    "sub1.example.com",
-    "sub2.example.com",
-    "sub4.example.com",
-    "sub7.sub4.example.com",
-    "sub8.sub4.example.com",
-    "sub5.example.com",
-    "sub3.example.com",
-    "sub6.sub3.example.com"
-]
+{
+    "subdomains":[
+        "sub1.example.com",
+        "sub2.example.com",
+        "sub4.example.com",
+        "sub7.sub4.example.com",
+        "sub8.sub4.example.com",
+        "sub5.example.com",
+        "sub3.example.com",
+        "sub6.sub3.example.com"
+    ]
+}
 ```
