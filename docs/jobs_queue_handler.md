@@ -4,6 +4,12 @@ A python job priority queue API based on Flask.
 
 Default port: 5000
 
+```
+export API_KEY=wkahvejhsgjkshavwagfvlkaswjhe # This is obviously not a real key
+export FLASK_APP=jobs_queue_handler
+flask run
+```
+
 ## Job Priority
 
 The job priority is given on a FIFO basis as well as with a int priority parameter in the JSON objects. All priority 1 jobs will be done before priority 2 jobs, and the Flow Manager sets a priority 3 job as a standard priority. 
