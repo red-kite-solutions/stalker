@@ -20,6 +20,7 @@ API_KEY : Validates that the HTTP request is authorized to add a job to the queu
 jobs_handler : 
 
 ```
+Does not use environement variables, has a config file instead.
 ```
 
 flow_manager : 

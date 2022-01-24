@@ -19,6 +19,11 @@ The Flow Manager uses MongoDB as its database for simplicity and its capacity to
 
 Mongoose is used to interact with the database.
 
+Connection string in dev (authentication is missing): 
+```
+mongodb://localhost:27017/recon_automation
+```
+
 ## Jobs
 
 A job consists of a task to do for the Job Handlers. They can be to find subdomains, to take a screenshot of a website, to try a check of a vulnerability, anything really. In the Flow Manager, jobs are stored in the database to keep track of them. The Flow Manager also accepts the outputs of the jobs to gather the information and react by creating new jobs, sending alerts, etc. 
