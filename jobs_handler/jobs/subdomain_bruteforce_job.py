@@ -13,7 +13,6 @@ class SubdomainBruteforceJob(JobInterface):
     _amass_bin_path: str
     _env: str
     _output: str
-    _id: str
 
     def __init__(self, job_info: dict, config: dict):
         super().__init__(job_info['_id'], job_info['_task'])

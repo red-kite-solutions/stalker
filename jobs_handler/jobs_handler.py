@@ -2,6 +2,7 @@ from utils.parse_config import parse_config, config
 from utils.job_requester import JobRequester
 from utils.job_reporter import JobReporter
 from jobs.subdomain_bruteforce_job import SubdomainBruteforceJob
+from jobs.domain_name_resolving_job import DomainNameResolvingJob
 import sys
 import time
 
@@ -13,7 +14,8 @@ job_reporter = JobReporter(config['flow_manager_address'], config['flow_manager_
 job_info = job_requester.get_job(config)
 
 # Add here the new jobs to be able to use them
-switcher_dict = { 'subdomain bruteforce' : SubdomainBruteforceJob}
+switcher_dict = { 'subdomain bruteforce' : SubdomainBruteforceJob,
+                'domain name resolving': DomainNameResolvingJob }
 
 start_time = time.time()
 current_time = start_time
