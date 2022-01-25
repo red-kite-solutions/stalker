@@ -3,6 +3,7 @@ import { JobsModule } from './jobs/jobs.module';
 import { MongooseModule } from "@nestjs/mongoose";
 import { ProgramModule } from './reporting/program.module';
 import { DomainsModule } from './reporting/domain/domain.module';
+import { HostModule } from './reporting/host/host.module';
 
 @Module({
     imports: [
@@ -12,7 +13,8 @@ import { DomainsModule } from './reporting/domain/domain.module';
         }),
         JobsModule,
         ProgramModule,
-        DomainsModule
+        DomainsModule,
+        HostModule
     ],
     exports: [JobsModule]
 })

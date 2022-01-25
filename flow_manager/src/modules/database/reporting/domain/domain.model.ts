@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { Host } from "../host/host.model";
 
 export type DomainDocument = Domain & Document;
 
@@ -16,7 +17,7 @@ export class Domain {
     public subdomains?: Domain[];
 
     @Prop()
-    public ips?: string[];
+    public hosts?: Host[];
 }
 
 export const DomainSchema = SchemaFactory.createForClass(Domain);

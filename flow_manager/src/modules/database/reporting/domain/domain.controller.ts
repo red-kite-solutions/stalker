@@ -1,6 +1,5 @@
 import { Body, Controller, Get, HttpException, Param, Post, ValidationPipe } from '@nestjs/common';
 import { SubmitSubdomainDto } from './domain.dto';
-import { Domain } from './domain.model';
 import { DomainsService } from './domain.service';
 
 
