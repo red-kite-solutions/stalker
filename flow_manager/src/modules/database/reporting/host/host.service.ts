@@ -45,14 +45,22 @@ export class HostService extends BaseService<Host, Host> {
                 domain.hosts.push(newHost);
             });
         } else {
+            
             dto.ips.forEach(ip => {
-                if(!dto.ips.includes(ip)) {
+                let found = false;
+                domain.hosts.forEach(host => {
+                    if(host.ip === ip) {
+                        found = true;
+                        return;
+                    }
+                });
+                if (!found) {
                     let newHost = new Host();
                     newHost.ip = ip;
-                    domain.hosts.push();
+                    domain.hosts.push(newHost);
                 }
             });
-        } 
+        }
 
         await this.programService.update(programFilter, program);
     }

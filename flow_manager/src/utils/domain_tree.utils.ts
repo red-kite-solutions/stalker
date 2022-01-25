@@ -86,10 +86,8 @@ export namespace DomainTreeUtils {
 
 
     function recursiveFindDomainObject(domain: Domain, subdomains: string[], currentIndex: number = 0): Domain {
-        console.log("find domain object " + domain.name);
         // return condition
         if(currentIndex >= subdomains.length) {
-            console.log("returning domain " + domain.name);
             return domain;
         }
         // domain has no following subdomains, but we are not done yet with subdomains
@@ -112,12 +110,10 @@ export namespace DomainTreeUtils {
     // Used to find a domain object that we want to work with when given a program and a full domain name
     // fullDomainName has the following format: sub2.sub1.example.com
     export function findDomainObject(program: Program, fullDomainName: string): Domain {
-        console.log("find domain object " + fullDomainName);
         let reversedStringArray = domainNameToReversedStringArray(fullDomainName);
         let foundDomain: Domain = null;
         program.domains.forEach((domain, index)=> {
             if(domain.name === reversedStringArray[0]) {
-                console.log("Entering recursivity")
                 foundDomain = recursiveFindDomainObject(domain, reversedStringArray, 1);
                 return;
             }

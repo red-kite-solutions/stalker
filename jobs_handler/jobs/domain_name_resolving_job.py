@@ -22,11 +22,7 @@ class DomainNameResolvingJob(JobInterface):
             raise Exception("""Missing domain name to resolve for 
                 domain name resolving job""")
         self._domain_name = str(job_info['_data'].get('domain_name'))
-        print(self._domain_name)
             
-
-
-        
 
     def run(self):
         """Start the job"""
@@ -35,4 +31,6 @@ class DomainNameResolvingJob(JobInterface):
 
     def report(self, job_reporter: JobReporter):
         """Report the content to the server"""
-        print(self._ips)
+        ips = str(self._ips).replace("'", '"')
+        output = f'{{ "domainName" : "{self._domain_name}", "ips" : {ips} }}'
+        job_reporter.report(f'/report/hosts/{self._id}', output)
