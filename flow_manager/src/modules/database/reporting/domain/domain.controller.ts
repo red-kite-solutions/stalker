@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpException, Param, Post, ValidationPipe } from '@nestjs/common';
-import { SubmitSubdomainDto } from './domain.dto';
+import { SubmitSubdomainDto, SubmitSubdomainManuallyDto } from './domain.dto';
 import { DomainsService } from './domain.service';
 
 
@@ -8,8 +8,15 @@ export class DomainsController {
     constructor(private readonly domainsService: DomainsService) {}
 
     @Post(':jobId')
-    async submitSubdomains(@Param('jobId') jobId: string, @Body(new ValidationPipe()) subdomains: SubmitSubdomainDto): Promise<void> {
+    async submitSubdomainsFromJob(@Param('jobId') jobId: string, @Body(new ValidationPipe()) subdomains: SubmitSubdomainDto): Promise<void> {
         await this.domainsService.addDomains(subdomains, jobId);
         return;
     }
+
+    @Post()
+    async submitSubdomains(@Body(new ValidationPipe()) dto: SubmitSubdomainManuallyDto): Promise<void> {
+        await this.domainsService.addDomainsManually(dto);
+        return;
+    }
+
 }
