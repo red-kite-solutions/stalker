@@ -11,17 +11,16 @@ export class SubdomainBruteforceJob extends ManufacturedJob {
 
     typedData: SubdomainBruteforceJobData;
 
-    constructor(protected dbJobService: JobsService) {
-        super(dbJobService);
+    constructor(dbJobService: JobsService, program: string) {
+        super(dbJobService, program);
         this.task = "subdomain bruteforce";
         this.priority = 3;
-        this.typedData.domain_name = "";
-        this.typedData.wordlist = "";
+        this.typedData = {domain_name : "", wordlist: ""} as SubdomainBruteforceJobData;
     };
 
-    public saveToDatabase() {
+    public async saveToDatabase() {
         this.data = this.typedData;
-        super.saveToDatabase();
+        await super.saveToDatabase();
     };
 
     public addToJobQueue() {

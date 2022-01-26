@@ -12,8 +12,12 @@ class DomainNameResolvingJob(JobInterface):
     _ips: List[str]
 
     def _get_ips_by_dns_lookup(self, target: str, port=None):
-        data = socket.gethostbyname_ex(target)
-        ipx = repr(data[2])
+        ipx: List[str]
+        try:
+            data = socket.gethostbyname_ex(target)
+            ipx = repr(data[2])
+        except Exception as e:
+            ipx = []
         return ipx
 
     def __init__(self, job_info: dict, config: dict):

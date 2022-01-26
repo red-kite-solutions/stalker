@@ -1,4 +1,4 @@
-# STALKER | recon_automation
+# STALKER | Recon Automation
 
 Contains three modules: 
 

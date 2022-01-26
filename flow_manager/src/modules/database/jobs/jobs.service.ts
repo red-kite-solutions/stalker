@@ -34,13 +34,13 @@ export class JobsService extends BaseService<Job, Job> {
         return job;
     }
 
-    public manufactureJob(jobType: string): ManufacturedJob {
+    public manufactureJob(jobType: string, program: string): ManufacturedJob {
         switch (jobType) {
             case JobTypes.DOMAIN_NAME_RESOLVING:
-                return new DomainNameResolvingJob(this);
+                return new DomainNameResolvingJob(this, program);
 
             case JobTypes.SUBDOMAIN_BRUTEFORCE:
-                return new SubdomainBruteforceJob(this);
+                return new SubdomainBruteforceJob(this, program);
         }
         return null;
     }

@@ -11,17 +11,16 @@ export class DomainNameResolvingJob extends ManufacturedJob {
 
     typedData: DomainNameResolvingJobData;
 
-    constructor(dbJobService: JobsService) {
-        super(dbJobService);
+    constructor(dbJobService: JobsService, program: string) {
+        super(dbJobService, program);
         this.task = "domain name resolving";
         this.priority = 3;
-        this.typedData.domain_name = "";
-        
+        this.typedData = { domain_name: "" } as DomainNameResolvingJobData;
     };
 
-    public saveToDatabase() {
+    public async saveToDatabase() {
         this.data = this.typedData;
-        super.saveToDatabase();
+        await super.saveToDatabase();
     };
 
     public addToJobQueue() {

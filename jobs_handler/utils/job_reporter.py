@@ -19,5 +19,5 @@ class JobReporter():
         }
         r = requests.post(f'http://{self._fm_address}:{self._fm_port}' + path, output, headers=headers)
         if r.status_code < 200 or r.status_code >= 300:
-            print("ERROR sending output: ")
+            print(f"ERROR sending output to {path} : ")
             print(output)

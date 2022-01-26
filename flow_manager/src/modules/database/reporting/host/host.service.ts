@@ -23,19 +23,18 @@ export class HostService extends BaseService<Host, Host> {
         let job = await this.jobService.findOne({ jobId: jobId });
 
         if(!job) {
+            console.log("Could not find the job " + jobId);
             throw new HttpException("The job id is invalid.", 400);
         }
         let programFilter = { name: job.program }; 
         let program = await this.programService.findOne(programFilter);
 
         if(!program) {
+            console.log("Could not find the program " + job.program);
             throw new HttpException("The program associated with the given job does not exist.", 400);
         }
 
-
         let domain: Domain = DomainTreeUtils.findDomainObject(program, dto.domainName);
-
-        console.log("in service: domain.name: " + domain.name);
 
         if (!domain.hosts) {
             domain.hosts = [];

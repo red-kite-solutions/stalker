@@ -6,13 +6,14 @@ import { JobsQueueUtils } from "src/utils/jobs_queue.utils";
 /** Represents a Job that is built using the factory method in JobsService. The manufactured jobs are not stored as is in the database */
 export abstract class ManufacturedJob extends Job {
     
-    saveToDatabase(): void {
+    async saveToDatabase(): Promise<void> {
         let job = new Job();
         job.data = this.data;
         job.jobId = this.jobId;
         job.task = this.task;
         job.priority = this.priority;
-        this.dbJobService.create(job);
+        job.program = this.program;
+        await this.dbJobService.create(job);
     };
     
     addToJobQueue(): void {
@@ -20,14 +21,15 @@ export abstract class ManufacturedJob extends Job {
     };
 
     /** This function call saves the job to the database as well as sending the job to the job queue */
-    public publish(): void {
-        this.saveToDatabase();
+    public async publish(): Promise<void> {
+        await this.saveToDatabase();
         this.addToJobQueue();
     };
 
-    protected constructor(protected dbJobService: JobsService) {
+    protected constructor(protected dbJobService: JobsService, program: string) {
         super();
         this.dbJobService = dbJobService;
         this.jobId = v4();
+        this.program = program;
     }
 }

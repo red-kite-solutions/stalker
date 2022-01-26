@@ -34,7 +34,7 @@ export class DomainsService extends BaseService<Domain, Domain> {
 
         // For each new domain name found, create a domain name resolution job for the domain
         newDomains.forEach(domain => {
-            let manuJob: DomainNameResolvingJob = this.jobService.manufactureJob(JobTypes.DOMAIN_NAME_RESOLVING) as DomainNameResolvingJob;
+            let manuJob: DomainNameResolvingJob = this.jobService.manufactureJob(JobTypes.DOMAIN_NAME_RESOLVING, programName) as DomainNameResolvingJob;
             manuJob.typedData.domain_name = domain;
             manuJob.publish();
         });
