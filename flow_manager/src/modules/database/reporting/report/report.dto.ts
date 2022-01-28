@@ -10,3 +10,9 @@ export class ReportEntryDto {
     // @IsString()
     // public channel: string
 }
+
+export class SendReportDto {
+    @IsNotEmpty()
+    @IsString()
+    public reportDate: string;
+}

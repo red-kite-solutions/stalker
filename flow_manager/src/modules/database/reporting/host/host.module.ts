@@ -5,6 +5,7 @@ import { HostSchema } from './host.model';
 import { HostService } from './host.service';
 import { JobsModule } from '../../jobs/jobs.module';
 import { ProgramModule } from '../program.module';
+import { ReportModule } from '../report/report.module';
 
 
 @Module({
@@ -13,7 +14,8 @@ import { ProgramModule } from '../program.module';
         schema: HostSchema
         }]),
         JobsModule,
-        ProgramModule
+        ProgramModule,
+        ReportModule
     ],
     controllers: [HostController],
     providers: [HostService],

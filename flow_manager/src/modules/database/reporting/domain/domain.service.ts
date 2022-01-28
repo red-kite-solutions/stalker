@@ -9,13 +9,15 @@ import { ProgramService } from "../program.service";
 import { DomainTreeUtils } from '../../../../utils/domain_tree.utils';
 import { DomainsModule } from "./domain.module";
 import { DomainNameResolvingJob } from "../../jobs/jobs_factory/domain_name_resolving.job";
+import { ReportService } from "../report/report.service";
 
 
 @Injectable()
 export class DomainsService extends BaseService<Domain, Domain> {
     constructor(@InjectModel("domain") private readonly domainModel: Model<Domain>,
             private jobService: JobsService,
-            private programService: ProgramService) {
+            private programService: ProgramService,
+            private reportService: ReportService) {
         super(domainModel);
     }
 
@@ -31,6 +33,8 @@ export class DomainsService extends BaseService<Domain, Domain> {
         subdomains.forEach((domainName, i) => {
             newDomains.push.apply(newDomains, DomainTreeUtils.growDomainTree(program, domainName));
         });
+
+        this.reportService.addNewDomains(programName, subdomains);
 
         // For each new domain name found, create a domain name resolution job for the domain
         newDomains.forEach(domain => {

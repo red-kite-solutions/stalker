@@ -123,18 +123,19 @@ export namespace DomainTreeUtils {
         if (foundDomain) {
             return foundDomain;
         }
-        throw new HttpException("The given subdomain is not part of the given program. Maybe it needs to be added.", 500)
+        return null;
     }
 
     /**
     Used to find a domain object that we want to work with when given a program and a full domain name.
     @param program Represents a bug bounty program, contains an array of domains
     @param fullDomainName A full domain name to locate in the program. Respects the format sub2.sub1.example.com
+    @returns The Domain Object corresponding to fullDomainName in program's Domain tree. If not found, returns null.
     */
     export function findDomainObject(program: Program, fullDomainName: string): Domain {
         let reversedStringArray = domainNameToReversedStringArray(fullDomainName);
         let foundDomain: Domain = null;
-        program.domains.forEach((domain, index)=> {
+        program.domains?.forEach((domain, index)=> {
             if(domain.name === reversedStringArray[0]) {
                 foundDomain = recursiveFindDomainObject(domain, reversedStringArray, 1);
                 return;
@@ -143,6 +144,6 @@ export namespace DomainTreeUtils {
         if (foundDomain) {
             return foundDomain;
         }
-        throw new HttpException("The given subdomain is not part of the given program. Maybe it needs to be added.", 500)
+        return null;
     }
 }

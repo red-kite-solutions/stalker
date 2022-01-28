@@ -4,6 +4,7 @@ import { MongooseModule } from "@nestjs/mongoose";
 import { ProgramModule } from './reporting/program.module';
 import { DomainsModule } from './reporting/domain/domain.module';
 import { HostModule } from './reporting/host/host.module';
+import { ReportModule } from './reporting/report/report.module';
 
 @Module({
     imports: [
@@ -14,7 +15,8 @@ import { HostModule } from './reporting/host/host.module';
         JobsModule,
         ProgramModule,
         DomainsModule,
-        HostModule
+        HostModule,
+        ReportModule
     ],
     exports: [JobsModule]
 })

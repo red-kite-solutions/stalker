@@ -9,6 +9,10 @@ import { Cron, CronExpression, Timeout } from "@nestjs/schedule";
 import { KeybaseService } from "src/modules/alerts/keybase/keybase.service";
 import { Domain } from "../domain/domain.model";
 import { threadId } from "worker_threads";
+import { Program } from "../program.model";
+import { DomainTreeUtils } from "src/utils/domain_tree.utils";
+import { Host, HostSchema } from "../host/host.model";
+import { deleteModel } from "@typegoose/typegoose";
 
 
 
@@ -21,11 +25,11 @@ export class ReportService extends BaseService<Report, Report> {
     private programSummaryArray: string[];
     private subdomainSummaryArray: string[];
     private subdomainTableHeader: string = `
-        |IP Address|Ports|Identified Services|
-        |----------|-----|-------------------|`;
+|IP Address|Ports|Identified Services|
+|----------|-----|-------------------|\n`;
     private programTableHeader: string = `
-        |Domain Name|IP Address|Identified Services|
-        |-----------|----------|-------------------|`;
+|Domain Name|IP Address|Identified Services|
+|-----------|----------|-------------------|\n`;
 
 
     constructor(@InjectModel("report") private readonly reportModel: Model<Report>,
@@ -76,7 +80,128 @@ export class ReportService extends BaseService<Report, Report> {
     }
 
     public async addSpecialNote(dto: ReportEntryDto) {
-        // Add note to report file
+        let report = await this.getCurrentReport();
+        if (!report.notes) {
+            report.notes = [];
+        }
+        report.notes.push(dto.noteContent);
+        this.updateReport(report);
+    }
+
+    /** Adds new domains and subdomains to the daily report
+     * @param programName The name of the program to which the domains and subdomains belong
+     * @param domains A string array of the new domains and subdomains, like ["example.com", "sub1.example.com", "sub2.example.com", "sub3.sub1.example.com"]
+     */
+    public async addNewDomains(programName: string, domains: string[]): Promise<void> {
+        let report: Report = await this.getCurrentReport();
+        if (report.programs) {
+            let program: Program; 
+            report.programs.forEach(p => {
+                if (p.name === programName) {
+                    program = p;
+                }
+            });
+
+            if (!program) {
+                program = new Program();
+                program.name = programName;
+                report.programs.push(program);
+            }
+            domains.forEach(d => {
+                DomainTreeUtils.growDomainTree(program, d);
+            });
+        } else {
+            report.programs = [];
+            let program = new Program();
+            program.name = programName;
+            report.programs.push(program);
+            domains.forEach(d => {
+                DomainTreeUtils.growDomainTree(program, d);
+            });
+        }
+        this.updateReport(report);
+    }
+
+    private createHostsInDomainWithIps(domain: Domain, ips: string[]) {
+        domain.hosts = [];
+        ips.forEach(ip => {
+            let host = new Host();
+            host.ip = ip;
+            domain.hosts.push(host);
+        });
+    }
+
+    private createDomainTreeWithIps(program: Program, domainName: string, ips: string[]): void {
+        DomainTreeUtils.growDomainTree(program, domainName);
+        let domain: Domain = DomainTreeUtils.findDomainObject(program, domainName);
+        this.createHostsInDomainWithIps(domain, ips);
+    }
+    
+
+    private createProgramWithIps(programName: string, domainName: string, ips: string[]): Program {
+        let program: Program = new Program();
+        program.name = programName;
+        this.createDomainTreeWithIps(program, domainName, ips);
+        return program;
+    }
+
+    public async addNewHosts(programName: string, domainName: string, ips: string[]): Promise<void> {
+        let report = await this.getCurrentReport();
+        let program: Program; 
+        let domain: Domain;
+
+        // The program array already exists
+        if (report.programs) {
+            
+            report.programs.forEach(p => {
+                // Our program already exists
+                if (p.name === programName) {
+                    program = p;
+                    domain = DomainTreeUtils.findDomainObject(program, domainName);
+                    // The domain already exists
+                    if (domain) {
+                        // Host array exists
+                        if(domain.hosts) {
+                            let hostFound = false;
+                            ips.forEach(ip => {
+                                // Our ip is not contained in the hosts already there
+                                if (!domain.hosts.some(host => host.ip === ip )) {
+                                    let host = new Host();
+                                    host.ip = ip;
+                                    domain.hosts.push(host);
+                                }
+                            });
+                        } else {
+                            this.createHostsInDomainWithIps(domain, ips);
+                        }
+                        
+                    } else { // The program was found, but it contained no domain tree or our domain did not exist
+                        this.createDomainTreeWithIps(program, domainName, ips);
+                    }
+                }
+            });
+            // If our program was not found, then we create everything
+            if (!program) {
+                report.programs.push(this.createProgramWithIps(programName, domainName, ips));
+            }
+        } else { // The programs array did not exist in the report, so we create everything
+            report.programs = [];
+            report.programs.push(this.createProgramWithIps(programName, domainName, ips));
+        }
+        this.updateReport(report);
+    }
+
+    public async getCurrentReport(): Promise<Report> {
+        let date = this.getCurrentReportPrefix();
+        let currentReport: Report = await this.findOne({ date: date });
+        if(!currentReport) {
+            currentReport = await this.create({ date: date });
+        }
+        return currentReport;
+    }
+
+    public async updateReport(report: Report): Promise<void> {
+        await this.update({ date: report.date }, report);
     }
 
     // Validates that there is an entry for the current report in the database 5 seconds after application startup
@@ -98,21 +223,24 @@ export class ReportService extends BaseService<Report, Report> {
     }
 
     /** Creates the report file saved on the disk to be sent by alerting services like the KeybaseService */
-    private createReportFile(report: Report): string {
-        let reportName = "/tmp/" + this.getLastReportName();
-        let date = this.getLastReportPrefix();
+    private createReportFile(report: Report, date: string = ""): string {
+        let reportName: string;
+        if(date) {
+            reportName = "/tmp/" + date + this.REPORT_SUFFIX;
+        } else {
+            reportName = "/tmp/" + this.getLastReportName();
+            date = this.getLastReportPrefix();
+        }
 
         // TODO: Create the report file with nice markdown content
 
         this.content = `# Stalker - Recon Automation | Daily Report
 
-        This report contains anything new that was found on the following date: 
+This report contains anything new that was found on the following date: 
 
-        ${date}
+**${date}**
 
-        Information in this report was unknown to Stalker before that date.
-
-        `;
+Information in this report was unknown to Stalker before that date.\n\n`;
 
         if (report.notes) {
             this.content += "## Special Notes\n\n";
@@ -126,8 +254,9 @@ export class ReportService extends BaseService<Report, Report> {
 
         if (report.programs) {
             report.programs.forEach(program => {
-                this.programMarkdown = `## ${program.name}\n\n`;
+                this.programMarkdown = `## ${program.name}\n`;
                 this.programMarkdown += this.programTableHeader;
+                this.programSubdomainsMarkdown = "";
 
                 if (program.domains) {
                     program.domains.forEach(domain => {
@@ -135,12 +264,13 @@ export class ReportService extends BaseService<Report, Report> {
                     });
                 }
 
-                this.content += this.programMarkdown;
+                this.content += this.programMarkdown + "\n";
                 this.content += this.programSubdomainsMarkdown;
             });
         }
 
-
+        writeFileSync(reportName, this.content);
+        
         return reportName;
     }
 
@@ -154,15 +284,14 @@ export class ReportService extends BaseService<Report, Report> {
         // Create subdomain summary mardown string
         // |IP|Ports|Services|
         this.programMarkdown += currentParents ? `|${domain.name}.${currentParents}|` : `|${domain.name}|`;
-        this.programSubdomainsMarkdown += currentParents ? `### ${domain.name}.${currentParents}\n\n` : `### ${domain.name}\n\n`;
+        this.programSubdomainsMarkdown += currentParents ? `### ${domain.name}.${currentParents}\n` : `### ${domain.name}\n`;
         this.programSubdomainsMarkdown += this.subdomainTableHeader;
         
         if (domain.hosts) {
             let ipString = "";
-            this.programSubdomainsMarkdown += "|";
             domain.hosts.forEach(host => {
                 ipString += `${host.ip}, `;
-                this.programSubdomainsMarkdown += host.ip + "|";
+                this.programSubdomainsMarkdown += `|${host.ip}|`;
                 if (host.ports) {
                     let portString= "";
                     host.ports.forEach(port => {
@@ -175,6 +304,7 @@ export class ReportService extends BaseService<Report, Report> {
                 this.programSubdomainsMarkdown += "||\n";
                 // TODO: List the services in the markdown to be in the report, maybe do it only if there are ports? will likely depend on chosen structure
             });
+            this.programSubdomainsMarkdown += "\n";
             if (ipString.length >= 2) {
                 ipString = ipString.substring(0, ipString.length - 2);
             }
@@ -201,10 +331,14 @@ export class ReportService extends BaseService<Report, Report> {
     })
     public async sendDailyReport() {
         let date = this.getLastReportPrefix();
+        this.sendReport(date);
+    }
+
+    public async sendReport(date: string): Promise<void> {
         let lastReport: Report = await this.findOne({ date: date });
         if (lastReport) {
             if (lastReport.programs || lastReport.notes) {
-                let reportName = this.createReportFile(lastReport);
+                let reportName = this.createReportFile(lastReport, date);
                 this.keybaseService.sendReportFile(reportName);
             } else {
                 // Send a message saying that there was a report, but nothing new
