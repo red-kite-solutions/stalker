@@ -27,6 +27,9 @@ flow_manager :
 
 ```
 API_KEY : Used to connect to the jobs_queue_handler, must be provided as a HTTP header named API_KEY
+kb_username
+kb_paperkey
+kb_channelid
 ```
 
 
