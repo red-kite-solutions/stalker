@@ -146,4 +146,19 @@ export namespace DomainTreeUtils {
         }
         return null;
     }
+
+    /**
+     * Go through the domain tree and execute the callback on every leaf of the tree. This function executes on the parent nodes 
+     * before executing on the children
+     * @param domain The domain tree to act on
+     * @param callback The function to execute. It accepts a domain object and the parent's string as a parameter
+     */
+    export function doForEveryLeaf(domain: Domain, callback: Function, parents: string = ""): void {
+        callback(domain, parents);
+        if (parents) {
+            domain.subdomains.forEach(d => doForEveryLeaf(d, callback, `${domain.name}.${parents}`));
+        } else {
+            domain.subdomains.forEach(d => doForEveryLeaf(d, callback, domain.name));
+        }
+    }
 }

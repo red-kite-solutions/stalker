@@ -32,6 +32,10 @@ export class BaseService<T extends Document, Dto> {
         }
     }
 
+    async findAllFilter(filter: any): Promise<T[]> {
+        return this.model.find({}, filter).exec();
+    }
+
     async find(conditions: any, populate?: ModelPopulateOptions | string): Promise<T[]> {
         if (!populate) {
             return this.model.find(conditions).exec();
@@ -56,6 +60,10 @@ export class BaseService<T extends Document, Dto> {
         }
     }
 
+    async findOneFilter(condition: any, filter: any): Promise<T> {
+        return this.model.findOne(condition, filter).exec();
+    }
+
     async findById(id: Object | string | number, populate?: ModelPopulateOptions | string): Promise<T> {
         if (!populate) {
             return this.model.findById(id).exec();
@@ -68,11 +76,19 @@ export class BaseService<T extends Document, Dto> {
         return this.model.updateOne(condition, <T>data).exec();
     }
 
+    async updateOneFilter(condition: any, dataFilter: any): Promise<void> {
+        return this.model.updateOne()
+    }
+
     async updateMany(condition: any, data: Partial<T>): Promise<any> {
         return this.model.updateMany(condition, <T>data).exec();
     }
 
     async remove(condition: any): Promise<void> {
-        await this.model.remove(condition).exec();
+        await this.model.deleteOne(condition).exec();
+    }
+
+    async aggregate(condition: any): Promise<T> {
+        return this.model.aggregate(condition).exec();
     }
 }

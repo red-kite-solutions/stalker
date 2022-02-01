@@ -66,5 +66,6 @@ export class HostService extends BaseService<Host, Host> {
         this.reportService.addNewHosts(program.name, dto.domainName, dto.ips);
 
         await this.programService.update(programFilter, program);
+        await this.jobService.remove({ jobId: jobId });
     }
 }

@@ -344,6 +344,7 @@ Information in this report was unknown to Stalker before that date.\n\n`;
                 // Send a message saying that there was a report, but nothing new
                 this.keybaseService.sendSimpleAlertMessage("Good news, everyone! There is nothing to report. Have a nice day.");
             }
+            await this.remove({ date: date });
         } else {
             // Send a message saying that there was no report and I don't know why
             this.keybaseService.sendSimpleAlertMessage("No report for yesterday was found! Take a day off, apparently I did.");

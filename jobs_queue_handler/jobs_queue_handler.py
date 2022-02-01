@@ -54,9 +54,13 @@ def get_job_from_queue():
                     mimetype="application/json")
 
 
-@app.route('/jobs')
+@app.route('/jobs', methods=['GET'])
 def get_jobs():
     ret = json.dumps(jobs_queue.queue, default=lambda o: o.__dict__, indent=4)
     return Response(response=ret,
                     status=200,
                     mimetype="application/json")
+
+@app.route('/jobs', methods=['DELETE'])
+def purge_job_queue():
+    jobs_queue = PriorityQueue()

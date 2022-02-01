@@ -19,6 +19,6 @@ import { ReportModule } from '../report/report.module';
     ],
     controllers: [DomainsController],
     providers: [DomainsService],
-    exports: []
+    exports: [DomainsService]
 })
 export class DomainsModule {}
