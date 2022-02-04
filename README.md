@@ -26,7 +26,8 @@ Does not use environement variables, has a config file instead.
 flow_manager : 
 
 ```
-API_KEY : Used to connect to the jobs_queue_handler, must be provided as a HTTP header named API_KEY
+JQH_API_KEY : Used to connect to the jobs_queue_handler, must be provided as a HTTP header named API_KEY
+API_KEY : Used to access the Stalker API
 kb_username
 kb_paperkey
 kb_channelid

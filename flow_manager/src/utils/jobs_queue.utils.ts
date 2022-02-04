@@ -13,7 +13,7 @@ export class JobsQueueUtils {
             body: JSON.stringify(body), 
             headers: {
                 'Content-Type': 'application/json', 
-                'API_KEY': process.env.API_KEY
+                'API_KEY': process.env.JQH_API_KEY
             }
         });
 
