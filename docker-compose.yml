@@ -1,9 +1,5 @@
 version: "3.3"
 
-secrets:
-  jqh_api_key:
-    external: true
-
 services:
   jqh:
     build: ./jobs_queue_handler/
