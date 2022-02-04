@@ -18,7 +18,7 @@ file_env() {
       val="$(< "${!fileVar}")"
    fi
    export "$var"="$val"
-   # rm $fileVar
+   rm $"${!fileVar}"
    unset "$fileVar"
 }
 
