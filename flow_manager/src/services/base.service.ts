@@ -84,6 +84,10 @@ export class BaseService<T extends Document, Dto> {
         return this.model.updateMany(condition, <T>data).exec();
     }
 
+    async upsertOne(condition: any, data: Partial<T>) {
+        return this.model.updateOne(condition, data, { "upsert": true});
+    }
+
     async remove(condition: any): Promise<void> {
         await this.model.deleteOne(condition).exec();
     }

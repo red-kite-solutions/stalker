@@ -5,6 +5,7 @@ import { ProgramModule } from './reporting/program.module';
 import { DomainsModule } from './reporting/domain/domain.module';
 import { HostModule } from './reporting/host/host.module';
 import { ReportModule } from './reporting/report/report.module';
+import { ConfigModule } from './admin/config/config.module';
 
 @Module({
     imports: [
@@ -16,7 +17,8 @@ import { ReportModule } from './reporting/report/report.module';
         ProgramModule,
         DomainsModule,
         HostModule,
-        ReportModule
+        ReportModule,
+        ConfigModule
     ],
     exports: [JobsModule]
 })

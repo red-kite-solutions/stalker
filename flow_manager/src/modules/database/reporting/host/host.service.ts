@@ -9,6 +9,7 @@ import { ProgramService } from "../program.service";
 import { DomainTreeUtils } from '../../../../utils/domain_tree.utils';
 import { Domain } from "../domain/domain.model";
 import { ReportService } from "../report/report.service";
+import { ConfigService } from "../../admin/config/config.service";
 
 
 @Injectable()
@@ -16,7 +17,8 @@ export class HostService extends BaseService<Host, Host> {
     constructor(@InjectModel("host") private readonly hostModel: Model<Host>,
             private jobService: JobsService,
             private programService: ProgramService,
-            private reportService: ReportService) {
+            private reportService: ReportService,
+            private configService: ConfigService) {
         super(hostModel);
     }
 
@@ -63,7 +65,9 @@ export class HostService extends BaseService<Host, Host> {
             });
         }
 
-        this.reportService.addNewHosts(program.name, dto.domainName, dto.ips);
+        if (this.configService.config.IsNewContentReported) {
+            this.reportService.addNewHosts(program.name, dto.domainName, dto.ips);
+        }
 
         await this.programService.update(programFilter, program);
         await this.jobService.remove({ jobId: jobId });

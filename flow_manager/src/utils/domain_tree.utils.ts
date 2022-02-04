@@ -16,7 +16,7 @@ export namespace DomainTreeUtils {
     @param domainName A string with the format sub2.sub1.example.com
     @returns A string array like ["example.com", "sub1", "sub2"]
     */
-    function domainNameToReversedStringArray(domainName: string) {
+    export function domainNameToReversedStringArray(domainName: string) {
         // "sub2.sub1.example.com"
         let splitDomains = domainName.split('.');
         // ["sub2", "sub1", "example", "com"]

@@ -6,6 +6,7 @@ import { DomainsService } from './domain.service';
 import { JobsModule } from '../../jobs/jobs.module';
 import { ProgramModule } from '../program.module';
 import { ReportModule } from '../report/report.module';
+import { ConfigModule } from '../../admin/config/config.module';
 
 
 @Module({
@@ -15,7 +16,8 @@ import { ReportModule } from '../report/report.module';
         }]),
         JobsModule,
         ProgramModule,
-        ReportModule
+        ReportModule,
+        ConfigModule
     ],
     controllers: [DomainsController],
     providers: [DomainsService],
