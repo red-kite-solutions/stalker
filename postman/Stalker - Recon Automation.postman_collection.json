@@ -1,0 +1,765 @@
+{
+	"info": {
+		"_postman_id": "316f5dca-9f1b-48fb-883f-dcb2db676ae1",
+		"name": "Stalker | Recon Automation",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Flow Manager",
+			"item": [
+				{
+					"name": "Jobs",
+					"item": [
+						{
+							"name": "Create Job (Amass subdomain bf)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var jsonData = pm.response.json();",
+											"pm.globals.set(\"jobId\", jsonData.jobId)"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "API_KEY",
+										"value": "{{JQH_API_KEY}}",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{ \n    \"task\":\"subdomain bruteforce\", \n    \"program\":\"{{program}}\", \n    \"priority\":1, \n    \"data\": {\n        \"domain_name\":\"example.com\",\n        \"wordlist\":\"wordlist.txt\"\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{FlowManagerAPI}}/jobs/create",
+									"host": [
+										"{{FlowManagerAPI}}"
+									],
+									"path": [
+										"jobs",
+										"create"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Job (Domain Name Resolving)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var jsonData = pm.response.json();",
+											"pm.globals.set(\"jobId\", jsonData.jobId)"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "API_KEY",
+										"value": "{{JQH_API_KEY}}",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{ \n    \"task\":\"domain name resolving\", \n    \"program\":\"{{program}}\", \n    \"priority\":1, \n    \"data\": {\n        \"domain_name\":\"amazon.com\"\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{FlowManagerAPI}}/jobs/create",
+									"host": [
+										"{{FlowManagerAPI}}"
+									],
+									"path": [
+										"jobs",
+										"create"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get All Jobs",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "API_KEY",
+										"value": "{{JQH_API_KEY}}",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{FlowManagerAPI}}/jobs",
+									"host": [
+										"{{FlowManagerAPI}}"
+									],
+									"path": [
+										"jobs"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Programs",
+					"item": [
+						{
+							"name": "Create Program",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "API_KEY",
+										"value": "{{JQH_API_KEY}}",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"name\":\"{{program}}\"}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{FlowManagerAPI}}/report/program",
+									"host": [
+										"{{FlowManagerAPI}}"
+									],
+									"path": [
+										"report",
+										"program"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Domains",
+					"item": [
+						{
+							"name": "Submit Domain Name Resolution",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "API_KEY",
+										"value": "{{JQH_API_KEY}}",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"domainName\":\"amazon.com\",\n    \"ips\":[\n        \"127.0.0.1\",\n        \"127.0.0.2\",\n        \"127.0.0.3\"\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{FlowManagerAPI}}/report/hosts/{{jobId}}",
+									"host": [
+										"{{FlowManagerAPI}}"
+									],
+									"path": [
+										"report",
+										"hosts",
+										"{{jobId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Submit Subdomains",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "API_KEY",
+										"value": "{{JQH_API_KEY}}",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"subdomains\":[\n        \"sub1.example.com\",\n        \"sub2.example.com\",\n        \"sub4.example.com\",\n        \"sub7.sub4.example.com\",\n        \"sub8.sub4.example.com\",\n        \"sub5.example.com\",\n        \"sub3.example.com\",\n        \"sub6.sub3.example.com\"\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{FlowManagerAPI}}/report/domains/{{jobId}}",
+									"host": [
+										"{{FlowManagerAPI}}"
+									],
+									"path": [
+										"report",
+										"domains",
+										"{{jobId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Submit Subdomains Manually",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "API_KEY",
+										"value": "{{JQH_API_KEY}}",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"program\": \"{{program}}\",\n    \"subdomains\":[\n        \"amazon.com\",\n        \"example.com\"\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{FlowManagerAPI}}/report/domains",
+									"host": [
+										"{{FlowManagerAPI}}"
+									],
+									"path": [
+										"report",
+										"domains"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Domain At Index",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "API_KEY",
+										"value": "{{JQH_API_KEY}}",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{FlowManagerAPI}}/report/domains/index/{{program}}/0",
+									"host": [
+										"{{FlowManagerAPI}}"
+									],
+									"path": [
+										"report",
+										"domains",
+										"index",
+										"{{program}}",
+										"0"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Alert",
+					"item": [
+						{
+							"name": "Send Simple Alert (Keybase)",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "API_KEY",
+										"value": "{{JQH_API_KEY}}",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"messageContent\": \"u up?\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{FlowManagerAPI}}/alert/keybase",
+									"host": [
+										"{{FlowManagerAPI}}"
+									],
+									"path": [
+										"alert",
+										"keybase"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Report",
+					"item": [
+						{
+							"name": "Get Current Daily Report",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "API_KEY",
+										"value": "{{JQH_API_KEY}}",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{FlowManagerAPI}}/report/daily",
+									"host": [
+										"{{FlowManagerAPI}}"
+									],
+									"path": [
+										"report",
+										"daily"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add Note to Daily Report",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "API_KEY",
+										"value": "{{JQH_API_KEY}}",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"noteContent\": \"This report should include new IPs\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{FlowManagerAPI}}/report/daily/note",
+									"host": [
+										"{{FlowManagerAPI}}"
+									],
+									"path": [
+										"report",
+										"daily",
+										"note"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Send Daily Report",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "API_KEY",
+										"value": "{{JQH_API_KEY}}",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"reportDate\": \"2022-01-31\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{FlowManagerAPI}}/report/daily/send",
+									"host": [
+										"{{FlowManagerAPI}}"
+									],
+									"path": [
+										"report",
+										"daily",
+										"send"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Automation",
+					"item": [
+						{
+							"name": "Update IPs (All programs)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "API_KEY",
+										"value": "{{JQH_API_KEY}}",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{FlowManagerAPI}}/automation/update/ips",
+									"host": [
+										"{{FlowManagerAPI}}"
+									],
+									"path": [
+										"automation",
+										"update",
+										"ips"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Admin",
+					"item": [
+						{
+							"name": "Config",
+							"item": [
+								{
+									"name": "Set application config",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "API_KEY",
+												"value": "{{JQH_API_KEY}}",
+												"type": "default"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"IsNewContentReported\":true\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{FlowManagerAPI}}/admin/config/",
+											"host": [
+												"{{FlowManagerAPI}}"
+											],
+											"path": [
+												"admin",
+												"config",
+												""
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Hello, World",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{FlowManagerAPI}}/",
+							"host": [
+								"{{FlowManagerAPI}}"
+							],
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Ping (Authenticated)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "API_KEY",
+								"value": "{{JQH_API_KEY}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{FlowManagerAPI}}/ping",
+							"host": [
+								"{{FlowManagerAPI}}"
+							],
+							"path": [
+								"ping"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Job Queue Handler",
+			"item": [
+				{
+					"name": "Create Job",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "API_KEY",
+								"value": "{{JQH_API_KEY}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \n    \"task\":\"my task name here\",\n    \"id\":\"uuid of the job in the flow manager\",\n    \"priority\":3,\n    \"data\": {\"asdf\":\"asdf\"}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{JQH_API}}/job",
+							"host": [
+								"{{JQH_API}}"
+							],
+							"path": [
+								"job"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Pop Job From Queue",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "API_KEY",
+								"value": "{{JQH_API_KEY}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{JQH_API}}/job",
+							"host": [
+								"{{JQH_API}}"
+							],
+							"path": [
+								"job"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show Job List",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "API_KEY",
+								"value": "{{JQH_API_KEY}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{JQH_API}}/jobs",
+							"host": [
+								"{{JQH_API}}"
+							],
+							"path": [
+								"jobs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Purge Job Queue",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "API_KEY",
+								"value": "{{JQH_API_KEY}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{JQH_API}}/jobs",
+							"host": [
+								"{{JQH_API}}"
+							],
+							"path": [
+								"jobs"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
