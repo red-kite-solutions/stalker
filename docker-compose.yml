@@ -1,0 +1,16 @@
+version: "3.3"
+
+secrets:
+  jqh_api_key:
+    external: true
+
+services:
+  jqh:
+    build: ./jobs_queue_handler/
+    ports:
+      - "5000:5000"
+    image: jobs_queue_handler
+    environment:
+      - API_KEY_FILE=/secrets/jqh_api_key.secret
+      - FLASK_APP=jobs_queue_handler
+  

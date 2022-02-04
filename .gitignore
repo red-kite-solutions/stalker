@@ -132,3 +132,5 @@ dmypy.json
 *.api_key
 # config files
 *.config
+# secrets files
+*.secret

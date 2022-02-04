@@ -14,6 +14,7 @@ Jobs Handler: A python script that fetches jobs from the Jobs Queue Handler and 
 jobs_queue_handler :
 
 ```
+FLASK_APP=jobs_queue_handler   : Used by Flask to know what file to start
 API_KEY : Validates that the HTTP request is authorized to add a job to the queue
 ```
 
