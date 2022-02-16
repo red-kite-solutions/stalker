@@ -7,7 +7,7 @@ RUN apk add keybase-client --repository=http://dl-cdn.alpinelinux.org/alpine/edg
 
 RUN mkdir /fm; mkdir /secrets; mkdir /fm/src
 
-ADD flow_manager/src /fm/src/
+# ADD flow_manager/src /fm/src/
 ADD flow_manager/nest-cli.json /fm/
 ADD flow_manager/package-lock.json /fm/
 ADD flow_manager/package.json /fm/

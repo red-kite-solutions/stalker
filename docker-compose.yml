@@ -11,8 +11,7 @@ services:
     environment:
       - API_KEY_FILE=/secrets/jqh_api_key.secret
       - FLASK_APP=jobs_queue_handler
-    # links: 
-    #   - "flow_manager:fm"
+
   flow_manager:
     build: 
       context: .
@@ -31,6 +30,9 @@ services:
     links:
       - "jqh:jobsqueuehandler"
       - "mongo:db"
+    volumes: 
+      - ./flow_manager/src/:/fm/src/
+
   mongo: 
     build: ./database/
     ports: 
