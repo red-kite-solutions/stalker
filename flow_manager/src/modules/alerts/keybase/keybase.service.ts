@@ -12,9 +12,15 @@ import Bot from "keybase-bot";
 export class KeybaseService {
     bot: Bot; 
 
-    constructor() {  
+    constructor() {
+        console.log("before new bot");
         this.bot = new Bot();
-        this.bot.init(process.env.KB_USERNAME, process.env.KB_PAPERKEY);
+        console.log("after new bot, before init");
+        console.log(process.env.KB_USERNAME);
+        console.log(process.env.KB_PAPERKEY);
+        this.bot.init(process.env.KB_USERNAME, process.env.KB_PAPERKEY).then(()=> {
+            console.log("after init");
+        });
     }
 
     public async sendSimpleAlertMessage(messageContent: string) {

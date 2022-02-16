@@ -29,9 +29,11 @@ flow_manager :
 ```
 JQH_API_KEY : Used to connect to the jobs_queue_handler, must be provided as a HTTP header named API_KEY
 API_KEY : Used to access the Stalker API
-kb_username
-kb_paperkey
-kb_channelid
+KB_USERNAME
+KB_PAPERKEY
+KB_CHANNELID
+MONGO_ADDRESS : The database address (mongodb://mongo:27017/stalker)
+JQH_ADDRESS : The job queue handler's address (http://jqh:5000)
 ```
 
 

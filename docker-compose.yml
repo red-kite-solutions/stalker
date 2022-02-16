@@ -9,4 +9,30 @@ services:
     environment:
       - API_KEY_FILE=/secrets/jqh_api_key.secret
       - FLASK_APP=jobs_queue_handler
+    # links: 
+    #   - "flow_manager:fm"
+  flow_manager:
+    build: ./flow_manager/
+    ports:
+      - "3000:3000"
+    image: flow_manager
+    environment: 
+      - JQH_API_KEY_FILE=/secrets/jqh_api_key.secret
+      - JQH_ADDRESS=http://jqh:5000
+      - API_KEY_FILE=/secrets/fm_api_key.secret
+      - KB_USERNAME_FILE=/secrets/kb_username.secret
+      - KB_CHANNELID_FILE=/secrets/kb_channelid.secret
+      - KB_PAPERKEY_FILE=/secrets/kb_paperkey.secret
+      - MONGO_ADDRESS=mongodb://mongo:27017/stalker
+    links:
+      - "jqh:jobsqueuehandler"
+      - "mongo:db"
+  mongo: 
+    build: ./database/
+    ports: 
+      - "27017:27017"
+    logging:
+      driver: none
+    # links: 
+    #   - "flow_manager:fm"
   

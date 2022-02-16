@@ -8,7 +8,7 @@ export class JobsQueueUtils {
         
         // send job to the queue server
         let body = { id: id, task: task, priority: priority, data: data};
-        let response = await fetch('http://localhost:5000/job', {
+        let response = await fetch(`${process.env.JQH_ADDRESS}/job`, {
             method: 'POST', 
             body: JSON.stringify(body), 
             headers: {
