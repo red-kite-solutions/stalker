@@ -7,21 +7,21 @@ RUN apk add keybase-client --repository=http://dl-cdn.alpinelinux.org/alpine/edg
 
 RUN mkdir /fm; mkdir /secrets; mkdir /fm/src
 
-ADD ./src /fm/src/
-ADD nest-cli.json /fm/
-ADD package-lock.json /fm/
-ADD package.json /fm/
-ADD tsconfig.build.json /fm/
-ADD tsconfig.json /fm/
+ADD flow_manager/src /fm/src/
+ADD flow_manager/nest-cli.json /fm/
+ADD flow_manager/package-lock.json /fm/
+ADD flow_manager/package.json /fm/
+ADD flow_manager/tsconfig.build.json /fm/
+ADD flow_manager/tsconfig.json /fm/
 
 # Add secrets that will be in environment variables
-ADD jqh_api_key.secret /secrets/
-ADD fm_api_key.secret /secrets/
-ADD kb_username.secret /secrets/
-ADD kb_channelid.secret /secrets/
-ADD kb_paperkey.secret /secrets/
+ADD ./secrets/jqh_api_key.secret /secrets/
+ADD ./secrets/fm_api_key.secret /secrets/
+ADD ./secrets/kb_username.secret /secrets/
+ADD ./secrets/kb_channelid.secret /secrets/
+ADD ./secrets/kb_paperkey.secret /secrets/
 
-ADD entrypoint.sh /fm/
+ADD flow_manager/entrypoint.sh /fm/
 RUN chmod +x /fm/entrypoint.sh
 
 WORKDIR /fm/

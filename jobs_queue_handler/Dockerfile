@@ -12,9 +12,9 @@ RUN pip3 install flask
 RUN mkdir /jqh; mkdir /secrets
 WORKDIR /jqh/
 
-ADD *.py /jqh/
-ADD jqh_api_key.secret /secrets/
-ADD entrypoint.sh /jqh/
+ADD jobs_queue_handler/*.py /jqh/
+ADD ./secrets/jqh_api_key.secret /secrets/
+ADD jobs_queue_handler/entrypoint.sh /jqh/
 
 RUN chmod +x /jqh/entrypoint.sh
 EXPOSE 5000

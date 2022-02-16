@@ -2,7 +2,9 @@ version: "3.3"
 
 services:
   jqh:
-    build: ./jobs_queue_handler/
+    build: 
+      context: . 
+      dockerfile: ./jobs_queue_handler/Dockerfile
     ports:
       - "5000:5000"
     image: jobs_queue_handler
@@ -12,7 +14,9 @@ services:
     # links: 
     #   - "flow_manager:fm"
   flow_manager:
-    build: ./flow_manager/
+    build: 
+      context: .
+      dockerfile: ./flow_manager/Dockerfile
     ports:
       - "3000:3000"
     image: flow_manager

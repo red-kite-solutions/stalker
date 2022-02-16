@@ -5,8 +5,6 @@ import { Request, Response, NextFunction } from 'express';
 export class AuthMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
     let clientKey = req.header("API_KEY");
-    console.log(process.env.API_KEY);
-    console.log(clientKey);
 
     if (clientKey) {
         if (clientKey !== process.env.API_KEY) {
