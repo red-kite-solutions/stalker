@@ -39,6 +39,16 @@ services:
       - "27017:27017"
     logging:
       driver: none
-    # links: 
-    #   - "flow_manager:fm"
+
+  jobs_handler: 
+    build: 
+      context: .
+      dockerfile: ./jobs_handler/Dockerfile
+    image: jobs_handler
+    environment:
+      - JQH_API_KEY_FILE=/secrets/jqh_api_key.secret
+      - FM_API_KEY_FILE=/secrets/fm_api_key.secret
+    links: 
+      - "jqh:jobsqueuehandler"
+      - "flow_manager:fm"
   

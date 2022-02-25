@@ -8,15 +8,17 @@ class JobRequester():
 
     _jqh_address: str
     _jqh_port: str
+    _api_key: str
 
-    def __init__(self, jqh_address: str, jqh_port: str):
+    def __init__(self, jqh_address: str, jqh_port: str, api_key = ''):
         self._jqh_address = jqh_address
         self._jqh_port = jqh_port
+        self._api_key = api_key
 
 
-    def get_job(self, config: dict) -> dict:
+    def get_job(self) -> dict:
         """Performs a get request to get """
-        headers = {'API_KEY': config['jqh_api_key']}
+        headers = {'API_KEY': self._api_key}
         r = requests.get(f'http://{self._jqh_address}:{self._jqh_port}/job', headers=headers)
 
         if r.status_code == 404:

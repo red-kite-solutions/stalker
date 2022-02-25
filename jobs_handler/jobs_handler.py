@@ -3,15 +3,15 @@ from utils.job_requester import JobRequester
 from utils.job_reporter import JobReporter
 from jobs.subdomain_bruteforce_job import SubdomainBruteforceJob
 from jobs.domain_name_resolving_job import DomainNameResolvingJob
-import sys
+import os
 import time
 
 
 parse_config('./jobs_handler.config')
-job_requester = JobRequester(config['job_queue_handler_address'], config['job_queue_handler_port'])
-job_reporter = JobReporter(config['flow_manager_address'], config['flow_manager_port'])
+job_requester = JobRequester(config['job_queue_handler_address'], config['job_queue_handler_port'], os.environ["JQH_API_KEY"])
+job_reporter = JobReporter(config['flow_manager_address'], config['flow_manager_port'], os.environ["FM_API_KEY"])
 
-job_info = job_requester.get_job(config)
+job_info = job_requester.get_job()
 
 # Add here the new jobs to be able to use them
 switcher_dict = { 'subdomain bruteforce' : SubdomainBruteforceJob,
@@ -31,5 +31,5 @@ while job_info or current_time - start_time < 300:
         job.run()
         job.report(job_reporter)
     
-    job_info = job_requester.get_job(config)
+    job_info = job_requester.get_job()
     current_time = time.time()

@@ -18,7 +18,7 @@ export class ConfigService extends BaseService<Config, Config> {
             if (!c) {
                 c = new Config();
             }
-            if (c.IsNewContentReported || c.IsNewContentReported === false) {
+            if (!(c.IsNewContentReported || c.IsNewContentReported === false)) {
                 c.IsNewContentReported = false;
             }
 
