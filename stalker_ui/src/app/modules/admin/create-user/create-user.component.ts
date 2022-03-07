@@ -80,26 +80,16 @@ export class CreateUserComponent implements OnInit {
     this.roles.forEach((role: Role) => {
       bulletPoints.push(`${role.name} : ${role.description}`);
     });
-    let data: ConfirmDialogData;
-    if(bulletPoints.length > 0) {
-      data = {
-        text: "Setting a user role is a crucial part of user creation. Their role will define what they can and cannot do in Stalker.",
-        title: "User roles",
-        positiveButtonText: "Got it",
-        listElements:  bulletPoints,
-        onPositiveButtonClick: () => {
-          this.dialog.closeAll();
-        }        
-      }
-    } else {
-      data = {
-        text: "Select the users to delete and try again.",
-        title: "Nothing to delete",
-        positiveButtonText: "Ok",
-        onPositiveButtonClick: () => {
-          this.dialog.closeAll();
-        }
-      }
+    
+    
+    let data: ConfirmDialogData = {
+      text: "Setting a user role is a crucial part of user creation. Their role will define what they can and cannot do in Stalker.",
+      title: "User roles",
+      positiveButtonText: "Got it",
+      listElements:  bulletPoints,
+      onPositiveButtonClick: () => {
+        this.dialog.closeAll();
+      }        
     }
     
     this.dialog.open(ConfirmDialogComponent, {

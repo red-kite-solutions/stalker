@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { AuthenticationComponent } from './layouts/authentication/authentication.component';
 import { DefaultComponent } from './layouts/default/default.component';
 import { CreateUserComponent } from './modules/admin/create-user/create-user.component';
+import { EditUserComponent } from './modules/admin/edit-user/edit-user.component';
 import { ManageUsersComponent } from './modules/admin/manage-users/manage-users.component';
 import { LoginComponent } from './modules/auth/login/login.component';
 import { DashboardComponent } from './modules/dashboard/dashboard.component';
@@ -28,9 +29,14 @@ const routes: Routes = [{
     component: CreateUserComponent
   },
   {
+    path: 'admin/users/:id',
+    component: EditUserComponent
+  },
+  {
     path: 'admin/configs',
     component: ProfileComponent
-  }]
+  }
+  ]
 },
 {
   path: 'auth',
@@ -39,7 +45,6 @@ const routes: Routes = [{
     path: 'login',
     component : LoginComponent
   }]
-
 }];
 
 @NgModule({
