@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, ValidationErrors, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -16,7 +16,7 @@ interface Role {
   templateUrl: './edit-user.component.html',
   styleUrls: ['./edit-user.component.scss']
 })
-export class EditUserComponent implements OnInit {
+export class EditUserComponent implements OnInit, OnDestroy {
   passwordConfirm: string = "";
   currentPassword: string = "";
   newUserValid: boolean = true;
@@ -137,5 +137,9 @@ export class EditUserComponent implements OnInit {
       data,
       restoreFocus: false
     });
+  }
+
+  ngOnDestroy() {
+    this.routeSub?.unsubscribe();
   }
 }

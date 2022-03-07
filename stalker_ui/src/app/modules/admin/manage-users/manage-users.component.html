@@ -89,7 +89,7 @@
             
                 <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
                 <tr mat-row *matRowDef="let row; columns: displayedColumns;"
-                    (click)="editUser(row)"
+                    routerLinkActive="list-item-active" [routerLink]="['/admin/users/', row.id]"
                     class="rows">
                 </tr>
             </table>
