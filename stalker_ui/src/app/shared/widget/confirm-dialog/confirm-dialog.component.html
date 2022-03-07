@@ -1,0 +1,11 @@
+<h1 mat-dialog-title>{{data.title}}</h1>
+<div mat-dialog-content>
+    {{data.text}}
+    <ul>
+        <li *ngFor="let line of data.listElements"> {{ line }} </li>
+    </ul>
+</div>
+<div mat-dialog-actions>
+    <button *ngIf="data.positiveButtonText != ''" mat-raised-button color="primary" (click)="positiveClick()">{{data.positiveButtonText}}</button>
+    <button *ngIf="data.negativeButtonText != ''" mat-raised-button color="warn" (click)="negativeClick()">{{data.negativeButtonText}}</button>
+</div>

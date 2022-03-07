@@ -1,0 +1,47 @@
+<mat-toolbar color="primary">
+    <mat-toolbar-row>
+        <div fxFlex="10" fxLayoutAlign="flex-start center">
+            <button mat-icon-button (click)="toggleSideBar()">
+                <mat-icon>menu</mat-icon>
+            </button>
+            <span>Stalker | Recon Automation</span>
+        </div>
+        
+        
+        <form fxFlex="83" fxLayoutAlign="flex-end center">
+            <mat-form-field class="stalker-header-search-field" floatLabel="never">
+                <input matInput (focus)="focus()" placeholder="Search">
+                <!-- <mat-label>Search</mat-label> -->
+                
+                <button mat-icon-button matSuffix type="button" (click)="search()">
+                    <mat-icon class="material-icons-outlined">search</mat-icon>
+                </button>
+            </mat-form-field>
+        </form>
+
+        <div fxFlex="7" fxLayout="row" fxLayoutAlign="flex-end center">
+            <ul fxLayout="row" fxLayoutHap="20px">
+                <li>
+                    <button mat-icon-button>
+                        <mat-icon>help_outline</mat-icon>
+                    </button>
+                </li>
+                <li>
+                    <button mat-button [matMenuTriggerFor]="menu">
+                        <mat-icon>person_outline</mat-icon>
+                    </button>
+                    <mat-menu #menu="matMenu">
+                        <button mat-menu-item routerLink="/profile">
+                            <mat-icon class="material-icons-outlined">badge</mat-icon>
+                            Profile
+                        </button>
+                        <button mat-menu-item>
+                            <mat-icon>exit_to_app</mat-icon>
+                            Sign out
+                        </button>
+                    </mat-menu>
+                </li>
+            </ul>
+        </div>
+    </mat-toolbar-row>
+</mat-toolbar>

@@ -134,3 +134,5 @@ dmypy.json
 *.config
 # secrets files
 *.secret
+
+.vscode

@@ -1,0 +1,18 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+mat-drawer-container {
+    height: 100%;
+}
+
+mat-card {
+    min-width: 380px;
+}
+
+mat-toolbar {
+    width: 100%;
+    height: 50px;
+}
