@@ -22,8 +22,13 @@ export class ConfirmDialogComponent implements OnInit {
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: ConfirmDialogData) {
     if (data.listElements && data.listElements.length > this.maxListLength) {
+      let restCount = data.listElements.length - this.maxListLength;
       data.listElements = data.listElements.slice(0, this.maxListLength);
-      data.listElements.push("...");
+      restCount > 1 ? 
+          data.listElements.push(`and ${restCount} others`) : 
+          data.listElements.push(`and ${restCount} other`);
+      
+      // marquer combien de users tu delete
     }
   }
 
