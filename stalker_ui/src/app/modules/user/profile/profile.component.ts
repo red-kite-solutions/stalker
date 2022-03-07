@@ -75,6 +75,9 @@ export class ProfileComponent implements OnInit {
 
   onSubmit() {
     this.profileEditValid = this.form.valid;
+    if (!this.profileEditValid) {
+      this.form.markAllAsTouched();
+    }
   }
 
 }

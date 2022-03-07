@@ -1,8 +1,10 @@
 <div fxLayout="row" fxLayoutAlign="center">
     <mat-card fxFlex="60">
         <mat-card-content>
-            <h1>
-
+            <h1 fxLayoutAlign="flex-start center">
+                <button type="button" mat-icon-button routerLinkActive="list-item-active" routerLink="/admin/users">
+                    <mat-icon class="material-icons-outlined">arrow_back</mat-icon>
+                </button>
                 Create User
             </h1>
             <form  [formGroup]="form" >
@@ -59,7 +61,11 @@
                 <h4>Set Password</h4>
 
                 <mat-form-field class="formfieldblock">
-                    <input matInput type="password" placeholder="Password" name="password" formControlName="password">
+                    <!-- <input matInput type="password" placeholder="Password" name="password" formControlName="password"> -->
+                    <input matInput [type]="hideUserPassword ? 'password' : 'text'" placeholder="Password" name="password" formControlName="password" required>
+                    <button type="button" mat-icon-button matSuffix (click)="hideUserPassword = !hideUserPassword" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hideCurrentPassword">
+                        <mat-icon>{{hideUserPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+                    </button>
                     <mat-error>
                         Password must have a minimal length of 12 characters
                     </mat-error>
@@ -83,7 +89,7 @@
                     </mat-error>
                 </mat-form-field>
 
-                <mat-error *ngIf="!this.profileEditValid">
+                <mat-error *ngIf="!this.newUserValid">
                     Please correct the invalid information before submitting
                 </mat-error>
 

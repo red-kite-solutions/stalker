@@ -18,7 +18,7 @@ export class CreateUserComponent implements OnInit {
 
   passwordConfirm: string = "";
   currentPassword: string = "";
-  profileEditValid: boolean = true;
+  newUserValid: boolean = true;
   roles: Role[] = [
     { name: "admin", description: "Has full control over the application.", shortDescription: "Full control" }, 
     { name: "user", description: "Can only use the application, but cannot edit its configuration.", shortDescription: "Can use, but not configure" }, 
@@ -58,6 +58,7 @@ export class CreateUserComponent implements OnInit {
   });  
 
   hideCurrentPassword: boolean = true;
+  hideUserPassword: boolean = true;
 
   constructor(private fb: FormBuilder, public dialog: MatDialog) { }
 
@@ -68,7 +69,10 @@ export class CreateUserComponent implements OnInit {
 
   onSubmit() {
     console.log("on submit");
-    this.profileEditValid = this.form.valid;
+    this.newUserValid = this.form.valid;
+    if (!this.newUserValid) {
+      this.form.markAllAsTouched();
+    }
   }
 
   showUserRolesHelp() {
