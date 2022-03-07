@@ -20,6 +20,9 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSortModule } from '@angular/material/sort';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { CreateUserComponent } from 'src/app/modules/admin/create-user/create-user.component';
+import { EditUserComponent } from 'src/app/modules/admin/edit-user/edit-user.component';
+import { MatSelectModule } from '@angular/material/select';
 
 
 @NgModule({
@@ -27,7 +30,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     DefaultComponent,
     DashboardComponent,
     ProfileComponent,
-    ManageUsersComponent
+    ManageUsersComponent,
+    CreateUserComponent,
+    EditUserComponent
   ],
   imports: [
     CommonModule,
@@ -47,7 +52,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatCheckboxModule,
     MatSortModule,
     MatPaginatorModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatSelectModule
   ]
 })
 export class DefaultModule { }

@@ -109,10 +109,6 @@ export class ManageUsersComponent implements OnInit {
     console.log("Going to edit user " + row.id);
   }
 
-  createUser() {
-    console.log("Create user");
-  }
-
   deleteUsers() {
     let bulletPoints: string[] = Array<string>();
     this.selection.selected.forEach((user: User) => {

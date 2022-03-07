@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AuthenticationComponent } from './layouts/authentication/authentication.component';
 import { DefaultComponent } from './layouts/default/default.component';
+import { CreateUserComponent } from './modules/admin/create-user/create-user.component';
 import { ManageUsersComponent } from './modules/admin/manage-users/manage-users.component';
 import { LoginComponent } from './modules/auth/login/login.component';
 import { DashboardComponent } from './modules/dashboard/dashboard.component';
@@ -21,6 +22,10 @@ const routes: Routes = [{
   {
     path: 'admin/users',
     component: ManageUsersComponent
+  },
+  {
+    path: 'admin/users/create',
+    component: CreateUserComponent
   },
   {
     path: 'admin/configs',

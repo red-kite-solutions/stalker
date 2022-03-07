@@ -1,0 +1,97 @@
+<div fxLayout="row" fxLayoutAlign="center">
+    <mat-card fxFlex="60">
+        <mat-card-content>
+            <h1>
+
+                Create User
+            </h1>
+            <form  [formGroup]="form" >
+                
+                <h4>Profile Information</h4>
+
+                <mat-form-field class="formfieldinline">
+                    <input matInput placeholder="First Name" name="firstName" formControlName="firstName">
+                    <mat-error>
+                      First name must not be empty
+                    </mat-error>
+                </mat-form-field>
+                <mat-form-field class="formfieldinline">
+                    <input matInput placeholder="Last Name" name="lastName" formControlName="lastName">
+                    <mat-error>
+                      Last name must not be empty
+                    </mat-error>
+                </mat-form-field>
+                <mat-form-field class="formfieldblock">
+                    <input matInput placeholder="Email" name="email" formControlName="email">
+                    <mat-error>
+                      Please provide a valid email address
+                    </mat-error>
+                </mat-form-field>
+                <div fxLayout="row" fxLayoutAlign="flex-start center">
+                    <mat-form-field fxFlex="90">
+                        <mat-label>Role</mat-label>
+                        <mat-select formControlName="role" required>
+                            <!-- <mat-option>Choose a Role</mat-option>s -->
+                            <mat-option *ngFor="let role of roles" [value]="role">
+                                {{role.name}}
+                            </mat-option>
+                        </mat-select>
+                        <mat-hint>{{form.get("role")?.value.shortDescription}}</mat-hint>
+                        <mat-error>
+                          You must pick a role
+                        </mat-error>
+                    </mat-form-field>
+                    <div fxFlex="10" fxLayoutAlign="center center">
+                        <button type="button" mat-icon-button (click)="showUserRolesHelp()" matTooltip="Role information">
+                            <mat-icon class="material-icons-outlined">help_outline</mat-icon>
+                        </button>
+                    </div>
+                </div>
+
+                <mat-checkbox formControlName="active" class="formfieldblock">
+                    User is {{ form.get("active")?.value ?  "enabled" : "disabled" }}
+                </mat-checkbox>                
+
+                <br>
+                <mat-divider></mat-divider>
+                <br>
+
+                <h4>Set Password</h4>
+
+                <mat-form-field class="formfieldblock">
+                    <input matInput type="password" placeholder="Password" name="password" formControlName="password">
+                    <mat-error>
+                        Password must have a minimal length of 12 characters
+                    </mat-error>
+                </mat-form-field>
+            </form>
+
+            <br>
+            <mat-divider></mat-divider>
+            <br>
+
+            <form #profileForm="ngForm">
+                <h4>Validate Identity</h4>
+                <mat-form-field class="formfieldblock">
+                    <mat-label>Your Password</mat-label>
+                    <input matInput [type]="hideCurrentPassword ? 'password' : 'text'" [(ngModel)]="currentPassword" name="currentPassword" required>
+                    <button mat-icon-button matSuffix (click)="hideCurrentPassword = !hideCurrentPassword" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hideCurrentPassword">
+                        <mat-icon>{{hideCurrentPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+                    </button>
+                    <mat-error>
+                        The current password must be provided to edit the profile
+                    </mat-error>
+                </mat-form-field>
+
+                <mat-error *ngIf="!this.profileEditValid">
+                    Please correct the invalid information before submitting
+                </mat-error>
+
+                <div class="center">
+                    <button class="button" mat-raised-button color="primary" [disabled]="!profileForm.form.valid" (click)="onSubmit()">Create</button>
+                </div>
+            </form>
+        </mat-card-content>
+    </mat-card>
+</div>
+
