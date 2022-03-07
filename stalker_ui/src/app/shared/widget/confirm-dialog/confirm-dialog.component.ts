@@ -21,14 +21,11 @@ export class ConfirmDialogComponent implements OnInit {
   public readonly maxListLength: number = 15;
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: ConfirmDialogData) {
-    if (data.listElements && data.listElements.length > this.maxListLength) {
+    if (data.listElements && data.listElements.length > this.maxListLength + 1) {
       let restCount = data.listElements.length - this.maxListLength;
+      let total = data.listElements.length;
       data.listElements = data.listElements.slice(0, this.maxListLength);
-      restCount > 1 ? 
-          data.listElements.push(`and ${restCount} others`) : 
-          data.listElements.push(`and ${restCount} other`);
-      
-      // marquer combien de users tu delete
+      data.listElements.push(`and ${restCount} other (${total} total)`);
     }
   }
 
