@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { NotFoundComponent } from './error-pages/not-found/not-found.component';
 import { AuthenticationComponent } from './layouts/authentication/authentication.component';
 import { DefaultComponent } from './layouts/default/default.component';
 import { CreateUserComponent } from './modules/admin/create-user/create-user.component';
@@ -45,6 +46,10 @@ const routes: Routes = [{
     path: 'login',
     component : LoginComponent
   }]
+},
+{
+  path: '**',
+  component: NotFoundComponent
 }];
 
 @NgModule({
