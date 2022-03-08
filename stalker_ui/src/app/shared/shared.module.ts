@@ -17,6 +17,7 @@ import { CardComponent } from './widget/card/card.component';
 import { MatInputModule } from '@angular/material/input';
 import { ConfirmDialogComponent } from './widget/confirm-dialog/confirm-dialog.component';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 
 
@@ -42,7 +43,8 @@ import { MatDialogModule } from '@angular/material/dialog';
     RouterModule,
     HighchartsChartModule,
     MatInputModule,
-    MatDialogModule
+    MatDialogModule,
+    MatTooltipModule
   ],
   exports: [
     HeaderComponent,
