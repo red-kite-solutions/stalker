@@ -36,8 +36,7 @@ const routes: Routes = [{
   {
     path: 'admin/configs',
     component: ProfileComponent
-  }
-  ]
+  }]
 },
 {
   path: 'auth',
