@@ -45,7 +45,6 @@ const ELEMENT_DATA: User[] = [
   styleUrls: ['./manage-users.component.scss']
 })
 export class ManageUsersComponent implements OnInit {
-
   displayedColumns: string[] = ['select', 'id', 'firstName', 'lastName', 'email', 'role', 'active'];
   dataSource = new MatTableDataSource<User>(ELEMENT_DATA);
   selection = new SelectionModel<User>(true, []);
@@ -148,12 +147,28 @@ export class ManageUsersComponent implements OnInit {
       data,
       restoreFocus: false
     });
-
-
-    
   }
 
+  displayColumns() {
+    if (window.screen.availWidth < 450) {
+      return ['id', 'firstName', 'role'];
+    }
+    if (window.screen.availWidth < 525) {
+      return ['id', 'firstName', 'lastName', 'role'];
+    }
+    if (window.screen.availWidth < 625) {
+      return ['id', 'firstName', 'lastName', 'role', 'active'];
+    }
+    return this.displayedColumns;
+  }
 
+  hideDelete() {
+    return window.screen.availWidth < 625;
+  }
+
+  
+
+  
 
 }
 
