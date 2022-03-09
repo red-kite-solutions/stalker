@@ -6,6 +6,7 @@ import { DefaultComponent } from './layouts/default/default.component';
 import { CreateUserComponent } from './modules/admin/create-user/create-user.component';
 import { EditUserComponent } from './modules/admin/edit-user/edit-user.component';
 import { ManageUsersComponent } from './modules/admin/manage-users/manage-users.component';
+import { SettingsComponent } from './modules/admin/settings/settings.component';
 import { LoginComponent } from './modules/auth/login/login.component';
 import { DashboardComponent } from './modules/dashboard/dashboard.component';
 import { ProfileComponent } from './modules/user/profile/profile.component';
@@ -34,8 +35,8 @@ const routes: Routes = [{
     component: EditUserComponent
   },
   {
-    path: 'admin/configs',
-    component: ProfileComponent
+    path: 'admin/settings',
+    component: SettingsComponent
   }]
 },
 {

@@ -23,6 +23,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { CreateUserComponent } from 'src/app/modules/admin/create-user/create-user.component';
 import { EditUserComponent } from 'src/app/modules/admin/edit-user/edit-user.component';
 import { MatSelectModule } from '@angular/material/select';
+import { SettingsComponent } from 'src/app/modules/admin/settings/settings.component';
+import { MatTabsModule } from '@angular/material/tabs';
 
 
 @NgModule({
@@ -32,7 +34,8 @@ import { MatSelectModule } from '@angular/material/select';
     ProfileComponent,
     ManageUsersComponent,
     CreateUserComponent,
-    EditUserComponent
+    EditUserComponent,
+    SettingsComponent
   ],
   imports: [
     CommonModule,
@@ -53,7 +56,8 @@ import { MatSelectModule } from '@angular/material/select';
     MatSortModule,
     MatPaginatorModule,
     MatTooltipModule,
-    MatSelectModule
+    MatSelectModule,
+    MatTabsModule
   ]
 })
 export class DefaultModule { }
