@@ -5,8 +5,8 @@ export type ConfigDocument = Config & Document;
 
 @Schema()
 export class Config {
-    @Prop()
-    public IsNewContentReported: boolean;
+  @Prop()
+  public IsNewContentReported: boolean;
 }
 
 export const ConfigSchema = SchemaFactory.createForClass(Config);

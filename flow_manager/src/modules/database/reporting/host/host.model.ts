@@ -5,11 +5,10 @@ export type HostDocument = Host & Document;
 
 @Schema()
 export class Host {
-    
-    @Prop()
-    public ip!: string;
+  @Prop()
+  public ip!: string;
 
-    public ports?: number[];
+  public ports?: number[];
 }
 
 export const HostSchema = SchemaFactory.createForClass(Host);
