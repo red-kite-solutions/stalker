@@ -1,4 +1,3 @@
 #!/bin/sh
 
-echo "[flow_manager] Running toolchain"
 npm run lint-staged
