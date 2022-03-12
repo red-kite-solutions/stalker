@@ -13,7 +13,7 @@ import { SubmitSubdomainDto, SubmitSubdomainManuallyDto } from './domain.dto';
 import { Domain } from './domain.model';
 
 @Injectable()
-export class DomainsService extends BaseService<Domain, Domain> {
+export class DomainsService extends BaseService<Domain> {
   constructor(
     @InjectModel('domain') private readonly domainModel: Model<Domain>,
     private jobService: JobsService,

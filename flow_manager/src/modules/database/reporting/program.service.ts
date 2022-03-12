@@ -6,7 +6,7 @@ import { Model } from 'mongoose';
 import { Program } from './program.model';
 
 @Injectable()
-export class ProgramService extends BaseService<Program, Program> {
+export class ProgramService extends BaseService<Program> {
   constructor(
     @InjectModel('program') private readonly programModel: Model<Program>,
   ) {

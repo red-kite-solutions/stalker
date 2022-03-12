@@ -6,7 +6,7 @@ import {
   Model,
   ModelPopulateOptions,
 } from 'mongoose';
-export class BaseService<T extends Document, Dto> {
+export class BaseService<T extends Document> {
   constructor(private readonly model: Model<T>) {}
 
   async create(object: Partial<T>): Promise<T> {
@@ -94,7 +94,8 @@ export class BaseService<T extends Document, Dto> {
     return this.model.updateOne(condition, <T>data).exec();
   }
 
-  async updateOneFilter(): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async updateOneFilter(condition: any, data: any): Promise<void> {
     return this.model.updateOne();
   }
 

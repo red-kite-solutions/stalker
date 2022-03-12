@@ -14,7 +14,7 @@ export enum JobTypes {
 }
 
 @Injectable()
-export class JobsService extends BaseService<Job, Job> {
+export class JobsService extends BaseService<Job> {
   constructor(@InjectModel('job') private readonly jobModel: Model<Job>) {
     super(jobModel);
   }

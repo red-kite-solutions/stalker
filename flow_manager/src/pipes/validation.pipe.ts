@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
-import { ObjectUtils } from '../utils/object.utils';
+import * as ObjectUtils from '../utils/object.utils';
 
 @Injectable()
 export class ValidationPipe implements PipeTransform<any> {

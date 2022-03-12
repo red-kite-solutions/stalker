@@ -6,7 +6,7 @@ import { Config } from './config.model';
 import { SubmitConfigDto } from './config.dto';
 
 @Injectable()
-export class ConfigService extends BaseService<Config, Config> {
+export class ConfigService extends BaseService<Config> {
   public config: Config;
 
   constructor(
