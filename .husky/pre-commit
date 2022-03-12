@@ -1,0 +1,27 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+if (git rev-parse -q --verify MERGE_HEAD> /dev/null)
+then
+  echo "[PRECOMMIT] MERGE_HEAD exists. Skipping toolchains."
+  exit 0
+fi
+
+root=$(pwd)
+echo "[PRECOMMIT] Using $root as root directory."
+
+for project in "flow_manager" "jobs_handler" "jobs_queue_handler"
+do
+    cd "$root/$project"
+    if [ -f "./.husky/pre-commit" ]; then
+        . "./.husky/pre-commit"
+        if (git diff --staged --name-only | grep --quiet $project) then
+            echo "[$project] Found changes. Running toolchain."
+        else
+            echo "[$project] No changes found."
+        fi
+    else
+        echo "[$project] No toolchain found."
+    fi
+    cd "$root"
+done
