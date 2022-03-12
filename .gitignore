@@ -134,3 +134,6 @@ dmypy.json
 *.config
 # secrets files
 *.secret
+
+# node stuff
+node_modules
