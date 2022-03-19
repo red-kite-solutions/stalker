@@ -10,19 +10,13 @@ export class ProgramService {
     @InjectModel('program') private readonly programModel: Model<Program>,
   ) {}
 
-  public async getAll(
-    page = 0,
-    pageSize = 100,
-    nameFilter: string = null,
-  ): Promise<Program[]> {
-    if (nameFilter != null) {
-      return await this.programModel
-        .find({ name: { $eq: nameFilter } })
-        .skip(page)
-        .limit(pageSize);
-    } else {
-      return await this.programModel.find().skip(page).limit(pageSize);
+  public async getAll(page = null, pageSize = null): Promise<Program[]> {
+    let query = this.programModel.find();
+    if (page != null && pageSize != null) {
+      query = query.skip(page).limit(pageSize);
     }
+
+    return await query;
   }
 
   /**
