@@ -31,7 +31,7 @@
     "@typegoose/typegoose": "^8.3.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
-    "keybase-bot": "^3.6.1",
+    "keybase-bot": "^1.0.3",
     "mongoose": "^5.12.4",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
