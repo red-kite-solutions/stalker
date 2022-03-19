@@ -21,7 +21,8 @@ export class AutomationService {
     timeZone: 'America/Toronto',
   })
   public async refreshIpAdresses(): Promise<void> {
-    const programs = await this.programService.findAllFilter({ name: 1 });
+    // TODO: Not sure how this works, why is the 1 hardcoded?
+    const programs = await this.programService.getAll(0, 100, '1');
     programs.forEach((p) => {
       this.domainService.runForEach(p.name, (d: Domain, parents: string) => {
         const job: DomainNameResolvingJob = this.jobService.manufactureJob(

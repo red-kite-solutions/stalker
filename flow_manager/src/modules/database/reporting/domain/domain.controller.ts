@@ -7,12 +7,16 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { Program } from '../program.model';
+import { ProgramService } from '../program.service';
 import { SubmitSubdomainDto, SubmitSubdomainManuallyDto } from './domain.dto';
 import { DomainsService } from './domain.service';
 
 @Controller('report/domains')
 export class DomainsController {
-  constructor(private readonly domainsService: DomainsService) {}
+  constructor(
+    private readonly domainsService: DomainsService,
+    private readonly programService: ProgramService,
+  ) {}
 
   @Post(':jobId')
   async submitSubdomainsFromJob(
@@ -36,9 +40,6 @@ export class DomainsController {
     @Param('program') program: string,
     @Param('i') index: number,
   ): Promise<Program> {
-    return await this.domainsService.getProgramFilterDomainAtIndex(
-      program,
-      index,
-    );
+    return await this.programService.getWithDomainAtIndex(program, index);
   }
 }

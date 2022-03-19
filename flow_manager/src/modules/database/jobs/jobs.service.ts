@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { BaseService } from '../../../services/base.service';
 import { CreateJobDto } from './jobs.dto';
 import { Job } from './jobs.model';
 import { DomainNameResolvingJob } from './jobs_factory/domain_name_resolving.job';
@@ -14,20 +13,27 @@ export enum JobTypes {
 }
 
 @Injectable()
-export class JobsService extends BaseService<Job> {
-  constructor(@InjectModel('job') private readonly jobModel: Model<Job>) {
-    super(jobModel);
+export class JobsService {
+  constructor(
+    @InjectModel('job') private readonly jobModel: Model<Job & Document>,
+  ) {}
+
+  public async create(dto: CreateJobDto): Promise<Job> {
+    const job = new this.jobModel(dto);
+    return await job.save();
   }
 
-  public async addJob(dto: CreateJobDto, jobId: string): Promise<Job> {
-    const job = new Job();
-    job.jobId = jobId;
-    job.priority = dto.priority;
-    job.program = dto.program;
-    job.task = dto.task;
-    job.data = dto.data;
-    await this.create(job);
-    return job;
+  public async getAll(page = 0, pageSize = 100): Promise<Job[]> {
+    return await this.jobModel.find().skip(page).limit(pageSize);
+  }
+
+  public async delete(id: string) {
+    // TODO: We should probably make the job id the model's id
+    await this.jobModel.deleteMany({ jobId: { $eq: id } });
+  }
+
+  public async getById(id: string): Promise<Job> {
+    return await this.jobModel.findOne({ jobId: { $eq: id } });
   }
 
   public manufactureJob(jobType: string, program: string): ManufacturedJob {

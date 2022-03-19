@@ -4,7 +4,6 @@ import { Cron, CronExpression, Timeout } from '@nestjs/schedule';
 import { writeFileSync } from 'fs';
 import { Model } from 'mongoose';
 import { KeybaseService } from 'src/modules/alerts/keybase/keybase.service';
-import { BaseService } from 'src/services/base.service';
 import * as DomainTreeUtils from 'src/utils/domain_tree.utils';
 import { Domain } from '../domain/domain.model';
 import { Host } from '../host/host.model';
@@ -13,7 +12,7 @@ import { ReportEntryDto } from './report.dto';
 import { Report } from './report.model';
 
 @Injectable()
-export class ReportService extends BaseService<Report> {
+export class ReportService {
   private REPORT_SUFFIX = '_stalker_report.md';
   private content: string;
   private programSubdomainsMarkdown: string;
@@ -30,9 +29,7 @@ export class ReportService extends BaseService<Report> {
   constructor(
     @InjectModel('report') private readonly reportModel: Model<Report>,
     private keybaseService: KeybaseService,
-  ) {
-    super(reportModel);
-  }
+  ) {}
 
   /**
    * Gives the name of the current report, which is today's report. It is likely not fully completed.
@@ -210,24 +207,24 @@ export class ReportService extends BaseService<Report> {
 
   public async getCurrentReport(): Promise<Report> {
     const date = this.getCurrentReportPrefix();
-    let currentReport: Report = await this.findOne({ date: date });
+    let currentReport = await this.getByDate(date);
     if (!currentReport) {
-      currentReport = await this.create({ date: date });
+      currentReport = await new this.reportModel({ date: date }).save();
     }
     return currentReport;
   }
 
   public async updateReport(report: Report): Promise<void> {
-    await this.update({ date: report.date }, report);
+    await this.reportModel.updateOne({ date: { $eq: report.date } }, report);
   }
 
   // Validates that there is an entry for the current report in the database 5 seconds after application startup
   @Timeout(5000)
   public async validateCurrentReportExists(): Promise<void> {
     const date = this.getCurrentReportPrefix();
-    const currentReport: Report = await this.findOne({ date: date });
+    const currentReport = await this.getByDate(date);
     if (!currentReport) {
-      this.create({ date: date });
+      await new this.reportModel({ date: date }).save();
     }
   }
 
@@ -235,8 +232,8 @@ export class ReportService extends BaseService<Report> {
     name: 'daily_report_keybase',
     timeZone: 'America/Toronto',
   })
-  public initializeNextReport(): void {
-    this.create({ date: this.getNextReportPrefix() });
+  public async initializeNextReport(): Promise<void> {
+    await new this.reportModel({ date: this.getNextReportPrefix() }).save();
   }
 
   /** Creates the report file saved on the disk to be sent by alerting services like the KeybaseService */
@@ -357,7 +354,7 @@ Information in this report was unknown to Stalker before that date.\n\n`;
   }
 
   public async sendReport(date: string): Promise<void> {
-    const lastReport: Report = await this.findOne({ date: date });
+    const lastReport = await this.getByDate(date);
     if (lastReport) {
       if (lastReport.programs || lastReport.notes) {
         const reportName = this.createReportFile(lastReport, date);
@@ -368,12 +365,16 @@ Information in this report was unknown to Stalker before that date.\n\n`;
           'Good news, everyone! There is nothing to report. Have a nice day.',
         );
       }
-      await this.remove({ date: date });
+      await this.reportModel.deleteMany({ date: { $eq: date } });
     } else {
       // Send a message saying that there was no report and I don't know why
       this.keybaseService.sendSimpleAlertMessage(
         'No report for yesterday was found! Take a day off, apparently I did.',
       );
     }
+  }
+
+  private async getByDate(date: string): Promise<Report> {
+    return await this.reportModel.findOne({ date: { $eq: date } });
   }
 }

@@ -18,23 +18,26 @@ export class JobsController {
 
   @Get()
   async getAllJobs(): Promise<any> {
-    return await this.jobsService.findAll();
+    return await this.jobsService.getAll();
   }
 
   @Post('create')
   async createJob(
     @Body(new ValidationPipe()) unidentifiedJob: CreateJobDto,
   ): Promise<Job> {
-    const id: string = v4();
+    // TODO: This should go through the message queue
+    const job = await this.jobsService.create(unidentifiedJob);
     const isOk: boolean = await JobsQueueUtils.add(
-      id,
+      job.jobId,
       unidentifiedJob.task,
       unidentifiedJob.priority,
       unidentifiedJob.data,
     );
+
     if (!isOk) {
       throw new HttpException('Error sending the job to the job queue.', 500);
     }
-    return await this.jobsService.addJob(unidentifiedJob, id);
+
+    return job;
   }
 }

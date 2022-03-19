@@ -1,7 +1,6 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { BaseService } from '../../../../services/base.service';
 import * as DomainTreeUtils from '../../../../utils/domain_tree.utils';
 import { ConfigService } from '../../admin/config/config.service';
 import { JobsService, JobTypes } from '../../jobs/jobs.service';
@@ -13,23 +12,20 @@ import { SubmitSubdomainDto, SubmitSubdomainManuallyDto } from './domain.dto';
 import { Domain } from './domain.model';
 
 @Injectable()
-export class DomainsService extends BaseService<Domain> {
+export class DomainsService {
   constructor(
     @InjectModel('domain') private readonly domainModel: Model<Domain>,
     private jobService: JobsService,
     private programService: ProgramService,
     private reportService: ReportService,
     private configService: ConfigService,
-  ) {
-    super(domainModel);
-  }
+  ) {}
 
   private async addDomainsFromProgram(
     subdomains: string[],
     programName: string,
   ) {
-    const programFilter = { name: programName };
-    const program = await this.programService.findOne(programFilter);
+    const program = await this.programService.get(programName);
 
     if (!program) {
       throw new HttpException(
@@ -57,7 +53,7 @@ export class DomainsService extends BaseService<Domain> {
       manuJob.publish();
     });
 
-    await this.programService.update(programFilter, program);
+    await this.programService.update(programName, program);
   }
 
   // private async addDomainsFromProgram(subdomains: string[], programName: string) {
@@ -111,14 +107,14 @@ export class DomainsService extends BaseService<Domain> {
 
   public async addDomains(dto: SubmitSubdomainDto, jobId: string) {
     // Find the proper program using the jobId and then the program name
-    const job = await this.jobService.findOne({ jobId: jobId });
+    const job = await this.jobService.getById(jobId);
 
     if (!job) {
       throw new HttpException('The job id is invalid.', 400);
     }
 
     await this.addDomainsFromProgram(dto.subdomains, job.program);
-    await this.jobService.remove({ jobId: jobId });
+    await this.jobService.delete(jobId);
   }
 
   public async addDomainsManually(dto: SubmitSubdomainManuallyDto) {
@@ -139,7 +135,7 @@ export class DomainsService extends BaseService<Domain> {
     callback: () => unknown,
   ): Promise<void> {
     let i = 0;
-    let p: Program = await this.getProgramFilterDomainAtIndex(program, i);
+    let p: Program = await this.programService.getWithDomainAtIndex(program, i);
     let d: Domain;
     if (p && p.domains) {
       d = p.domains[0];
@@ -148,9 +144,9 @@ export class DomainsService extends BaseService<Domain> {
       DomainTreeUtils.doForEveryLeaf(d, callback);
       const search = { name: program, 'domains.name': d.name };
       const filterData = [{ $set: { 'domains.$': d } }];
-      this.updateOneFilter(search, filterData);
+      this.domainModel.updateOne(search, filterData);
       i++;
-      p = await this.getProgramFilterDomainAtIndex(program, i);
+      p = await this.programService.getWithDomainAtIndex(program, i);
       if (p && p.domains) {
         d = p.domains[0];
       } else {
@@ -168,7 +164,7 @@ export class DomainsService extends BaseService<Domain> {
   // eslint-disable-next-line @typescript-eslint/ban-types
   public async runForEach(program: string, callback: Function): Promise<void> {
     let i = 0;
-    let p: Program = await this.getProgramFilterDomainAtIndex(program, i);
+    let p = await this.programService.getWithDomainAtIndex(program, i);
     let d: Domain = null;
     if (p && p.domains) {
       d = p.domains[0];
@@ -176,30 +172,12 @@ export class DomainsService extends BaseService<Domain> {
     while (d) {
       DomainTreeUtils.doForEveryLeaf(d, callback);
       i++;
-      p = await this.getProgramFilterDomainAtIndex(program, i);
+      p = await this.programService.getWithDomainAtIndex(program, i);
       if (p && p.domains) {
         d = p.domains[0];
       } else {
         d = null;
       }
     }
-  }
-
-  /**
-   * This method is used to limit data transportation between the database and this server.
-   * It will return a shortened version of the Program, with the Domain at the current index as the only
-   * Domain in the Domains array.
-   * @param program The program in which to get the domain
-   * @param index The index of the desired domain in the domains array
-   * @returns The program with the shortened domains array
-   */
-  public async getProgramFilterDomainAtIndex(
-    program: string,
-    index: number,
-  ): Promise<Program> {
-    return this.programService.findOneFilter(
-      { name: program },
-      { domains: { $slice: [index, 1] } },
-    );
   }
 }
