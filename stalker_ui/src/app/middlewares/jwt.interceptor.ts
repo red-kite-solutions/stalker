@@ -19,7 +19,10 @@ export class JwtInterceptor implements HttpInterceptor {
     request: HttpRequest<any>,
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
-    if (request.url.startsWith(`${fmUrl}/auth/`)) {
+    if (
+      request.url.startsWith(`${fmUrl}/auth/login`) ||
+      request.url.startsWith(`${fmUrl}/auth/refresh`)
+    ) {
       return next.handle(request);
     }
     const isApiUrl = request.url.startsWith(fmUrl);

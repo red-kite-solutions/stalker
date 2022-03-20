@@ -32,6 +32,7 @@
     "argon2": "^0.28.5",
     "class-transformer": "^0.3.1",
     "class-validator": "^0.12.2",
+    "dot-object": "^2.1.4",
     "keybase-bot": "^3.6.1",
     "mongoose": "5.10.1",
     "passport": "^0.5.2",

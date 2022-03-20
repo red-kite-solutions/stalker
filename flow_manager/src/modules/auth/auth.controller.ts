@@ -42,6 +42,5 @@ export class AuthController {
   @Delete('logout')
   async logOut(@Request() request: any) {
     await this.authService.removeRefreshToken(request.user.id);
-    request.res.setHeader('Set-Cookie', this.authService.getCookiesForLogOut());
   }
 }

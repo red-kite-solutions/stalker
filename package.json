@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@nestjs/jwt": "^8.0.0",
+    "dot-object": "^2.1.4",
     "passport-jwt": "^4.0.0"
   },
   "devDependencies": {

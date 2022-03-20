@@ -85,11 +85,15 @@ export class AuthService {
     return false;
   }
 
-  public logout() {
+  public async logout() {
+    await firstValueFrom(this.http.delete(`${fmUrl}/auth/logout`));
     localStorage.removeItem(tokenName);
+    localStorage.removeItem(refreshTokenName);
     this._token = '';
     this._email = '';
     this._role = '';
+    this._refreshToken = '';
+    this.decodedRefreshToken = {};
     this.decodedToken = {};
   }
 

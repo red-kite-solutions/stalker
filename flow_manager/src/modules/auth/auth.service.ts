@@ -49,8 +49,4 @@ export class AuthService {
   public async removeRefreshToken(userId: string) {
     this.usersService.removeRefreshToken(userId);
   }
-
-  public async getCookiesForLogOut() {
-    return ['Refresh=; HttpOnly; Path=/; Max-Age=0'];
-  }
 }

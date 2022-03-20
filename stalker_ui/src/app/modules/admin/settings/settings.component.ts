@@ -9,8 +9,6 @@ import { SettingsService } from 'src/app/api/settings/settings.service';
   styleUrls: ['./settings.component.scss'],
 })
 export class SettingsComponent implements OnInit {
-  PASSWORD_PLACEHOLDER: string = '********';
-
   keybaseEnabled: boolean = false;
   reportingEnabled: boolean = false;
 
@@ -78,30 +76,17 @@ export class SettingsComponent implements OnInit {
 
   async saveSettings() {
     let res: string;
-    if (
-      this.keybaseReportingForm.controls['paperkey'].value !==
-      this.PASSWORD_PLACEHOLDER
-    ) {
-      res = await this.settingsService.submitSettings({
-        isNewContentReported: this.reportingEnabled,
-        keybaseConfigEnabled: this.keybaseEnabled,
-        keybaseConfigUsername:
-          this.keybaseReportingForm.controls['username'].value,
-        keybaseConfigPaperkey:
-          this.keybaseReportingForm.controls['paperkey'].value,
-        keybaseConfigChannelId:
-          this.keybaseReportingForm.controls['conversationId'].value,
-      });
-    } else {
-      res = await this.settingsService.submitSettings({
-        isNewContentReported: this.reportingEnabled,
-        keybaseConfigEnabled: this.keybaseEnabled,
-        keybaseConfigUsername:
-          this.keybaseReportingForm.controls['username'].value,
-        keybaseConfigChannelId:
-          this.keybaseReportingForm.controls['conversationId'].value,
-      });
-    }
+
+    res = await this.settingsService.submitSettings({
+      isNewContentReported: this.reportingEnabled,
+      keybaseConfigEnabled: this.keybaseEnabled,
+      keybaseConfigUsername:
+        this.keybaseReportingForm.controls['username'].value,
+      keybaseConfigPaperkey:
+        this.keybaseReportingForm.controls['paperkey'].value,
+      keybaseConfigChannelId:
+        this.keybaseReportingForm.controls['conversationId'].value,
+    });
 
     if (res === 'Success') {
       this.toastr.success('Settings saved successfully');
