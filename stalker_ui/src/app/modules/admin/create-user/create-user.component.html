@@ -63,7 +63,7 @@
                 <mat-form-field class="formfieldblock">
                     <!-- <input matInput type="password" placeholder="Password" name="password" formControlName="password"> -->
                     <input matInput [type]="hideUserPassword ? 'password' : 'text'" placeholder="Password" name="password" formControlName="password" required>
-                    <button type="button" mat-icon-button matSuffix (click)="hideUserPassword = !hideUserPassword" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hideCurrentPassword">
+                    <button type="button" mat-icon-button matSuffix (click)="hideUserPassword = !hideUserPassword" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hideUserPassword">
                         <mat-icon>{{hideUserPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
                     </button>
                     <mat-error>
@@ -76,11 +76,11 @@
             <mat-divider></mat-divider>
             <br>
 
-            <form #profileForm="ngForm">
+            <form #profileForm="ngForm" [formGroup]="currentPasswordForm">
                 <h4>Validate Identity</h4>
                 <mat-form-field class="formfieldblock">
                     <mat-label>Your Password</mat-label>
-                    <input matInput [type]="hideCurrentPassword ? 'password' : 'text'" [(ngModel)]="currentPassword" name="currentPassword" required>
+                    <input matInput [type]="hideCurrentPassword ? 'password' : 'text'" formControlName="password" name="currentPassword" required>
                     <button mat-icon-button matSuffix (click)="hideCurrentPassword = !hideCurrentPassword" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hideCurrentPassword">
                         <mat-icon>{{hideCurrentPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
                     </button>

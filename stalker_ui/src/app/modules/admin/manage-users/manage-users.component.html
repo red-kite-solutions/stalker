@@ -47,7 +47,7 @@
                     <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by ID">
                         ID
                     </th>
-                    <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+                    <td mat-cell *matCellDef="let element"> {{element._id}} </td>
                 </ng-container>
             
                 <!-- Fist Name Column -->
@@ -89,7 +89,7 @@
             
                 <tr mat-header-row *matHeaderRowDef="displayColumns()"></tr>
                 <tr mat-row *matRowDef="let row; columns: displayColumns();"
-                    routerLinkActive="list-item-active" [routerLink]="['/admin/users/', row.id]"
+                    routerLinkActive="list-item-active" [routerLink]="['/admin/users/', row._id]"
                     class="rows">
                 </tr>
             </table>

@@ -27,6 +27,7 @@ services:
       - KB_CHANNELID_FILE=/secrets/kb_channelid.secret
       - KB_PAPERKEY_FILE=/secrets/kb_paperkey.secret
       - MONGO_ADDRESS=mongodb://mongo:27017/stalker
+      - FM_JWT_SECRET_FILE=/secrets/fm_jwt_secret.secret
     links:
       - "jqh:jobsqueuehandler"
       - "mongo:db"

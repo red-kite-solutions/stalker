@@ -1,11 +1,17 @@
-import { Body, Controller, Get, HttpException, Patch, Post, PreconditionFailedException, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, Patch, Post, PreconditionFailedException, UseGuards, ValidationPipe } from '@nestjs/common';
 import { JobsQueueUtils } from 'src/utils/jobs_queue.utils';
 // import { UpdateIPAddressesDto } from './automation.dto';
 // import { Job } from './jobs.model';
 import { AutomationService } from './automation.service';
 import { v4 } from 'uuid';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '../auth/constants';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/role.guard';
 
 
+@Roles(Role.User)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('automation')
 export class AutomationController {
     private ipRefreshRunning: boolean;

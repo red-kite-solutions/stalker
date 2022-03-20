@@ -67,6 +67,9 @@
                 <mat-error *ngIf="!this.profileEditValid">
                     Please correct the invalid information before submitting
                 </mat-error>
+                <mat-error *ngIf="this.invalidPassword">
+                    Password is invalid
+                </mat-error>
 
                 <div class="center">
                     <button class="button" mat-raised-button color="primary" [disabled]="!profileForm.form.valid">Save Changes</button>

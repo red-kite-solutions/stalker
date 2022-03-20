@@ -37,7 +37,7 @@ export class DomainsService extends BaseService<Domain, Domain> {
             newDomains.push.apply(newDomains, DomainTreeUtils.growDomainTree(program, domainName));
         });
 
-        if (this.configService.config.IsNewContentReported) {
+        if (this.configService.config.isNewContentReported) {
             this.reportService.addNewDomains(programName, subdomains);
         }
         
@@ -128,29 +128,29 @@ export class DomainsService extends BaseService<Domain, Domain> {
      * @param program The name of the program
      * @param callback The function to run
      */
-    public async runForEachAndUpdate(program: string, callback: Function): Promise<void> {
-        let i = 0;
-        let p: Program = await this.getProgramFilterDomainAtIndex(program, i);
-        let d: Domain;
-        if (p && p.domains) {
-            d = p.domains[0];
-        }
-        while(d) {
+    // public async runForEachAndUpdate(program: string, callback: Function): Promise<void> {
+    //     let i = 0;
+    //     let p: Program = await this.getProgramFilterDomainAtIndex(program, i);
+    //     let d: Domain;
+    //     if (p && p.domains) {
+    //         d = p.domains[0];
+    //     }
+    //     while(d) {
             
-            DomainTreeUtils.doForEveryLeaf(d, callback);
-            let search = {"name": program, "domains.name": d.name}
-            let filterData = [{ $set: { "domains.$": d }}];
-            this.updateOneFilter(search, filterData);
-            i++;
-            p = await this.getProgramFilterDomainAtIndex(program, i);
-            if (p && p.domains) {
-                d = p.domains[0];
-            } else {
-                d = null;
-            }
+    //         DomainTreeUtils.doForEveryLeaf(d, callback);
+    //         let search = {"name": program, "domains.name": d.name}
+    //         let filterData = [{ $set: { "domains.$": d }}];
+    //         this.updateOneFilter(search, filterData);
+    //         i++;
+    //         p = await this.getProgramFilterDomainAtIndex(program, i);
+    //         if (p && p.domains) {
+    //             d = p.domains[0];
+    //         } else {
+    //             d = null;
+    //         }
             
-        }
-    }
+    //     }
+    // }
 
     /**
      * Runs the function callback for each leaf of a program's domain trees.

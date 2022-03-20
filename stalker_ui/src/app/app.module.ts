@@ -8,6 +8,9 @@ import { AuthenticationModule } from './layouts/authentication/authentication.mo
 import { SharedModule } from './shared/shared.module';
 import { NotFoundModule } from './error-pages/not-found/not-found.module';
 import { ToastrModule } from 'ngx-toastr';
+import { AuthService } from './api/auth/auth.service';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { JwtInterceptor } from './middlewares/jwt.interceptor';
 
 @NgModule({
   declarations: [
@@ -31,9 +34,12 @@ import { ToastrModule } from 'ngx-toastr';
         success: 'toast-success',
         warning: 'toast-warning',
       }
-    })
+    }),
+    HttpClientModule
   ],
-  providers: [],
+  providers: [AuthService,
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

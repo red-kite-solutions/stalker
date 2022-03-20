@@ -10,8 +10,15 @@
         <mat-tab-group>
             <mat-tab label="Reporting">
                 <div fxLayout="row" class="header-check" fxLayoutAlign="flex-start center">
+                    <mat-checkbox class="inrow" [(ngModel)]="reportingEnabled" (ngModelChange)="toggleReporting($event.checked)">Enable Reporting</mat-checkbox>
+                </div>
+
+                <br>
+                <mat-divider></mat-divider>
+
+                <div fxLayout="row" class="header-check" fxLayoutAlign="flex-start center">
                     <h3 class="inrow">Keybase</h3>
-                    <mat-checkbox class="inrow" [(ngModel)]="keybaseEnabled" (ngModelChange)="toggleKeybaseForm($event.checked)">Enable Keybase Reporting</mat-checkbox>
+                    <mat-checkbox [disabled]="!reportingEnabled" class="inrow" [(ngModel)]="keybaseEnabled" (ngModelChange)="toggleKeybaseForm($event.checked)">Enable Keybase Reporting</mat-checkbox>
                     <button [disabled]="!keybaseReportingForm.valid" type="button" class="inrow" mat-icon-button (click)="syncKeybase()" matTooltip="Validate Keybase credentials">
                         <mat-icon class="material-icons-outlined">sync</mat-icon>
                     </button>

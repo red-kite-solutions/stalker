@@ -65,7 +65,7 @@ export class HostService extends BaseService<Host, Host> {
             });
         }
 
-        if (this.configService.config.IsNewContentReported) {
+        if (this.configService.config.isNewContentReported) {
             this.reportService.addNewHosts(program.name, dto.domainName, dto.ips);
         }
 

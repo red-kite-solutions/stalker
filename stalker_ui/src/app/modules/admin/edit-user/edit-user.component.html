@@ -5,7 +5,7 @@
                 <button type="button" mat-icon-button routerLinkActive="list-item-active" routerLink="/admin/users">
                     <mat-icon class="material-icons-outlined">arrow_back</mat-icon>
                 </button>
-                Edit User {{userId}}
+                Edit User
             </h1>
             <form  [formGroup]="form" >
                 
@@ -62,7 +62,7 @@
 
                 <mat-form-field class="formfieldblock">
                     <!-- <input matInput type="password" placeholder="Password" name="password" formControlName="password"> -->
-                    <input matInput [type]="hideUserPassword ? 'password' : 'text'" placeholder="New Password" name="newPassword" formControlName="newPassword" required>
+                    <input matInput [type]="hideUserPassword ? 'password' : 'text'" placeholder="New Password" name="newPassword" formControlName="newPassword">
                     <button type="button" mat-icon-button matSuffix (click)="hideUserPassword = !hideUserPassword" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hideCurrentPassword">
                         <mat-icon>{{hideUserPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
                     </button>
@@ -92,10 +92,13 @@
                 <mat-error *ngIf="!this.newUserValid">
                     Please correct the invalid information before submitting
                 </mat-error>
+                <mat-error *ngIf="this.invalidPassword">
+                    Password is invalid
+                </mat-error>
 
                 <div class="center">
-                    <button class="button" mat-raised-button color="primary" [disabled]="!profileForm.form.valid" (click)="onSubmit()">Save Changes</button>
-                    <button class="button" mat-raised-button color="warn" [disabled]="!profileForm.form.valid" (click)="deleteUser()">Delete user</button>
+                    <button type="button" class="button" mat-raised-button color="primary" [disabled]="!profileForm.form.valid" (click)="onSubmit()">Save Changes</button>
+                    <button type="button" class="button" mat-raised-button color="warn" (click)="deleteUser()">Delete user</button>
                 </div>
             </form>
         </mat-card-content>

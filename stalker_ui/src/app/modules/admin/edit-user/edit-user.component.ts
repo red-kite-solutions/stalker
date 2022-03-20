@@ -2,7 +2,10 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, ValidationErrors, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs';
+import { UsersService } from 'src/app/api/users/users.service';
+import { User } from 'src/app/shared/types/user.interface';
 import { ConfirmDialogComponent, ConfirmDialogData } from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
 
 interface Role {
@@ -20,7 +23,8 @@ export class EditUserComponent implements OnInit, OnDestroy {
   passwordConfirm: string = "";
   currentPassword: string = "";
   newUserValid: boolean = true;
-  userId: number = -1;
+  userId: string = "";
+  invalidPassword: boolean = false;
   
   roles: Role[] = [
     { name: "admin", description: "Has full control over the application.", shortDescription: "Full control" }, 
@@ -70,29 +74,79 @@ export class EditUserComponent implements OnInit, OnDestroy {
   hideUserPassword: boolean = true;
   private routeSub: Subscription | undefined;
 
-  constructor(private fb: FormBuilder, public dialog: MatDialog, private route: ActivatedRoute) { }
+  constructor(
+    private fb: FormBuilder, 
+    public dialog: MatDialog, 
+    private route: ActivatedRoute, 
+    private usersService: UsersService, 
+    private toastr: ToastrService,
+    private router: Router) { }
 
   
 
   ngOnInit(): void {
-    this.routeSub = this.route.params.subscribe(params => {
-      // TODO: Load data from backend
+    this.routeSub = this.route.params.subscribe( async (params) => {
       this.userId = params['id'];
-      this.form.controls["firstName"].setValue("John");
-      this.form.controls["lastName"].setValue("Doe");
-      this.form.controls["email"].setValue("john.doe@example.com");
-      this.form.controls["role"].setValue(this.roles.find((role: Role) => role.name === "admin" ));
-      this.form.controls["active"].setValue(true);
 
+      let user: User | null = await this.usersService.getUser(this.userId);
+      if (user) {
+        this.form.controls["firstName"].setValue(user.firstName);
+        this.form.controls["lastName"].setValue(user.lastName);
+        this.form.controls["email"].setValue(user.email);
+        this.form.controls["role"].setValue(this.roles.find((role: Role) => role.name === user?.role ));
+        this.form.controls["active"].setValue(user.active);
+      } else {
+        this.toastr.error("Error loading user");
+      }
     });
   }
 
-  onSubmit() {
-    console.log("on submit");
+  async onSubmit() {
     this.newUserValid = this.form.valid;
     if (!this.newUserValid) {
       this.form.markAllAsTouched();
+      return;
     }
+
+    let changes: Partial<User> = {
+      firstName: this.form.controls["firstName"].value,
+      lastName: this.form.controls["lastName"].value,
+      email: this.form.controls["email"].value,
+      active: this.form.controls["active"].value
+    };
+
+    let res: string = await this.usersService.editUser(this.userId, changes, this.currentPassword);
+
+    if (res === "Success") {
+      this.invalidPassword = false;
+      this.toastr.success("User changed successfully");
+    } else if (res === "Invalid password"){
+      this.invalidPassword = true;
+      this.toastr.error("Invalid password");
+      return;
+    } else {
+      this.invalidPassword = false;
+      this.toastr.error("Error while submitting changes");
+    }
+
+    if(this.form.controls["newPassword"].value != "") {
+      res = await this.usersService.changeUserPassword(
+        this.userId, 
+        this.form.controls["newPassword"].value, 
+        this.currentPassword);
+
+      if (res === "Success") {
+        this.invalidPassword = false;
+        this.toastr.success("Password changed successfully");
+      } else if (res === "Invalid password") {
+        this.invalidPassword = true;
+        this.toastr.error("Invalid password");
+      } else {
+        this.invalidPassword = false;
+        this.toastr.error("Error while submitting new password");
+      }
+    }
+
   }
 
   showUserRolesHelp() {
@@ -103,13 +157,13 @@ export class EditUserComponent implements OnInit, OnDestroy {
     
     
     let data: ConfirmDialogData = {
-      text: "Setting a user role is a crucial part of user creation. Their role will define what they can and cannot do in Stalker.",
+      text: "The user role is a crucial part of any user. Their role will define what they can and cannot do in Stalker.",
       title: "User roles",
       positiveButtonText: "Got it",
       listElements:  bulletPoints,
       onPositiveButtonClick: () => {
         this.dialog.closeAll();
-      }        
+      }
     }
     
     this.dialog.open(ConfirmDialogComponent, {
@@ -127,8 +181,15 @@ export class EditUserComponent implements OnInit, OnDestroy {
       onPositiveButtonClick: () => {
         this.dialog.closeAll();
       },
-      onNegativeButtonClick: () => {
+      onNegativeButtonClick: async () => {
         console.log(`Deleting user ${this.userId}`);
+        let res: string = await this.usersService.deleteUser(this.userId);
+        if (res === "Success") {
+          this.toastr.success("User deleted successfully");
+          this.router.navigate(['/admin/users']);
+        } else {
+          this.toastr.error(`Error deleting user`);
+        }
         this.dialog.closeAll();
       }
     }

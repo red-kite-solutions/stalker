@@ -1,6 +1,6 @@
 <mat-card-content>
     <h1>Sign In</h1>
-    <form #loginForm="ngForm" (ngSubmit)="onSubmit()">
+    <form #loginForm="ngForm" (ngSubmit)="onSubmit()" (keyup.enter)="onSubmit()">
         <mat-form-field appearance="outline">
             <mat-label>Email</mat-label>
             <input matInput [(ngModel)]="username" name="username" required>
@@ -12,7 +12,7 @@
         <mat-form-field appearance="outline">
             <mat-label>Password</mat-label>
             <input matInput [type]="hide ? 'password' : 'text'" [(ngModel)]="password" name="password" required>
-            <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
+            <button type="button" mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
                 <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
             </button>
             <mat-error>
@@ -21,10 +21,10 @@
         </mat-form-field>
 
         <mat-error *ngIf="!loginValid">
-            Username and password were not recognized
+            Username and password combination were not recognized
         </mat-error>
 
-        <button class="submitButton" mat-raised-button color="primary" [disabled]="!loginForm.form.valid">Login</button>
+        <button type="button" class="submitButton" mat-raised-button color="primary" [disabled]="!loginForm.form.valid" (click)="onSubmit()">Login</button>
 
     </form>
 </mat-card-content>

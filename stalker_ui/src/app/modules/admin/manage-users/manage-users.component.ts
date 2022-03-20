@@ -6,38 +6,10 @@ import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent, ConfirmDialogData } from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
+import { User } from 'src/app/shared/types/user.interface';
+import { UsersService } from 'src/app/api/users/users.service';
+import { ToastrService } from 'ngx-toastr';
 
-export interface User {
-  firstName: string;
-  lastName: string;
-  id: number;
-  email: string;
-  role: string;
-  active: boolean;
-}
-
-const ELEMENT_DATA: User[] = [
-  {id: 1, firstName: 'Hydrogen', lastName: 'Hydrogen', email: "first.last@example.com", role: "admin", active: false},
-  {id: 2, firstName: 'Helium', lastName: 'Hydrogen', email: "first.last@example.com", role: "admin", active: true},
-  {id: 3, firstName: 'Lithium', lastName: 'Hydrogen', email: "first.last@example.com", role: "admin", active: true},
-  {id: 4, firstName: 'Beryllium', lastName: 'Hydrogen', email: "first.last@example.com", role: "admin", active: true},
-  {id: 5, firstName: 'Boron', lastName: 'Hydrogen', email: "first.last@example.com", role: "admin", active: true},
-  {id: 6, firstName: 'Carbon', lastName: 'Hydrogen', email: "first.last@example.com", role: "admin", active: false},
-  {id: 7, firstName: 'Nitrogen', lastName: 'Hydrogen', email: "first.last@example.com", role: "admin", active: true},
-  {id: 8, firstName: 'Oxygen', lastName: 'Hydrogen', email: "first.last@example.com", role: "admin", active: true},
-  {id: 9, firstName: 'Fluorine', lastName: 'Hydrogen', email: "first.last@example.com", role: "user", active: true},
-  {id: 10, firstName: 'Neon', lastName: 'Hydrogen', email: "first.last@example.com", role: "user", active: true},
-  {id: 11, firstName: 'Sodium', lastName: 'Hydrogen', email: "first.last@example.com", role: "user", active: false},
-  {id: 12, firstName: 'Magnesium', lastName: 'Hydrogen', email: "first.last@example.com", role: "user", active: false},
-  {id: 13, firstName: 'Aluminum', lastName: 'Hydrogen', email: "first.last@example.com", role: "user", active: true},
-  {id: 14, firstName: 'Silicon', lastName: 'Hydrogen', email: "first.last@example.com", role: "read-only", active: false},
-  {id: 15, firstName: 'Phosphorus', lastName: 'Hydrogen', email: "first.last@example.com", role: "read-only", active: true},
-  {id: 16, firstName: 'Sulfur', lastName: 'Hydrogen', email: "first.last@example.com", role: "read-only", active: true},
-  {id: 17, firstName: 'Chlorine', lastName: 'Hydrogen', email: "first.last@example.com", role: "read-only", active: true},
-  {id: 18, firstName: 'Argon', lastName: 'Hydrogen', email: "first.last@example.com", role: "read-only", active: false},
-  {id: 19, firstName: 'Potassium', lastName: 'Hydrogen', email: "first.last@example.com", role: "read-only", active: true},
-  {id: 20, firstName: 'Calcium', lastName: 'Hydrogen', email: "first.last@example.com", role: "read-only", active: false},
-];
 
 @Component({
   selector: 'app-manage-users',
@@ -45,24 +17,26 @@ const ELEMENT_DATA: User[] = [
   styleUrls: ['./manage-users.component.scss']
 })
 export class ManageUsersComponent implements OnInit {
-  displayedColumns: string[] = ['select', 'id', 'firstName', 'lastName', 'email', 'role', 'active'];
-  dataSource = new MatTableDataSource<User>(ELEMENT_DATA);
+  displayedColumns: string[] = ['select', 'firstName', 'lastName', 'email', 'role', 'active'];
+  // dataSource = new MatTableDataSource<User>(ELEMENT_DATA);
+  dataSource = new MatTableDataSource<User>();
   selection = new SelectionModel<User>(true, []);
   
   @ViewChild(MatSort) sort: MatSort | null;
   @ViewChild(MatPaginator) paginator: MatPaginator | null;
 
-  constructor(private _liveAnnouncer: LiveAnnouncer, public dialog: MatDialog) { 
+  constructor(private _liveAnnouncer: LiveAnnouncer, public dialog: MatDialog, private usersService: UsersService, private toastr: ToastrService) { 
     this.sort = null;
     this.paginator = null;
   }
 
-  ngOnInit(): void {
-  }
-
-  ngAfterViewInit() {
-    this.dataSource.sort = this.sort;
-    this.dataSource.paginator = this.paginator;
+  async ngOnInit(): Promise<void> {
+    let data = await this.usersService.getAllUsers();
+    if(data) {
+      this.dataSource = new MatTableDataSource<User>(data);
+      this.dataSource.sort = this.sort;
+      this.dataSource.paginator = this.paginator;
+    }
   }
 
   /** Whether the number of selected elements matches the total number of rows. */
@@ -87,7 +61,7 @@ export class ManageUsersComponent implements OnInit {
     if (!row) {
       return `${this.isAllSelected() ? 'deselect' : 'select'} all`;
     }
-    return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.id + 1}`;
+    return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row._id + 1}`;
   }
 
 
@@ -102,10 +76,6 @@ export class ManageUsersComponent implements OnInit {
     } else {
       this._liveAnnouncer.announce('Sorting cleared');
     }
-  }
-
-  editUser(row : User) {
-    console.log("Going to edit user " + row.id);
   }
 
   deleteUsers() {
@@ -125,9 +95,18 @@ export class ManageUsersComponent implements OnInit {
           this.dialog.closeAll();
         },
         onNegativeButtonClick: () => {
-          this.selection.selected.forEach((user: User) => {
-            console.log(`Deleting user ${user.id}`);
-            this.selection.deselect(user);
+          this.selection.selected.forEach(async (user: User) => {
+            let res: string = await this.usersService.deleteUser(user._id);
+            if (res === "Success") {
+              this.selection.deselect(user);
+              let removeIndex = this.dataSource.data.findIndex((u: User) => u._id === user._id);
+              this.dataSource.data.splice(removeIndex, 1);
+              this.dataSource.sort = this.sort;
+              this.dataSource.paginator = this.paginator;
+              this.toastr.success("User deleted successfully");
+            } else {
+              this.toastr.error(`Error deleting user ${user.email}`);
+            }
           });
           this.dialog.closeAll();
         }
@@ -151,19 +130,19 @@ export class ManageUsersComponent implements OnInit {
 
   displayColumns() {
     if (window.screen.availWidth < 450) {
-      return ['id', 'firstName', 'role'];
+      return ['firstName', 'lastName', 'role'];
     }
     if (window.screen.availWidth < 525) {
-      return ['id', 'firstName', 'lastName', 'role'];
+      return ['firstName', 'lastName', 'role', 'active'];
     }
     if (window.screen.availWidth < 625) {
-      return ['id', 'firstName', 'lastName', 'role', 'active'];
+      return ['select', 'firstName', 'lastName', 'role', 'active'];
     }
     return this.displayedColumns;
   }
 
   hideDelete() {
-    return window.screen.availWidth < 625;
+    return window.screen.availWidth < 525;
   }
 
   

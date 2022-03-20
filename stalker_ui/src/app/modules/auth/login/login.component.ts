@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { AuthService } from 'src/app/api/auth/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -10,13 +12,19 @@ export class LoginComponent implements OnInit {
   password: string = "";
   hide: boolean = true;
   loginValid: boolean = true;
-  constructor() { }
+  constructor(private authService: AuthService, private router: Router) { }
 
   ngOnInit(): void {
   }
 
-  onSubmit() {
+  async onSubmit() {
 
+    let res = await this.authService.login(this.username, this.password);
+
+    this.loginValid = res;
+    if (res) {
+      this.router.navigate(['/']);
+    }
   }
 
 }

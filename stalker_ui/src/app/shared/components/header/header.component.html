@@ -18,11 +18,13 @@
         </form>
 
         <div>
-            <button mat-icon-button>
+            <!-- <button mat-icon-button>
                 <mat-icon>help_outline</mat-icon>
-            </button>
-            <button mat-icon-button [matMenuTriggerFor]="menu">
+            </button> -->
+            <!-- <button mat-icon-button [matMenuTriggerFor]="menu"> -->
+            <button mat-button [matMenuTriggerFor]="menu">
                 <mat-icon>person_outline</mat-icon>
+                <span fxHide.lt-md="true">{{ email }}</span>
             </button>
         </div>
 
@@ -34,7 +36,7 @@
         <mat-icon class="material-icons-outlined">badge</mat-icon>
         Profile
     </button>
-    <button mat-menu-item>
+    <button mat-menu-item type="button" (click)="logout()">
         <mat-icon>exit_to_app</mat-icon>
         Sign out
     </button>
