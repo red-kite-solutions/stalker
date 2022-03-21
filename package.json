@@ -1,0 +1,19 @@
+{
+  "name": "stalker",
+  "version": "1.0.0",
+  "scripts": {
+    "prepare": "husky install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lm-sec/Stalker.git"
+  },
+  "author": "",
+  "bugs": {
+    "url": "https://github.com/lm-sec/Stalker/issues"
+  },
+  "homepage": "https://github.com/lm-sec/Stalker#readme",
+  "devDependencies": {
+    "husky": "^7.0.4"
+  }
+}

@@ -1,9 +1,9 @@
-import { IsNotEmpty } from "class-validator";
+import { IsNotEmpty } from 'class-validator';
 
 export class SubmitHostDto {
-    @IsNotEmpty()
-    domainName: string
+  @IsNotEmpty()
+  domainName: string;
 
-    @IsNotEmpty()
-    ips: string[]
+  @IsNotEmpty()
+  ips: string[];
 }
