@@ -1,3 +1,3 @@
 export interface StringStatusResponse {
-    status: "Success" | "Error" | "Invalid password" | "Already exists";
+  status: 'Success' | 'Error' | 'Invalid password' | 'Already exists';
 }

@@ -9,7 +9,7 @@ import dot from 'dot-object';
 
 @Injectable()
 export class ConfigService extends BaseService<Config, Config> {
-  public PASSWORD_PLACEHOLDER: string = '********';
+  public PASSWORD_PLACEHOLDER = '********';
 
   constructor(
     @InjectModel('config') private readonly configModel: Model<Config>,
@@ -25,7 +25,7 @@ export class ConfigService extends BaseService<Config, Config> {
   }
 
   public async submitConfig(configUpdate: SubmitConfigDto): Promise<void> {
-    let conf: Partial<Config> = {};
+    const conf: Partial<Config> = {};
 
     // Reporting
     if (
@@ -73,7 +73,7 @@ export class ConfigService extends BaseService<Config, Config> {
   }
 
   public async getConfig(): Promise<Config> {
-    let conf: Config = await this.model.findOne({}).lean();
+    const conf: Config = await this.model.findOne({}).lean();
 
     if (conf.keybaseConfig?.paperkey) {
       conf.keybaseConfig.paperkey = this.PASSWORD_PLACEHOLDER;

@@ -1,17 +1,16 @@
-import { InjectModel } from '@nestjs/mongoose';
 import { HttpException, Injectable } from '@nestjs/common';
-import { Domain } from './domain.model';
-import { BaseService } from '../../../../services/base.service';
-import { SubmitSubdomainDto, SubmitSubdomainManuallyDto } from './domain.dto';
+import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { JobsService, JobTypes } from '../../jobs/jobs.service';
-import { ProgramService } from '../program.service';
-import { DomainTreeUtils } from '../../../../utils/domain_tree.utils';
-import { DomainsModule } from './domain.module';
-import { DomainNameResolvingJob } from '../../jobs/jobs_factory/domain_name_resolving.job';
-import { ReportService } from '../report/report.service';
-import { Program } from '../program.model';
+import { BaseService } from '../../../../services/base.service';
+import * as DomainTreeUtils from '../../../../utils/domain_tree.utils';
 import { ConfigService } from '../../admin/config/config.service';
+import { JobsService, JobTypes } from '../../jobs/jobs.service';
+import { DomainNameResolvingJob } from '../../jobs/jobs_factory/domain_name_resolving.job';
+import { Program } from '../program.model';
+import { ProgramService } from '../program.service';
+import { ReportService } from '../report/report.service';
+import { SubmitSubdomainDto, SubmitSubdomainManuallyDto } from './domain.dto';
+import { Domain } from './domain.model';
 
 @Injectable()
 export class DomainsService extends BaseService<Domain, Domain> {
@@ -29,8 +28,8 @@ export class DomainsService extends BaseService<Domain, Domain> {
     subdomains: string[],
     programName: string,
   ) {
-    let programFilter = { name: programName };
-    let program = await this.programService.findOne(programFilter);
+    const programFilter = { name: programName };
+    const program = await this.programService.findOne(programFilter);
 
     if (!program) {
       throw new HttpException(
@@ -39,7 +38,7 @@ export class DomainsService extends BaseService<Domain, Domain> {
       );
     }
 
-    let newDomains: string[] = [];
+    const newDomains: string[] = [];
     subdomains.forEach((domainName) => {
       newDomains.push.apply(
         newDomains,
@@ -55,7 +54,7 @@ export class DomainsService extends BaseService<Domain, Domain> {
 
     // For each new domain name found, create a domain name resolution job for the domain
     newDomains.forEach((domain) => {
-      let manuJob: DomainNameResolvingJob = this.jobService.manufactureJob(
+      const manuJob: DomainNameResolvingJob = this.jobService.manufactureJob(
         JobTypes.DOMAIN_NAME_RESOLVING,
         programName,
       ) as DomainNameResolvingJob;
@@ -117,7 +116,7 @@ export class DomainsService extends BaseService<Domain, Domain> {
 
   public async addDomains(dto: SubmitSubdomainDto, jobId: string) {
     // Find the proper program using the jobId and then the program name
-    let job = await this.jobService.findOne({ jobId: jobId });
+    const job = await this.jobService.findOne({ jobId: jobId });
 
     if (!job) {
       throw new HttpException('The job id is invalid.', 400);

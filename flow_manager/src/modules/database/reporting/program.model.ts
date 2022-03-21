@@ -6,14 +6,14 @@ export type ProgramDocument = Program & Document;
 
 @Schema()
 export class Program {
-    @Prop()
-    public name: string;
+  @Prop()
+  public name: string;
 
-    @Prop()
-    public domains?: Domain[];
+  @Prop()
+  public domains?: Domain[];
 
-    @Prop()
-    public ip_ranges?: Object[];
+  @Prop()
+  public ip_ranges?: Object[];
 }
 
 export const ProgramSchema = SchemaFactory.createForClass(Program);

@@ -6,7 +6,7 @@ import { SubmitHostDto } from './host.dto';
 import { Model } from 'mongoose';
 import { JobsService } from '../../jobs/jobs.service';
 import { ProgramService } from '../program.service';
-import { DomainTreeUtils } from '../../../../utils/domain_tree.utils';
+import * as DomainTreeUtils from '../../../../utils/domain_tree.utils';
 import { Domain } from '../domain/domain.model';
 import { ReportService } from '../report/report.service';
 import { ConfigService } from '../../admin/config/config.service';
@@ -25,14 +25,14 @@ export class HostService extends BaseService<Host, Host> {
 
   public async addHostsToDomain(dto: SubmitHostDto, jobId: string) {
     // Find the proper program using the jobId and then the program name
-    let job = await this.jobService.findOne({ jobId: jobId });
+    const job = await this.jobService.findOne({ jobId: jobId });
 
     if (!job) {
       console.log('Could not find the job ' + jobId);
       throw new HttpException('The job id is invalid.', 400);
     }
-    let programFilter = { name: job.program };
-    let program = await this.programService.findOne(programFilter);
+    const programFilter = { name: job.program };
+    const program = await this.programService.findOne(programFilter);
 
     if (!program) {
       console.log('Could not find the program ' + job.program);
@@ -42,7 +42,7 @@ export class HostService extends BaseService<Host, Host> {
       );
     }
 
-    let domain: Domain = DomainTreeUtils.findDomainObject(
+    const domain: Domain = DomainTreeUtils.findDomainObject(
       program,
       dto.domainName,
     );
@@ -59,14 +59,14 @@ export class HostService extends BaseService<Host, Host> {
       domain.hosts = [];
       newIps = dto.ips;
       dto.ips.forEach((ip) => {
-        let newHost = new Host();
+        const newHost = new Host();
         newHost.ip = ip;
         domain.hosts.push(newHost);
       });
     } else {
       dto.ips.forEach((ip) => {
         if (!domain.hosts.some((host) => host.ip === ip)) {
-          let newHost = new Host();
+          const newHost = new Host();
           newHost.ip = ip;
           domain.hosts.push(newHost);
           newIps.push(ip);

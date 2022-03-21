@@ -5,28 +5,26 @@ export type UserDocument = User & Document;
 
 @Schema()
 export class User {
+  @Prop({ unique: true })
+  public email: string;
 
-    @Prop({ unique: true })
-    public email: string;
+  @Prop()
+  public firstName: string;
 
-    @Prop()
-    public firstName: string;
+  @Prop()
+  public lastName: string;
 
-    @Prop()
-    public lastName: string;
+  @Prop({ select: false })
+  public password: string;
 
-    @Prop({ select: false })
-    public password: string;
+  @Prop()
+  public active: boolean;
 
-    @Prop()
-    public active: boolean;
+  @Prop()
+  public role: string;
 
-    @Prop()
-    public role: string;
-
-    @Prop({ select: false })
-    public refreshToken: string;
-
+  @Prop({ select: false })
+  public refreshToken: string;
 }
 
 export const UsersSchema = SchemaFactory.createForClass(User);

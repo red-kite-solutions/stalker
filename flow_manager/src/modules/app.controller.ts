@@ -7,17 +7,17 @@ import { RolesGuard } from './auth/guards/role.guard';
 
 @Controller()
 export class AppController {
-    constructor(private readonly appService: AppService) {}
+  constructor(private readonly appService: AppService) {}
 
-    @Get()
-    getHello(): string {
-        return this.appService.getHello();
-    }
+  @Get()
+  getHello(): string {
+    return this.appService.getHello();
+  }
 
-    @Roles(Role.ReadOnly)
-    @UseGuards(JwtAuthGuard, RolesGuard)
-    @Get("ping")
-    ping(): string {
-        return "pong";
-    }
+  @Roles(Role.ReadOnly)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Get('ping')
+  ping(): string {
+    return 'pong';
+  }
 }

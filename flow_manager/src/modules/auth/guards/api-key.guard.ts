@@ -3,11 +3,9 @@ import { API_KEY } from '../constants';
 
 @Injectable()
 export class ApiKeyGuard implements CanActivate {
-    constructor() { }
+  canActivate(context: ExecutionContext) {
+    const request = context.switchToHttp().getRequest();
 
-    canActivate(context: ExecutionContext) {
-        const request = context.switchToHttp().getRequest();
-
-        return request?.headers?.api_key === API_KEY;
-    }
+    return request?.headers?.api_key === API_KEY;
+  }
 }

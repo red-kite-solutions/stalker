@@ -1,13 +1,11 @@
 import {
   Controller,
   Delete,
-  Get,
   Post,
   Put,
   Request,
   UseGuards,
 } from '@nestjs/common';
-// import { UserPasswordAuthDto } from './auth.dto';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import JwtRefreshGuard from './guards/jwt-refresh.guard';

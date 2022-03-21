@@ -1,10 +1,10 @@
-import { ExtractJwt, Strategy } from 'passport-jwt';
-import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
-import { jwtConstants, rtConstants } from '../constants';
+import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
+import { ExtractJwt, Strategy } from 'passport-jwt';
+import { UserDocument } from 'src/modules/database/users/users.model';
 import { UsersService } from 'src/modules/database/users/users.service';
-import { User, UserDocument } from 'src/modules/database/users/users.model';
+import { rtConstants } from '../constants';
 
 @Injectable()
 export class RefreshTokenStrategy extends PassportStrategy(
@@ -26,10 +26,11 @@ export class RefreshTokenStrategy extends PassportStrategy(
 
   public async validate(req: Request, payload: any) {
     const refreshToken = req.body?.refresh_token;
-    const user: UserDocument = await this.usersService.getUserIfRefreshTokenMatches(
-      refreshToken,
-      payload.id,
-    );
+    const user: UserDocument =
+      await this.usersService.getUserIfRefreshTokenMatches(
+        refreshToken,
+        payload.id,
+      );
 
     return { id: user._id, role: user.role, email: user.email };
   }

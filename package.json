@@ -1,10 +1,19 @@
 {
-  "dependencies": {
-    "@nestjs/jwt": "^8.0.0",
-    "dot-object": "^2.1.4",
-    "passport-jwt": "^4.0.0"
-  },
-  "devDependencies": {
-    "@types/passport-jwt": "^3.0.6"
+    "name": "stalker",
+    "version": "1.0.0",
+    "scripts": {
+      "prepare": "husky install"
+    },
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/lm-sec/Stalker.git"
+    },
+    "author": "",
+    "bugs": {
+      "url": "https://github.com/lm-sec/Stalker/issues"
+    },
+    "homepage": "https://github.com/lm-sec/Stalker#readme",
+    "devDependencies": {
+      "husky": "^7.0.4"
+    }
   }
-}

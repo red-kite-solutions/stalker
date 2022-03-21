@@ -1,4 +1,10 @@
-import { Body, Controller, Get, HttpException, Param, Post, UseGuards, ValidationPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  UseGuards,
+  ValidationPipe,
+} from '@nestjs/common';
 import { Role } from 'src/modules/auth/constants';
 import { Roles } from 'src/modules/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
@@ -10,10 +16,12 @@ import { KeybaseService } from './keybase.service';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('alert/keybase')
 export class KeybaseController {
-    constructor(private readonly keybaseService: KeybaseService) {}
+  constructor(private readonly keybaseService: KeybaseService) {}
 
-    @Post()
-    async sendSimpleAlert(@Body(new ValidationPipe()) dto: SendSimpleAlertDto): Promise<void> {
-        await this.keybaseService.sendSimpleAlert(dto);
-    }
+  @Post()
+  async sendSimpleAlert(
+    @Body(new ValidationPipe()) dto: SendSimpleAlertDto,
+  ): Promise<void> {
+    await this.keybaseService.sendSimpleAlert(dto);
+  }
 }

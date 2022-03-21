@@ -1,4 +1,11 @@
-import { Body, Controller, Get, HttpException, Param, Post, UseGuards, ValidationPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  UseGuards,
+  ValidationPipe,
+} from '@nestjs/common';
 import { Role } from 'src/modules/auth/constants';
 import { Roles } from 'src/modules/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
@@ -7,29 +14,30 @@ import { ReportEntryDto, SendReportDto } from './report.dto';
 import { Report } from './report.model';
 import { ReportService } from './report.service';
 
-
-
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('report/daily')
 export class ReportController {
-    constructor(private readonly reportService: ReportService) {}
+  constructor(private readonly reportService: ReportService) {}
 
-    @Roles(Role.User)
-    @Post("note")
-    async addSpecialNote(@Body(new ValidationPipe()) dto: ReportEntryDto): Promise<void> {
-        await this.reportService.addSpecialNote(dto);
-    }
+  @Roles(Role.User)
+  @Post('note')
+  async addSpecialNote(
+    @Body(new ValidationPipe()) dto: ReportEntryDto,
+  ): Promise<void> {
+    await this.reportService.addSpecialNote(dto);
+  }
 
+  @Roles(Role.ReadOnly)
+  @Get()
+  async getCurrentReport(): Promise<Report> {
+    return await this.reportService.getCurrentReport();
+  }
 
-    @Roles(Role.ReadOnly)
-    @Get()
-    async getCurrentReport(): Promise<Report> {
-        return await this.reportService.getCurrentReport();
-    }
-
-    @Roles(Role.User)
-    @Post("send")
-    async sendCurrentReport(@Body(new ValidationPipe()) dto: SendReportDto): Promise<void> {
-        this.reportService.sendReport(dto.reportDate);
-    }
+  @Roles(Role.User)
+  @Post('send')
+  async sendCurrentReport(
+    @Body(new ValidationPipe()) dto: SendReportDto,
+  ): Promise<void> {
+    this.reportService.sendReport(dto.reportDate);
+  }
 }

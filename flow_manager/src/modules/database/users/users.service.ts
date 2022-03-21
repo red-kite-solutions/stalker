@@ -1,11 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { BaseService } from 'src/services/base.service';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { User, UserDocument } from './users.model';
-import { CreateUserDto } from './users.dto';
 import * as argon2 from 'argon2';
-import { v4 } from 'uuid';
+import { Model } from 'mongoose';
+import { BaseService } from 'src/services/base.service';
+import { User, UserDocument } from './users.model';
 
 @Injectable()
 export class UsersService extends BaseService<User, User> {
@@ -30,9 +28,9 @@ export class UsersService extends BaseService<User, User> {
   }
 
   public async createUser(dto: Partial<User>): Promise<any> {
-    let pass: string = await argon2.hash(dto.password, this.options);
+    const pass: string = await argon2.hash(dto.password, this.options);
 
-    let user: User = {
+    const user: User = {
       email: dto.email,
       firstName: dto.firstName,
       lastName: dto.lastName,
@@ -74,12 +72,12 @@ export class UsersService extends BaseService<User, User> {
   }
 
   public async changePasswordByEmail(email: string, password: string) {
-    let pass: string = await argon2.hash(password, this.options);
+    const pass: string = await argon2.hash(password, this.options);
     return this.update({ email: email }, { password: pass });
   }
 
   public async changePasswordById(id: string, password: string) {
-    let pass: string = await argon2.hash(password, this.options);
+    const pass: string = await argon2.hash(password, this.options);
     return this.update({ _id: id }, { password: pass });
   }
 
@@ -91,7 +89,7 @@ export class UsersService extends BaseService<User, User> {
     email: string,
     password: string,
   ): Promise<boolean | null> {
-    let user: User = await this.findOneByEmailIncludeHash(email);
+    const user: User = await this.findOneByEmailIncludeHash(email);
     if (user) {
       return await this.passwordEquals(user.password, password);
     } else {
@@ -103,7 +101,7 @@ export class UsersService extends BaseService<User, User> {
     refreshToken: string,
     userId: string,
   ): Promise<void> {
-    let hash: string = await argon2.hash(refreshToken, this.options);
+    const hash: string = await argon2.hash(refreshToken, this.options);
     await this.update({ _id: userId }, { refreshToken: hash });
   }
 
