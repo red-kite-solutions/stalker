@@ -8,8 +8,6 @@ import { Role } from '../auth/constants';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/role.guard';
-// import { UpdateIPAddressesDto } from './automation.dto';
-// import { Job } from './jobs.model';
 import { AutomationService } from './automation.service';
 
 @Roles(Role.User)

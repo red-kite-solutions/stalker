@@ -7,10 +7,10 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { JobsQueueUtils } from 'src/utils/jobs_queue.utils';
+import { v4 } from 'uuid';
 import { CreateJobDto } from './jobs.dto';
 import { Job } from './jobs.model';
 import { JobsService } from './jobs.service';
-import { v4 } from 'uuid';
 
 @Controller('jobs')
 export class JobsController {

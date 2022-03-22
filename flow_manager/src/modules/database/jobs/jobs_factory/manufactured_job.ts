@@ -1,7 +1,13 @@
 import { Job } from 'src/modules/database/jobs/jobs.model';
+<<<<<<< HEAD
 import { JobsService } from '../jobs.service';
 import { v4 } from 'uuid';
 import { JobsQueueUtils } from 'src/utils/jobs_queue.utils';
+=======
+import { JobsQueueUtils } from 'src/utils/jobs_queue.utils';
+import { v4 } from 'uuid';
+import { JobsService } from '../jobs.service';
+>>>>>>> main
 
 /** Represents a Job that is built using the factory method in JobsService. The manufactured jobs are not stored as is in the database */
 export abstract class ManufacturedJob extends Job {

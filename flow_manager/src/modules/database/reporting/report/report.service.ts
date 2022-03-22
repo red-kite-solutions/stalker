@@ -13,7 +13,7 @@ import { ReportEntryDto } from './report.dto';
 import { Report } from './report.model';
 
 @Injectable()
-export class ReportService extends BaseService<Report, Report> {
+export class ReportService extends BaseService<Report> {
   private REPORT_SUFFIX = '_stalker_report.md';
   private content: string;
   private programSubdomainsMarkdown: string;

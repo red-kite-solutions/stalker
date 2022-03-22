@@ -1,0 +1,7 @@
+{
+  "eslint.workingDirectories": ["./flow_manager"],
+  "editor.formatOnSave": true,
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
+}

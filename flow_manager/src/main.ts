@@ -8,8 +8,6 @@ async function bootstrap() {
     bodyParser: true,
     cors: {
       origin: 'http://localhost:4200',
-      allowedHeaders: ['*'],
-      credentials: true,
     },
   });
   await app.listen(3000);

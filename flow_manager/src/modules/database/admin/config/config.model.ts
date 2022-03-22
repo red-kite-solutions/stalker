@@ -20,10 +20,14 @@ export class KeybaseConfig {
 @Schema()
 export class Config {
   @Prop()
+<<<<<<< HEAD
   public isNewContentReported?: boolean;
 
   @Prop()
   keybaseConfig?: KeybaseConfig;
+=======
+  public IsNewContentReported: boolean;
+>>>>>>> main
 }
 
 export const ConfigSchema = SchemaFactory.createForClass(Config);

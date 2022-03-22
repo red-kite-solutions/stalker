@@ -12,7 +12,7 @@ import { ReportService } from '../report/report.service';
 import { ConfigService } from '../../admin/config/config.service';
 
 @Injectable()
-export class HostService extends BaseService<Host, Host> {
+export class HostService extends BaseService<Host> {
   constructor(
     @InjectModel('host') private readonly hostModel: Model<Host>,
     private jobService: JobsService,

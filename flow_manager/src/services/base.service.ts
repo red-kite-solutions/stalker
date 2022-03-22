@@ -1,9 +1,13 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { MongoError } from 'mongodb';
-import { Document, Model } from 'mongoose';
-
-export class BaseService<T extends Document, Dto> {
-  constructor(protected readonly model: Model<T>) {}
+import {
+  Document,
+  DocumentDefinition,
+  Model,
+  ModelPopulateOptions,
+} from 'mongoose';
+export class BaseService<T extends Document> {
+  constructor(private readonly model: Model<T>) {}
 
   async create(object: Partial<T>): Promise<T> {
     const instance = new this.model(<T>object);
@@ -26,44 +30,77 @@ export class BaseService<T extends Document, Dto> {
     }
   }
 
-  async findAll(): Promise<T[]> {
-    return this.model.find().lean().exec();
+  async findAll(populate?: ModelPopulateOptions | string): Promise<T[]> {
+    if (!populate) {
+      return this.model.find().exec();
+    } else {
+      return this.model.find().populate(populate).exec();
+    }
   }
 
   async findAllFilter(filter: any): Promise<T[]> {
     return this.model.find({}, filter).exec();
   }
 
-  async find(conditions: any): Promise<T[]> {
-    return this.model.find(conditions).exec();
+  async find(
+    conditions: any,
+    populate?: ModelPopulateOptions | string,
+  ): Promise<T[]> {
+    if (!populate) {
+      return this.model.find(conditions).exec();
+    } else {
+      return this.model.find(conditions).populate(populate).exec();
+    }
   }
 
-  async findOne(condition: any): Promise<T> {
-    return this.model.findOne(condition).lean().exec();
+  async findOne(
+    condition: any,
+    populate?: ModelPopulateOptions | string,
+  ): Promise<T> {
+    if (!populate) {
+      return this.model.findOne(condition).exec();
+    } else {
+      return this.model.findOne(condition).populate(populate).exec();
+    }
+  }
+
+  async findOneLean(
+    condition: any,
+    populate?: ModelPopulateOptions | ModelPopulateOptions[] | string,
+  ): Promise<DocumentDefinition<T>> {
+    if (!populate) {
+      return this.model.findOne(condition).lean().exec();
+    } else {
+      return this.model.findOne(condition).populate(populate).lean().exec();
+    }
   }
 
   async findOneFilter(condition: any, filter: any): Promise<T> {
     return this.model.findOne(condition, filter).exec();
   }
 
-  async findById(id: Object | string | number): Promise<T> {
-    return this.model.findById(id).exec();
+  async findById(
+    id: Object | string | number,
+    populate?: ModelPopulateOptions | string,
+  ): Promise<T> {
+    if (!populate) {
+      return this.model.findById(id).exec();
+    } else {
+      return this.model.findById(id).populate(populate).exec();
+    }
   }
 
   async update(condition: any, data: Partial<T>): Promise<any> {
-    return this.model.updateOne(condition, data).exec();
+    return this.model.updateOne(condition, <T>data).exec();
   }
 
-  async updateOneFilter(
-    condition: any,
-    dataFilter: any,
-    data: Partial<T>,
-  ): Promise<any> {
-    return this.model.updateOne(condition, data, dataFilter);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async updateOneFilter(condition: any, data: any): Promise<void> {
+    return this.model.updateOne();
   }
 
   async updateMany(condition: any, data: Partial<T>): Promise<any> {
-    return this.model.updateMany(condition, data).exec();
+    return this.model.updateMany(condition, <T>data).exec();
   }
 
   async upsertOne(condition: any, data: Partial<T>) {
@@ -74,7 +111,7 @@ export class BaseService<T extends Document, Dto> {
     await this.model.deleteOne(condition).exec();
   }
 
-  // async aggregate(condition: any): Promise<T> {
-  //     return this.model.aggregate(condition).exec();
-  // }
+  async aggregate(condition: any): Promise<T> {
+    return this.model.aggregate(condition).exec();
+  }
 }
