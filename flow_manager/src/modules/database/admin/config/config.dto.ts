@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { IsBoolean, IsOptional, IsString } from 'class-validator';
 
 export class SubmitConfigDto {
@@ -21,12 +20,4 @@ export class SubmitConfigDto {
   @IsOptional()
   @IsString()
   keybaseConfigChannelId: string;
-=======
-import { IsNotEmpty, IsBoolean } from 'class-validator';
-
-export class SubmitConfigDto {
-  @IsNotEmpty()
-  @IsBoolean()
-  public IsNewContentReported: boolean;
->>>>>>> main
 }

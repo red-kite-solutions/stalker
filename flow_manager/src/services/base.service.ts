@@ -7,7 +7,7 @@ import {
   ModelPopulateOptions,
 } from 'mongoose';
 export class BaseService<T extends Document> {
-  constructor(private readonly model: Model<T>) {}
+  constructor(protected readonly model: Model<T>) {}
 
   async create(object: Partial<T>): Promise<T> {
     const instance = new this.model(<T>object);

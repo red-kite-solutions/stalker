@@ -6,7 +6,7 @@ import { BaseService } from 'src/services/base.service';
 import { User, UserDocument } from './users.model';
 
 @Injectable()
-export class UsersService extends BaseService<User, User> {
+export class UsersService extends BaseService<User> {
   private options = {
     timeCost: 5,
   };

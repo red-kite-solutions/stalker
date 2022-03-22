@@ -4,26 +4,18 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Config } from './config.model';
 import { SubmitConfigDto } from './config.dto';
-<<<<<<< HEAD
 import { DEFAULT_CONFIG } from './config.default';
 import dot from 'dot-object';
 
 @Injectable()
-export class ConfigService extends BaseService<Config, Config> {
-  public PASSWORD_PLACEHOLDER = '********';
-=======
-
-@Injectable()
 export class ConfigService extends BaseService<Config> {
-  public config: Config;
->>>>>>> main
+  public PASSWORD_PLACEHOLDER = '********';
 
   constructor(
     @InjectModel('config') private readonly configModel: Model<Config>,
   ) {
     super(configModel);
     this.findOne({}).then((c: Config) => {
-<<<<<<< HEAD
       if (!c?.keybaseConfig) {
         // Check random config object to see if it was initialized
         c = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
@@ -88,30 +80,5 @@ export class ConfigService extends BaseService<Config> {
     }
 
     return conf;
-=======
-      if (!c) {
-        c = new Config();
-      }
-      if (!(c.IsNewContentReported || c.IsNewContentReported === false)) {
-        c.IsNewContentReported = false;
-      }
-
-      this.config = c;
-      this.upsertOne({}, c);
-    });
-  }
-
-  public async submitConfig(dto: SubmitConfigDto): Promise<void> {
-    this.update({}, dto);
-    this.syncConfig(dto);
-  }
-
-  private syncConfig(configUpdate: Partial<Config>): void {
-    this.config.IsNewContentReported =
-      configUpdate.IsNewContentReported ||
-      configUpdate.IsNewContentReported === false
-        ? configUpdate.IsNewContentReported
-        : false;
->>>>>>> main
   }
 }
