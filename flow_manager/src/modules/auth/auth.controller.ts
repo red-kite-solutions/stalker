@@ -34,8 +34,8 @@ export class AuthController {
 
   @UseGuards(JwtRefreshGuard)
   @Put('refresh')
-  refresh(@Request() req: any) {
-    const accessToken = this.authService.createAccessToken(req.user);
+  async refresh(@Request() req: any) {
+    const accessToken = await this.authService.createAccessToken(req.user);
 
     return { access_token: accessToken };
   }

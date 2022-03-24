@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../database/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { rtConstants, jwtConstants } from './constants';
@@ -34,11 +34,15 @@ export class AuthService {
     return token;
   }
 
-  public createAccessToken(user: Partial<UserDocument>): string {
-    return this.jwtService.sign(user, {
-      secret: jwtConstants.secret,
-      expiresIn: jwtConstants.expirationTime,
-    });
+  public async createAccessToken(user: Partial<UserDocument>): Promise<string> {
+    if (await this.usersService.isUserActive(user.id)) {
+      return this.jwtService.sign(user, {
+        secret: jwtConstants.secret,
+        expiresIn: jwtConstants.expirationTime,
+      });
+    } else {
+      throw new UnauthorizedException();
+    }
   }
 
   public async removeRefreshToken(userId: string) {

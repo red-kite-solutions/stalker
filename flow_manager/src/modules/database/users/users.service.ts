@@ -126,4 +126,9 @@ export class UsersService extends BaseService<User> {
   public async removeRefreshToken(userId: string) {
     this.update({ _id: userId }, { refreshToken: '' });
   }
+
+  public async isUserActive(userId: string): Promise<boolean> {
+    const user: UserDocument = await this.findOneById(userId);
+    return user?.active;
+  }
 }
