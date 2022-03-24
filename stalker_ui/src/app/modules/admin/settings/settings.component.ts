@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators, FormControl } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { SettingsService } from 'src/app/api/settings/settings.service';
+import { StatusString } from 'src/app/shared/types/status-string.type';
 
 @Component({
   selector: 'app-settings',
@@ -65,7 +66,7 @@ export class SettingsComponent implements OnInit {
   }
 
   syncKeybase() {
-    this.toastr.success('Connection successful');
+    this.toastr.error('Sorry, not implemented yet');
   }
 
   toggleKeybaseForm(event: boolean = true) {
@@ -75,9 +76,7 @@ export class SettingsComponent implements OnInit {
   }
 
   async saveSettings() {
-    let res: string;
-
-    res = await this.settingsService.submitSettings({
+    let res: StatusString = await this.settingsService.submitSettings({
       isNewContentReported: this.reportingEnabled,
       keybaseConfigEnabled: this.keybaseEnabled,
       keybaseConfigUsername:

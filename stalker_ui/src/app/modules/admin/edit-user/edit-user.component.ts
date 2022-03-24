@@ -11,6 +11,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs';
 import { UsersService } from 'src/app/api/users/users.service';
+import { StatusString } from 'src/app/shared/types/status-string.type';
 import { User } from 'src/app/shared/types/user.interface';
 import {
   ConfirmDialogComponent,
@@ -117,7 +118,7 @@ export class EditUserComponent implements OnInit, OnDestroy {
       active: this.form.controls['active'].value,
     };
 
-    let res: string = await this.usersService.editUser(
+    let res: StatusString = await this.usersService.editUser(
       this.userId,
       changes,
       this.currentPassword

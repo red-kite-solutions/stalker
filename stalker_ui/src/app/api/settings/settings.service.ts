@@ -1,21 +1,23 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { StatusString } from 'src/app/shared/types/status-string.type';
 import { fmUrl } from '../constants';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SettingsService {
+  constructor(private http: HttpClient) {}
 
-  constructor(private http: HttpClient) { }
-
-  public async submitSettings(settings: any): Promise<string> {
+  public async submitSettings(settings: any): Promise<StatusString> {
     try {
-      let data: any = await firstValueFrom(this.http.put(`${fmUrl}/admin/config`, settings));
+      let data: any = await firstValueFrom(
+        this.http.put(`${fmUrl}/admin/config`, settings)
+      );
       return data.status;
     } catch (err) {
-      return "Error";
+      return 'Error';
     }
   }
 
@@ -23,8 +25,7 @@ export class SettingsService {
     try {
       return firstValueFrom(this.http.get(`${fmUrl}/admin/config`));
     } catch (err) {
-      return "Error";
+      return 'Error';
     }
-
   }
 }

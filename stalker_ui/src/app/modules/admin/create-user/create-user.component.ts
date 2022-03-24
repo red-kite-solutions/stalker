@@ -9,6 +9,7 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { UsersService } from 'src/app/api/users/users.service';
+import { StatusString } from 'src/app/shared/types/status-string.type';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
@@ -76,7 +77,7 @@ export class CreateUserComponent implements OnInit {
       return;
     }
 
-    let result: string = await this.usersService.createUser(
+    let result: StatusString = await this.usersService.createUser(
       {
         email: this.form.controls['email'].value,
         firstName: this.form.controls['firstName'].value,

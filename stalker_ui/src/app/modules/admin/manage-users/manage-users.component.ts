@@ -1,38 +1,53 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
-import { SelectionModel} from '@angular/cdk/collections';
+import { SelectionModel } from '@angular/cdk/collections';
 import { Sort, MatSort } from '@angular/material/sort';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatDialog } from '@angular/material/dialog';
-import { ConfirmDialogComponent, ConfirmDialogData } from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
+import {
+  ConfirmDialogComponent,
+  ConfirmDialogData,
+} from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
 import { User } from 'src/app/shared/types/user.interface';
 import { UsersService } from 'src/app/api/users/users.service';
 import { ToastrService } from 'ngx-toastr';
-
+import { StatusString } from 'src/app/shared/types/status-string.type';
 
 @Component({
   selector: 'app-manage-users',
   templateUrl: './manage-users.component.html',
-  styleUrls: ['./manage-users.component.scss']
+  styleUrls: ['./manage-users.component.scss'],
 })
 export class ManageUsersComponent implements OnInit {
-  displayedColumns: string[] = ['select', 'firstName', 'lastName', 'email', 'role', 'active'];
+  displayedColumns: string[] = [
+    'select',
+    'firstName',
+    'lastName',
+    'email',
+    'role',
+    'active',
+  ];
   // dataSource = new MatTableDataSource<User>(ELEMENT_DATA);
   dataSource = new MatTableDataSource<User>();
   selection = new SelectionModel<User>(true, []);
-  
+
   @ViewChild(MatSort) sort: MatSort | null;
   @ViewChild(MatPaginator) paginator: MatPaginator | null;
 
-  constructor(private _liveAnnouncer: LiveAnnouncer, public dialog: MatDialog, private usersService: UsersService, private toastr: ToastrService) { 
+  constructor(
+    private _liveAnnouncer: LiveAnnouncer,
+    public dialog: MatDialog,
+    private usersService: UsersService,
+    private toastr: ToastrService
+  ) {
     this.sort = null;
     this.paginator = null;
   }
 
   async ngOnInit(): Promise<void> {
     let data = await this.usersService.getAllUsers();
-    if(data) {
+    if (data) {
       this.dataSource = new MatTableDataSource<User>(data);
       this.dataSource.sort = this.sort;
       this.dataSource.paginator = this.paginator;
@@ -61,9 +76,10 @@ export class ManageUsersComponent implements OnInit {
     if (!row) {
       return `${this.isAllSelected() ? 'deselect' : 'select'} all`;
     }
-    return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row._id + 1}`;
+    return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${
+      row._id + 1
+    }`;
   }
-
 
   /** Announce the change in sort state for assistive technology. */
   announceSortChange(sortState: Sort) {
@@ -84,47 +100,51 @@ export class ManageUsersComponent implements OnInit {
       bulletPoints.push(`${user.firstName} ${user.lastName}`);
     });
     let data: ConfirmDialogData;
-    if(bulletPoints.length > 0) {
+    if (bulletPoints.length > 0) {
       data = {
-        text: "Do you really wish to delete these users permanently ?",
-        title: "Deleting users",
-        positiveButtonText: "Cancel",
-        negativeButtonText: "Delete permanently",
-        listElements:  bulletPoints,
+        text: 'Do you really wish to delete these users permanently ?',
+        title: 'Deleting users',
+        positiveButtonText: 'Cancel',
+        negativeButtonText: 'Delete permanently',
+        listElements: bulletPoints,
         onPositiveButtonClick: () => {
           this.dialog.closeAll();
         },
         onNegativeButtonClick: () => {
           this.selection.selected.forEach(async (user: User) => {
-            let res: string = await this.usersService.deleteUser(user._id);
-            if (res === "Success") {
+            let res: StatusString = await this.usersService.deleteUser(
+              user._id
+            );
+            if (res === 'Success') {
               this.selection.deselect(user);
-              let removeIndex = this.dataSource.data.findIndex((u: User) => u._id === user._id);
+              let removeIndex = this.dataSource.data.findIndex(
+                (u: User) => u._id === user._id
+              );
               this.dataSource.data.splice(removeIndex, 1);
               this.dataSource.sort = this.sort;
               this.dataSource.paginator = this.paginator;
-              this.toastr.success("User deleted successfully");
+              this.toastr.success('User deleted successfully');
             } else {
               this.toastr.error(`Error deleting user ${user.email}`);
             }
           });
           this.dialog.closeAll();
-        }
-      }
+        },
+      };
     } else {
       data = {
-        text: "Select the users to delete and try again.",
-        title: "Nothing to delete",
-        positiveButtonText: "Ok",
+        text: 'Select the users to delete and try again.',
+        title: 'Nothing to delete',
+        positiveButtonText: 'Ok',
         onPositiveButtonClick: () => {
           this.dialog.closeAll();
-        }
-      }
+        },
+      };
     }
-    
+
     this.dialog.open(ConfirmDialogComponent, {
       data,
-      restoreFocus: false
+      restoreFocus: false,
     });
   }
 
@@ -144,10 +164,4 @@ export class ManageUsersComponent implements OnInit {
   hideDelete() {
     return window.screen.availWidth < 525;
   }
-
-  
-
-  
-
 }
-
