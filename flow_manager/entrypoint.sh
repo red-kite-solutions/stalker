@@ -27,6 +27,7 @@ file_env "KB_USERNAME"
 file_env "KB_CHANNELID"
 file_env "KB_PAPERKEY"
 file_env "FM_JWT_SECRET"
+file_env "FM_REFRESH_SECRET"
 
 export KEYBASE_ALLOW_ROOT=1
 keybase ctl init

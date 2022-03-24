@@ -21,6 +21,7 @@ ADD ./secrets/kb_username.secret /secrets/
 ADD ./secrets/kb_channelid.secret /secrets/
 ADD ./secrets/kb_paperkey.secret /secrets/
 ADD ./secrets/fm_jwt_secret.secret /secrets/
+ADD ./secrets/fm_refresh_secret.secret /secrets/
 
 ADD flow_manager/entrypoint.sh /fm/
 RUN chmod +x /fm/entrypoint.sh

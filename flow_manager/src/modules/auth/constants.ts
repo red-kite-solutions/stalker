@@ -4,7 +4,7 @@ export const jwtConstants = {
 };
 
 export const rtConstants = {
-  secret: process.env['FM_JWT_SECRET'],
+  secret: process.env['FM_REFRESH_SECRET'],
   expirationTime: '25200s',
 };
 

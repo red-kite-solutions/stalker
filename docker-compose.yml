@@ -28,6 +28,7 @@ services:
       - KB_PAPERKEY_FILE=/secrets/kb_paperkey.secret
       - MONGO_ADDRESS=mongodb://mongo:27017/stalker
       - FM_JWT_SECRET_FILE=/secrets/fm_jwt_secret.secret
+      - FM_REFRESH_SECRET_FILE=/secrets/fm_refresh_secret.secret
     links:
       - "jqh:jobsqueuehandler"
       - "mongo:db"

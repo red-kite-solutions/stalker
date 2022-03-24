@@ -18,7 +18,11 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Request() req) {
-    const accessToken = await this.authService.login(req.user);
+    const accessToken = await this.authService.createAccessToken({
+      email: req.user.email,
+      id: req.user._id,
+      role: req.user.role,
+    });
     const refreshToken: string = this.authService.createRefreshToken(
       req.user._id,
     );

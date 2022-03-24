@@ -22,11 +22,6 @@ export class AuthService {
     return null;
   }
 
-  public login(user: any): string {
-    const payload = { email: user.email, id: user._id, role: user.role };
-    return this.createAccessToken(payload);
-  }
-
   public createRefreshToken(userId: string) {
     const payload = { id: userId };
 
