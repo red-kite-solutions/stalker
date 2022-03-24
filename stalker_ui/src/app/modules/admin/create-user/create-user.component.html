@@ -81,7 +81,7 @@
                 <mat-form-field class="formfieldblock">
                     <mat-label>Your Password</mat-label>
                     <input matInput [type]="hideCurrentPassword ? 'password' : 'text'" formControlName="password" name="currentPassword" required>
-                    <button mat-icon-button matSuffix (click)="hideCurrentPassword = !hideCurrentPassword" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hideCurrentPassword">
+                    <button type="button" mat-icon-button matSuffix (click)="hideCurrentPassword = !hideCurrentPassword" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hideCurrentPassword">
                         <mat-icon>{{hideCurrentPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
                     </button>
                     <mat-error>
