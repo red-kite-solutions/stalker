@@ -13,7 +13,7 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
-import { Role, roles } from '../roles';
+import { Role, roles, rolesInfoDialogText } from '../roles';
 
 @Component({
   selector: 'app-create-user',
@@ -113,9 +113,7 @@ export class CreateUserComponent implements OnInit {
     });
 
     let data: ConfirmDialogData = {
-      text: 'Setting a user role is a crucial part of user creation. Their role will define what they can and cannot do in Stalker.',
-      title: 'User roles',
-      positiveButtonText: 'Got it',
+      ...rolesInfoDialogText,
       listElements: bulletPoints,
       onPositiveButtonClick: () => {
         this.dialog.closeAll();

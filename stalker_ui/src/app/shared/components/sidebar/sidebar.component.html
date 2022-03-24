@@ -9,23 +9,23 @@
         <span *ngIf="expanded">Dashboard</span>
     </a>
     
-    <mat-divider></mat-divider>
     
-    <h2 matSubheader *ngIf="expanded">
-        Administration
-    </h2>
-    <a mat-list-item routerLinkActive="list-item-active" routerLink="/admin/users" [matTooltip]="expanded ? '' : 'Users'" [matTooltipShowDelay]="700" matTooltipPosition="right">
-        <mat-icon class="material-icons-outlined" >manage_accounts</mat-icon>
-        <span *ngIf="expanded">Users</span>
-    </a>
+    <div *ngIf="this.authService.role === 'admin'">
 
-    <a mat-list-item routerLinkActive="list-item-active" routerLink="/admin/settings" [matTooltip]="expanded ? '' : 'Settings'" [matTooltipShowDelay]="700" matTooltipPosition="right">
-        <mat-icon class="material-icons-outlined">settings</mat-icon>
-        <span *ngIf="expanded">Application Settings</span>
-    </a>
+        <mat-divider></mat-divider>
+
+        <h2 matSubheader *ngIf="expanded">
+            Administration
+        </h2>
+        <a mat-list-item routerLinkActive="list-item-active" routerLink="/admin/users" [matTooltip]="expanded ? '' : 'Users'" [matTooltipShowDelay]="700" matTooltipPosition="right">
+            <mat-icon class="material-icons-outlined" >manage_accounts</mat-icon>
+            <span *ngIf="expanded">Users</span>
+        </a>
     
-
-
+        <a mat-list-item routerLinkActive="list-item-active" routerLink="/admin/settings" [matTooltip]="expanded ? '' : 'Settings'" [matTooltipShowDelay]="700" matTooltipPosition="right">
+            <mat-icon class="material-icons-outlined">settings</mat-icon>
+            <span *ngIf="expanded">Application Settings</span>
+        </a>
+    </div>
+    
 </mat-nav-list>
-
-
