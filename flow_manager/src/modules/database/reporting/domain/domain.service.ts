@@ -40,10 +40,7 @@ export class DomainsService extends BaseService<Domain> {
 
     const newDomains: string[] = [];
     subdomains.forEach((domainName) => {
-      newDomains.push.apply(
-        newDomains,
-        DomainTreeUtils.growDomainTree(program, domainName),
-      );
+      newDomains.push(...DomainTreeUtils.growDomainTree(program, domainName));
     });
 
     const config = await this.configService.getConfig();
@@ -169,6 +166,7 @@ export class DomainsService extends BaseService<Domain> {
    * @param program The name of the program
    * @param callback The function to execute. It accepts a domain object and the parent's string as a parameter
    */
+  // eslint-disable-next-line @typescript-eslint/ban-types
   public async runForEach(program: string, callback: Function): Promise<void> {
     let i = 0;
     let p: Program = await this.getProgramFilterDomainAtIndex(program, i);
