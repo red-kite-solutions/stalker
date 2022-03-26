@@ -1,16 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { CreateJobDto } from './jobs.dto';
-import { Job } from './jobs.model';
-import { DomainNameResolvingJob } from './jobs_factory/domain_name_resolving.job';
-import { ManufacturedJob } from './jobs_factory/manufactured_job';
-import { SubdomainBruteforceJob } from './jobs_factory/subdomain_bruteforce.job';
-
-export enum JobTypes {
-  DOMAIN_NAME_RESOLVING = 'DOMAIN_NAME_RESOLVING',
-  SUBDOMAIN_BRUTEFORCE = 'SUBDOMAIN_BRUTEFORCE',
-}
+import { CreateJobDto } from './dtos/create-job.dto';
+import { JobDto } from './dtos/job.dto';
+import { DomainNameResolvingJob } from './models/domain-name-resolving.model';
+import { Job, JobDocument } from './models/jobs.model';
+import { SubdomainBruteforceJob } from './models/subdomain-bruteforce.model';
 
 @Injectable()
 export class JobsService {
@@ -18,13 +13,19 @@ export class JobsService {
     @InjectModel('job') private readonly jobModel: Model<Job & Document>,
   ) {}
 
-  public async create(dto: CreateJobDto): Promise<Job> {
+  public async create(dto: CreateJobDto): Promise<JobDto> {
     const job = new this.jobModel(dto);
-    return await job.save();
+    const savedJob = await job.save();
+    return { id: savedJob.id, ...dto };
   }
 
-  public async getAll(page = 0, pageSize = 100): Promise<Job[]> {
-    return await this.jobModel.find().skip(page).limit(pageSize);
+  public async getAll(page = null, pageSize = null): Promise<JobDocument[]> {
+    let query = this.jobModel.find();
+    if (page != null && pageSize != null) {
+      query = query.skip(page).limit(pageSize);
+    }
+
+    return await query;
   }
 
   public async delete(id: string) {
@@ -32,18 +33,28 @@ export class JobsService {
     await this.jobModel.deleteMany({ jobId: { $eq: id } });
   }
 
-  public async getById(id: string): Promise<Job> {
+  public async getById(id: string): Promise<JobDocument> {
     return await this.jobModel.findOne({ jobId: { $eq: id } });
   }
 
-  public manufactureJob(jobType: string, program: string): ManufacturedJob {
-    switch (jobType) {
-      case JobTypes.DOMAIN_NAME_RESOLVING:
-        return new DomainNameResolvingJob(this, program);
+  public createDomainResolvingJob(domainName = '') {
+    const job = new DomainNameResolvingJob();
+    job.task = DomainNameResolvingJob.name;
+    job.priority = 3;
+    job.domain_name = domainName;
+    return job;
+  }
 
-      case JobTypes.SUBDOMAIN_BRUTEFORCE:
-        return new SubdomainBruteforceJob(this, program);
-    }
-    return null;
+  public createSubdomainBruteforceJob(domainName = '', wordList = '') {
+    const job = new SubdomainBruteforceJob();
+    job.task = SubdomainBruteforceJob.name;
+    job.priority = 3;
+    job.domain_name = domainName;
+    job.wordList = wordList;
+    return job;
+  }
+
+  public publish(job: Job) {
+    this.jobModel.create(job);
   }
 }

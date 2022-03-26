@@ -9,7 +9,4 @@ export class CreateJobDto {
 
   @IsNotEmpty()
   public priority!: number;
-
-  @IsNotEmpty()
-  public data!: object;
 }

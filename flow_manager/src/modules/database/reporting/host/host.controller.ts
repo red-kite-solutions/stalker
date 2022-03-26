@@ -11,6 +11,7 @@ export class HostController {
     @Param('jobId') jobId: string,
     @Body(new ValidationPipe()) hosts: SubmitHostDto,
   ): Promise<void> {
+    console.log(jobId);
     await this.hostService.addHostsToDomain(hosts, jobId);
     return;
   }

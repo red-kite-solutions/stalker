@@ -7,10 +7,9 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { JobsQueueUtils } from 'src/utils/jobs_queue.utils';
-import { v4 } from 'uuid';
-import { CreateJobDto } from './jobs.dto';
-import { Job } from './jobs.model';
+import { CreateJobDto } from './dtos/create-job.dto';
 import { JobsService } from './jobs.service';
+import { Job } from './models/jobs.model';
 
 @Controller('jobs')
 export class JobsController {
@@ -25,14 +24,10 @@ export class JobsController {
   async createJob(
     @Body(new ValidationPipe()) unidentifiedJob: CreateJobDto,
   ): Promise<Job> {
+    console.log(unidentifiedJob);
     // TODO: This should go through the message queue
     const job = await this.jobsService.create(unidentifiedJob);
-    const isOk: boolean = await JobsQueueUtils.add(
-      job.jobId,
-      unidentifiedJob.task,
-      unidentifiedJob.priority,
-      unidentifiedJob.data,
-    );
+    const isOk: boolean = await JobsQueueUtils.add(job);
 
     if (!isOk) {
       throw new HttpException('Error sending the job to the job queue.', 500);

@@ -3,8 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as DomainTreeUtils from '../../../../utils/domain_tree.utils';
 import { ConfigService } from '../../admin/config/config.service';
-import { JobsService, JobTypes } from '../../jobs/jobs.service';
-import { DomainNameResolvingJob } from '../../jobs/jobs_factory/domain_name_resolving.job';
+import { JobsService } from '../../jobs/jobs.service';
 import { Program } from '../program.model';
 import { ProgramService } from '../program.service';
 import { ReportService } from '../report/report.service';
@@ -45,12 +44,8 @@ export class DomainsService {
 
     // For each new domain name found, create a domain name resolution job for the domain
     newDomains.forEach((domain) => {
-      const manuJob: DomainNameResolvingJob = this.jobService.manufactureJob(
-        JobTypes.DOMAIN_NAME_RESOLVING,
-        programName,
-      ) as DomainNameResolvingJob;
-      manuJob.typedData.domain_name = domain;
-      manuJob.publish();
+      const job = this.jobService.createDomainResolvingJob(domain);
+      this.jobService.publish(job);
     });
 
     await this.programService.update(programName, program);
