@@ -9,7 +9,7 @@ services:
       - "5000:5000"
     image: jobs_queue_handler
     environment:
-      - API_KEY_FILE=/secrets/jqh_api_key.secret
+      - JQH_API_KEY_FILE=/secrets/jqh_api_key.secret
       - FLASK_APP=jobs_queue_handler
 
   flow_manager:
@@ -22,7 +22,7 @@ services:
     environment: 
       - JQH_API_KEY_FILE=/secrets/jqh_api_key.secret
       - JQH_ADDRESS=http://jqh:5000
-      - API_KEY_FILE=/secrets/fm_api_key.secret
+      - FM_API_KEY_FILE=/secrets/fm_api_key.secret
       - KB_USERNAME_FILE=/secrets/kb_username.secret
       - KB_CHANNELID_FILE=/secrets/kb_channelid.secret
       - KB_PAPERKEY_FILE=/secrets/kb_paperkey.secret

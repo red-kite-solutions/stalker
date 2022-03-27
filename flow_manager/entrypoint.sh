@@ -22,7 +22,7 @@ file_env() {
 }
 
 file_env "JQH_API_KEY"
-file_env "API_KEY"
+file_env "FM_API_KEY"
 file_env "KB_USERNAME"
 file_env "KB_CHANNELID"
 file_env "KB_PAPERKEY"
