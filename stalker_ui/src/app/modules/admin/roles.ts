@@ -12,14 +12,12 @@ export const roles: Role[] = [
   },
   {
     name: 'user',
-    description:
-      'Can only use the application, but cannot edit its configuration.',
+    description: 'Can only use the application, but cannot edit its configuration.',
     shortDescription: 'Can use, but not configure',
   },
   {
     name: 'read-only',
-    description:
-      'Has the read permissions of the user, but cannot edit anything but their own profile.',
+    description: 'Has the read permissions of the user, but cannot edit anything but their own profile.',
     shortDescription: 'Can read as a user, but not edit',
   },
 ];

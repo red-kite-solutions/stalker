@@ -1,11 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import {
-  AbstractControl,
-  FormBuilder,
-  FormControl,
-  ValidationErrors,
-  Validators,
-} from '@angular/forms';
+import { FormBuilder, FormControl, ValidationErrors, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -25,11 +19,11 @@ import { Role, roles, rolesInfoDialogText } from '../roles';
   styleUrls: ['./edit-user.component.scss'],
 })
 export class EditUserComponent implements OnInit, OnDestroy {
-  passwordConfirm: string = '';
-  currentPassword: string = '';
-  newUserValid: boolean = true;
-  userId: string = '';
-  invalidPassword: boolean = false;
+  passwordConfirm = '';
+  currentPassword = '';
+  newUserValid = true;
+  userId = '';
+  invalidPassword = false;
 
   roles = roles;
 
@@ -62,9 +56,7 @@ export class EditUserComponent implements OnInit, OnDestroy {
           if (control.value == '') {
             return null;
           }
-          return control.value.length >= 12
-            ? null
-            : { error: 'Password must be at least 12 characters long.' };
+          return control.value.length >= 12 ? null : { error: 'Password must be at least 12 characters long.' };
         },
       ],
     ],
@@ -72,8 +64,8 @@ export class EditUserComponent implements OnInit, OnDestroy {
     active: [true],
   });
 
-  hideCurrentPassword: boolean = true;
-  hideUserPassword: boolean = true;
+  hideCurrentPassword = true;
+  hideUserPassword = true;
   private routeSub: Subscription | undefined;
 
   constructor(
@@ -89,14 +81,12 @@ export class EditUserComponent implements OnInit, OnDestroy {
     this.routeSub = this.route.params.subscribe(async (params) => {
       this.userId = params['id'];
 
-      let user: User | null = await this.usersService.getUser(this.userId);
+      const user: User | null = await this.usersService.getUser(this.userId);
       if (user) {
         this.form.controls['firstName'].setValue(user.firstName);
         this.form.controls['lastName'].setValue(user.lastName);
         this.form.controls['email'].setValue(user.email);
-        this.form.controls['role'].setValue(
-          this.roles.find((role: Role) => role.name === user?.role)
-        );
+        this.form.controls['role'].setValue(this.roles.find((role: Role) => role.name === user?.role));
         this.form.controls['active'].setValue(user.active);
       } else {
         this.toastr.error('Error loading user');
@@ -111,18 +101,14 @@ export class EditUserComponent implements OnInit, OnDestroy {
       return;
     }
 
-    let changes: Partial<User> = {
+    const changes: Partial<User> = {
       firstName: this.form.controls['firstName'].value,
       lastName: this.form.controls['lastName'].value,
       email: this.form.controls['email'].value,
       active: this.form.controls['active'].value,
     };
 
-    let res: StatusString = await this.usersService.editUser(
-      this.userId,
-      changes,
-      this.currentPassword
-    );
+    let res: StatusString = await this.usersService.editUser(this.userId, changes, this.currentPassword);
 
     if (res === 'Success') {
       this.invalidPassword = false;
@@ -157,12 +143,12 @@ export class EditUserComponent implements OnInit, OnDestroy {
   }
 
   showUserRolesHelp() {
-    let bulletPoints: string[] = Array<string>();
+    const bulletPoints: string[] = Array<string>();
     this.roles.forEach((role: Role) => {
       bulletPoints.push(`${role.name} : ${role.description}`);
     });
 
-    let data: ConfirmDialogData = {
+    const data: ConfirmDialogData = {
       ...rolesInfoDialogText,
       listElements: bulletPoints,
       onPositiveButtonClick: () => {
@@ -177,7 +163,7 @@ export class EditUserComponent implements OnInit, OnDestroy {
   }
 
   deleteUser() {
-    let data: ConfirmDialogData = {
+    const data: ConfirmDialogData = {
       text: 'Do you really wish to delete this user permanently ?',
       title: 'Deleting user',
       positiveButtonText: 'Cancel',
@@ -187,7 +173,7 @@ export class EditUserComponent implements OnInit, OnDestroy {
       },
       onNegativeButtonClick: async () => {
         console.log(`Deleting user ${this.userId}`);
-        let res: string = await this.usersService.deleteUser(this.userId);
+        const res: string = await this.usersService.deleteUser(this.userId);
         if (res === 'Success') {
           this.toastr.success('User deleted successfully');
           this.router.navigate(['/admin/users']);

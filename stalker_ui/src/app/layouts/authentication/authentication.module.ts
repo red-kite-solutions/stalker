@@ -9,17 +9,12 @@ import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { FormsModule }   from '@angular/forms';
-import { MatButtonModule }   from '@angular/material/button';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
-
-
 @NgModule({
-  declarations: [
-    AuthenticationComponent,
-    LoginComponent
-  ],
+  declarations: [AuthenticationComponent, LoginComponent],
   imports: [
     CommonModule,
     RouterModule,
@@ -31,7 +26,7 @@ import { MatIconModule } from '@angular/material/icon';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    MatIconModule
-  ]
+    MatIconModule,
+  ],
 })
-export class AuthenticationModule { }
+export class AuthenticationModule {}

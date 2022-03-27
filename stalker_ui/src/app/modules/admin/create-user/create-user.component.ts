@@ -1,11 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import {
-  AbstractControl,
-  FormBuilder,
-  FormControl,
-  ValidationErrors,
-  Validators,
-} from '@angular/forms';
+import { Component } from '@angular/core';
+import { FormBuilder, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { UsersService } from 'src/app/api/users/users.service';
@@ -21,9 +15,9 @@ import { Role, roles, rolesInfoDialogText } from '../roles';
   templateUrl: './create-user.component.html',
   styleUrls: ['./create-user.component.scss'],
 })
-export class CreateUserComponent implements OnInit {
-  newUserValid: boolean = true;
-  invalidPassword: boolean = false;
+export class CreateUserComponent {
+  newUserValid = true;
+  invalidPassword = false;
   roles = roles;
 
   form = this.fb.group({
@@ -57,8 +51,8 @@ export class CreateUserComponent implements OnInit {
     password: [],
   });
 
-  hideCurrentPassword: boolean = true;
-  hideUserPassword: boolean = true;
+  hideCurrentPassword = true;
+  hideUserPassword = true;
 
   constructor(
     private fb: FormBuilder,
@@ -66,8 +60,6 @@ export class CreateUserComponent implements OnInit {
     private toastr: ToastrService,
     private usersService: UsersService
   ) {}
-
-  ngOnInit(): void {}
 
   async onSubmit() {
     console.log('on submit');
@@ -77,7 +69,7 @@ export class CreateUserComponent implements OnInit {
       return;
     }
 
-    let result: StatusString = await this.usersService.createUser(
+    const result: StatusString = await this.usersService.createUser(
       {
         email: this.form.controls['email'].value,
         firstName: this.form.controls['firstName'].value,
@@ -108,12 +100,12 @@ export class CreateUserComponent implements OnInit {
   }
 
   showUserRolesHelp() {
-    let bulletPoints: string[] = Array<string>();
+    const bulletPoints: string[] = Array<string>();
     roles.forEach((role: Role) => {
       bulletPoints.push(`${role.name} : ${role.description}`);
     });
 
-    let data: ConfirmDialogData = {
+    const data: ConfirmDialogData = {
       ...rolesInfoDialogText,
       listElements: bulletPoints,
       onPositiveButtonClick: () => {

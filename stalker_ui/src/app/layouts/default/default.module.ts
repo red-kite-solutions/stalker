@@ -26,7 +26,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { SettingsComponent } from 'src/app/modules/admin/settings/settings.component';
 import { MatTabsModule } from '@angular/material/tabs';
 
-
 @NgModule({
   declarations: [
     DefaultComponent,
@@ -35,7 +34,7 @@ import { MatTabsModule } from '@angular/material/tabs';
     ManageUsersComponent,
     CreateUserComponent,
     EditUserComponent,
-    SettingsComponent
+    SettingsComponent,
   ],
   imports: [
     CommonModule,
@@ -57,7 +56,7 @@ import { MatTabsModule } from '@angular/material/tabs';
     MatPaginatorModule,
     MatTooltipModule,
     MatSelectModule,
-    MatTabsModule
-  ]
+    MatTabsModule,
+  ],
 })
-export class DefaultModule { }
+export class DefaultModule {}

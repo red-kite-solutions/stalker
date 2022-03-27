@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, Validators, FormControl } from '@angular/forms';
+import { FormBuilder, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { SettingsService } from 'src/app/api/settings/settings.service';
 import { StatusString } from 'src/app/shared/types/status-string.type';
@@ -10,8 +10,8 @@ import { StatusString } from 'src/app/shared/types/status-string.type';
   styleUrls: ['./settings.component.scss'],
 })
 export class SettingsComponent implements OnInit {
-  keybaseEnabled: boolean = false;
-  reportingEnabled: boolean = false;
+  keybaseEnabled = false;
+  reportingEnabled = false;
 
   keybaseReportingForm = this.fb.group({
     username: [
@@ -37,16 +37,12 @@ export class SettingsComponent implements OnInit {
     ],
   });
 
-  hidePaperkey: boolean = true;
+  hidePaperkey = true;
 
-  constructor(
-    private fb: FormBuilder,
-    private toastr: ToastrService,
-    private settingsService: SettingsService
-  ) {}
+  constructor(private fb: FormBuilder, private toastr: ToastrService, private settingsService: SettingsService) {}
 
   async ngOnInit(): Promise<void> {
-    let settings: any = await this.settingsService.getSettings();
+    const settings: any = await this.settingsService.getSettings();
 
     this.reportingEnabled = settings.isNewContentReported;
     this.keybaseEnabled = settings.keybaseConfig.enabled;
@@ -69,22 +65,19 @@ export class SettingsComponent implements OnInit {
     this.toastr.error('Sorry, not implemented yet');
   }
 
-  toggleKeybaseForm(event: boolean = true) {
+  toggleKeybaseForm() {
     this.keybaseEnabled && this.reportingEnabled
       ? this.keybaseReportingForm.enable()
       : this.keybaseReportingForm.disable();
   }
 
   async saveSettings() {
-    let res: StatusString = await this.settingsService.submitSettings({
+    const res: StatusString = await this.settingsService.submitSettings({
       isNewContentReported: this.reportingEnabled,
       keybaseConfigEnabled: this.keybaseEnabled,
-      keybaseConfigUsername:
-        this.keybaseReportingForm.controls['username'].value,
-      keybaseConfigPaperkey:
-        this.keybaseReportingForm.controls['paperkey'].value,
-      keybaseConfigChannelId:
-        this.keybaseReportingForm.controls['conversationId'].value,
+      keybaseConfigUsername: this.keybaseReportingForm.controls['username'].value,
+      keybaseConfigPaperkey: this.keybaseReportingForm.controls['paperkey'].value,
+      keybaseConfigChannelId: this.keybaseReportingForm.controls['conversationId'].value,
     });
 
     if (res === 'Success') {
@@ -94,7 +87,7 @@ export class SettingsComponent implements OnInit {
     }
   }
 
-  toggleReporting(value: boolean) {
+  toggleReporting() {
     this.toggleKeybaseForm();
   }
 }

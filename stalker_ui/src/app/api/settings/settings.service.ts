@@ -12,9 +12,7 @@ export class SettingsService {
 
   public async submitSettings(settings: any): Promise<StatusString> {
     try {
-      let data: any = await firstValueFrom(
-        this.http.put(`${fmUrl}/admin/config`, settings)
-      );
+      const data: any = await firstValueFrom(this.http.put(`${fmUrl}/admin/config`, settings));
       return data.status;
     } catch (err) {
       return 'Error';

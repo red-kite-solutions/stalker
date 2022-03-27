@@ -11,49 +11,55 @@ import { LoginComponent } from './modules/auth/login/login.component';
 import { DashboardComponent } from './modules/dashboard/dashboard.component';
 import { ProfileComponent } from './modules/user/profile/profile.component';
 
-const routes: Routes = [{
-  path: '',
-  component: DefaultComponent,
-  children : [{
+const routes: Routes = [
+  {
     path: '',
-    component: DashboardComponent
+    component: DefaultComponent,
+    children: [
+      {
+        path: '',
+        component: DashboardComponent,
+      },
+      {
+        path: 'profile',
+        component: ProfileComponent,
+      },
+      {
+        path: 'admin/users',
+        component: ManageUsersComponent,
+      },
+      {
+        path: 'admin/users/create',
+        component: CreateUserComponent,
+      },
+      {
+        path: 'admin/users/:id',
+        component: EditUserComponent,
+      },
+      {
+        path: 'admin/settings',
+        component: SettingsComponent,
+      },
+    ],
   },
   {
-    path: 'profile',
-    component: ProfileComponent
+    path: 'auth',
+    component: AuthenticationComponent,
+    children: [
+      {
+        path: 'login',
+        component: LoginComponent,
+      },
+    ],
   },
   {
-    path: 'admin/users',
-    component: ManageUsersComponent
+    path: '**',
+    component: NotFoundComponent,
   },
-  {
-    path: 'admin/users/create',
-    component: CreateUserComponent
-  },
-  {
-    path: 'admin/users/:id',
-    component: EditUserComponent
-  },
-  {
-    path: 'admin/settings',
-    component: SettingsComponent
-  }]
-},
-{
-  path: 'auth',
-  component: AuthenticationComponent,
-  children: [{
-    path: 'login',
-    component : LoginComponent
-  }]
-},
-{
-  path: '**',
-  component: NotFoundComponent
-}];
+];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}

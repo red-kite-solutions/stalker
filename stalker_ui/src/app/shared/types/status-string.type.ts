@@ -1,5 +1,1 @@
-export type StatusString =
-  | 'Success'
-  | 'Error'
-  | 'Invalid password'
-  | 'Already exists';
+export type StatusString = 'Success' | 'Error' | 'Invalid password' | 'Already exists';

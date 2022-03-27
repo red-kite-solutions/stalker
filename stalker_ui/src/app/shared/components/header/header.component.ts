@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/api/auth/auth.service';
 
@@ -7,17 +7,15 @@ import { AuthService } from 'src/app/api/auth/auth.service';
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent {
   @Output()
   toggleSideBarEvent: EventEmitter<any> = new EventEmitter();
 
-  public email: string = '';
+  public email = '';
 
   constructor(private authService: AuthService, private router: Router) {
     this.email = this.authService.email;
   }
-
-  ngOnInit(): void {}
 
   toggleSideBar() {
     this.toggleSideBarEvent.emit();

@@ -1,6 +1,6 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { first, firstValueFrom } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { StatusString } from 'src/app/shared/types/status-string.type';
 import { User } from 'src/app/shared/types/user.interface';
 import { fmUrl } from '../constants';
@@ -12,9 +12,7 @@ export class UsersService {
   constructor(private http: HttpClient) {}
 
   public async getProfile(): Promise<User> {
-    let userData: any = await firstValueFrom(
-      this.http.get(`${fmUrl}/users/profile`)
-    );
+    const userData: any = await firstValueFrom(this.http.get(`${fmUrl}/users/profile`));
     return {
       firstName: userData.firstName,
       lastName: userData.lastName,
@@ -25,12 +23,9 @@ export class UsersService {
     };
   }
 
-  public async editProfile(
-    profileEdits: Partial<User>,
-    currentPassword: string
-  ): Promise<StatusString> {
+  public async editProfile(profileEdits: Partial<User>, currentPassword: string): Promise<StatusString> {
     try {
-      let data: any = await firstValueFrom(
+      const data: any = await firstValueFrom(
         this.http.put(`${fmUrl}/users/profile`, {
           currentPassword: currentPassword,
           ...profileEdits,
@@ -42,12 +37,9 @@ export class UsersService {
     }
   }
 
-  public async changePassword(
-    newPassword: string,
-    currentPassword: string
-  ): Promise<StatusString> {
+  public async changePassword(newPassword: string, currentPassword: string): Promise<StatusString> {
     try {
-      let data: any = await firstValueFrom(
+      const data: any = await firstValueFrom(
         this.http.put(`${fmUrl}/users/profile/password`, {
           currentPassword: currentPassword,
           newPassword: newPassword,
@@ -65,7 +57,7 @@ export class UsersService {
     currentPassword: string
   ): Promise<StatusString> {
     try {
-      let data: any = await firstValueFrom(
+      const data: any = await firstValueFrom(
         this.http.post(`${fmUrl}/users`, {
           currentPassword: currentPassword,
           password: userPassword,
@@ -80,7 +72,7 @@ export class UsersService {
 
   public async getAllUsers(): Promise<User[]> {
     try {
-      let data: any = await firstValueFrom(this.http.get(`${fmUrl}/users`));
+      const data: any = await firstValueFrom(this.http.get(`${fmUrl}/users`));
       return data;
     } catch (err) {
       return [];
@@ -89,9 +81,7 @@ export class UsersService {
 
   public async getUser(userId: string): Promise<User | null> {
     try {
-      let data: any = await firstValueFrom(
-        this.http.get(`${fmUrl}/users/${userId}`)
-      );
+      const data: any = await firstValueFrom(this.http.get(`${fmUrl}/users/${userId}`));
       return data;
     } catch (err) {
       return null;
@@ -100,22 +90,16 @@ export class UsersService {
 
   public async deleteUser(userId: string): Promise<StatusString> {
     try {
-      let data: any = await firstValueFrom(
-        this.http.delete(`${fmUrl}/users/${userId}`)
-      );
+      const data: any = await firstValueFrom(this.http.delete(`${fmUrl}/users/${userId}`));
       return data.status;
     } catch (err) {
       return 'Error';
     }
   }
 
-  public async editUser(
-    userId: string,
-    changes: Partial<User>,
-    currentPassword: string
-  ): Promise<StatusString> {
+  public async editUser(userId: string, changes: Partial<User>, currentPassword: string): Promise<StatusString> {
     try {
-      let data: any = await firstValueFrom(
+      const data: any = await firstValueFrom(
         this.http.put(`${fmUrl}/users/${userId}`, {
           currentPassword: currentPassword,
           ...changes,
@@ -127,13 +111,9 @@ export class UsersService {
     }
   }
 
-  public async changeUserPassword(
-    userId: string,
-    newPassword: string,
-    currentPassword: string
-  ): Promise<StatusString> {
+  public async changeUserPassword(userId: string, newPassword: string, currentPassword: string): Promise<StatusString> {
     try {
-      let data: any = await firstValueFrom(
+      const data: any = await firstValueFrom(
         this.http.put(`${fmUrl}/users/${userId}/password`, {
           newPassword: newPassword,
           currentPassword: currentPassword,

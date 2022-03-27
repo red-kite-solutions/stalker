@@ -6,9 +6,9 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button'
+import { MatButtonModule } from '@angular/material/button';
 import { FlexLayoutModule } from '@angular/flex-layout';
-import { MatMenuModule} from '@angular/material/menu';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatListModule } from '@angular/material/list';
 import { RouterModule } from '@angular/router';
 import { AreaComponent } from './widget/area/area.component';
@@ -18,9 +18,6 @@ import { MatInputModule } from '@angular/material/input';
 import { ConfirmDialogComponent } from './widget/confirm-dialog/confirm-dialog.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
-
-
-
 
 @NgModule({
   declarations: [
@@ -44,15 +41,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     HighchartsChartModule,
     MatInputModule,
     MatDialogModule,
-    MatTooltipModule
+    MatTooltipModule,
   ],
-  exports: [
-    HeaderComponent,
-    FooterComponent,
-    SidebarComponent,
-    AreaComponent,
-    CardComponent,
-    ConfirmDialogComponent
-  ]
+  exports: [HeaderComponent, FooterComponent, SidebarComponent, AreaComponent, CardComponent, ConfirmDialogComponent],
 })
-export class SharedModule { }
+export class SharedModule {}

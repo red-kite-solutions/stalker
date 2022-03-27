@@ -13,9 +13,7 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { JwtInterceptor } from './middlewares/jwt.interceptor';
 
 @NgModule({
-  declarations: [
-    AppComponent
-  ],
+  declarations: [AppComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,
@@ -33,13 +31,11 @@ import { JwtInterceptor } from './middlewares/jwt.interceptor';
         info: 'toast-info',
         success: 'toast-success',
         warning: 'toast-warning',
-      }
+      },
     }),
-    HttpClientModule
+    HttpClientModule,
   ],
-  providers: [AuthService,
-    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }
-  ],
-  bootstrap: [AppComponent]
+  providers: [AuthService, { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }],
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

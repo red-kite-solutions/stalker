@@ -5,17 +5,8 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { NotFoundComponent } from './not-found.component';
 
-
-
 @NgModule({
-  declarations: [
-    NotFoundComponent
-  ],
-  imports: [
-    CommonModule,
-    MatSidenavModule,
-    FlexLayoutModule,
-    MatToolbarModule,
-  ]
+  declarations: [NotFoundComponent],
+  imports: [CommonModule, MatSidenavModule, FlexLayoutModule, MatToolbarModule],
 })
-export class NotFoundModule { }
+export class NotFoundModule {}

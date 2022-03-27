@@ -1,19 +1,18 @@
-import { Injectable } from '@angular/core';
-import { fmUrl, tokenName, refreshTokenName } from '../constants';
-import { firstValueFrom, Observable, throwError } from 'rxjs';
-import { catchError, retry } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
-import jwt_decode from 'jwt-decode';
+import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
+import jwt_decode from 'jwt-decode';
+import { firstValueFrom } from 'rxjs';
+import { fmUrl, refreshTokenName, tokenName } from '../constants';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private _token: string = '';
-  private _refreshToken: string = '';
-  private _role: string = '';
-  private _email: string = '';
+  private _token = '';
+  private _refreshToken = '';
+  private _role = '';
+  private _email = '';
   private decodedToken: any = {};
   private decodedRefreshToken: any = {};
 

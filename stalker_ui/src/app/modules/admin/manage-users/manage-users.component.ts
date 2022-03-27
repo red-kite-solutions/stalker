@@ -20,14 +20,7 @@ import { StatusString } from 'src/app/shared/types/status-string.type';
   styleUrls: ['./manage-users.component.scss'],
 })
 export class ManageUsersComponent implements OnInit {
-  displayedColumns: string[] = [
-    'select',
-    'firstName',
-    'lastName',
-    'email',
-    'role',
-    'active',
-  ];
+  displayedColumns: string[] = ['select', 'firstName', 'lastName', 'email', 'role', 'active'];
   // dataSource = new MatTableDataSource<User>(ELEMENT_DATA);
   dataSource = new MatTableDataSource<User>();
   selection = new SelectionModel<User>(true, []);
@@ -46,7 +39,7 @@ export class ManageUsersComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    let data = await this.usersService.getAllUsers();
+    const data = await this.usersService.getAllUsers();
     if (data) {
       this.dataSource = new MatTableDataSource<User>(data);
       this.dataSource.sort = this.sort;
@@ -76,9 +69,7 @@ export class ManageUsersComponent implements OnInit {
     if (!row) {
       return `${this.isAllSelected() ? 'deselect' : 'select'} all`;
     }
-    return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${
-      row._id + 1
-    }`;
+    return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row._id + 1}`;
   }
 
   /** Announce the change in sort state for assistive technology. */
@@ -95,7 +86,7 @@ export class ManageUsersComponent implements OnInit {
   }
 
   deleteUsers() {
-    let bulletPoints: string[] = Array<string>();
+    const bulletPoints: string[] = Array<string>();
     this.selection.selected.forEach((user: User) => {
       bulletPoints.push(`${user.firstName} ${user.lastName}`);
     });
@@ -112,14 +103,10 @@ export class ManageUsersComponent implements OnInit {
         },
         onNegativeButtonClick: () => {
           this.selection.selected.forEach(async (user: User) => {
-            let res: StatusString = await this.usersService.deleteUser(
-              user._id
-            );
+            const res: StatusString = await this.usersService.deleteUser(user._id);
             if (res === 'Success') {
               this.selection.deselect(user);
-              let removeIndex = this.dataSource.data.findIndex(
-                (u: User) => u._id === user._id
-              );
+              const removeIndex = this.dataSource.data.findIndex((u: User) => u._id === user._id);
               this.dataSource.data.splice(removeIndex, 1);
               this.dataSource.sort = this.sort;
               this.dataSource.paginator = this.paginator;

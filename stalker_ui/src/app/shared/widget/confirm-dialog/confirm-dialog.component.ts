@@ -1,5 +1,5 @@
-import { Component, Inject, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA, throwMatDialogContentAlreadyAttachedError } from '@angular/material/dialog';
+import { Component, Inject } from '@angular/core';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 export interface ConfirmDialogData {
   title?: string;
@@ -11,26 +11,21 @@ export interface ConfirmDialogData {
   onNegativeButtonClick?: Function;
 }
 
-
 @Component({
   selector: 'app-confirm-dialog',
   templateUrl: './confirm-dialog.component.html',
-  styleUrls: ['./confirm-dialog.component.scss']
+  styleUrls: ['./confirm-dialog.component.scss'],
 })
-export class ConfirmDialogComponent implements OnInit {
+export class ConfirmDialogComponent {
   public readonly maxListLength: number = 15;
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: ConfirmDialogData) {
     if (data.listElements && data.listElements.length > this.maxListLength + 1) {
-      let restCount = data.listElements.length - this.maxListLength;
-      let total = data.listElements.length;
+      const restCount = data.listElements.length - this.maxListLength;
+      const total = data.listElements.length;
       data.listElements = data.listElements.slice(0, this.maxListLength);
       data.listElements.push(`and ${restCount} other (${total} total)`);
     }
-  }
-
-  ngOnInit(): void {
-
   }
 
   positiveClick() {
@@ -44,5 +39,4 @@ export class ConfirmDialogComponent implements OnInit {
       this.data.onNegativeButtonClick();
     }
   }
-
 }

@@ -5,82 +5,78 @@ import HC_exporting from 'highcharts/modules/exporting';
 @Component({
   selector: 'app-widget-card',
   templateUrl: './card.component.html',
-  styleUrls: ['./card.component.scss']
+  styleUrls: ['./card.component.scss'],
 })
 export class CardComponent implements OnInit {
   chartOptions: any;
   Highcharts = Highcharts;
-  
-  @Input()
-  label: string = "";
 
   @Input()
-  total: string = "";
+  label = '';
 
   @Input()
-  percentage: string = "";
+  total = '';
 
-  constructor() { }
+  @Input()
+  percentage = '';
 
   ngOnInit(): void {
-
     this.chartOptions = {
       chart: {
-          type: 'area',
-          backgroundColor: null,
-          borderWidth: 0,
-          margin: [2, 2, 2, 2],
-          height: 60
+        type: 'area',
+        backgroundColor: null,
+        borderWidth: 0,
+        margin: [2, 2, 2, 2],
+        height: 60,
       },
       title: {
-          text: null
+        text: null,
       },
       subtitle: {
-          text: null
+        text: null,
       },
       credits: {
-        enabled: false
+        enabled: false,
       },
       exporting: {
-        enabled: false
+        enabled: false,
       },
       legend: {
-        enabled: false
+        enabled: false,
       },
       tooltip: {
-          split: true,
-          outside: true
+        split: true,
+        outside: true,
       },
       xAxis: {
         labels: {
-          enabled: false
+          enabled: false,
         },
         title: {
-          text: null
+          text: null,
         },
-        startOnTick: false, 
+        startOnTick: false,
         endOnTick: false,
-        tickOptions: []
+        tickOptions: [],
       },
       yAxis: {
         labels: {
-          enabled: false
+          enabled: false,
         },
         title: {
-          text: null
+          text: null,
         },
-        startOnTick: false, 
+        startOnTick: false,
         endOnTick: false,
-        tickOptions: []
+        tickOptions: [],
       },
-      series: [{
-          data: [71, 78, 39, 66]
-      }]
+      series: [
+        {
+          data: [71, 78, 39, 66],
+        },
+      ],
     };
 
     HC_exporting(Highcharts);
-    
-    
   }
-
 }

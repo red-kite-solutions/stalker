@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { AuthService } from 'src/app/api/auth/auth.service';
 
 @Component({
@@ -6,11 +6,9 @@ import { AuthService } from 'src/app/api/auth/auth.service';
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss'],
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent {
   @Input()
-  expanded: boolean = true;
+  expanded = true;
 
   constructor(public authService: AuthService) {}
-
-  ngOnInit(): void {}
 }
