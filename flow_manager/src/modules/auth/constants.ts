@@ -14,4 +14,4 @@ export enum Role {
   ReadOnly = 'read-only',
 }
 
-export const API_KEY = process.env.API_KEY;
+export const API_KEY = process.env.FM_API_KEY;

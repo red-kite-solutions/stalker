@@ -1,11 +1,13 @@
-from flask import Flask, request, abort, Response
-from os import getenv
 import json
 import uuid
+from os import getenv
 from queue import PriorityQueue
+
+from flask import Flask, Response, abort, request
+
 from prioritized_job import PrioritizedJob
 
-API_KEY = getenv('API_KEY')
+API_KEY = getenv('JQH_API_KEY')
 jobs_queue = PriorityQueue()
 
 app = Flask(__name__)
