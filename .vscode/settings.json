@@ -1,6 +1,9 @@
 {
-  "eslint.workingDirectories": ["./flow_manager"],
+  "eslint.workingDirectories": ["./flow_manager", "./stalker_ui"],
   "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": true
+  },
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   }
