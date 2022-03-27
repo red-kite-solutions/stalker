@@ -6,7 +6,11 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "format:write": "prettier --write \"src/**/*.ts\"",
+    "lint:write": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "lint-staged:run": "npm run lint:write && npm run format:write",
+    "lint-staged": "lint-staged"
   },
   "private": true,
   "dependencies": {
@@ -36,12 +40,21 @@
     "@angular/compiler-cli": "~13.2.0",
     "@types/jasmine": "~3.10.0",
     "@types/node": "^12.11.1",
+    "@typescript-eslint/eslint-plugin": "^4.6.1",
+    "@typescript-eslint/parser": "^4.6.1",
+    "eslint": "^7.12.1",
+    "eslint-config-prettier": "7.1.0",
+    "eslint-plugin-prettier": "^3.1.4",
     "jasmine-core": "~4.0.0",
     "karma": "~6.3.0",
     "karma-chrome-launcher": "~3.1.0",
     "karma-coverage": "~2.1.0",
     "karma-jasmine": "~4.0.0",
     "karma-jasmine-html-reporter": "~1.7.0",
+    "lint-staged": "^12.3.5",
     "typescript": "~4.5.2"
+  },
+  "lint-staged": {
+    "*.ts": "npm run lint-staged:run"
   }
 }
