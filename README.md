@@ -30,17 +30,14 @@ The workers also use a configuration file to handle other variables. It is detai
 
 #### Flow Manager
 
-| Environement variable | Example value                              | Description                                           | Is a secret |
-| --------------------- | ------------------------------------------ | ----------------------------------------------------- | ----------- |
-| JQH_API_KEY           | SuperRandomSecretAPIKey                    | The API key for the Jobs Queue                        | Yes         |
-| JQH_ADDRESS           | http://jqh:5000                            | The address of the job queue                          | No          |
-| FM_API_KEY            | SuperRandomSecretAPIKey2                   | Flow Manager's API key for workers to report data     | Yes         |
-| KB_USERNAME           | stalker_bot                                | The username to connect to keybase as                 | Yes         |
-| KB_CHANNELID          | RandomIdOfTheConversation                  | The keybase channel ID to which to report             | Yes         |
-| KB_PAPERKEY           | example paper key for keybase random words | The paperkey for the keybase account. Like a password | Yes         |
-| MONGO_ADDRESS         | mongodb://mongo:27017/stalker              | The address of the mongodb database                   | No          |
-| FM_JWT_SECRET         | SuperRandomSecretJWTKey                    | The secret to sign JWT for users                      | Yes         |
-| FM_REFRESH_SECRET     | SuperRandomSecretRefreshKey                | The secret to sign JWT refresh token for users        | Yes         |
+| Environement variable | Example value                 | Description                                       | Is a secret |
+| --------------------- | ----------------------------- | ------------------------------------------------- | ----------- |
+| JQH_API_KEY           | SuperRandomSecretAPIKey       | The API key for the Jobs Queue                    | Yes         |
+| JQH_ADDRESS           | http://jqh:5000               | The address of the job queue                      | No          |
+| FM_API_KEY            | SuperRandomSecretAPIKey2      | Flow Manager's API key for workers to report data | Yes         |
+| MONGO_ADDRESS         | mongodb://mongo:27017/stalker | The address of the mongodb database               | No          |
+| FM_JWT_SECRET         | SuperRandomSecretJWTKey       | The secret to sign JWT for users                  | Yes         |
+| FM_REFRESH_SECRET     | SuperRandomSecretRefreshKey   | The secret to sign JWT refresh token for users    | Yes         |
 
 ## Secrets files
 
@@ -52,15 +49,12 @@ An example could be `JQH_API_KEY` being stored as `JQH_API_KEY_FILE` in the dock
 
 The following secrets are necessary for the full features:
 
-| File name                | Environment variable name | Content details                                       | Application using the variable    |
-| ------------------------ | ------------------------- | ----------------------------------------------------- | --------------------------------- |
-| jqh_api_key.secret       | JQH_API_KEY               | The API key for the Jobs Queue                        | Flow Manager, Workers, Jobs Queue |
-| fm_api_key.secret        | FM_API_KEY                | Flow Manager's API key for workers to report data     | Flow Manager, Workers             |
-| kb_username.secret       | KB_USERNAME               | The username to connect to keybase as                 | Flow Manager                      |
-| kb_channelid.secret      | KB_CHANNELID              | The keybase channel ID to which to report             | Flow Manager                      |
-| kb_paperkey.secret       | KB_PAPERKEY               | The paperkey for the keybase account. Like a password | Flow Manager                      |
-| fm_jwt_secret.secret     | FM_JWT_SECRET             | The secret to sign JWT for users                      | Flow Manager                      |
-| fm_refresh_secret.secret | FM_REFRESH_SECRET         | The secret to sign JWT refresh token for users        | Flow Manager                      |
+| File name                | Environment variable name | Content details                                   | Application using the variable    |
+| ------------------------ | ------------------------- | ------------------------------------------------- | --------------------------------- |
+| jqh_api_key.secret       | JQH_API_KEY               | The API key for the Jobs Queue                    | Flow Manager, Workers, Jobs Queue |
+| fm_api_key.secret        | FM_API_KEY                | Flow Manager's API key for workers to report data | Flow Manager, Workers             |
+| fm_jwt_secret.secret     | FM_JWT_SECRET             | The secret to sign JWT for users                  | Flow Manager                      |
+| fm_refresh_secret.secret | FM_REFRESH_SECRET         | The secret to sign JWT refresh token for users    | Flow Manager                      |
 
 ## Config files
 
