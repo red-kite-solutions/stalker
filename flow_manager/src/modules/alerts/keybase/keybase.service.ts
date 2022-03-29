@@ -45,6 +45,11 @@ export class KeybaseService {
       return;
     }
 
+    if (!config) {
+      // no config, no big deal, will retry if/when needed
+      return;
+    }
+
     this.initBotFromConfig(config);
   }
 
