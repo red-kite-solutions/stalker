@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { BaseService } from 'src/services/base.service';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Config } from './config.model';
-import { SubmitConfigDto } from './config.dto';
-import { DEFAULT_CONFIG } from './config.default';
 import dot from 'dot-object';
+import { Model } from 'mongoose';
+import { BaseService } from 'src/services/base.service';
+import { DEFAULT_CONFIG } from './config.default';
+import { SubmitConfigDto } from './config.dto';
+import { Config } from './config.model';
 
 @Injectable()
 export class ConfigService extends BaseService<Config> {
@@ -80,5 +80,9 @@ export class ConfigService extends BaseService<Config> {
     }
 
     return conf;
+  }
+
+  public async getConfigCleartextSecrets(): Promise<Config> {
+    return this.model.findOne({}).lean();
   }
 }
