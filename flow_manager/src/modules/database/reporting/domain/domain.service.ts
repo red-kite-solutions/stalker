@@ -44,7 +44,10 @@ export class DomainsService {
 
     // For each new domain name found, create a domain name resolution job for the domain
     newDomains.forEach((domain) => {
-      const job = this.jobService.createDomainResolvingJob(domain);
+      const job = this.jobService.createDomainResolvingJob(
+        program.name,
+        domain,
+      );
       this.jobService.publish(job);
     });
 

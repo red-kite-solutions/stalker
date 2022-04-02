@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { JobsQueueUtils } from 'src/utils/jobs_queue.utils';
 import { CreateJobDto } from './dtos/create-job.dto';
 import { JobDto } from './dtos/job.dto';
 import { DomainNameResolvingJob } from './models/domain-name-resolving.model';
@@ -34,27 +35,37 @@ export class JobsService {
   }
 
   public async getById(id: string): Promise<JobDocument> {
-    return await this.jobModel.findOne({ jobId: { $eq: id } });
+    return await this.jobModel.findById(id);
   }
 
-  public createDomainResolvingJob(domainName = '') {
+  public createDomainResolvingJob(program: string, domainName: string) {
     const job = new DomainNameResolvingJob();
     job.task = DomainNameResolvingJob.name;
     job.priority = 3;
     job.domain_name = domainName;
+    job.program = program;
     return job;
   }
 
-  public createSubdomainBruteforceJob(domainName = '', wordList = '') {
+  public createSubdomainBruteforceJob(
+    program: string,
+    domainName: string,
+    wordList: string,
+  ) {
     const job = new SubdomainBruteforceJob();
     job.task = SubdomainBruteforceJob.name;
     job.priority = 3;
     job.domain_name = domainName;
     job.wordList = wordList;
+    job.program = program;
     return job;
   }
 
-  public publish(job: Job) {
-    this.jobModel.create(job);
+  public async publish(job: Job) {
+    const createdJob = await this.jobModel.create(job);
+    await JobsQueueUtils.add({
+      id: createdJob.id,
+      ...job,
+    });
   }
 }

@@ -24,7 +24,10 @@ export class AutomationService {
     programs.forEach((p) => {
       this.domainService.runForEach(p.name, (d: Domain, parents: string) => {
         const domainName = parents ? `${d.name}.${parents}` : d.name;
-        const job = this.jobService.createDomainResolvingJob(domainName);
+        const job = this.jobService.createDomainResolvingJob(
+          p.name,
+          domainName,
+        );
         this.jobService.publish(job);
       });
     }, this);
