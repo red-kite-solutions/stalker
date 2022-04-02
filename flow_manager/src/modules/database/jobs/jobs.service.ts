@@ -1,17 +1,17 @@
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { JobsQueueUtils } from 'src/utils/jobs_queue.utils';
-import { CreateJobDto } from './dtos/create-job.dto';
-import { JobDto } from './dtos/job.dto';
-import { DomainNameResolvingJob } from './models/domain-name-resolving.model';
-import { Job, JobDocument } from './models/jobs.model';
-import { SubdomainBruteforceJob } from './models/subdomain-bruteforce.model';
+import { Injectable } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import { Model } from "mongoose";
+import { JobsQueueUtils } from "src/utils/jobs_queue.utils";
+import { CreateJobDto } from "./dtos/create-job.dto";
+import { JobDto } from "./dtos/job.dto";
+import { DomainNameResolvingJob } from "./models/domain-name-resolving.model";
+import { Job, JobDocument } from "./models/jobs.model";
+import { SubdomainBruteforceJob } from "./models/subdomain-bruteforce.model";
 
 @Injectable()
 export class JobsService {
   constructor(
-    @InjectModel('job') private readonly jobModel: Model<Job & Document>,
+    @InjectModel("job") private readonly jobModel: Model<Job & Document>
   ) {}
 
   public async create(dto: CreateJobDto): Promise<JobDto> {
@@ -30,8 +30,7 @@ export class JobsService {
   }
 
   public async delete(id: string) {
-    // TODO: We should probably make the job id the model's id
-    await this.jobModel.deleteMany({ jobId: { $eq: id } });
+    await this.jobModel.deleteOne({ _id: { $eq: id } });
   }
 
   public async getById(id: string): Promise<JobDocument> {
@@ -50,7 +49,7 @@ export class JobsService {
   public createSubdomainBruteforceJob(
     program: string,
     domainName: string,
-    wordList: string,
+    wordList: string
   ) {
     const job = new SubdomainBruteforceJob();
     job.task = SubdomainBruteforceJob.name;
