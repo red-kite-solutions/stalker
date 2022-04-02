@@ -36,8 +36,5 @@ class DomainNameResolvingJob(JobInterface):
     def report(self, job_reporter: JobReporter):
         """Report the content to the server"""
         ips = str(self._ips).replace("'", '"')
-        print(ips)
         output = f'{{ "domainName" : "{self._domain_name}", "ips" : {ips} }}'
-        print(output)
-        lel = job_reporter.report(f'/report/hosts/{self._id}', output)
-        print(lel)
+        job_reporter.report(f'/report/hosts/{self._id}', output)

@@ -1,17 +1,16 @@
-import { Body, Controller, Param, Post, ValidationPipe } from '@nestjs/common';
-import { SubmitHostDto } from './host.dto';
-import { HostService } from './host.service';
+import { Body, Controller, Param, Post, ValidationPipe } from "@nestjs/common";
+import { SubmitHostDto } from "./host.dto";
+import { HostService } from "./host.service";
 
-@Controller('report/hosts')
+@Controller("report/hosts")
 export class HostController {
   constructor(private readonly hostService: HostService) {}
 
-  @Post(':jobId')
+  @Post(":jobId")
   async submitHosts(
-    @Param('jobId') jobId: string,
-    @Body(new ValidationPipe()) hosts: SubmitHostDto,
+    @Param("jobId") jobId: string,
+    @Body(new ValidationPipe()) hosts: SubmitHostDto
   ): Promise<void> {
-    console.log(jobId);
     await this.hostService.addHostsToDomain(hosts, jobId);
     return;
   }
