@@ -31,7 +31,7 @@ export class JobsService {
 
   public async delete(id: string) {
     // TODO: We should probably make the job id the model's id
-    await this.jobModel.deleteMany({ jobId: { $eq: id } });
+    await this.jobModel.deleteOne({ _id: { $eq: id } });
   }
 
   public async getById(id: string): Promise<JobDocument> {
@@ -42,7 +42,7 @@ export class JobsService {
     const job = new DomainNameResolvingJob();
     job.task = DomainNameResolvingJob.name;
     job.priority = 3;
-    job.domain_name = domainName;
+    job.domainName = domainName;
     job.program = program;
     return job;
   }
@@ -55,7 +55,7 @@ export class JobsService {
     const job = new SubdomainBruteforceJob();
     job.task = SubdomainBruteforceJob.name;
     job.priority = 3;
-    job.domain_name = domainName;
+    job.domainName = domainName;
     job.wordList = wordList;
     job.program = program;
     return job;
@@ -63,9 +63,18 @@ export class JobsService {
 
   public async publish(job: Job) {
     const createdJob = await this.jobModel.create(job);
-    await JobsQueueUtils.add({
+    const success = await JobsQueueUtils.add({
       id: createdJob.id,
       ...job,
     });
+
+    if (!success) {
+      throw new HttpException('Error sending the job to the job queue.', 500);
+    }
+
+    return {
+      id: createdJob.id,
+      ...job,
+    };
   }
 }

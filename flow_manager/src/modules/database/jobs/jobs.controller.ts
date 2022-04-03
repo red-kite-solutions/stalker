@@ -24,15 +24,6 @@ export class JobsController {
   async createJob(
     @Body(new ValidationPipe()) unidentifiedJob: CreateJobDto,
   ): Promise<Job> {
-    console.log(unidentifiedJob);
-    // TODO: This should go through the message queue
-    const job = await this.jobsService.create(unidentifiedJob);
-    const isOk: boolean = await JobsQueueUtils.add(job);
-
-    if (!isOk) {
-      throw new HttpException('Error sending the job to the job queue.', 500);
-    }
-
-    return job;
+    return await this.jobsService.publish(unidentifiedJob);
   }
 }

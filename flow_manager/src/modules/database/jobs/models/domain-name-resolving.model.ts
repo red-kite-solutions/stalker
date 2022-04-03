@@ -10,7 +10,7 @@ export class DomainNameResolvingJob {
   public priority!: number;
 
   @Prop()
-  public domain_name!: string;
+  public domainName!: string;
 }
 
 export const DomainNameResolvingJobSchema = SchemaFactory.createForClass(

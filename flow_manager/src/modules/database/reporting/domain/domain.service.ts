@@ -54,55 +54,6 @@ export class DomainsService {
     await this.programService.update(programName, program);
   }
 
-  // private async addDomainsFromProgram(subdomains: string[], programName: string) {
-  //     let condition = { name: programName };
-  //     let filter = { "_id": 1 };
-  //     let program = await this.programService.findOneFilter(condition, filter);
-
-  //     if(!program) {
-  //         throw new HttpException("The program associated with the given job does not exist.", 400);
-  //     }
-
-  //     // split mes sous-domaines pour savoir quel serait leur premier nom de domains. Maybe faire une structure de donnes genre k:v avec tld:sousdomaines
-  //     // valider dans la BD si le nom de domaine existe
-  //     // si il existe pas, l'ajouter
-  //     // si il existe, le download et le modifier
-  //     //      si d'autres noms de domaines commencent par le meme, en profiter pour les ajouter
-  //     //      update
-  //     //
-  //     // make sure que les concurrent writes dans les arrays fonctionnent bien
-  //     // Pour ca, considerer des update precis en utilisant push, maybe aussi upsert (update insert)
-
-  //     let subDict = {};
-  //     subdomains.forEach(s => {
-  //         let arr = DomainTreeUtils.domainNameToReversedStringArray(s);
-  //         if (!subDict[arr[0]]) {
-  //             subDict[arr[0]] = [];
-  //         }
-  //         subDict[arr[0]].push(arr);
-  //     });
-
-  //     Object.keys(subDict).forEach(keyDomain => {
-  //         this.programService.updateOneFilter({"name": programName, "domains.name":keyDomain},{"$push": { "domains.$.subdomains": }})
-  //     });
-
-  //     let newDomains: string[] = [];
-  //     subdomains.forEach(domainName => {
-  //         newDomains.push.apply(newDomains, DomainTreeUtils.growDomainTree(program, domainName));
-  //     });
-
-  //     this.reportService.addNewDomains(programName, subdomains);
-
-  //     // For each new domain name found, create a domain name resolution job for the domain
-  //     newDomains.forEach(domain => {
-  //         let manuJob: DomainNameResolvingJob = this.jobService.manufactureJob(JobTypes.DOMAIN_NAME_RESOLVING, programName) as DomainNameResolvingJob;
-  //         manuJob.typedData.domain_name = domain;
-  //         manuJob.publish();
-  //     });
-
-  //     await this.programService.update(condition, program);
-  // }
-
   public async addDomains(dto: SubmitSubdomainDto, jobId: string) {
     // Find the proper program using the jobId and then the program name
     const job = await this.jobService.getById(jobId);

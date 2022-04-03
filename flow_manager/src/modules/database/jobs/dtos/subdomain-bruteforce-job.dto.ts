@@ -1,10 +1,12 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 import { JobDto } from './job.dto';
 
 export class SubdomainBruteforceJobDto extends JobDto {
   @IsNotEmpty()
-  public domain_name!: string;
+  @IsString()
+  public domainName!: string;
 
   @IsNotEmpty()
+  @IsString()
   public wordList: string;
 }

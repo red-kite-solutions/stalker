@@ -10,7 +10,7 @@ export class SubdomainBruteforceJob {
   public priority!: number;
 
   @Prop()
-  public domain_name!: string;
+  public domainName!: string;
 
   @Prop()
   public wordList: string;

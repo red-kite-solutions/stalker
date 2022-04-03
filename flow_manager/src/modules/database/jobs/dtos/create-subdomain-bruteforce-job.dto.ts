@@ -3,7 +3,7 @@ import { CreateJobDto } from './create-job.dto';
 
 export class SubdomainBruteforceJobDto extends CreateJobDto {
   @IsNotEmpty()
-  public domain_name!: string;
+  public domainName!: string;
 
   @IsNotEmpty()
   public wordList: string;

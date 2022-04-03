@@ -22,10 +22,10 @@ class DomainNameResolvingJob(JobInterface):
 
     def __init__(self, job_info: dict, config: dict):
         super().__init__(job_info['_id'], job_info['_task'])
-        if not job_info['_data'].get('domain_name'):
+        if not job_info['_data'].get('domainName'):
             raise Exception("""Missing domain name to resolve for 
                 domain name resolving job""")
-        self._domain_name = str(job_info['_data'].get('domain_name'))
+        self._domain_name = str(job_info['_data'].get('domainName'))
             
 
     def run(self):
