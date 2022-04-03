@@ -6,7 +6,7 @@ export type ProgramDocument = Program & Document;
 
 @Schema()
 export class Program {
-  @Prop()
+  @Prop({ index: true, unique: true })
   public name: string;
 
   @Prop()

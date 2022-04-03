@@ -14,8 +14,8 @@ job_reporter = JobReporter(config['flow_manager_address'], config['flow_manager_
 job_info = job_requester.get_job()
 
 # Add here the new jobs to be able to use them
-switcher_dict = { 'subdomain bruteforce' : SubdomainBruteforceJob,
-                'domain name resolving': DomainNameResolvingJob }
+switcher_dict = { 'SubdomainBruteforce' : SubdomainBruteforceJob,
+                'DomainNameResolvingJob': DomainNameResolvingJob }
 
 start_time = time.time()
 current_time = start_time
@@ -30,6 +30,8 @@ while job_info or current_time - start_time < 300:
         job = switcher_dict[job_info['_task']](job_info, config)
         job.run()
         job.report(job_reporter)
-    
+    else:
+        print('Received unknown job ' + job_info['_task'])
+
     job_info = job_requester.get_job()
     current_time = time.time()

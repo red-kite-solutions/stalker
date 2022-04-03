@@ -31,8 +31,7 @@ class JobRequester():
 
         if (not content_dict.get('job') or 
                 not content_dict['job'].get('_id') or 
-                not content_dict['job'].get('_task') or 
-                not content_dict['job'].get('_data')):
+                not content_dict['job'].get('_task')):
             raise Exception("""Missing data to make a proper Job object and 
                     respect the JobInterface.""")
         

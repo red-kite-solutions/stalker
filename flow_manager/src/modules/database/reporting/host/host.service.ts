@@ -1,38 +1,34 @@
-import { InjectModel } from '@nestjs/mongoose';
 import { HttpException, Injectable } from '@nestjs/common';
-import { Host } from './host.model';
-import { BaseService } from '../../../../services/base.service';
-import { SubmitHostDto } from './host.dto';
+import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { JobsService } from '../../jobs/jobs.service';
-import { ProgramService } from '../program.service';
 import * as DomainTreeUtils from '../../../../utils/domain_tree.utils';
-import { Domain } from '../domain/domain.model';
-import { ReportService } from '../report/report.service';
 import { ConfigService } from '../../admin/config/config.service';
+import { JobsService } from '../../jobs/jobs.service';
+import { Domain } from '../domain/domain.model';
+import { ProgramService } from '../program.service';
+import { ReportService } from '../report/report.service';
+import { SubmitHostDto } from './host.dto';
+import { Host } from './host.model';
 
 @Injectable()
-export class HostService extends BaseService<Host> {
+export class HostService {
   constructor(
     @InjectModel('host') private readonly hostModel: Model<Host>,
     private jobService: JobsService,
     private programService: ProgramService,
     private reportService: ReportService,
     private configService: ConfigService,
-  ) {
-    super(hostModel);
-  }
+  ) {}
 
   public async addHostsToDomain(dto: SubmitHostDto, jobId: string) {
     // Find the proper program using the jobId and then the program name
-    const job = await this.jobService.findOne({ jobId: jobId });
+    const job = await this.jobService.getById(jobId);
 
     if (!job) {
       console.log('Could not find the job ' + jobId);
       throw new HttpException('The job id is invalid.', 400);
     }
-    const programFilter = { name: job.program };
-    const program = await this.programService.findOne(programFilter);
+    const program = await this.programService.get(job.program);
 
     if (!program) {
       console.log('Could not find the program ' + job.program);
@@ -79,7 +75,7 @@ export class HostService extends BaseService<Host> {
       this.reportService.addNewHosts(program.name, dto.domainName, dto.ips);
     }
 
-    await this.programService.update(programFilter, program);
-    await this.jobService.remove({ jobId: jobId });
+    await this.programService.update(job.program, program);
+    await this.jobService.delete(jobId);
   }
 }

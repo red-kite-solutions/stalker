@@ -9,6 +9,7 @@ async function bootstrap() {
     cors: {
       origin: 'http://localhost:4200',
     },
+    logger: ['debug', 'warn', 'error'],
   });
   await app.listen(3000);
 }

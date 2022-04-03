@@ -7,10 +7,9 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { JobsQueueUtils } from 'src/utils/jobs_queue.utils';
-import { v4 } from 'uuid';
-import { CreateJobDto } from './jobs.dto';
-import { Job } from './jobs.model';
+import { CreateJobDto } from './dtos/create-job.dto';
 import { JobsService } from './jobs.service';
+import { Job } from './models/jobs.model';
 
 @Controller('jobs')
 export class JobsController {
@@ -18,23 +17,13 @@ export class JobsController {
 
   @Get()
   async getAllJobs(): Promise<any> {
-    return await this.jobsService.findAll();
+    return await this.jobsService.getAll();
   }
 
   @Post('create')
   async createJob(
     @Body(new ValidationPipe()) unidentifiedJob: CreateJobDto,
   ): Promise<Job> {
-    const id: string = v4();
-    const isOk: boolean = await JobsQueueUtils.add(
-      id,
-      unidentifiedJob.task,
-      unidentifiedJob.priority,
-      unidentifiedJob.data,
-    );
-    if (!isOk) {
-      throw new HttpException('Error sending the job to the job queue.', 500);
-    }
-    return await this.jobsService.addJob(unidentifiedJob, id);
+    return await this.jobsService.publish(unidentifiedJob);
   }
 }

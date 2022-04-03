@@ -1,25 +1,23 @@
 import { Injectable } from '@nestjs/common';
-import { BaseService } from 'src/services/base.service';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Config } from './config.model';
-import { SubmitConfigDto } from './config.dto';
-import { DEFAULT_CONFIG } from './config.default';
 import dot from 'dot-object';
+import { Model } from 'mongoose';
+import { DEFAULT_CONFIG } from './config.default';
+import { SubmitConfigDto } from './config.dto';
+import { Config } from './config.model';
 
 @Injectable()
-export class ConfigService extends BaseService<Config> {
+export class ConfigService {
   public PASSWORD_PLACEHOLDER = '********';
 
   constructor(
     @InjectModel('config') private readonly configModel: Model<Config>,
   ) {
-    super(configModel);
-    this.findOne({}).then((c: Config) => {
+    this.configModel.findOne({}).then((c: Config) => {
       if (!c?.keybaseConfig) {
         // Check random config object to see if it was initialized
         c = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
-        this.upsertOne({}, c);
+        this.configModel.updateOne({}, c, { upsert: true });
       }
     });
   }
@@ -69,16 +67,20 @@ export class ConfigService extends BaseService<Config> {
         conf.keybaseConfig.enabled = configUpdate?.keybaseConfigEnabled;
     }
 
-    await this.model.update({}, { $set: dot.dot(conf) });
+    await this.configModel.updateOne({}, { $set: dot.dot(conf) });
   }
 
   public async getConfig(): Promise<Config> {
-    const conf: Config = await this.model.findOne({}).lean();
+    const conf: Config = await this.configModel.findOne({}).lean();
 
     if (conf.keybaseConfig?.paperkey) {
       conf.keybaseConfig.paperkey = this.PASSWORD_PLACEHOLDER;
     }
 
     return conf;
+  }
+
+  public async getConfigCleartextSecrets(): Promise<Config> {
+    return this.configModel.findOne({}).lean();
   }
 }

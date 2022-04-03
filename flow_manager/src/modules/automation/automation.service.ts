@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { JobsService, JobTypes } from '../database/jobs/jobs.service';
-import { DomainNameResolvingJob } from '../database/jobs/jobs_factory/domain_name_resolving.job';
+import { JobsService } from '../database/jobs/jobs.service';
 import { Domain } from '../database/reporting/domain/domain.model';
 import { DomainsService } from '../database/reporting/domain/domain.service';
 import { ProgramService } from '../database/reporting/program.service';
@@ -21,20 +20,15 @@ export class AutomationService {
     timeZone: 'America/Toronto',
   })
   public async refreshIpAdresses(): Promise<void> {
-    const programs = await this.programService.findAllFilter({ name: 1 });
+    const programs = await this.programService.getAll();
     programs.forEach((p) => {
       this.domainService.runForEach(p.name, (d: Domain, parents: string) => {
-        const job: DomainNameResolvingJob = this.jobService.manufactureJob(
-          JobTypes.DOMAIN_NAME_RESOLVING,
+        const domainName = parents ? `${d.name}.${parents}` : d.name;
+        const job = this.jobService.createDomainResolvingJob(
           p.name,
-        ) as DomainNameResolvingJob;
-        if (parents) {
-          job.typedData.domain_name = `${d.name}.${parents}`;
-        } else {
-          job.typedData.domain_name = `${d.name}`;
-        }
-
-        job.publish();
+          domainName,
+        );
+        this.jobService.publish(job);
       });
     }, this);
   }

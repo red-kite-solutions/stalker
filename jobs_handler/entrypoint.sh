@@ -24,4 +24,4 @@ file_env() {
 file_env "JQH_API_KEY"
 file_env "FM_API_KEY"
 
-python3 jobs_handler.py
+python3 -u jobs_handler.py
