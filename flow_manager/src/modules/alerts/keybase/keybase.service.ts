@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import Bot from 'keybase-bot';
-import { ConfigDocument } from 'src/modules/database/admin/config/config.model';
+import { Config } from 'src/modules/database/admin/config/config.model';
 import { ConfigService } from 'src/modules/database/admin/config/config.service';
 import { SendSimpleAlertDto } from './keybase.dto';
 
@@ -15,8 +15,7 @@ export class KeybaseService {
   }
 
   public async sendSimpleAlertMessage(messageContent: string) {
-    const config: ConfigDocument =
-      await this.configService.getConfigCleartextSecrets();
+    const config = await this.configService.getConfigCleartextSecrets();
 
     await this.updateBotInitState(config);
 
@@ -36,8 +35,7 @@ export class KeybaseService {
   }
 
   public async initBot() {
-    const config: ConfigDocument =
-      await this.configService.getConfigCleartextSecrets();
+    const config = await this.configService.getConfigCleartextSecrets();
     const info = this.bot?.myInfo();
 
     if (info) {
@@ -53,7 +51,7 @@ export class KeybaseService {
     this.initBotFromConfig(config);
   }
 
-  private async initBotFromConfig(config: ConfigDocument) {
+  private async initBotFromConfig(config: Config) {
     if (!config.keybaseConfig?.username || !config.keybaseConfig?.paperkey) {
       return;
     }
@@ -71,7 +69,7 @@ export class KeybaseService {
     }
   }
 
-  private async updateBotInitState(config: ConfigDocument) {
+  private async updateBotInitState(config: Config) {
     const info = this.bot?.myInfo();
     if (!info) {
       await this.initBotFromConfig(config);
@@ -104,8 +102,7 @@ export class KeybaseService {
   }
 
   public async sendReportFile(reportPath: string) {
-    const config: ConfigDocument =
-      await this.configService.getConfigCleartextSecrets();
+    const config = await this.configService.getConfigCleartextSecrets();
 
     await this.updateBotInitState(config);
 

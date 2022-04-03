@@ -71,7 +71,7 @@ export class ConfigService {
   }
 
   public async getConfig(): Promise<Config> {
-    const conf: Config = await this.configModel.findOne({}).lean();
+    const conf = await this.configModel.findOne({}).lean();
 
     if (conf.keybaseConfig?.paperkey) {
       conf.keybaseConfig.paperkey = this.PASSWORD_PLACEHOLDER;
@@ -80,7 +80,7 @@ export class ConfigService {
     return conf;
   }
 
-  public async getConfigCleartextSecrets(): Promise<Config> {
+  public async getConfigCleartextSecrets() {
     return this.configModel.findOne({}).lean();
   }
 }
