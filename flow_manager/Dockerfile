@@ -1,4 +1,4 @@
-FROM node:16.5.0-alpine
+FROM node:16.10.0-alpine
 
 RUN apk update
 RUN apk add bash

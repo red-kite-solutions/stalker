@@ -50,4 +50,6 @@ services:
     links: 
       - "jqh:jobsqueuehandler"
       - "flow_manager:fm"
+    volumes: 
+      - ./jobs_handler/src/:/jh/src/
   
