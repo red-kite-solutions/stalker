@@ -25,8 +25,7 @@ current_time = start_time
 while job_info or current_time - start_time < 30000: 
     if not job_info:
         #slow things down a bit to not spam too much
-        print('I do not have a job for you brother')
-        time.sleep(5)      
+        time.sleep(3)
     elif switcher_dict.get(job_info['_task']):
         print('I got a job!')
         print(job_info)
