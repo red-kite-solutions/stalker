@@ -30,7 +30,6 @@ export class JobsService {
   }
 
   public async delete(id: string) {
-    // TODO: We should probably make the job id the model's id
     await this.jobModel.deleteOne({ _id: { $eq: id } });
   }
 

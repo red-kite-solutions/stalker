@@ -1,13 +1,13 @@
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { CreateProgramDto } from './program.dto';
-import { Program } from './program.model';
+import { Injectable } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import { Model } from "mongoose";
+import { CreateProgramDto } from "./program.dto";
+import { Program } from "./program.model";
 
 @Injectable()
 export class ProgramService {
   constructor(
-    @InjectModel('program') private readonly programModel: Model<Program>,
+    @InjectModel("program") private readonly programModel: Model<Program>
   ) {}
 
   public async getAll(page = null, pageSize = null): Promise<Program[]> {
@@ -41,7 +41,7 @@ export class ProgramService {
    */
   public async getWithDomainAtIndex(
     name: string,
-    index: number,
+    index: number
   ): Promise<Program> {
     return await this.programModel
       .findOne({ name: { $eq: name } }, { domains: { $slice: [index, 1] } })
@@ -50,9 +50,6 @@ export class ProgramService {
 
   public async addProgram(dto: CreateProgramDto) {
     // TODO: Add unique index on name to prevent duplicate programs
-    // if (program) {
-    //   throw new BadRequestException('This bug bounty program already exists.');
-    // }
 
     return await new this.programModel(dto).save();
   }
