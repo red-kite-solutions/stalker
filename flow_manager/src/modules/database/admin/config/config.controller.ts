@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Logger,
   Put,
   UseGuards,
   ValidationPipe,
@@ -19,6 +20,8 @@ import { ConfigService } from './config.service';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('admin/config')
 export class ConfigController {
+  private logger = new Logger(ConfigController.name);
+
   constructor(private readonly configService: ConfigService) {}
 
   @Put()
@@ -29,7 +32,7 @@ export class ConfigController {
       await this.configService.submitConfig(dto);
       return { status: 'Success' };
     } catch (err) {
-      console.log(err);
+      this.logger.error('An error occurred while submitting config.', err);
       return { status: 'Error' };
     }
   }

@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as DomainTreeUtils from '../../../../utils/domain_tree.utils';
@@ -12,6 +12,8 @@ import { Host } from './host.model';
 
 @Injectable()
 export class HostService {
+  private logger = new Logger(HostService.name);
+
   constructor(
     @InjectModel('host') private readonly hostModel: Model<Host>,
     private jobService: JobsService,
@@ -25,13 +27,13 @@ export class HostService {
     const job = await this.jobService.getById(jobId);
 
     if (!job) {
-      console.log('Could not find the job ' + jobId);
+      this.logger.debug(`Could not find the job ${jobId}`);
       throw new HttpException('The job id is invalid.', 400);
     }
     const program = await this.programService.get(job.program);
 
     if (!program) {
-      console.log('Could not find the program ' + job.program);
+      this.logger.debug(`Could not find the program ${job.program}`);
       throw new HttpException(
         'The program associated with the given job does not exist.',
         400,

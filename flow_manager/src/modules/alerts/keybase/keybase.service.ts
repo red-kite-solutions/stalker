@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import Bot from 'keybase-bot';
 import { Config } from 'src/modules/database/admin/config/config.model';
 import { ConfigService } from 'src/modules/database/admin/config/config.service';
@@ -8,6 +8,7 @@ import { SendSimpleAlertDto } from './keybase.dto';
 export class KeybaseService {
   bot: Bot;
   private currentPaperkey: string;
+  private logger = new Logger(KeybaseService.name);
 
   constructor(private configService: ConfigService) {
     this.bot = new Bot();
@@ -64,8 +65,7 @@ export class KeybaseService {
       this.currentPaperkey = config.keybaseConfig.paperkey;
     } catch (err) {
       this.bot = new Bot();
-      console.log('Error in keybase initialization');
-      console.log(err);
+      this.logger.error('Error in keybase initialization', err);
     }
   }
 
