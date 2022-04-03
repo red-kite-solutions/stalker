@@ -52,7 +52,7 @@ Creates a new job to add to the queue. The job will be sorted according to the g
     "program":"{{program}}", 
     "priority":1, 
     "data": {
-        "domain_name":"example.com",
+        "domainName":"example.com",
         "wordlist":"wordlist.txt"
     }
 }

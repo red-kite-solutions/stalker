@@ -16,7 +16,7 @@ class SubdomainBruteforceJob(JobInterface):
 
     def __init__(self, job_info: dict, config: dict):
         super().__init__(job_info['_id'], job_info['_task'])
-        if not job_info['_data'].get('domain_name'):
+        if not job_info['_data'].get('domainName'):
             raise Exception("""Missing domain name information for 
                 subdomain bruteforce job.""")
 
@@ -24,7 +24,7 @@ class SubdomainBruteforceJob(JobInterface):
         if job_info['_data'].get('wordlist'):
             wordlist = config['amass_wordlists'] + job_info['_data']['wordlist']
         
-        self._domain_name = job_info['_data']['domain_name']
+        self._domain_name = job_info['_data']['domainName']
         self._wordlist = wordlist
         self._config_file = config['amass_config']
         self._amass_bin_path = config['amass_bin_path']

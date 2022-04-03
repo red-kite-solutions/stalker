@@ -1,38 +1,60 @@
-import { InjectModel } from '@nestjs/mongoose';
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { BaseService } from '../../../services/base.service';
-import { CreateProgramDto } from './program.dto';
-import { Model } from 'mongoose';
-import { Program } from './program.model';
+import { Injectable } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import { Model } from "mongoose";
+import { CreateProgramDto } from "./program.dto";
+import { Program } from "./program.model";
 
 @Injectable()
-export class ProgramService extends BaseService<Program> {
+export class ProgramService {
   constructor(
-    @InjectModel('program') private readonly programModel: Model<Program>,
-  ) {
-    super(programModel);
+    @InjectModel("program") private readonly programModel: Model<Program>
+  ) {}
+
+  public async getAll(page = null, pageSize = null): Promise<Program[]> {
+    let query = this.programModel.find();
+    if (page != null && pageSize != null) {
+      query = query.skip(page).limit(pageSize);
+    }
+
+    return await query;
   }
 
-  public async findAllPrograms() {
-    return await this.findAll();
+  /**
+   * This method is used to limit data transportation between the database and this server.
+   * It will return a shortened version of the Program, with the Domain at the current index as the only
+   * Domain in the Domains array.
+   * @param program The program in which to get the domain
+   * @param index The index of the desired domain in the domains array
+   * @returns The program with the shortened domains array
+   */
+  public async get(name: string): Promise<Program> {
+    return await this.programModel.findOne({ name: { $eq: name } }).exec();
   }
 
-  public async findOneByName(name: string): Promise<Program> {
-    return await this.findOne({ name: name });
+  /**
+   * This method is used to limit data transportation between the database and this server.
+   * It will return a shortened version of the Program, with the Domain at the current index as the only
+   * Domain in the Domains array.
+   * @param program The program in which to get the domain
+   * @param index The index of the desired domain in the domains array
+   * @returns The program with the shortened domains array
+   */
+  public async getWithDomainAtIndex(
+    name: string,
+    index: number
+  ): Promise<Program> {
+    return await this.programModel
+      .findOne({ name: { $eq: name } }, { domains: { $slice: [index, 1] } })
+      .exec();
   }
 
   public async addProgram(dto: CreateProgramDto) {
-    // create the program if not exist
-    const program: Program = await this.findOne({
-      name: dto.name,
-    });
+    // TODO: Add unique index on name to prevent duplicate programs
 
-    if (program) {
-      throw new BadRequestException('This bug bounty program already exists.');
-    }
+    return await new this.programModel(dto).save();
+  }
 
-    return await this.create({
-      ...dto,
-    });
+  public async update(name: string, program: Program) {
+    await this.programModel.updateOne({ name: { $eq: name } }, program);
   }
 }

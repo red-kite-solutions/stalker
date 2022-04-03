@@ -1,19 +1,19 @@
 import { Injectable } from '@nestjs/common';
-import { BaseService } from 'src/services/base.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Config } from './config.model';
 import { SubmitConfigDto } from './config.dto';
+import { Config } from './config.model';
 
 @Injectable()
-export class ConfigService extends BaseService<Config> {
+export class ConfigService {
   public config: Config;
 
   constructor(
     @InjectModel('config') private readonly configModel: Model<Config>,
   ) {
-    super(configModel);
-    this.findOne({}).then((c: Config) => {
+    // TODO: This probably shouldn't be done in the constructor. This leaves the class in
+    //       an invalid state at the end of the constructor and this breaks OOD principle.
+    this.configModel.findOne().then((c: Config) => {
       if (!c) {
         c = new Config();
       }
@@ -22,12 +22,12 @@ export class ConfigService extends BaseService<Config> {
       }
 
       this.config = c;
-      this.upsertOne({}, c);
+      this.configModel.updateOne({}, c, { upsert: true });
     });
   }
 
   public async submitConfig(dto: SubmitConfigDto): Promise<void> {
-    this.update({}, dto);
+    this.configModel.updateOne({}, dto);
     this.syncConfig(dto);
   }
 
