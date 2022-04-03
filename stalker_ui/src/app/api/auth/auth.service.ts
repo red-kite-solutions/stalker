@@ -43,7 +43,7 @@ export class AuthService {
     this.decodedToken = jwt_decode(token);
     const epochNow = Math.floor(new Date().getTime() / 1000);
     if (this.decodedToken.exp > epochNow) {
-      localStorage.setItem(tokenName, this._token);
+      localStorage.setItem(tokenName, token);
       this._token = token;
       this._role = this.decodedToken.role;
       this._email = this.decodedToken.email;
@@ -56,7 +56,7 @@ export class AuthService {
     this.decodedRefreshToken = jwt_decode(token);
     const epoch = Math.floor(new Date().getTime() / 1000);
     if (this.decodedRefreshToken.exp > epoch) {
-      localStorage.setItem(refreshTokenName, this._refreshToken);
+      localStorage.setItem(refreshTokenName, token);
       this._refreshToken = token;
     }
   }
