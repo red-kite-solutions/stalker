@@ -1,35 +1,31 @@
 form {
 }
 
-form:focus-within {    
+form:focus-within {
 }
 
 ul li {
-    list-style: none;
+  list-style: none;
 }
 
 .stalker-header-search-field {
-    color:  #939fd6;
-    max-width: 400px;
-    margin-top: 10px;
-    
+  color: #939fd6;
+  max-width: 400px;
+  margin-top: 10px;
 }
 
 .stalker-header-search-field:hover {
-    color: white;
+  color: white;
 }
 
 .stalker-header-search-field:focus-within {
-    color: white;
-    
+  color: white;
 }
 
 .stalker-header-search-field {
-    button {
-        mat-icon {
-            font-size: 1.2em;
-        }
+  button {
+    mat-icon {
+      font-size: 1.2em;
     }
+  }
 }
-
-

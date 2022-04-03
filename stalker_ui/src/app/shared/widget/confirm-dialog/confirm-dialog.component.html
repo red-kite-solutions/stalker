@@ -1,11 +1,15 @@
-<h1 mat-dialog-title *ngIf="data.title">{{data.title}}</h1>
+<h1 mat-dialog-title *ngIf="data.title">{{ data.title }}</h1>
 <div mat-dialog-content *ngIf="data.text || data.listElements?.length">
-    {{data.text}}
-    <ul *ngIf="data.listElements?.length">
-        <li *ngFor="let line of data.listElements"> {{ line }} </li>
-    </ul>
+  {{ data.text }}
+  <ul *ngIf="data.listElements?.length">
+    <li *ngFor="let line of data.listElements">{{ line }}</li>
+  </ul>
 </div>
 <div mat-dialog-actions>
-    <button *ngIf="data.positiveButtonText != ''" mat-raised-button color="primary" (click)="positiveClick()">{{data.positiveButtonText}}</button>
-    <button *ngIf="data.negativeButtonText != ''" mat-raised-button color="warn" (click)="negativeClick()">{{data.negativeButtonText}}</button>
+  <button *ngIf="data.positiveButtonText != ''" mat-raised-button color="primary" (click)="positiveClick()">
+    {{ data.positiveButtonText }}
+  </button>
+  <button *ngIf="data.negativeButtonText != ''" mat-raised-button color="warn" (click)="negativeClick()">
+    {{ data.negativeButtonText }}
+  </button>
 </div>

@@ -1,60 +1,89 @@
 <mat-card>
-    <mat-card-content>
-        <div fxLayout="row" fxLayoutAlign="flex-start center">
-            <h1 fxFlex>Settings</h1>
-            <button mat-raised-button type="button" color="primary" (click)="saveSettings()">Save Settings</button>
+  <mat-card-content>
+    <div fxLayout="row" fxLayoutAlign="flex-start center">
+      <h1 fxFlex>Settings</h1>
+      <button mat-raised-button type="button" color="primary" (click)="saveSettings()">Save Settings</button>
+    </div>
+
+    <br />
+    <mat-divider></mat-divider>
+    <mat-tab-group>
+      <mat-tab label="Reporting">
+        <div fxLayout="row" class="header-check" fxLayoutAlign="flex-start center">
+          <mat-checkbox class="inrow" [(ngModel)]="reportingEnabled" (ngModelChange)="toggleReporting()"
+            >Enable Reporting</mat-checkbox
+          >
         </div>
-        
-        <br>
+
+        <br />
         <mat-divider></mat-divider>
-        <mat-tab-group>
-            <mat-tab label="Reporting">
-                <div fxLayout="row" class="header-check" fxLayoutAlign="flex-start center">
-                    <mat-checkbox class="inrow" [(ngModel)]="reportingEnabled" (ngModelChange)="toggleReporting()">Enable Reporting</mat-checkbox>
-                </div>
 
-                <br>
-                <mat-divider></mat-divider>
+        <div fxLayout="row" class="header-check" fxLayoutAlign="flex-start center">
+          <h3 class="inrow">Keybase</h3>
+          <mat-checkbox
+            [disabled]="!reportingEnabled"
+            class="inrow"
+            [(ngModel)]="keybaseEnabled"
+            (ngModelChange)="toggleKeybaseForm()"
+            >Enable Keybase Reporting</mat-checkbox
+          >
+          <button
+            [disabled]="!keybaseReportingForm.valid"
+            type="button"
+            class="inrow"
+            mat-icon-button
+            (click)="syncKeybase()"
+            matTooltip="Validate Keybase credentials"
+          >
+            <mat-icon class="material-icons-outlined">sync</mat-icon>
+          </button>
+        </div>
+        <form [formGroup]="keybaseReportingForm">
+          <mat-form-field class="formfieldblock">
+            <input matInput type="text" placeholder="Username" name="username" formControlName="username" required />
+            <mat-error> Username must not be empty </mat-error>
+          </mat-form-field>
 
-                <div fxLayout="row" class="header-check" fxLayoutAlign="flex-start center">
-                    <h3 class="inrow">Keybase</h3>
-                    <mat-checkbox [disabled]="!reportingEnabled" class="inrow" [(ngModel)]="keybaseEnabled" (ngModelChange)="toggleKeybaseForm()">Enable Keybase Reporting</mat-checkbox>
-                    <button [disabled]="!keybaseReportingForm.valid" type="button" class="inrow" mat-icon-button (click)="syncKeybase()" matTooltip="Validate Keybase credentials">
-                        <mat-icon class="material-icons-outlined">sync</mat-icon>
-                    </button>
-                </div>
-                <form [formGroup]="keybaseReportingForm">
-                    <mat-form-field class="formfieldblock" >
-                        <input matInput type="text" placeholder="Username" name="username" formControlName="username" required>
-                        <mat-error>
-                            Username must not be empty
-                        </mat-error>
-                    </mat-form-field>
-                    
-                    <mat-form-field class="formfieldblock">
-                        <mat-label>Paper Key</mat-label>
-                        <input matInput [type]="hidePaperkey ? 'password' : 'text'" name="paperkey" formControlName="paperkey" required>
-                        <button [disabled]="!keybaseEnabled" mat-icon-button matSuffix (click)="hidePaperkey = !hidePaperkey" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hidePaperkey">
-                            <mat-icon>{{hidePaperkey ? 'visibility_off' : 'visibility'}}</mat-icon>
-                        </button>
-                        <mat-error>
-                            Paper key must not be empty
-                        </mat-error>
-                    </mat-form-field>
-                    <mat-form-field class="formfieldblock">
-                        <input matInput type="text" placeholder="Conversation Id" name="conversationId" formControlName="conversationId" required>
-                        <mat-error>
-                            Conversation Id must not be empty
-                        </mat-error>
-                    </mat-form-field>
-                </form>
-            </mat-tab>
-            <!-- <mat-tab label="Second"> Content 2 
+          <mat-form-field class="formfieldblock">
+            <mat-label>Paper Key</mat-label>
+            <input
+              matInput
+              [type]="hidePaperkey ? 'password' : 'text'"
+              name="paperkey"
+              formControlName="paperkey"
+              required
+            />
+            <button
+              [disabled]="!keybaseEnabled"
+              mat-icon-button
+              matSuffix
+              (click)="hidePaperkey = !hidePaperkey"
+              [attr.aria-label]="'Hide password'"
+              [attr.aria-pressed]="hidePaperkey"
+            >
+              <mat-icon>{{ hidePaperkey ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            <mat-error> Paper key must not be empty </mat-error>
+          </mat-form-field>
+          <mat-form-field class="formfieldblock">
+            <input
+              matInput
+              type="text"
+              placeholder="Conversation Id"
+              name="conversationId"
+              formControlName="conversationId"
+              required
+            />
+            <mat-error> Conversation Id must not be empty </mat-error>
+          </mat-form-field>
+        </form>
+      </mat-tab>
+      <!-- <mat-tab label="Second"> Content 2 
 
             </mat-tab>
             <mat-tab label="Third"> Content 3 
 
             </mat-tab> -->
-        </mat-tab-group>
-    </mat-card-content>
+    </mat-tab-group>
+  </mat-card-content>
 </mat-card>

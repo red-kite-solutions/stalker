@@ -1,39 +1,38 @@
 <mat-toolbar color="primary">
-    <mat-toolbar-row fxLayout fxLayoutGap="16px">
-        <div fxLayoutAlign="flex-start center">
-            <button mat-icon-button (click)="toggleSideBar()">
-                <mat-icon>menu</mat-icon>
-            </button>
-            <span fxHide.lt-sm="true">Stalker | Recon Automation</span>
-        </div>
+  <mat-toolbar-row fxLayout fxLayoutGap="16px">
+    <div fxLayoutAlign="flex-start center">
+      <button mat-icon-button (click)="toggleSideBar()">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <span fxHide.lt-sm="true">Stalker | Recon Automation</span>
+    </div>
 
-        <form fxFlex fxLayoutAlign="flex-end center">
-            <mat-form-field fxFlex class="stalker-header-search-field" floatLabel="never">
-                <input matInput (focus)="focus()" placeholder="Search">
+    <form fxFlex fxLayoutAlign="flex-end center">
+      <mat-form-field fxFlex class="stalker-header-search-field" floatLabel="never">
+        <input matInput (focus)="focus()" placeholder="Search" />
 
-                <button mat-icon-button matSuffix type="button" (click)="search()">
-                    <mat-icon class="material-icons-outlined">search</mat-icon>
-                </button>
-            </mat-form-field>
-        </form>
+        <button mat-icon-button matSuffix type="button" (click)="search()">
+          <mat-icon class="material-icons-outlined">search</mat-icon>
+        </button>
+      </mat-form-field>
+    </form>
 
-        <div>
-            <button mat-button [matMenuTriggerFor]="menu">
-                <mat-icon>person_outline</mat-icon>
-                <span fxHide.lt-md="true">{{ email }}</span>
-            </button>
-        </div>
-
-    </mat-toolbar-row>
+    <div>
+      <button mat-button [matMenuTriggerFor]="menu">
+        <mat-icon>person_outline</mat-icon>
+        <span fxHide.lt-md="true">{{ email }}</span>
+      </button>
+    </div>
+  </mat-toolbar-row>
 </mat-toolbar>
 
 <mat-menu #menu="matMenu">
-    <button mat-menu-item routerLink="/profile">
-        <mat-icon class="material-icons-outlined">badge</mat-icon>
-        Profile
-    </button>
-    <button mat-menu-item type="button" (click)="logout()">
-        <mat-icon>exit_to_app</mat-icon>
-        Sign out
-    </button>
+  <button mat-menu-item routerLink="/profile">
+    <mat-icon class="material-icons-outlined">badge</mat-icon>
+    Profile
+  </button>
+  <button mat-menu-item type="button" (click)="logout()">
+    <mat-icon>exit_to_app</mat-icon>
+    Sign out
+  </button>
 </mat-menu>
