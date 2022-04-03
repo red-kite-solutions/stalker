@@ -39,14 +39,15 @@ export class AuthService {
   }
 
   public async createAccessToken(user: Partial<UserDocument>): Promise<string> {
-    if (await this.usersService.isUserActive(user.id)) {
-      return this.jwtService.sign(user, {
-        secret: jwtConstants.secret,
-        expiresIn: jwtConstants.expirationTime,
-      });
-    } else {
+    const isActive = await this.usersService.isUserActive(user.id);
+    if (!isActive) {
       throw new UnauthorizedException();
     }
+
+    return this.jwtService.sign(user, {
+      secret: jwtConstants.secret,
+      expiresIn: jwtConstants.expirationTime,
+    });
   }
 
   public async removeRefreshToken(userId: string) {
