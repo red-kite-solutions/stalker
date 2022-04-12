@@ -26,7 +26,7 @@ export class DomainsService {
       throw new HttpException('The company does not exist.', 400);
     }
 
-    // Pour chaque domain, creer un _id mongo
+    // for each doman, create a mongo id
     const domainDocuments: DomainDocument[] = [];
     domains.forEach((domain) => {
       const model = new this.domainModel({
@@ -39,7 +39,7 @@ export class DomainsService {
 
     let insertedDomains: any = [];
 
-    // insertmany avec ordered false en gardant la reponse
+    // insertmany with ordered false to continue on fail and use the exception
     try {
       insertedDomains = await this.domainModel.insertMany(domainDocuments, {
         ordered: false,
