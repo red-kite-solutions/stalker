@@ -90,6 +90,12 @@ export class DomainsService {
     return this.domainModel.findOne({ name: { $eq: name } });
   }
 
+  /**
+   * Adds hosts summaries to existing domain objects.
+   * @param domainId The ID where to add the host summaries
+   * @param hostSummaries **Important :** the host summaries must respect the field order defined in the HostSummary interface
+   * @returns The result of the update one querry
+   */
   public async addHostsToDomain(
     domainId: string,
     hostSummaries: HostSummary[],
@@ -123,7 +129,5 @@ export class DomainsService {
         this.jobService.publish(job);
       });
     } while (domains);
-
-    return;
   }
 }

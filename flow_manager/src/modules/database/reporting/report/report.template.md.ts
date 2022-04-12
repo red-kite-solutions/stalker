@@ -6,30 +6,37 @@ This report contains anything new that was found on the following date:
 **{{date}}**
 
 Information in this report was unknown to Stalker before that date.
+{{#comments.length}}
 
-
-{{#comments}}
 ## Report Comments
 
-* {{.}}
+{{/comments.length}}
+{{#comments}}* {{.}}
 {{/comments}}
-
-{{#company}}
+{{#companies}}
 
 ## {{name}}
 
+{{#domains.length}}
 The following domains were found : 
 
 |Domain Name|IP Address|Identified Services|
 |-----------|----------|-------------------|
-{{#domains}}|{{name}}|{{ips}}|{{services}}|{{/domains}}
+{{/domains.length}}
+{{#domains}}
+|{{name}}|{{ips}}|{{services}}|
+{{/domains}}
 
+{{#hosts.length}}
 The following hosts were found : 
 
 |IP Address|Ports|Identified Services|
 |----------|-----|-------------------|
-{{#hosts}}|{{ip}}|{{ports}}|{{services}}|{{/hosts}}
+{{/hosts.length}}
+{{#hosts}}
+|{{ip}}|{{ports}}|{{services}}|
+{{/hosts}}
 
-{{/company}}
+{{/companies}}
 
 `;

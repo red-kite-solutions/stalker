@@ -88,13 +88,13 @@ export class HostService {
           domainName: domainName,
           companyId: companyId,
         });
-        hostSummaries.push({ ip: ip, id: mongoId });
+        hostSummaries.push({ id: mongoId, ip: ip });
       } else if (
         !hostResult.domains ||
         hostResult.domains.some((ds) => ds.name === domainName)
       ) {
         // updated, so sync with relevant domain document must be done
-        hostSummaries.push({ ip: ip, id: hostResult._id });
+        hostSummaries.push({ id: hostResult._id, ip: ip });
       }
     }
 

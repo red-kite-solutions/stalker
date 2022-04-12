@@ -3,14 +3,15 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { writeFileSync } from 'fs';
 import { Model, UpdateWriteOpResult } from 'mongoose';
+import Mustache from 'mustache';
 import { KeybaseService } from 'src/modules/alerts/keybase/keybase.service';
 import { ReportEntryDto } from './report.dto';
 import { DomainReport, HostReport, Report } from './report.model';
+import { reportTemplate } from './report.template.md';
 
 @Injectable()
 export class ReportService {
   private REPORT_SUFFIX = '_stalker_report.md';
-  private content: string;
 
   constructor(
     @InjectModel('report') private readonly reportModel: Model<Report>,
@@ -138,16 +139,6 @@ export class ReportService {
     return currentReport;
   }
 
-  // // Validates that there is an entry for the current report in the database 5 seconds after application startup
-  // @Timeout(5000)
-  // public async validateCurrentReportExists(): Promise<void> {
-  //   const date = this.getCurrentReportPrefix();
-  //   const currentReport = await this.getByDate(date);
-  //   if (!currentReport) {
-  //     await new this.reportModel({ date: date }).save();
-  //   }
-  // }
-
   // TODO: remove the automation of reports into an external service for
   // horizontal scalability
   @Cron(CronExpression.EVERY_DAY_AT_11PM, {
@@ -159,7 +150,7 @@ export class ReportService {
   }
 
   /** Creates the report file saved on the disk to be sent by alerting services like the KeybaseService */
-  private createReportFile(report: Report, date = ''): string {
+  private async createReportFile(report: Report, date = ''): Promise<string> {
     let reportName: string;
     if (date) {
       reportName = '/tmp/' + date + this.REPORT_SUFFIX;
@@ -168,9 +159,41 @@ export class ReportService {
       date = this.getLastReportPrefix();
     }
 
-    // Create report file with mustache templating engine
+    let view = {
+      date: report.date,
+      comments: report.comments,
+      companies: [],
+    };
 
-    writeFileSync(reportName, this.content);
+    report.hosts.forEach((host: HostReport) => {
+      let index = view.companies.findIndex(
+        (company) => company.name === host.companyName,
+      );
+      if (index === -1) {
+        view.companies.push({ name: host.companyName, domains: [], hosts: [] });
+        index = view.companies.length - 1;
+      }
+      view.companies[index].hosts.push(host);
+    });
+
+    report.domains.forEach((domain: DomainReport) => {
+      let index = view.companies.findIndex(
+        (company) => company.name === domain.companyName,
+      );
+      if (index === -1) {
+        view.companies.push({
+          name: domain.companyName,
+          domains: [],
+          hosts: [],
+        });
+        index = view.companies.length - 1;
+      }
+      view.companies[index].domains.push(domain);
+    });
+
+    const render = Mustache.render(reportTemplate, view);
+
+    writeFileSync(reportName, render);
 
     return reportName;
   }
@@ -203,7 +226,8 @@ export class ReportService {
       return;
     }
 
-    const reportName = this.createReportFile(lastReport, date);
+    const reportName = await this.createReportFile(lastReport, date);
+
     this.keybaseService.sendReportFile(reportName);
   }
 
