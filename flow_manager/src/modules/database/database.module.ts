@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { JobsModule } from './jobs/jobs.module';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ProgramModule } from './reporting/program.module';
+import { CompanyModule } from './reporting/company.module';
 import { DomainsModule } from './reporting/domain/domain.module';
 import { HostModule } from './reporting/host/host.module';
 import { ReportModule } from './reporting/report/report.module';
@@ -14,7 +14,7 @@ import { ConfigModule } from './admin/config/config.module';
       useUnifiedTopology: true,
     }),
     JobsModule,
-    ProgramModule,
+    CompanyModule,
     DomainsModule,
     HostModule,
     ReportModule,

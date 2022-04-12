@@ -1,8 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpException,
+  Param,
   Post,
   ValidationPipe,
 } from '@nestjs/common';
@@ -25,5 +27,10 @@ export class JobsController {
     @Body(new ValidationPipe()) unidentifiedJob: CreateJobDto,
   ): Promise<Job> {
     return await this.jobsService.publish(unidentifiedJob);
+  }
+
+  @Delete(':id')
+  async deleteJob(@Param('id') id: string) {
+    return await this.jobsService.delete(id);
   }
 }

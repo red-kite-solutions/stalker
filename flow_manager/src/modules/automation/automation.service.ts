@@ -3,14 +3,14 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { JobsService } from '../database/jobs/jobs.service';
 import { Domain } from '../database/reporting/domain/domain.model';
 import { DomainsService } from '../database/reporting/domain/domain.service';
-import { ProgramService } from '../database/reporting/program.service';
+import { CompanyService } from '../database/reporting/company.service';
 
 @Injectable()
 export class AutomationService {
   constructor(
     private jobService: JobsService,
     private domainService: DomainsService,
-    private programService: ProgramService,
+    private companyService: CompanyService,
   ) {}
 
   // TODO: This time interval will have to be customizable, either via the controller or with the configurations, or both.
@@ -20,16 +20,6 @@ export class AutomationService {
     timeZone: 'America/Toronto',
   })
   public async refreshIpAdresses(): Promise<void> {
-    const programs = await this.programService.getAll();
-    programs.forEach((p) => {
-      this.domainService.runForEach(p.name, (d: Domain, parents: string) => {
-        const domainName = parents ? `${d.name}.${parents}` : d.name;
-        const job = this.jobService.createDomainResolvingJob(
-          p.name,
-          domainName,
-        );
-        this.jobService.publish(job);
-      });
-    }, this);
+    this.domainService.resolveAll();
   }
 }

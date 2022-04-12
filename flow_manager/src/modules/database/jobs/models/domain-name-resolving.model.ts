@@ -6,7 +6,7 @@ export type JobDocument = DomainNameResolvingJob & Document;
 @Schema()
 export class DomainNameResolvingJob {
   public task: string;
-  public program!: string;
+  public companyId!: string;
   public priority!: number;
 
   @Prop()

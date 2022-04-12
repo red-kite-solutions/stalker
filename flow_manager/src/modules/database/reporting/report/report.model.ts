@@ -1,19 +1,36 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { Program } from '../program.model';
+import { Company } from '../company.model';
 
 export type ReportDocument = Report & Document;
 
+export class DomainReport {
+  public companyName!: string;
+  public name!: string;
+  public ips?: string[];
+  public services?: string[];
+}
+
+export class HostReport {
+  public companyName!: string;
+  public ip!: string;
+  public ports?: number[];
+  public services?: string[];
+}
+
 @Schema()
 export class Report {
-  @Prop()
+  @Prop({ unique: true })
   public date: string;
 
   @Prop()
-  public programs?: Program[];
+  public comments?: string[];
 
   @Prop()
-  public notes?: string[];
+  public domains?: DomainReport[];
+
+  @Prop()
+  public hosts?: HostReport[];
 }
 
 export const ReportSchema = SchemaFactory.createForClass(Report);

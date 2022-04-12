@@ -8,10 +8,10 @@ export class ReportController {
   constructor(private readonly reportService: ReportService) {}
 
   @Post('note')
-  async addSpecialNote(
+  async addComment(
     @Body(new ValidationPipe()) dto: ReportEntryDto,
   ): Promise<void> {
-    await this.reportService.addSpecialNote(dto);
+    await this.reportService.addComment(dto);
   }
 
   @Get()

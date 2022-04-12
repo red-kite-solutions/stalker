@@ -3,7 +3,7 @@ import { IsNotEmpty, IsString } from 'class-validator';
 export class ReportEntryDto {
   @IsNotEmpty()
   @IsString()
-  public noteContent: string;
+  public comment: string;
 
   // @IsNotEmpty()
   // @IsString()
