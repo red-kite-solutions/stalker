@@ -75,7 +75,7 @@ export class HostService {
             $setOnInsert: { _id: mongoId, companyId: company._id },
             $addToSet: { domains: ds },
           },
-          { upsert: true },
+          { upsert: true, useFindAndModify: false },
         )
         .exec();
 
