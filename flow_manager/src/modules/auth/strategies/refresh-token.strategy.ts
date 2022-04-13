@@ -29,9 +29,10 @@ export class RefreshTokenStrategy extends PassportStrategy(
       refreshToken,
       payload.id,
     );
-    if (!user) {
+    if (!user || !user.active) {
       throw new UnauthorizedException();
     }
+
     return { id: payload.id, role: user.role, email: user.email };
   }
 }
