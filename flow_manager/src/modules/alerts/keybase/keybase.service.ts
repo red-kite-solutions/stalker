@@ -1,119 +1,64 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import Bot from 'keybase-bot';
-import { Config } from 'src/modules/database/admin/config/config.model';
 import { ConfigService } from 'src/modules/database/admin/config/config.service';
 import { SendSimpleAlertDto } from './keybase.dto';
 
 @Injectable()
 export class KeybaseService {
-  bot: Bot;
-  private currentPaperkey: string;
-  private logger = new Logger(KeybaseService.name);
+  constructor(private configService: ConfigService) {}
 
-  constructor(private configService: ConfigService) {
-    this.bot = new Bot();
-    this.initBot();
-  }
-
-  public async sendSimpleAlertMessage(messageContent: string) {
+  private async call(
+    action: (bot: Bot, channelId: string, content: string) => Promise<void>,
+    content: string,
+  ) {
     const config = await this.configService.getConfigCleartextSecrets();
-
-    await this.updateBotInitState(config);
-
     if (
-      !this.bot?.myInfo() ||
-      !config.keybaseConfig?.enabled ||
-      !config.keybaseConfig?.channelId
+      !config.keybaseConfig?.username ||
+      !config.keybaseConfig?.paperkey ||
+      !config.keybaseConfig?.channelId ||
+      !config.keybaseConfig?.enabled
     ) {
       return;
     }
 
-    const message = {
-      body: messageContent,
-    };
-
-    await this.bot.chat.send(config.keybaseConfig.channelId, message);
-  }
-
-  public async initBot() {
-    const config = await this.configService.getConfigCleartextSecrets();
-    const info = this.bot?.myInfo();
-
-    if (info) {
-      // bot is already initialized
-      return;
-    }
-
-    if (!config) {
-      // no config, no big deal, will retry if/when needed
-      return;
-    }
-
-    this.initBotFromConfig(config);
-  }
-
-  private async initBotFromConfig(config: Config) {
-    if (!config.keybaseConfig?.username || !config.keybaseConfig?.paperkey) {
-      return;
-    }
+    const bot = new Bot();
+    await bot.init(
+      config.keybaseConfig?.username,
+      config.keybaseConfig?.paperkey,
+    );
 
     try {
-      await this.bot.init(
-        config.keybaseConfig?.username,
-        config.keybaseConfig?.paperkey,
-      );
-      this.currentPaperkey = config.keybaseConfig.paperkey;
-    } catch (err) {
-      this.bot = new Bot();
-      this.logger.error('Error in keybase initialization', err);
+      await action(bot, config.keybaseConfig.channelId, content);
+    } finally {
+      bot?.deinit();
     }
-  }
-
-  private async updateBotInitState(config: Config) {
-    const info = this.bot?.myInfo();
-    if (!info) {
-      await this.initBotFromConfig(config);
-      return;
-    }
-
-    if (
-      config.keybaseConfig?.username == '' ||
-      config.keybaseConfig?.paperkey == ''
-    ) {
-      await this.bot.deinit();
-      this.bot = new Bot();
-      return;
-    }
-
-    if (
-      config.keybaseConfig?.username === info.username &&
-      config.keybaseConfig?.paperkey === this.currentPaperkey
-    ) {
-      return;
-    }
-
-    await this.bot.deinit();
-    this.bot = new Bot();
-    await this.initBotFromConfig(config);
   }
 
   public async sendSimpleAlert(dto: SendSimpleAlertDto) {
-    this.sendSimpleAlertMessage(dto.messageContent);
+    await this.sendSimpleAlertMessage(dto.messageContent);
+  }
+
+  public async sendSimpleAlertMessage(messageContent: string) {
+    await this.call(this.sendMessageAction, messageContent);
   }
 
   public async sendReportFile(reportPath: string) {
-    const config = await this.configService.getConfigCleartextSecrets();
+    await this.call(this.sendReportAction, reportPath);
+  }
 
-    await this.updateBotInitState(config);
+  private async sendReportAction(bot: Bot, channelId: string, content: string) {
+    await bot.chat.attach(channelId, content);
+  }
 
-    if (
-      !this.bot?.myInfo() ||
-      !config.keybaseConfig?.enabled ||
-      !config.keybaseConfig?.channelId
-    ) {
-      return;
-    }
+  private async sendMessageAction(
+    bot: Bot,
+    channelId: string,
+    content: string,
+  ) {
+    const message = {
+      body: content,
+    };
 
-    this.bot.chat.attach(config.keybaseConfig.channelId, reportPath);
+    await bot.chat.send(channelId, message);
   }
 }
