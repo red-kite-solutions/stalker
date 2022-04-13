@@ -81,7 +81,6 @@ export class ProfileComponent implements OnInit {
 
     const result: string = await this.usersService.editProfile(
       {
-        // email: this.form.controls["email"].value,
         firstName: this.form.controls['firstName'].value,
         lastName: this.form.controls['lastName'].value,
       },
