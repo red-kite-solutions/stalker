@@ -10,8 +10,6 @@ import { ApiKeyGuard } from 'src/modules/auth/guards/api-key.guard';
 import { SubmitHostDto } from './host.dto';
 import { HostService } from './host.service';
 
-// @Roles(Role.User)
-// @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('report/hosts')
 export class HostController {
   constructor(private readonly hostService: HostService) {}

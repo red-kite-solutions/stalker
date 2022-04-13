@@ -40,10 +40,6 @@ export class CreateUserDto {
 }
 
 export class EditProfileDto {
-  // @IsNotEmpty()
-  // @IsEmail()
-  // public email: string;
-
   @IsNotEmpty()
   @IsString()
   public firstName: string;
