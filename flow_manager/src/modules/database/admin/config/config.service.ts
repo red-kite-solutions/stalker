@@ -24,44 +24,46 @@ export class ConfigService {
   public async submitConfig(configUpdate: SubmitConfigDto): Promise<void> {
     const conf: Partial<Config> = {};
 
+    if (!configUpdate) return;
+
     // Reporting
     if (
-      configUpdate?.isNewContentReported ||
-      configUpdate?.isNewContentReported === false
+      configUpdate.isNewContentReported ||
+      configUpdate.isNewContentReported === false
     )
       conf.isNewContentReported = configUpdate?.isNewContentReported;
 
     // Keybase Reporting
     if (
-      configUpdate?.keybaseConfigChannelId ||
-      configUpdate?.keybaseConfigChannelId === '' ||
-      configUpdate?.keybaseConfigUsername ||
-      configUpdate?.keybaseConfigUsername === '' ||
-      configUpdate?.keybaseConfigPaperkey ||
-      configUpdate?.keybaseConfigPaperkey === '' ||
-      configUpdate?.keybaseConfigEnabled ||
-      configUpdate?.keybaseConfigEnabled === false
+      configUpdate.keybaseConfigChannelId ||
+      configUpdate.keybaseConfigChannelId === '' ||
+      configUpdate.keybaseConfigUsername ||
+      configUpdate.keybaseConfigUsername === '' ||
+      configUpdate.keybaseConfigPaperkey ||
+      configUpdate.keybaseConfigPaperkey === '' ||
+      configUpdate.keybaseConfigEnabled ||
+      configUpdate.keybaseConfigEnabled === false
     ) {
       conf.keybaseConfig = {};
       if (
-        configUpdate?.keybaseConfigChannelId ||
-        configUpdate?.keybaseConfigChannelId === ''
+        configUpdate.keybaseConfigChannelId ||
+        configUpdate.keybaseConfigChannelId === ''
       )
         conf.keybaseConfig.channelId = configUpdate?.keybaseConfigChannelId;
       if (
-        configUpdate?.keybaseConfigUsername ||
-        configUpdate?.keybaseConfigUsername === ''
+        configUpdate.keybaseConfigUsername ||
+        configUpdate.keybaseConfigUsername === ''
       )
         conf.keybaseConfig.username = configUpdate.keybaseConfigUsername;
       if (
-        (configUpdate?.keybaseConfigPaperkey ||
-          configUpdate?.keybaseConfigPaperkey === '') &&
-        configUpdate?.keybaseConfigPaperkey !== this.PASSWORD_PLACEHOLDER
+        (configUpdate.keybaseConfigPaperkey ||
+          configUpdate.keybaseConfigPaperkey === '') &&
+        configUpdate.keybaseConfigPaperkey !== this.PASSWORD_PLACEHOLDER
       )
         conf.keybaseConfig.paperkey = configUpdate.keybaseConfigPaperkey;
       if (
-        configUpdate?.keybaseConfigEnabled ||
-        configUpdate?.keybaseConfigEnabled === false
+        configUpdate.keybaseConfigEnabled ||
+        configUpdate.keybaseConfigEnabled === false
       )
         conf.keybaseConfig.enabled = configUpdate?.keybaseConfigEnabled;
     }
