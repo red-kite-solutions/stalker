@@ -15,9 +15,8 @@ export class ConfigService {
   ) {
     this.configModel.findOne({}).then((c: Config) => {
       if (!c?.keybaseConfig) {
-        // Check random config object to see if it was initialized
         c = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
-        this.configModel.updateOne({}, c, { upsert: true });
+        this.configModel.create(c);
       }
     });
   }
