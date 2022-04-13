@@ -65,21 +65,21 @@ export class UsersService {
   }
 
   public editUserByEmail(email: string, userEdits: Partial<User>) {
-    return this.userModel.update({ email: email }, { ...userEdits });
+    return this.userModel.updateOne({ email: email }, { ...userEdits });
   }
 
   public editUserById(id: string, userEdits: Partial<User>) {
-    return this.userModel.update({ _id: id }, { ...userEdits });
+    return this.userModel.updateOne({ _id: id }, { ...userEdits });
   }
 
   public async changePasswordByEmail(email: string, password: string) {
     const pass: string = await argon2.hash(password, this.options);
-    return this.userModel.update({ email: email }, { password: pass });
+    return this.userModel.updateOne({ email: email }, { password: pass });
   }
 
   public async changePasswordById(id: string, password: string) {
     const pass: string = await argon2.hash(password, this.options);
-    return this.userModel.update({ _id: id }, { password: pass });
+    return this.userModel.updateOne({ _id: id }, { password: pass });
   }
 
   public deleteUserById(userId: string) {
@@ -103,7 +103,7 @@ export class UsersService {
     userId: string,
   ): Promise<void> {
     const hash: string = await argon2.hash(refreshToken, this.options);
-    await this.userModel.update({ _id: userId }, { refreshToken: hash });
+    await this.userModel.updateOne({ _id: userId }, { refreshToken: hash });
   }
 
   public async getUserIfRefreshTokenMatches(
