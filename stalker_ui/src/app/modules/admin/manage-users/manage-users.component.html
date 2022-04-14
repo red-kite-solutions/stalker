@@ -1,8 +1,6 @@
 <div fxLayout="row" fxLayoutAlign="center">
   <mat-card fxFlex.gt-sm="90" class="container" fxFlex.lt-md="100">
     <h1>Users</h1>
-    <!-- <div class="button-container" fxLayout="row">
-            <div fxLayoutAlign="flex-start" fxFlex="50"> -->
     <button
       mat-raised-button
       color="primary"
@@ -13,15 +11,10 @@
       <mat-icon class="material-icons-outlined"> person_add_alt </mat-icon>
       New User
     </button>
-    <!-- </div>
-            <div fxLayoutAlign="flex-end" fxFlex="50"> -->
-    <!-- <button mat-raised-button color="warn" class="right-action-button" > -->
     <button mat-raised-button color="warn" class="left-action-button" (click)="deleteUsers()" [fxHide]="hideDelete()">
       <mat-icon class="material-icons-outlined"> delete_outline </mat-icon>
       Delete
     </button>
-    <!-- </div>
-        </div> -->
 
     <div class="table-container">
       <table mat-table [dataSource]="dataSource" matSort (matSortChange)="announceSortChange($event)">
