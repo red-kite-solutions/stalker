@@ -12,7 +12,7 @@
 
         <mat-form-field class="formfieldinline">
           <input matInput placeholder="First Name" name="firstName" formControlName="firstName" />
-          <mat-error> First name must not be empty </mat-error>
+          <mat-error>First name must not be empty</mat-error>
         </mat-form-field>
         <mat-form-field class="formfieldinline">
           <input matInput placeholder="Last Name" name="lastName" formControlName="lastName" />
@@ -26,7 +26,6 @@
           <mat-form-field fxFlex="90">
             <mat-label>Role</mat-label>
             <mat-select formControlName="role" required>
-              <!-- <mat-option>Choose a Role</mat-option>s -->
               <mat-option *ngFor="let role of roles" [value]="role">
                 {{ role.name }}
               </mat-option>
@@ -52,7 +51,6 @@
         <h4>Set Password</h4>
 
         <mat-form-field class="formfieldblock">
-          <!-- <input matInput type="password" placeholder="Password" name="password" formControlName="password"> -->
           <input
             matInput
             [type]="hideUserPassword ? 'password' : 'text'"
