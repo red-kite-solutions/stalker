@@ -15,8 +15,5 @@
   "homepage": "https://github.com/lm-sec/Stalker#readme",
   "devDependencies": {
     "husky": "^7.0.4"
-  },
-  "dependencies": {
-    "@types/mustache": "^4.1.2"
   }
 }
