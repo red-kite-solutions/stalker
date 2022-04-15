@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  HttpException,
+  HttpStatus,
   Logger,
   Put,
   UseGuards,
@@ -11,7 +13,6 @@ import { Role } from 'src/modules/auth/constants';
 import { Roles } from 'src/modules/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/modules/auth/guards/role.guard';
-import { StringStatusResponse } from 'src/utils/reponse-objects.utils';
 import { SubmitConfigDto } from './config.dto';
 import { Config } from './config.model';
 import { ConfigService } from './config.service';
@@ -27,18 +28,26 @@ export class ConfigController {
   @Put()
   async submitConfig(
     @Body(new ValidationPipe()) dto: SubmitConfigDto,
-  ): Promise<StringStatusResponse> {
+  ): Promise<void> {
     try {
       await this.configService.submitConfig(dto);
-      return { status: 'Success' };
     } catch (err) {
-      this.logger.error('An error occurred while submitting config.', err);
-      return { status: 'Error' };
+      const msg = 'Error changing config';
+      this.logger.error(msg);
+      this.logger.error(err);
+      throw new HttpException(msg, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   @Get()
   async getConfig(): Promise<Config> {
-    return await this.configService.getConfig();
+    try {
+      return await this.configService.getConfig();
+    } catch (err) {
+      const msg = 'Error getting config';
+      this.logger.error(msg);
+      this.logger.error(err);
+      throw new HttpException(msg, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }

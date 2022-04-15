@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { SettingsService } from 'src/app/api/settings/settings.service';
-import { StatusString } from 'src/app/shared/types/status-string.type';
 
 @Component({
   selector: 'app-settings',
@@ -72,19 +71,14 @@ export class SettingsComponent implements OnInit {
   }
 
   async saveSettings() {
-    const res: StatusString = await this.settingsService.submitSettings({
+    await this.settingsService.submitSettings({
       isNewContentReported: this.reportingEnabled,
       keybaseConfigEnabled: this.keybaseEnabled,
       keybaseConfigUsername: this.keybaseReportingForm.controls['username'].value,
       keybaseConfigPaperkey: this.keybaseReportingForm.controls['paperkey'].value,
       keybaseConfigChannelId: this.keybaseReportingForm.controls['conversationId'].value,
     });
-
-    if (res === 'Success') {
-      this.toastr.success('Settings saved successfully');
-    } else {
-      this.toastr.error('Error saving settings');
-    }
+    this.toastr.success('Settings saved successfully');
   }
 
   toggleReporting() {
