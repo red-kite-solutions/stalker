@@ -6,7 +6,7 @@ export type JobDocument = SubdomainBruteforceJob & Document;
 @Schema()
 export class SubdomainBruteforceJob {
   public task: string;
-  public program!: string;
+  public companyId!: string;
   public priority!: number;
 
   @Prop()

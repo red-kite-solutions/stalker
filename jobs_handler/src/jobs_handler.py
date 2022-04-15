@@ -30,6 +30,7 @@ while job_info or current_time - start_time < 300:
         job = switcher_dict[job_info['_task']](job_info, config)
         job.run()
         job.report(job_reporter)
+        job_reporter.delete(job._id)
     else:
         print('Received unknown job ' + job_info['_task'])
 

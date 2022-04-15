@@ -15,7 +15,7 @@ export class Job {
   task: string;
 
   @Prop()
-  public program!: string;
+  public companyId!: string;
 
   @Prop()
   public priority!: number;

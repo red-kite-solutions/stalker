@@ -1,22 +1,26 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import { Host } from '../host/host.model';
+import { HostSummary } from '../host/host.summary';
 
 export type DomainDocument = Domain & Document;
 
 @Schema()
 export class Domain {
-  @Prop()
+  @Prop({ unique: true, index: true })
   public name!: string;
 
   @Prop()
-  public isRawIp!: boolean;
+  public companyId!: Types.ObjectId;
 
   @Prop()
-  public subdomains?: Domain[];
+  public hosts?: HostSummary[];
 
   @Prop()
-  public hosts?: Host[];
+  public tags?: string[];
+
+  @Prop()
+  public notes?: string;
 }
 
 export const DomainSchema = SchemaFactory.createForClass(Domain);
