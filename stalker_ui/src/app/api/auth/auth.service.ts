@@ -85,15 +85,18 @@ export class AuthService {
   }
 
   public async logout() {
-    await firstValueFrom(this.http.delete(`${fmUrl}/auth/logout`));
-    localStorage.removeItem(tokenName);
-    localStorage.removeItem(refreshTokenName);
-    this._token = '';
-    this._email = '';
-    this._role = '';
-    this._refreshToken = '';
-    this.decodedRefreshToken = {};
-    this.decodedToken = {};
+    try {
+      await firstValueFrom(this.http.delete(`${fmUrl}/auth/logout`));
+    } finally {
+      localStorage.removeItem(tokenName);
+      localStorage.removeItem(refreshTokenName);
+      this._token = '';
+      this._email = '';
+      this._role = '';
+      this._refreshToken = '';
+      this.decodedRefreshToken = {};
+      this.decodedToken = {};
+    }
   }
 
   public async refresh(): Promise<boolean> {
