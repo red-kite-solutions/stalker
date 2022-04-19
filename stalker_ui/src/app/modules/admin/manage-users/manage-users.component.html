@@ -17,7 +17,7 @@
     </button>
 
     <div class="table-container">
-      <table mat-table [dataSource]="dataSource" matSort (matSortChange)="announceSortChange($event)">
+      <table mat-table [dataSource]="dataSource">
         <!-- Checkbox Column -->
         <ng-container matColumnDef="select">
           <th mat-header-cell *matHeaderCellDef>
@@ -42,7 +42,7 @@
 
         <!-- ID Column -->
         <ng-container matColumnDef="id">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by ID">ID</th>
+          <th mat-header-cell *matHeaderCellDef>ID</th>
           <td mat-cell *matCellDef="let element">{{ element._id }}</td>
         </ng-container>
 

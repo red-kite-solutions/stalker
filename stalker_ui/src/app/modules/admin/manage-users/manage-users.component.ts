@@ -1,50 +1,35 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatTableDataSource } from '@angular/material/table';
 import { SelectionModel } from '@angular/cdk/collections';
-import { Sort, MatSort } from '@angular/material/sort';
-import { LiveAnnouncer } from '@angular/cdk/a11y';
-import { MatPaginator } from '@angular/material/paginator';
+import { Component, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatTableDataSource } from '@angular/material/table';
+import { ToastrService } from 'ngx-toastr';
+import { UsersService } from 'src/app/api/users/users.service';
+import { StatusString } from 'src/app/shared/types/status-string.type';
+import { User } from 'src/app/shared/types/user.interface';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
-import { User } from 'src/app/shared/types/user.interface';
-import { UsersService } from 'src/app/api/users/users.service';
-import { ToastrService } from 'ngx-toastr';
-import { StatusString } from 'src/app/shared/types/status-string.type';
 
 @Component({
   selector: 'app-manage-users',
   templateUrl: './manage-users.component.html',
   styleUrls: ['./manage-users.component.scss'],
 })
-export class ManageUsersComponent implements OnInit {
+export class ManageUsersComponent {
   displayedColumns: string[] = ['select', 'firstName', 'lastName', 'email', 'role', 'active'];
-  // dataSource = new MatTableDataSource<User>(ELEMENT_DATA);
   dataSource = new MatTableDataSource<User>();
+  dataSource$ = this.usersService.getAllUsers().subscribe((next) => {
+    this.dataSource.data = next;
+    this.dataSource.paginator = this.paginator;
+  });
   selection = new SelectionModel<User>(true, []);
 
-  @ViewChild(MatSort) sort: MatSort | null;
   @ViewChild(MatPaginator) paginator: MatPaginator | null;
 
-  constructor(
-    private _liveAnnouncer: LiveAnnouncer,
-    public dialog: MatDialog,
-    private usersService: UsersService,
-    private toastr: ToastrService
-  ) {
-    this.sort = null;
+  constructor(public dialog: MatDialog, private usersService: UsersService, private toastr: ToastrService) {
     this.paginator = null;
-  }
-
-  async ngOnInit(): Promise<void> {
-    const data = await this.usersService.getAllUsers();
-    if (data) {
-      this.dataSource = new MatTableDataSource<User>(data);
-      this.dataSource.sort = this.sort;
-      this.dataSource.paginator = this.paginator;
-    }
   }
 
   /** Whether the number of selected elements matches the total number of rows. */
@@ -72,19 +57,6 @@ export class ManageUsersComponent implements OnInit {
     return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row._id + 1}`;
   }
 
-  /** Announce the change in sort state for assistive technology. */
-  announceSortChange(sortState: Sort) {
-    // This example uses English messages. If your application supports
-    // multiple language, you would internationalize these strings.
-    // Furthermore, you can customize the message to add additional
-    // details about the values being sorted.
-    if (sortState.direction) {
-      this._liveAnnouncer.announce(`Sorted ${sortState.direction}ending`);
-    } else {
-      this._liveAnnouncer.announce('Sorting cleared');
-    }
-  }
-
   deleteUsers() {
     const bulletPoints: string[] = Array<string>();
     this.selection.selected.forEach((user: User) => {
@@ -108,7 +80,6 @@ export class ManageUsersComponent implements OnInit {
               this.selection.deselect(user);
               const removeIndex = this.dataSource.data.findIndex((u: User) => u._id === user._id);
               this.dataSource.data.splice(removeIndex, 1);
-              this.dataSource.sort = this.sort;
               this.dataSource.paginator = this.paginator;
               this.toastr.success('User deleted successfully');
             } else {

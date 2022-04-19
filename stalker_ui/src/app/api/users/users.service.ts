@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { StatusString } from 'src/app/shared/types/status-string.type';
 import { User } from 'src/app/shared/types/user.interface';
 import { fmUrl } from '../constants';
@@ -70,13 +70,8 @@ export class UsersService {
     }
   }
 
-  public async getAllUsers(): Promise<User[]> {
-    try {
-      const data: any = await firstValueFrom(this.http.get(`${fmUrl}/users`));
-      return data;
-    } catch (err) {
-      return [];
-    }
+  public getAllUsers(): Observable<any> {
+    return this.http.get(`${fmUrl}/users`);
   }
 
   public async getUser(userId: string): Promise<User | null> {
