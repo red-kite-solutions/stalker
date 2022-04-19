@@ -74,13 +74,8 @@ export class UsersService {
     return this.http.get(`${fmUrl}/users`);
   }
 
-  public async getUser(userId: string): Promise<User | null> {
-    try {
-      const data: any = await firstValueFrom(this.http.get(`${fmUrl}/users/${userId}`));
-      return data;
-    } catch (err) {
-      return null;
-    }
+  public getUser(userId: string) {
+    return this.http.get(`${fmUrl}/users/${userId}`);
   }
 
   public async deleteUser(userId: string): Promise<StatusString> {

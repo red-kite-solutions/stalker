@@ -1,5 +1,5 @@
 import { SelectionModel } from '@angular/cdk/collections';
-import { Component, ViewChild } from '@angular/core';
+import { Component, OnDestroy, ViewChild } from '@angular/core';
 import { MediaChange, MediaObserver } from '@angular/flex-layout';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
@@ -19,7 +19,7 @@ import {
   templateUrl: './manage-users.component.html',
   styleUrls: ['./manage-users.component.scss'],
 })
-export class ManageUsersComponent {
+export class ManageUsersComponent implements OnDestroy {
   displayedColumns: string[] = ['select', 'firstName', 'lastName', 'email', 'role', 'active'];
   dataSource = new MatTableDataSource<User>();
   private dataSource$ = this.usersService.getAllUsers().subscribe((next) => {
@@ -36,6 +36,10 @@ export class ManageUsersComponent {
       return mediaChanges[0].mqAlias;
     })
   );
+
+  ngOnDestroy() {
+    this.dataSource$.unsubscribe();
+  }
 
   public displayColumns$ = this.screenSize$.pipe(
     map((screen: string) => {

@@ -10,9 +10,9 @@ import { fmUrl, refreshTokenName, tokenName } from '../constants';
 })
 export class AuthService {
   private _token = '';
-  private _refreshToken = '';
   private _role = '';
   private _email = '';
+  private refreshToken = '';
   private decodedToken: any = {};
   private decodedRefreshToken: any = {};
 
@@ -57,7 +57,7 @@ export class AuthService {
     const epoch = Math.floor(new Date().getTime() / 1000);
     if (this.decodedRefreshToken.exp > epoch) {
       localStorage.setItem(refreshTokenName, token);
-      this._refreshToken = token;
+      this.refreshToken = token;
     }
   }
 
@@ -93,7 +93,7 @@ export class AuthService {
       this._token = '';
       this._email = '';
       this._role = '';
-      this._refreshToken = '';
+      this.refreshToken = '';
       this.decodedRefreshToken = {};
       this.decodedToken = {};
     }
@@ -103,7 +103,7 @@ export class AuthService {
     try {
       const data: any = await firstValueFrom(
         this.http.put(`${fmUrl}/auth/refresh`, {
-          refresh_token: this._refreshToken,
+          refresh_token: this.refreshToken,
         })
       );
       this.initSession(data.access_token);

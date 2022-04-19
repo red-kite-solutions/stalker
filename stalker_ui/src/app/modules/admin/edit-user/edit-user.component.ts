@@ -1,9 +1,9 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { FormBuilder, FormControl, ValidationErrors, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { Subscription } from 'rxjs';
+import { switchMap } from 'rxjs';
 import { UsersService } from 'src/app/api/users/users.service';
 import { StatusString } from 'src/app/shared/types/status-string.type';
 import { User } from 'src/app/shared/types/user.interface';
@@ -18,7 +18,7 @@ import { Role, roles, rolesInfoDialogText } from '../roles';
   templateUrl: './edit-user.component.html',
   styleUrls: ['./edit-user.component.scss'],
 })
-export class EditUserComponent implements OnInit, OnDestroy {
+export class EditUserComponent implements OnDestroy {
   passwordConfirm = '';
   currentPassword = '';
   newUserValid = true;
@@ -66,7 +66,6 @@ export class EditUserComponent implements OnInit, OnDestroy {
 
   hideCurrentPassword = true;
   hideUserPassword = true;
-  private routeSub: Subscription | undefined;
 
   constructor(
     private fb: FormBuilder,
@@ -77,22 +76,20 @@ export class EditUserComponent implements OnInit, OnDestroy {
     private router: Router
   ) {}
 
-  ngOnInit(): void {
-    this.routeSub = this.route.params.subscribe(async (params) => {
-      this.userId = params['id'];
-
-      const user: User | null = await this.usersService.getUser(this.userId);
-      if (user) {
-        this.form.controls['firstName'].setValue(user.firstName);
-        this.form.controls['lastName'].setValue(user.lastName);
-        this.form.controls['email'].setValue(user.email);
-        this.form.controls['role'].setValue(this.roles.find((role: Role) => role.name === user?.role));
-        this.form.controls['active'].setValue(user.active);
-      } else {
-        this.toastr.error('Error loading user');
-      }
+  private routeSub$ = this.route.params
+    .pipe(
+      switchMap((params) => {
+        this.userId = params['id'];
+        return this.usersService.getUser(this.userId);
+      })
+    )
+    .subscribe((user: any) => {
+      this.form.controls['firstName'].setValue(user.firstName);
+      this.form.controls['lastName'].setValue(user.lastName);
+      this.form.controls['email'].setValue(user.email);
+      this.form.controls['role'].setValue(this.roles.find((role: Role) => role.name === user?.role));
+      this.form.controls['active'].setValue(user.active);
     });
-  }
 
   async onSubmit() {
     this.newUserValid = this.form.valid;
@@ -191,6 +188,6 @@ export class EditUserComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.routeSub?.unsubscribe();
+    this.routeSub$?.unsubscribe();
   }
 }
