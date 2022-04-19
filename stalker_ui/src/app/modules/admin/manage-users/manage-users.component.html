@@ -11,7 +11,13 @@
       <mat-icon class="material-icons-outlined"> person_add_alt </mat-icon>
       New User
     </button>
-    <button mat-raised-button color="warn" class="left-action-button" (click)="deleteUsers()" [fxHide]="hideDelete()">
+    <button
+      mat-raised-button
+      color="warn"
+      class="left-action-button"
+      (click)="deleteUsers()"
+      [fxHide]="hideDelete$ | async"
+    >
       <mat-icon class="material-icons-outlined"> delete_outline </mat-icon>
       Delete
     </button>
@@ -83,10 +89,10 @@
           </td>
         </ng-container>
 
-        <tr mat-header-row *matHeaderRowDef="displayColumns()"></tr>
+        <tr mat-header-row *matHeaderRowDef="displayColumns$ | async"></tr>
         <tr
           mat-row
-          *matRowDef="let row; columns: displayColumns()"
+          *matRowDef="let row; columns: displayColumns$ | async"
           routerLinkActive="list-item-active"
           [routerLink]="['/admin/users/', row._id]"
           class="rows"

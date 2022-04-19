@@ -1,9 +1,11 @@
 import { SelectionModel } from '@angular/cdk/collections';
 import { Component, ViewChild } from '@angular/core';
+import { MediaChange, MediaObserver } from '@angular/flex-layout';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { ToastrService } from 'ngx-toastr';
+import { distinctUntilChanged, filter, map } from 'rxjs';
 import { UsersService } from 'src/app/api/users/users.service';
 import { StatusString } from 'src/app/shared/types/status-string.type';
 import { User } from 'src/app/shared/types/user.interface';
@@ -20,15 +22,40 @@ import {
 export class ManageUsersComponent {
   displayedColumns: string[] = ['select', 'firstName', 'lastName', 'email', 'role', 'active'];
   dataSource = new MatTableDataSource<User>();
-  dataSource$ = this.usersService.getAllUsers().subscribe((next) => {
+  private dataSource$ = this.usersService.getAllUsers().subscribe((next) => {
     this.dataSource.data = next;
     this.dataSource.paginator = this.paginator;
   });
+
+  private screenSize$ = this.mediaObserver.asObservable().pipe(
+    filter((mediaChanges: MediaChange[]) => !!mediaChanges[0].mqAlias),
+    distinctUntilChanged((previous: MediaChange[], current: MediaChange[]) => {
+      return previous[0].mqAlias === current[0].mqAlias;
+    }),
+    map((mediaChanges: MediaChange[]) => {
+      return mediaChanges[0].mqAlias;
+    })
+  );
+
+  public displayColumns$ = this.screenSize$.pipe(
+    map((screen: string) => {
+      if (screen === 'xs') return ['firstName', 'lastName', 'role'];
+      if (screen === 'sm') return ['firstName', 'lastName', 'role', 'active'];
+      if (screen === 'md') return ['select', 'firstName', 'lastName', 'role', 'active'];
+      return this.displayedColumns;
+    })
+  );
+  public hideDelete$ = this.screenSize$.pipe(map((screen: string) => screen === 'xs' || screen === 'sm'));
   selection = new SelectionModel<User>(true, []);
 
   @ViewChild(MatPaginator) paginator: MatPaginator | null;
 
-  constructor(public dialog: MatDialog, private usersService: UsersService, private toastr: ToastrService) {
+  constructor(
+    public dialog: MatDialog,
+    private usersService: UsersService,
+    private toastr: ToastrService,
+    private mediaObserver: MediaObserver
+  ) {
     this.paginator = null;
   }
 
