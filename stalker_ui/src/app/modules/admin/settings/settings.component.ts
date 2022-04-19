@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { SettingsService } from 'src/app/api/settings/settings.service';
@@ -8,10 +8,9 @@ import { SettingsService } from 'src/app/api/settings/settings.service';
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.scss'],
 })
-export class SettingsComponent implements OnInit {
+export class SettingsComponent {
   keybaseEnabled = false;
   reportingEnabled = false;
-
   keybaseReportingForm = this.fb.group({
     username: [
       '',
@@ -36,13 +35,7 @@ export class SettingsComponent implements OnInit {
     ],
   });
 
-  hidePaperkey = true;
-
-  constructor(private fb: FormBuilder, private toastr: ToastrService, private settingsService: SettingsService) {}
-
-  async ngOnInit(): Promise<void> {
-    const settings: any = await this.settingsService.getSettings();
-
+  private settings$ = this.settingsService.getSettings().subscribe((settings) => {
     this.reportingEnabled = settings.isNewContentReported;
     this.keybaseEnabled = settings.keybaseConfig.enabled;
     this.keybaseReportingForm.controls['username'].setValue(
@@ -58,7 +51,11 @@ export class SettingsComponent implements OnInit {
     this.keybaseEnabled && this.reportingEnabled
       ? this.keybaseReportingForm.enable()
       : this.keybaseReportingForm.disable();
-  }
+  });
+
+  hidePaperkey = true;
+
+  constructor(private fb: FormBuilder, private toastr: ToastrService, private settingsService: SettingsService) {}
 
   syncKeybase() {
     this.toastr.error('Sorry, not implemented yet');

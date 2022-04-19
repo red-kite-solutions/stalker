@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { fmUrl } from '../constants';
 
 @Injectable({
@@ -13,7 +13,7 @@ export class SettingsService {
     return await firstValueFrom(this.http.put(`${fmUrl}/admin/config`, settings));
   }
 
-  public async getSettings(): Promise<any> {
-    return firstValueFrom(this.http.get(`${fmUrl}/admin/config`));
+  public getSettings(): Observable<any> {
+    return this.http.get(`${fmUrl}/admin/config`);
   }
 }
