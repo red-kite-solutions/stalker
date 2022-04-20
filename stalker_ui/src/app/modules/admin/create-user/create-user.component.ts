@@ -108,7 +108,7 @@ export class CreateUserComponent {
     const data: ConfirmDialogData = {
       ...rolesInfoDialogText,
       listElements: bulletPoints,
-      onPositiveButtonClick: () => {
+      onPrimaryButtonClick: () => {
         this.dialog.closeAll();
       },
     };

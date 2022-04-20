@@ -148,7 +148,7 @@ export class EditUserComponent implements OnDestroy {
     const data: ConfirmDialogData = {
       ...rolesInfoDialogText,
       listElements: bulletPoints,
-      onPositiveButtonClick: () => {
+      onPrimaryButtonClick: () => {
         this.dialog.closeAll();
       },
     };
@@ -163,12 +163,12 @@ export class EditUserComponent implements OnDestroy {
     const data: ConfirmDialogData = {
       text: 'Do you really wish to delete this user permanently ?',
       title: 'Deleting user',
-      positiveButtonText: 'Cancel',
-      negativeButtonText: 'Delete permanently',
-      onPositiveButtonClick: () => {
+      primaryButtonText: 'Cancel',
+      dangerButtonText: 'Delete permanently',
+      onPrimaryButtonClick: () => {
         this.dialog.closeAll();
       },
-      onNegativeButtonClick: async () => {
+      onDangerButtonClick: async () => {
         console.log(`Deleting user ${this.userId}`);
         const res: string = await this.usersService.deleteUser(this.userId);
         if (res === 'Success') {

@@ -98,13 +98,13 @@ export class ManageUsersComponent implements OnDestroy {
       data = {
         text: 'Do you really wish to delete these users permanently ?',
         title: 'Deleting users',
-        positiveButtonText: 'Cancel',
-        negativeButtonText: 'Delete permanently',
+        primaryButtonText: 'Cancel',
+        dangerButtonText: 'Delete permanently',
         listElements: bulletPoints,
-        onPositiveButtonClick: () => {
+        onPrimaryButtonClick: () => {
           this.dialog.closeAll();
         },
-        onNegativeButtonClick: () => {
+        onDangerButtonClick: () => {
           this.selection.selected.forEach(async (user: User) => {
             const res: StatusString = await this.usersService.deleteUser(user._id);
             if (res === 'Success') {
@@ -124,8 +124,8 @@ export class ManageUsersComponent implements OnDestroy {
       data = {
         text: 'Select the users to delete and try again.',
         title: 'Nothing to delete',
-        positiveButtonText: 'Ok',
-        onPositiveButtonClick: () => {
+        primaryButtonText: 'Ok',
+        onPrimaryButtonClick: () => {
           this.dialog.closeAll();
         },
       };

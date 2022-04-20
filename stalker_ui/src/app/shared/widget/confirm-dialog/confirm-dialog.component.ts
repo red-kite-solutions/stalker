@@ -4,11 +4,11 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 export interface ConfirmDialogData {
   title?: string;
   text?: string;
-  positiveButtonText?: string;
-  negativeButtonText?: string;
+  primaryButtonText?: string;
+  dangerButtonText?: string;
   listElements?: string[];
-  onPositiveButtonClick?: Function;
-  onNegativeButtonClick?: Function;
+  onPrimaryButtonClick?: Function;
+  onDangerButtonClick?: Function;
 }
 
 @Component({
@@ -28,15 +28,15 @@ export class ConfirmDialogComponent {
     }
   }
 
-  positiveClick() {
-    if (this.data.onPositiveButtonClick) {
-      this.data.onPositiveButtonClick();
+  primaryClick() {
+    if (this.data.onPrimaryButtonClick) {
+      this.data.onPrimaryButtonClick();
     }
   }
 
-  negativeClick() {
-    if (this.data.onNegativeButtonClick) {
-      this.data.onNegativeButtonClick();
+  dangerClick() {
+    if (this.data.onDangerButtonClick) {
+      this.data.onDangerButtonClick();
     }
   }
 }
