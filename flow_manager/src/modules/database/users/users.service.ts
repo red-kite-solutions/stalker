@@ -14,7 +14,7 @@ export class UsersService {
     this.userModel.findOne({}).then((user: User) => {
       if (!user) {
         this.createUser({
-          email: 'admin@stalker.io',
+          email: 'admin@stalker.is',
           firstName: 'stalker',
           lastName: 'admin',
           password: 'admin',
