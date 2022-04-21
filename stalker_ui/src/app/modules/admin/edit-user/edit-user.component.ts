@@ -3,9 +3,9 @@ import { FormBuilder, FormControl, ValidationErrors, Validators } from '@angular
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { switchMap } from 'rxjs';
+import { map, switchMap } from 'rxjs';
 import { UsersService } from 'src/app/api/users/users.service';
-import { StatusString } from 'src/app/shared/types/status-string.type';
+import { HttpStatus } from 'src/app/shared/types/http-status.type';
 import { User } from 'src/app/shared/types/user.interface';
 import {
   ConfirmDialogComponent,
@@ -20,7 +20,6 @@ import { Role, roles, rolesInfoDialogText } from '../roles';
 })
 export class EditUserComponent implements OnDestroy {
   passwordConfirm = '';
-  currentPassword = '';
   newUserValid = true;
   userId = '';
   invalidPassword = false;
@@ -76,6 +75,33 @@ export class EditUserComponent implements OnDestroy {
     private router: Router
   ) {}
 
+  currentPasswordForm = this.fb.group({
+    password: [],
+  });
+
+  private passwordErr = this.currentPasswordForm.get('password');
+  public passwordErr$ = this.passwordErr?.statusChanges.pipe(
+    map(() => {
+      if (this.invalidPassword) {
+        this.invalidPassword = false;
+        return 'Invalid password';
+      }
+      return 'Your password must be provided to edit a user';
+    })
+  );
+
+  private conflictEmail = false;
+  private emailErr = this.form.controls['email'];
+  public emailErr$ = this.emailErr.statusChanges.pipe(
+    map(() => {
+      if (this.conflictEmail) {
+        this.conflictEmail = false;
+        return 'User with this email already exists';
+      }
+      return 'Please provide a valid email address';
+    })
+  );
+
   private routeSub$ = this.route.params
     .pipe(
       switchMap((params) => {
@@ -105,36 +131,47 @@ export class EditUserComponent implements OnDestroy {
       active: this.form.controls['active'].value,
     };
 
-    let res: StatusString = await this.usersService.editUser(this.userId, changes, this.currentPassword);
+    this.currentPasswordForm.controls['password'].setErrors(null);
+    this.form.controls['email'].setErrors(null);
+    this.invalidPassword = false;
+    this.conflictEmail = false;
 
-    if (res === 'Success') {
-      this.invalidPassword = false;
+    try {
+      await this.usersService.editUser(this.userId, changes, this.currentPasswordForm.get('password')?.value);
       this.toastr.success('User changed successfully');
-    } else if (res === 'Invalid password') {
-      this.invalidPassword = true;
-      this.toastr.error('Invalid password');
-      return;
-    } else {
-      this.invalidPassword = false;
-      this.toastr.error('Error while submitting changes');
+    } catch (err: any) {
+      if (err.status === HttpStatus.Forbidden) {
+        this.invalidPassword = true;
+        this.currentPasswordForm.controls['password'].setErrors({ incorrect: true });
+        this.toastr.error('Invalid password');
+      }
+      if (err.status === HttpStatus.Conflict) {
+        this.conflictEmail = true;
+        this.form.controls['email'].setErrors({ incorrect: true });
+        this.toastr.warning('User with this email already exists');
+      }
     }
 
-    if (this.form.controls['newPassword'].value != '') {
-      res = await this.usersService.changeUserPassword(
+    if (
+      this.form.controls['newPassword'].value == '' ||
+      this.currentPasswordForm.controls['password'].errors ||
+      this.form.controls['email'].errors
+    ) {
+      return;
+    }
+
+    try {
+      await this.usersService.changeUserPassword(
         this.userId,
         this.form.controls['newPassword'].value,
-        this.currentPassword
+        this.currentPasswordForm.get('password')?.value
       );
-
-      if (res === 'Success') {
-        this.invalidPassword = false;
-        this.toastr.success('Password changed successfully');
-      } else if (res === 'Invalid password') {
+      this.toastr.success('Password changed successfully');
+    } catch (err: any) {
+      if (err.status === HttpStatus.Forbidden) {
         this.invalidPassword = true;
+        this.currentPasswordForm.controls['password'].setErrors({ incorrect: true });
         this.toastr.error('Invalid password');
-      } else {
-        this.invalidPassword = false;
-        this.toastr.error('Error while submitting new password');
       }
     }
   }
@@ -169,14 +206,9 @@ export class EditUserComponent implements OnDestroy {
         this.dialog.closeAll();
       },
       onDangerButtonClick: async () => {
-        console.log(`Deleting user ${this.userId}`);
-        const res: string = await this.usersService.deleteUser(this.userId);
-        if (res === 'Success') {
-          this.toastr.success('User deleted successfully');
-          this.router.navigate(['/admin/users']);
-        } else {
-          this.toastr.error(`Error deleting user`);
-        }
+        await this.usersService.deleteUser(this.userId);
+        this.toastr.success('User deleted successfully');
+        this.router.navigate(['/admin/users']);
         this.dialog.closeAll();
       },
     };

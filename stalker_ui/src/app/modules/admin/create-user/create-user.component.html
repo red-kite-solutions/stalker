@@ -20,13 +20,12 @@
         </mat-form-field>
         <mat-form-field class="formfieldblock">
           <input matInput placeholder="Email" name="email" formControlName="email" />
-          <mat-error> Please provide a valid email address </mat-error>
+          <mat-error> {{ emailErr$ | async }} </mat-error>
         </mat-form-field>
         <div fxLayout="row" fxLayoutAlign="flex-start center">
           <mat-form-field fxFlex="90">
             <mat-label>Role</mat-label>
             <mat-select formControlName="role" required>
-              <!-- <mat-option>Choose a Role</mat-option>s -->
               <mat-option *ngFor="let role of roles" [value]="role">
                 {{ role.name }}
               </mat-option>
@@ -99,7 +98,9 @@
           >
             <mat-icon>{{ hideCurrentPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
           </button>
-          <mat-error> The current password must be provided to edit the profile </mat-error>
+          <mat-error>
+            {{ passwordErr$ | async }}
+          </mat-error>
         </mat-form-field>
 
         <mat-error *ngIf="!this.newUserValid"> Please correct the invalid information before submitting </mat-error>

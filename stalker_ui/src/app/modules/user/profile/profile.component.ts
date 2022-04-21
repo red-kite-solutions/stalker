@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, ValidationErrors, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
+import { map } from 'rxjs';
 import { UsersService } from 'src/app/api/users/users.service';
+import { HttpStatus } from 'src/app/shared/types/http-status.type';
 import { User } from 'src/app/shared/types/user.interface';
 
 @Component({
@@ -11,7 +13,6 @@ import { User } from 'src/app/shared/types/user.interface';
 })
 export class ProfileComponent implements OnInit {
   passwordConfirm = '';
-  currentPassword = '';
   profileEditValid = true;
   invalidPassword = false;
 
@@ -60,6 +61,20 @@ export class ProfileComponent implements OnInit {
   });
 
   hideCurrentPassword = true;
+  currentPasswordForm = this.fb.group({
+    password: [],
+  });
+
+  private passwordErr = this.currentPasswordForm.get('password');
+  public passwordErr$ = this.passwordErr?.statusChanges.pipe(
+    map(() => {
+      if (this.invalidPassword) {
+        this.invalidPassword = false;
+        return 'Invalid password';
+      }
+      return 'Your password must be provided to edit your profile';
+    })
+  );
 
   constructor(private fb: FormBuilder, private usersService: UsersService, private toastr: ToastrService) {}
 
@@ -79,44 +94,44 @@ export class ProfileComponent implements OnInit {
       return;
     }
 
-    const result: string = await this.usersService.editProfile(
-      {
-        firstName: this.form.controls['firstName'].value,
-        lastName: this.form.controls['lastName'].value,
-      },
-      this.currentPassword
-    );
+    this.invalidPassword = false;
+    this.currentPasswordForm.controls['password'].setErrors(null);
 
-    if (result === 'Success') {
-      this.invalidPassword = false;
+    try {
+      await this.usersService.editProfile(
+        {
+          firstName: this.form.controls['firstName'].value,
+          lastName: this.form.controls['lastName'].value,
+        },
+        this.currentPasswordForm.controls['password'].value
+      );
       this.toastr.success('Profile changed successfully');
-    } else if (result === 'Invalid password') {
-      this.invalidPassword = true;
-      this.toastr.error('Invalid password');
-      return;
-    } else {
-      this.invalidPassword = false;
-      this.toastr.error('Error while submitting changes');
+    } catch (err: any) {
+      if (err.status === HttpStatus.Forbidden) {
+        this.invalidPassword = true;
+        this.currentPasswordForm.controls['password'].setErrors({ incorrect: true });
+        this.toastr.error('Invalid password');
+      }
     }
 
     if (
-      this.form.controls['password'].value &&
-      this.form.controls['password'].value === this.form.controls['passwordConfirm'].value
+      !this.form.controls['password'].value ||
+      this.form.controls['password'].value !== this.form.controls['passwordConfirm'].value ||
+      this.currentPasswordForm.controls['password'].errors
     ) {
-      const result: string = await this.usersService.changePassword(
+      return;
+    }
+    try {
+      await this.usersService.changePassword(
         this.form.controls['password'].value,
-        this.currentPassword
+        this.currentPasswordForm.controls['password'].value
       );
-      if (result === 'Success') {
-        this.invalidPassword = false;
-        this.toastr.success('Password changed successfully');
-      } else if (result === 'Invalid password') {
+      this.toastr.success('Password changed successfully');
+    } catch (err: any) {
+      if (err.status === HttpStatus.Forbidden) {
         this.invalidPassword = true;
+        this.currentPasswordForm.controls['password'].setErrors({ incorrect: true });
         this.toastr.error('Invalid password');
-        return;
-      } else {
-        this.invalidPassword = false;
-        this.toastr.error('Error while submitting new password');
       }
     }
   }

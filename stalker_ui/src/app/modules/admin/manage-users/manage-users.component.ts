@@ -7,7 +7,6 @@ import { MatTableDataSource } from '@angular/material/table';
 import { ToastrService } from 'ngx-toastr';
 import { distinctUntilChanged, filter, map } from 'rxjs';
 import { UsersService } from 'src/app/api/users/users.service';
-import { StatusString } from 'src/app/shared/types/status-string.type';
 import { User } from 'src/app/shared/types/user.interface';
 import {
   ConfirmDialogComponent,
@@ -106,16 +105,12 @@ export class ManageUsersComponent implements OnDestroy {
         },
         onDangerButtonClick: () => {
           this.selection.selected.forEach(async (user: User) => {
-            const res: StatusString = await this.usersService.deleteUser(user._id);
-            if (res === 'Success') {
-              this.selection.deselect(user);
-              const removeIndex = this.dataSource.data.findIndex((u: User) => u._id === user._id);
-              this.dataSource.data.splice(removeIndex, 1);
-              this.dataSource.paginator = this.paginator;
-              this.toastr.success('User deleted successfully');
-            } else {
-              this.toastr.error(`Error deleting user ${user.email}`);
-            }
+            await this.usersService.deleteUser(user._id);
+            this.selection.deselect(user);
+            const removeIndex = this.dataSource.data.findIndex((u: User) => u._id === user._id);
+            this.dataSource.data.splice(removeIndex, 1);
+            this.dataSource.paginator = this.paginator;
+            this.toastr.success('User deleted successfully');
           });
           this.dialog.closeAll();
         },
@@ -135,22 +130,5 @@ export class ManageUsersComponent implements OnDestroy {
       data,
       restoreFocus: false,
     });
-  }
-
-  displayColumns() {
-    if (window.screen.availWidth < 450) {
-      return ['firstName', 'lastName', 'role'];
-    }
-    if (window.screen.availWidth < 525) {
-      return ['firstName', 'lastName', 'role', 'active'];
-    }
-    if (window.screen.availWidth < 625) {
-      return ['select', 'firstName', 'lastName', 'role', 'active'];
-    }
-    return this.displayedColumns;
-  }
-
-  hideDelete() {
-    return window.screen.availWidth < 525;
   }
 }

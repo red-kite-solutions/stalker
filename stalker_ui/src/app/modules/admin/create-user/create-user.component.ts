@@ -2,8 +2,9 @@ import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
+import { map } from 'rxjs';
 import { UsersService } from 'src/app/api/users/users.service';
-import { StatusString } from 'src/app/shared/types/status-string.type';
+import { HttpStatus } from 'src/app/shared/types/http-status.type';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
@@ -51,6 +52,29 @@ export class CreateUserComponent {
     password: [],
   });
 
+  private passwordErr = this.currentPasswordForm.get('password');
+  public passwordErr$ = this.passwordErr?.statusChanges.pipe(
+    map(() => {
+      if (this.invalidPassword) {
+        this.invalidPassword = false;
+        return 'Invalid password';
+      }
+      return 'Your password must be provided to create a user';
+    })
+  );
+
+  private conflictEmail = false;
+  private emailErr = this.form.controls['email'];
+  public emailErr$ = this.emailErr.statusChanges.pipe(
+    map(() => {
+      if (this.conflictEmail) {
+        this.conflictEmail = false;
+        return 'User with this email already exists';
+      }
+      return 'Please provide a valid email address';
+    })
+  );
+
   hideCurrentPassword = true;
   hideUserPassword = true;
 
@@ -62,40 +86,45 @@ export class CreateUserComponent {
   ) {}
 
   async onSubmit() {
-    console.log('on submit');
     this.newUserValid = this.form.valid;
     if (!this.newUserValid) {
       this.form.markAllAsTouched();
       return;
     }
-
-    const result: StatusString = await this.usersService.createUser(
-      {
-        email: this.form.controls['email'].value,
-        firstName: this.form.controls['firstName'].value,
-        lastName: this.form.controls['lastName'].value,
-        role: this.form.controls['role'].value.name,
-        active: this.form.controls['active'].value,
-      },
-      this.form.controls['password'].value,
-      this.currentPasswordForm.controls['password'].value
-    );
-
+    this.currentPasswordForm.controls['password'].setErrors(null);
+    this.form.controls['email'].setErrors(null);
     this.invalidPassword = false;
-    if (result === 'Success') {
+    this.conflictEmail = false;
+
+    try {
+      await this.usersService.createUser(
+        {
+          email: this.form.controls['email'].value,
+          firstName: this.form.controls['firstName'].value,
+          lastName: this.form.controls['lastName'].value,
+          role: this.form.controls['role'].value.name,
+          active: this.form.controls['active'].value,
+        },
+        this.form.controls['password'].value,
+        this.currentPasswordForm.controls['password'].value
+      );
       this.form.reset();
       this.form.controls['role'].setValue('');
       this.currentPasswordForm.reset();
       this.currentPasswordForm.controls['password'].setErrors(null);
       this.form.controls['active'].setValue(true);
       this.toastr.success('User created successfully');
-    } else if (result === 'Invalid password') {
-      this.invalidPassword = true;
-      this.toastr.error('Invalid password');
-    } else if (result === 'Already exists') {
-      this.toastr.warning('User with this email already exists');
-    } else {
-      this.toastr.error('Error while creating user');
+    } catch (err: any) {
+      if (err.status === HttpStatus.Forbidden) {
+        this.invalidPassword = true;
+        this.currentPasswordForm.controls['password'].setErrors({ incorrect: true });
+        this.toastr.error('Invalid password');
+      }
+      if (err.status === HttpStatus.Conflict) {
+        this.conflictEmail = true;
+        this.form.controls['email'].setErrors({ incorrect: true });
+        this.toastr.warning('User with this email already exists');
+      }
     }
   }
 

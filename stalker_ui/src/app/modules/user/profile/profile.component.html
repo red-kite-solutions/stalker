@@ -44,31 +44,31 @@
       <mat-divider></mat-divider>
       <br />
 
-      <form #profileForm="ngForm" (ngSubmit)="onSubmit()">
+      <form #profileForm="ngForm" (ngSubmit)="onSubmit()" [formGroup]="currentPasswordForm">
         <h4>Validate Identity</h4>
         <mat-form-field class="formfieldblock">
           <mat-label>Current Password</mat-label>
           <input
             matInput
             [type]="hideCurrentPassword ? 'password' : 'text'"
-            [(ngModel)]="currentPassword"
+            formControlName="password"
             name="currentPassword"
             required
           />
           <button
             mat-icon-button
             matSuffix
+            type="button"
             (click)="hideCurrentPassword = !hideCurrentPassword"
             [attr.aria-label]="'Hide password'"
             [attr.aria-pressed]="hideCurrentPassword"
           >
             <mat-icon>{{ hideCurrentPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
           </button>
-          <mat-error> The current password must be provided to edit the profile </mat-error>
+          <mat-error>{{ passwordErr$ | async }}</mat-error>
         </mat-form-field>
 
         <mat-error *ngIf="!this.profileEditValid"> Please correct the invalid information before submitting </mat-error>
-        <mat-error *ngIf="this.invalidPassword"> Password is invalid </mat-error>
 
         <div class="center">
           <button class="button" mat-raised-button color="primary" [disabled]="!profileForm.form.valid">
