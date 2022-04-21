@@ -1,23 +1,22 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormBuilder, FormControl, ValidationErrors, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { map } from 'rxjs';
 import { UsersService } from 'src/app/api/users/users.service';
 import { HttpStatus } from 'src/app/shared/types/http-status.type';
-import { User } from 'src/app/shared/types/user.interface';
 
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss'],
 })
-export class ProfileComponent implements OnInit {
+export class ProfileComponent {
   passwordConfirm = '';
   profileEditValid = true;
   invalidPassword = false;
 
   private validatePasswordEquals: Function = (control: FormControl): ValidationErrors | null => {
-    if (control.root.get('password')?.value === control.root.get('passwordConfirm')?.value) {
+    if (control.root.get('newPassword')?.value === control.root.get('passwordConfirm')?.value) {
       control.root.get('passwordConfirm')?.setErrors(null);
       return null;
     } else {
@@ -56,9 +55,19 @@ export class ProfileComponent implements OnInit {
         updateOn: 'blur',
       },
     ],
-    password: ['', [Validators.minLength(12), this.validatePasswordEquals]],
+    newPassword: ['', [Validators.minLength(12), this.validatePasswordEquals]],
     passwordConfirm: ['', [this.validatePasswordEquals]],
   });
+
+  form$ = this.usersService.getProfile().pipe(
+    map((user) => {
+      this.form.controls['email'].setValue(user.email);
+      this.form.controls['firstName'].setValue(user.firstName);
+      this.form.controls['lastName'].setValue(user.lastName);
+      this.form.controls['email'].disable();
+      return this.form;
+    })
+  );
 
   hideCurrentPassword = true;
   currentPasswordForm = this.fb.group({
@@ -77,15 +86,6 @@ export class ProfileComponent implements OnInit {
   );
 
   constructor(private fb: FormBuilder, private usersService: UsersService, private toastr: ToastrService) {}
-
-  async ngOnInit(): Promise<void> {
-    const user: User = await this.usersService.getProfile();
-
-    this.form.controls['email'].setValue(user.email);
-    this.form.controls['firstName'].setValue(user.firstName);
-    this.form.controls['lastName'].setValue(user.lastName);
-    this.form.controls['email'].disable();
-  }
 
   async onSubmit() {
     this.profileEditValid = this.form.valid && this.currentPasswordForm.valid;
@@ -116,15 +116,15 @@ export class ProfileComponent implements OnInit {
     }
 
     if (
-      !this.form.controls['password'].value ||
-      this.form.controls['password'].value !== this.form.controls['passwordConfirm'].value ||
+      !this.form.controls['newPassword'].value ||
+      this.form.controls['newPassword'].value !== this.form.controls['passwordConfirm'].value ||
       this.currentPasswordForm.controls['password'].errors
     ) {
       return;
     }
     try {
       await this.usersService.changePassword(
-        this.form.controls['password'].value,
+        this.form.controls['newPassword'].value,
         this.currentPasswordForm.controls['password'].value
       );
       this.toastr.success('Password changed successfully');

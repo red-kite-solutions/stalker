@@ -10,16 +10,8 @@ import { fmUrl } from '../constants';
 export class UsersService {
   constructor(private http: HttpClient) {}
 
-  public async getProfile(): Promise<User> {
-    const userData: any = await firstValueFrom(this.http.get(`${fmUrl}/users/profile`));
-    return {
-      firstName: userData.firstName,
-      lastName: userData.lastName,
-      _id: userData._id,
-      email: userData.email,
-      role: userData.role,
-      active: userData.active,
-    };
+  public getProfile(): Observable<any> {
+    return this.http.get(`${fmUrl}/users/profile`);
   }
 
   public async editProfile(profileEdits: Partial<User>, currentPassword: string): Promise<void> {

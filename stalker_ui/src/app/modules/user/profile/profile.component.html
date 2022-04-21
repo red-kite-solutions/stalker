@@ -2,7 +2,7 @@
   <mat-card fxFlex="60">
     <mat-card-content>
       <h1>Profile</h1>
-      <form [formGroup]="form">
+      <form *ngIf="(form$ | async) || true" [formGroup]="form">
         <h4>Edit Profile</h4>
 
         <mat-form-field class="formfieldinline">
@@ -25,7 +25,14 @@
         <h4>Change Password</h4>
 
         <mat-form-field class="formfieldblock">
-          <input matInput type="password" placeholder="New Password" name="password" formControlName="password" />
+          <input
+            matInput
+            type="password"
+            placeholder="New Password"
+            name="newPassword"
+            formControlName="newPassword"
+            autocomplete="new-password"
+          />
           <mat-error>Password must have a minimal length of 12 characters</mat-error>
         </mat-form-field>
         <mat-form-field class="formfieldblock">
