@@ -118,8 +118,9 @@ export class EditUserComponent implements OnDestroy {
     });
 
   async onSubmit() {
-    this.newUserValid = this.form.valid;
+    this.newUserValid = this.form.valid && this.currentPasswordForm.valid;
     if (!this.newUserValid) {
+      this.currentPasswordForm.markAllAsTouched();
       this.form.markAllAsTouched();
       return;
     }

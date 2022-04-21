@@ -12,11 +12,11 @@
 
         <mat-form-field class="formfieldinline">
           <input matInput placeholder="First Name" name="firstName" formControlName="firstName" />
-          <mat-error> First name must not be empty </mat-error>
+          <mat-error>First name must not be empty</mat-error>
         </mat-form-field>
         <mat-form-field class="formfieldinline">
           <input matInput placeholder="Last Name" name="lastName" formControlName="lastName" />
-          <mat-error> Last name must not be empty </mat-error>
+          <mat-error>Last name must not be empty</mat-error>
         </mat-form-field>
         <mat-form-field class="formfieldblock">
           <input matInput placeholder="Email" name="email" formControlName="email" />
@@ -31,7 +31,7 @@
               </mat-option>
             </mat-select>
             <mat-hint>{{ form.get('role')?.value.shortDescription }}</mat-hint>
-            <mat-error> You must pick a role </mat-error>
+            <mat-error>You must pick a role</mat-error>
           </mat-form-field>
           <div fxFlex="10" fxLayoutAlign="center center">
             <button type="button" mat-icon-button (click)="showUserRolesHelp()" matTooltip="Role information">
@@ -69,7 +69,7 @@
           >
             <mat-icon>{{ hideUserPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
           </button>
-          <mat-error> Password must have a minimal length of 12 characters </mat-error>
+          <mat-error>Password must have a minimal length of 12 characters</mat-error>
         </mat-form-field>
       </form>
 
@@ -103,18 +103,10 @@
           </mat-error>
         </mat-form-field>
 
-        <mat-error *ngIf="!this.newUserValid"> Please correct the invalid information before submitting </mat-error>
+        <mat-error *ngIf="!this.newUserValid">Please correct the invalid information before submitting</mat-error>
 
         <div class="center">
-          <button
-            class="button"
-            mat-raised-button
-            color="primary"
-            [disabled]="!profileForm.form.valid"
-            (click)="onSubmit()"
-          >
-            Create
-          </button>
+          <button class="button" mat-raised-button color="primary" (click)="onSubmit()">Create</button>
         </div>
       </form>
     </mat-card-content>

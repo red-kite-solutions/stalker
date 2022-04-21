@@ -88,8 +88,9 @@ export class ProfileComponent implements OnInit {
   }
 
   async onSubmit() {
-    this.profileEditValid = this.form.valid;
+    this.profileEditValid = this.form.valid && this.currentPasswordForm.valid;
     if (!this.profileEditValid) {
+      this.currentPasswordForm.markAllAsTouched();
       this.form.markAllAsTouched();
       return;
     }
