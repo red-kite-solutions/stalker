@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
+import { map } from 'rxjs';
 import { SettingsService } from 'src/app/api/settings/settings.service';
 
 @Component({
@@ -35,23 +36,26 @@ export class SettingsComponent {
     ],
   });
 
-  private settings$ = this.settingsService.getSettings().subscribe((settings) => {
-    this.reportingEnabled = settings.isNewContentReported;
-    this.keybaseEnabled = settings.keybaseConfig.enabled;
-    this.keybaseReportingForm.controls['username'].setValue(
-      settings.keybaseConfig.username ? settings.keybaseConfig.username : ''
-    );
-    this.keybaseReportingForm.controls['paperkey'].setValue(
-      settings.keybaseConfig.paperkey ? settings.keybaseConfig.paperkey : ''
-    );
-    this.keybaseReportingForm.controls['conversationId'].setValue(
-      settings.keybaseConfig.channelId ? settings.keybaseConfig.channelId : ''
-    );
+  public settings$ = this.settingsService.getSettings().pipe(
+    map((settings) => {
+      this.reportingEnabled = settings.isNewContentReported;
+      this.keybaseEnabled = settings.keybaseConfig.enabled;
+      this.keybaseReportingForm.controls['username'].setValue(
+        settings.keybaseConfig.username ? settings.keybaseConfig.username : ''
+      );
+      this.keybaseReportingForm.controls['paperkey'].setValue(
+        settings.keybaseConfig.paperkey ? settings.keybaseConfig.paperkey : ''
+      );
+      this.keybaseReportingForm.controls['conversationId'].setValue(
+        settings.keybaseConfig.channelId ? settings.keybaseConfig.channelId : ''
+      );
 
-    this.keybaseEnabled && this.reportingEnabled
-      ? this.keybaseReportingForm.enable()
-      : this.keybaseReportingForm.disable();
-  });
+      this.keybaseEnabled && this.reportingEnabled
+        ? this.keybaseReportingForm.enable()
+        : this.keybaseReportingForm.disable();
+      return settings;
+    })
+  );
 
   hidePaperkey = true;
 

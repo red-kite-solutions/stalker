@@ -1,5 +1,5 @@
 <mat-card>
-  <mat-card-content>
+  <mat-card-content *ngIf="(settings$ | async) || true">
     <div fxLayout="row" fxLayoutAlign="flex-start center">
       <h1 fxFlex>Settings</h1>
       <button mat-raised-button type="button" color="primary" (click)="saveSettings()">Save Settings</button>
