@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormBuilder, FormControl, ValidationErrors, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -18,7 +18,7 @@ import { Role, roles, rolesInfoDialogText } from '../roles';
   templateUrl: './edit-user.component.html',
   styleUrls: ['./edit-user.component.scss'],
 })
-export class EditUserComponent implements OnDestroy {
+export class EditUserComponent {
   passwordConfirm = '';
   newUserValid = true;
   userId = '';
@@ -102,20 +102,22 @@ export class EditUserComponent implements OnDestroy {
     })
   );
 
-  private routeSub$ = this.route.params
+  public routeSub$ = this.route.params
     .pipe(
       switchMap((params) => {
         this.userId = params['id'];
         return this.usersService.getUser(this.userId);
       })
     )
-    .subscribe((user: any) => {
-      this.form.controls['firstName'].setValue(user.firstName);
-      this.form.controls['lastName'].setValue(user.lastName);
-      this.form.controls['email'].setValue(user.email);
-      this.form.controls['role'].setValue(this.roles.find((role: Role) => role.name === user?.role));
-      this.form.controls['active'].setValue(user.active);
-    });
+    .pipe(
+      map((user: any) => {
+        this.form.controls['firstName'].setValue(user.firstName);
+        this.form.controls['lastName'].setValue(user.lastName);
+        this.form.controls['email'].setValue(user.email);
+        this.form.controls['role'].setValue(this.roles.find((role: Role) => role.name === user?.role));
+        this.form.controls['active'].setValue(user.active);
+      })
+    );
 
   async onSubmit() {
     this.newUserValid = this.form.valid && this.currentPasswordForm.valid;
@@ -218,9 +220,5 @@ export class EditUserComponent implements OnDestroy {
       data,
       restoreFocus: false,
     });
-  }
-
-  ngOnDestroy() {
-    this.routeSub$?.unsubscribe();
   }
 }

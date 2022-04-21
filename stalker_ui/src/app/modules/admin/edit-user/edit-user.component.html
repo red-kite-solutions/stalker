@@ -1,6 +1,6 @@
 <div fxLayout="row" fxLayoutAlign="center">
   <mat-card fxFlex="60">
-    <mat-card-content>
+    <mat-card-content *ngIf="(routeSub$ | async) || true">
       <h1 fxLayoutAlign="flex-start center">
         <button type="button" mat-icon-button routerLinkActive="list-item-active" routerLink="/admin/users">
           <mat-icon class="material-icons-outlined">arrow_back</mat-icon>
