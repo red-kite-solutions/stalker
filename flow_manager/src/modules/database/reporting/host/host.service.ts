@@ -1,14 +1,15 @@
 import { HttpException, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import * as DomainTreeUtils from '../../../../utils/domain_tree.utils';
+import { Model, Types } from 'mongoose';
 import { ConfigService } from '../../admin/config/config.service';
 import { JobsService } from '../../jobs/jobs.service';
-import { Domain } from '../domain/domain.model';
-import { ProgramService } from '../program.service';
+import { CompanyService } from '../company.service';
+import { DomainsService } from '../domain/domain.service';
+import { DomainSummary } from '../domain/domain.summary';
 import { ReportService } from '../report/report.service';
 import { SubmitHostDto } from './host.dto';
 import { Host } from './host.model';
+import { HostSummary } from './host.summary';
 
 @Injectable()
 export class HostService {
@@ -17,67 +18,95 @@ export class HostService {
   constructor(
     @InjectModel('host') private readonly hostModel: Model<Host>,
     private jobService: JobsService,
-    private programService: ProgramService,
+    private companyService: CompanyService,
     private reportService: ReportService,
     private configService: ConfigService,
+    private domainService: DomainsService,
   ) {}
 
-  public async addHostsToDomain(dto: SubmitHostDto, jobId: string) {
-    // Find the proper program using the jobId and then the program name
+  public async addHostsWithDomainFromJob(dto: SubmitHostDto, jobId: string) {
     const job = await this.jobService.getById(jobId);
 
     if (!job) {
       this.logger.debug(`Could not find the job ${jobId}`);
       throw new HttpException('The job id is invalid.', 400);
     }
-    const program = await this.programService.get(job.program);
 
-    if (!program) {
-      this.logger.debug(`Could not find the program ${job.program}`);
+    return this.addHostsWithDomain(dto.ips, dto.domainName, job.companyId);
+  }
+
+  public async addHostsWithDomain(
+    ips: string[],
+    domainName: string,
+    companyId: string,
+  ) {
+    const company = await this.companyService.get(companyId);
+
+    if (!company) {
+      this.logger.debug(`Could not find the company ${companyId}`);
       throw new HttpException(
-        'The program associated with the given job does not exist.',
+        'The company associated with the given job does not exist.',
         400,
       );
     }
 
-    const domain: Domain = DomainTreeUtils.findDomainObject(
-      program,
-      dto.domainName,
-    );
+    const domain = await this.domainService.getDomainByName(domainName);
 
     if (!domain) {
+      this.logger.debug(`Could not find the domain ${domainName}`);
       throw new HttpException(
-        'The given subdomain is not part of the given program. Maybe it needs to be added.',
-        500,
+        'The domain associated with the given job does not exist.',
+        400,
       );
     }
-    let newIps: string[] = [];
 
-    if (!domain.hosts) {
-      domain.hosts = [];
-      newIps = dto.ips;
-      dto.ips.forEach((ip) => {
-        const newHost = new Host();
-        newHost.ip = ip;
-        domain.hosts.push(newHost);
-      });
-    } else {
-      dto.ips.forEach((ip) => {
-        if (!domain.hosts.some((host) => host.ip === ip)) {
-          const newHost = new Host();
-          newHost.ip = ip;
-          domain.hosts.push(newHost);
-          newIps.push(ip);
-        }
-      });
+    let hostSummaries: HostSummary[] = [];
+    let newIps: string[] = [];
+    let newHosts = [];
+
+    for (let ip of ips) {
+      const ds: DomainSummary = {
+        name: domain.name,
+        id: new Types.ObjectId(domain._id),
+      };
+      let mongoId = new Types.ObjectId();
+      const hostResult = await this.hostModel
+        .findOneAndUpdate(
+          { ip: { $eq: ip } },
+          {
+            $setOnInsert: { _id: mongoId, companyId: company._id },
+            $addToSet: { domains: ds },
+          },
+          { upsert: true, useFindAndModify: false },
+        )
+        .exec();
+
+      if (!hostResult) {
+        // inserted
+        newIps.push(ip);
+        newHosts.push({
+          ip: ip,
+          _id: mongoId.toString(),
+          domainName: domainName,
+          companyId: companyId,
+        });
+        hostSummaries.push({ id: mongoId, ip: ip });
+      } else if (
+        !hostResult.domains ||
+        hostResult.domains.some((ds) => ds.name === domainName)
+      ) {
+        // updated, so sync with relevant domain document must be done
+        hostSummaries.push({ id: hostResult._id, ip: ip });
+      }
     }
     const config = await this.configService.getConfig();
 
+    await this.domainService.addHostsToDomain(domain._id, hostSummaries);
+
     if (config.isNewContentReported) {
-      this.reportService.addNewHosts(program.name, dto.domainName, dto.ips);
+      this.reportService.addHosts(company.name, newIps, domainName);
     }
 
-    await this.programService.update(job.program, program);
-    await this.jobService.delete(jobId);
+    return newHosts;
   }
 }

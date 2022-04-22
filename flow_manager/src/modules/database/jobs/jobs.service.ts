@@ -37,17 +37,17 @@ export class JobsService {
     return await this.jobModel.findById(id);
   }
 
-  public createDomainResolvingJob(program: string, domainName: string) {
+  public createDomainResolvingJob(companyId: string, domainName: string) {
     const job = new DomainNameResolvingJob();
     job.task = DomainNameResolvingJob.name;
     job.priority = 3;
     job.domainName = domainName;
-    job.program = program;
+    job.companyId = companyId;
     return job;
   }
 
   public createSubdomainBruteforceJob(
-    program: string,
+    companyId: string,
     domainName: string,
     wordList: string,
   ) {
@@ -56,7 +56,7 @@ export class JobsService {
     job.priority = 3;
     job.domainName = domainName;
     job.wordList = wordList;
-    job.program = program;
+    job.companyId = companyId;
     return job;
   }
 

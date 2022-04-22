@@ -21,3 +21,12 @@ class JobReporter():
         if r.status_code < 200 or r.status_code >= 300:
             print(f"ERROR sending output to {path} : ")
             print(output)
+    
+    def delete(self, jobId: str):
+        """Deletes the job in the flow manager"""
+        headers = {
+            'API_KEY': self._key,
+        }
+        r = requests.delete(f'http://{self._fm_address}:{self._fm_port}/jobs/{jobId}', headers=headers)
+        if r.status_code < 200 or r.status_code >= 300:
+            print(f"ERROR deleting job {jobId}")

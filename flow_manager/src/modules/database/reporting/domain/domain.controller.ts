@@ -12,24 +12,24 @@ import { Roles } from 'src/modules/auth/decorators/roles.decorator';
 import { ApiKeyGuard } from 'src/modules/auth/guards/api-key.guard';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/modules/auth/guards/role.guard';
-import { Program } from '../program.model';
-import { ProgramService } from '../program.service';
-import { SubmitSubdomainDto, SubmitSubdomainManuallyDto } from './domain.dto';
+import { CompanyService } from '../company.service';
+import { SubmitDomainDto, SubmitDomainManuallyDto } from './domain.dto';
+import { DomainDocument } from './domain.model';
 import { DomainsService } from './domain.service';
 
 @Controller('report/domains')
 export class DomainsController {
   constructor(
     private readonly domainsService: DomainsService,
-    private readonly programService: ProgramService,
+    private readonly companyService: CompanyService,
   ) {}
 
   @UseGuards(ApiKeyGuard)
   @Post('worker')
   async submitSubdomainsByWorker(
-    @Body(new ValidationPipe()) dto: SubmitSubdomainManuallyDto,
+    @Body(new ValidationPipe()) dto: SubmitDomainManuallyDto,
   ): Promise<void> {
-    await this.domainsService.addDomainsManually(dto);
+    await this.domainsService.addDomains(dto);
     return;
   }
 
@@ -37,9 +37,9 @@ export class DomainsController {
   @Post(':jobId')
   async submitSubdomainsFromJob(
     @Param('jobId') jobId: string,
-    @Body(new ValidationPipe()) subdomains: SubmitSubdomainDto,
+    @Body(new ValidationPipe()) subdomains: SubmitDomainDto,
   ): Promise<void> {
-    await this.domainsService.addDomains(subdomains, jobId);
+    await this.domainsService.addDomainsFromJob(subdomains, jobId);
     return;
   }
 
@@ -47,19 +47,16 @@ export class DomainsController {
   @Roles(Role.User)
   @Post()
   async submitSubdomains(
-    @Body(new ValidationPipe()) dto: SubmitSubdomainManuallyDto,
+    @Body(new ValidationPipe()) dto: SubmitDomainManuallyDto,
   ): Promise<void> {
-    await this.domainsService.addDomainsManually(dto);
+    await this.domainsService.addDomains(dto);
     return;
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ReadOnly)
-  @Get('index/:program/:i')
-  async returnDomainAtIndex(
-    @Param('program') program: string,
-    @Param('i') index: number,
-  ): Promise<Program> {
-    return await this.programService.getWithDomainAtIndex(program, index);
+  @Get('index/:id')
+  async getDomain(@Param('id') id: string): Promise<DomainDocument> {
+    return await this.domainsService.getDomain(id);
   }
 }

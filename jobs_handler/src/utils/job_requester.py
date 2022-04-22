@@ -17,7 +17,7 @@ class JobRequester():
 
 
     def get_job(self) -> dict:
-        """Performs a get request to get """
+        """Performs a get request to get a job from the queue"""
         headers = {'API_KEY': self._api_key}
         r = requests.get(f'http://{self._jqh_address}:{self._jqh_port}/job', headers=headers)
 

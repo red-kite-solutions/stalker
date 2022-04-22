@@ -21,10 +21,10 @@ export class ReportController {
 
   @Roles(Role.User)
   @Post('note')
-  async addSpecialNote(
+  async addComment(
     @Body(new ValidationPipe()) dto: ReportEntryDto,
   ): Promise<void> {
-    await this.reportService.addSpecialNote(dto);
+    await this.reportService.addComment(dto);
   }
 
   @Roles(Role.ReadOnly)

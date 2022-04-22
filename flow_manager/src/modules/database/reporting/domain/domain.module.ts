@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ConfigModule } from '../../admin/config/config.module';
+import { JobsModule } from '../../jobs/jobs.module';
+import { CompanyModule } from '../company.module';
+import { ReportModule } from '../report/report.module';
 import { DomainsController } from './domain.controller';
 import { DomainSchema } from './domain.model';
 import { DomainsService } from './domain.service';
-import { JobsModule } from '../../jobs/jobs.module';
-import { ProgramModule } from '../program.module';
-import { ReportModule } from '../report/report.module';
-import { ConfigModule } from '../../admin/config/config.module';
 
 @Module({
   imports: [
@@ -17,7 +17,7 @@ import { ConfigModule } from '../../admin/config/config.module';
       },
     ]),
     JobsModule,
-    ProgramModule,
+    CompanyModule,
     ReportModule,
     ConfigModule,
   ],

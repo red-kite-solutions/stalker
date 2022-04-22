@@ -11,7 +11,7 @@ export class JobDto {
 
   @IsNotEmpty()
   @IsString()
-  public program!: string;
+  public companyId!: string;
 
   @IsNotEmpty()
   @IsNumber()

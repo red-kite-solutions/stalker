@@ -9,19 +9,17 @@ import { Role } from 'src/modules/auth/constants';
 import { Roles } from 'src/modules/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/modules/auth/guards/role.guard';
-import { CreateProgramDto } from './program.dto';
-import { ProgramService } from './program.service';
+import { CreateCompanyDto } from './company.dto';
+import { CompanyService } from './company.service';
 
 @Roles(Role.User)
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Controller('report/program')
-export class ProgramController {
-  constructor(private readonly programService: ProgramService) {}
+@Controller('report/company')
+export class CompanyController {
+  constructor(private readonly companyService: CompanyService) {}
 
   @Post()
-  async createProgram(
-    @Body(new ValidationPipe()) dto: CreateProgramDto,
-  ): Promise<void> {
-    await this.programService.addProgram(dto);
+  async createCompany(@Body(new ValidationPipe()) dto: CreateCompanyDto) {
+    return await this.companyService.addCompany(dto);
   }
 }

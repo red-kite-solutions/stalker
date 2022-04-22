@@ -1,14 +1,14 @@
 import { IsNotEmpty } from 'class-validator';
 
-export class SubmitSubdomainDto {
+export class SubmitDomainDto {
   @IsNotEmpty()
   subdomains: string[];
 }
 
-export class SubmitSubdomainManuallyDto {
+export class SubmitDomainManuallyDto {
   @IsNotEmpty()
   subdomains: string[];
 
   @IsNotEmpty()
-  program: string;
+  companyId: string;
 }

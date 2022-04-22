@@ -5,7 +5,7 @@ export class CreateJobDto {
   public task!: string;
 
   @IsNotEmpty()
-  public program!: string;
+  public companyId!: string;
 
   @IsNotEmpty()
   public priority!: number;
