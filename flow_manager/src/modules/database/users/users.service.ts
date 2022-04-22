@@ -37,8 +37,9 @@ export class UsersService {
       role: dto.role,
       refreshToken: '',
     };
-
-    return this.userModel.create(user);
+    await this.userModel.create(user);
+    user.password = '********';
+    return user;
   }
 
   public findAll() {
