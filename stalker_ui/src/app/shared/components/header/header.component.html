@@ -1,13 +1,13 @@
 <mat-toolbar color="primary">
   <mat-toolbar-row fxLayout fxLayoutGap="16px">
     <div fxLayoutAlign="flex-start center">
-      <button mat-icon-button (click)="toggleSideBar()">
+      <button mat-icon-button (click)="toggleSideBar()" *ngIf="showRouting">
         <mat-icon>menu</mat-icon>
       </button>
       <span fxHide.lt-sm="true">Stalker | Recon Automation</span>
     </div>
 
-    <form fxFlex fxLayoutAlign="flex-end center">
+    <form fxFlex fxLayoutAlign="flex-end center" *ngIf="showRouting">
       <mat-form-field fxFlex class="stalker-header-search-field" floatLabel="never">
         <input matInput (focus)="focus()" placeholder="Search" />
 
@@ -17,7 +17,7 @@
       </mat-form-field>
     </form>
 
-    <div>
+    <div [hidden]="!showRouting">
       <button mat-button [matMenuTriggerFor]="menu">
         <mat-icon>person_outline</mat-icon>
         <span fxHide.lt-md="true">{{ email }}</span>

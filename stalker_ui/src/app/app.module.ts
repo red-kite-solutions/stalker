@@ -7,8 +7,8 @@ import { AuthService } from './api/auth/auth.service';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NotFoundModule } from './error-pages/not-found/not-found.module';
-import { AuthenticationModule } from './layouts/authentication/authentication.module';
 import { DefaultModule } from './layouts/default/default.module';
+import { UnauthenticatedModule } from './layouts/unauthenticated/unauthenticated.module';
 import { ErrorInterceptor } from './middlewares/error.interceptor';
 import { JwtInterceptor } from './middlewares/jwt.interceptor';
 import { SharedModule } from './shared/shared.module';
@@ -20,7 +20,7 @@ import { SharedModule } from './shared/shared.module';
     AppRoutingModule,
     BrowserAnimationsModule,
     DefaultModule,
-    AuthenticationModule,
+    UnauthenticatedModule,
     SharedModule,
     NotFoundModule,
     ToastrModule.forRoot({

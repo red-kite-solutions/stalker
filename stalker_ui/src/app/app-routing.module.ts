@@ -1,12 +1,13 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { NotFoundComponent } from './error-pages/not-found/not-found.component';
-import { AuthenticationComponent } from './layouts/authentication/authentication.component';
 import { DefaultComponent } from './layouts/default/default.component';
+import { UnauthenticatedComponent } from './layouts/unauthenticated/unauthenticated.component';
 import { CreateUserComponent } from './modules/admin/create-user/create-user.component';
 import { EditUserComponent } from './modules/admin/edit-user/edit-user.component';
 import { ManageUsersComponent } from './modules/admin/manage-users/manage-users.component';
 import { SettingsComponent } from './modules/admin/settings/settings.component';
+import { AuthComponent } from './modules/auth/auth.component';
 import { LoginComponent } from './modules/auth/login/login.component';
 import { DashboardComponent } from './modules/dashboard/dashboard.component';
 import { ProfileComponent } from './modules/user/profile/profile.component';
@@ -44,17 +45,29 @@ const routes: Routes = [
   },
   {
     path: 'auth',
-    component: AuthenticationComponent,
+    component: UnauthenticatedComponent,
     children: [
       {
-        path: 'login',
-        component: LoginComponent,
+        path: '',
+        component: AuthComponent,
+        children: [
+          {
+            path: 'login',
+            component: LoginComponent,
+          },
+        ],
       },
     ],
   },
   {
     path: '**',
-    component: NotFoundComponent,
+    component: UnauthenticatedComponent,
+    children: [
+      {
+        path: '**',
+        component: NotFoundComponent,
+      },
+    ],
   },
 ];
 

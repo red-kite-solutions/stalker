@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/api/auth/auth.service';
 
@@ -10,6 +10,9 @@ import { AuthService } from 'src/app/api/auth/auth.service';
 export class HeaderComponent {
   @Output()
   toggleSideBarEvent: EventEmitter<any> = new EventEmitter();
+
+  @Input()
+  public showRouting = true;
 
   public email = '';
 
