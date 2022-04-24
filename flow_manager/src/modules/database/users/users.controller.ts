@@ -20,12 +20,7 @@ import { Role } from 'src/modules/auth/constants';
 import { Roles } from 'src/modules/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/modules/auth/guards/role.guard';
-import {
-  ChangePasswordDto,
-  CreateUserDto,
-  EditProfileDto,
-  EditUserDto,
-} from './users.dto';
+import { ChangePasswordDto, CreateUserDto, EditUserDto } from './users.dto';
 import { User, UserDocument } from './users.model';
 import { UsersService } from './users.service';
 
@@ -35,6 +30,17 @@ export class UsersController {
   private logger = new Logger(UsersController.name);
 
   constructor(private readonly usersService: UsersService) {}
+
+  @Roles(Role.Admin)
+  @Get()
+  public async getUsers(): Promise<User[]> {
+    try {
+      return await this.usersService.findAll();
+    } catch (err) {
+      this.logger.error(err);
+      throw new HttpServerErrorException();
+    }
+  }
 
   @Roles(Role.Admin)
   @Post()
@@ -73,110 +79,31 @@ export class UsersController {
     }
   }
 
-  @Roles(Role.Admin)
-  @Get()
-  public async getUsers(): Promise<User[]> {
-    try {
-      return await this.usersService.findAll();
-    } catch (err) {
-      this.logger.error(err);
-      throw new HttpServerErrorException();
-    }
-  }
-
   @Roles(Role.ReadOnly)
-  @Get('profile')
-  public async getProfile(@Request() req): Promise<User> {
-    try {
-      return await this.usersService.findOneByEmail(req.user.email);
-    } catch (err) {
-      this.logger.error(err);
-      throw new HttpServerErrorException();
-    }
-  }
-
-  @Roles(Role.ReadOnly)
-  @Put('profile')
-  public async editProfile(
-    @Request() req,
-    @Body(new ValidationPipe()) dto: EditProfileDto,
-  ): Promise<void> {
-    const valid: boolean | null = await this.usersService.validateIdentity(
-      req.user.email,
-      dto.currentPassword,
-    );
-    if (valid === null) {
-      throw new HttpServerErrorException();
-    }
-
-    if (!valid) {
-      throw new HttpForbiddenException();
-    }
-
-    try {
-      await this.usersService.editUserByEmail(req.user.email, {
-        firstName: dto.firstName,
-        lastName: dto.lastName,
-      });
-    } catch (err) {
-      this.logger.error(err);
-      throw new HttpServerErrorException();
-    }
-  }
-
-  @Roles(Role.ReadOnly)
-  @Put('profile/password')
-  public async changePassword(
-    @Request() req,
-    @Body(new ValidationPipe()) dto: ChangePasswordDto,
-  ): Promise<void> {
-    const valid: boolean | null = await this.usersService.validateIdentity(
-      req.user.email,
-      dto.currentPassword,
-    );
-    if (valid === null) {
-      throw new HttpServerErrorException();
-    }
-
-    if (!valid) {
-      throw new HttpForbiddenException();
-    }
-
-    try {
-      await this.usersService.changePasswordByEmail(
-        req.user.email,
-        dto.newPassword,
-      );
-    } catch (err) {
-      this.logger.error(err);
-      throw new HttpServerErrorException();
-    }
-  }
-
-  @Roles(Role.Admin)
   @Get(':id')
-  public async getUser(@Param('id') id: string): Promise<User> {
-    return await this.usersService.findOneById(id);
-  }
-
-  @Roles(Role.Admin)
-  @Delete(':id')
-  public async deleteUser(@Param('id') id: string): Promise<void> {
+  public async getUser(@Request() req, @Param('id') id: string): Promise<User> {
+    if (req.user.role !== Role.Admin && req.user.id !== id) {
+      throw new HttpForbiddenException();
+    }
     try {
-      return await this.usersService.deleteUserById(id);
+      return await this.usersService.findOneById(id);
     } catch (err) {
       this.logger.error(err);
       throw new HttpServerErrorException();
     }
   }
 
-  @Roles(Role.Admin)
+  @Roles(Role.ReadOnly)
   @Put(':id')
   public async editUser(
     @Request() req,
     @Param('id') id: string,
     @Body(new ValidationPipe()) dto: EditUserDto,
   ): Promise<void> {
+    if (req.user.role !== Role.Admin && req.user.id !== id) {
+      throw new HttpForbiddenException();
+    }
+
     const valid: boolean | null = await this.usersService.validateIdentity(
       req.user.email,
       dto.currentPassword,
@@ -190,13 +117,18 @@ export class UsersController {
       throw new HttpForbiddenException();
     }
 
+    const update: Partial<User> = {};
+
+    if (req.user.role === Role.Admin) {
+      if (dto.active || dto.active === false) update.active = dto.active;
+      if (dto.email) update.email = dto.email;
+    }
+
+    update.firstName = dto.firstName;
+    update.lastName = dto.lastName;
+
     try {
-      await this.usersService.editUserById(id, {
-        email: dto.email,
-        firstName: dto.firstName,
-        lastName: dto.lastName,
-        active: dto.active,
-      });
+      await this.usersService.editUserById(id, update);
     } catch (err) {
       if (err.code === 11000) {
         // Duplicate key error
@@ -207,17 +139,22 @@ export class UsersController {
     }
   }
 
-  @Roles(Role.Admin)
+  @Roles(Role.ReadOnly)
   @Put(':id/password')
   public async editUserPassword(
     @Request() req,
     @Param('id') id: string,
     @Body(new ValidationPipe()) dto: ChangePasswordDto,
   ): Promise<void> {
+    if (req.user.role !== Role.Admin && req.user.id !== id) {
+      throw new HttpForbiddenException();
+    }
+
     const valid: boolean | null = await this.usersService.validateIdentity(
       req.user.email,
       dto.currentPassword,
     );
+
     if (valid === null) {
       throw new HttpServerErrorException();
     }
@@ -228,6 +165,17 @@ export class UsersController {
 
     try {
       await this.usersService.changePasswordById(id, dto.newPassword);
+    } catch (err) {
+      this.logger.error(err);
+      throw new HttpServerErrorException();
+    }
+  }
+
+  @Roles(Role.Admin)
+  @Delete(':id')
+  public async deleteUser(@Param('id') id: string): Promise<void> {
+    try {
+      return await this.usersService.deleteUserById(id);
     } catch (err) {
       this.logger.error(err);
       throw new HttpServerErrorException();

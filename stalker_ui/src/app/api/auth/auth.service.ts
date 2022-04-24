@@ -12,6 +12,7 @@ export class AuthService {
   private _token = '';
   private _role = '';
   private _email = '';
+  private _id = '';
   private refreshToken = '';
   private decodedToken: any = {};
   private decodedRefreshToken: any = {};
@@ -26,6 +27,10 @@ export class AuthService {
 
   public get email(): string {
     return this._email;
+  }
+
+  public get id(): string {
+    return this._id;
   }
 
   constructor(private http: HttpClient, private router: Router) {
@@ -47,6 +52,7 @@ export class AuthService {
       this._token = token;
       this._role = this.decodedToken.role;
       this._email = this.decodedToken.email;
+      this._id = this.decodedToken.id;
     } else {
       this.router.navigate(['/auth/login']);
     }
@@ -93,6 +99,7 @@ export class AuthService {
       this._token = '';
       this._email = '';
       this._role = '';
+      this._id = '';
       this.refreshToken = '';
       this.decodedRefreshToken = {};
       this.decodedToken = {};

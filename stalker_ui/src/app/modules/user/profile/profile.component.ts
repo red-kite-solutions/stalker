@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormControl, ValidationErrors, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { map } from 'rxjs';
+import { AuthService } from 'src/app/api/auth/auth.service';
 import { UsersService } from 'src/app/api/users/users.service';
 import { HttpStatus } from 'src/app/shared/types/http-status.type';
 
@@ -59,8 +60,8 @@ export class ProfileComponent {
     passwordConfirm: ['', [this.validatePasswordEquals]],
   });
 
-  form$ = this.usersService.getProfile().pipe(
-    map((user) => {
+  form$ = this.usersService.getUser(this.authService.id).pipe(
+    map((user: any) => {
       this.form.controls['email'].setValue(user.email);
       this.form.controls['firstName'].setValue(user.firstName);
       this.form.controls['lastName'].setValue(user.lastName);
@@ -85,7 +86,12 @@ export class ProfileComponent {
     })
   );
 
-  constructor(private fb: FormBuilder, private usersService: UsersService, private toastr: ToastrService) {}
+  constructor(
+    private fb: FormBuilder,
+    private usersService: UsersService,
+    private toastr: ToastrService,
+    private authService: AuthService
+  ) {}
 
   async onSubmit() {
     this.profileEditValid = this.form.valid && this.currentPasswordForm.valid;
@@ -99,7 +105,8 @@ export class ProfileComponent {
     this.currentPasswordForm.controls['password'].setErrors(null);
 
     try {
-      await this.usersService.editProfile(
+      await this.usersService.editUser(
+        this.authService.id,
         {
           firstName: this.form.controls['firstName'].value,
           lastName: this.form.controls['lastName'].value,
@@ -123,7 +130,8 @@ export class ProfileComponent {
       return;
     }
     try {
-      await this.usersService.changePassword(
+      await this.usersService.changeUserPassword(
+        this.authService.id,
         this.form.controls['newPassword'].value,
         this.currentPasswordForm.controls['password'].value
       );

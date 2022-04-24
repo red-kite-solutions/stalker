@@ -3,6 +3,7 @@ import {
   IsEmail,
   IsIn,
   IsNotEmpty,
+  IsOptional,
   IsString,
   Length,
 } from 'class-validator';
@@ -39,20 +40,6 @@ export class CreateUserDto {
   public currentPassword: string;
 }
 
-export class EditProfileDto {
-  @IsNotEmpty()
-  @IsString()
-  public firstName: string;
-
-  @IsNotEmpty()
-  @IsString()
-  public lastName: string;
-
-  @IsNotEmpty()
-  @IsString()
-  public currentPassword: string;
-}
-
 export class ChangePasswordDto {
   @IsNotEmpty()
   @IsString()
@@ -64,7 +51,7 @@ export class ChangePasswordDto {
 }
 
 export class EditUserDto {
-  @IsNotEmpty()
+  @IsOptional()
   @IsEmail()
   public email: string;
 
@@ -76,7 +63,7 @@ export class EditUserDto {
   @IsString()
   public lastName: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsBoolean()
   public active: boolean;
 
