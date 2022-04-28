@@ -3,7 +3,7 @@ import { FormBuilder, FormControl, ValidationErrors, Validators } from '@angular
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { map, switchMap } from 'rxjs';
+import { map, startWith, switchMap } from 'rxjs';
 import { UsersService } from 'src/app/api/users/users.service';
 import { HttpStatus } from 'src/app/shared/types/http-status.type';
 import { User } from 'src/app/shared/types/user.interface';
@@ -84,9 +84,18 @@ export class EditUserComponent {
     map(() => {
       if (this.invalidPassword) {
         this.invalidPassword = false;
-        return 'Invalid password';
+        return $localize`:Invalid password|The password provided by the user was invalid:Invalid password`;
       }
-      return 'Your password must be provided to edit a user';
+      return $localize`:Password needed|The user's password must be provided to create a new user:Your password must be provided to create a user`;
+    })
+  );
+
+  public userEnabled$ = this.form.controls['active'].valueChanges.pipe(
+    startWith(true),
+    map((enabled) => {
+      return enabled
+        ? $localize`:User enabled|The user is enabled and therefore can login:User is enabled`
+        : $localize`:User disabled|The user is disabled and therefore cannot login:User is disabled`;
     })
   );
 
@@ -96,9 +105,9 @@ export class EditUserComponent {
     map(() => {
       if (this.conflictEmail) {
         this.conflictEmail = false;
-        return 'User with this email already exists';
+        return $localize`:Email unavailable|Conflict happenned when creating a user because another user already uses the provided email:User with this email already exists`;
       }
-      return 'Please provide a valid email address';
+      return $localize`:Invalid email|Asking for the user to provide a valid email address:Please provide a valid email address`;
     })
   );
 
@@ -141,17 +150,21 @@ export class EditUserComponent {
 
     try {
       await this.usersService.editUser(this.userId, changes, this.currentPasswordForm.get('password')?.value);
-      this.toastr.success('User changed successfully');
+      this.toastr.success(
+        $localize`:User changed|Success message for when an admin successfully edits a user:User changed successfully`
+      );
     } catch (err: any) {
       if (err.status === HttpStatus.Forbidden) {
         this.invalidPassword = true;
         this.currentPasswordForm.controls['password'].setErrors({ incorrect: true });
-        this.toastr.error('Invalid password');
+        this.toastr.error($localize`:Invalid password|The provided password was invalid:Invalid password`);
       }
       if (err.status === HttpStatus.Conflict) {
         this.conflictEmail = true;
         this.form.controls['email'].setErrors({ incorrect: true });
-        this.toastr.warning('User with this email already exists');
+        this.toastr.warning(
+          $localize`:Email unavailable|Conflict happenned when creating a user because another user already uses the provided email:User with this email already exists`
+        );
       }
     }
 
@@ -169,12 +182,14 @@ export class EditUserComponent {
         this.form.controls['newPassword'].value,
         this.currentPasswordForm.get('password')?.value
       );
-      this.toastr.success('Password changed successfully');
+      this.toastr.success(
+        $localize`:Password changed|Confirm the successful password change:Password changed successfully`
+      );
     } catch (err: any) {
       if (err.status === HttpStatus.Forbidden) {
         this.invalidPassword = true;
         this.currentPasswordForm.controls['password'].setErrors({ incorrect: true });
-        this.toastr.error('Invalid password');
+        this.toastr.error($localize`:Invalid password|The provided password was invalid:Invalid password`);
       }
     }
   }
@@ -182,7 +197,7 @@ export class EditUserComponent {
   showUserRolesHelp() {
     const bulletPoints: string[] = Array<string>();
     this.roles.forEach((role: Role) => {
-      bulletPoints.push(`${role.name} : ${role.description}`);
+      bulletPoints.push(`${role.displayName} : ${role.description}`);
     });
 
     const data: ConfirmDialogData = {
@@ -201,16 +216,18 @@ export class EditUserComponent {
 
   deleteUser() {
     const data: ConfirmDialogData = {
-      text: 'Do you really wish to delete this user permanently ?',
-      title: 'Deleting user',
-      primaryButtonText: 'Cancel',
-      dangerButtonText: 'Delete permanently',
+      text: $localize`:Confirm user deletion|Confirmation message asking if the user really wants to delete this other user:Do you really wish to delete this user permanently ?`,
+      title: $localize`:Deleting user|Title of a page to delete a user:Deleting user`,
+      primaryButtonText: $localize`:Cancel|Cancel current action:Cancel`,
+      dangerButtonText: $localize`:Delete permanently|Confirm that the user wants to delete the item permanently:Delete permanently`,
       onPrimaryButtonClick: () => {
         this.dialog.closeAll();
       },
       onDangerButtonClick: async () => {
         await this.usersService.deleteUser(this.userId);
-        this.toastr.success('User deleted successfully');
+        this.toastr.success(
+          $localize`:User deleted|Confirm the successful deletion of a user:User deleted successfully`
+        );
         this.router.navigate(['/admin/users']);
         this.dialog.closeAll();
       },

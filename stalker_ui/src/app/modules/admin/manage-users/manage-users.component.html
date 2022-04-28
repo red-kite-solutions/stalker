@@ -1,6 +1,6 @@
 <div fxLayout="row" fxLayoutAlign="center">
   <mat-card fxFlex.gt-sm="90" class="container" fxFlex.lt-md="100">
-    <h1>Users</h1>
+    <h1 i18n="Users|Users list page title">Users</h1>
     <button
       mat-raised-button
       color="primary"
@@ -9,7 +9,7 @@
       routerLink="/admin/users/create"
     >
       <mat-icon class="material-icons-outlined"> person_add_alt </mat-icon>
-      New User
+      <label i18n="New user|Button to create a new user">New User</label>
     </button>
     <button
       mat-raised-button
@@ -19,7 +19,7 @@
       [fxHide]="hideDelete$ | async"
     >
       <mat-icon class="material-icons-outlined"> delete_outline </mat-icon>
-      Delete
+      <label i18n="Delete|Delete an item">Delete</label>
     </button>
 
     <div class="table-container">
@@ -48,42 +48,54 @@
 
         <!-- ID Column -->
         <ng-container matColumnDef="id">
-          <th mat-header-cell *matHeaderCellDef>ID</th>
+          <th mat-header-cell *matHeaderCellDef i18n="ID|Short for identifier">ID</th>
           <td mat-cell *matCellDef="let element">{{ element._id }}</td>
         </ng-container>
 
         <!-- Fist Name Column -->
         <ng-container matColumnDef="firstName">
-          <th mat-header-cell *matHeaderCellDef>First Name</th>
+          <th mat-header-cell *matHeaderCellDef i18n="First name|A person's first name">First Name</th>
           <td mat-cell *matCellDef="let element">{{ element.firstName }}</td>
         </ng-container>
 
         <!-- Last Name Column -->
         <ng-container matColumnDef="lastName">
-          <th mat-header-cell *matHeaderCellDef>Last Name</th>
+          <th mat-header-cell *matHeaderCellDef i18n="Last name|A person's family name">Last Name</th>
           <td mat-cell *matCellDef="let element">{{ element.lastName }}</td>
         </ng-container>
 
         <!-- Email Column -->
         <ng-container matColumnDef="email">
-          <th mat-header-cell *matHeaderCellDef>Email</th>
+          <th mat-header-cell *matHeaderCellDef i18n="Email|A user's email">Email</th>
           <td mat-cell *matCellDef="let element">{{ element.email }}</td>
         </ng-container>
 
         <!-- Role Column -->
         <ng-container matColumnDef="role">
-          <th mat-header-cell *matHeaderCellDef>Role</th>
-          <td mat-cell *matCellDef="let element">{{ element.role }}</td>
+          <th mat-header-cell *matHeaderCellDef i18n="User role|The role of a user in the application">Role</th>
+          <td mat-cell *matCellDef="let element">
+            {{ roles[element.role] }}
+          </td>
         </ng-container>
 
         <!-- Active Status Column -->
         <ng-container matColumnDef="active">
           <th mat-header-cell *matHeaderCellDef class="center-column-content">Active</th>
           <td mat-cell *matCellDef="let element" class="center-column-content">
-            <mat-icon *ngIf="element.active" class="material-icons-outlined" matTooltip="User is active">
+            <mat-icon
+              *ngIf="element.active"
+              class="material-icons-outlined"
+              i18n-matTooltip="User enabled|The user is enabled and therefore can login"
+              matTooltip="User is enabled"
+            >
               how_to_reg
             </mat-icon>
-            <mat-icon *ngIf="!element.active" class="material-icons-outlined" matTooltip="User is blocked">
+            <mat-icon
+              *ngIf="!element.active"
+              class="material-icons-outlined"
+              i18n-matTooltip="User disabled|The user is disabled and therefore cannot login"
+              matTooltip="User is disabled"
+            >
               block
             </mat-icon>
           </td>

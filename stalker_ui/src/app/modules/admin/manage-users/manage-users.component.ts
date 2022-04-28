@@ -12,6 +12,7 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
+import { rolesName, RolesName } from '../roles';
 
 @Component({
   selector: 'app-manage-users',
@@ -24,6 +25,18 @@ export class ManageUsersComponent implements OnDestroy {
   private dataSource$ = this.usersService.getAllUsers().subscribe((next) => {
     this.dataSource.data = next;
     this.dataSource.paginator = this.paginator;
+    if (this.paginator) {
+      this.paginator._intl.itemsPerPageLabel = $localize`:Items per page|Paginator items per page label:Items per page`;
+      this.paginator._intl.nextPageLabel = $localize`:Next page|Paginator next page label:Next page`;
+      this.paginator._intl.lastPageLabel = $localize`:Last page|Paginator last page label:Last page`;
+      this.paginator._intl.previousPageLabel = $localize`:Previous page|Paginator previous page label:Previous page`;
+      this.paginator._intl.firstPageLabel = $localize`:First page|Paginator first page label:First page`;
+      this.paginator._intl.getRangeLabel = (page: number, pageSize: number, length: number) => {
+        const low = page * pageSize + 1;
+        const high = page * pageSize + pageSize <= length ? page * pageSize + pageSize : length;
+        return $localize`:Paginator range|Item numbers and range of the paginator:${low} – ${high} of ${length}`;
+      };
+    }
   });
 
   private screenSize$ = this.mediaObserver.asObservable().pipe(
@@ -35,6 +48,8 @@ export class ManageUsersComponent implements OnDestroy {
       return mediaChanges[0].mqAlias;
     })
   );
+
+  public roles: RolesName = rolesName;
 
   ngOnDestroy() {
     this.dataSource$.unsubscribe();
@@ -95,10 +110,10 @@ export class ManageUsersComponent implements OnDestroy {
     let data: ConfirmDialogData;
     if (bulletPoints.length > 0) {
       data = {
-        text: 'Do you really wish to delete these users permanently ?',
-        title: 'Deleting users',
-        primaryButtonText: 'Cancel',
-        dangerButtonText: 'Delete permanently',
+        text: $localize`:Confirm delete users|Confirmation message asking if the user really wants to delete the selected users:Do you really wish to delete these users permanently ?`,
+        title: $localize`:Deleting users|Title of a page to delete selected users:Deleting users`,
+        primaryButtonText: $localize`:Cancel|Cancel current action:Cancel`,
+        dangerButtonText: $localize`:Delete permanently|Confirm that the user wants to delete the item permanently:Delete permanently`,
         listElements: bulletPoints,
         onPrimaryButtonClick: () => {
           this.dialog.closeAll();
@@ -110,16 +125,18 @@ export class ManageUsersComponent implements OnDestroy {
             const removeIndex = this.dataSource.data.findIndex((u: User) => u._id === user._id);
             this.dataSource.data.splice(removeIndex, 1);
             this.dataSource.paginator = this.paginator;
-            this.toastr.success('User deleted successfully');
+            this.toastr.success(
+              $localize`:User deleted|Confirm the successful deletion of a user:User deleted successfully`
+            );
           });
           this.dialog.closeAll();
         },
       };
     } else {
       data = {
-        text: 'Select the users to delete and try again.',
-        title: 'Nothing to delete',
-        primaryButtonText: 'Ok',
+        text: $localize`:Select users again|No users were selected so there is nothing to delete:Select the users to delete and try again.`,
+        title: $localize`:Nothing to delete|Tried to delete something, but there was nothing to delete:Nothing to delete`,
+        primaryButtonText: $localize`:Ok|Accept or confirm:Ok`,
         onPrimaryButtonClick: () => {
           this.dialog.closeAll();
         },

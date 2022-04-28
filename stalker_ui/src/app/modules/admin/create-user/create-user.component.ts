@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
-import { map } from 'rxjs';
+import { map, startWith } from 'rxjs';
 import { UsersService } from 'src/app/api/users/users.service';
 import { HttpStatus } from 'src/app/shared/types/http-status.type';
 import {
@@ -57,9 +57,9 @@ export class CreateUserComponent {
     map(() => {
       if (this.invalidPassword) {
         this.invalidPassword = false;
-        return 'Invalid password';
+        return $localize`:Invalid password|The password provided by the user was invalid:Invalid password`;
       }
-      return 'Your password must be provided to create a user';
+      return $localize`:Password needed|The user's password must be provided to create a new user:Your password must be provided to create a user`;
     })
   );
 
@@ -69,9 +69,18 @@ export class CreateUserComponent {
     map(() => {
       if (this.conflictEmail) {
         this.conflictEmail = false;
-        return 'User with this email already exists';
+        return $localize`:Email unavailable|Conflict happenned when creating a user because another user already uses the provided email:User with this email already exists`;
       }
-      return 'Please provide a valid email address';
+      return $localize`:Invalid email|Asking for the user to provide a valid email address:Please provide a valid email address`;
+    })
+  );
+
+  public userEnabled$ = this.form.controls['active'].valueChanges.pipe(
+    startWith(true),
+    map((enabled) => {
+      return enabled
+        ? $localize`:User enabled|The user is enabled and therefore can login:User is enabled`
+        : $localize`:User disabled|The user is disabled and therefore cannot login:User is disabled`;
     })
   );
 
@@ -114,17 +123,21 @@ export class CreateUserComponent {
       this.currentPasswordForm.reset();
       this.currentPasswordForm.controls['password'].setErrors(null);
       this.form.controls['active'].setValue(true);
-      this.toastr.success('User created successfully');
+      this.toastr.success(
+        $localize`:User created|Success message for when an admin successfully creates a new user:User created successfully`
+      );
     } catch (err: any) {
       if (err.status === HttpStatus.Forbidden) {
         this.invalidPassword = true;
         this.currentPasswordForm.controls['password'].setErrors({ incorrect: true });
-        this.toastr.error('Invalid password');
+        this.toastr.error($localize`:Invalid password|The provided password was invalid:Invalid password`);
       }
       if (err.status === HttpStatus.Conflict) {
         this.conflictEmail = true;
         this.form.controls['email'].setErrors({ incorrect: true });
-        this.toastr.warning('User with this email already exists');
+        this.toastr.warning(
+          $localize`:Email unavailable|Conflict happenned when creating a user because another user already uses the provided email:User with this email already exists`
+        );
       }
     }
   }
@@ -132,7 +145,7 @@ export class CreateUserComponent {
   showUserRolesHelp() {
     const bulletPoints: string[] = Array<string>();
     roles.forEach((role: Role) => {
-      bulletPoints.push(`${role.name} : ${role.description}`);
+      bulletPoints.push(`${role.displayName} : ${role.description}`);
     });
 
     const data: ConfirmDialogData = {

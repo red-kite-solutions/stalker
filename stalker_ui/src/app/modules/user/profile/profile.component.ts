@@ -23,11 +23,11 @@ export class ProfileComponent {
     } else {
       if (control.root.get('passwordConfirm') === control) {
         return {
-          error: 'The password confirmation is not equal to the password',
+          error: $localize`:Password confirm not equal|The password confirmation is not equal to the new password so the form is invalid:The password confirmation is not equal to the password`,
         };
       } else {
         control.root.get('passwordConfirm')?.setErrors({
-          error: 'The password confirmation is not equal to the password',
+          error: $localize`:Password confirm not equal|The password confirmation is not equal to the new password so the form is invalid:The password confirmation is not equal to the password`,
         });
         return null;
       }
@@ -80,9 +80,9 @@ export class ProfileComponent {
     map(() => {
       if (this.invalidPassword) {
         this.invalidPassword = false;
-        return 'Invalid password';
+        return $localize`:Invalid password|The provided password was invalid:Invalid password`;
       }
-      return 'Your password must be provided to edit your profile';
+      return $localize`:Password required|Password is required by the user to confirm their identity to edit their profile:Your password must be provided to edit your profile`;
     })
   );
 
@@ -113,12 +113,14 @@ export class ProfileComponent {
         },
         this.currentPasswordForm.controls['password'].value
       );
-      this.toastr.success('Profile changed successfully');
+      this.toastr.success(
+        $localize`:Profile changed|User successfully edited their profile:Profile changed successfully`
+      );
     } catch (err: any) {
       if (err.status === HttpStatus.Forbidden) {
         this.invalidPassword = true;
         this.currentPasswordForm.controls['password'].setErrors({ incorrect: true });
-        this.toastr.error('Invalid password');
+        this.toastr.error($localize`:Invalid password|The provided password was invalid:Invalid password`);
       }
     }
 
@@ -135,12 +137,14 @@ export class ProfileComponent {
         this.form.controls['newPassword'].value,
         this.currentPasswordForm.controls['password'].value
       );
-      this.toastr.success('Password changed successfully');
+      this.toastr.success(
+        $localize`:Password changed|Confirm the successful password change:Password changed successfully`
+      );
     } catch (err: any) {
       if (err.status === HttpStatus.Forbidden) {
         this.invalidPassword = true;
         this.currentPasswordForm.controls['password'].setErrors({ incorrect: true });
-        this.toastr.error('Invalid password');
+        this.toastr.error($localize`:Invalid password|The provided password was invalid:Invalid password`);
       }
     }
   }

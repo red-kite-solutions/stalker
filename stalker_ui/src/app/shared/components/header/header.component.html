@@ -4,12 +4,14 @@
       <button mat-icon-button (click)="toggleSideBar()" *ngIf="showRouting">
         <mat-icon>menu</mat-icon>
       </button>
-      <span fxHide.lt-sm="true">Stalker | Recon Automation</span>
+      <span fxHide.lt-sm="true" i18n="Main title|Main application title, the name of the product"
+        >Stalker | Recon Automation</span
+      >
     </div>
 
     <form fxFlex fxLayoutAlign="flex-end center" *ngIf="showRouting">
       <mat-form-field fxFlex class="stalker-header-search-field" floatLabel="never">
-        <input matInput (focus)="focus()" placeholder="Search" />
+        <input matInput (focus)="focus()" i18n-placeholder="Search|Search bar placeholder" placeholder="Search" />
 
         <button mat-icon-button matSuffix type="button" (click)="search()">
           <mat-icon class="material-icons-outlined">search</mat-icon>
@@ -29,10 +31,10 @@
 <mat-menu #menu="matMenu">
   <button mat-menu-item routerLink="/profile">
     <mat-icon class="material-icons-outlined">badge</mat-icon>
-    Profile
+    <label i18n="Profile|The user's profile">Profile</label>
   </button>
   <button mat-menu-item type="button" (click)="logout()">
     <mat-icon>exit_to_app</mat-icon>
-    Sign out
+    <label i18n="Sign out|Link for a user to log out">Sign out</label>
   </button>
 </mat-menu>

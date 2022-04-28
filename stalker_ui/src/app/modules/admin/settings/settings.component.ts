@@ -79,7 +79,9 @@ export class SettingsComponent {
       keybaseConfigPaperkey: this.keybaseReportingForm.controls['paperkey'].value,
       keybaseConfigChannelId: this.keybaseReportingForm.controls['conversationId'].value,
     });
-    this.toastr.success('Settings saved successfully');
+    this.toastr.success(
+      $localize`:Settings saved|Confirmation message saying that the settings were properly saved:Settings saved successfully`
+    );
   }
 
   toggleReporting() {

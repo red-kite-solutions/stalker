@@ -1,5 +1,5 @@
 <mat-nav-list [fxHide.lt-sm]="!expanded">
-  <h2 *ngIf="expanded" matSubheader>Pages</h2>
+  <h2 *ngIf="expanded" matSubheader i18n="Pages|The different pages of the application">Pages</h2>
 
   <a
     mat-list-item
@@ -10,13 +10,13 @@
     matTooltipPosition="right"
   >
     <mat-icon class="material-icons-outlined">dashboard</mat-icon>
-    <span *ngIf="expanded">Dashboard</span>
+    <span *ngIf="expanded" i18n="Dashboard|The application's dashboard">Dashboard</span>
   </a>
 
   <div *ngIf="this.authService.role === 'admin'">
     <mat-divider></mat-divider>
 
-    <h2 matSubheader *ngIf="expanded">Administration</h2>
+    <h2 matSubheader *ngIf="expanded" i18n="Administration|Administration subsection of the menu">Administration</h2>
     <a
       mat-list-item
       routerLinkActive="list-item-active"
@@ -26,7 +26,7 @@
       matTooltipPosition="right"
     >
       <mat-icon class="material-icons-outlined">manage_accounts</mat-icon>
-      <span *ngIf="expanded">Users</span>
+      <span *ngIf="expanded" i18n="Users|Users list page title">Users</span>
     </a>
 
     <a
@@ -38,7 +38,7 @@
       matTooltipPosition="right"
     >
       <mat-icon class="material-icons-outlined">settings</mat-icon>
-      <span *ngIf="expanded">Application Settings</span>
+      <span *ngIf="expanded" i18n="Settings|Settings page title to edit the application configuration">Settings</span>
     </a>
   </div>
 </mat-nav-list>

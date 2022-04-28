@@ -13,8 +13,10 @@ export class ErrorInterceptor implements HttpInterceptor {
     return next.handle(req).pipe(
       catchError((err) => {
         if (err.status === HttpStatus.Unauthorized) this.router.navigate(['/auth/login']);
-        if (err.status === HttpStatus.InternalServerError) this.toastr.error('Server error occured');
-        if (err.status === HttpStatus.TimeOut) this.toastr.error('Request timed out');
+        if (err.status === HttpStatus.InternalServerError)
+          this.toastr.error($localize`:Server error|The server responded with an error:Server error occured`);
+        if (err.status === HttpStatus.TimeOut)
+          this.toastr.error($localize`:Request timed out|The request to the server timed out:Request timed out`);
         return throwError(() => err);
       })
     );
