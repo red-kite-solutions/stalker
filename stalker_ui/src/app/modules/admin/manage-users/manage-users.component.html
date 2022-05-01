@@ -80,7 +80,14 @@
 
         <!-- Active Status Column -->
         <ng-container matColumnDef="active">
-          <th mat-header-cell *matHeaderCellDef class="center-column-content">Active</th>
+          <th
+            mat-header-cell
+            *matHeaderCellDef
+            class="center-column-content"
+            i18n="Active|User status title, if he can connect or not"
+          >
+            Active
+          </th>
           <td mat-cell *matCellDef="let element" class="center-column-content">
             <mat-icon
               *ngIf="element.active"

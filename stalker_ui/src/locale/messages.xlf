@@ -385,7 +385,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/admin/manage-users/manage-users.component.html</context>
-          <context context-type="linenumber">89,93</context>
+          <context context-type="linenumber">96,100</context>
         </context-group>
         <note priority="1" from="description">The user is enabled and therefore can login</note>
         <note priority="1" from="meaning">User enabled</note>
@@ -402,7 +402,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/admin/manage-users/manage-users.component.html</context>
-          <context context-type="linenumber">97,101</context>
+          <context context-type="linenumber">104,108</context>
         </context-group>
         <note priority="1" from="description">The user is disabled and therefore cannot login</note>
         <note priority="1" from="meaning">User disabled</note>
@@ -587,6 +587,15 @@
         </context-group>
         <note priority="1" from="description">Short for identifier</note>
         <note priority="1" from="meaning">ID</note>
+      </trans-unit>
+      <trans-unit id="3887088894124895818" datatype="html">
+        <source> Active </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/admin/manage-users/manage-users.component.html</context>
+          <context context-type="linenumber">89,91</context>
+        </context-group>
+        <note priority="1" from="description">User status title, if he can connect or not</note>
+        <note priority="1" from="meaning">Active</note>
       </trans-unit>
       <trans-unit id="8372019341263379156" datatype="html">
         <source>Items per page</source>

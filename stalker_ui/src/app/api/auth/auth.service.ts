@@ -9,28 +9,28 @@ import { fmUrl, refreshTokenName, tokenName } from '../constants';
   providedIn: 'root',
 })
 export class AuthService {
-  private _token = '';
-  private _role = '';
-  private _email = '';
-  private _id = '';
-  private refreshToken = '';
-  private decodedToken: any = {};
-  private decodedRefreshToken: any = {};
+  private _token: string | undefined;
+  private _role: string | undefined;
+  private _email: string | undefined;
+  private _id: string | undefined;
+  private refreshToken: string | undefined;
+  private decodedToken: any;
+  private decodedRefreshToken: any;
 
   public get token(): string {
-    return this._token;
+    return this._token ? this._token : '';
   }
 
   public get role(): string {
-    return this._role;
+    return this._role ? this._role : '';
   }
 
   public get email(): string {
-    return this._email;
+    return this._email ? this._email : '';
   }
 
   public get id(): string {
-    return this._id;
+    return this._id ? this._id : '';
   }
 
   constructor(private http: HttpClient, private router: Router) {

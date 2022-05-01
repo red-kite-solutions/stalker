@@ -612,6 +612,23 @@
                 </translations>
             </concept_node>
             <concept_node>
+                <name>3887088894124895818</name>
+                <definition_loaded>false</definition_loaded>
+                <description>User status title, if he can connect or not</description>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
                 <name>4077226142623385371</name>
                 <definition_loaded>false</definition_loaded>
                 <description>The user's password must be provided to create a new user</description>
