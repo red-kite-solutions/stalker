@@ -1,7 +1,23 @@
-import { IsNotEmpty, IsBoolean } from 'class-validator';
+import { IsBoolean, IsOptional, IsString } from 'class-validator';
 
 export class SubmitConfigDto {
-  @IsNotEmpty()
+  @IsOptional()
   @IsBoolean()
-  public IsNewContentReported: boolean;
+  public isNewContentReported: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  public keybaseConfigEnabled: boolean;
+
+  @IsOptional()
+  @IsString()
+  keybaseConfigUsername: string;
+
+  @IsOptional()
+  @IsString()
+  keybaseConfigPaperkey: string;
+
+  @IsOptional()
+  @IsString()
+  keybaseConfigChannelId: string;
 }

@@ -1,16 +1,11 @@
-import {
-  MiddlewareConsumer,
-  Module,
-  NestModule,
-  RequestMethod,
-} from '@nestjs/common';
+import { Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
+import { KeybaseModule } from './alerts/keybase/keybase.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { DatabaseModule } from './database/database.module';
-import { KeybaseModule } from './alerts/keybase/keybase.module';
-import { ScheduleModule } from '@nestjs/schedule';
+import { AuthModule } from './auth/auth.module';
 import { AutomationModule } from './automation/automation.module';
-import { AuthMiddleware } from './database/admin/auth/api_key/auth.middleware';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
   imports: [
@@ -18,15 +13,9 @@ import { AuthMiddleware } from './database/admin/auth/api_key/auth.middleware';
     KeybaseModule,
     AutomationModule,
     ScheduleModule.forRoot(),
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(AuthMiddleware)
-      .exclude({ path: '/', method: RequestMethod.GET })
-      .forRoutes({ path: '*', method: RequestMethod.ALL });
-  }
-}
+export class AppModule {}

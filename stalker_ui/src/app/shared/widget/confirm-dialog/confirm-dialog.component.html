@@ -1,0 +1,15 @@
+<h1 mat-dialog-title *ngIf="data.title">{{ data.title }}</h1>
+<div mat-dialog-content *ngIf="data.text || data.listElements?.length">
+  {{ data.text }}
+  <ul *ngIf="data.listElements?.length">
+    <li *ngFor="let line of data.listElements">{{ line }}</li>
+  </ul>
+</div>
+<div mat-dialog-actions>
+  <button *ngIf="data.primaryButtonText != ''" mat-raised-button color="primary" (click)="primaryClick()">
+    {{ data.primaryButtonText }}
+  </button>
+  <button *ngIf="data.dangerButtonText != ''" mat-raised-button color="warn" (click)="dangerClick()">
+    {{ data.dangerButtonText }}
+  </button>
+</div>

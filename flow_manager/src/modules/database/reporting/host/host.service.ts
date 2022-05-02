@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { ConfigService } from '../../admin/config/config.service';
@@ -8,11 +8,13 @@ import { DomainsService } from '../domain/domain.service';
 import { DomainSummary } from '../domain/domain.summary';
 import { ReportService } from '../report/report.service';
 import { SubmitHostDto } from './host.dto';
-import { Host, HostDocument } from './host.model';
+import { Host } from './host.model';
 import { HostSummary } from './host.summary';
 
 @Injectable()
 export class HostService {
+  private logger = new Logger(HostService.name);
+
   constructor(
     @InjectModel('host') private readonly hostModel: Model<Host>,
     private jobService: JobsService,
@@ -26,7 +28,7 @@ export class HostService {
     const job = await this.jobService.getById(jobId);
 
     if (!job) {
-      console.log('Could not find the job ' + jobId);
+      this.logger.debug(`Could not find the job ${jobId}`);
       throw new HttpException('The job id is invalid.', 400);
     }
 
@@ -41,7 +43,7 @@ export class HostService {
     const company = await this.companyService.get(companyId);
 
     if (!company) {
-      console.log('Could not find the company ' + companyId);
+      this.logger.debug(`Could not find the company ${companyId}`);
       throw new HttpException(
         'The company associated with the given job does not exist.',
         400,
@@ -51,7 +53,7 @@ export class HostService {
     const domain = await this.domainService.getDomainByName(domainName);
 
     if (!domain) {
-      console.log('Could not find the domain ' + domainName);
+      this.logger.debug(`Could not find the domain ${domainName}`);
       throw new HttpException(
         'The domain associated with the given job does not exist.',
         400,
@@ -97,10 +99,11 @@ export class HostService {
         hostSummaries.push({ id: hostResult._id, ip: ip });
       }
     }
+    const config = await this.configService.getConfig();
 
     await this.domainService.addHostsToDomain(domain._id, hostSummaries);
 
-    if (this.configService.config.IsNewContentReported) {
+    if (config.isNewContentReported) {
       this.reportService.addHosts(company.name, newIps, domainName);
     }
 

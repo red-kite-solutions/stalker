@@ -6,6 +6,9 @@ async function bootstrap() {
   const adapter = new ExpressAdapter();
   const app = await NestFactory.create(AppModule, adapter, {
     bodyParser: true,
+    cors: {
+      origin: 'http://localhost:4200',
+    },
     logger: ['debug', 'warn', 'error'],
   });
   await app.listen(3000);

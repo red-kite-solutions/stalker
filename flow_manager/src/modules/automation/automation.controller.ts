@@ -1,8 +1,17 @@
-import { Controller, Patch, PreconditionFailedException } from '@nestjs/common';
-// import { UpdateIPAddressesDto } from './automation.dto';
-// import { Job } from './jobs.model';
+import {
+  Controller,
+  Patch,
+  PreconditionFailedException,
+  UseGuards,
+} from '@nestjs/common';
+import { Role } from '../auth/constants';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/role.guard';
 import { AutomationService } from './automation.service';
 
+@Roles(Role.User)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('automation')
 export class AutomationController {
   private ipRefreshRunning: boolean;

@@ -1,11 +1,11 @@
-from utils.parse_config import parse_config, config
-from utils.job_requester import JobRequester
-from utils.job_reporter import JobReporter
-from jobs.subdomain_bruteforce_job import SubdomainBruteforceJob
-from jobs.domain_name_resolving_job import DomainNameResolvingJob
 import os
 import time
 
+from jobs.domain_name_resolving_job import DomainNameResolvingJob
+from jobs.subdomain_bruteforce_job import SubdomainBruteforceJob
+from utils.job_reporter import JobReporter
+from utils.job_requester import JobRequester
+from utils.parse_config import config, parse_config
 
 parse_config('./jobs_handler.config')
 job_requester = JobRequester(config['job_queue_handler_address'], config['job_queue_handler_port'], os.environ["JQH_API_KEY"])

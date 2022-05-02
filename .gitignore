@@ -135,5 +135,8 @@ dmypy.json
 # secrets files
 *.secret
 
+.vscode
+
 # node stuff
 node_modules
+

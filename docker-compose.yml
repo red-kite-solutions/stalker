@@ -9,7 +9,7 @@ services:
       - "5000:5000"
     image: jobs_queue_handler
     environment:
-      - API_KEY_FILE=/secrets/jqh_api_key.secret
+      - JQH_API_KEY_FILE=/secrets/jqh_api_key.secret
       - FLASK_APP=jobs_queue_handler
 
   flow_manager:
@@ -22,11 +22,10 @@ services:
     environment: 
       - JQH_API_KEY_FILE=/secrets/jqh_api_key.secret
       - JQH_ADDRESS=http://jqh:5000
-      - API_KEY_FILE=/secrets/fm_api_key.secret
-      - KB_USERNAME_FILE=/secrets/kb_username.secret
-      - KB_CHANNELID_FILE=/secrets/kb_channelid.secret
-      - KB_PAPERKEY_FILE=/secrets/kb_paperkey.secret
+      - FM_API_KEY_FILE=/secrets/fm_api_key.secret
       - MONGO_ADDRESS=mongodb://mongo:27017/stalker
+      - FM_JWT_SECRET_FILE=/secrets/fm_jwt_secret.secret
+      - FM_REFRESH_SECRET_FILE=/secrets/fm_refresh_secret.secret
     links:
       - "jqh:jobsqueuehandler"
       - "mongo:db"

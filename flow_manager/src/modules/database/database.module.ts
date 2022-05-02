@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
-import { JobsModule } from './jobs/jobs.module';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ConfigModule } from './admin/config/config.module';
+import { JobsModule } from './jobs/jobs.module';
 import { CompanyModule } from './reporting/company.module';
 import { DomainsModule } from './reporting/domain/domain.module';
 import { HostModule } from './reporting/host/host.module';
 import { ReportModule } from './reporting/report/report.module';
-import { ConfigModule } from './admin/config/config.module';
 
 @Module({
   imports: [

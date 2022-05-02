@@ -21,6 +21,6 @@ file_env() {
    unset "$fileVar"
 }
 
-file_env "API_KEY"
+file_env "JQH_API_KEY"
 
 flask run --host=0.0.0.0

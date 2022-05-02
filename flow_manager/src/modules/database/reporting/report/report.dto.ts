@@ -4,10 +4,6 @@ export class ReportEntryDto {
   @IsNotEmpty()
   @IsString()
   public comment: string;
-
-  // @IsNotEmpty()
-  // @IsString()
-  // public channel: string
 }
 
 export class SendReportDto {

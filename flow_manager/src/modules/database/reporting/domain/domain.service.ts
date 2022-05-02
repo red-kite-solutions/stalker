@@ -56,7 +56,9 @@ export class DomainsService {
       newDomains.push(domain.name);
     });
 
-    if (this.configService.config.IsNewContentReported) {
+    const config = await this.configService.getConfig();
+
+    if (config?.isNewContentReported) {
       this.reportService.addDomains(company.name, newDomains);
     }
 
