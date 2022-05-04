@@ -26,7 +26,7 @@ export class AuthService {
     return result;
   }
 
-  public createRefreshToken(userId: string) {
+  public async createRefreshToken(userId: string) {
     const payload = { id: userId };
 
     const token = this.jwtService.sign(payload, {
@@ -34,7 +34,7 @@ export class AuthService {
       expiresIn: rtConstants.expirationTime,
     });
 
-    this.usersService.setRefreshToken(token, userId);
+    await this.usersService.setRefreshToken(token, userId);
     return token;
   }
 
@@ -51,6 +51,6 @@ export class AuthService {
   }
 
   public async removeRefreshToken(userId: string) {
-    this.usersService.removeRefreshToken(userId);
+    await this.usersService.removeRefreshToken(userId);
   }
 }

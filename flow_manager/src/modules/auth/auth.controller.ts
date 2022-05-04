@@ -23,7 +23,7 @@ export class AuthController {
       id: req.user._id,
       role: req.user.role,
     });
-    const refreshToken: string = this.authService.createRefreshToken(
+    const refreshToken: string = await this.authService.createRefreshToken(
       req.user._id,
     );
     return {

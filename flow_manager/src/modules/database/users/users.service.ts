@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as argon2 from 'argon2';
 import { Model } from 'mongoose';
 import { User } from './users.model';
+import { USER_INIT } from './users.provider';
 
 @Injectable()
 export class UsersService {
@@ -10,25 +11,15 @@ export class UsersService {
     timeCost: 5,
   };
 
-  constructor(@InjectModel('users') private readonly userModel: Model<User>) {
-    this.userModel.findOne({}).then((user: User) => {
-      if (!user) {
-        this.createUser({
-          email: 'admin@stalker.is',
-          firstName: 'stalker',
-          lastName: 'admin',
-          password: 'admin',
-          active: true,
-          role: 'admin',
-        });
-      }
-    });
-  }
+  constructor(
+    @InjectModel('users') private readonly userModel: Model<User>,
+    @Inject(USER_INIT) userProvider,
+  ) {}
 
   public async createUser(dto: Partial<User>): Promise<any> {
     const pass: string = await argon2.hash(dto.password, this.options);
 
-    const user: User = {
+    const user: User & any = {
       email: dto.email,
       firstName: dto.firstName,
       lastName: dto.lastName,
@@ -37,8 +28,9 @@ export class UsersService {
       role: dto.role,
       refreshToken: '',
     };
-    await this.userModel.create(user);
+    let newUser = await this.userModel.create(user);
     user.password = '********';
+    user._id = newUser._id;
     return user;
   }
 
@@ -127,7 +119,7 @@ export class UsersService {
   }
 
   public async removeRefreshToken(userId: string) {
-    this.userModel.updateOne({ _id: userId }, { refreshToken: '' });
+    await this.userModel.updateOne({ _id: userId }, { refreshToken: '' });
   }
 
   public async isUserActive(userId: string): Promise<boolean> {

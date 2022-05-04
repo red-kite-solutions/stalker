@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigController } from './config.controller';
 import { ConfigSchema } from './config.model';
+import { databaseConfigInitProvider } from './config.provider';
 import { ConfigService } from './config.service';
 
 @Module({
@@ -14,7 +15,7 @@ import { ConfigService } from './config.service';
     ]),
   ],
   controllers: [ConfigController],
-  providers: [ConfigService],
-  exports: [ConfigService],
+  providers: [ConfigService, ...databaseConfigInitProvider],
+  exports: [ConfigService, ...databaseConfigInitProvider],
 })
 export class ConfigModule {}

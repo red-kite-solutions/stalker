@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from 'src/modules/database/admin/config/config.module';
+import { ConfigModule } from '../../database/admin/config/config.module';
 import { KeybaseController } from './keybase.controller';
 import { KeybaseService } from './keybase.service';
 
