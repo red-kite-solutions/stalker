@@ -38,8 +38,22 @@ export class JobsController {
   }
 
   @UseGuards(ApiKeyGuard)
+  @Delete('byworker/:id')
+  async deleteJobByWorker(@Param('id') id: string) {
+    return await this.deleteJob(id);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User)
   @Delete(':id')
   async deleteJob(@Param('id') id: string) {
     return await this.jobsService.delete(id);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User)
+  @Delete()
+  async deleteAllJobs() {
+    return await this.jobsService.deleteAll();
   }
 }

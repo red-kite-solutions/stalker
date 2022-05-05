@@ -23,7 +23,7 @@ export class CompanyService {
   }
 
   /**
-   * This method is returns the company with the id provided
+   * This method returns the company with the id provided
    * @param id
    * @returns A company object document
    */
@@ -37,5 +37,9 @@ export class CompanyService {
 
   public async update(id: string, company: Company) {
     await this.companyModel.updateOne({ _id: { $eq: id } }, company);
+  }
+
+  public async delete(id: string) {
+    return await this.companyModel.deleteOne({ _id: { $eq: id } });
   }
 }
