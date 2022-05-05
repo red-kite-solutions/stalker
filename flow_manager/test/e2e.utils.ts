@@ -199,14 +199,11 @@ export async function checkAuthorizations(
   }
 
   r = await call(data.user.token);
-  console.log(`USER:${r.statusCode}:${role}`);
-
   if (r.statusCode !== HttpStatus.UNAUTHORIZED && role === Role.Admin) {
     return false;
   }
 
   r = await call(data.readonly.token);
-  console.log(`READONLY:${r.statusCode}:${role}`);
   if (
     r.statusCode !== HttpStatus.UNAUTHORIZED &&
     (role === Role.Admin || role === Role.User)
