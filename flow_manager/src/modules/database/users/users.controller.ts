@@ -174,7 +174,7 @@ export class UsersController {
 
   @Roles(Role.Admin)
   @Delete(':id')
-  public async deleteUser(@Param('id') id: string): Promise<void> {
+  public async deleteUser(@Param('id') id: string) {
     try {
       return await this.usersService.deleteUserById(id);
     } catch (err) {

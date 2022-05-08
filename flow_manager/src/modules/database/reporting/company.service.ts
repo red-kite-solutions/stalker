@@ -48,7 +48,10 @@ export class CompanyService {
   }
 
   public async delete(id: string) {
-    return await this.companyModel.deleteOne({ _id: { $eq: id } });
+    const result = await this.companyModel.deleteOne({ _id: { $eq: id } });
+    await this.hostsService.deleteAllForCompany(id);
+    await this.domainsService.deleteAllForCompany(id);
+    return result;
   }
 
   public async addDomains(domains: string[], companyId: string) {

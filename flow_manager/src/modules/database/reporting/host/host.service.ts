@@ -84,4 +84,8 @@ export class HostService {
 
     return newHosts;
   }
+
+  public async deleteAllForCompany(companyId: string) {
+    return await this.hostModel.deleteMany({ companyId: { $eq: companyId } });
+  }
 }

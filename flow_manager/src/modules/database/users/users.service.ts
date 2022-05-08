@@ -76,7 +76,7 @@ export class UsersService {
   }
 
   public deleteUserById(userId: string) {
-    return this.userModel.remove({ _id: userId });
+    return this.userModel.deleteOne({ _id: userId });
   }
 
   public async validateIdentity(

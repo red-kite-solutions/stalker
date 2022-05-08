@@ -112,4 +112,8 @@ export class DomainsService {
       });
     } while (domains);
   }
+
+  public async deleteAllForCompany(companyId: string) {
+    return await this.domainModel.deleteMany({ companyId: { $eq: companyId } });
+  }
 }
