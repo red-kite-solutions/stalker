@@ -182,7 +182,7 @@ export async function deleteReq(
  * returns true if the authorizations were properly checked. Used to check authorizations
  * on a controller endpoint.
  * @param data The test data that includes valid user tokens.
- * @param role The role that the controller endpoint is supposed to respect.
+ * @param role The role that the controller endpoint is supposed to respect. null for no authentication required
  * @param call The function to call. Takes a bearer token as parameter. Returns a supertest Response
  * @returns true if authorization reflect the given role, false otherwise
  */
@@ -208,6 +208,12 @@ export async function checkAuthorizations(
     r.statusCode !== HttpStatus.UNAUTHORIZED &&
     (role === Role.Admin || role === Role.User)
   ) {
+    return false;
+  }
+
+  // Checks if the call is accessible without a token
+  r = await call('', '');
+  if (r.statusCode !== HttpStatus.UNAUTHORIZED && role !== null) {
     return false;
   }
 

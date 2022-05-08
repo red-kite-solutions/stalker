@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { CompanyModule } from '../reporting/company.module';
 import { JobsController } from './jobs.controller';
 import { JobsService } from './jobs.service';
 import {
@@ -31,7 +30,6 @@ import {
         ],
       },
     ]),
-    CompanyModule,
   ],
   controllers: [JobsController],
   providers: [JobsService],

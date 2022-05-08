@@ -14,7 +14,7 @@ export const databaseConfigInitProvider = [
       await configModel.findOneAndUpdate(
         {},
         { $setOnInsert: config },
-        { upsert: true },
+        { upsert: true, useFindAndModify: true },
       );
     },
   },

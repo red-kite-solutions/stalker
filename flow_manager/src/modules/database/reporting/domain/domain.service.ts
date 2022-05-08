@@ -1,12 +1,10 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { ConfigService } from '../../admin/config/config.service';
 import { JobsService } from '../../jobs/jobs.service';
-import { CompanyService } from '../company.service';
 import { HostSummary } from '../host/host.summary';
 import { ReportService } from '../report/report.service';
-import { SubmitDomainDto, SubmitDomainManuallyDto } from './domain.dto';
 import { Domain, DomainDocument } from './domain.model';
 
 @Injectable()
@@ -14,18 +12,15 @@ export class DomainsService {
   constructor(
     @InjectModel('domain') private readonly domainModel: Model<Domain>,
     private jobService: JobsService,
-    private companyService: CompanyService,
     private reportService: ReportService,
     private configService: ConfigService,
   ) {}
 
-  private async addDomainsToCompany(domains: string[], companyId: string) {
-    const company = await this.companyService.get(companyId);
-
-    if (!company?._id) {
-      throw new HttpException('The company does not exist.', 400);
-    }
-
+  public async addDomains(
+    domains: string[],
+    companyId: string,
+    companyName: string,
+  ) {
     // for each doman, create a mongo id
     const domainDocuments: DomainDocument[] = [];
     domains.forEach((domain) => {
@@ -59,7 +54,7 @@ export class DomainsService {
     const config = await this.configService.getConfig();
 
     if (config?.isNewContentReported) {
-      this.reportService.addDomains(company.name, newDomains);
+      this.reportService.addDomains(companyName, newDomains);
     }
 
     // For each new domain name found, create a domain name resolution job for the domain
@@ -67,21 +62,6 @@ export class DomainsService {
       const job = this.jobService.createDomainResolvingJob(companyId, domain);
       this.jobService.publish(job);
     });
-  }
-
-  public async addDomainsFromJob(dto: SubmitDomainDto, jobId: string) {
-    // Find the proper program using the jobId and then the program name
-    const job = await this.jobService.getById(jobId);
-
-    if (!job) {
-      throw new HttpException('The job id is invalid.', 400);
-    }
-
-    await this.addDomainsToCompany(dto.subdomains, job.companyId);
-  }
-
-  public async addDomains(dto: SubmitDomainManuallyDto) {
-    await this.addDomainsToCompany(dto.subdomains, dto.companyId);
   }
 
   public async getDomain(id: string): Promise<DomainDocument> {

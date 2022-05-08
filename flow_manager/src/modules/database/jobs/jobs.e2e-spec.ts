@@ -27,23 +27,17 @@ describe('Config Controller (e2e)', () => {
     testData = await initTesting(app);
   });
 
-  it('Should fail to create a new job since the id is not valid (POST /jobs/create)', async () => {
-    const r = await postReq(app, testData.user.token, '/jobs/create', {
-      task: 'DomainNameResolvingJob',
-      companyId: 'ThisIsNotAValidId',
-      priority: 1,
-      domainName: 'stalker.is',
-    });
-    expect(r.statusCode).toBe(HttpStatus.BAD_REQUEST);
-  });
-
-  it('Should fail to create a new job since the company does not exist (POST /jobs/create)', async () => {
-    const r = await postReq(app, testData.user.token, '/jobs/create', {
-      task: 'DomainNameResolvingJob',
-      companyId: '6271641f2c0920007820b5f2',
-      priority: 1,
-      domainName: 'stalker.is',
-    });
+  it('Should fail to create a new job since the company does not exist (POST /company/:id/job)', async () => {
+    const r = await postReq(
+      app,
+      testData.user.token,
+      '/company/6271641f2c0920007820b5f2/job',
+      {
+        task: 'DomainNameResolvingJob',
+        priority: 1,
+        domainName: 'stalker.is',
+      },
+    );
     expect(r.statusCode).toBe(HttpStatus.NOT_FOUND);
   });
 
@@ -53,11 +47,11 @@ describe('Config Controller (e2e)', () => {
     expect(r.body.length).toBe(0);
   });
 
-  it('Should create a domain name resolving job', async () => {
+  it('Should create a domain name resolving job (POST /company/:id/job)', async () => {
     const task = 'DomainNameResolvingJob';
     const domain = 'stalker.is';
-    let r = await postReq(app, testData.user.token, '/report/company', {
-      name: 'Stalker',
+    let r = await postReq(app, testData.user.token, '/company', {
+      name: 'StalkerJobs',
     });
 
     expect(r.statusCode).toBe(HttpStatus.CREATED);
@@ -66,9 +60,8 @@ describe('Config Controller (e2e)', () => {
 
     const companyId = r.body._id;
 
-    r = await postReq(app, testData.user.token, '/jobs/create', {
+    r = await postReq(app, testData.user.token, `/company/${companyId}/job`, {
       task: task,
-      companyId: companyId,
       priority: 1,
       domainName: domain,
     });
@@ -85,11 +78,7 @@ describe('Config Controller (e2e)', () => {
     expect(r.body[0].domainName).toBe(domain);
     expect(r.body[0].priority).toBe(1);
 
-    r = await deleteReq(
-      app,
-      testData.admin.token,
-      `/report/company/${companyId}`,
-    );
+    r = await deleteReq(app, testData.admin.token, `/company/${companyId}`);
     expect(r.statusCode).toBe(HttpStatus.OK);
   });
 
@@ -101,19 +90,18 @@ describe('Config Controller (e2e)', () => {
   it('Should delete all jobs in the database (DELETE /jobs)', async () => {
     const task = 'DomainNameResolvingJob';
     const domain = 'stalker.is';
-    let r = await postReq(app, testData.user.token, '/report/company', {
-      name: 'Stalker',
+    let r = await postReq(app, testData.user.token, '/company', {
+      name: 'StalkerJobs',
     });
 
     const companyId = r.body._id;
 
-    await postReq(app, testData.user.token, '/jobs/create', {
+    await postReq(app, testData.user.token, `/company/${companyId}/job`, {
       task: task,
-      companyId: companyId,
       priority: 1,
       domainName: domain,
     });
-    await postReq(app, testData.user.token, '/jobs/create', {
+    await postReq(app, testData.user.token, `/company/${companyId}/job`, {
       task: task,
       companyId: companyId,
       priority: 1,
@@ -131,7 +119,7 @@ describe('Config Controller (e2e)', () => {
     expect(r.statusCode).toBe(HttpStatus.OK);
     expect(r.body.length).toBe(0);
 
-    await deleteReq(app, testData.user.token, `/report/company/${companyId}`);
+    await deleteReq(app, testData.user.token, `/company/${companyId}`);
   });
 
   it('Should have proper authorizations (GET /jobs)', async () => {
@@ -145,17 +133,21 @@ describe('Config Controller (e2e)', () => {
     expect(success).toBe(true);
   });
 
-  it('Should have proper authorizations (POST /jobs/create)', async () => {
+  it('Should have proper authorizations (POST /company/:id/job)', async () => {
     const success = await checkAuthorizations(
       testData,
       Role.User,
       async (givenToken: string) => {
-        return await postReq(app, givenToken, '/jobs/create', {
-          task: 'DomainNameResolvingJob',
-          companyId: '6271641f2c0920007820b5f2',
-          priority: 1,
-          domainName: 'stalker.is',
-        });
+        return await postReq(
+          app,
+          givenToken,
+          '/company/6271641f2c0920007820b5f2/job',
+          {
+            task: 'DomainNameResolvingJob',
+            priority: 1,
+            domainName: 'stalker.is',
+          },
+        );
       },
     );
     expect(success).toBe(true);
@@ -189,7 +181,7 @@ describe('Config Controller (e2e)', () => {
 
   it('Should have proper authorizations (DELETE /jobs/byworker/:id)', async () => {
     const r = await request(app.getHttpServer())
-      .delete('/jobs')
+      .delete('/jobs/byworker/6271641f2c0920007820b5f2')
       .set('API_KEY', `ThisIsNotAValidKey`);
 
     expect(r.statusCode).toBe(HttpStatus.UNAUTHORIZED);

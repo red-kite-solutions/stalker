@@ -3,8 +3,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from './admin/config/config.module';
 import { JobsModule } from './jobs/jobs.module';
 import { CompanyModule } from './reporting/company.module';
-import { DomainsModule } from './reporting/domain/domain.module';
-import { HostModule } from './reporting/host/host.module';
 import { ReportModule } from './reporting/report/report.module';
 
 @Module({
@@ -15,8 +13,6 @@ import { ReportModule } from './reporting/report/report.module';
     }),
     JobsModule,
     CompanyModule,
-    DomainsModule,
-    HostModule,
     ReportModule,
     ConfigModule,
   ],
