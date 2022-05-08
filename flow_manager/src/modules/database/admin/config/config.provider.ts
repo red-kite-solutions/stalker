@@ -10,11 +10,12 @@ export const databaseConfigInitProvider = [
     provide: DATABASE_INIT,
     inject: [getModelToken('config')],
     useFactory: async (configModel: Model<Config>) => {
-      let config = await configModel.findOne({});
-      if (!config?.keybaseConfig) {
-        config = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
-        await configModel.create(config);
-      }
+      const config = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
+      await configModel.findOneAndUpdate(
+        {},
+        { $setOnInsert: config },
+        { upsert: true },
+      );
     },
   },
 ];

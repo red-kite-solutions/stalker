@@ -45,15 +45,15 @@ export class JobsController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
-  @Delete(':id')
-  async deleteJob(@Param('id') id: string) {
-    return await this.jobsService.delete(id);
+  @Delete()
+  async deleteAllJobs() {
+    return await this.jobsService.deleteAll();
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
-  @Delete()
-  async deleteAllJobs() {
-    return await this.jobsService.deleteAll();
+  @Delete(':id')
+  async deleteJob(@Param('id') id: string) {
+    return await this.jobsService.delete(id);
   }
 }

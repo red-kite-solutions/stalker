@@ -189,21 +189,21 @@ export async function deleteReq(
 export async function checkAuthorizations(
   data: TestingData,
   role: Role,
-  call: (token: string) => Promise<request.Response>,
+  call: (token: string, password: string) => Promise<request.Response>,
 ): Promise<boolean> {
   const keys = Object.keys(data);
-  let r = await call(data.admin.token);
+  let r = await call(data.admin.token, data.admin.password);
 
   if (r.statusCode === HttpStatus.UNAUTHORIZED) {
     return false;
   }
 
-  r = await call(data.user.token);
+  r = await call(data.user.token, data.user.password);
   if (r.statusCode !== HttpStatus.UNAUTHORIZED && role === Role.Admin) {
     return false;
   }
 
-  r = await call(data.readonly.token);
+  r = await call(data.readonly.token, data.readonly.password);
   if (
     r.statusCode !== HttpStatus.UNAUTHORIZED &&
     (role === Role.Admin || role === Role.User)
