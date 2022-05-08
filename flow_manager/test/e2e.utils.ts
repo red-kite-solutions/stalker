@@ -199,21 +199,29 @@ export async function checkAuthorizations(
   }
 
   r = await call(data.user.token, data.user.password);
-  if (r.statusCode !== HttpStatus.UNAUTHORIZED && role === Role.Admin) {
+  if (
+    (r.statusCode !== HttpStatus.UNAUTHORIZED && role === Role.Admin) ||
+    (r.statusCode === HttpStatus.UNAUTHORIZED &&
+      (role === Role.User || role === Role.ReadOnly))
+  ) {
     return false;
   }
 
   r = await call(data.readonly.token, data.readonly.password);
   if (
-    r.statusCode !== HttpStatus.UNAUTHORIZED &&
-    (role === Role.Admin || role === Role.User)
+    (r.statusCode !== HttpStatus.UNAUTHORIZED &&
+      (role === Role.Admin || role === Role.User)) ||
+    (r.statusCode === HttpStatus.UNAUTHORIZED && role === Role.ReadOnly)
   ) {
     return false;
   }
 
   // Checks if the call is accessible without a token
   r = await call('', '');
-  if (r.statusCode !== HttpStatus.UNAUTHORIZED && role !== null) {
+  if (
+    (r.statusCode !== HttpStatus.UNAUTHORIZED && role !== null) ||
+    (r.statusCode === HttpStatus.UNAUTHORIZED && role === null)
+  ) {
     return false;
   }
 
