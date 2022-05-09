@@ -12,6 +12,13 @@ export class DomainsController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ReadOnly)
+  @Get()
+  async getAllDomains(): Promise<DomainDocument[]> {
+    return await this.domainsService.getAll();
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ReadOnly)
   @Get(':id')
   async getDomain(@Param('id') id: string): Promise<DomainDocument> {
     return await this.domainsService.getDomain(id);

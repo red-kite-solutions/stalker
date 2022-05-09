@@ -36,4 +36,11 @@ export class JobsController {
   async deleteJob(@Param('id') id: string) {
     return await this.jobsService.delete(id);
   }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ReadOnly)
+  @Get(':id')
+  async getJob(@Param('id') id: string): Promise<any> {
+    return await this.jobsService.getById(id);
+  }
 }

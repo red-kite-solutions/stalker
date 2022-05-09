@@ -10,9 +10,16 @@ describe('Auth Controller (e2e)', () => {
   let app: INestApplication;
   let token: string;
   let refresh: string;
-  const email = admin.email;
-  const password = admin.password;
-  const role = admin.role;
+
+  const testAdmin = {
+    email: 'testadmin@stalker.is',
+    password: 'testadmin@stalker.is',
+    role: Role.Admin,
+    firstName: 'testadminfirst',
+    lastName: 'testadminlast',
+    active: true,
+    id: null,
+  };
 
   const inactiveUser = {
     email: 'inactive@stalker.is',
@@ -31,10 +38,16 @@ describe('Auth Controller (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     await app.init();
-    let r = await login(app, email, password);
-    r = await createUser(app, r.body.access_token, inactiveUser);
+    let r = await login(app, admin.email, admin.password);
+    let initToken = r.body.access_token;
+    r = await createUser(app, initToken, inactiveUser);
     if (r.statusCode === HttpStatus.CREATED) {
       inactiveUser.id = r.body._id;
+    }
+
+    r = await createUser(app, initToken, testAdmin);
+    if (r.statusCode === HttpStatus.CREATED) {
+      testAdmin.id = r.body._id;
     }
   });
 
@@ -44,8 +57,8 @@ describe('Auth Controller (e2e)', () => {
     expect(r.statusCode).toBe(HttpStatus.UNAUTHORIZED);
   });
 
-  it('Should connect as the default user (POST /auth/login)', async () => {
-    const r = await login(app, email, password);
+  it('Should connect as the admin user (POST /auth/login)', async () => {
+    const r = await login(app, testAdmin.email, testAdmin.password);
 
     expect(r.statusCode).toBe(HttpStatus.CREATED);
     expect(r.body.access_token).toBeTruthy();
@@ -53,8 +66,8 @@ describe('Auth Controller (e2e)', () => {
     const decodedToken: any = jwt_decode(r.body.access_token);
     const decodedRefresh: any = jwt_decode(r.body.refresh_token);
     expect(decodedToken.id).toBeTruthy();
-    expect(decodedToken.email).toBe(email);
-    expect(decodedToken.role).toBe(role);
+    expect(decodedToken.email).toBe(testAdmin.email);
+    expect(decodedToken.role).toBe(testAdmin.role);
     expect(decodedRefresh.id).toBeTruthy();
     expect(decodedToken.exp < decodedRefresh.exp).toBeTruthy();
 
@@ -74,8 +87,8 @@ describe('Auth Controller (e2e)', () => {
     expect(r.body.access_token).toBeTruthy();
     const decodedToken: any = jwt_decode(r.body.access_token);
     expect(decodedToken.id).toBeTruthy();
-    expect(decodedToken.email).toBe(email);
-    expect(decodedToken.role).toBe(role);
+    expect(decodedToken.email).toBe(testAdmin.email);
+    expect(decodedToken.role).toBe(testAdmin.role);
   });
 
   it('Should ping the server on an authenticated route (GET /ping)', async () => {
@@ -116,7 +129,7 @@ describe('Auth Controller (e2e)', () => {
       firstName: inactiveUser.firstName,
       lastName: inactiveUser.lastName,
       active: true,
-      currentPassword: password,
+      currentPassword: testAdmin.password,
     });
     const inactiveTokens = (
       await login(app, inactiveUser.email, inactiveUser.password)
@@ -129,7 +142,7 @@ describe('Auth Controller (e2e)', () => {
       firstName: inactiveUser.firstName,
       lastName: inactiveUser.lastName,
       active: false,
-      currentPassword: password,
+      currentPassword: testAdmin.password,
     });
     const r = await request(app.getHttpServer())
       .put('/auth/refresh')
@@ -143,6 +156,7 @@ describe('Auth Controller (e2e)', () => {
 
   afterAll(async () => {
     await deleteReq(app, token, `/users/${inactiveUser.id}`);
+    await deleteReq(app, token, `/users/${testAdmin.id}`);
     await app.close();
   });
 });

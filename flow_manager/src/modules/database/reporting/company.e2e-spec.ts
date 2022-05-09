@@ -11,7 +11,7 @@ import {
   TestingData,
 } from 'test/e2e.utils';
 
-describe('Users Controller (e2e)', () => {
+describe('Company Controller (e2e)', () => {
   let app: INestApplication;
   let testData: TestingData;
   const companyName = 'Stalker';

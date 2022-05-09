@@ -21,7 +21,7 @@ export class DomainsService {
     companyId: string,
     companyName: string,
   ) {
-    // for each doman, create a mongo id
+    // for each domain, create a mongo id
     const domainDocuments: DomainDocument[] = [];
     domains.forEach((domain) => {
       const model = new this.domainModel({
@@ -115,5 +115,9 @@ export class DomainsService {
 
   public async deleteAllForCompany(companyId: string) {
     return await this.domainModel.deleteMany({ companyId: { $eq: companyId } });
+  }
+
+  public async getAll() {
+    return await this.domainModel.find({});
   }
 }

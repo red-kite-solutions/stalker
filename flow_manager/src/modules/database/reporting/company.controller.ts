@@ -38,13 +38,6 @@ export class CompanyController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ReadOnly)
-  @Get(':id')
-  async getCompany(@Param('id') id: string) {
-    return await this.companyService.get(id);
-  }
-
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
   @Post()
   async createCompany(@Body(new ValidationPipe()) dto: CreateCompanyDto) {
@@ -61,13 +54,6 @@ export class CompanyController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
-  @Delete(':id')
-  async deleteCompany(@Param('id') id: string) {
-    return await this.companyService.delete(id);
-  }
-
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.User)
   @Post(':id/host')
   async submitHostsManually(
     @Body(new ValidationPipe()) dto: SubmitHostDto,
@@ -78,6 +64,26 @@ export class CompanyController {
       dto.domainName,
       id,
     );
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User)
+  @Post(':id/job')
+  async createJob(
+    @Param('id') id: string,
+    @Body(new ValidationPipe()) dto: CreateJobDto,
+  ): Promise<Job> {
+    return await this.companyService.publishJob({ ...dto, companyId: id });
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User)
+  @Post(':id/domain')
+  async submitDomainsManually(
+    @Body(new ValidationPipe()) dto: SubmitDomainsDto,
+    @Param('id') id: string,
+  ) {
+    return await this.companyService.addDomains(dto.domains, id);
   }
 
   @UseGuards(ApiKeyGuard)
@@ -95,16 +101,6 @@ export class CompanyController {
     );
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.User)
-  @Post(':id/domain')
-  async submitDomainsManually(
-    @Body(new ValidationPipe()) dto: SubmitDomainsDto,
-    @Param('id') id: string,
-  ) {
-    return await this.companyService.addDomains(dto.domains, id);
-  }
-
   @UseGuards(ApiKeyGuard)
   @Post(':id/domain/:jobId')
   async submitSubdomainsFromJob(
@@ -116,12 +112,16 @@ export class CompanyController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ReadOnly)
+  @Get(':id')
+  async getCompany(@Param('id') id: string) {
+    return await this.companyService.get(id);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
-  @Post(':id/job')
-  async createJob(
-    @Param('id') id: string,
-    @Body(new ValidationPipe()) dto: CreateJobDto,
-  ): Promise<Job> {
-    return await this.companyService.publishJob({ ...dto, companyId: id });
+  @Delete(':id')
+  async deleteCompany(@Param('id') id: string) {
+    return await this.companyService.delete(id);
   }
 }
