@@ -27,6 +27,7 @@ jobs:
 
       - name: Adding the 'secrets' to the application
         run: |
+          mkdir secrets
           echo flowmanagerapikey > ./secrets/fm_api_key.secret
           echo flowmanagerjwtsecret > ./secrets/fm_jwt_secret.secret
           echo flowmanagerrefreshsecret > ./secrets/fm_refresh_secret.secret
