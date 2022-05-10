@@ -1,7 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import * as argon2 from 'argon2';
 import { Model } from 'mongoose';
+import {
+  hashPassword,
+  passwordEquals,
+} from 'src/modules/auth/utils/auth.utils';
 import { User } from './users.model';
 import { USER_INIT } from './users.provider';
 
@@ -17,7 +20,7 @@ export class UsersService {
   ) {}
 
   public async createUser(dto: Partial<User>): Promise<any> {
-    const pass: string = await argon2.hash(dto.password, this.options);
+    const pass: string = await hashPassword(dto.password);
 
     const user: User & any = {
       email: dto.email,
@@ -53,10 +56,6 @@ export class UsersService {
       .lean();
   }
 
-  public passwordEquals(hash: string, password: string): Promise<boolean> {
-    return argon2.verify(hash, password);
-  }
-
   public editUserByEmail(email: string, userEdits: Partial<User>) {
     return this.userModel.updateOne({ email: email }, { ...userEdits });
   }
@@ -66,12 +65,12 @@ export class UsersService {
   }
 
   public async changePasswordByEmail(email: string, password: string) {
-    const pass: string = await argon2.hash(password, this.options);
+    const pass: string = await hashPassword(password);
     return this.userModel.updateOne({ email: email }, { password: pass });
   }
 
   public async changePasswordById(id: string, password: string) {
-    const pass: string = await argon2.hash(password, this.options);
+    const pass: string = await hashPassword(password);
     return this.userModel.updateOne({ _id: id }, { password: pass });
   }
 
@@ -85,7 +84,7 @@ export class UsersService {
   ): Promise<boolean | null> {
     const user: User = await this.findOneByEmailIncludeHash(email);
     if (user) {
-      return await this.passwordEquals(user.password, password);
+      return await passwordEquals(user.password, password);
     } else {
       return null;
     }
@@ -95,7 +94,7 @@ export class UsersService {
     refreshToken: string,
     userId: string,
   ): Promise<void> {
-    const hash: string = await argon2.hash(refreshToken, this.options);
+    const hash: string = await hashPassword(refreshToken);
     await this.userModel.updateOne({ _id: userId }, { refreshToken: hash });
   }
 
@@ -110,7 +109,7 @@ export class UsersService {
 
       if (
         user?.refreshToken &&
-        this.passwordEquals(user.refreshToken, refreshToken)
+        (await passwordEquals(user.refreshToken, refreshToken))
       ) {
         return { refreshToken: null, ...user };
       }

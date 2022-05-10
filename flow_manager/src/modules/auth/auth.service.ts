@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UserDocument } from '../database/users/users.model';
 import { UsersService } from '../database/users/users.service';
 import { jwtConstants, rtConstants } from './constants';
+import { passwordEquals } from './utils/auth.utils';
 
 @Injectable()
 export class AuthService {
@@ -15,10 +16,7 @@ export class AuthService {
     const user = await this.usersService.findOneByEmailIncludeHash(email);
     if (!user?.active) return null;
 
-    const isPasswordValid = await this.usersService.passwordEquals(
-      user.password,
-      pass,
-    );
+    const isPasswordValid = await passwordEquals(user.password, pass);
 
     if (!isPasswordValid) return null;
 
