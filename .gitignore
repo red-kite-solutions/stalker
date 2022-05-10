@@ -140,3 +140,5 @@ dmypy.json
 # node stuff
 node_modules
 
+# test output when run for cicd
+jest-output.json
