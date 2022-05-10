@@ -38,6 +38,7 @@ The workers also use a configuration file to handle other variables. It is detai
 | MONGO_ADDRESS         | mongodb://mongo:27017/stalker | The address of the mongodb database               | No          |
 | FM_JWT_SECRET         | SuperRandomSecretJWTKey       | The secret to sign JWT for users                  | Yes         |
 | FM_REFRESH_SECRET     | SuperRandomSecretRefreshKey   | The secret to sign JWT refresh token for users    | Yes         |
+| STALKER_URL           | http://localhost:4200         | The origin URL for the UI's CORS protection       | No          |
 
 ## Secrets files
 

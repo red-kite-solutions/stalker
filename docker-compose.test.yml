@@ -26,6 +26,7 @@ services:
       - MONGO_ADDRESS=mongodb://mongo:27017/stalker
       - FM_JWT_SECRET_FILE=/secrets/fm_jwt_secret.secret
       - FM_REFRESH_SECRET_FILE=/secrets/fm_refresh_secret.secret
+      - STALKER_URL=http://localhost:4200
     links:
       - "jqh:jobsqueuehandler"
       - "mongo:db"
