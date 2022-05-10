@@ -48,7 +48,7 @@ export class AuthService {
     });
   }
 
-  public async removeRefreshToken(userId: string) {
-    await this.usersService.removeRefreshToken(userId);
+  public async removeRefreshToken(userId: string, refreshToken: string = null) {
+    await this.usersService.removeRefreshToken(userId, refreshToken);
   }
 }

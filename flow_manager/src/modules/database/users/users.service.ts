@@ -95,7 +95,10 @@ export class UsersService {
     userId: string,
   ): Promise<void> {
     const hash: string = await hashPassword(refreshToken);
-    await this.userModel.updateOne({ _id: userId }, { refreshToken: hash });
+    await this.userModel.updateOne(
+      { _id: userId },
+      { $push: { refreshTokens: hash } },
+    );
   }
 
   public async getUserIfRefreshTokenMatches(
@@ -104,21 +107,39 @@ export class UsersService {
   ): Promise<User> {
     if (refreshToken) {
       const user = await this.userModel
-        .findOne({ _id: id }, '+refreshToken')
+        .findOne({ _id: id }, '+refreshTokens')
         .lean();
-
-      if (
-        user?.refreshToken &&
-        (await passwordEquals(user.refreshToken, refreshToken))
-      ) {
-        return { refreshToken: null, ...user };
+      for (let rt of user.refreshTokens) {
+        if (rt && (await passwordEquals(rt, refreshToken))) {
+          return { refreshTokens: null, ...user };
+        }
       }
     }
     return null;
   }
 
-  public async removeRefreshToken(userId: string) {
-    await this.userModel.updateOne({ _id: userId }, { refreshToken: '' });
+  public async removeRefreshToken(userId: string, refreshToken: string) {
+    if (!refreshToken) {
+      await this.userModel.updateOne({ _id: userId }, { refreshTokens: [] });
+      return;
+    }
+
+    const user = await this.userModel.findOne(
+      { _id: userId },
+      '+refreshTokens',
+    );
+
+    let i = 0;
+    for (let rt of user.refreshTokens) {
+      if (rt && (await passwordEquals(rt, refreshToken))) {
+        user.refreshTokens.splice(i, 1);
+        await user.save();
+        return;
+      }
+      i++;
+    }
+
+    await this.userModel.updateOne({ _id: userId }, { refreshTokens: [] });
   }
 
   public async isUserActive(userId: string): Promise<boolean> {
