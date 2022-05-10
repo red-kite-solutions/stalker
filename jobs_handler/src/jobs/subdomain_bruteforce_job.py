@@ -1,6 +1,8 @@
-from jobs.job_interface import JobInterface
-from utils.job_reporter import JobReporter
 import os
+
+from utils.job_reporter import JobReporter
+
+from jobs.job_interface import JobInterface
 
 
 class SubdomainBruteforceJob(JobInterface):
@@ -15,7 +17,7 @@ class SubdomainBruteforceJob(JobInterface):
     _output: str
 
     def __init__(self, job_info: dict, config: dict):
-        super().__init__(job_info['_id'], job_info['_task'])
+        super().__init__(job_info['_id'], job_info['_task'], job_info['companyId'])
         if not job_info['_data'].get('domainName'):
             raise Exception("""Missing domain name information for 
                 subdomain bruteforce job.""")
@@ -59,5 +61,5 @@ class SubdomainBruteforceJob(JobInterface):
 
     def report(self, job_reporter: JobReporter):
         self._output = '{ "subdomains" : ' + self._output + ' }'
-        job_reporter.report(f'/report/domains/{self._id}', self._output)
+        job_reporter.report(f'/company/{self._company_id}/domain/{self._id}', self._output)
         return
