@@ -95,9 +95,11 @@ export class UsersService {
     userId: string,
   ): Promise<void> {
     const hash: string = await hashPassword(refreshToken);
+
+    // Keep only the 15 most recent refresh tokens
     await this.userModel.updateOne(
       { _id: userId },
-      { $push: { refreshTokens: hash } },
+      { $push: { refreshTokens: { $each: [hash], $slice: -15 } } },
     );
   }
 
