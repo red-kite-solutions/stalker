@@ -30,3 +30,10 @@ button {
     cursor: pointer;
   }
 }
+
+.ngx-file-drop__drop-zone {
+  height: 100% !important;
+  .ngx-file-drop__content {
+    height: 100% !important;
+  }
+}

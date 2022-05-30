@@ -1,0 +1,43 @@
+.upload {
+  height: 100%;
+}
+
+.upload2 {
+  aspect-ratio: 1/1;
+  button {
+    position: absolute;
+    right: -10px;
+    top: -10px;
+  }
+}
+
+.upload3 {
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+.fileBrowse {
+  text-decoration: underline;
+  width: 100%;
+  &:hover {
+    cursor: pointer;
+    filter: brightness(140%);
+  }
+}
+
+.dragndrop {
+  color: black !important;
+  display: block;
+  width: 100%;
+}
+
+#previewImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+ngx-file-drop {
+  width: 100%;
+}

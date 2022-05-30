@@ -34,6 +34,23 @@
                 </translations>
             </concept_node>
             <concept_node>
+                <name>1098534452152698703</name>
+                <definition_loaded>false</definition_loaded>
+                <description>Title to the page to edit a company</description>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
                 <name>1101901019561613593</name>
                 <definition_loaded>false</definition_loaded>
                 <description>Save the changes done to an item</description>
@@ -68,9 +85,43 @@
                 </translations>
             </concept_node>
             <concept_node>
+                <name>1259982190094137505</name>
+                <definition_loaded>false</definition_loaded>
+                <description>User has to correct the errors in the form</description>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
                 <name>1264344965728668944</name>
                 <definition_loaded>false</definition_loaded>
                 <description>The application's dashboard</description>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
+                <name>1291350410795237882</name>
+                <definition_loaded>false</definition_loaded>
+                <description>The new company was successfully created</description>
                 <comment/>
                 <default_text/>
                 <translations>
@@ -173,6 +224,23 @@
                 <name>1623476977983985901</name>
                 <definition_loaded>false</definition_loaded>
                 <description>Add a user to the application</description>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
+                <name>1625774108615299685</name>
+                <definition_loaded>false</definition_loaded>
+                <description>IP address is in an invalid format</description>
                 <comment/>
                 <default_text/>
                 <translations>
@@ -323,6 +391,23 @@
                 </translations>
             </concept_node>
             <concept_node>
+                <name>2350915129742241238</name>
+                <definition_loaded>false</definition_loaded>
+                <description>Delete a company</description>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
                 <name>2404613497293521361</name>
                 <definition_loaded>false</definition_loaded>
                 <description>Delete a user's profile</description>
@@ -459,6 +544,23 @@
                 </translations>
             </concept_node>
             <concept_node>
+                <name>273475067020930940</name>
+                <definition_loaded>false</definition_loaded>
+                <description>The short version of an IP mask (ex: /24)</description>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
                 <name>2762947068403590492</name>
                 <definition_loaded>false</definition_loaded>
                 <description>The two passwords must be identical for the form to be valid</description>
@@ -527,9 +629,43 @@
                 </translations>
             </concept_node>
             <concept_node>
+                <name>3161533451164017767</name>
+                <definition_loaded>false</definition_loaded>
+                <description>Confirmation text to delete a subnet</description>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
                 <name>3178421670305393077</name>
                 <definition_loaded>false</definition_loaded>
                 <description>A person's family name</description>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
+                <name>3413676592903303619</name>
+                <definition_loaded>false</definition_loaded>
+                <description>Gives an example of how to fill th IP input field</description>
                 <comment/>
                 <default_text/>
                 <translations>
@@ -561,9 +697,43 @@
                 </translations>
             </concept_node>
             <concept_node>
+                <name>3627800737920080946</name>
+                <definition_loaded>false</definition_loaded>
+                <description>Gives an example of how to fill the short mask input field</description>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
                 <name>3695784645078698015</name>
                 <definition_loaded>false</definition_loaded>
                 <description>Success message for when an admin successfully creates a new user</description>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
+                <name>3738243234320950291</name>
+                <definition_loaded>false</definition_loaded>
+                <description>Company name is required to create a company</description>
                 <comment/>
                 <default_text/>
                 <translations>
@@ -680,6 +850,23 @@
                 </translations>
             </concept_node>
             <concept_node>
+                <name>4429502758651296682</name>
+                <definition_loaded>false</definition_loaded>
+                <description>Item logo</description>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
                 <name>4442999481737862676</name>
                 <definition_loaded>false</definition_loaded>
                 <description>Users list page title</description>
@@ -731,6 +918,23 @@
                 </translations>
             </concept_node>
             <concept_node>
+                <name>4475285443111736620</name>
+                <definition_loaded>false</definition_loaded>
+                <description>Add a subnet to the list</description>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
                 <name>4519591980089577187</name>
                 <definition_loaded>false</definition_loaded>
                 <description>Search bar placeholder</description>
@@ -751,6 +955,23 @@
                 <name>4624434178813989371</name>
                 <definition_loaded>false</definition_loaded>
                 <description>The request to the server timed out</description>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
+                <name>4698343931126085751</name>
+                <definition_loaded>false</definition_loaded>
+                <description>Name of the company</description>
                 <comment/>
                 <default_text/>
                 <translations>
@@ -799,6 +1020,23 @@
                 </translations>
             </concept_node>
             <concept_node>
+                <name>4823196491961155911</name>
+                <definition_loaded>false</definition_loaded>
+                <description>Multiple businesses</description>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
                 <name>5082877259540964185</name>
                 <definition_loaded>false</definition_loaded>
                 <description>A user's email</description>
@@ -819,6 +1057,57 @@
                 <name>5087373960546818238</name>
                 <definition_loaded>false</definition_loaded>
                 <description>Administration subsection of the menu</description>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
+                <name>5119505077804703742</name>
+                <definition_loaded>false</definition_loaded>
+                <description>Browse your local files</description>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
+                <name>5156662916852530311</name>
+                <definition_loaded>false</definition_loaded>
+                <description>Confirmation text to delete a company</description>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
+                <name>5164611254988228840</name>
+                <definition_loaded>false</definition_loaded>
+                <description>An IP address</description>
                 <comment/>
                 <default_text/>
                 <translations>
@@ -884,9 +1173,43 @@
                 </translations>
             </concept_node>
             <concept_node>
+                <name>5326460272092082543</name>
+                <definition_loaded>false</definition_loaded>
+                <description>The last IP address of a subnet</description>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
                 <name>5375150296463069000</name>
                 <definition_loaded>false</definition_loaded>
                 <description>Enables the different reporting features in the application</description>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
+                <name>5477012042714025351</name>
+                <definition_loaded>false</definition_loaded>
+                <description>Conflict happenned when creating a company because another company already uses the provided name</description>
                 <comment/>
                 <default_text/>
                 <translations>
@@ -986,9 +1309,77 @@
                 </translations>
             </concept_node>
             <concept_node>
+                <name>5866519415092316579</name>
+                <definition_loaded>false</definition_loaded>
+                <description>Notes about an item</description>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
+                <name>5871420796212876016</name>
+                <definition_loaded>false</definition_loaded>
+                <description>Deleting a company subnet</description>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
+                <name>5889505081688625370</name>
+                <definition_loaded>false</definition_loaded>
+                <description>Deleting a company</description>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
                 <name>5900691735454498946</name>
                 <definition_loaded>false</definition_loaded>
                 <description>The administrator role display name</description>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
+                <name>5961563184597480440</name>
+                <definition_loaded>false</definition_loaded>
+                <description>The amount of IPs in a subnet</description>
                 <comment/>
                 <default_text/>
                 <translations>
@@ -1054,9 +1445,43 @@
                 </translations>
             </concept_node>
             <concept_node>
+                <name>6267523724443973604</name>
+                <definition_loaded>false</definition_loaded>
+                <description>Changes to item saved successfully</description>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
                 <name>6270622266478641872</name>
                 <definition_loaded>false</definition_loaded>
                 <description>Login button text</description>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
+                <name>6416161238555990185</name>
+                <definition_loaded>false</definition_loaded>
+                <description>Save the changes done to an item</description>
                 <comment/>
                 <default_text/>
                 <translations>
@@ -1224,6 +1649,40 @@
                 </translations>
             </concept_node>
             <concept_node>
+                <name>6671142598269787956</name>
+                <definition_loaded>false</definition_loaded>
+                <description>Drang and drop indicator</description>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
+                <name>6682664955039534645</name>
+                <definition_loaded>false</definition_loaded>
+                <description>Gives an example of how to fill the long mask input field</description>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
                 <name>6785291036069788832</name>
                 <definition_loaded>false</definition_loaded>
                 <description>A user must have a last name, otherwise the form is invalid</description>
@@ -1244,6 +1703,23 @@
                 <name>6815247123494849365</name>
                 <definition_loaded>false</definition_loaded>
                 <description>Error 404 page is not found</description>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
+                <name>6820286236743907502</name>
+                <definition_loaded>false</definition_loaded>
+                <description>Cancel action</description>
                 <comment/>
                 <default_text/>
                 <translations>
@@ -1343,6 +1819,23 @@
                 </translations>
             </concept_node>
             <concept_node>
+                <name>7199675203856393530</name>
+                <definition_loaded>false</definition_loaded>
+                <description/>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
                 <name>7340512493598747029</name>
                 <definition_loaded>false</definition_loaded>
                 <description>Also called channel id, represents a chat room in keybase</description>
@@ -1411,6 +1904,23 @@
                 </translations>
             </concept_node>
             <concept_node>
+                <name>7566988666392957865</name>
+                <definition_loaded>false</definition_loaded>
+                <description>Error to send when the given image is too big</description>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
                 <name>7581219289176743884</name>
                 <definition_loaded>false</definition_loaded>
                 <description>Accepting and aknowledging information</description>
@@ -1445,9 +1955,60 @@
                 </translations>
             </concept_node>
             <concept_node>
+                <name>7799488387913189888</name>
+                <definition_loaded>false</definition_loaded>
+                <description>Create item</description>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
+                <name>7878472833805889143</name>
+                <definition_loaded>false</definition_loaded>
+                <description>The long version of an IP mask (ex: 255.255.255.0)</description>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
                 <name>788533045776086977</name>
                 <definition_loaded>false</definition_loaded>
                 <description>Paginator next page label</description>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
+                <name>812831998979086425</name>
+                <definition_loaded>false</definition_loaded>
+                <description>Company deletion was a success</description>
                 <comment/>
                 <default_text/>
                 <translations>
@@ -1482,6 +2043,23 @@
                 <name>8187916271463729023</name>
                 <definition_loaded>false</definition_loaded>
                 <description>Validate that the current keybase credentials are valid</description>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
+                <name>8201781273363666973</name>
+                <definition_loaded>false</definition_loaded>
+                <description>The IP mask format is invalid</description>
                 <comment/>
                 <default_text/>
                 <translations>
@@ -1700,9 +2278,43 @@
                 </translations>
             </concept_node>
             <concept_node>
+                <name>9034125950219726218</name>
+                <definition_loaded>false</definition_loaded>
+                <description>Add a company</description>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
                 <name>9140315191296330100</name>
                 <definition_loaded>false</definition_loaded>
                 <description>Title of the panel giving more info about roles</description>
+                <comment/>
+                <default_text/>
+                <translations>
+                    <translation>
+                        <language>en-US</language>
+                        <approved>false</approved>
+                    </translation>
+                    <translation>
+                        <language>fr-CA</language>
+                        <approved>false</approved>
+                    </translation>
+                </translations>
+            </concept_node>
+            <concept_node>
+                <name>9173133473179217556</name>
+                <definition_loaded>false</definition_loaded>
+                <description>The first IP address of a subnet</description>
                 <comment/>
                 <default_text/>
                 <translations>

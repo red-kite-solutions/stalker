@@ -23,3 +23,9 @@ export class HttpNotFoundException extends HttpException {
     super('Item not found', HttpStatus.NOT_FOUND);
   }
 }
+
+export class HttpBadRequestException extends HttpException {
+  constructor() {
+    super('Error in request parameters', HttpStatus.BAD_REQUEST);
+  }
+}

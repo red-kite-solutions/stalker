@@ -519,6 +519,14 @@
           <context context-type="sourcefile">src/app/modules/admin/manage-users/manage-users.component.ts</context>
           <context context-type="linenumber">115,112</context>
         </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.ts</context>
+          <context context-type="linenumber">264,263</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.ts</context>
+          <context context-type="linenumber">286,285</context>
+        </context-group>
         <note priority="1" from="description">Cancel current action</note>
         <note priority="1" from="meaning">Cancel</note>
       </trans-unit>
@@ -556,7 +564,11 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/components/sidebar/sidebar.component.html</context>
-          <context context-type="linenumber">29</context>
+          <context context-type="linenumber">41</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/sidebar/sidebar.component.ts</context>
+          <context context-type="linenumber">13</context>
         </context-group>
         <note priority="1" from="description">Users list page title</note>
         <note priority="1" from="meaning">Users</note>
@@ -575,6 +587,14 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/admin/manage-users/manage-users.component.html</context>
           <context context-type="linenumber">22,25</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.ts</context>
+          <context context-type="linenumber">265,263</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.ts</context>
+          <context context-type="linenumber">287,285</context>
         </context-group>
         <note priority="1" from="description">Delete an item</note>
         <note priority="1" from="meaning">Delete</note>
@@ -824,7 +844,11 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/components/sidebar/sidebar.component.html</context>
-          <context context-type="linenumber">41</context>
+          <context context-type="linenumber">53</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/sidebar/sidebar.component.ts</context>
+          <context context-type="linenumber">14</context>
         </context-group>
         <note priority="1" from="description">Settings page title to edit the application configuration</note>
         <note priority="1" from="meaning">Settings</note>
@@ -973,6 +997,361 @@
         <note priority="1" from="description">Login button text</note>
         <note priority="1" from="meaning">Login</note>
       </trans-unit>
+      <trans-unit id="1098534452152698703" datatype="html">
+        <source>Edit Company</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.html</context>
+          <context context-type="linenumber">8,12</context>
+        </context-group>
+        <note priority="1" from="description">Title to the page to edit a company</note>
+        <note priority="1" from="meaning">Edit company</note>
+      </trans-unit>
+      <trans-unit id="4698343931126085751" datatype="html">
+        <source>Company name</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.html</context>
+          <context context-type="linenumber">16,17</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/list-companies/list-companies.component.html</context>
+          <context context-type="linenumber">26,27</context>
+        </context-group>
+        <note priority="1" from="description">Name of the company</note>
+        <note priority="1" from="meaning">Company name</note>
+      </trans-unit>
+      <trans-unit id="3738243234320950291" datatype="html">
+        <source> Company name is required </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.html</context>
+          <context context-type="linenumber">19,22</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/list-companies/list-companies.component.html</context>
+          <context context-type="linenumber">29,32</context>
+        </context-group>
+        <note priority="1" from="description">Company name is required to create a company</note>
+        <note priority="1" from="meaning">Company name required</note>
+      </trans-unit>
+      <trans-unit id="7199675203856393530" datatype="html">
+        <source>Add a proprietary subnet</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.html</context>
+          <context context-type="linenumber">42,43</context>
+        </context-group>
+        <note priority="1" from="meaning">Add proprietary subnet</note>
+      </trans-unit>
+      <trans-unit id="5164611254988228840" datatype="html">
+        <source>IP Address</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.html</context>
+          <context context-type="linenumber">51,52</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.html</context>
+          <context context-type="linenumber">166,167</context>
+        </context-group>
+        <note priority="1" from="description">An IP address</note>
+        <note priority="1" from="meaning">Ip address</note>
+      </trans-unit>
+      <trans-unit id="3413676592903303619" datatype="html">
+        <source>Ex. 192.168.0.1</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.html</context>
+          <context context-type="linenumber">56,58</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.html</context>
+          <context context-type="linenumber">171,173</context>
+        </context-group>
+        <note priority="1" from="description">Gives an example of how to fill th IP input field</note>
+        <note priority="1" from="meaning">IP placeholder</note>
+      </trans-unit>
+      <trans-unit id="1625774108615299685" datatype="html">
+        <source> IP Address is invalid </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.html</context>
+          <context context-type="linenumber">59,60</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.html</context>
+          <context context-type="linenumber">174,175</context>
+        </context-group>
+        <note priority="1" from="description">IP address is in an invalid format</note>
+        <note priority="1" from="meaning">Ip address invalid</note>
+      </trans-unit>
+      <trans-unit id="9173133473179217556" datatype="html">
+        <source>First IP</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.html</context>
+          <context context-type="linenumber">65,66</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.html</context>
+          <context context-type="linenumber">180,181</context>
+        </context-group>
+        <note priority="1" from="description">The first IP address of a subnet</note>
+        <note priority="1" from="meaning">First IP</note>
+      </trans-unit>
+      <trans-unit id="273475067020930940" datatype="html">
+        <source>Short Mask</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.html</context>
+          <context context-type="linenumber">75,77</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.html</context>
+          <context context-type="linenumber">190,192</context>
+        </context-group>
+        <note priority="1" from="description">The short version of an IP mask (ex: /24)</note>
+        <note priority="1" from="meaning">Short Mask</note>
+      </trans-unit>
+      <trans-unit id="3627800737920080946" datatype="html">
+        <source>Ex. /24</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.html</context>
+          <context context-type="linenumber">83,84</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.html</context>
+          <context context-type="linenumber">198,199</context>
+        </context-group>
+        <note priority="1" from="description">Gives an example of how to fill the short mask input field</note>
+        <note priority="1" from="meaning">Short mask placeholder</note>
+      </trans-unit>
+      <trans-unit id="8201781273363666973" datatype="html">
+        <source>The mask is invalid</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.html</context>
+          <context context-type="linenumber">84,86</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.html</context>
+          <context context-type="linenumber">110,112</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.html</context>
+          <context context-type="linenumber">199,201</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.html</context>
+          <context context-type="linenumber">225,227</context>
+        </context-group>
+        <note priority="1" from="description">The IP mask format is invalid</note>
+        <note priority="1" from="meaning">Mask invalid</note>
+      </trans-unit>
+      <trans-unit id="5326460272092082543" datatype="html">
+        <source>Last IP</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.html</context>
+          <context context-type="linenumber">89,90</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.html</context>
+          <context context-type="linenumber">204,205</context>
+        </context-group>
+        <note priority="1" from="description">The last IP address of a subnet</note>
+        <note priority="1" from="meaning">Last IP</note>
+      </trans-unit>
+      <trans-unit id="7878472833805889143" datatype="html">
+        <source>Long Mask</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.html</context>
+          <context context-type="linenumber">100,103</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.html</context>
+          <context context-type="linenumber">215,218</context>
+        </context-group>
+        <note priority="1" from="description">The long version of an IP mask (ex: 255.255.255.0)</note>
+        <note priority="1" from="meaning">Long Mask</note>
+      </trans-unit>
+      <trans-unit id="6682664955039534645" datatype="html">
+        <source>Ex. 255.255.255.0</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.html</context>
+          <context context-type="linenumber">108,110</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.html</context>
+          <context context-type="linenumber">223,225</context>
+        </context-group>
+        <note priority="1" from="description">Gives an example of how to fill the long mask input field</note>
+        <note priority="1" from="meaning">Long mask placeholder</note>
+      </trans-unit>
+      <trans-unit id="5961563184597480440" datatype="html">
+        <source>IP address count</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.html</context>
+          <context context-type="linenumber">115,116</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.html</context>
+          <context context-type="linenumber">230,231</context>
+        </context-group>
+        <note priority="1" from="description">The amount of IPs in a subnet</note>
+        <note priority="1" from="meaning">Total ip count</note>
+      </trans-unit>
+      <trans-unit id="4475285443111736620" datatype="html">
+        <source> Add Subnet </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.html</context>
+          <context context-type="linenumber">131,132</context>
+        </context-group>
+        <note priority="1" from="description">Add a subnet to the list</note>
+        <note priority="1" from="meaning">Add Subnet</note>
+      </trans-unit>
+      <trans-unit id="5866519415092316579" datatype="html">
+        <source>Notes</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.html</context>
+          <context context-type="linenumber">245,247</context>
+        </context-group>
+        <note priority="1" from="description">Notes about an item</note>
+        <note priority="1" from="meaning">Notes</note>
+      </trans-unit>
+      <trans-unit id="2350915129742241238" datatype="html">
+        <source> Delete company </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.html</context>
+          <context context-type="linenumber">273,276</context>
+        </context-group>
+        <note priority="1" from="description">Delete a company</note>
+        <note priority="1" from="meaning">Delete company</note>
+      </trans-unit>
+      <trans-unit id="6416161238555990185" datatype="html">
+        <source>Save Changes</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.ts</context>
+          <context context-type="linenumber">51</context>
+        </context-group>
+        <note priority="1" from="description">Save the changes done to an item</note>
+        <note priority="1" from="meaning">Save changes</note>
+      </trans-unit>
+      <trans-unit id="5871420796212876016" datatype="html">
+        <source>Deleting subnet</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.ts</context>
+          <context context-type="linenumber">266,263</context>
+        </context-group>
+        <note priority="1" from="description">Deleting a company subnet</note>
+        <note priority="1" from="meaning">Deleting subnet</note>
+      </trans-unit>
+      <trans-unit id="3161533451164017767" datatype="html">
+        <source>Do you really wish to delete the following subnet ?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.ts</context>
+          <context context-type="linenumber">267,263</context>
+        </context-group>
+        <note priority="1" from="description">Confirmation text to delete a subnet</note>
+        <note priority="1" from="meaning">Deleting subnet confirm</note>
+      </trans-unit>
+      <trans-unit id="5889505081688625370" datatype="html">
+        <source>Deleting company</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.ts</context>
+          <context context-type="linenumber">288,285</context>
+        </context-group>
+        <note priority="1" from="description">Deleting a company</note>
+        <note priority="1" from="meaning">Deleting company</note>
+      </trans-unit>
+      <trans-unit id="5156662916852530311" datatype="html">
+        <source>Do you really wish to delete this company ? All its associated data (hosts, domains, etc.), will be deleted.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.ts</context>
+          <context context-type="linenumber">289,285</context>
+        </context-group>
+        <note priority="1" from="description">Confirmation text to delete a company</note>
+        <note priority="1" from="meaning">Deleting comapny confirm</note>
+      </trans-unit>
+      <trans-unit id="812831998979086425" datatype="html">
+        <source>Company successfully deleted</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.ts</context>
+          <context context-type="linenumber">296</context>
+        </context-group>
+        <note priority="1" from="description">Company deletion was a success</note>
+        <note priority="1" from="meaning">Company deleted</note>
+      </trans-unit>
+      <trans-unit id="1259982190094137505" datatype="html">
+        <source>Correct the form errors before submitting</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.ts</context>
+          <context context-type="linenumber">327,326</context>
+        </context-group>
+        <note priority="1" from="description">User has to correct the errors in the form</note>
+        <note priority="1" from="meaning">Correct form</note>
+      </trans-unit>
+      <trans-unit id="6267523724443973604" datatype="html">
+        <source>Changes saved successfully</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.ts</context>
+          <context context-type="linenumber">357</context>
+        </context-group>
+        <note priority="1" from="description">Changes to item saved successfully</note>
+        <note priority="1" from="meaning">Changes saved</note>
+      </trans-unit>
+      <trans-unit id="5477012042714025351" datatype="html">
+        <source>Company with this name already exists</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.ts</context>
+          <context context-type="linenumber">361,360</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/list-companies/list-companies.component.ts</context>
+          <context context-type="linenumber">123,122</context>
+        </context-group>
+        <note priority="1" from="description">Conflict happenned when creating a company because another company already uses the provided name</note>
+        <note priority="1" from="meaning">Company name unavailable</note>
+      </trans-unit>
+      <trans-unit id="7566988666392957865" datatype="html">
+        <source>Image file is too big</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/edit-companies/edit-companies.component.ts</context>
+          <context context-type="linenumber">365,364</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/list-companies/list-companies.component.ts</context>
+          <context context-type="linenumber">127,126</context>
+        </context-group>
+        <note priority="1" from="description">Error to send when the given image is too big</note>
+        <note priority="1" from="meaning">Image too big</note>
+      </trans-unit>
+      <trans-unit id="9034125950219726218" datatype="html">
+        <source>Create a company</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/list-companies/list-companies.component.html</context>
+          <context context-type="linenumber">13,16</context>
+        </context-group>
+        <note priority="1" from="description">Add a company</note>
+        <note priority="1" from="meaning">Create company</note>
+      </trans-unit>
+      <trans-unit id="6820286236743907502" datatype="html">
+        <source> Cancel </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/list-companies/list-companies.component.html</context>
+          <context context-type="linenumber">50,51</context>
+        </context-group>
+        <note priority="1" from="description">Cancel action</note>
+        <note priority="1" from="meaning">Cancel</note>
+      </trans-unit>
+      <trans-unit id="7799488387913189888" datatype="html">
+        <source>Create</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/list-companies/list-companies.component.ts</context>
+          <context context-type="linenumber">29</context>
+        </context-group>
+        <note priority="1" from="description">Create item</note>
+        <note priority="1" from="meaning">Create</note>
+      </trans-unit>
+      <trans-unit id="1291350410795237882" datatype="html">
+        <source>Company created successfully</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/companies/list-companies/list-companies.component.ts</context>
+          <context context-type="linenumber">113,112</context>
+        </context-group>
+        <note priority="1" from="description">The new company was successfully created</note>
+        <note priority="1" from="meaning">Company created</note>
+      </trans-unit>
       <trans-unit id="5522921364155180105" datatype="html">
         <source>Profile</source>
         <context-group purpose="location">
@@ -1113,14 +1492,31 @@
           <context context-type="sourcefile">src/app/shared/components/sidebar/sidebar.component.html</context>
           <context context-type="linenumber">13</context>
         </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/sidebar/sidebar.component.ts</context>
+          <context context-type="linenumber">12</context>
+        </context-group>
         <note priority="1" from="description">The application&apos;s dashboard</note>
         <note priority="1" from="meaning">Dashboard</note>
+      </trans-unit>
+      <trans-unit id="4823196491961155911" datatype="html">
+        <source>Companies</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/sidebar/sidebar.component.html</context>
+          <context context-type="linenumber">25</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/sidebar/sidebar.component.ts</context>
+          <context context-type="linenumber">15</context>
+        </context-group>
+        <note priority="1" from="description">Multiple businesses</note>
+        <note priority="1" from="meaning">Companies</note>
       </trans-unit>
       <trans-unit id="5087373960546818238" datatype="html">
         <source>Administration</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/components/sidebar/sidebar.component.html</context>
-          <context context-type="linenumber">19</context>
+          <context context-type="linenumber">31</context>
         </context-group>
         <note priority="1" from="description">Administration subsection of the menu</note>
         <note priority="1" from="meaning">Administration</note>
@@ -1133,6 +1529,33 @@
         </context-group>
         <note priority="1" from="description">A list of several items is shortened using this phrase</note>
         <note priority="1" from="meaning">list shortener</note>
+      </trans-unit>
+      <trans-unit id="4429502758651296682" datatype="html">
+        <source>Logo</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/widget/image-upload/image-upload.component.html</context>
+          <context context-type="linenumber">15</context>
+        </context-group>
+        <note priority="1" from="description">Item logo</note>
+        <note priority="1" from="meaning">Logo</note>
+      </trans-unit>
+      <trans-unit id="6671142598269787956" datatype="html">
+        <source>Drag and drop or </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/widget/image-upload/image-upload.component.html</context>
+          <context context-type="linenumber">16</context>
+        </context-group>
+        <note priority="1" from="description">Drang and drop indicator</note>
+        <note priority="1" from="meaning">Dnd</note>
+      </trans-unit>
+      <trans-unit id="5119505077804703742" datatype="html">
+        <source>browse files</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/widget/image-upload/image-upload.component.html</context>
+          <context context-type="linenumber">18</context>
+        </context-group>
+        <note priority="1" from="description">Browse your local files</note>
+        <note priority="1" from="meaning">Browse files</note>
       </trans-unit>
     </body>
   </file>
