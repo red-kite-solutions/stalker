@@ -13,7 +13,6 @@ export class Company {
   @Prop()
   public dataRefreshFrequency: number;
 
-  // Simplified for now, eventually ip and mask object
   @Prop()
   public ipRanges?: string[];
 

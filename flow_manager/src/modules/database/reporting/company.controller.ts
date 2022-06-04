@@ -42,6 +42,13 @@ export class CompanyController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ReadOnly)
+  @Get('summary')
+  async getCompanySummaries() {
+    return await this.companyService.getAllSummaries();
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
   @Post()
   async createCompany(@Body(new ValidationPipe()) dto: CreateCompanyDto) {

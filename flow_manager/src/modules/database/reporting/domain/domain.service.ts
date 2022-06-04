@@ -117,7 +117,22 @@ export class DomainsService {
     return await this.domainModel.deleteMany({ companyId: { $eq: companyId } });
   }
 
-  public async getAll() {
-    return await this.domainModel.find({});
+  public async getAll(
+    page: number = null,
+    pageSize: number = null,
+  ): Promise<DomainDocument[]> {
+    let query = this.domainModel.find({});
+    if (page != null && pageSize != null) {
+      query = query.skip(page * pageSize).limit(pageSize);
+    }
+    return await query;
+  }
+
+  public async count(filter = null) {
+    if (!filter) {
+      return await this.domainModel.estimatedDocumentCount();
+    } else {
+      return await this.domainModel.count(filter);
+    }
   }
 }

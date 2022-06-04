@@ -1,5 +1,15 @@
 import { SelectionModel } from '@angular/cdk/collections';
-import { AfterContentInit, Component, ContentChild, ContentChildren, Input, QueryList, ViewChild } from '@angular/core';
+import {
+  Component,
+  ContentChild,
+  ContentChildren,
+  EventEmitter,
+  Input,
+  Output,
+  QueryList,
+  ViewChild,
+} from '@angular/core';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import {
   MatColumnDef,
   MatHeaderRowDef,
@@ -10,22 +20,37 @@ import {
 } from '@angular/material/table';
 
 @Component({
-  selector: 'app-filtered-paged-table',
-  templateUrl: './filtered-paged-table.component.html',
-  styleUrls: ['./filtered-paged-table.component.scss'],
+  selector: 'app-filtered-paginated-table',
+  templateUrl: './filtered-paginated-table.component.html',
+  styleUrls: ['./filtered-paginated-table.component.scss'],
 })
-export class FilteredPagedTableComponent<T> implements AfterContentInit {
+export class FilteredPaginatedTableComponent<T> {
   @ContentChildren(MatHeaderRowDef) headerRowDefs!: QueryList<MatHeaderRowDef>;
   @ContentChildren(MatRowDef) rowDefs!: QueryList<MatRowDef<T>>;
   @ContentChildren(MatColumnDef) columnDefs!: QueryList<MatColumnDef>;
   @ContentChild(MatNoDataRow) noDataRow!: MatNoDataRow;
 
   @ViewChild(MatTable, { static: true }) table!: MatTable<T>;
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   @Input() dataSource!: MatTableDataSource<T>;
   @Input() columns!: string[];
 
+  @Output() pageChange = new EventEmitter<PageEvent>();
+
   selection = new SelectionModel<T>(true, []);
+
+  @Input() isLoading = false;
+  @Input() length: number | null = 0;
+  pageSize = 10;
+  currentPage = 0;
+  pageSizeOptions: number[] = [10, 25, 50, 100];
+
+  pageChanged(event: PageEvent) {
+    this.pageSize = event.pageSize;
+    this.currentPage = event.pageIndex;
+    this.pageChange.emit(event);
+  }
 
   isAllSelected() {
     const numSelected = this.selection.selected.length;
@@ -38,9 +63,6 @@ export class FilteredPagedTableComponent<T> implements AfterContentInit {
       this.selection.clear();
       return;
     }
-    // if (!this.dataSource?.data) {
-    //   return;
-    // }
 
     this.selection.select(...this.dataSource.data);
   }

@@ -14,14 +14,18 @@ table {
   text-align: center;
 }
 
-.rows {
+table ::ng-deep .rows {
   cursor: pointer;
 }
 
-.rows:hover {
+table ::ng-deep .rows:hover {
   background-color: rgb(243, 243, 243);
 }
 
 .check-box-cell {
   cursor: default;
+}
+
+.nodata {
+  text-align: center;
 }

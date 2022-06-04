@@ -1,7 +1,11 @@
 import { Component } from '@angular/core';
 import { MediaChange, MediaObserver } from '@angular/flex-layout/core';
+import { PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
-import { distinctUntilChanged, filter, map } from 'rxjs';
+import { BehaviorSubject, distinctUntilChanged, filter, map, startWith, switchMap } from 'rxjs';
+import { CompaniesService } from 'src/app/api/companies/companies.service';
+import { DomainsService } from 'src/app/api/domains/domains.service';
+import { CompanySummary } from 'src/app/shared/types/company/company.summary';
 import { Domain } from 'src/app/shared/types/domain/domain.interface';
 
 @Component({
@@ -10,254 +14,47 @@ import { Domain } from 'src/app/shared/types/domain/domain.interface';
   styleUrls: ['./list-domains.component.scss'],
 })
 export class ListDomainsComponent {
+  dataLoading = true;
   displayedColumns: string[] = ['select', 'domain', 'hosts', 'company', 'tags'];
 
-  // dataSource = new MatTableDataSource<Domain>();
-  // dataSource$ = from([
-  //   {
-  //     _id: '62916d822e78ca0036253b6c',
-  //     companyId: '62916d822e78ca0036253b6c',
-  //     name: 'www.example.com',
-  //     hosts: [
-  //       {
-  //         id: '6291bcb8e8f0cd0042385944',
-  //         ip: '192.160.23.58',
-  //       },
-  //       {
-  //         id: '6291bcb8e8f0cd0042385944',
-  //         ip: '192.160.23.58',
-  //       },
-  //       {
-  //         id: '6291bcb8e8f0cd0042385944',
-  //         ip: '192.160.23.58',
-  //       },
-  //       {
-  //         id: '6291bcb8e8f0cd0042385944',
-  //         ip: '192.160.23.58',
-  //       },
-  //       {
-  //         id: '6291bcb8e8f0cd0042385944',
-  //         ip: '192.160.23.58',
-  //       },
-  //     ],
-  //     tags: ['crown jewel', 'ssh', 'web'],
-  //     notes: 'asdf',
-  //   },
-  //   {
-  //     _id: '62916d822e78ca0036253b6c',
-  //     companyId: '6291bd34e8f0cd0042385950',
-  //     name: 'www.example.com',
-  //     hosts: [
-  //       {
-  //         id: '6291bcb8e8f0cd0042385944',
-  //         ip: '192.160.23.58',
-  //       },
-  //       {
-  //         id: '6291bcb8e8f0cd0042385944',
-  //         ip: '192.160.23.58',
-  //       },
-  //       {
-  //         id: '6291bcb8e8f0cd0042385944',
-  //         ip: '192.160.23.58',
-  //       },
-  //       {
-  //         id: '6291bcb8e8f0cd0042385944',
-  //         ip: '192.160.23.58',
-  //       },
-  //       {
-  //         id: '6291bcb8e8f0cd0042385944',
-  //         ip: '192.160.23.58',
-  //       },
-  //     ],
-  //     tags: ['crown jewel', 'ssh', 'web'],
-  //     notes: 'asdf',
-  //   },
-  //   {
-  //     _id: '62916d822e78ca0036253b6c',
-  //     companyId: '62916d822e78ca0036253b6c',
-  //     name: 'www.example.com',
-  //     hosts: [
-  //       {
-  //         id: '6291bcb8e8f0cd0042385944',
-  //         ip: '192.160.23.58',
-  //       },
-  //       {
-  //         id: '6291bcb8e8f0cd0042385944',
-  //         ip: '192.160.23.58',
-  //       },
-  //       {
-  //         id: '6291bcb8e8f0cd0042385944',
-  //         ip: '192.160.23.58',
-  //       },
-  //       {
-  //         id: '6291bcb8e8f0cd0042385944',
-  //         ip: '192.160.23.58',
-  //       },
-  //       {
-  //         id: '6291bcb8e8f0cd0042385944',
-  //         ip: '192.160.23.58',
-  //       },
-  //     ],
-  //     tags: ['crown jewel', 'ssh', 'web'],
-  //     notes: 'asdf',
-  //   },
-  //   {
-  //     _id: '62916d822e78ca0036253b6c',
-  //     companyId: '6291bcb8e8f0cd0042385944',
-  //     name: 'www.example.com',
-  //     hosts: [
-  //       {
-  //         id: '6291bcb8e8f0cd0042385944',
-  //         ip: '192.160.23.58',
-  //       },
-  //       {
-  //         id: '6291bcb8e8f0cd0042385944',
-  //         ip: '192.160.23.58',
-  //       },
-  //       {
-  //         id: '6291bcb8e8f0cd0042385944',
-  //         ip: '192.160.23.58',
-  //       },
-  //       {
-  //         id: '6291bcb8e8f0cd0042385944',
-  //         ip: '192.160.23.58',
-  //       },
-  //       {
-  //         id: '6291bcb8e8f0cd0042385944',
-  //         ip: '192.160.23.58',
-  //       },
-  //     ],
-  //     tags: ['crown jewel', 'ssh', 'web'],
-  //     notes: 'asdf',
-  //   },
-  // ]).pipe(
-  //   map((a) => {
-  //     if (!this.dataSource) {
-  //       this.dataSource = new MatTableDataSource<Domain>();
-  //     }
-  //     this.dataSource.data.push(a);
-  //     return this.dataSource;
-  //   })
-  // );
+  dataSource = new MatTableDataSource<Domain>();
+  firstPage: PageEvent = this.generateFirstPageEvent();
+  currentPage$ = new BehaviorSubject<PageEvent>(this.firstPage);
+  dataSource$ = this.currentPage$.pipe(
+    switchMap((currentPage) => {
+      return this.domainsService.getPage(currentPage.pageIndex, currentPage.pageSize);
+    }),
+    map((data: Domain[]) => {
+      if (!this.dataSource) {
+        this.dataSource = new MatTableDataSource<Domain>();
+      }
+      this.dataSource.data = data;
+      this.dataLoading = false;
+      return data;
+    })
+  );
 
-  dataSource = new MatTableDataSource<Domain>([
-    {
-      _id: '62916d822e78ca0036253b6c',
-      companyId: '62916d822e78ca0036253b6c',
-      name: 'www.example.com',
-      hosts: [
-        {
-          id: '6291bcb8e8f0cd0042385944',
-          ip: '192.160.23.58',
-        },
-        {
-          id: '6291bcb8e8f0cd0042385944',
-          ip: '192.160.23.58',
-        },
-        {
-          id: '6291bcb8e8f0cd0042385944',
-          ip: '192.160.23.58',
-        },
-        {
-          id: '6291bcb8e8f0cd0042385944',
-          ip: '192.160.23.58',
-        },
-        {
-          id: '6291bcb8e8f0cd0042385944',
-          ip: '192.160.23.58',
-        },
-      ],
-      tags: ['crown jewel', 'ssh', 'web'],
-      notes: 'asdf',
-    },
-    {
-      _id: '62916d822e78ca0036253b6c',
-      companyId: '6291bd34e8f0cd0042385950',
-      name: 'www.example.com',
-      hosts: [
-        {
-          id: '6291bcb8e8f0cd0042385944',
-          ip: '192.160.23.58',
-        },
-        {
-          id: '6291bcb8e8f0cd0042385944',
-          ip: '192.160.23.58',
-        },
-        {
-          id: '6291bcb8e8f0cd0042385944',
-          ip: '192.160.23.58',
-        },
-        {
-          id: '6291bcb8e8f0cd0042385944',
-          ip: '192.160.23.58',
-        },
-        {
-          id: '6291bcb8e8f0cd0042385944',
-          ip: '192.160.23.58',
-        },
-      ],
-      tags: ['crown jewel', 'ssh', 'web'],
-      notes: 'asdf',
-    },
-    {
-      _id: '62916d822e78ca0036253b6c',
-      companyId: '62916d822e78ca0036253b6c',
-      name: 'www.example.com',
-      hosts: [
-        {
-          id: '6291bcb8e8f0cd0042385944',
-          ip: '192.160.23.58',
-        },
-        {
-          id: '6291bcb8e8f0cd0042385944',
-          ip: '192.160.23.58',
-        },
-        {
-          id: '6291bcb8e8f0cd0042385944',
-          ip: '192.160.23.58',
-        },
-        {
-          id: '6291bcb8e8f0cd0042385944',
-          ip: '192.160.23.58',
-        },
-        {
-          id: '6291bcb8e8f0cd0042385944',
-          ip: '192.160.23.58',
-        },
-      ],
-      tags: ['crown jewel', 'ssh', 'web'],
-      notes: 'asdf',
-    },
-    {
-      _id: '62916d822e78ca0036253b6c',
-      companyId: '6291bcb8e8f0cd0042385944',
-      name: 'www.example.com',
-      hosts: [
-        {
-          id: '6291bcb8e8f0cd0042385944',
-          ip: '192.160.23.58',
-        },
-        {
-          id: '6291bcb8e8f0cd0042385944',
-          ip: '192.160.23.58',
-        },
-        {
-          id: '6291bcb8e8f0cd0042385944',
-          ip: '192.160.23.58',
-        },
-        {
-          id: '6291bcb8e8f0cd0042385944',
-          ip: '192.160.23.58',
-        },
-        {
-          id: '6291bcb8e8f0cd0042385944',
-          ip: '192.160.23.58',
-        },
-      ],
-      tags: ['crown jewel', 'ssh', 'web'],
-      notes: 'asdf',
-    },
-  ]);
+  companies: CompanySummary[] = [];
+  companies$ = this.companiesService.getAllSummaries().pipe(
+    map((next: any[]) => {
+      const comp: CompanySummary[] = [];
+      for (const company of next) {
+        comp.push({ id: company._id, name: company.name });
+      }
+      this.companies = comp;
+      return this.companies;
+    })
+  );
+
+  count$ = this.domainsService.getCount().pipe(startWith(10));
+
+  private generateFirstPageEvent() {
+    const p = new PageEvent();
+    p.pageIndex = 0;
+    p.pageSize = 10;
+    return p;
+  }
+
   private screenSize$ = this.mediaObserver.asObservable().pipe(
     filter((mediaChanges: MediaChange[]) => !!mediaChanges[0].mqAlias),
     distinctUntilChanged((previous: MediaChange[], current: MediaChange[]) => {
@@ -277,5 +74,13 @@ export class ListDomainsComponent {
     })
   );
 
-  constructor(private mediaObserver: MediaObserver) {}
+  pageChange(event: PageEvent) {
+    this.currentPage$.next(event);
+  }
+
+  constructor(
+    private mediaObserver: MediaObserver,
+    private companiesService: CompaniesService,
+    private domainsService: DomainsService
+  ) {}
 }

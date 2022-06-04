@@ -121,12 +121,51 @@ describe('Company Controller (e2e)', () => {
     }
   });
 
+  it('Should get the list of company summaries (GET /company/summary)', async () => {
+    let companies: string[] = [];
+    let r = await postReq(app, testData.user.token, '/company', {
+      name: companyName,
+    });
+
+    expect(r.statusCode).toBe(HttpStatus.CREATED);
+    expect(r.body._id).toBeTruthy();
+    companies.push(r.body._id);
+
+    r = await postReq(app, testData.user.token, '/company', {
+      name: 'StalkerTwo',
+    });
+
+    expect(r.statusCode).toBe(HttpStatus.CREATED);
+    expect(r.body._id).toBeTruthy();
+    companies.push(r.body._id);
+
+    r = await getReq(app, testData.user.token, '/company/summary');
+    expect(r.statusCode).toBe(HttpStatus.OK);
+    expect(r.body.length).toBeGreaterThanOrEqual(2);
+
+    for (let c of companies) {
+      r = await deleteReq(app, testData.user.token, `/company/${c}`);
+      expect(r.statusCode).toBe(HttpStatus.OK);
+    }
+  });
+
   it('Should have proper authorizations (GET /company)', async () => {
     const success = await checkAuthorizations(
       testData,
       Role.ReadOnly,
       async (givenToken: string) => {
         return await getReq(app, givenToken, `/company`);
+      },
+    );
+    expect(success).toBe(true);
+  });
+
+  it('Should have proper authorizations (GET /company/summary)', async () => {
+    const success = await checkAuthorizations(
+      testData,
+      Role.ReadOnly,
+      async (givenToken: string) => {
+        return await getReq(app, givenToken, `/company/summary`);
       },
     );
     expect(success).toBe(true);

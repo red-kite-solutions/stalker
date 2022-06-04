@@ -1,4 +1,10 @@
-import { IsArray, IsMongoId, IsNotEmpty } from 'class-validator';
+import {
+  IsArray,
+  IsIn,
+  IsMongoId,
+  IsNotEmpty,
+  IsNumberString,
+} from 'class-validator';
 
 export class SubmitDomainDto {
   @IsNotEmpty()
@@ -14,4 +20,13 @@ export class SubmitDomainManuallyDto {
   @IsNotEmpty()
   @IsMongoId()
   companyId: string;
+}
+
+export class DomainsPagingDto {
+  @IsNumberString()
+  page: string;
+
+  @IsNumberString()
+  @IsIn(['10', '25', '50', '100'])
+  pageSize: string;
 }

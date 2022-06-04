@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom, Observable } from 'rxjs';
-import { Company } from 'src/app/shared/types/company.interface';
+import { Company } from 'src/app/shared/types/company/company.interface';
 import { fmUrl } from '../constants';
 
 @Injectable({
@@ -12,6 +12,10 @@ export class CompaniesService {
 
   public getAll(): Observable<Array<any>> {
     return this.http.get(`${fmUrl}/company`) as Observable<Array<any>>;
+  }
+
+  public getAllSummaries(): Observable<Array<any>> {
+    return this.http.get(`${fmUrl}/company/summary`) as Observable<Array<any>>;
   }
 
   public get(id: string) {

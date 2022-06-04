@@ -47,8 +47,12 @@ describe('Domain Controller (e2e)', () => {
     expect(r.statusCode).toBe(HttpStatus.CREATED);
   });
 
-  it('Should get the list of domains (GET /domains)', async () => {
-    const r = await getReq(app, testData.admin.token, '/domains');
+  it('Should get a paginated list of domains (GET /domains)', async () => {
+    const r = await getReq(
+      app,
+      testData.admin.token,
+      '/domains?page=0&pageSize=10',
+    );
     expect(r.statusCode).toBe(HttpStatus.OK);
     expect(r.body.length).toBeGreaterThanOrEqual(1);
 
@@ -59,6 +63,12 @@ describe('Domain Controller (e2e)', () => {
       }
     }
     expect(domainId).toBeTruthy();
+  });
+
+  it('Should get the domain count (GET /domains/count)', async () => {
+    const r = await getReq(app, testData.admin.token, `/domains/count`);
+    expect(r.statusCode).toBe(HttpStatus.OK);
+    expect(r.body.count).toBeGreaterThanOrEqual(1);
   });
 
   it('Should get the specific domain by id (GET /domains/:id)', async () => {
@@ -73,6 +83,17 @@ describe('Domain Controller (e2e)', () => {
       Role.ReadOnly,
       async (givenToken) => {
         return await getReq(app, givenToken, '/domains');
+      },
+    );
+    expect(success).toBe(true);
+  });
+
+  it('Should have proper authorizations (GET /domains/count)', async () => {
+    const success = await checkAuthorizations(
+      testData,
+      Role.ReadOnly,
+      async (givenToken) => {
+        return await getReq(app, givenToken, `/domains/count`);
       },
     );
     expect(success).toBe(true);

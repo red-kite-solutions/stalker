@@ -10,6 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -20,12 +21,16 @@ import { NgxFileDropModule } from 'ngx-file-drop';
 import { FooterComponent } from './components/footer/footer.component';
 import { HeaderComponent } from './components/header/header.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
+import { ExpandObjectPipe } from './pipes/expand-object.pipe';
+import { ExpandObjectsPipe } from './pipes/expand-objects.pipe';
 import { TruncatePipe } from './pipes/truncate.pipe';
+import { WhereIdPipe } from './pipes/where-id.pipe';
 import { AreaComponent } from './widget/area/area.component';
 import { CardComponent } from './widget/card/card.component';
 import { ConfirmDialogComponent } from './widget/confirm-dialog/confirm-dialog.component';
-import { FilteredPagedTableComponent } from './widget/filtered-paged-table/filtered-paged-table.component';
+import { FilteredPaginatedTableComponent } from './widget/filtered-paged-table/filtered-paginated-table.component';
 import { ImageUploadComponent } from './widget/image-upload/image-upload.component';
+import { PillTagComponent } from './widget/pill-tag/pill-tag.component';
 import { SpinnerButtonComponent } from './widget/spinner-button/spinner-button.component';
 
 @NgModule({
@@ -39,7 +44,11 @@ import { SpinnerButtonComponent } from './widget/spinner-button/spinner-button.c
     TruncatePipe,
     SpinnerButtonComponent,
     ImageUploadComponent,
-    FilteredPagedTableComponent,
+    FilteredPaginatedTableComponent,
+    ExpandObjectsPipe,
+    ExpandObjectPipe,
+    WhereIdPipe,
+    PillTagComponent,
   ],
   imports: [
     CommonModule,
@@ -60,6 +69,7 @@ import { SpinnerButtonComponent } from './widget/spinner-button/spinner-button.c
     MatCheckboxModule,
     MatTableModule,
     MatPaginatorModule,
+    MatProgressBarModule,
   ],
   exports: [
     HeaderComponent,
@@ -71,7 +81,11 @@ import { SpinnerButtonComponent } from './widget/spinner-button/spinner-button.c
     TruncatePipe,
     SpinnerButtonComponent,
     ImageUploadComponent,
-    FilteredPagedTableComponent,
+    FilteredPaginatedTableComponent,
+    ExpandObjectsPipe,
+    ExpandObjectPipe,
+    WhereIdPipe,
+    PillTagComponent,
   ],
 })
 export class SharedModule {}
