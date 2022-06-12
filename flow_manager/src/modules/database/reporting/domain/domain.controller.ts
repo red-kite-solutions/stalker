@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Get,
-  Param,
-  Query,
-  UseGuards,
-  ValidationPipe,
-} from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { Role } from 'src/modules/auth/constants';
 import { Roles } from 'src/modules/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
@@ -22,7 +15,7 @@ export class DomainsController {
   @Roles(Role.ReadOnly)
   @Get()
   async getAllDomains(
-    @Query(new ValidationPipe()) dto: DomainsPagingDto,
+    @Query() dto: DomainsPagingDto,
   ): Promise<DomainDocument[]> {
     return await this.domainsService.getAll(
       parseInt(dto.page),

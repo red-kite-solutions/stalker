@@ -75,6 +75,7 @@ export class ListDomainsComponent {
   );
 
   pageChange(event: PageEvent) {
+    this.dataLoading = true;
     this.currentPage$.next(event);
   }
 

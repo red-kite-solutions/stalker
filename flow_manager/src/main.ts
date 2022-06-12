@@ -16,12 +16,12 @@ async function bootstrap() {
     origin: process.env.STALKER_URL,
   });
   app.use(json({ limit: '10mb' }));
-  await app.listen(3000);
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
     }),
   );
+  await app.listen(3000);
 }
 bootstrap();

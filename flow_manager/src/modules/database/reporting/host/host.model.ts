@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { DomainSummary } from '../domain/domain.summary';
+import { Tag } from '../tag.type';
 
 export type HostDocument = Host & Document;
 
@@ -16,7 +17,7 @@ export class Host {
   public domains?: DomainSummary[];
 
   @Prop()
-  public tags?: string[];
+  public tags?: Tag[];
 
   @Prop()
   public notes?: string;

@@ -1,19 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { FilteredPagedTableComponent } from './filtered-paged-table.component';
+import { FilteredPaginatedTableComponent } from './filtered-paginated-table.component';
 
 describe('FilteredPagedTableComponent', () => {
-  let component: FilteredPagedTableComponent;
-  let fixture: ComponentFixture<FilteredPagedTableComponent>;
+  let component: FilteredPaginatedTableComponent;
+  let fixture: ComponentFixture<FilteredPaginatedTableComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [FilteredPagedTableComponent],
+      declarations: [FilteredPaginatedTableComponent],
     }).compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(FilteredPagedTableComponent);
+    fixture = TestBed.createComponent(FilteredPaginatedTableComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

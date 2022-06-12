@@ -1,27 +1,15 @@
 <div fxLayout="row" fxLayoutAlign="center">
   <mat-card fxFlex.gt-sm="90" class="container" fxFlex.lt-md="100">
     <h1 i18n="Domains|Domain names">Domains</h1>
-    <button
-      mat-raised-button
-      color="primary"
-      class="left-action-button"
-      routerLinkActive="list-item-active"
-      routerLink="/admin/users/create"
-    >
-      <mat-icon class="material-icons-outlined"> person_add_alt </mat-icon>
-      <label i18n="New user|Button to create a new user">New User</label>
-    </button>
-    <button mat-raised-button color="warn" class="left-action-button">
-      <mat-icon class="material-icons-outlined"> delete_outline </mat-icon>
-      <label i18n="Delete|Delete an item">Delete</label>
-    </button>
-
     <app-filtered-paginated-table
       *ngIf="((dataSource$ | async) && (companies$ | async)) || true"
       [dataSource]="dataSource"
       (pageChange)="pageChange($event)"
       [isLoading]="dataLoading"
       [length]="count$ | async"
+      [columns]="displayColumns$ | async"
+      [filterOptions]="displayColumns$ | async"
+      [routerLinkPrefix]="'/domains/'"
     >
       <!-- Domain Column -->
       <ng-container matColumnDef="domain">
@@ -57,13 +45,6 @@
       </ng-container>
 
       <tr mat-header-row *matHeaderRowDef="displayColumns$ | async"></tr>
-      <tr
-        mat-row
-        *matRowDef="let row; columns: displayColumns$ | async"
-        routerLinkActive="list-item-active"
-        [routerLink]="['/domain/', row._id]"
-        class="rows"
-      ></tr>
     </app-filtered-paginated-table>
   </mat-card>
 </div>
