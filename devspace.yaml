@@ -23,7 +23,7 @@ deployments:
       values:
         containers:
           - env:
-              - name: API_KEY
+              - name: JQH_API_KEY
                 value: "123456"
               - name: FLASK_ENV
                 value: development
