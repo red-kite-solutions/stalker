@@ -140,3 +140,5 @@ dmypy.json
 # node stuff
 node_modules
 
+# Ignore DevSpace cache and log folder
+.devspace/

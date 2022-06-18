@@ -9,9 +9,11 @@ RUN apk add keybase-client --repository=http://dl-cdn.alpinelinux.org/alpine/edg
 COPY package.json package.json
 COPY package-lock.json package-lock.json
 
-RUN npm install keybase-bot
 RUN npm ci
 
 COPY . . 
 
-CMD ["npm", "start"]
+RUN ls
+RUN more ./package.json
+
+CMD ["npm", "run", "start:debug"]
