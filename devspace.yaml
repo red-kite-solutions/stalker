@@ -1,138 +1,162 @@
-version: v1beta11
+version: v2beta1
+name: stalker
 
-# `images` specifies all images that may need to be built for this project
+vars:
+  STALKER_ENVIRONMENT: dev
+
+imports:
+  - path: devspace.base.yaml
+  - path: devspace.dev.yaml
+    enabled: $(is_equal ${STALKER_ENVIRONMENT} "dev")
+
+pipelines:
+  build:
+    run: build_images flow-manager jobs-handler jqh
+
+  deploy:
+    run: |-
+      build_images flow-manager jobs-handler jqh
+      create_deployments jqh mongo flow-manager jobs-handler --sequential
+
+  dev:
+    run: |-
+      build_images flow-manager jobs-handler jqh
+      create_deployments jqh mongo flow-manager jobs-handler --sequential
+      start_dev --all
+
+  purge:
+    run: |-
+      stop_dev --all
+      purge_deployments jqh mongo flow-manager jobs-handler --sequential
+
 images:
-  flow_manager:
+  flow-manager:
     image: flow_manager
     dockerfile: flow_manager/Dockerfile.dev
     context: flow_manager
-  jobs_handler:
+    rebuildStrategy: default
+
+  jobs-handler:
     image: jobs_handler
     dockerfile: jobs_handler/Dockerfile.dev
     context: jobs_handler
+    rebuildStrategy: default
+
   jqh:
     image: jobs_queue_handler
     dockerfile: jobs_queue_handler/Dockerfile
     context: jobs_queue_handler
+    rebuildStrategy: default
 
-# `deployments` tells DevSpace how to deploy this project
 deployments:
-  - name: jqh
+  flow-manager:
     helm:
-      componentChart: true
-      values:
-        containers:
-          - env:
-              - name: JQH_API_KEY
-                value: "123456"
-              - name: FLASK_ENV
-                value: development
-
-            image: jobs_queue_handler
-            name: jqh-container
-        service:
-          ports:
-            - containerPort: 5000
-              port: 5000
-              protocol: TCP
-
-  - name: mongo
-    helm:
-      componentChart: true
-      values:
-        containers:
-          - image: bitnami/mongodb:5.0.9
-            name: mongo-container
-        service:
-          ports:
-            - containerPort: 27017
-              port: 27017
-              protocol: TCP
-
-  - name: flow-manager
-    helm:
-      componentChart: true
       values:
         containers:
           - env:
               - name: API_KEY
-                value: "123456"
+                value: ${FM_API_KEY}
               - name: JQH_ADDRESS
-                value: http://jqh:5000
+                value: ${JQH_ADDRESS}
               - name: JQH_API_KEY
-                value: "123456"
-              - name: KB_CHANNELID
-                value: "NOT_SET"
-              - name: KB_PAPERKEY
-                value: "NOT_SET"
-              - name: KB_USERNAME
-                value: "NOT_SET"
+                value: ${JQH_API_KEY}
               - name: MONGO_ADDRESS
-                value: mongodb://mongo:27017/stalker
+                value: ${FM_MONGO_ADDRESS}
+              - name: FM_JWT_SECRET
+                value: ${FM_JWT_SECRET}
+              - name: FM_REFRESH_SECRET
+                value: ${FM_REFRESH_SECRET}
+
             image: flow_manager
             name: flow-manager-container
+
         service:
           ports:
             - containerPort: 3000
               port: 3000
               protocol: TCP
+            - containerPort: 3001
+              name: debugging
+              port: 3001
+              protocol: TCP
 
-  - name: jobs-handler
-    # This deployment uses `helm` but you can also define `kubectl` deployments or kustomizations
+  jobs-handler:
     helm:
-      # We are deploying the so-called Component Chart: https://devspace.sh/component-chart/docs
-      componentChart: true
-      # Under `values` we can define the values for this Helm chart used during `helm install/upgrade`
-      # You may also use `valuesFiles` to load values from files, e.g. valuesFiles: ["values.yaml"]
       values:
         containers:
           - env:
               - name: FM_API_KEY
-                value: "123456"
+                value: ${FM_API_KEY}
               - name: JQH_API_KEY
-                value: "123456"
-              - name: JQH_API_KEY
-                value: "123456"
+                value: ${JQH_API_KEY}
             image: jobs_handler
             name: jobs-handler-container
+  jqh:
+    helm:
+      values:
+        containers:
+          - env:
+              - name: JQH_API_KEY
+                value: ${JQH_API_KEY}
+              - name: FLASK_ENV
+                value: development
+            image: jobs_queue_handler
+            name: jqh-container
 
-# `dev` only applies when you run `devspace dev`
+        service:
+          ports:
+            - containerPort: 5000
+              port: 5000
+              protocol: TCP
+  mongo:
+    helm:
+      values:
+        containers:
+          - image: bitnami/mongodb:5.0.9
+            name: mongo-container
+
+        service:
+          ports:
+            - containerPort: 27017
+              port: 27017
+              protocol: TCP
 dev:
-  # `dev.ports` specifies all ports that should be forwarded while `devspace dev` is running
-  # Port-forwarding lets you access your application via localhost on your local machine
-  ports:
-    - labelSelector:
-        app.kubernetes.io/component: jqh
-      forward:
-        - port: 5000
-    - labelSelector:
-        app.kubernetes.io/component: mongo
-      forward:
-        - port: 27017
-    - labelSelector:
-        app.kubernetes.io/component: flow-manager
-      forward:
-        - port: 3000
+  jhq:
+    labelSelector:
+      app.kubernetes.io/component: jqh
+    container: jqh-container
+    sync:
+      - path: ./jobs_queue_handler:/jqh
+    restartHelper:
+      inject: false
+    ports:
+      - port: "5000"
 
-  # `dev.sync` configures a file sync between our Pods in k8s and your local project files
-  sync:
-    - labelSelector:
-        app.kubernetes.io/component: flow-manager
-      containerName: flow-manager-container
-      localSubPath: ./flow_manager/src/
-      containerPath: /app/src/
+  mongo:
+    labelSelector:
+      app.kubernetes.io/component: mongo
+    ports:
+      - port: "27017"
 
-    - labelSelector:
-        app.kubernetes.io/component: jobs-handler
-      containerName: jobs-handler-container
-      localSubPath: ./jobs_handler/src/
-      containerPath: /jh
+  flow-manager:
+    labelSelector:
+      app.kubernetes.io/component: flow-manager
+    container: flow-manager-container
+    sync:
+      - path: ./flow_manager/src/:/app/src/
+    restartHelper:
+      inject: false
+    ports:
+      - port: "3000"
 
-    - labelSelector:
-        app.kubernetes.io/component: jqh
-      containerName: jqh-container
-      localSubPath: ./jobs_queue_handler
-      containerPath: /jqh
+  jobs-handler:
+    labelSelector:
+      app.kubernetes.io/component: jobs-handler
+    container: jobs-handler-container
+    sync:
+      - path: ./jobs_handler/src/:/jh
+    restartHelper:
+      inject: false
 
 hooks:
   - events:
@@ -144,7 +168,6 @@ hooks:
       labelSelector:
         app.kubernetes.io/component: jqh
       containerName: jqh-container
-
   - events:
       - after:deploy:mongo
     wait:
@@ -154,7 +177,6 @@ hooks:
       labelSelector:
         app.kubernetes.io/component: mongo
       containerName: mongo-container
-
   - events:
       - after:deploy:flow-manager
     wait:
@@ -164,7 +186,6 @@ hooks:
       labelSelector:
         app.kubernetes.io/component: flow-manager
       containerName: flow-manager-container
-
   - events:
       - after:deploy:jobs-handler
     wait:
@@ -174,67 +195,3 @@ hooks:
       labelSelector:
         app.kubernetes.io/component: jobs-handler
       containerName: jobs-handler-container
-
-  # - events:
-  #     - after:deploy:flow-manager
-  #   upload:
-  #     localPath: ./flow_manager/src/
-  #     containerPath: /fm/src/
-  #   container:
-  #     labelSelector:
-  #       app.kubernetes.io/component: flow_manager
-  #     containerName: upload-volumes
-
-  # - events:
-  #     - after:deploy:flow-manager
-  #   command: touch /tmp/done
-  #   container:
-  #     labelSelector:
-  #       app.kubernetes.io/component: flow_manager
-  #     containerName: upload-volumes
-
-  # - events:
-  #     - after:deploy:flow-manager
-  #   wait:
-  #     running: true
-  #     terminatedWithCode: 0
-  #   container:
-  #     labelSelector:
-  #       app.kubernetes.io/component: flow-manager
-  #     containerName: flow-manager-container
-
-  # - events:
-  #     - after:deploy:jobs-handler
-  #   upload:
-  #     localPath: ./jobs_handler/src/
-  #     containerPath: /jh/src/
-  #   container:
-  #     labelSelector:
-  #       app.kubernetes.io/component: jobs_handler
-  #     containerName: upload-volumes
-
-  # - events:
-  #     - after:deploy:jobs-handler
-  #   command: touch /tmp/done
-  #   container:
-  #     labelSelector:
-  #       app.kubernetes.io/component: jobs_handler
-  #     containerName: upload-volumes
-
-  # - events:
-  #     - after:deploy:jobs-handler
-  #   upload:
-  #     localPath: ./jobs_handler/src/
-  #     containerPath: /jh/src/
-  #   container:
-  #     labelSelector:
-  #       app.kubernetes.io/component: jobs_handler
-  #     containerName: upload-volumes
-
-  # - events:
-  #     - after:deploy:jobs-handler
-  #   command: touch /tmp/done
-  #   container:
-  #     labelSelector:
-  #       app.kubernetes.io/component: jobs_handler
-  #     containerName: upload-volumes

@@ -142,3 +142,5 @@ node_modules
 
 # Ignore DevSpace cache and log folder
 .devspace/
+devspace.*.yaml
+!devspace.base.yaml

@@ -7,7 +7,6 @@ import { DomainsModule } from './reporting/domain/domain.module';
 import { HostModule } from './reporting/host/host.module';
 import { ReportModule } from './reporting/report/report.module';
 
-const mongoDbConnectionString = `mongodb://${process.env.MONGO_SERVICE_HOST}:${process.env.MONGO_SERVICE_PORT}/stalker`;
 @Module({
   imports: [
     MongooseModule.forRoot(`${process.env.MONGO_ADDRESS}`, {
