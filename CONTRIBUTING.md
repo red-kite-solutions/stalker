@@ -12,7 +12,10 @@
 minikube start
 ```
 
+<details>
+<summary>
 The output should look something like this.
+</summary>
 
 ```
 😄 minikube v1.25.2 on Microsoft Windows 11 Pro 10.0.22000 Build 22000
@@ -31,7 +34,30 @@ The output should look something like this.
 🏄 Done! kubectl is now configured to use "minikube" cluster and "default" namespace by default
 ```
 
-### 2. Run stalker
+</details>
+
+<br>
+
+### Create personal configuration
+
+By default, stalker uses the variables from _[devspace.base.yaml](./devspace.base.yaml)_. For Stalker to work properly though, you must first create a copy of the _[devspace.dev.yaml.template](./devspace.dev.yaml.template)_ and name it _devspace.dev.yaml_. This file will hold your personal configurations. Any variables defined in this file will override the ones found in _devspace.base.yaml_.
+
+#### Worker (jobs handler)
+
+Create a file called `jobs_handler.config` in the same directory as `jobs_handler.py`
+
+```
+job_queue_handler_address=jqh
+job_queue_handler_port=5000
+flow_manager_address=fm
+flow_manager_port=3000
+env=DEV
+amass_config=/bin/amass/amass.config
+amass_bin_path=/bin/amass/
+amass_wordlists=/wordlist/path/
+```
+
+### 3. Run stalker
 
 From the repo root, run
 
