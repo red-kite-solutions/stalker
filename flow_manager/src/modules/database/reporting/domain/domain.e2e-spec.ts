@@ -73,10 +73,29 @@ describe('Domain Controller (e2e)', () => {
     const r = await getReq(
       app,
       testData.admin.token,
-      `/domains?page=0&pageSize=10&domain=${filterString}`,
+      `/domains?page=0&pageSize=10&domain[]=${filterString}`,
     );
-    console.log(filter);
-    console.log(r.body);
+
+    expect(r.statusCode).toBe(HttpStatus.OK);
+    expect(r.body.length).toBe(1);
+
+    const domains: any[] = r.body;
+    for (let d of domains) {
+      if (d.name === domain) {
+        domainId = d._id;
+      }
+    }
+    expect(domainId).toBeTruthy();
+  });
+
+  it('Should get a filtered paginated list of domains (filter: company) (GET /domains)', async () => {
+    const filter = domain;
+    const filterString = encodeURIComponent(filter);
+    const r = await getReq(
+      app,
+      testData.admin.token,
+      `/domains?page=0&pageSize=10&company=${companyId}`,
+    );
 
     expect(r.statusCode).toBe(HttpStatus.OK);
     expect(r.body.length).toBe(1);

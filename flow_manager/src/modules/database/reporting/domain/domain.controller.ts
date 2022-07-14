@@ -61,11 +61,7 @@ export class DomainsController {
   async getAllDomains(
     @Query() dto: DomainsPagingDto,
   ): Promise<DomainDocument[]> {
-    console.log('get all domains');
-
     const finalFilter = this.buildFilters(dto);
-
-    console.log(finalFilter);
 
     return await this.domainsService.getAll(
       parseInt(dto.page),
