@@ -2,7 +2,8 @@ import { Component } from '@angular/core';
 import { MediaChange, MediaObserver } from '@angular/flex-layout/core';
 import { PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
-import { BehaviorSubject, distinctUntilChanged, filter, map, startWith, switchMap } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
+import { BehaviorSubject, distinctUntilChanged, filter, map, startWith, switchMap, tap } from 'rxjs';
 import { CompaniesService } from 'src/app/api/companies/companies.service';
 import { DomainsService } from 'src/app/api/domains/domains.service';
 import { CompanySummary } from 'src/app/shared/types/company/company.summary';
@@ -16,13 +17,20 @@ import { Domain } from 'src/app/shared/types/domain/domain.interface';
 export class ListDomainsComponent {
   dataLoading = true;
   displayedColumns: string[] = ['select', 'domain', 'hosts', 'company', 'tags'];
+  filterOptions: string[] = ['domain', 'company', 'tags'];
 
   dataSource = new MatTableDataSource<Domain>();
-  firstPage: PageEvent = this.generateFirstPageEvent();
-  currentPage$ = new BehaviorSubject<PageEvent>(this.firstPage);
+  currentPage: PageEvent = this.generateFirstPageEvent();
+  currentFilters: string[] = [];
+  currentPage$ = new BehaviorSubject<PageEvent>(this.currentPage);
+
   dataSource$ = this.currentPage$.pipe(
+    tap((currentPage) => {
+      this.currentPage = currentPage;
+    }),
     switchMap((currentPage) => {
-      return this.domainsService.getPage(currentPage.pageIndex, currentPage.pageSize);
+      const filters = this.buildFilters(this.currentFilters);
+      return this.domainsService.getPage(currentPage.pageIndex, currentPage.pageSize, filters);
     }),
     map((data: Domain[]) => {
       if (!this.dataSource) {
@@ -52,6 +60,7 @@ export class ListDomainsComponent {
     const p = new PageEvent();
     p.pageIndex = 0;
     p.pageSize = 10;
+    this.currentPage = p;
     return p;
   }
 
@@ -82,6 +91,54 @@ export class ListDomainsComponent {
   constructor(
     private mediaObserver: MediaObserver,
     private companiesService: CompaniesService,
-    private domainsService: DomainsService
+    private domainsService: DomainsService,
+    private toastrService: ToastrService
   ) {}
+
+  filtersChange(filters: string[]) {
+    this.currentFilters = filters;
+    this.dataLoading = true;
+    this.currentPage$.next(this.currentPage);
+    this.count$ = this.domainsService.getCount(this.buildFilters(this.currentFilters)).pipe(startWith(0));
+  }
+
+  buildFilters(stringFilters: string[]): any {
+    const SEPARATOR = ':';
+    const filterObject: any = {};
+    const tags = [];
+    const domains = [];
+
+    for (const filter of stringFilters) {
+      if (filter.indexOf(SEPARATOR) === -1) continue;
+
+      const keyValuePair = filter.split(SEPARATOR);
+
+      if (keyValuePair.length !== 2) continue;
+
+      const key = keyValuePair[0].trim().toLowerCase();
+      const value = keyValuePair[1].trim().toLowerCase();
+
+      if (!key || !value) continue;
+
+      switch (key) {
+        case 'company':
+          const company = this.companies.find((c) => c.name.trim().toLowerCase() === value.trim().toLowerCase());
+          if (company) filterObject['company'] = company.id;
+          else
+            this.toastrService.warning(
+              $localize`:Company does not exist|The given company name is not known to the application:Company name not recognized`
+            );
+          break;
+        case 'tags':
+          tags.push(value);
+          break;
+        case 'domain':
+          domains.push(value);
+          break;
+      }
+    }
+    if (tags) filterObject['tags'] = tags;
+    if (domains) filterObject['domain'] = domains;
+    return filterObject;
+  }
 }

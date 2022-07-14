@@ -8,8 +8,9 @@
       [isLoading]="dataLoading"
       [length]="count$ | async"
       [columns]="displayColumns$ | async"
-      [filterOptions]="displayColumns$ | async"
+      [filterOptions]="filterOptions"
       [routerLinkPrefix]="'/domains/'"
+      (filtersChange)="filtersChange($event)"
     >
       <!-- Domain Column -->
       <ng-container matColumnDef="domain">

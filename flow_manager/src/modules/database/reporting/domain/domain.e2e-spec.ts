@@ -32,7 +32,8 @@ describe('Domain Controller (e2e)', () => {
         name: companyName,
       })
     ).body._id;
-    const randomSub = Math.random().toString(36).substring(2, 12);
+    let randomSub = Math.random().toString(36).substring(2, 12);
+    randomSub += Math.random().toString(36).substring(2, 12);
     domain = randomSub + '.stalker.is';
   });
 
@@ -55,6 +56,30 @@ describe('Domain Controller (e2e)', () => {
     );
     expect(r.statusCode).toBe(HttpStatus.OK);
     expect(r.body.length).toBeGreaterThanOrEqual(1);
+    expect(r.body.length).toBeLessThanOrEqual(10);
+
+    const domains: any[] = r.body;
+    for (let d of domains) {
+      if (d.name === domain) {
+        domainId = d._id;
+      }
+    }
+    expect(domainId).toBeTruthy();
+  });
+
+  it('Should get a filtered paginated list of domains (filter: domain) (GET /domains)', async () => {
+    const filter = domain;
+    const filterString = encodeURIComponent(filter);
+    const r = await getReq(
+      app,
+      testData.admin.token,
+      `/domains?page=0&pageSize=10&domain=${filterString}`,
+    );
+    console.log(filter);
+    console.log(r.body);
+
+    expect(r.statusCode).toBe(HttpStatus.OK);
+    expect(r.body.length).toBe(1);
 
     const domains: any[] = r.body;
     for (let d of domains) {

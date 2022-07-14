@@ -139,9 +139,9 @@ export class FilteredPaginatedTableComponent<T> {
       this.filterInput.nativeElement.value = completedString;
       this.filterForm.setValue(completedString, { emitEvent: false });
       this.refocusMatChipInput();
-      // Some more autocomplete could be done here
+      // Some more autocomplete could be done here?
       // For instance, a company name could be autocompleted since
-      // they are known
+      // they are known. So are the tags. However, this component needs to stay generic
     }
   }
 
