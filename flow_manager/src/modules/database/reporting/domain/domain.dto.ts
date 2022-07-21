@@ -1,27 +1,12 @@
+// import { Type } from 'class-transformer';
 import {
   IsArray,
   IsIn,
   IsMongoId,
-  IsNotEmpty,
   IsNumberString,
   IsOptional,
 } from 'class-validator';
-
-export class SubmitDomainDto {
-  @IsNotEmpty()
-  @IsArray()
-  subdomains: string[];
-}
-
-export class SubmitDomainManuallyDto {
-  @IsNotEmpty()
-  @IsArray()
-  subdomains: string[];
-
-  @IsNotEmpty()
-  @IsMongoId()
-  companyId: string;
-}
+import { Types } from 'mongoose';
 
 export class DomainsPagingDto {
   @IsNumberString()
@@ -56,4 +41,11 @@ export class GetDomainCountDto {
   @IsMongoId()
   @IsOptional()
   company: string;
+}
+
+export class EditDomainDto {
+  @IsArray()
+  // @ValidateNested({ each: true })
+  // @Type(() => Types.ObjectId)
+  tags: Types.ObjectId[];
 }

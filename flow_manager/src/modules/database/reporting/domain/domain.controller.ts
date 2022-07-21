@@ -1,28 +1,30 @@
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
-import { isArray } from 'class-validator';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Put,
+  Query,
+  UseGuards,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ObjectId } from 'mongodb';
 import { Role } from 'src/modules/auth/constants';
 import { Roles } from 'src/modules/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/modules/auth/guards/role.guard';
 import escapeStringRegexp from '../../../../utils/escape-string-regexp';
-import { DomainsPagingDto, GetDomainCountDto } from './domain.dto';
+import {
+  DomainsPagingDto,
+  EditDomainDto,
+  GetDomainCountDto,
+} from './domain.dto';
 import { DomainDocument } from './domain.model';
 import { DomainsService } from './domain.service';
 
 @Controller('domains')
 export class DomainsController {
   constructor(private readonly domainsService: DomainsService) {}
-
-  private isStringArray(arr: any) {
-    return !(
-      !isArray(arr) ||
-      arr.length <= 0 ||
-      arr.every((element) => {
-        return typeof element === 'string';
-      })
-    );
-  }
 
   private buildFilters(dto: DomainsPagingDto | GetDomainCountDto) {
     const finalFilter = {};
@@ -48,8 +50,7 @@ export class DomainsController {
       for (const tag of dto.tags) {
         preppedTagsArray.push(tag.toLowerCase());
       }
-      // Pretty sure this filter does not work as it does not consider that tags are not strings...
-      // Maybe they should be mongo Ids though and be mapped to a global tag document
+
       finalFilter['tags'] = { $all: preppedTagsArray };
     }
     return finalFilter;
@@ -83,5 +84,15 @@ export class DomainsController {
   @Get(':id')
   async getDomain(@Param('id') id: string): Promise<DomainDocument> {
     return await this.domainsService.getDomain(id);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User)
+  @Put(':id')
+  async editDomain(
+    @Param('id') id: string,
+    @Body(new ValidationPipe()) dto: EditDomainDto,
+  ) {
+    return await this.domainsService.editDomain(id, dto);
   }
 }

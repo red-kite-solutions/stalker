@@ -145,4 +145,11 @@ export class DomainsService {
       return await this.domainModel.count(filter);
     }
   }
+
+  public async editDomain(id: string, domain: Partial<DomainDocument>) {
+    return await this.domainModel.updateOne(
+      { _id: { $eq: new ObjectId(id) } },
+      domain,
+    );
+  }
 }

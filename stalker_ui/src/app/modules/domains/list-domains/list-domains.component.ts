@@ -6,8 +6,10 @@ import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, distinctUntilChanged, filter, map, startWith, switchMap, tap } from 'rxjs';
 import { CompaniesService } from 'src/app/api/companies/companies.service';
 import { DomainsService } from 'src/app/api/domains/domains.service';
+import { TagsService } from 'src/app/api/tags/tags.service';
 import { CompanySummary } from 'src/app/shared/types/company/company.summary';
 import { Domain } from 'src/app/shared/types/domain/domain.interface';
+import { Tag } from 'src/app/shared/types/tag.type';
 
 @Component({
   selector: 'app-list-domains',
@@ -54,6 +56,18 @@ export class ListDomainsComponent {
     })
   );
 
+  tags: Tag[] = [];
+  tags$ = this.tagsService.getTags().pipe(
+    map((next: any[]) => {
+      const tagsArr: Tag[] = [];
+      for (const tag of next) {
+        tagsArr.push({ id: tag._id, text: tag.text, color: tag.color });
+      }
+      this.tags = tagsArr;
+      return this.tags;
+    })
+  );
+
   count$ = this.domainsService.getCount().pipe(startWith(10));
 
   private generateFirstPageEvent() {
@@ -92,7 +106,8 @@ export class ListDomainsComponent {
     private mediaObserver: MediaObserver,
     private companiesService: CompaniesService,
     private domainsService: DomainsService,
-    private toastrService: ToastrService
+    private toastrService: ToastrService,
+    private tagsService: TagsService
   ) {}
 
   filtersChange(filters: string[]) {
@@ -130,7 +145,12 @@ export class ListDomainsComponent {
             );
           break;
         case 'tags':
-          tags.push(value);
+          const tag = this.tags.find((t) => t.text.trim().toLowerCase() === value.trim().toLowerCase());
+          if (tag) tags.push(tag.id);
+          else
+            this.toastrService.warning(
+              $localize`:Tag does not exist|The given tag is not known to the application:Tag not recognized`
+            );
           break;
         case 'domain':
           domains.push(value);
