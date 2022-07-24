@@ -67,6 +67,11 @@ export class EditUserDto {
   @IsBoolean()
   public active: boolean;
 
+  @IsOptional()
+  @IsString()
+  @IsIn(['admin', 'user', 'read-only'])
+  public role: string;
+
   @IsNotEmpty()
   @IsString()
   public currentPassword: string;

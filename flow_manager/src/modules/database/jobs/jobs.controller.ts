@@ -1,21 +1,10 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  UseGuards,
-  ValidationPipe,
-} from '@nestjs/common';
+import { Controller, Delete, Get, Param, UseGuards } from '@nestjs/common';
 import { Role } from 'src/modules/auth/constants';
 import { Roles } from 'src/modules/auth/decorators/roles.decorator';
 import { ApiKeyGuard } from 'src/modules/auth/guards/api-key.guard';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/modules/auth/guards/role.guard';
-import { CreateJobDto } from './dtos/create-job.dto';
 import { JobsService } from './jobs.service';
-import { Job } from './models/jobs.model';
 
 @Controller('jobs')
 export class JobsController {
@@ -28,18 +17,30 @@ export class JobsController {
     return await this.jobsService.getAll();
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.User)
-  @Post('create')
-  async createJob(
-    @Body(new ValidationPipe()) unidentifiedJob: CreateJobDto,
-  ): Promise<Job> {
-    return await this.jobsService.publish(unidentifiedJob);
+  @UseGuards(ApiKeyGuard)
+  @Delete('byworker/:id')
+  async deleteJobByWorker(@Param('id') id: string) {
+    return await this.deleteJob(id);
   }
 
-  @UseGuards(ApiKeyGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User)
+  @Delete()
+  async deleteAllJobs() {
+    return await this.jobsService.deleteAll();
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User)
   @Delete(':id')
   async deleteJob(@Param('id') id: string) {
     return await this.jobsService.delete(id);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ReadOnly)
+  @Get(':id')
+  async getJob(@Param('id') id: string): Promise<any> {
+    return await this.jobsService.getById(id);
   }
 }

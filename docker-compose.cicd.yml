@@ -15,7 +15,7 @@ services:
   flow_manager:
     build: 
       context: .
-      dockerfile: ./flow_manager/Dockerfile
+      dockerfile: ./flow_manager/Dockerfile.cicd
     ports:
       - "3000:3000"
     image: flow_manager
@@ -32,25 +32,13 @@ services:
       - "mongo:db"
     volumes: 
       - ./flow_manager/src/:/fm/src/
+      - ./flow_manager/test/:/fm/test/
 
   mongo: 
     build: ./database/
     ports: 
       - "27017:27017"
     logging:
-      driver: none
+      driver: none  
 
-  jobs_handler: 
-    build: 
-      context: .
-      dockerfile: ./jobs_handler/Dockerfile
-    image: jobs_handler
-    environment:
-      - JQH_API_KEY_FILE=/secrets/jqh_api_key.secret
-      - FM_API_KEY_FILE=/secrets/fm_api_key.secret
-    links: 
-      - "jqh:jobsqueuehandler"
-      - "flow_manager:fm"
-    volumes: 
-      - ./jobs_handler/src/:/jh/src/
   

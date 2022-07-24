@@ -122,6 +122,7 @@ export class UsersController {
     if (req.user.role === Role.Admin) {
       if (dto.active || dto.active === false) update.active = dto.active;
       if (dto.email) update.email = dto.email;
+      if (dto.role) update.role = dto.role;
     }
 
     update.firstName = dto.firstName;
@@ -173,7 +174,7 @@ export class UsersController {
 
   @Roles(Role.Admin)
   @Delete(':id')
-  public async deleteUser(@Param('id') id: string): Promise<void> {
+  public async deleteUser(@Param('id') id: string) {
     try {
       return await this.usersService.deleteUserById(id);
     } catch (err) {

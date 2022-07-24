@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import dot from 'dot-object';
 import { Model } from 'mongoose';
-import { DEFAULT_CONFIG } from './config.default';
 import { SubmitConfigDto } from './config.dto';
 import { Config } from './config.model';
+import { DATABASE_INIT } from './config.provider';
 
 @Injectable()
 export class ConfigService {
@@ -12,14 +12,8 @@ export class ConfigService {
 
   constructor(
     @InjectModel('config') private readonly configModel: Model<Config>,
-  ) {
-    this.configModel.findOne({}).then((c: Config) => {
-      if (!c?.keybaseConfig) {
-        c = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
-        this.configModel.create(c);
-      }
-    });
-  }
+    @Inject(DATABASE_INIT) configProvider,
+  ) {}
 
   public async submitConfig(configUpdate: SubmitConfigDto): Promise<void> {
     const conf: Partial<Config> = {};

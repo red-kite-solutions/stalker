@@ -92,7 +92,7 @@ export class AuthService {
 
   public async logout() {
     try {
-      await firstValueFrom(this.http.delete(`${fmUrl}/auth/logout`));
+      await firstValueFrom(this.http.delete(`${fmUrl}/auth/logout`, { body: { refresh_token: this.refreshToken } }));
     } finally {
       localStorage.removeItem(tokenName);
       localStorage.removeItem(refreshTokenName);

@@ -27,6 +27,7 @@ while job_info or current_time - start_time < 300:
         #slow things down a bit to not spam too much
         time.sleep(3)      
     elif switcher_dict.get(job_info['_task']):
+        print(job_info)
         job = switcher_dict[job_info['_task']](job_info, config)
         job.run()
         job.report(job_reporter)

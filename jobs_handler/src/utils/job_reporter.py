@@ -1,5 +1,7 @@
-import requests
 import json
+
+import requests
+
 
 class JobReporter():
     _fm_address: str
@@ -27,6 +29,6 @@ class JobReporter():
         headers = {
             'API_KEY': self._key,
         }
-        r = requests.delete(f'http://{self._fm_address}:{self._fm_port}/jobs/{jobId}', headers=headers)
+        r = requests.delete(f'http://{self._fm_address}:{self._fm_port}/jobs/byworker/{jobId}', headers=headers)
         if r.status_code < 200 or r.status_code >= 300:
             print(f"ERROR deleting job {jobId}")

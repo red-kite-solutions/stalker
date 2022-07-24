@@ -1,12 +1,13 @@
-from typing import List
-from jobs.job_interface import JobInterface
-from utils.job_reporter import JobReporter
 import socket
+from typing import List
+
+from utils.job_reporter import JobReporter
+
+from jobs.job_interface import JobInterface
 
 
 class DomainNameResolvingJob(JobInterface):
-    """Perform a subdomain brute-force and a lot more with the 
-            enum function of AMASS to get submains from a domain"""
+    """Resolves a domain name to its IP address(es)"""
     
     _domain_name: str
     _ips: List[str]
@@ -21,7 +22,7 @@ class DomainNameResolvingJob(JobInterface):
         return ipx
 
     def __init__(self, job_info: dict, config: dict):
-        super().__init__(job_info['_id'], job_info['_task'])
+        super().__init__(job_info['_id'], job_info['_task'], job_info['_data']['companyId'])
         if not job_info['_data'].get('domainName'):
             raise Exception("""Missing domain name to resolve for 
                 domain name resolving job""")
@@ -37,4 +38,4 @@ class DomainNameResolvingJob(JobInterface):
         """Report the content to the server"""
         ips = str(self._ips).replace("'", '"')
         output = f'{{ "domainName" : "{self._domain_name}", "ips" : {ips} }}'
-        job_reporter.report(f'/report/hosts/{self._id}', output)
+        job_reporter.report(f'/company/{self._company_id}/host/{self._id}', output)
