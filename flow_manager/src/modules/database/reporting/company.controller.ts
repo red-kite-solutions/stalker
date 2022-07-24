@@ -34,6 +34,23 @@ import { CompanyService } from './company.service';
 export class CompanyController {
   constructor(private readonly companyService: CompanyService) {}
 
+  private isValidIpRange(ipRange: string) {
+    if (!/^\d\d?\d?\.\d\d?\d?\.\d\d?\d?\.\d\d?\d?\/\d\d?$/.test(ipRange))
+      return false;
+
+    const ipMask = ipRange.split('/');
+
+    if (parseInt(ipMask[1]) > 32) return false;
+
+    const ipParts = ipMask[0].split('.');
+
+    for (const part of ipParts) {
+      if (parseInt(part) > 255) return false;
+    }
+
+    return true;
+  }
+
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ReadOnly)
   @Get()
@@ -147,7 +164,7 @@ export class CompanyController {
     if (dto.ipRanges) {
       data['ipRanges'] = [];
       for (const range of dto.ipRanges) {
-        if (!this.companyService.IsValidIpRange(range)) {
+        if (!this.isValidIpRange(range)) {
           throw new HttpBadRequestException();
         }
         data['ipRanges'].push(range);
