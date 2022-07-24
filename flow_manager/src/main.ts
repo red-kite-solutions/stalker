@@ -14,6 +14,7 @@ async function bootstrap() {
   app.enableCors({
     origin: process.env.STALKER_URL,
   });
+  // https://github.com/lm-sec/Stalker/issues/94
   app.use(json({ limit: '10mb' }));
   await app.listen(3000);
 }
