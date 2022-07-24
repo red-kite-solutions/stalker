@@ -17,7 +17,6 @@ import { NgxFileDropModule } from 'ngx-file-drop';
 import { FooterComponent } from './components/footer/footer.component';
 import { HeaderComponent } from './components/header/header.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
-import { TruncatePipe } from './pipes/truncate.pipe';
 import { AreaComponent } from './widget/area/area.component';
 import { CardComponent } from './widget/card/card.component';
 import { ConfirmDialogComponent } from './widget/confirm-dialog/confirm-dialog.component';
@@ -32,7 +31,6 @@ import { SpinnerButtonComponent } from './widget/spinner-button/spinner-button.c
     AreaComponent,
     CardComponent,
     ConfirmDialogComponent,
-    TruncatePipe,
     SpinnerButtonComponent,
     ImageUploadComponent,
   ],
@@ -60,7 +58,6 @@ import { SpinnerButtonComponent } from './widget/spinner-button/spinner-button.c
     AreaComponent,
     CardComponent,
     ConfirmDialogComponent,
-    TruncatePipe,
     SpinnerButtonComponent,
     ImageUploadComponent,
   ],
