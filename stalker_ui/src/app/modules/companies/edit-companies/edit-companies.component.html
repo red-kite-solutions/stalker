@@ -134,7 +134,7 @@
                 </div>
               </mat-expansion-panel>
               <mat-expansion-panel
-                *ngFor="let range of getSubnetControls(); let i = index"
+                *ngFor="let range of ipRanges.controls; let i = index"
                 [formGroupName]="i"
                 hideToggle
               >

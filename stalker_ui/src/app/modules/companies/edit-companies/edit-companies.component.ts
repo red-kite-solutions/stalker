@@ -20,6 +20,17 @@ import { Md5 } from 'ts-md5/dist/md5';
   styleUrls: ['./edit-companies.component.scss'],
 })
 export class EditCompaniesComponent implements OnDestroy {
+  ipRanges = this.fb.array([
+    this.fb.group({
+      ip: ['', { validators: [this.ipValidator] }],
+      maxIp: [{ value: '', disabled: true }],
+      minIp: [{ value: '', disabled: true }],
+      longMask: ['', { validators: [this.longMaskValidator] }],
+      shortMask: ['', { validators: [this.shortMaskValidator] }],
+      ipCount: [{ value: '', disabled: true }],
+    }),
+  ]);
+
   form = this.fb.group({
     name: [
       '',
@@ -28,16 +39,7 @@ export class EditCompaniesComponent implements OnDestroy {
       },
     ],
     notes: [''],
-    ipRanges: this.fb.array([
-      this.fb.group({
-        ip: ['', { validators: [this.ipValidator] }],
-        maxIp: [{ value: '', disabled: true }],
-        minIp: [{ value: '', disabled: true }],
-        longMask: ['', { validators: [this.longMaskValidator] }],
-        shortMask: ['', { validators: [this.shortMaskValidator] }],
-        ipCount: [{ value: '', disabled: true }],
-      }),
-    ]),
+    ipRanges: this.ipRanges,
     frequency: [0, []],
   });
 
@@ -207,13 +209,6 @@ export class EditCompaniesComponent implements OnDestroy {
     private companiesService: CompaniesService,
     private router: Router
   ) {}
-
-  public getSubnetControls() {
-    // This function is called a lot by angular, but I did not
-    // find how to make it otherwise. The html can't see it as a
-    // FormArray and you can't cast in the html
-    return (this.form.controls['ipRanges'] as FormArray).controls;
-  }
 
   ngOnDestroy(): void {
     for (const s of this.valueChangeSubscriptions) {
