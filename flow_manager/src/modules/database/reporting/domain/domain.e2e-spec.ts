@@ -37,7 +37,6 @@ describe('Domain Controller (e2e)', () => {
   });
 
   it('Should create a domain (POST /company/:id/domain)', async () => {
-    // expect(HttpStatus.CREATED).toBe(HttpStatus.CREATED);
     const r = await postReq(
       app,
       testData.admin.token,
