@@ -9,3 +9,5 @@ vars:
 
   JQH_API_KEY: "123456" # The API key for the Jobs Queue
   JQH_ADDRESS: http://jqh:5000 # The address of the job queue
+
+  KAFKA_URI: "kafka:9092"

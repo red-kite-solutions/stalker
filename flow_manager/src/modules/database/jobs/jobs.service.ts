@@ -1,6 +1,11 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { Kafka } from 'kafkajs';
 import { Model } from 'mongoose';
+import {
+  featureFlags,
+  orchestratorConstants,
+} from 'src/modules/auth/constants';
 import { JobsQueueUtils } from 'src/utils/jobs_queue.utils';
 import { CreateJobDto } from './dtos/create-job.dto';
 import { JobDto } from './dtos/job.dto';
@@ -61,7 +66,46 @@ export class JobsService {
   }
 
   public async publish(job: Job) {
+    if (featureFlags.orchestratorEnabled) {
+      console.debug('Publishing job to orchestrator.');
+      return await this.publishNew(job);
+    } else {
+      console.debug('Publishing job to job handler queue.');
+      return await this.publishLegacy(job);
+    }
+  }
+
+  private async publishNew(job: Job) {
     const createdJob = await this.jobModel.create(job);
+
+    const kafka = new Kafka({
+      clientId: orchestratorConstants.clientId,
+      brokers: orchestratorConstants.brokers,
+    });
+
+    const producer = kafka.producer();
+    await producer.connect();
+    await producer.send({
+      topic: 'stalker.jobs.requests',
+      messages: [
+        {
+          key: createdJob.id,
+          value: JSON.stringify({
+            JobId: createdJob.id,
+          }),
+        },
+      ],
+    });
+
+    return {
+      id: createdJob.id,
+      ...job,
+    };
+  }
+
+  private async publishLegacy(job: Job) {
+    const createdJob = await this.jobModel.create(job);
+
     const success = await JobsQueueUtils.add({
       id: createdJob.id,
       ...job,

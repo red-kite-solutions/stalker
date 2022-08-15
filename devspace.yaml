@@ -15,19 +15,19 @@ pipelines:
 
   deploy:
     run: |-
-      build_images flow-manager jobs-handler jqh
-      create_deployments jqh mongo flow-manager jobs-handler --sequential
+      build_images flow-manager jobs-handler jqh orchestrator
+      create_deployments jqh mongo flow-manager jobs-handler kafka orchestrator-service-account orchestrator --sequential
 
   dev:
     run: |-
-      build_images flow-manager jobs-handler jqh
-      create_deployments jqh mongo flow-manager jobs-handler --sequential
+      build_images flow-manager jobs-handler jqh orchestrator
+      create_deployments jqh mongo flow-manager jobs-handler kafka orchestrator-service-account orchestrator --sequential
       start_dev --all
 
   purge:
     run: |-
       stop_dev --all
-      purge_deployments jqh mongo flow-manager jobs-handler --sequential
+      purge_deployments jqh mongo flow-manager jobs-handler kafka orchestrator-service-account orchestrator --sequential
 
 images:
   flow-manager:
@@ -48,6 +48,12 @@ images:
     context: jobs_queue_handler
     rebuildStrategy: default
 
+  orchestrator:
+    image: orchestrator
+    dockerfile: orchestrator/Dockerfile.dev
+    context: orchestrator
+    rebuildStrategy: default
+
 deployments:
   flow-manager:
     helm:
@@ -66,6 +72,10 @@ deployments:
                 value: ${FM_JWT_SECRET}
               - name: FM_REFRESH_SECRET
                 value: ${FM_REFRESH_SECRET}
+              - name: KAFKA_URI
+                value: ${KAFKA_URI}
+              - name: FEATURE_ORCHESTRATOR_ENABLED
+                value: ${FM_FEATURE_ORCHESTRATOR_ENABLED}
 
             image: flow_manager
             name: flow-manager-container
@@ -74,10 +84,6 @@ deployments:
           ports:
             - containerPort: 3000
               port: 3000
-              protocol: TCP
-            - containerPort: 3001
-              name: debugging
-              port: 3001
               protocol: TCP
 
   jobs-handler:
@@ -108,6 +114,7 @@ deployments:
             - containerPort: 5000
               port: 5000
               protocol: TCP
+
   mongo:
     helm:
       values:
@@ -120,6 +127,35 @@ deployments:
             - containerPort: 27017
               port: 27017
               protocol: TCP
+  kafka:
+    helm:
+      chart:
+        name: kafka
+        repo: https://charts.bitnami.com/bitnami
+
+  orchestrator-service-account:
+    kubectl:
+      manifests:
+        - orchestrator/orchestrator-service-account.yml
+
+  orchestrator:
+    helm:
+      values:
+        serviceAccountName: orchestrator-service-account
+        containers:
+          - env:
+              - name: JobsQueue__QueueUri
+                value: ${KAFKA_URI}
+
+            image: orchestrator
+            name: orchestrator-container
+
+        service:
+          ports:
+            - containerPort: 5135
+              port: 5135
+              protocol: TCP
+
 dev:
   jhq:
     labelSelector:
@@ -127,6 +163,7 @@ dev:
     container: jqh-container
     sync:
       - path: ./jobs_queue_handler:/jqh
+        disableDownload: true
     restartHelper:
       inject: false
     ports:
@@ -138,12 +175,19 @@ dev:
     ports:
       - port: "27017"
 
+  kafka:
+    labelSelector:
+      app.kubernetes.io/component: kafka
+    ports:
+      - port: "9092"
+
   flow-manager:
     labelSelector:
       app.kubernetes.io/component: flow-manager
     container: flow-manager-container
     sync:
       - path: ./flow_manager/src/:/app/src/
+        disableDownload: true
     restartHelper:
       inject: false
     ports:
@@ -155,8 +199,21 @@ dev:
     container: jobs-handler-container
     sync:
       - path: ./jobs_handler/src/:/jh
+        disableDownload: true
     restartHelper:
       inject: false
+
+  orchestrator:
+    labelSelector:
+      app.kubernetes.io/component: orchestrator
+    container: orchestrator-container
+    sync:
+      - path: ./orchestrator/:/app/
+        disableDownload: true
+    restartHelper:
+      inject: false
+    ports:
+      - port: "5135"
 
 hooks:
   - events:
@@ -168,6 +225,7 @@ hooks:
       labelSelector:
         app.kubernetes.io/component: jqh
       containerName: jqh-container
+
   - events:
       - after:deploy:mongo
     wait:
@@ -177,6 +235,7 @@ hooks:
       labelSelector:
         app.kubernetes.io/component: mongo
       containerName: mongo-container
+
   - events:
       - after:deploy:flow-manager
     wait:
@@ -186,6 +245,7 @@ hooks:
       labelSelector:
         app.kubernetes.io/component: flow-manager
       containerName: flow-manager-container
+
   - events:
       - after:deploy:jobs-handler
     wait:
@@ -195,3 +255,23 @@ hooks:
       labelSelector:
         app.kubernetes.io/component: jobs-handler
       containerName: jobs-handler-container
+
+  - events:
+      - after:deploy:orchestrator
+    wait:
+      running: true
+      terminatedWithCode: 0
+    container:
+      labelSelector:
+        app.kubernetes.io/component: orchestrator
+      containerName: orchestrator-container
+
+  - events:
+      - after:deploy:kafka
+    wait:
+      running: true
+      terminatedWithCode: 0
+    container:
+      labelSelector:
+        app.kubernetes.io/component: kafka
+      containerName: kafka-container

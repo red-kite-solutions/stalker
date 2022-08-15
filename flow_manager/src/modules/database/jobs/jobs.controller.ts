@@ -31,6 +31,7 @@ export class JobsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
   @Post('create')
+  @Post()
   async createJob(
     @Body(new ValidationPipe()) unidentifiedJob: CreateJobDto,
   ): Promise<Job> {

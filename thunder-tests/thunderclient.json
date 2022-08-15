@@ -1,0 +1,407 @@
+[
+  {
+    "_id": "41eadfae-fed7-4ace-bbf7-f9e39b18413f",
+    "colId": "83698f4b-e885-47fd-ba39-da7735f7932f",
+    "containerId": "ddcccf11-6a7c-40ef-8fb3-95b6ab27f2a7",
+    "name": "Create Job (Amass subdomain bf)",
+    "url": "{{FlowManagerAPI}}/jobs/create",
+    "method": "POST",
+    "sortNum": 10000,
+    "created": "2022-07-24T22:31:09.436Z",
+    "modified": "2022-07-24T22:31:09.436Z",
+    "headers": [
+      {
+        "name": "API_KEY",
+        "value": "{{JQH_API_KEY}}"
+      }
+    ],
+    "body": {
+      "type": "json",
+      "raw": "{ \n    \"task\":\"subdomain bruteforce\", \n    \"program\":\"{{program}}\", \n    \"priority\":1, \n    \"data\": {\n        \"domainName\":\"example.com\",\n        \"wordlist\":\"wordlist.txt\"\n    }\n}"
+    }
+  },
+  {
+    "_id": "b1dcd9f7-e2a8-41cc-9dd3-5c57a0038eb3",
+    "colId": "83698f4b-e885-47fd-ba39-da7735f7932f",
+    "containerId": "ddcccf11-6a7c-40ef-8fb3-95b6ab27f2a7",
+    "name": "Create Job (Domain Name Resolving)",
+    "url": "{{FlowManagerAPI}}/jobs/create",
+    "method": "POST",
+    "sortNum": 20000,
+    "created": "2022-07-24T22:31:09.437Z",
+    "modified": "2022-07-24T23:02:46.744Z",
+    "headers": [
+      {
+        "name": "API_KEY",
+        "value": "{{JQH_API_KEY}}"
+      }
+    ],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{ \n    \"task\":\"DomainNameResolvingJob\", \n    \"companyId\": \"62ddcbddec1b05b5a047a3f2\",\n    \"priority\":1, \n    \"data\": {\n        \"domainName\":\"amazon.com\"\n    }\n}",
+      "form": []
+    },
+    "auth": {
+      "type": "bearer",
+      "bearer": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJpZCI6IjYyZGRjY2M1ZWMxYjA1YjVhMDQ3YTQ0NyIsImVtYWlsIjoiYWJvaXNpZXJtaWNoYXVkK3N0YWxrZXJAZ21haWwuY29tIiwicm9sZSI6ImFkbWluIn0.WTnLhCtV8ClCEWfH1gfT1VeYjpA1_GP7WPi0Mz3s06E"
+    },
+    "tests": []
+  },
+  {
+    "_id": "e26d8d8f-a53b-4b64-a335-5b8c8da6696a",
+    "colId": "83698f4b-e885-47fd-ba39-da7735f7932f",
+    "containerId": "ddcccf11-6a7c-40ef-8fb3-95b6ab27f2a7",
+    "name": "Get All Jobs",
+    "url": "{{FlowManagerAPI}}/jobs",
+    "method": "GET",
+    "sortNum": 30000,
+    "created": "2022-07-24T22:31:09.438Z",
+    "modified": "2022-07-24T22:31:09.438Z",
+    "headers": [
+      {
+        "name": "API_KEY",
+        "value": "{{JQH_API_KEY}}"
+      }
+    ],
+    "body": {
+      "type": "json",
+      "raw": ""
+    }
+  },
+  {
+    "_id": "a4fe4c79-fb43-4510-8daa-ccc7b0f9dbff",
+    "colId": "83698f4b-e885-47fd-ba39-da7735f7932f",
+    "containerId": "4081ce99-f840-423d-9170-661638b08bbe",
+    "name": "Create Company",
+    "url": "{{FlowManagerAPI}}/report/companies",
+    "method": "POST",
+    "sortNum": 10000,
+    "created": "2022-07-24T22:31:09.439Z",
+    "modified": "2022-08-15T02:28:17.170Z",
+    "headers": [
+      {
+        "name": "API_KEY",
+        "value": "{{JQH_API_KEY}}"
+      }
+    ],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"name\": \"{{program}}\",\n  \"logo\": \"\"\n}",
+      "form": []
+    },
+    "tests": []
+  },
+  {
+    "_id": "10ff3ad9-953b-402d-9562-fc4e7177cd8b",
+    "colId": "83698f4b-e885-47fd-ba39-da7735f7932f",
+    "containerId": "3de9b0b7-596a-4674-b70f-c45b806dc409",
+    "name": "Submit Domain Name Resolution",
+    "url": "{{FlowManagerAPI}}/report/hosts/{{jobId}}",
+    "method": "POST",
+    "sortNum": 50000,
+    "created": "2022-07-24T22:31:09.440Z",
+    "modified": "2022-07-24T22:31:09.440Z",
+    "headers": [
+      {
+        "name": "API_KEY",
+        "value": "{{JQH_API_KEY}}"
+      }
+    ],
+    "body": {
+      "type": "json",
+      "raw": "{\n    \"domainName\":\"amazon.com\",\n    \"ips\":[\n        \"127.0.0.1\",\n        \"127.0.0.2\",\n        \"127.0.0.3\"\n    ]\n}"
+    }
+  },
+  {
+    "_id": "536c7700-847e-4063-98be-f82339489e2c",
+    "colId": "83698f4b-e885-47fd-ba39-da7735f7932f",
+    "containerId": "3de9b0b7-596a-4674-b70f-c45b806dc409",
+    "name": "Submit Subdomains",
+    "url": "{{FlowManagerAPI}}/report/domains/{{jobId}}",
+    "method": "POST",
+    "sortNum": 60000,
+    "created": "2022-07-24T22:31:09.441Z",
+    "modified": "2022-07-24T22:31:09.441Z",
+    "headers": [
+      {
+        "name": "API_KEY",
+        "value": "{{JQH_API_KEY}}"
+      }
+    ],
+    "body": {
+      "type": "json",
+      "raw": "{\n    \"subdomains\":[\n        \"sub1.example.com\",\n        \"sub2.example.com\",\n        \"sub4.example.com\",\n        \"sub7.sub4.example.com\",\n        \"sub8.sub4.example.com\",\n        \"sub5.example.com\",\n        \"sub3.example.com\",\n        \"sub6.sub3.example.com\"\n    ]\n}"
+    }
+  },
+  {
+    "_id": "faa5fd70-3e8f-4c0c-a443-1fa1fda045b1",
+    "colId": "83698f4b-e885-47fd-ba39-da7735f7932f",
+    "containerId": "3de9b0b7-596a-4674-b70f-c45b806dc409",
+    "name": "Submit Subdomains Manually",
+    "url": "{{FlowManagerAPI}}/report/domains",
+    "method": "POST",
+    "sortNum": 70000,
+    "created": "2022-07-24T22:31:09.443Z",
+    "modified": "2022-07-24T22:31:09.443Z",
+    "headers": [
+      {
+        "name": "API_KEY",
+        "value": "{{JQH_API_KEY}}"
+      }
+    ],
+    "body": {
+      "type": "json",
+      "raw": "{\n    \"program\": \"{{program}}\",\n    \"subdomains\":[\n        \"amazon.com\",\n        \"example.com\"\n    ]\n}"
+    }
+  },
+  {
+    "_id": "e0e46415-8f4c-458e-b45a-600d1284dd16",
+    "colId": "83698f4b-e885-47fd-ba39-da7735f7932f",
+    "containerId": "3de9b0b7-596a-4674-b70f-c45b806dc409",
+    "name": "Get Domain At Index",
+    "url": "{{FlowManagerAPI}}/report/domains/index/{{program}}/0",
+    "method": "GET",
+    "sortNum": 80000,
+    "created": "2022-07-24T22:31:09.444Z",
+    "modified": "2022-07-24T22:31:09.444Z",
+    "headers": [
+      {
+        "name": "API_KEY",
+        "value": "{{JQH_API_KEY}}"
+      }
+    ],
+    "body": {
+      "type": "json",
+      "raw": ""
+    }
+  },
+  {
+    "_id": "ac97974b-b646-4c3f-aa4a-9cc1e85fb7f3",
+    "colId": "83698f4b-e885-47fd-ba39-da7735f7932f",
+    "containerId": "27ad8809-fdd7-4328-bd7e-eeee040c9264",
+    "name": "Send Simple Alert (Keybase)",
+    "url": "{{FlowManagerAPI}}/alert/keybase",
+    "method": "POST",
+    "sortNum": 90000,
+    "created": "2022-07-24T22:31:09.445Z",
+    "modified": "2022-07-24T22:31:09.445Z",
+    "headers": [
+      {
+        "name": "API_KEY",
+        "value": "{{JQH_API_KEY}}"
+      }
+    ],
+    "body": {
+      "type": "json",
+      "raw": "{\n    \"messageContent\": \"u up?\"\n}"
+    }
+  },
+  {
+    "_id": "14c589cc-cc54-407b-bcb4-d3786853617f",
+    "colId": "83698f4b-e885-47fd-ba39-da7735f7932f",
+    "containerId": "352c3f73-b419-4383-a498-0be2a09bfc7d",
+    "name": "Get Current Daily Report",
+    "url": "{{FlowManagerAPI}}/report/daily",
+    "method": "GET",
+    "sortNum": 100000,
+    "created": "2022-07-24T22:31:09.446Z",
+    "modified": "2022-07-24T22:31:09.446Z",
+    "headers": [
+      {
+        "name": "API_KEY",
+        "value": "{{JQH_API_KEY}}"
+      }
+    ],
+    "body": {
+      "type": "json",
+      "raw": ""
+    }
+  },
+  {
+    "_id": "755bbd26-3402-471b-845e-7653e41d6897",
+    "colId": "83698f4b-e885-47fd-ba39-da7735f7932f",
+    "containerId": "352c3f73-b419-4383-a498-0be2a09bfc7d",
+    "name": "Add Note to Daily Report",
+    "url": "{{FlowManagerAPI}}/report/daily/note",
+    "method": "POST",
+    "sortNum": 110000,
+    "created": "2022-07-24T22:31:09.447Z",
+    "modified": "2022-07-24T22:31:09.447Z",
+    "headers": [
+      {
+        "name": "API_KEY",
+        "value": "{{JQH_API_KEY}}"
+      }
+    ],
+    "body": {
+      "type": "json",
+      "raw": "{\n    \"noteContent\": \"This report should include new IPs\"\n}"
+    }
+  },
+  {
+    "_id": "d35e40c8-f0bf-408a-b1d0-1b633b72c39d",
+    "colId": "83698f4b-e885-47fd-ba39-da7735f7932f",
+    "containerId": "352c3f73-b419-4383-a498-0be2a09bfc7d",
+    "name": "Send Daily Report",
+    "url": "{{FlowManagerAPI}}/report/daily/send",
+    "method": "POST",
+    "sortNum": 120000,
+    "created": "2022-07-24T22:31:09.448Z",
+    "modified": "2022-07-24T22:31:09.448Z",
+    "headers": [
+      {
+        "name": "API_KEY",
+        "value": "{{JQH_API_KEY}}"
+      }
+    ],
+    "body": {
+      "type": "json",
+      "raw": "{\n    \"reportDate\": \"2022-01-31\"\n}"
+    }
+  },
+  {
+    "_id": "1fc01989-7eb0-4481-ba20-0188d49dfb30",
+    "colId": "83698f4b-e885-47fd-ba39-da7735f7932f",
+    "containerId": "a26f8397-0209-44f4-8be4-ab7a4dcb8ede",
+    "name": "Update IPs (All programs)",
+    "url": "{{FlowManagerAPI}}/automation/update/ips",
+    "method": "PATCH",
+    "sortNum": 130000,
+    "created": "2022-07-24T22:31:09.449Z",
+    "modified": "2022-07-24T22:31:09.449Z",
+    "headers": [
+      {
+        "name": "API_KEY",
+        "value": "{{JQH_API_KEY}}"
+      }
+    ],
+    "body": {
+      "type": "json",
+      "raw": ""
+    }
+  },
+  {
+    "_id": "7acb857f-c316-4ebe-bedc-72ee8eb4a76c",
+    "colId": "83698f4b-e885-47fd-ba39-da7735f7932f",
+    "containerId": "f73962d8-8be6-4eff-8047-92395cf58b21",
+    "name": "Set application config",
+    "url": "{{FlowManagerAPI}}/admin/config/",
+    "method": "POST",
+    "sortNum": 140000,
+    "created": "2022-07-24T22:31:09.450Z",
+    "modified": "2022-07-24T22:31:09.450Z",
+    "headers": [
+      {
+        "name": "API_KEY",
+        "value": "{{JQH_API_KEY}}"
+      }
+    ],
+    "body": {
+      "type": "json",
+      "raw": "{\n    \"IsNewContentReported\":true\n}"
+    }
+  },
+  {
+    "_id": "cfedfbd0-eefb-43cf-a2b1-eeee1d028dc8",
+    "colId": "83698f4b-e885-47fd-ba39-da7735f7932f",
+    "containerId": "34373672-80cf-4076-949e-6d92934813cd",
+    "name": "Hello, World",
+    "url": "{{FlowManagerAPI}}/",
+    "method": "GET",
+    "sortNum": 150000,
+    "created": "2022-07-24T22:31:09.451Z",
+    "modified": "2022-07-24T22:31:09.451Z",
+    "headers": []
+  },
+  {
+    "_id": "07d45389-a06d-4933-8f4d-9f729f965c84",
+    "colId": "83698f4b-e885-47fd-ba39-da7735f7932f",
+    "containerId": "34373672-80cf-4076-949e-6d92934813cd",
+    "name": "Ping (Authenticated)",
+    "url": "{{FlowManagerAPI}}/ping",
+    "method": "GET",
+    "sortNum": 160000,
+    "created": "2022-07-24T22:31:09.452Z",
+    "modified": "2022-07-24T22:31:09.452Z",
+    "headers": [
+      {
+        "name": "API_KEY",
+        "value": "{{JQH_API_KEY}}"
+      }
+    ]
+  },
+  {
+    "_id": "12757bff-d5fa-47d1-85c3-510a351d4645",
+    "colId": "83698f4b-e885-47fd-ba39-da7735f7932f",
+    "containerId": "f0acf0c9-75da-4077-9c49-b631607bdac8",
+    "name": "Create Job",
+    "url": "{{JQH_API}}/job",
+    "method": "POST",
+    "sortNum": 170000,
+    "created": "2022-07-24T22:31:09.453Z",
+    "modified": "2022-07-24T22:31:09.453Z",
+    "headers": [
+      {
+        "name": "API_KEY",
+        "value": "{{JQH_API_KEY}}"
+      }
+    ],
+    "body": {
+      "type": "json",
+      "raw": "{ \n    \"task\":\"my task name here\",\n    \"id\":\"uuid of the job in the flow manager\",\n    \"priority\":3,\n    \"data\": {\"asdf\":\"asdf\"}\n}"
+    }
+  },
+  {
+    "_id": "6abc3c6e-3a95-4224-a81b-b22c38c5b82d",
+    "colId": "83698f4b-e885-47fd-ba39-da7735f7932f",
+    "containerId": "f0acf0c9-75da-4077-9c49-b631607bdac8",
+    "name": "Pop Job From Queue",
+    "url": "{{JQH_API}}/job",
+    "method": "GET",
+    "sortNum": 180000,
+    "created": "2022-07-24T22:31:09.454Z",
+    "modified": "2022-07-24T22:31:09.454Z",
+    "headers": [
+      {
+        "name": "API_KEY",
+        "value": "{{JQH_API_KEY}}"
+      }
+    ]
+  },
+  {
+    "_id": "0364d2f6-5660-4502-9b48-7dacdd575e38",
+    "colId": "83698f4b-e885-47fd-ba39-da7735f7932f",
+    "containerId": "f0acf0c9-75da-4077-9c49-b631607bdac8",
+    "name": "Show Job List",
+    "url": "{{JQH_API}}/jobs",
+    "method": "GET",
+    "sortNum": 190000,
+    "created": "2022-07-24T22:31:09.455Z",
+    "modified": "2022-07-24T22:31:09.455Z",
+    "headers": [
+      {
+        "name": "API_KEY",
+        "value": "{{JQH_API_KEY}}"
+      }
+    ]
+  },
+  {
+    "_id": "a93646af-4453-495a-a4af-992900851647",
+    "colId": "83698f4b-e885-47fd-ba39-da7735f7932f",
+    "containerId": "f0acf0c9-75da-4077-9c49-b631607bdac8",
+    "name": "Purge Job Queue",
+    "url": "{{JQH_API}}/jobs",
+    "method": "DELETE",
+    "sortNum": 200000,
+    "created": "2022-07-24T22:31:09.456Z",
+    "modified": "2022-07-24T22:31:09.456Z",
+    "headers": [
+      {
+        "name": "API_KEY",
+        "value": "{{JQH_API_KEY}}"
+      }
+    ]
+  }
+]
