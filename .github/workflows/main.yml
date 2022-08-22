@@ -6,9 +6,9 @@ name: Run flow manager tests for PRs on main
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -25,17 +25,23 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
+      - name: Adding the 'secrets' to the application
+        run: |
+          mkdir secrets
+          echo flowmanagerapikey > ./secrets/fm_api_key.secret
+          echo flowmanagerjwtsecret > ./secrets/fm_jwt_secret.secret
+          echo flowmanagerrefreshsecret > ./secrets/fm_refresh_secret.secret
+          echo jqhapikeyjqhapikeyjqhapikey > ./secrets/jqh_api_key.secret
+
       - name: Build the containers
         run: docker-compose -f docker-compose.cicd.yml build --no-cache
 
       - name: Run the containers which run the tests
         run: docker-compose -f docker-compose.cicd.yml up --abort-on-container-exit
-        
+
       - name: Update the results in the pull request
         uses: tanmen/jest-reporter@v1
         if: always()
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           result-file: ./flow_manager/test/jest-output.json
-        
-        

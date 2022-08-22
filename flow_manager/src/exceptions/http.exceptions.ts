@@ -17,3 +17,9 @@ export class HttpForbiddenException extends HttpException {
     super('Invalid credentials', HttpStatus.FORBIDDEN);
   }
 }
+
+export class HttpNotFoundException extends HttpException {
+  constructor() {
+    super('Item not found', HttpStatus.NOT_FOUND);
+  }
+}

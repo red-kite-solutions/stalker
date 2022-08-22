@@ -147,3 +147,6 @@ devspace.*.yaml
 bin
 .vs
 obj
+
+# test output when run for cicd
+jest-output.json

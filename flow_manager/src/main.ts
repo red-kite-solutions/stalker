@@ -8,7 +8,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, adapter, {
     bodyParser: true,
     cors: {
-      origin: 'http://localhost:4200',
+      origin: process.env.STALKER_URL,
     },
     logger: ['debug', 'warn', 'error'],
   });

@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UserDocument } from '../database/users/users.model';
 import { UsersService } from '../database/users/users.service';
 import { jwtConstants, rtConstants } from './constants';
+import { passwordEquals } from './utils/auth.utils';
 
 @Injectable()
 export class AuthService {
@@ -15,10 +16,7 @@ export class AuthService {
     const user = await this.usersService.findOneByEmailIncludeHash(email);
     if (!user?.active) return null;
 
-    const isPasswordValid = await this.usersService.passwordEquals(
-      user.password,
-      pass,
-    );
+    const isPasswordValid = await passwordEquals(user.password, pass);
 
     if (!isPasswordValid) return null;
 
@@ -26,7 +24,7 @@ export class AuthService {
     return result;
   }
 
-  public createRefreshToken(userId: string) {
+  public async createRefreshToken(userId: string) {
     const payload = { id: userId };
 
     const token = this.jwtService.sign(payload, {
@@ -34,7 +32,7 @@ export class AuthService {
       expiresIn: rtConstants.expirationTime,
     });
 
-    this.usersService.setRefreshToken(token, userId);
+    await this.usersService.setRefreshToken(token, userId);
     return token;
   }
 
@@ -50,7 +48,7 @@ export class AuthService {
     });
   }
 
-  public async removeRefreshToken(userId: string) {
-    this.usersService.removeRefreshToken(userId);
+  public async removeRefreshToken(userId: string, refreshToken: string = null) {
+    await this.usersService.removeRefreshToken(userId, refreshToken);
   }
 }

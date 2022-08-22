@@ -24,7 +24,7 @@ export class User {
   public role: string;
 
   @Prop({ select: false })
-  public refreshToken: string;
+  public refreshTokens: string[];
 }
 
 export const UsersSchema = SchemaFactory.createForClass(User);

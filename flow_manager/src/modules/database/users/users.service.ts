@@ -1,8 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import * as argon2 from 'argon2';
 import { Model } from 'mongoose';
+import {
+  hashPassword,
+  passwordEquals,
+} from 'src/modules/auth/utils/auth.utils';
 import { User } from './users.model';
+import { USER_INIT } from './users.provider';
 
 @Injectable()
 export class UsersService {
@@ -10,25 +14,15 @@ export class UsersService {
     timeCost: 5,
   };
 
-  constructor(@InjectModel('users') private readonly userModel: Model<User>) {
-    this.userModel.findOne({}).then((user: User) => {
-      if (!user) {
-        this.createUser({
-          email: 'admin@stalker.is',
-          firstName: 'stalker',
-          lastName: 'admin',
-          password: 'admin',
-          active: true,
-          role: 'admin',
-        });
-      }
-    });
-  }
+  constructor(
+    @InjectModel('users') private readonly userModel: Model<User>,
+    @Inject(USER_INIT) userProvider,
+  ) {}
 
   public async createUser(dto: Partial<User>): Promise<any> {
-    const pass: string = await argon2.hash(dto.password, this.options);
+    const pass: string = await hashPassword(dto.password);
 
-    const user: User = {
+    const user: User & any = {
       email: dto.email,
       firstName: dto.firstName,
       lastName: dto.lastName,
@@ -37,8 +31,9 @@ export class UsersService {
       role: dto.role,
       refreshToken: '',
     };
-    await this.userModel.create(user);
+    let newUser = await this.userModel.create(user);
     user.password = '********';
+    user._id = newUser._id;
     return user;
   }
 
@@ -61,10 +56,6 @@ export class UsersService {
       .lean();
   }
 
-  public passwordEquals(hash: string, password: string): Promise<boolean> {
-    return argon2.verify(hash, password);
-  }
-
   public editUserByEmail(email: string, userEdits: Partial<User>) {
     return this.userModel.updateOne({ email: email }, { ...userEdits });
   }
@@ -74,17 +65,17 @@ export class UsersService {
   }
 
   public async changePasswordByEmail(email: string, password: string) {
-    const pass: string = await argon2.hash(password, this.options);
+    const pass: string = await hashPassword(password);
     return this.userModel.updateOne({ email: email }, { password: pass });
   }
 
   public async changePasswordById(id: string, password: string) {
-    const pass: string = await argon2.hash(password, this.options);
+    const pass: string = await hashPassword(password);
     return this.userModel.updateOne({ _id: id }, { password: pass });
   }
 
   public deleteUserById(userId: string) {
-    return this.userModel.remove({ _id: userId });
+    return this.userModel.deleteOne({ _id: userId });
   }
 
   public async validateIdentity(
@@ -93,7 +84,7 @@ export class UsersService {
   ): Promise<boolean | null> {
     const user: User = await this.findOneByEmailIncludeHash(email);
     if (user) {
-      return await this.passwordEquals(user.password, password);
+      return await passwordEquals(user.password, password);
     } else {
       return null;
     }
@@ -103,8 +94,13 @@ export class UsersService {
     refreshToken: string,
     userId: string,
   ): Promise<void> {
-    const hash: string = await argon2.hash(refreshToken, this.options);
-    await this.userModel.updateOne({ _id: userId }, { refreshToken: hash });
+    const hash: string = await hashPassword(refreshToken);
+
+    // Keep only the 15 most recent refresh tokens
+    await this.userModel.updateOne(
+      { _id: userId },
+      { $push: { refreshTokens: { $each: [hash], $slice: -15 } } },
+    );
   }
 
   public async getUserIfRefreshTokenMatches(
@@ -113,21 +109,39 @@ export class UsersService {
   ): Promise<User> {
     if (refreshToken) {
       const user = await this.userModel
-        .findOne({ _id: id }, '+refreshToken')
+        .findOne({ _id: id }, '+refreshTokens')
         .lean();
-
-      if (
-        user?.refreshToken &&
-        this.passwordEquals(user.refreshToken, refreshToken)
-      ) {
-        return { refreshToken: null, ...user };
+      for (let rt of user.refreshTokens) {
+        if (rt && (await passwordEquals(rt, refreshToken))) {
+          return { refreshTokens: null, ...user };
+        }
       }
     }
     return null;
   }
 
-  public async removeRefreshToken(userId: string) {
-    this.userModel.updateOne({ _id: userId }, { refreshToken: '' });
+  public async removeRefreshToken(userId: string, refreshToken: string) {
+    if (!refreshToken) {
+      await this.userModel.updateOne({ _id: userId }, { refreshTokens: [] });
+      return;
+    }
+
+    const user = await this.userModel.findOne(
+      { _id: userId },
+      '+refreshTokens',
+    );
+
+    let i = 0;
+    for (let rt of user.refreshTokens) {
+      if (rt && (await passwordEquals(rt, refreshToken))) {
+        user.refreshTokens.splice(i, 1);
+        await user.save();
+        return;
+      }
+      i++;
+    }
+
+    await this.userModel.updateOne({ _id: userId }, { refreshTokens: [] });
   }
 
   public async isUserActive(userId: string): Promise<boolean> {

@@ -18,10 +18,12 @@
     "lint-staged:run": "npm run lint:write && npm run format:write",
     "lint-staged": "lint-staged",
     "test": "jest",
-    "test:watch": "jest --watch",
+    "test:watch": "jest --watchAll",
+    "test:cicd": "jest --json --outputFile=./test/jest-output.json --testLocationInResults --config ./test/jest-e2e.json",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --colors --config  ./test/jest-e2e.json",
+    "test:e2e:watch": "jest --watchAll --colors --config ./test/jest-e2e.json"
   },
   "dependencies": {
     "@nestjs/common": "^8.4.0",
@@ -38,6 +40,7 @@
     "class-validator": "^0.13.2",
     "dot-object": "^2.1.4",
     "kafkajs": "^2.1.0",
+    "jwt-decode": "^3.1.2",
     "keybase-bot": "^3.6.1",
     "mongoose": "^5.12.4",
     "mustache": "^4.2.0",

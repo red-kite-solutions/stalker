@@ -38,6 +38,10 @@ export class JobsService {
     await this.jobModel.deleteOne({ _id: { $eq: id } });
   }
 
+  public async deleteAll() {
+    await this.jobModel.deleteMany({});
+  }
+
   public async getById(id: string): Promise<JobDocument> {
     return await this.jobModel.findById(id);
   }

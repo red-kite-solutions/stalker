@@ -17,7 +17,7 @@ export class KeybaseConfig {
   channelId?: string;
 }
 
-@Schema()
+@Schema({ capped: { max: 1 } })
 export class Config {
   @Prop()
   public isNewContentReported?: boolean;

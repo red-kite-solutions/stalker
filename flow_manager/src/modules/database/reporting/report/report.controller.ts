@@ -15,12 +15,12 @@ import { Report } from './report.model';
 import { ReportService } from './report.service';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Controller('report/daily')
+@Controller('report')
 export class ReportController {
   constructor(private readonly reportService: ReportService) {}
 
   @Roles(Role.User)
-  @Post('note')
+  @Post('comment')
   async addComment(
     @Body(new ValidationPipe()) dto: ReportEntryDto,
   ): Promise<void> {
