@@ -142,7 +142,7 @@ deployments:
     helm:
       values:
         containers:
-          - image: bitnami/mongodb:5.0.9
+          - image: bitnami/mongodb:5.0.10
             name: mongo-container
 
         service:

@@ -2,8 +2,8 @@ version: "3.3"
 
 services:
   jqh:
-    build: 
-      context: . 
+    build:
+      context: .
       dockerfile: ./jobs_queue_handler/Dockerfile
     ports:
       - "5000:5000"
@@ -13,13 +13,13 @@ services:
       - FLASK_APP=jobs_queue_handler
 
   flow_manager:
-    build: 
+    build:
       context: .
       dockerfile: ./flow_manager/Dockerfile.test
     ports:
       - "3000:3000"
     image: flow_manager
-    environment: 
+    environment:
       - JQH_API_KEY_FILE=/secrets/jqh_api_key.secret
       - JQH_ADDRESS=http://jqh:5000
       - FM_API_KEY_FILE=/secrets/fm_api_key.secret
@@ -30,15 +30,14 @@ services:
     links:
       - "jqh:jobsqueuehandler"
       - "mongo:db"
-    volumes: 
+    volumes:
       - ./flow_manager/src/:/fm/src/
       - ./flow_manager/test/:/fm/test/
 
-  mongo: 
-    build: ./database/
-    ports: 
-      - "27017:27017"
+  mongo:
+    restart: always
+    image: mongo:5.0.10
+    ports:
+      - 27017:27017
     logging:
-      driver: none  
-
-  
+      driver: none
