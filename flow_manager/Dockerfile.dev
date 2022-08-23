@@ -13,7 +13,4 @@ RUN npm ci
 
 COPY . . 
 
-RUN ls
-RUN more ./package.json
-
 CMD ["npm", "run", "start:debug"]

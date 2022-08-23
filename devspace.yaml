@@ -11,29 +11,35 @@ imports:
 
 pipelines:
   build:
-    run: build_images flow-manager jobs-handler jqh
+    run: build_images ui flow-manager jobs-handler jqh
 
   deploy:
     run: |-
-      build_images flow-manager jobs-handler jqh orchestrator
-      create_deployments jqh mongo flow-manager jobs-handler kafka orchestrator-service-account orchestrator --sequential
+      build_images ui flow-manager jobs-handler jqh orchestrator
+      create_deployments  jqh mongo ui flow-manager jobs-handler kafka orchestrator-service-account orchestrator --sequential
 
   dev:
     run: |-
-      build_images flow-manager jobs-handler jqh orchestrator
-      create_deployments jqh mongo flow-manager jobs-handler kafka orchestrator-service-account orchestrator --sequential
+      build_images ui flow-manager jobs-handler jqh orchestrator
+      create_deployments jqh mongo ui flow-manager jobs-handler kafka orchestrator-service-account orchestrator --sequential
       start_dev --all
 
   purge:
     run: |-
       stop_dev --all
-      purge_deployments jqh mongo flow-manager jobs-handler kafka orchestrator-service-account orchestrator --sequential
+      purge_deployments jqh mongo ui flow-manager jobs-handler kafka orchestrator-service-account orchestrator --sequential
 
 images:
   flow-manager:
     image: flow_manager
     dockerfile: flow_manager/Dockerfile.dev
     context: flow_manager
+    rebuildStrategy: default
+
+  ui:
+    image: ui
+    dockerfile: stalker_ui/Dockerfile.dev
+    context: stalker_ui
     rebuildStrategy: default
 
   jobs-handler:
@@ -76,6 +82,8 @@ deployments:
                 value: ${KAFKA_URI}
               - name: FEATURE_ORCHESTRATOR_ENABLED
                 value: ${FM_FEATURE_ORCHESTRATOR_ENABLED}
+              - name: STALKER_URL
+                value: ${STALKER_URL}
 
             image: flow_manager
             name: flow-manager-container
@@ -84,6 +92,21 @@ deployments:
           ports:
             - containerPort: 3000
               port: 3000
+              protocol: TCP
+
+  ui:
+    helm:
+      values:
+        containers:
+          - env:
+
+            image: ui
+            name: ui-container
+
+        service:
+          ports:
+            - containerPort: 4200
+              port: 4200
               protocol: TCP
 
   jobs-handler:
@@ -193,6 +216,18 @@ dev:
     ports:
       - port: "3000"
 
+  ui:
+    labelSelector:
+      app.kubernetes.io/component: ui
+    container: ui-container
+    sync:
+      - path: ./stalker_ui/src/:/app/src/
+        disableDownload: true
+    restartHelper:
+      inject: false
+    ports:
+      - port: "4200"
+
   jobs-handler:
     labelSelector:
       app.kubernetes.io/component: jobs-handler
@@ -245,6 +280,16 @@ hooks:
       labelSelector:
         app.kubernetes.io/component: flow-manager
       containerName: flow-manager-container
+
+  - events:
+      - after:deploy:ui
+    wait:
+      running: true
+      terminatedWithCode: 0
+    container:
+      labelSelector:
+        app.kubernetes.io/component: ui
+      containerName: ui-container
 
   - events:
       - after:deploy:jobs-handler

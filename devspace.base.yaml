@@ -11,3 +11,5 @@ vars:
   JQH_ADDRESS: http://jqh:5000 # The address of the job queue
 
   KAFKA_URI: "kafka:9092"
+
+  STALKER_URL: "http://localhost:4200"
