@@ -1,6 +1,6 @@
 FROM alpine:latest
 
-ENV FLASK_APP=jobs_queue_handler
+ENV FLASK_APP=jobs_queue_handler.py
 RUN apk add bash
 
 # Install python/pip/flask
@@ -14,8 +14,7 @@ RUN pip3 install flask
 RUN mkdir /jqh
 WORKDIR /jqh
 
-COPY .  .
+ADD jobs_queue_handler/*.py /jqh/
 
-WORKDIR /jqh/
 EXPOSE 5000
 CMD [ "flask", "run", "--host=0.0.0.0" ]
