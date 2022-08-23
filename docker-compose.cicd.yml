@@ -11,6 +11,7 @@ services:
     environment:
       - JQH_API_KEY_FILE=/secrets/jqh_api_key.secret
       - FLASK_APP=jobs_queue_handler
+      - FLASK_ENV=development
 
   flow_manager:
     build:
