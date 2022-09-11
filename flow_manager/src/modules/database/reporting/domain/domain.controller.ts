@@ -29,6 +29,7 @@ export class DomainsController {
   private buildFilters(dto: DomainsPagingDto | GetDomainCountDto) {
     const finalFilter = {};
 
+    // Filter by domain
     if (dto.domain) {
       const preppedDomainArray = [];
       for (const domain of dto.domain) {
@@ -39,12 +40,14 @@ export class DomainsController {
       finalFilter['name'] = { $all: preppedDomainArray };
     }
 
+    // Filter by company
     if (dto.company) {
       finalFilter['companyId'] = {
         $eq: new ObjectId(dto.company),
       };
     }
 
+    // Filter by tag
     if (dto.tags) {
       const preppedTagsArray = [];
       for (const tag of dto.tags) {

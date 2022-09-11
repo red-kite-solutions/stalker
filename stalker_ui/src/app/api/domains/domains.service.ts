@@ -28,20 +28,20 @@ export class DomainsService {
 
   public getPage(page: number, pageSize: number, filters: any): Observable<Domain[]> {
     const encodedFilters = this.filtersToURL(filters);
-    return this.http.get(`${fmUrl}/domains?page=${page}&pageSize=${pageSize}${encodedFilters}`) as Observable<Domain[]>;
+    return <Observable<Domain[]>>this.http.get(`${fmUrl}/domains?page=${page}&pageSize=${pageSize}${encodedFilters}`);
   }
 
   public getCount(filters: any = {}) {
     let encodedFilters = this.filtersToURL(filters);
     let urlParams = '';
     if (encodedFilters) {
-      encodedFilters = encodedFilters.substring(1); // removing the fisrt &
+      encodedFilters = encodedFilters.substring(1); // removing the first &
       urlParams = `?${encodedFilters}`;
     }
-    return this.http.get(`${fmUrl}/domains/count${urlParams}`).pipe(
+    return <Observable<number>>this.http.get(`${fmUrl}/domains/count${urlParams}`).pipe(
       map((v: any) => {
         return v.count;
       })
-    ) as Observable<number>;
+    );
   }
 }

@@ -94,6 +94,7 @@ describe('Company Controller (e2e)', () => {
   });
 
   it('Should get the list of companies (GET /company)', async () => {
+    // Arrange
     let companies: string[] = [];
     let r = await postReq(app, testData.user.token, '/company', {
       name: companyName,
@@ -111,10 +112,14 @@ describe('Company Controller (e2e)', () => {
     expect(r.body._id).toBeTruthy();
     companies.push(r.body._id);
 
+    // Act
     r = await getReq(app, testData.user.token, '/company');
+
+    // Assert
     expect(r.statusCode).toBe(HttpStatus.OK);
     expect(r.body.length).toBeGreaterThanOrEqual(2);
 
+    // Cleaning
     for (let c of companies) {
       r = await deleteReq(app, testData.user.token, `/company/${c}`);
       expect(r.statusCode).toBe(HttpStatus.OK);
@@ -122,6 +127,7 @@ describe('Company Controller (e2e)', () => {
   });
 
   it('Should get the list of company summaries (GET /company/summary)', async () => {
+    // Arrange
     let companies: string[] = [];
     let r = await postReq(app, testData.user.token, '/company', {
       name: companyName,
@@ -139,10 +145,14 @@ describe('Company Controller (e2e)', () => {
     expect(r.body._id).toBeTruthy();
     companies.push(r.body._id);
 
+    // Act
     r = await getReq(app, testData.user.token, '/company/summary');
+
+    // Assert
     expect(r.statusCode).toBe(HttpStatus.OK);
     expect(r.body.length).toBeGreaterThanOrEqual(2);
 
+    // Cleaning
     for (let c of companies) {
       r = await deleteReq(app, testData.user.token, `/company/${c}`);
       expect(r.statusCode).toBe(HttpStatus.OK);

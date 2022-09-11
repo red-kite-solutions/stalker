@@ -45,7 +45,5 @@ export class GetDomainCountDto {
 
 export class EditDomainDto {
   @IsArray()
-  // @ValidateNested({ each: true })
-  // @Type(() => Types.ObjectId)
   tags: Types.ObjectId[];
 }

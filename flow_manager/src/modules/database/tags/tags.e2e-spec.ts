@@ -28,15 +28,20 @@ describe('Tags Controller (e2e)', () => {
   });
 
   it('Should create a tag (POST /tags/)', async () => {
+    // Arrange & Act
     const r = await postReq(app, testData.user.token, `/tags/`, tag);
 
+    // Assert
     expect(r.statusCode).toBe(HttpStatus.CREATED);
     expect(r.body._id).toBeTruthy();
     tagId = r.body._id;
   });
 
   it('Should get a tag by id (GET /tags/:id)', async () => {
+    // Arrange & Act
     const r = await getReq(app, testData.user.token, `/tags/${tagId}`);
+
+    // Assert
     expect(r.statusCode).toBe(HttpStatus.OK);
     expect(r.body._id).toBe(tagId);
     expect(r.body.text).toBe(tag.text);
@@ -44,13 +49,19 @@ describe('Tags Controller (e2e)', () => {
   });
 
   it('Should get all tags (GET /tags/)', async () => {
+    // Arrange & Act
     const r = await getReq(app, testData.user.token, `/tags/`);
+
+    // Assert
     expect(r.statusCode).toBe(HttpStatus.OK);
     expect(r.body.length).toBeGreaterThanOrEqual(1);
   });
 
   it('Should delete a tag by id (DELETE /tags/:id)', async () => {
+    // Arrange & Act
     const r = await deleteReq(app, testData.user.token, `/tags/${tagId}`);
+
+    // Assert
     expect(r.statusCode).toBe(HttpStatus.OK);
   });
 

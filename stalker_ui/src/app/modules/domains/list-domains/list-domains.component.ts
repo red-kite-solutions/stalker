@@ -90,8 +90,8 @@ export class ListDomainsComponent {
 
   public displayColumns$ = this.screenSize$.pipe(
     map((screen: string) => {
-      if (screen === 'xs') return ['select', 'domain', 'hosts', 'company', 'tags'];
-      if (screen === 'sm') return ['select', 'domain', 'hosts', 'company', 'tags'];
+      if (screen === 'xs') return ['select', 'domain', 'company'];
+      if (screen === 'sm') return ['select', 'domain', 'company', 'tags'];
       if (screen === 'md') return ['select', 'domain', 'hosts', 'company', 'tags'];
       return this.displayedColumns;
     })
