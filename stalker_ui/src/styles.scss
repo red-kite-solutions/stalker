@@ -31,9 +31,11 @@ button {
   }
 }
 
-.ngx-file-drop__drop-zone {
-  height: 100% !important;
-  .ngx-file-drop__content {
+app-image-upload {
+  .ngx-file-drop__drop-zone {
     height: 100% !important;
+    .ngx-file-drop__content {
+      height: 100% !important;
+    }
   }
 }

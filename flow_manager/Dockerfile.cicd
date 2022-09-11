@@ -7,7 +7,6 @@ RUN apk add git
 
 RUN mkdir /fm; mkdir /secrets; mkdir /fm/src; mkdir /fm/test;
 
-# ADD flow_manager/src /fm/src/
 ADD flow_manager/nest-cli.json /fm/
 ADD flow_manager/package-lock.json /fm/
 ADD flow_manager/package.json /fm/

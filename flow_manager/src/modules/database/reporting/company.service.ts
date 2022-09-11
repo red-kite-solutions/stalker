@@ -140,23 +140,6 @@ export class CompanyService {
     return await this.jobsService.publish(job);
   }
 
-  public IsValidIpRange(ipRange: string) {
-    if (!/^\d\d?\d?\.\d\d?\d?\.\d\d?\d?\.\d\d?\d?\/\d\d?$/.test(ipRange))
-      return false;
-
-    const ipMask = ipRange.split('/');
-
-    if (parseInt(ipMask[1]) > 32) return false;
-
-    const ipParts = ipMask[0].split('.');
-
-    for (const part of ipParts) {
-      if (parseInt(part) > 255) return false;
-    }
-
-    return true;
-  }
-
   public generateFullImage(b64Content: string, imageType: string) {
     return `data:image/${imageType};base64,${b64Content}`;
   }

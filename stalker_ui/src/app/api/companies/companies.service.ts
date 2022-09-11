@@ -27,13 +27,13 @@ export class CompaniesService {
   }
 
   public async create(companyName: string, companyLogo: string | null = null, imageType: string | null = null) {
-    return (await firstValueFrom(
-      this.http.post(`${fmUrl}/company`, {
+    return await firstValueFrom(
+      this.http.post<Company>(`${fmUrl}/company`, {
         name: companyName,
         logo: companyLogo,
         imageType: imageType,
       })
-    )) as Company;
+    );
   }
 
   public async edit(id: string, data: any) {

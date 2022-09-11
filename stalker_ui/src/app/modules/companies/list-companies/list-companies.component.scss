@@ -38,7 +38,6 @@ h3 {
 
 .text {
   width: 100%;
-  text-align: center;
 }
 
 .imgContainer {
@@ -70,6 +69,21 @@ p {
   div {
     width: 100%;
   }
+}
+
+.ellipsis {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ellipsis2 {
+  -webkit-line-clamp: 2;
+}
+
+.ellipsis5 {
+  -webkit-line-clamp: 5;
 }
 
 .createCompanyForm {

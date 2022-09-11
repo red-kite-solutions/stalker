@@ -54,13 +54,6 @@ export class ListCompaniesComponent implements OnDestroy {
     })
   );
 
-  public truncateNotes$ = this.screenSize$.pipe(
-    map((screen: string) => {
-      if (screen === 'lg' || screen === 'xs') return 120;
-      return 150;
-    })
-  );
-
   public displayNotes$ = this.screenSize$.pipe(
     map((screen: string) => {
       return screen === 'xl' || screen === 'lg' || screen === 'xs';
