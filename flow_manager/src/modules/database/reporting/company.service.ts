@@ -40,7 +40,10 @@ export class CompanyService {
   }
 
   public async addCompany(dto: CreateCompanyDto) {
-    return await new this.companyModel(dto).save();
+    return await new this.companyModel({
+      name: dto.name,
+      logo: dto.logo ? this.generateFullImage(dto.logo, dto.imageType) : '',
+    }).save();
   }
 
   public async update(id: string, company: Company) {
@@ -123,5 +126,16 @@ export class CompanyService {
     }
 
     return await this.jobsService.publish(job);
+  }
+
+  public generateFullImage(b64Content: string, imageType: string) {
+    return `data:image/${imageType};base64,${b64Content}`;
+  }
+
+  public async editCompany(id: string, company: Partial<Company>) {
+    return await this.companyModel.updateOne(
+      { _id: { $eq: id } },
+      { ...company },
+    );
   }
 }

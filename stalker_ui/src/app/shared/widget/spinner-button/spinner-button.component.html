@@ -1,0 +1,8 @@
+<button type="button" mat-raised-button [color]="buttonColor" fxFlex>
+  <label *ngIf="!loadingState">{{ label }}</label>
+  <div fxLayoutAlign="center center">
+    <div id="spinnerContainer">
+      <mat-spinner [diameter]="20" *ngIf="loadingState" [color]="spinnerColor" fxFlex></mat-spinner>
+    </div>
+  </div>
+</button>

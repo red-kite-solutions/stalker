@@ -5,5 +5,6 @@ export class HttpStatus {
   static NotFound = 404;
   static TimeOut = 408;
   static Conflict = 409;
+  static PayloadTooLarge = 413;
   static InternalServerError = 500;
 }

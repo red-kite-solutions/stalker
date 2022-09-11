@@ -5,10 +5,12 @@ import {
   Get,
   Param,
   Post,
+  Put,
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
 import {
+  HttpBadRequestException,
   HttpConflictException,
   HttpServerErrorException,
 } from 'src/exceptions/http.exceptions';
@@ -21,14 +23,33 @@ import { Job } from '../jobs/models/jobs.model';
 import {
   CreateCompanyDto,
   CreateJobDto,
+  EditCompanyDto,
   SubmitDomainsDto,
   SubmitHostDto,
 } from './company.dto';
+import { Company } from './company.model';
 import { CompanyService } from './company.service';
 
 @Controller('company')
 export class CompanyController {
   constructor(private readonly companyService: CompanyService) {}
+
+  private isValidIpRange(ipRange: string) {
+    if (!/^\d\d?\d?\.\d\d?\d?\.\d\d?\d?\.\d\d?\d?\/\d\d?$/.test(ipRange))
+      return false;
+
+    const ipMask = ipRange.split('/');
+
+    if (parseInt(ipMask[1]) > 32) return false;
+
+    const ipParts = ipMask[0].split('.');
+
+    for (const part of ipParts) {
+      if (parseInt(part) > 255) return false;
+    }
+
+    return true;
+  }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ReadOnly)
@@ -41,6 +62,9 @@ export class CompanyController {
   @Roles(Role.User)
   @Post()
   async createCompany(@Body(new ValidationPipe()) dto: CreateCompanyDto) {
+    if ((dto.imageType && !dto.logo) || (dto.logo && !dto.imageType))
+      throw new HttpBadRequestException();
+
     try {
       return await this.companyService.addCompany(dto);
     } catch (err) {
@@ -116,6 +140,58 @@ export class CompanyController {
   @Get(':id')
   async getCompany(@Param('id') id: string) {
     return await this.companyService.get(id);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User)
+  @Put(':id')
+  async editCompany(
+    @Param('id') id: string,
+    @Body(new ValidationPipe()) dto: EditCompanyDto,
+  ) {
+    const data: Partial<Company> = {};
+    if ((dto.imageType && !dto.logo) || (dto.logo && !dto.imageType)) {
+      throw new HttpBadRequestException();
+    } else if (dto.imageType && dto.logo) {
+      data['logo'] = this.companyService.generateFullImage(
+        dto.logo,
+        dto.imageType,
+      );
+    } else if (dto.logo === '') {
+      data['logo'] = dto.logo;
+    }
+
+    if (dto.ipRanges) {
+      data['ipRanges'] = [];
+      for (const range of dto.ipRanges) {
+        if (!this.isValidIpRange(range)) {
+          throw new HttpBadRequestException();
+        }
+        data['ipRanges'].push(range);
+      }
+    } else if (dto.ipRanges === []) {
+      data['ipRanges'] = [];
+    }
+
+    if (dto.name === '') {
+      throw new HttpBadRequestException();
+    } else if (dto.name) {
+      data['name'] = dto.name;
+    }
+
+    if (dto.notes || dto.notes === '') {
+      data['notes'] = dto.notes;
+    }
+
+    try {
+      return await this.companyService.editCompany(id, data);
+    } catch (err) {
+      if (err.code === 11000) {
+        // Duplicate key error
+        throw new HttpConflictException();
+      }
+      throw new HttpServerErrorException();
+    }
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

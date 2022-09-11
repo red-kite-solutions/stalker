@@ -8,6 +8,7 @@ import {
   getReq,
   initTesting,
   postReq,
+  putReq,
   TestingData,
 } from 'test/e2e.utils';
 
@@ -42,6 +43,45 @@ describe('Company Controller (e2e)', () => {
     expect(r.statusCode).toBe(HttpStatus.OK);
     expect(r.body.name).toBe(companyName);
     expect(r.body._id).toBeTruthy();
+  });
+
+  it('Should edit a company by id (PUT /company/:id)', async () => {
+    const nameEdit = 'StalkerModified';
+    const subnetEdit = ['192.168.0.1/24', '10.10.10.10/16', '121.1.1.1/30'];
+    const notesEdit = 'great notes over here';
+    let r = await putReq(app, testData.user.token, `/company/${companyId}`, {
+      name: nameEdit,
+      ipRanges: subnetEdit,
+      notes: notesEdit,
+    });
+    expect(r.statusCode).toBe(HttpStatus.OK);
+
+    r = await getReq(app, testData.user.token, `/company/${companyId}`);
+    expect(r.body._id).toBeTruthy();
+    expect(r.body.name).toBe(nameEdit);
+    expect(r.body.ipRanges).toEqual(subnetEdit);
+    expect(r.body.notes).toBe(notesEdit);
+  });
+
+  it('Should edit a company by id, adding a logo (PUT /company/:id)', async () => {
+    const logoB64 =
+      'iVBORw0KGgoAAAANSUhEUgAAABQAAAA8CAYAAABmdppWAAAABHNCSVQICAgIfAhkiAAAABl0RVh0U29mdHdhcmUAZ25vbWUtc2NyZWVuc2hvdO8Dvz4AAAAzSURBVFiF7cxBEQAgCAAwpBgZCGs+6eDx3ALsVN8Xi3IzEwqFQqFQKBQKhUKhUCgUCv8NhMECvInB4dQAAAAASUVORK5CYII=';
+    let r = await putReq(app, testData.user.token, `/company/${companyId}`, {
+      logo: logoB64,
+      imageType: 'png',
+    });
+    r = await getReq(app, testData.user.token, `/company/${companyId}`);
+    expect(r.statusCode).toBe(HttpStatus.OK);
+    expect(r.body.logo).toBe(`data:image/png;base64,${logoB64}`);
+  });
+
+  it('Should edit a company by id, removing a logo (PUT /company/:id)', async () => {
+    let r = await putReq(app, testData.user.token, `/company/${companyId}`, {
+      logo: '',
+    });
+    r = await getReq(app, testData.user.token, `/company/${companyId}`);
+    expect(r.statusCode).toBe(HttpStatus.OK);
+    expect(r.body.logo).toBe('');
   });
 
   it('Should delete a company (DELETE /company/:id)', async () => {
@@ -113,6 +153,17 @@ describe('Company Controller (e2e)', () => {
           givenToken,
           `/company/62780ca0156f3d3fda24c4e2`,
         );
+      },
+    );
+    expect(success).toBe(true);
+  });
+
+  it('Should have proper authorizations (PUT /company/:id)', async () => {
+    const success = await checkAuthorizations(
+      testData,
+      Role.User,
+      async (givenToken: string) => {
+        return await postReq(app, givenToken, `/company`, {});
       },
     );
     expect(success).toBe(true);
