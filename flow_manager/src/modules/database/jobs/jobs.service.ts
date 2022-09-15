@@ -80,8 +80,14 @@ export class JobsService {
   }
 
   private async publishNew(job: Job) {
+    if (process.env.TESTS) {
+      console.warn('This feature is not available while testing');
+      return null;
+    }
+
     const createdJob = await this.jobModel.create(job);
 
+    // TODO: Extract in service, inject through DI
     const kafka = new Kafka({
       clientId: orchestratorConstants.clientId,
       brokers: orchestratorConstants.brokers,
@@ -90,7 +96,7 @@ export class JobsService {
     const producer = kafka.producer();
     await producer.connect();
     await producer.send({
-      topic: 'stalker.jobs.requests',
+      topic: orchestratorConstants.topics.jobRequests, // TODO: Put in constant or something.
       messages: [
         {
           key: createdJob.id,

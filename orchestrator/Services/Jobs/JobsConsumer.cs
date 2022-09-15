@@ -14,7 +14,7 @@ public class JobsConsumer : KafkaConsumer<JobMessage>
     private readonly IJobsService JobsService;
     protected override string GroupId => "stalker";
 
-    protected override string[] Topics => new[] { "stalker.jobs.requests" };
+    protected override string[] Topics => new[] { Constants.JobRequestsTopic };
 
     public JobsConsumer(IJobsService jobsService, IConfiguration config, ILogger<JobsConsumer> logger)
         : base(config, logger)
@@ -37,7 +37,7 @@ public class JobEventsConsumer : KafkaConsumer<JobEventMessage>
 {
     protected override string GroupId => "stalker";
 
-    protected override string[] Topics => new[] { "stalker.jobs.findings" };
+    protected override string[] Topics => new[] { Constants.JobFindingsTopic };
 
     public JobEventsConsumer(IConfiguration config, ILogger<JobEventsConsumer> logger)
         : base(config, logger)

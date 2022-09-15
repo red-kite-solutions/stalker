@@ -38,8 +38,8 @@ var producerConfig = new ProducerConfig
 
     var expectedTopics = new[]
     {
-        new TopicSpecification { Name = "stalker.jobs.requests", },
-        new TopicSpecification { Name = "stalker.jobs.findings", }
+        new TopicSpecification { Name = Constants.JobRequestsTopic, },
+        new TopicSpecification { Name = Constants.JobFindingsTopic, }
     };
 
     try
@@ -73,7 +73,7 @@ app.Services.GetService<JobsConsumer>();
 
 app.MapGet("/produce/{id}", async (string id) =>
 {
-    await producer.ProduceAsync("stalker.jobs.requests", new Message<Null, JobMessage>
+    await producer.ProduceAsync(Constants.JobRequestsTopic, new Message<Null, JobMessage>
     {
         Value = new JobMessage { JobId = id }
     });

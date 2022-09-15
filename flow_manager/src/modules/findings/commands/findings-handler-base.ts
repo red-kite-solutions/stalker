@@ -6,9 +6,7 @@ import { FindingCommand } from './hostname-ip.command';
 export abstract class FindingHandlerBase<T extends FindingCommand>
   implements ICommandHandler<T>
 {
-  constructor(private jobService: JobsService) {
-    console.log(jobService);
-  }
+  constructor(private jobService: JobsService) {}
 
   public async execute(command: T) {
     const job = await this.jobService.getById(command.jobId);

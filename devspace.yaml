@@ -20,8 +20,8 @@ pipelines:
 
   dev:
     run: |-
-      build_images ui flow-manager jobs-handler jqh orchestrator
-      create_deployments jqh mongo ui flow-manager jobs-handler kafka orchestrator-service-account orchestrator --sequential
+      build_images ui flow-manager jobs-handler orchestrator
+      create_deployments mongo ui flow-manager jobs-handler kafka orchestrator-service-account orchestrator --sequential
       start_dev --all
 
   purge:

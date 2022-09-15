@@ -11,6 +11,10 @@ export const rtConstants = {
 export const orchestratorConstants = {
   clientId: 'flow-manager',
   brokers: [process.env['KAFKA_URI']],
+  topics: {
+    jobRequests: 'stalker.jobs.requests',
+    findings: 'stalker.jobs.findings',
+  },
 };
 
 export const featureFlags = {

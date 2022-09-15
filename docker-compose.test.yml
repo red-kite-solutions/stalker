@@ -28,6 +28,7 @@ services:
       - FM_JWT_SECRET=flowmanagerjwtsecret
       - FM_REFRESH_SECRET=flowmanagerrefreshsecret
       - STALKER_URL=http://localhost:4200
+      - TESTS=true
     links:
       - "jqh:jobsqueuehandler"
       - "mongo:db"

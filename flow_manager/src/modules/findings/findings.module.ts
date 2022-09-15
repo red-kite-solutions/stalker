@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { Kafka } from 'kafkajs';
+import { orchestratorConstants } from '../auth/constants';
 import { JobsModule } from '../database/jobs/jobs.module';
 import { CompanyModule } from '../database/reporting/company.module';
 import { FindingsCommands } from './commands/findings-commands';
@@ -24,7 +25,7 @@ export class FindingsModule {
     const consumer = kafka.consumer({ groupId: 'flow-manager' });
     await consumer.connect();
     await consumer.subscribe({
-      topic: 'stalker.jobs.findings',
+      topic: orchestratorConstants.topics.findings,
       fromBeginning: false,
     });
 
