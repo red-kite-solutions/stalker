@@ -1,0 +1,103 @@
+@use '@angular/material' as mat;
+
+.buttonTile {
+  background: white;
+  cursor: pointer;
+  border-radius: 4px;
+  @include mat.elevation(4);
+  &:hover {
+    background-color: rgb(243, 243, 243);
+    transform: translateY(-4px);
+    @include mat.elevation(8);
+    .imgContainer {
+      -webkit-filter: brightness(95%);
+    }
+    &:active {
+      transform: translateY(0px);
+      @include mat.elevation(4);
+    }
+  }
+}
+
+.companyLogo {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  height: 100%;
+}
+
+h3 {
+  text-align: center;
+  font-size: 20px;
+}
+
+.textContainer {
+  height: 100%;
+  padding: 20px 20px 20px 10px;
+}
+
+.text {
+  width: 100%;
+}
+
+.imgContainer {
+  padding: 20px 10px 20px 20px;
+  text-align: center;
+  height: 100%;
+  mat-icon {
+    transform: scale(4.2);
+    height: auto;
+    width: auto;
+    color: rgb(116, 116, 116);
+  }
+}
+
+.uploadImgContainer {
+  padding: 20px 10px 20px 20px;
+  text-align: center;
+  height: 100%;
+}
+
+p {
+  font-size: 16px;
+}
+
+#titleDiv {
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  div {
+    width: 100%;
+  }
+}
+
+.ellipsis {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ellipsis2 {
+  -webkit-line-clamp: 2;
+}
+
+.ellipsis5 {
+  -webkit-line-clamp: 5;
+}
+
+.createCompanyForm {
+  width: 100%;
+}
+
+.fileUploadTemplate {
+  display: flex;
+}
+
+#createCompanyButton {
+  margin-right: 10px;
+}
+
+mat-grid-list {
+  margin-bottom: 40px;
+}

@@ -9,6 +9,8 @@ import { ManageUsersComponent } from './modules/admin/manage-users/manage-users.
 import { SettingsComponent } from './modules/admin/settings/settings.component';
 import { AuthComponent } from './modules/auth/auth.component';
 import { LoginComponent } from './modules/auth/login/login.component';
+import { EditCompaniesComponent } from './modules/companies/edit-companies/edit-companies.component';
+import { ListCompaniesComponent } from './modules/companies/list-companies/list-companies.component';
 import { DashboardComponent } from './modules/dashboard/dashboard.component';
 import { ProfileComponent } from './modules/user/profile/profile.component';
 
@@ -40,6 +42,14 @@ const routes: Routes = [
       {
         path: 'admin/settings',
         component: SettingsComponent,
+      },
+      {
+        path: 'companies',
+        component: ListCompaniesComponent,
+      },
+      {
+        path: 'companies/:id',
+        component: EditCompaniesComponent,
       },
     ],
   },

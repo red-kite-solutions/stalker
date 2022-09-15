@@ -1,0 +1,34 @@
+<div class="upload" fxLayoutAlign="center center">
+  <div fxFlex class="upload2">
+    <div class="upload3">
+      <ngx-file-drop
+        dropZoneLabel="Drop files here"
+        (onFileDrop)="dropped($event)"
+        accept=".png,.jpeg,.jpg"
+        [directory]="false"
+        [multiple]="false"
+        *ngIf="!fileSelected"
+      >
+        <ng-template ngx-file-drop-content-tmp let-openFileSelector="openFileSelector">
+          <div fxLayout="column">
+            <div fxFlex *ngIf="!fileLoading">
+              <h4 class="dragndrop" i18n="Logo|Item logo">Logo</h4>
+              <span class="dragndrop" i18n="Dnd|Drang and drop indicator">Drag and drop or </span>
+              <span class="fileBrowse" (click)="openFileSelector()" i18n="Browse files|Browse your local files"
+                >browse files</span
+              >
+            </div>
+            <div fxFlex *ngIf="fileLoading">
+              <mat-spinner [diameter]="50"></mat-spinner>
+            </div>
+          </div>
+        </ng-template>
+      </ngx-file-drop>
+
+      <img id="previewImage" [src]="previewSource" *ngIf="fileSelected" fxFlex />
+      <button type="button" *ngIf="fileSelected" mat-mini-fab color="accent" (click)="resetImage()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </div>
+</div>
