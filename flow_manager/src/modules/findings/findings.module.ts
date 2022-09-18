@@ -17,28 +17,30 @@ export class FindingsModule {
   public constructor(private findingsService: FindingsService) {}
 
   public async onApplicationBootstrap() {
-    const kafka = new Kafka({
-      clientId: 'flow-manager',
-      brokers: [process.env['KAFKA_URI']],
-    });
+    if (!process.env.TESTS) {
+      const kafka = new Kafka({
+        clientId: 'flow-manager',
+        brokers: [process.env['KAFKA_URI']],
+      });
 
-    const consumer = kafka.consumer({ groupId: 'flow-manager' });
-    await consumer.connect();
-    await consumer.subscribe({
-      topic: orchestratorConstants.topics.findings,
-      fromBeginning: false,
-    });
+      const consumer = kafka.consumer({ groupId: 'flow-manager' });
+      await consumer.connect();
+      await consumer.subscribe({
+        topic: orchestratorConstants.topics.findings,
+        fromBeginning: false,
+      });
 
-    consumer.run({
-      eachMessage: async ({ topic, partition, message }) => {
-        const findingsRaw = JSON.parse(message.value.toString());
-        const findings = {
-          jobId: findingsRaw.JobId,
-          findings: JSON.parse(findingsRaw.FindingsJson).findings,
-        };
+      consumer.run({
+        eachMessage: async ({ topic, partition, message }) => {
+          const findingsRaw = JSON.parse(message.value.toString());
+          const findings = {
+            jobId: findingsRaw.JobId,
+            findings: JSON.parse(findingsRaw.FindingsJson).findings,
+          };
 
-        this.findingsService.handle(findings);
-      },
-    });
+          this.findingsService.handle(findings);
+        },
+      });
+    }
   }
 }
