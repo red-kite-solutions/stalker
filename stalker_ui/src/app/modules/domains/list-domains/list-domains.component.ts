@@ -73,6 +73,7 @@ export class ListDomainsComponent {
 
   // #addDomainDialog template variables
   selectedCompany = '';
+  selectedNewDomains = '';
 
   private generateFirstPageEvent() {
     const p = new PageEvent();
@@ -167,10 +168,29 @@ export class ListDomainsComponent {
     return filterObject;
   }
 
-  addNewDomains(templateRef: TemplateRef<any>) {
+  openNewDomainsDialog(templateRef: TemplateRef<any>) {
     this.dialog.open(templateRef, {
       restoreFocus: false,
       minWidth: '50%',
     });
+  }
+
+  addNewDomains() {
+    if (!this.selectedCompany || !this.selectedNewDomains) {
+      this.toastrService.warning(
+        $localize`:Missing company or domain|The data selected is either missing the company id or the new domain names:Missing company or domain name`
+      );
+      return;
+    }
+
+    const potentialNewDomains: string[] = this.selectedNewDomains.split('\n');
+    const newDomains: string[] = [];
+    for (const domain of potentialNewDomains) {
+      if (domain) {
+        newDomains.push(domain.trim());
+      }
+    }
+
+    console.log(newDomains);
   }
 }

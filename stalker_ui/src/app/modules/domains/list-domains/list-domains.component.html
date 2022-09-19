@@ -2,7 +2,12 @@
   <mat-card fxFlex.gt-sm="90" class="container" fxFlex.lt-md="100">
     <h1 i18n="Domains|Domain names">Domains</h1>
 
-    <button mat-raised-button color="primary" class="left-action-button" (click)="addNewDomains(addDomainDialog)">
+    <button
+      mat-raised-button
+      color="primary"
+      class="left-action-button"
+      (click)="openNewDomainsDialog(addDomainDialog)"
+    >
       <mat-icon class="material-icons-outlined">add</mat-icon>
       <label i18n="Add domains|Add a new domain to a company">Add Domains</label>
     </button>
@@ -26,6 +31,7 @@
               >Domain Names</mat-label
             >
             <textarea
+              [(ngModel)]="selectedNewDomains"
               matInput
               cdkTextareaAutosize
               cdkAutosizeMinRows="8"
@@ -36,7 +42,17 @@
           </mat-form-field>
         </div>
       </mat-dialog-content>
-      <mat-dialog-actions> </mat-dialog-actions>
+      <mat-dialog-actions>
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="addNewDomains()"
+          i18n="Add domains|Add a new domain to a company"
+        >
+          Add Domains
+        </button>
+        <button mat-raised-button color="warn" matDialogClose>Cancel</button>
+      </mat-dialog-actions>
     </ng-template>
 
     <app-filtered-paginated-table
