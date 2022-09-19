@@ -52,6 +52,25 @@ describe('Domain Controller (e2e)', () => {
     expect(r.statusCode).toBe(HttpStatus.CREATED);
   });
 
+  it('Should create multiple domains (POST /company/:id/domain)', async () => {
+    // Arrange
+    const domains = [
+      'first.domain.addedasbatch.stalker.is',
+      'second.domain.addedasbatch.stalker.is',
+    ];
+
+    // Act
+    const r = await postReq(
+      app,
+      testData.admin.token,
+      `/company/${companyId}/domain`,
+      { domains: [domain] },
+    );
+
+    // Assert
+    expect(r.statusCode).toBe(HttpStatus.CREATED);
+  });
+
   it('Should get a paginated list of domains (GET /domains)', async () => {
     // Arrange & Act
     const r = await getReq(
@@ -62,7 +81,7 @@ describe('Domain Controller (e2e)', () => {
 
     // Assert
     expect(r.statusCode).toBe(HttpStatus.OK);
-    expect(r.body.length).toBeGreaterThanOrEqual(1);
+    expect(r.body.length).toBeGreaterThanOrEqual(3);
     expect(r.body.length).toBeLessThanOrEqual(10);
 
     const domains: any[] = r.body;

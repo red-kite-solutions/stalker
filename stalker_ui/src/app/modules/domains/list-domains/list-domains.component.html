@@ -1,6 +1,44 @@
 <div fxLayout="row" fxLayoutAlign="center">
   <mat-card fxFlex.gt-sm="90" class="container" fxFlex.lt-md="100">
     <h1 i18n="Domains|Domain names">Domains</h1>
+
+    <button mat-raised-button color="primary" class="left-action-button" (click)="addNewDomains(addDomainDialog)">
+      <mat-icon class="material-icons-outlined">add</mat-icon>
+      <label i18n="Add domain|Button to add a new domain to a company">Add Domain</label>
+    </button>
+
+    <!-- Add Domain Dialog Template -->
+    <ng-template #addDomainDialog>
+      <h1 mat-dialog-title i18n="Add domain|Button to add a new domain to a company">Add Domain</h1>
+      <mat-dialog-content>
+        <div fxLayout="column">
+          <mat-form-field fxFlex>
+            <mat-label i18n="Company|Company or business">Company</mat-label>
+            <mat-select [(value)]="selectedCompany">
+              <mat-option>None</mat-option>
+              <mat-option *ngFor="let company of companies$ | async" value="{{ company.id }}">{{
+                company.name
+              }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width" fxFlex>
+            <mat-label i18n="Domain Names|A domain name, or DNS name, used to resolve an IP address"
+              >Domain Names</mat-label
+            >
+            <textarea
+              matInput
+              cdkTextareaAutosize
+              cdkAutosizeMinRows="8"
+              cdkAutosizeMaxRows="20"
+              placeholder="One domain name per line"
+              i18n-placeholder="One Domain Per Line|Tells the user to enter exactly one domaine name per line"
+            ></textarea>
+          </mat-form-field>
+        </div>
+      </mat-dialog-content>
+      <mat-dialog-actions> </mat-dialog-actions>
+    </ng-template>
+
     <app-filtered-paginated-table
       *ngIf="((dataSource$ | async) && (companies$ | async) && (tags$ | async)) || true"
       [dataSource]="dataSource"

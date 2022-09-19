@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, TemplateRef } from '@angular/core';
 import { MediaChange, MediaObserver } from '@angular/flex-layout/core';
+import { MatDialog } from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { ToastrService } from 'ngx-toastr';
@@ -70,6 +71,9 @@ export class ListDomainsComponent {
 
   count$ = this.domainsService.getCount().pipe(startWith(10));
 
+  // #addDomainDialog template variables
+  selectedCompany = '';
+
   private generateFirstPageEvent() {
     const p = new PageEvent();
     p.pageIndex = 0;
@@ -107,7 +111,8 @@ export class ListDomainsComponent {
     private companiesService: CompaniesService,
     private domainsService: DomainsService,
     private toastrService: ToastrService,
-    private tagsService: TagsService
+    private tagsService: TagsService,
+    public dialog: MatDialog
   ) {}
 
   filtersChange(filters: string[]) {
@@ -160,5 +165,11 @@ export class ListDomainsComponent {
     if (tags) filterObject['tags'] = tags;
     if (domains) filterObject['domain'] = domains;
     return filterObject;
+  }
+
+  addNewDomains(templateRef: TemplateRef<any>) {
+    this.dialog.open(templateRef, {
+      restoreFocus: false,
+    });
   }
 }
