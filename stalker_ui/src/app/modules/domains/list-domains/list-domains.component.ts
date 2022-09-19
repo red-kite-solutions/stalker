@@ -170,6 +170,7 @@ export class ListDomainsComponent {
   addNewDomains(templateRef: TemplateRef<any>) {
     this.dialog.open(templateRef, {
       restoreFocus: false,
+      minWidth: '50%',
     });
   }
 }
