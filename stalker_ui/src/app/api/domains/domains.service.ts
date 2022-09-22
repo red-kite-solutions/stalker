@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { firstValueFrom, map, Observable } from 'rxjs';
 import { Domain } from 'src/app/shared/types/domain/domain.interface';
 import { fmUrl } from '../constants';
 
@@ -43,5 +43,9 @@ export class DomainsService {
         return v.count;
       })
     );
+  }
+
+  public async addDomains(companyId: string, newDomains: string[]) {
+    return await firstValueFrom(this.http.post(`${fmUrl}/company/${companyId}/domain`, { domains: newDomains }));
   }
 }

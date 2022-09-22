@@ -10,6 +10,7 @@ import { DomainsService } from 'src/app/api/domains/domains.service';
 import { TagsService } from 'src/app/api/tags/tags.service';
 import { CompanySummary } from 'src/app/shared/types/company/company.summary';
 import { Domain } from 'src/app/shared/types/domain/domain.interface';
+import { HttpStatus } from 'src/app/shared/types/http-status.type';
 import { Tag } from 'src/app/shared/types/tag.type';
 
 @Component({
@@ -178,7 +179,7 @@ export class ListDomainsComponent {
   addNewDomains() {
     if (!this.selectedCompany || !this.selectedNewDomains) {
       this.toastrService.warning(
-        $localize`:Missing company or domain|The data selected is either missing the company id or the new domain names:Missing company or domain name`
+        $localize`:Missing company or domain|The data selected is missing the company id or the new domain names:Missing company or domain name`
       );
       return;
     }
@@ -191,6 +192,25 @@ export class ListDomainsComponent {
       }
     }
 
-    console.log(newDomains);
+    if (newDomains.length > 0) {
+      try {
+        const res = this.domainsService.addDomains(this.selectedCompany, newDomains);
+        this.toastrService.success(
+          $localize`:Changes saved|Changes to item saved successfully:Changes saved successfully`
+        );
+        this.dialog.closeAll();
+        this.currentPage$.next(this.currentPage);
+        this.selectedCompany = '';
+        this.selectedNewDomains = '';
+      } catch (err: any) {
+        if (err.status === HttpStatus.BadRequest) {
+          this.toastrService.error(
+            $localize`:Check domain format|Error while submitting the new domain names to the backend. Most likely a domain formatting error:Error submitting domains, check their format`
+          );
+        } else {
+          throw err;
+        }
+      }
+    }
   }
 }
