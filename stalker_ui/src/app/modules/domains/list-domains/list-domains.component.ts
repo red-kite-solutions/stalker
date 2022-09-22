@@ -201,6 +201,14 @@ export class ListDomainsComponent {
         );
 
         if (addedDomains.length < newDomains.length) {
+          const domainsNotAdded = [];
+          for (const domain of newDomains) {
+            if (!addedDomains.find((value) => value.name === domain)) {
+              domainsNotAdded.push(domain);
+            }
+          }
+          console.log('Domains not added: ');
+          console.log(domainsNotAdded);
           this.toastrService.warning(
             $localize`:Domains not added|Some domains were not added to the database:Some domains did not add properly`
           );
