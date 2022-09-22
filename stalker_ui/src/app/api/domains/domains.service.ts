@@ -45,7 +45,7 @@ export class DomainsService {
     );
   }
 
-  public async addDomains(companyId: string, newDomains: string[]) {
-    return await firstValueFrom(this.http.post(`${fmUrl}/company/${companyId}/domain`, { domains: newDomains }));
+  public async addDomains(companyId: string, newDomains: string[]): Promise<any[]> {
+    return await firstValueFrom(this.http.post<any[]>(`${fmUrl}/company/${companyId}/domain`, { domains: newDomains }));
   }
 }

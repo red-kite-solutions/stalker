@@ -194,11 +194,18 @@ export class ListDomainsComponent {
 
     if (newDomains.length > 0) {
       try {
-        await this.domainsService.addDomains(this.selectedCompany, newDomains);
+        const addedDomains = await this.domainsService.addDomains(this.selectedCompany, newDomains);
 
         this.toastrService.success(
           $localize`:Changes saved|Changes to item saved successfully:Changes saved successfully`
         );
+
+        if (addedDomains.length < newDomains.length) {
+          this.toastrService.warning(
+            $localize`:Domains not added|Some domains were not added to the database:Some domains did not add properly`
+          );
+        }
+
         this.dialog.closeAll();
         this.currentPage$.next(this.currentPage);
         this.selectedCompany = '';

@@ -63,6 +63,7 @@ export class DomainsService {
       const job = this.jobService.createDomainResolvingJob(companyId, domain);
       this.jobService.publish(job);
     });
+    return insertedDomains;
   }
 
   public async getDomain(id: string): Promise<DomainDocument> {
