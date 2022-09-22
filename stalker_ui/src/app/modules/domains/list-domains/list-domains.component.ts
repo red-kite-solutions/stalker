@@ -176,7 +176,7 @@ export class ListDomainsComponent {
     });
   }
 
-  addNewDomains() {
+  async addNewDomains() {
     if (!this.selectedCompany || !this.selectedNewDomains) {
       this.toastrService.warning(
         $localize`:Missing company or domain|The data selected is missing the company id or the new domain names:Missing company or domain name`
@@ -194,7 +194,8 @@ export class ListDomainsComponent {
 
     if (newDomains.length > 0) {
       try {
-        const res = this.domainsService.addDomains(this.selectedCompany, newDomains);
+        await this.domainsService.addDomains(this.selectedCompany, newDomains);
+
         this.toastrService.success(
           $localize`:Changes saved|Changes to item saved successfully:Changes saved successfully`
         );
@@ -205,7 +206,7 @@ export class ListDomainsComponent {
       } catch (err: any) {
         if (err.status === HttpStatus.BadRequest) {
           this.toastrService.error(
-            $localize`:Check domain format|Error while submitting the new domain names to the backend. Most likely a domain formatting error:Error submitting domains, check their format`
+            $localize`:Check domain format|Error while submitting the new domain names to the backend. Most likely a domain formatting error:Error submitting domains, check formats`
           );
         } else {
           throw err;
