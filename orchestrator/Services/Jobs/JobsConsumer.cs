@@ -22,13 +22,14 @@ public class JobsConsumer : KafkaConsumer<JobMessage>
         JobsService = jobsService;
     }
 
-    protected override async Task Consume(JobMessage message)
+    protected override async Task Consume(JobRequest request)
     {
-        Logger.LogDebug(JsonSerializer.Serialize(message));
+        Logger.LogDebug(JsonSerializer.Serialize(request));
 
-        await JobsService.Start(new JobModel
+        // Fire and forget; the job will cleanup itself.
+        JobsService.Start(new JobModel
         {
-            Id = message.JobId,
+            Id = request.JobId,
         });
     }
 }
