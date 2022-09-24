@@ -64,7 +64,7 @@ describe('Domain Controller (e2e)', () => {
       app,
       testData.admin.token,
       `/company/${companyId}/domain`,
-      { domains: [domain] },
+      { domains: domains },
     );
 
     // Assert
@@ -144,11 +144,7 @@ describe('Domain Controller (e2e)', () => {
   });
 
   it('Should get a filtered paginated list of domains (filter: company) (GET /domains)', async () => {
-    // Arrange
-    const filter = domain;
-    const filterString = encodeURIComponent(filter);
-
-    // Act
+    // Arrange & Act
     const r = await getReq(
       app,
       testData.admin.token,
@@ -157,7 +153,7 @@ describe('Domain Controller (e2e)', () => {
 
     // Assert
     expect(r.statusCode).toBe(HttpStatus.OK);
-    expect(r.body.length).toBe(1);
+    expect(r.body.length).toBe(3);
 
     const domains: any[] = r.body;
     for (let d of domains) {
@@ -169,11 +165,7 @@ describe('Domain Controller (e2e)', () => {
   });
 
   it('Should get a filtered paginated list of domains (filter: tags) (GET /domains)', async () => {
-    // Arrange
-    const filter = domain;
-    const filterString = encodeURIComponent(filter);
-
-    // Act
+    // Arrange & Act
     const r = await getReq(
       app,
       testData.admin.token,
