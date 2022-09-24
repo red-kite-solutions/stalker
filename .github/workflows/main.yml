@@ -19,19 +19,12 @@ jobs:
   test:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
-
-      - name: Adding the 'secrets' to the application
-        run: |
-          mkdir secrets
-          echo flowmanagerapikey > ./secrets/fm_api_key.secret
-          echo flowmanagerjwtsecret > ./secrets/fm_jwt_secret.secret
-          echo flowmanagerrefreshsecret > ./secrets/fm_refresh_secret.secret
-          echo jqhapikeyjqhapikeyjqhapikey > ./secrets/jqh_api_key.secret
 
       - name: Build the containers
         run: docker-compose -f docker-compose.cicd.yml build --no-cache

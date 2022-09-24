@@ -1,0 +1,87 @@
+[
+  {
+    "_id": "83698f4b-e885-47fd-ba39-da7735f7932f",
+    "colName": "Stalker | Recon Automation",
+    "created": "2022-07-24T22:31:09.430Z",
+    "sortNum": 10000,
+    "folders": [
+      {
+        "_id": "34373672-80cf-4076-949e-6d92934813cd",
+        "name": "Flow Manager",
+        "containerId": "",
+        "created": "2022-07-24T22:31:09.433Z",
+        "sortNum": 10000
+      },
+      {
+        "_id": "ddcccf11-6a7c-40ef-8fb3-95b6ab27f2a7",
+        "name": "Jobs",
+        "containerId": "34373672-80cf-4076-949e-6d92934813cd",
+        "created": "2022-07-24T22:31:09.434Z",
+        "sortNum": 18125
+      },
+      {
+        "_id": "68b8032c-3f8c-4c25-8c52-84cb9c9a76cc",
+        "name": "Programs",
+        "containerId": "34373672-80cf-4076-949e-6d92934813cd",
+        "created": "2022-07-24T22:31:09.435Z",
+        "sortNum": 18750
+      },
+      {
+        "_id": "3de9b0b7-596a-4674-b70f-c45b806dc409",
+        "name": "Domains",
+        "containerId": "34373672-80cf-4076-949e-6d92934813cd",
+        "created": "2022-07-24T22:31:09.436Z",
+        "sortNum": 17500
+      },
+      {
+        "_id": "27ad8809-fdd7-4328-bd7e-eeee040c9264",
+        "name": "Alert",
+        "containerId": "34373672-80cf-4076-949e-6d92934813cd",
+        "created": "2022-07-24T22:31:09.437Z",
+        "sortNum": 10000
+      },
+      {
+        "_id": "352c3f73-b419-4383-a498-0be2a09bfc7d",
+        "name": "Report",
+        "containerId": "34373672-80cf-4076-949e-6d92934813cd",
+        "created": "2022-07-24T22:31:09.438Z",
+        "sortNum": 60000
+      },
+      {
+        "_id": "a26f8397-0209-44f4-8be4-ab7a4dcb8ede",
+        "name": "Automation",
+        "containerId": "34373672-80cf-4076-949e-6d92934813cd",
+        "created": "2022-07-24T22:31:09.439Z",
+        "sortNum": 12500
+      },
+      {
+        "_id": "a973cc26-8f43-4e3e-ba60-7d1656b8bc6d",
+        "name": "Admin",
+        "containerId": "34373672-80cf-4076-949e-6d92934813cd",
+        "created": "2022-07-24T22:31:09.440Z",
+        "sortNum": 5000
+      },
+      {
+        "_id": "f73962d8-8be6-4eff-8047-92395cf58b21",
+        "name": "Config",
+        "containerId": "a973cc26-8f43-4e3e-ba60-7d1656b8bc6d",
+        "created": "2022-07-24T22:31:09.441Z",
+        "sortNum": 90000
+      },
+      {
+        "_id": "f0acf0c9-75da-4077-9c49-b631607bdac8",
+        "name": "Job Queue Handler",
+        "containerId": "",
+        "created": "2022-07-24T22:31:09.442Z",
+        "sortNum": 100000
+      },
+      {
+        "_id": "4081ce99-f840-423d-9170-661638b08bbe",
+        "name": "Companies",
+        "containerId": "34373672-80cf-4076-949e-6d92934813cd",
+        "created": "2022-07-24T22:42:38.922Z",
+        "sortNum": 15000
+      }
+    ]
+  }
+]

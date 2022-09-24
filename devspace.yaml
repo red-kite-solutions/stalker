@@ -1,0 +1,322 @@
+version: v2beta1
+name: stalker
+
+vars:
+  STALKER_ENVIRONMENT: dev
+
+imports:
+  - path: devspace.base.yaml
+  - path: devspace.dev.yaml
+    enabled: $(is_equal ${STALKER_ENVIRONMENT} "dev")
+
+pipelines:
+  build:
+    run: build_images ui flow-manager jobs-handler jqh
+
+  deploy:
+    run: |-
+      build_images ui flow-manager jobs-handler jqh orchestrator
+      create_deployments  jqh mongo ui flow-manager jobs-handler kafka orchestrator-service-account orchestrator --sequential
+
+  dev:
+    run: |-
+      build_images ui flow-manager jobs-handler orchestrator
+      create_deployments mongo ui flow-manager jobs-handler kafka orchestrator-service-account orchestrator --sequential
+      start_dev --all
+
+  purge:
+    run: |-
+      stop_dev --all
+      purge_deployments jqh mongo ui flow-manager jobs-handler kafka orchestrator-service-account orchestrator --sequential
+
+images:
+  flow-manager:
+    image: flow_manager
+    dockerfile: flow_manager/Dockerfile.dev
+    context: flow_manager
+    rebuildStrategy: default
+
+  ui:
+    image: ui
+    dockerfile: stalker_ui/Dockerfile.dev
+    context: stalker_ui
+    rebuildStrategy: default
+
+  jobs-handler:
+    image: jobs_handler
+    dockerfile: jobs_handler/Dockerfile.dev
+    context: jobs_handler
+    rebuildStrategy: default
+
+  jqh:
+    image: jobs_queue_handler
+    dockerfile: jobs_queue_handler/Dockerfile
+    context: jobs_queue_handler
+    rebuildStrategy: default
+
+  orchestrator:
+    image: orchestrator
+    dockerfile: orchestrator/Dockerfile.dev
+    context: orchestrator
+    rebuildStrategy: default
+
+deployments:
+  flow-manager:
+    helm:
+      values:
+        containers:
+          - env:
+              - name: API_KEY
+                value: ${FM_API_KEY}
+              - name: JQH_ADDRESS
+                value: ${JQH_ADDRESS}
+              - name: JQH_API_KEY
+                value: ${JQH_API_KEY}
+              - name: MONGO_ADDRESS
+                value: ${FM_MONGO_ADDRESS}
+              - name: FM_JWT_SECRET
+                value: ${FM_JWT_SECRET}
+              - name: FM_REFRESH_SECRET
+                value: ${FM_REFRESH_SECRET}
+              - name: KAFKA_URI
+                value: ${KAFKA_URI}
+              - name: FEATURE_ORCHESTRATOR_ENABLED
+                value: ${FM_FEATURE_ORCHESTRATOR_ENABLED}
+              - name: STALKER_URL
+                value: ${STALKER_URL}
+
+            image: flow_manager
+            name: flow-manager-container
+
+        service:
+          ports:
+            - containerPort: 3000
+              port: 3000
+              protocol: TCP
+
+  ui:
+    helm:
+      values:
+        containers:
+          - env:
+
+            image: ui
+            name: ui-container
+
+        service:
+          ports:
+            - containerPort: 4200
+              port: 4200
+              protocol: TCP
+
+  jobs-handler:
+    helm:
+      values:
+        containers:
+          - env:
+              - name: FM_API_KEY
+                value: ${FM_API_KEY}
+              - name: JQH_API_KEY
+                value: ${JQH_API_KEY}
+            image: jobs_handler
+            name: jobs-handler-container
+  jqh:
+    helm:
+      values:
+        containers:
+          - env:
+              - name: JQH_API_KEY
+                value: ${JQH_API_KEY}
+              - name: FLASK_ENV
+                value: development
+            image: jobs_queue_handler
+            name: jqh-container
+
+        service:
+          ports:
+            - containerPort: 5000
+              port: 5000
+              protocol: TCP
+
+  mongo:
+    helm:
+      values:
+        containers:
+          - image: bitnami/mongodb:5.0.10
+            name: mongo-container
+
+        service:
+          ports:
+            - containerPort: 27017
+              port: 27017
+              protocol: TCP
+  kafka:
+    helm:
+      chart:
+        name: kafka
+        repo: https://charts.bitnami.com/bitnami
+
+  orchestrator-service-account:
+    kubectl:
+      manifests:
+        - orchestrator/orchestrator-service-account.yml
+
+  orchestrator:
+    helm:
+      values:
+        serviceAccountName: orchestrator-service-account
+        containers:
+          - env:
+              - name: JobsQueue__QueueUri
+                value: ${KAFKA_URI}
+
+            image: orchestrator
+            name: orchestrator-container
+
+        service:
+          ports:
+            - containerPort: 5135
+              port: 5135
+              protocol: TCP
+
+dev:
+  jhq:
+    labelSelector:
+      app.kubernetes.io/component: jqh
+    container: jqh-container
+    sync:
+      - path: ./jobs_queue_handler:/jqh
+        disableDownload: true
+    restartHelper:
+      inject: false
+    ports:
+      - port: "5000"
+
+  mongo:
+    labelSelector:
+      app.kubernetes.io/component: mongo
+    ports:
+      - port: "27017"
+
+  kafka:
+    labelSelector:
+      app.kubernetes.io/component: kafka
+    ports:
+      - port: "9092"
+
+  flow-manager:
+    labelSelector:
+      app.kubernetes.io/component: flow-manager
+    container: flow-manager-container
+    sync:
+      - path: ./flow_manager/src/:/app/src/
+        disableDownload: true
+    restartHelper:
+      inject: false
+    ports:
+      - port: "3000"
+
+  ui:
+    labelSelector:
+      app.kubernetes.io/component: ui
+    container: ui-container
+    sync:
+      - path: ./stalker_ui/src/:/app/src/
+        disableDownload: true
+    restartHelper:
+      inject: false
+    ports:
+      - port: "4200"
+
+  jobs-handler:
+    labelSelector:
+      app.kubernetes.io/component: jobs-handler
+    container: jobs-handler-container
+    sync:
+      - path: ./jobs_handler/src/:/jh
+        disableDownload: true
+    restartHelper:
+      inject: false
+
+  orchestrator:
+    labelSelector:
+      app.kubernetes.io/component: orchestrator
+    container: orchestrator-container
+    sync:
+      - path: ./orchestrator/:/app/
+        disableDownload: true
+    restartHelper:
+      inject: false
+    ports:
+      - port: "5135"
+
+hooks:
+  - events:
+      - after:deploy:jqh
+    wait:
+      running: true
+      terminatedWithCode: 0
+    container:
+      labelSelector:
+        app.kubernetes.io/component: jqh
+      containerName: jqh-container
+
+  - events:
+      - after:deploy:mongo
+    wait:
+      running: true
+      terminatedWithCode: 0
+    container:
+      labelSelector:
+        app.kubernetes.io/component: mongo
+      containerName: mongo-container
+
+  - events:
+      - after:deploy:flow-manager
+    wait:
+      running: true
+      terminatedWithCode: 0
+    container:
+      labelSelector:
+        app.kubernetes.io/component: flow-manager
+      containerName: flow-manager-container
+
+  - events:
+      - after:deploy:ui
+    wait:
+      running: true
+      terminatedWithCode: 0
+    container:
+      labelSelector:
+        app.kubernetes.io/component: ui
+      containerName: ui-container
+
+  - events:
+      - after:deploy:jobs-handler
+    wait:
+      running: true
+      terminatedWithCode: 0
+    container:
+      labelSelector:
+        app.kubernetes.io/component: jobs-handler
+      containerName: jobs-handler-container
+
+  - events:
+      - after:deploy:orchestrator
+    wait:
+      running: true
+      terminatedWithCode: 0
+    container:
+      labelSelector:
+        app.kubernetes.io/component: orchestrator
+      containerName: orchestrator-container
+
+  - events:
+      - after:deploy:kafka
+    wait:
+      running: true
+      terminatedWithCode: 0
+    container:
+      labelSelector:
+        app.kubernetes.io/component: kafka
+      containerName: kafka-container

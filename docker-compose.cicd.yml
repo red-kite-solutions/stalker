@@ -2,43 +2,43 @@ version: "3.3"
 
 services:
   jqh:
-    build: 
-      context: . 
+    build:
+      context: .
       dockerfile: ./jobs_queue_handler/Dockerfile
     ports:
       - "5000:5000"
     image: jobs_queue_handler
     environment:
-      - JQH_API_KEY_FILE=/secrets/jqh_api_key.secret
+      - JQH_API_KEY=jqhapikeyjqhapikeyjqhapikey
       - FLASK_APP=jobs_queue_handler
+      - FLASK_ENV=development
 
   flow_manager:
-    build: 
+    build:
       context: .
       dockerfile: ./flow_manager/Dockerfile.cicd
     ports:
       - "3000:3000"
     image: flow_manager
-    environment: 
-      - JQH_API_KEY_FILE=/secrets/jqh_api_key.secret
+    environment:
+      - JQH_API_KEY=jqhapikeyjqhapikeyjqhapikey
       - JQH_ADDRESS=http://jqh:5000
-      - FM_API_KEY_FILE=/secrets/fm_api_key.secret
+      - FM_API_KEY=flowmanagerapikey
       - MONGO_ADDRESS=mongodb://mongo:27017/stalker
-      - FM_JWT_SECRET_FILE=/secrets/fm_jwt_secret.secret
-      - FM_REFRESH_SECRET_FILE=/secrets/fm_refresh_secret.secret
+      - FM_JWT_SECRET=flowmanagerjwtsecret
+      - FM_REFRESH_SECRET=flowmanagerrefreshsecret
       - STALKER_URL=http://localhost:4200
+      - TESTS=true
     links:
       - "jqh:jobsqueuehandler"
       - "mongo:db"
-    volumes: 
+    volumes:
       - ./flow_manager/src/:/fm/src/
       - ./flow_manager/test/:/fm/test/
-
-  mongo: 
-    build: ./database/
-    ports: 
-      - "27017:27017"
+  mongo:
+    restart: always
+    image: mongo:5.0.10
+    ports:
+      - 27017:27017
     logging:
-      driver: none  
-
-  
+      driver: none

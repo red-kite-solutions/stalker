@@ -2,18 +2,14 @@ FROM alpine:latest
 
 RUN apk add bash
 
-# Install python/pip/flask
 ENV PYTHONUNBUFFERED=1
 RUN apk add --update --no-cache python3 && ln -sf python3 /usr/bin/python
 RUN python3 -m ensurepip
 RUN pip3 install --no-cache --upgrade pip requests watchdog
 
-RUN mkdir /jh/; mkdir /secrets
-WORKDIR /jh/
+RUN mkdir /jh
+WORKDIR /jh
 
-ADD ./secrets/jqh_api_key.secret /secrets/
-ADD ./secrets/fm_api_key.secret /secrets/
-ADD jobs_handler/entrypoint.sh /jh/
+COPY src .
 
-RUN chmod +x /jh/entrypoint.sh
-CMD [ "./entrypoint.sh" ]
+CMD [ "python3", "./jobs_handler.py" ]
