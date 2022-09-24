@@ -16,6 +16,7 @@ jobs:
         uses: actions/setup-dotnet@v2
         with:
           dotnet-version: "7.0.x"
+          include-prerelease: true
 
       - name: Install dependencies
         working-directory: orchestrator
