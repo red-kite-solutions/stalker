@@ -1,0 +1,22 @@
+name: Orchestrator
+
+on: [pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET Core SDK 7.0
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: "7.0"
+
+      - name: Install dependencies
+        working-directory: orchestrator
+        run: dotnet restore
+
+      - name: Build
+        working-directory: orchestrator
+        run: dotnet build --configuration Release --no-restore
