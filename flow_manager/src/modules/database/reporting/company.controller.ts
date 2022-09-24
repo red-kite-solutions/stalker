@@ -51,8 +51,8 @@ export class CompanyController {
     return true;
   }
 
-  // @UseGuards(JwtAuthGuard, RolesGuard)
-  // @Roles(Role.ReadOnly)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ReadOnly)
   @Get()
   async getCompanies() {
     return await this.companyService.getAll();
@@ -90,8 +90,8 @@ export class CompanyController {
     );
   }
 
-  // @UseGuards(JwtAuthGuard, RolesGuard)
-  // @Roles(Role.User)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User)
   @Post(':id/job')
   async createJob(
     @Param('id') id: string,
