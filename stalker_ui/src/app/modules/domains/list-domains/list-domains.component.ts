@@ -216,6 +216,7 @@ export class ListDomainsComponent {
 
         this.dialog.closeAll();
         this.currentPage$.next(this.currentPage);
+        this.count$ = this.domainsService.getCount(this.buildFilters(this.currentFilters)).pipe(startWith(0));
         this.selectedCompany = '';
         this.selectedNewDomains = '';
       } catch (err: any) {
