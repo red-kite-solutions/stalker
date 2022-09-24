@@ -2,7 +2,8 @@
   "name": "stalker",
   "version": "1.0.0",
   "scripts": {
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "dev": "minikube start && devspace dev -n stalker"
   },
   "repository": {
     "type": "git",

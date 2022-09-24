@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using k8s;
+﻿using k8s;
 using k8s.Models;
 
 namespace Orchestrator.Services.K8s;
@@ -29,8 +28,8 @@ public class KubernetesFacade : IKubernetesFacade
         using var client = new Kubernetes(config);
 
         var jobPrefix = "";
-        var jobId = Guid.NewGuid().ToString();
-        var jobNameParts = new[] { jobPrefix, jobId };
+        var randomId = Guid.NewGuid().ToString(); // This id is used to avoid job name collisions in K8s
+        var jobNameParts = new[] { jobPrefix, jobTemplate.Id, randomId };
         var jobName = string.Join("-", jobNameParts.Where(x => !string.IsNullOrEmpty(x)));
 
 

@@ -10,8 +10,9 @@ public abstract class PythonJobTemplate : KubernetesJobTemplate
 
     protected abstract string PythonCommand { get; }
 
-    public PythonJobTemplate(string @namespace)
+    public PythonJobTemplate(string id, string @namespace)
     {
+        Id = Id;
         Namespace = @namespace;
     }
 }
