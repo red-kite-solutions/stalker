@@ -24,7 +24,7 @@ public class JobsService : IJobsService
     {
         Logger.LogDebug(jobModel.Id, "Creating job.");
 
-        var jobTemplate = new HostnameIpResolvingJobTemplate("stalker", "www.google.com");
+        var jobTemplate = new HostnameIpResolvingJobTemplate(jobModel.Id, "stalker", "www.google.com");
         var job = await Kubernetes.CreateJob(jobTemplate);
 
         Logger.LogDebug(jobModel.Id, "Job created, listening for events.");

@@ -2,6 +2,8 @@
 
 public class KubernetesJobTemplate
 {
+    public string Id { get; init; }
+
     /// <summary>
     /// Gets the docker image for this job.
     /// </summary>
