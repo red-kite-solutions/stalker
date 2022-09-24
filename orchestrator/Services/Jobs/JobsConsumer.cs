@@ -22,7 +22,7 @@ public class JobsConsumer : KafkaConsumer<JobMessage>
         JobsService = jobsService;
     }
 
-    protected override async Task Consume(JobRequest request)
+    protected override async Task Consume(JobMessage request)
     {
         Logger.LogDebug(JsonSerializer.Serialize(request));
 
