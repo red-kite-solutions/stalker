@@ -57,7 +57,7 @@ images:
   orchestrator:
     image: orchestrator
     dockerfile: orchestrator/Orchestrator/Dockerfile.dev
-    context: orchestrator
+    context: orchestrator/Orchestrator
     rebuildStrategy: default
 
 deployments:
@@ -140,16 +140,18 @@ deployments:
 
   mongo:
     helm:
+      chart:
+        name: mongodb
+        repo: https://charts.bitnami.com/bitnami
       values:
-        containers:
-          - image: bitnami/mongodb:5.0.10
-            name: mongo-container
-
+        architecture: standalone
         service:
           ports:
-            - containerPort: 27017
-              port: 27017
-              protocol: TCP
+            mongodb: 27017
+        auth:
+          rootUsername: ${MONGO_ROOT_USERNAME}
+          rootPassword: ${MONGO_ROOT_PASSWORD}
+
   kafka:
     helm:
       chart:
@@ -180,7 +182,7 @@ deployments:
               protocol: TCP
 
 dev:
-  jhq:
+  jqh:
     labelSelector:
       app.kubernetes.io/component: jqh
     container: jqh-container
@@ -194,7 +196,7 @@ dev:
 
   mongo:
     labelSelector:
-      app.kubernetes.io/component: mongo
+      app.kubernetes.io/component: mongodb
     ports:
       - port: "27017"
 
