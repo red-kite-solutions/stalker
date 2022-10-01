@@ -1,11 +1,11 @@
-using System.Net;
 using Confluent.Kafka;
 using Confluent.Kafka.Admin;
 using Orchestrator;
-using Orchestrator.Services.Events;
-using Orchestrator.Services.Jobs;
-using Orchestrator.Services.K8s;
-using Orchestrator.Services.MessageQueue;
+using Orchestrator.Events;
+using Orchestrator.Jobs;
+using Orchestrator.K8s;
+using Orchestrator.Queue;
+using Orchestrator.Queue.JobsConsumer;
 
 // Configure app
 var builder = WebApplication.CreateBuilder(args);
@@ -26,11 +26,6 @@ var adminConfig = new AdminClientConfig
     BootstrapServers = kafkaUri
 };
 
-var producerConfig = new ProducerConfig
-{
-    BootstrapServers = kafkaUri,
-    ClientId = Dns.GetHostName(),
-};
 
 // Initialize topics on startup
 {
@@ -48,7 +43,9 @@ var producerConfig = new ProducerConfig
         var existingTopics = topicsMetadata.Select(x => x.Topic).ToHashSet();
         logger.LogInformation($"{string.Join(Environment.NewLine, topicsMetadata)}");
 
-        var topicsToAdd = expectedTopics.Where(x => !existingTopics.Contains(x.Name));
+        var topicsToAdd = expectedTopics
+            .Where(x => !existingTopics.Contains(x.Name))
+            .ToList();
 
         if (topicsToAdd.Any())
         {
@@ -66,25 +63,10 @@ var producerConfig = new ProducerConfig
     }
 }
 
-using var producer = new ProducerBuilder<Null, JobMessage>(producerConfig).SetValueSerializer(new JsonSerializer<JobMessage>()).Build();
-
 // Start consumer
 app.Services.GetService<JobsConsumer>();
-
-app.MapGet("/produce/{id}", async (string id) =>
-{
-    await producer.ProduceAsync(Constants.JobRequestsTopic, new Message<Null, JobMessage>
-    {
-        Value = new JobMessage { JobId = id }
-    });
-
-    return "Message produced.";
-});
-
-app.MapGet("/hello", () => "V1");
-
+app.MapGet("/version", () => "V1");
 app.MapFallback(() => "V1");
-
 app.Run();
 
 void ConfigureApp(WebApplication app)
@@ -100,6 +82,6 @@ void ConfigureServices(IServiceCollection services)
         .AddSingleton<JobsConsumer>()
         .AddSingleton<IMessagesProducer<JobEventMessage>, JobEventsProducer>()
         .AddTransient<IKubernetesFacade, KubernetesFacade>()
-        .AddTransient<IJobsService, JobsService>()
+        .AddTransient<IJobFactory, JobFactory>()
         .AddTransient<IFindingsParser, FindingsParser>();
 }
