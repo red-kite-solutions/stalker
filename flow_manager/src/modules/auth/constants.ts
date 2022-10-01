@@ -8,6 +8,19 @@ export const rtConstants = {
   expirationTime: '25200s',
 };
 
+export const orchestratorConstants = {
+  clientId: 'flow-manager',
+  brokers: [process.env['KAFKA_URI']],
+  topics: {
+    jobRequests: 'stalker.jobs.requests',
+    findings: 'stalker.jobs.findings',
+  },
+};
+
+export const featureFlags = {
+  orchestratorEnabled: process.env['FEATURE_ORCHESTRATOR_ENABLED'] === 'true',
+};
+
 export enum Role {
   User = 'user',
   Admin = 'admin',

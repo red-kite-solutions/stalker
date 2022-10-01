@@ -6,6 +6,7 @@ import { AppModule } from './modules/app.module';
 
 async function bootstrap() {
   const adapter = new ExpressAdapter();
+
   const app = await NestFactory.create(AppModule, adapter, {
     cors: {
       origin: process.env.STALKER_URL,
@@ -25,4 +26,5 @@ async function bootstrap() {
   );
   await app.listen(3000);
 }
+
 bootstrap();
