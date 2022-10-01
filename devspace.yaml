@@ -21,13 +21,13 @@ pipelines:
   dev:
     run: |-
       build_images ui flow-manager jobs-handler orchestrator
-      create_deployments mongo ui flow-manager jobs-handler kafka kafka-magic orchestrator-service-account orchestrator --sequential
+      create_deployments mongo ui flow-manager jobs-handler kafka orchestrator-service-account orchestrator --sequential
       start_dev --all
 
   purge:
     run: |-
       stop_dev --all
-      purge_deployments jqh mongo ui flow-manager jobs-handler kafka kafka-magic orchestrator-service-account orchestrator --sequential
+      purge_deployments jqh mongo ui flow-manager jobs-handler kafka orchestrator-service-account orchestrator --sequential
 
 images:
   flow-manager:
@@ -56,7 +56,7 @@ images:
 
   orchestrator:
     image: orchestrator
-    dockerfile: orchestrator/Dockerfile.dev
+    dockerfile: orchestrator/Orchestrator/Dockerfile.dev
     context: orchestrator
     rebuildStrategy: default
 
@@ -156,21 +156,6 @@ deployments:
         name: kafka
         repo: https://charts.bitnami.com/bitnami
 
-  kafka-magic:
-    helm:
-      values:
-        containers:
-          - env:
-
-            image: digitsy/kafka-magic
-            name: kafka-magic
-
-        service:
-          ports:
-            - containerPort: 4200
-              port: 4200
-              protocol: TCP
-
   orchestrator-service-account:
     kubectl:
       manifests:
@@ -218,12 +203,6 @@ dev:
       app.kubernetes.io/component: kafka
     ports:
       - port: "9092"
-
-  kafka-magic:
-    labelSelector:
-      app.kubernetes.io/component: kafka-magic
-    ports:
-      - port: "8080"
 
   flow-manager:
     labelSelector:
