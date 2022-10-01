@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom, map, Observable } from 'rxjs';
 import { Domain } from 'src/app/shared/types/domain/domain.interface';
-import { fmUrl } from '../constants';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -28,7 +28,9 @@ export class DomainsService {
 
   public getPage(page: number, pageSize: number, filters: any): Observable<Domain[]> {
     const encodedFilters = this.filtersToURL(filters);
-    return <Observable<Domain[]>>this.http.get(`${fmUrl}/domains?page=${page}&pageSize=${pageSize}${encodedFilters}`);
+    return <Observable<Domain[]>>(
+      this.http.get(`${environment.fmUrl}/domains?page=${page}&pageSize=${pageSize}${encodedFilters}`)
+    );
   }
 
   public getCount(filters: any = {}) {
@@ -38,7 +40,7 @@ export class DomainsService {
       encodedFilters = encodedFilters.substring(1); // removing the first &
       urlParams = `?${encodedFilters}`;
     }
-    return <Observable<number>>this.http.get(`${fmUrl}/domains/count${urlParams}`).pipe(
+    return <Observable<number>>this.http.get(`${environment.fmUrl}/domains/count${urlParams}`).pipe(
       map((v: any) => {
         return v.count;
       })
@@ -46,6 +48,8 @@ export class DomainsService {
   }
 
   public async addDomains(companyId: string, newDomains: string[]): Promise<any[]> {
-    return await firstValueFrom(this.http.post<any[]>(`${fmUrl}/company/${companyId}/domain`, { domains: newDomains }));
+    return await firstValueFrom(
+      this.http.post<any[]>(`${environment.fmUrl}/company/${companyId}/domain`, { domains: newDomains })
+    );
   }
 }
