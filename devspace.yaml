@@ -149,7 +149,6 @@ deployments:
           ports:
             mongodb: 27017
         auth:
-          rootUsername: ${MONGO_ROOT_USERNAME}
           rootPassword: ${MONGO_ROOT_PASSWORD}
 
   kafka:
