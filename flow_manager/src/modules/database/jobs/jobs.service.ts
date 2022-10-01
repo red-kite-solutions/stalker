@@ -1,12 +1,8 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Kafka } from 'kafkajs';
 import { Model } from 'mongoose';
-import {
-  featureFlags,
-  orchestratorConstants,
-} from 'src/modules/auth/constants';
-import { JobsQueueUtils } from 'src/utils/jobs_queue.utils';
+import { orchestratorConstants } from 'src/modules/auth/constants';
 import { CreateJobDto } from './dtos/create-job.dto';
 import { JobDto } from './dtos/job.dto';
 import { DomainNameResolvingJob } from './models/domain-name-resolving.model';
@@ -70,13 +66,8 @@ export class JobsService {
   }
 
   public async publish(job: Job) {
-    if (featureFlags.orchestratorEnabled) {
-      console.debug('Publishing job to orchestrator.');
-      return await this.publishNew(job);
-    } else {
-      console.debug('Publishing job to job handler queue.');
-      return await this.publishLegacy(job);
-    }
+    console.debug('Publishing job to orchestrator.');
+    return await this.publishNew(job);
   }
 
   private async publishNew(job: Job) {
@@ -106,24 +97,6 @@ export class JobsService {
         },
       ],
     });
-
-    return {
-      id: createdJob.id,
-      ...job,
-    };
-  }
-
-  private async publishLegacy(job: Job) {
-    const createdJob = await this.jobModel.create(job);
-
-    const success = await JobsQueueUtils.add({
-      id: createdJob.id,
-      ...job,
-    });
-
-    if (!success) {
-      throw new HttpException('Error sending the job to the job queue.', 500);
-    }
 
     return {
       id: createdJob.id,

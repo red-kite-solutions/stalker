@@ -11,23 +11,23 @@ imports:
 
 pipelines:
   build:
-    run: build_images ui flow-manager jobs-handler
+    run: build_images ui flow-manager
 
   deploy:
     run: |-
-      build_images ui flow-manager jobs-handler orchestrator
-      create_deployments mongo ui flow-manager jobs-handler kafka orchestrator-service-account orchestrator --sequential
+      build_images ui flow-manager orchestrator
+      create_deployments mongo ui flow-manager kafka orchestrator-service-account orchestrator --sequential
 
   dev:
     run: |-
-      build_images ui flow-manager jobs-handler orchestrator
-      create_deployments mongo ui flow-manager jobs-handler kafka orchestrator-service-account orchestrator --sequential
+      build_images ui flow-manager orchestrator
+      create_deployments mongo ui flow-manager kafka orchestrator-service-account orchestrator --sequential
       start_dev --all
 
   purge:
     run: |-
       stop_dev --all
-      purge_deployments mongo ui flow-manager jobs-handler kafka orchestrator-service-account orchestrator --sequential
+      purge_deployments mongo ui flow-manager kafka orchestrator-service-account orchestrator --sequential
 
 images:
   flow-manager:
@@ -40,12 +40,6 @@ images:
     image: ui
     dockerfile: stalker_ui/Dockerfile.dev
     context: stalker_ui
-    rebuildStrategy: default
-
-  jobs-handler:
-    image: jobs_handler
-    dockerfile: jobs_handler/Dockerfile.dev
-    context: jobs_handler
     rebuildStrategy: default
 
   orchestrator:
@@ -70,8 +64,6 @@ deployments:
                 value: ${FM_REFRESH_SECRET}
               - name: KAFKA_URI
                 value: ${KAFKA_URI}
-              - name: FEATURE_ORCHESTRATOR_ENABLED
-                value: ${FM_FEATURE_ORCHESTRATOR_ENABLED}
               - name: STALKER_URL
                 value: ${STALKER_URL}
 
@@ -98,16 +90,6 @@ deployments:
             - containerPort: 4200
               port: 4200
               protocol: TCP
-
-  jobs-handler:
-    helm:
-      values:
-        containers:
-          - env:
-              - name: FM_API_KEY
-                value: ${FM_API_KEY}
-            image: jobs_handler
-            name: jobs-handler-container
 
   mongo:
     helm:
@@ -187,16 +169,6 @@ dev:
     ports:
       - port: "4200"
 
-  jobs-handler:
-    labelSelector:
-      app.kubernetes.io/component: jobs-handler
-    container: jobs-handler-container
-    sync:
-      - path: ./jobs_handler/src/:/jh
-        disableDownload: true
-    restartHelper:
-      inject: false
-
   orchestrator:
     labelSelector:
       app.kubernetes.io/component: orchestrator
@@ -239,16 +211,6 @@ hooks:
       labelSelector:
         app.kubernetes.io/component: ui
       containerName: ui-container
-
-  - events:
-      - after:deploy:jobs-handler
-    wait:
-      running: true
-      terminatedWithCode: 0
-    container:
-      labelSelector:
-        app.kubernetes.io/component: jobs-handler
-      containerName: jobs-handler-container
 
   - events:
       - after:deploy:orchestrator

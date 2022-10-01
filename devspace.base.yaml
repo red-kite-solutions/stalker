@@ -7,9 +7,6 @@ vars:
   FM_REFRESH_SECRET: "123456" # The secret used to sign JWT refresh token for users
   FM_MONGO_ADDRESS: mongodb://mongo:27017/stalker # The address of the FM's mongo database
 
-  JQH_API_KEY: "123456" # The API key for the Jobs Queue
-  JQH_ADDRESS: http://jqh:5000 # The address of the job queue
-
   KAFKA_URI: "kafka:9092"
 
   STALKER_URL: "http://localhost:4200"
