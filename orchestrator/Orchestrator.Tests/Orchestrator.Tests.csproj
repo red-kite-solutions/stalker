@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\orchestrator\Orchestrator.csproj" />
+    <ProjectReference Include="..\Orchestrator\Orchestrator.csproj" />
   </ItemGroup>
 
 </Project>
