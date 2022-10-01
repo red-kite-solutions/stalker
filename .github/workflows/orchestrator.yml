@@ -19,14 +19,14 @@ jobs:
           dotnet-version: "6.0.x"
           include-prerelease: true
 
-      - name: Install dependencies
-        working-directory: orchestrator
-        run: dotnet restore
-
       - name: Build
-        working-directory: orchestrator
-        run: dotnet build --configuration Release --no-restore
+        working-directory: orchestrator/Orchestrator
+        run: |-
+          dotnet restore
+          dotnet build --configuration Release --no-restore
 
       - name: Test
-        working-directory: orchestrator
-        run: dotnet test
+        working-directory: orchestrator/Orchestrator.Tests
+        run: |-
+          dotnet restore
+          dotnet test

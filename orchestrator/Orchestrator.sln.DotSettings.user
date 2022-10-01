@@ -2,7 +2,6 @@
 	<s:String x:Key="/Default/CodeInspection/Highlighting/AnalysisEnabled/@EntryValue">SOLUTION</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=e120800e_002Dc4e1_002D4fe9_002D9805_002Da56114cd348a/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="RoundTrip_DomainResolvingJob_Works" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;xUnit::C64B55DC-C9BE-4146-909C-1F03ECE8F5A0::net6.0::Orchestrator.Tests.JobSerializerTests.RoundTrip_DomainResolvingJob_Works&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::C64B55DC-C9BE-4146-909C-1F03ECE8F5A0::net6.0::Orchestrator.Tests.JobSerializerTests.Deserialize_String_Workd&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::C64B55DC-C9BE-4146-909C-1F03ECE8F5A0::net6.0::Orchestrator.Tests.JobSerializerTests&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
