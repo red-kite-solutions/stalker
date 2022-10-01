@@ -11,12 +11,12 @@ imports:
 
 pipelines:
   build:
-    run: build_images ui flow-manager jobs-handler jqh
+    run: build_images ui flow-manager jobs-handler
 
   deploy:
     run: |-
-      build_images ui flow-manager jobs-handler jqh orchestrator
-      create_deployments  jqh mongo ui flow-manager jobs-handler kafka orchestrator-service-account orchestrator --sequential
+      build_images ui flow-manager jobs-handler orchestrator
+      create_deployments mongo ui flow-manager jobs-handler kafka orchestrator-service-account orchestrator --sequential
 
   dev:
     run: |-
@@ -27,7 +27,7 @@ pipelines:
   purge:
     run: |-
       stop_dev --all
-      purge_deployments jqh mongo ui flow-manager jobs-handler kafka orchestrator-service-account orchestrator --sequential
+      purge_deployments mongo ui flow-manager jobs-handler kafka orchestrator-service-account orchestrator --sequential
 
 images:
   flow-manager:
@@ -48,12 +48,6 @@ images:
     context: jobs_handler
     rebuildStrategy: default
 
-  jqh:
-    image: jobs_queue_handler
-    dockerfile: jobs_queue_handler/Dockerfile
-    context: jobs_queue_handler
-    rebuildStrategy: default
-
   orchestrator:
     image: orchestrator
     dockerfile: orchestrator/Dockerfile.dev
@@ -68,10 +62,6 @@ deployments:
           - env:
               - name: API_KEY
                 value: ${FM_API_KEY}
-              - name: JQH_ADDRESS
-                value: ${JQH_ADDRESS}
-              - name: JQH_API_KEY
-                value: ${JQH_API_KEY}
               - name: MONGO_ADDRESS
                 value: ${FM_MONGO_ADDRESS}
               - name: FM_JWT_SECRET
@@ -116,27 +106,8 @@ deployments:
           - env:
               - name: FM_API_KEY
                 value: ${FM_API_KEY}
-              - name: JQH_API_KEY
-                value: ${JQH_API_KEY}
             image: jobs_handler
             name: jobs-handler-container
-  jqh:
-    helm:
-      values:
-        containers:
-          - env:
-              - name: JQH_API_KEY
-                value: ${JQH_API_KEY}
-              - name: FLASK_ENV
-                value: development
-            image: jobs_queue_handler
-            name: jqh-container
-
-        service:
-          ports:
-            - containerPort: 5000
-              port: 5000
-              protocol: TCP
 
   mongo:
     helm:
@@ -180,18 +151,6 @@ deployments:
               protocol: TCP
 
 dev:
-  jhq:
-    labelSelector:
-      app.kubernetes.io/component: jqh
-    container: jqh-container
-    sync:
-      - path: ./jobs_queue_handler:/jqh
-        disableDownload: true
-    restartHelper:
-      inject: false
-    ports:
-      - port: "5000"
-
   mongo:
     labelSelector:
       app.kubernetes.io/component: mongo
@@ -251,16 +210,6 @@ dev:
       - port: "5135"
 
 hooks:
-  - events:
-      - after:deploy:jqh
-    wait:
-      running: true
-      terminatedWithCode: 0
-    container:
-      labelSelector:
-        app.kubernetes.io/component: jqh
-      containerName: jqh-container
-
   - events:
       - after:deploy:mongo
     wait:
