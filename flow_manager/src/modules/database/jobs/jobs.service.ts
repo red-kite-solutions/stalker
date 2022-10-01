@@ -1,7 +1,8 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { Kafka } from 'kafkajs';
 import { Model } from 'mongoose';
-import { JobsQueueUtils } from 'src/utils/jobs_queue.utils';
+import { orchestratorConstants } from 'src/modules/auth/constants';
 import { CreateJobDto } from './dtos/create-job.dto';
 import { JobDto } from './dtos/job.dto';
 import { DomainNameResolvingJob } from './models/domain-name-resolving.model';
@@ -65,15 +66,37 @@ export class JobsService {
   }
 
   public async publish(job: Job) {
+    console.debug('Publishing job to orchestrator.');
+    return await this.publishNew(job);
+  }
+
+  private async publishNew(job: Job) {
+    if (process.env.TESTS) {
+      console.warn('This feature is not available while testing');
+      return null;
+    }
+
     const createdJob = await this.jobModel.create(job);
-    const success = await JobsQueueUtils.add({
-      id: createdJob.id,
-      ...job,
+
+    // TODO: Extract in service, inject through DI
+    const kafka = new Kafka({
+      clientId: orchestratorConstants.clientId,
+      brokers: orchestratorConstants.brokers,
     });
 
-    if (!success) {
-      throw new HttpException('Error sending the job to the job queue.', 500);
-    }
+    const producer = kafka.producer();
+    await producer.connect();
+    await producer.send({
+      topic: orchestratorConstants.topics.jobRequests, // TODO: Put in constant or something.
+      messages: [
+        {
+          key: createdJob.id,
+          value: JSON.stringify({
+            JobId: createdJob.id,
+          }),
+        },
+      ],
+    });
 
     return {
       id: createdJob.id,

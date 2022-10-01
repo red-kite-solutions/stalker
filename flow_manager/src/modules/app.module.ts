@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { AutomationModule } from './automation/automation.module';
 import { DatabaseModule } from './database/database.module';
+import { FindingsModule } from './findings/findings.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { DatabaseModule } from './database/database.module';
     AutomationModule,
     ScheduleModule.forRoot(),
     AuthModule,
+    FindingsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
