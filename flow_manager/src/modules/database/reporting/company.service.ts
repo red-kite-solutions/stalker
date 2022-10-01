@@ -77,7 +77,11 @@ export class CompanyService {
       throw new HttpNotFoundException();
     }
 
-    await this.domainsService.addDomains(domains, companyId, company.name);
+    return await this.domainsService.addDomains(
+      domains,
+      companyId,
+      company.name,
+    );
   }
 
   public async addDomainsFromJob(

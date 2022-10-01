@@ -110,7 +110,7 @@ export class CompanyController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
   @Post(':id/domain')
-  async submitDomainsManually(
+  async submitDomains(
     @Body(new ValidationPipe()) dto: SubmitDomainsDto,
     @Param('id') id: string,
   ) {
@@ -119,7 +119,7 @@ export class CompanyController {
 
   @UseGuards(ApiKeyGuard)
   @Post(':id/host/:jobId')
-  async submitHosts(
+  async submitHostsFromJob(
     @Param('id') id: string,
     @Param('jobId') jobId: string,
     @Body(new ValidationPipe()) dto: SubmitHostDto,
@@ -134,7 +134,7 @@ export class CompanyController {
 
   @UseGuards(ApiKeyGuard)
   @Post(':id/domain/:jobId')
-  async submitSubdomainsFromJob(
+  async submitDomainsFromJob(
     @Param('id') id: string,
     @Param('jobId') jobId: string,
     @Body(new ValidationPipe()) dto: SubmitDomainsDto,

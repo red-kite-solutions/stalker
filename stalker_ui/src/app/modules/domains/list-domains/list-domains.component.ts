@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, TemplateRef } from '@angular/core';
 import { MediaChange, MediaObserver } from '@angular/flex-layout/core';
+import { MatDialog } from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { ToastrService } from 'ngx-toastr';
@@ -9,6 +10,7 @@ import { DomainsService } from 'src/app/api/domains/domains.service';
 import { TagsService } from 'src/app/api/tags/tags.service';
 import { CompanySummary } from 'src/app/shared/types/company/company.summary';
 import { Domain } from 'src/app/shared/types/domain/domain.interface';
+import { HttpStatus } from 'src/app/shared/types/http-status.type';
 import { Tag } from 'src/app/shared/types/tag.type';
 
 @Component({
@@ -70,6 +72,10 @@ export class ListDomainsComponent {
 
   count$ = this.domainsService.getCount().pipe(startWith(10));
 
+  // #addDomainDialog template variables
+  selectedCompany = '';
+  selectedNewDomains = '';
+
   private generateFirstPageEvent() {
     const p = new PageEvent();
     p.pageIndex = 0;
@@ -107,7 +113,8 @@ export class ListDomainsComponent {
     private companiesService: CompaniesService,
     private domainsService: DomainsService,
     private toastrService: ToastrService,
-    private tagsService: TagsService
+    private tagsService: TagsService,
+    public dialog: MatDialog
   ) {}
 
   filtersChange(filters: string[]) {
@@ -160,5 +167,67 @@ export class ListDomainsComponent {
     if (tags) filterObject['tags'] = tags;
     if (domains) filterObject['domain'] = domains;
     return filterObject;
+  }
+
+  openNewDomainsDialog(templateRef: TemplateRef<any>) {
+    this.dialog.open(templateRef, {
+      restoreFocus: false,
+      minWidth: '50%',
+    });
+  }
+
+  async addNewDomains() {
+    if (!this.selectedCompany || !this.selectedNewDomains) {
+      this.toastrService.warning(
+        $localize`:Missing company or domain|The data selected is missing the company id or the new domain names:Missing company or domain name`
+      );
+      return;
+    }
+
+    const potentialNewDomains: string[] = this.selectedNewDomains.split('\n');
+    const newDomains: string[] = [];
+    for (const domain of potentialNewDomains) {
+      if (domain) {
+        newDomains.push(domain.trim());
+      }
+    }
+
+    if (newDomains.length > 0) {
+      try {
+        const addedDomains = await this.domainsService.addDomains(this.selectedCompany, newDomains);
+
+        this.toastrService.success(
+          $localize`:Changes saved|Changes to item saved successfully:Changes saved successfully`
+        );
+
+        if (addedDomains.length < newDomains.length) {
+          const domainsNotAdded = [];
+          for (const domain of newDomains) {
+            if (!addedDomains.find((value) => value.name === domain)) {
+              domainsNotAdded.push(domain);
+            }
+          }
+          console.log('Domains not added: ');
+          console.log(domainsNotAdded);
+          this.toastrService.warning(
+            $localize`:Domains not added|Some domains were not added to the database:Some domains did not add properly`
+          );
+        }
+
+        this.dialog.closeAll();
+        this.currentPage$.next(this.currentPage);
+        this.count$ = this.domainsService.getCount(this.buildFilters(this.currentFilters)).pipe(startWith(0));
+        this.selectedCompany = '';
+        this.selectedNewDomains = '';
+      } catch (err: any) {
+        if (err.status === HttpStatus.BadRequest) {
+          this.toastrService.error(
+            $localize`:Check domain format|Error while submitting the new domain names to the backend. Most likely a domain formatting error:Error submitting domains, check formats`
+          );
+        } else {
+          throw err;
+        }
+      }
+    }
   }
 }

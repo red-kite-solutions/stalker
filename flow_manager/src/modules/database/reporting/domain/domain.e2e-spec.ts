@@ -52,6 +52,25 @@ describe('Domain Controller (e2e)', () => {
     expect(r.statusCode).toBe(HttpStatus.CREATED);
   });
 
+  it('Should create multiple domains (POST /company/:id/domain)', async () => {
+    // Arrange
+    const domains = [
+      'first.domain.addedasbatch.stalker.is',
+      'second.domain.addedasbatch.stalker.is',
+    ];
+
+    // Act
+    const r = await postReq(
+      app,
+      testData.admin.token,
+      `/company/${companyId}/domain`,
+      { domains: domains },
+    );
+
+    // Assert
+    expect(r.statusCode).toBe(HttpStatus.CREATED);
+  });
+
   it('Should get a paginated list of domains (GET /domains)', async () => {
     // Arrange & Act
     const r = await getReq(
@@ -62,7 +81,7 @@ describe('Domain Controller (e2e)', () => {
 
     // Assert
     expect(r.statusCode).toBe(HttpStatus.OK);
-    expect(r.body.length).toBeGreaterThanOrEqual(1);
+    expect(r.body.length).toBeGreaterThanOrEqual(3);
     expect(r.body.length).toBeLessThanOrEqual(10);
 
     const domains: any[] = r.body;
@@ -125,11 +144,7 @@ describe('Domain Controller (e2e)', () => {
   });
 
   it('Should get a filtered paginated list of domains (filter: company) (GET /domains)', async () => {
-    // Arrange
-    const filter = domain;
-    const filterString = encodeURIComponent(filter);
-
-    // Act
+    // Arrange & Act
     const r = await getReq(
       app,
       testData.admin.token,
@@ -138,7 +153,7 @@ describe('Domain Controller (e2e)', () => {
 
     // Assert
     expect(r.statusCode).toBe(HttpStatus.OK);
-    expect(r.body.length).toBe(1);
+    expect(r.body.length).toBe(3);
 
     const domains: any[] = r.body;
     for (let d of domains) {
@@ -150,11 +165,7 @@ describe('Domain Controller (e2e)', () => {
   });
 
   it('Should get a filtered paginated list of domains (filter: tags) (GET /domains)', async () => {
-    // Arrange
-    const filter = domain;
-    const filterString = encodeURIComponent(filter);
-
-    // Act
+    // Arrange & Act
     const r = await getReq(
       app,
       testData.admin.token,
