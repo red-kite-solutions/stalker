@@ -65,7 +65,9 @@ deployments:
     helm:
       values:
         containers:
-          - env:
+          - image: flow_manager
+            name: flow-manager-container
+            env:
               - name: API_KEY
                 value: ${FM_API_KEY}
               - name: JQH_ADDRESS
@@ -85,9 +87,6 @@ deployments:
               - name: STALKER_URL
                 value: ${STALKER_URL}
 
-            image: flow_manager
-            name: flow-manager-container
-
         service:
           ports:
             - containerPort: 3000
@@ -98,10 +97,9 @@ deployments:
     helm:
       values:
         containers:
-          - env:
-
-            image: ui
+          - image: ui
             name: ui-container
+            env:
 
         service:
           ports:
@@ -113,24 +111,24 @@ deployments:
     helm:
       values:
         containers:
-          - env:
+          - image: jobs_handler
+            name: jobs-handler-container
+            env:
               - name: FM_API_KEY
                 value: ${FM_API_KEY}
               - name: JQH_API_KEY
                 value: ${JQH_API_KEY}
-            image: jobs_handler
-            name: jobs-handler-container
   jqh:
     helm:
       values:
         containers:
-          - env:
+          - image: jobs_queue_handler
+            name: jqh-container
+            env:
               - name: JQH_API_KEY
                 value: ${JQH_API_KEY}
               - name: FLASK_ENV
                 value: development
-            image: jobs_queue_handler
-            name: jqh-container
 
         service:
           ports:
