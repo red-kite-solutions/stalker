@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Run flow manager tests for PRs on main
+name: Flow Manager / Tests
 
 # Controls when the workflow will run
 on:
