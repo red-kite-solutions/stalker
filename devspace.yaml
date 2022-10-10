@@ -27,17 +27,30 @@ pipelines:
       start_dev mongo kafka
 
       # Wait for kafka and mongo to be ready
-      wait_pod --namespace stalker --label-selector app.kubernetes.io/component=mongodb
+      wait_pod --namespace stalker --label-selector app.kubernetes.io/component=mongo
       wait_pod --namespace stalker --label-selector app.kubernetes.io/component=kafka
       wait_pod --namespace stalker --label-selector app.kubernetes.io/component=zookeeper
 
       # Start microservices + ui
       start_dev orchestrator flow-manager ui
 
+  flow-manager-e2e:
+    run: |-
+      build_images flow-manager-e2e orchestrator
+      create_deployments mongo kafka orchestrator-service-account orchestrator flow-manager-e2e --sequential
+
+      # Wait for kafka and mongo to be ready
+      wait_pod --namespace stalker --label-selector app.kubernetes.io/component=mongo 
+      wait_pod --namespace stalker --label-selector app.kubernetes.io/component=kafka 
+      wait_pod --namespace stalker --label-selector app.kubernetes.io/component=zookeeper
+
+      # Run tests
+      exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'npm run test:cicd'
+
   purge:
     run: |-
       stop_dev --all
-      purge_deployments jqh mongo ui flow-manager jobs-handler kafka orchestrator-service-account orchestrator --sequential
+      purge_deployments mongo ui flow-manager flow-manager-e2e kafka orchestrator-service-account orchestrator --sequential
 
 images:
   flow-manager:
@@ -45,6 +58,12 @@ images:
     dockerfile: flow_manager/Dockerfile.dev
     context: flow_manager
     rebuildStrategy: default
+
+  flow-manager-e2e:
+    image: flow_manager_e2e
+    dockerfile: flow_manager/Dockerfile.dev
+    context: flow_manager
+    rebuildStrategy: always
 
   ui:
     image: ui
@@ -97,6 +116,34 @@ deployments:
 
             image: flow_manager
             name: flow-manager-container
+
+        service:
+          ports:
+            - containerPort: 3000
+              port: 3000
+              protocol: TCP
+
+  flow-manager-e2e:
+    helm:
+      values:
+        containers:
+          - image: flow_manager_e2e
+            name: flow-manager-container-e2e
+            env:
+              - name: TESTS
+                value: "true"
+              - name: API_KEY
+                value: ${FM_API_KEY}
+              - name: MONGO_ADDRESS
+                value: ${FM_MONGO_ADDRESS}
+              - name: FM_JWT_SECRET
+                value: ${FM_JWT_SECRET}
+              - name: FM_REFRESH_SECRET
+                value: ${FM_REFRESH_SECRET}
+              - name: KAFKA_URI
+                value: ${KAFKA_URI}
+              - name: STALKER_URL
+                value: ${STALKER_URL}
 
         service:
           ports:
@@ -218,6 +265,8 @@ dev:
     labelSelector:
       app.kubernetes.io/component: flow-manager
     container: flow-manager-container
+    logs:
+      enabled: true
     sync:
       - path: ./flow_manager/src/:/app/src/
         disableDownload: true
@@ -225,6 +274,15 @@ dev:
       inject: false
     ports:
       - port: "3000"
+
+  flow-manager-e2e:
+    labelSelector:
+      app.kubernetes.io/component: flow-manager-e2e
+    container: flow-manager-container-e2e
+    logs:
+      enabled: true
+    restartHelper:
+      inject: false
 
   ui:
     labelSelector:
