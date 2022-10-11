@@ -1,5 +1,6 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { randomUUID } from 'crypto';
 import { AppModule } from 'src/modules/app.module';
 import { Role } from 'src/modules/auth/constants';
 import request from 'supertest';
@@ -12,7 +13,7 @@ import {
   TestingData,
 } from 'test/e2e.utils';
 
-describe('Config Controller (e2e)', () => {
+describe('Job Controller (e2e)', () => {
   let app: INestApplication;
   let testData: TestingData;
   let jobId: string;
@@ -50,7 +51,7 @@ describe('Config Controller (e2e)', () => {
 
   it('Should create a domain name resolving job (POST /company/:id/job)', async () => {
     let r = await postReq(app, testData.user.token, '/company', {
-      name: 'StalkerJobs',
+      name: 'StalkerJobs' + randomUUID(),
     });
 
     expect(r.statusCode).toBe(HttpStatus.CREATED);
@@ -58,13 +59,14 @@ describe('Config Controller (e2e)', () => {
     expect(r.body._id).toBeTruthy();
 
     const companyId = r.body._id;
-
     r = await postReq(
       app,
       testData.user.token,
       `/company/${companyId}/job`,
       domainNameResolvingJob,
     );
+
+    console.log(r.body);
 
     expect(r.statusCode).toBe(HttpStatus.CREATED);
     expect(r.body.id).toBeTruthy();

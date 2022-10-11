@@ -10,6 +10,7 @@ import { ReportModule } from './reporting/report/report.module';
     MongooseModule.forRoot(`${process.env.MONGO_ADDRESS}`, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
+      useCreateIndex: true,
     }),
     JobsModule,
     CompanyModule,
