@@ -35,17 +35,30 @@ pipelines:
       start_dev orchestrator flow-manager ui
 
   flow-manager-e2e:
+    flags:
+      - name: watch
+        short: w
+        type: bool
     run: |-
       build_images flow-manager-e2e orchestrator
       create_deployments mongo kafka orchestrator-service-account orchestrator flow-manager-e2e --sequential
 
       # Wait for kafka and mongo to be ready
-      wait_pod --namespace stalker --label-selector app.kubernetes.io/component=mongo 
-      wait_pod --namespace stalker --label-selector app.kubernetes.io/component=kafka 
-      wait_pod --namespace stalker --label-selector app.kubernetes.io/component=zookeeper
+      wait_pod --namespace stalker-fm-e2e --label-selector app.kubernetes.io/component=mongo 
+      wait_pod --namespace stalker-fm-e2e --label-selector app.kubernetes.io/component=kafka 
+      wait_pod --namespace stalker-fm-e2e --label-selector app.kubernetes.io/component=zookeeper
+
 
       # Run tests
-      exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'npm run test:cicd'
+      if [ $(get_flag "watch") == "true" ]; 
+      then
+        echo "Running tests in watch mode."
+        start_dev flow-manager-e2e mongo
+        exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker-fm-e2e -- /bin/sh -c 'npm run test:e2e:watch'
+      else
+        echo "Running tests in ci mode."
+        exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker-fm-e2e -- /bin/sh -c 'npm run test:cicd'
+      fi
 
   purge:
     run: |-
@@ -135,13 +148,15 @@ deployments:
               - name: API_KEY
                 value: ${FM_API_KEY}
               - name: MONGO_ADDRESS
-                value: ${FM_MONGO_ADDRESS}
+                value: mongodb://mongo:27017/stalker-fm-e2e
               - name: FM_JWT_SECRET
                 value: ${FM_JWT_SECRET}
               - name: FM_REFRESH_SECRET
                 value: ${FM_REFRESH_SECRET}
               - name: KAFKA_URI
                 value: ${KAFKA_URI}
+              - name: FEATURE_ORCHESTRATOR_ENABLED
+                value: "true"
               - name: STALKER_URL
                 value: ${STALKER_URL}
 
@@ -281,6 +296,10 @@ dev:
     container: flow-manager-container-e2e
     logs:
       enabled: true
+    sync:
+      - path: ./flow_manager/src/:/app/src/
+        disableDownload: true
+      - path: ./flow_manager/test/jest-output.json:./app/jest-output.json
     restartHelper:
       inject: false
 

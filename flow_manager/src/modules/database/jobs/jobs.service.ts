@@ -80,32 +80,30 @@ export class JobsService {
   }
 
   private async publishNew(job: Job) {
-    if (process.env.TESTS) {
-      console.warn('This feature is not available while testing');
-      return null;
-    }
-
     const createdJob = await this.jobModel.create(job);
 
-    // TODO: Extract in service, inject through DI
-    const kafka = new Kafka({
-      clientId: orchestratorConstants.clientId,
-      brokers: orchestratorConstants.brokers,
-    });
+    if (!process.env.TESTS) {
+      console.info('This feature is not available while testing');
+      // TODO: Extract in service, inject through DI
+      const kafka = new Kafka({
+        clientId: orchestratorConstants.clientId,
+        brokers: orchestratorConstants.brokers,
+      });
 
-    const producer = kafka.producer();
-    await producer.connect();
-    await producer.send({
-      topic: orchestratorConstants.topics.jobRequests, // TODO: Put in constant or something.
-      messages: [
-        {
-          key: createdJob.id,
-          value: JSON.stringify({
-            JobId: createdJob.id,
-          }),
-        },
-      ],
-    });
+      const producer = kafka.producer();
+      await producer.connect();
+      await producer.send({
+        topic: orchestratorConstants.topics.jobRequests, // TODO: Put in constant or something.
+        messages: [
+          {
+            key: createdJob.id,
+            value: JSON.stringify({
+              JobId: createdJob.id,
+            }),
+          },
+        ],
+      });
+    }
 
     return {
       id: createdJob.id,
