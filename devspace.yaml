@@ -300,7 +300,7 @@ dev:
     sync:
       - path: ./flow_manager/src/:/app/src/
         disableDownload: true
-      - path: ./flow_manager/test/jest-output.json:./app/jest-output.json
+      - path: ./flow_manager/test/jest-output.json:/app/jest-output.json
     restartHelper:
       inject: false
 
