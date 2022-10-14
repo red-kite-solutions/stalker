@@ -60,4 +60,4 @@ jobs:
         if: always()
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          result-file: ./flow_manager/test/jest-output.json
+          result-file: ./app/flow_manager/test/jest-output.json
