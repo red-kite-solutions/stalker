@@ -301,6 +301,7 @@ dev:
       - path: ./flow_manager/src/:/app/src/
         disableDownload: true
       - path: ./flow_manager/test/jest-output.json:/app/test/jest-output.json
+        file: true
     restartHelper:
       inject: false
 
