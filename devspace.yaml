@@ -60,6 +60,8 @@ pipelines:
         exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'npm run test:cicd'
       fi
 
+      stop_dev --all
+
   purge:
     run: |-
       stop_dev --all
