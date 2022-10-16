@@ -9,7 +9,7 @@
 ### 1. Start your local K8s cluster
 
 ```
-minikube start
+minikube start --driver=docker
 ```
 
 <details>
