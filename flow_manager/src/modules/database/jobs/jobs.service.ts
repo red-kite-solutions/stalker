@@ -87,6 +87,7 @@ export class JobsService {
         ...job,
       }),
     });
+    
     return {
       id: createdJob.id,
       ...job,
