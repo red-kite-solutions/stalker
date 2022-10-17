@@ -136,7 +136,7 @@ dmypy.json
 *.secret
 
 .vscode
-.code-workspace
+**/*.code-workspace
 
 # node stuff
 node_modules
