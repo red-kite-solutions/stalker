@@ -10,7 +10,11 @@ export class KafkaJobQueue implements JobQueue {
   constructor(private producer: Producer) {}
 
   public async publish(...jobs: any[]) {
-    this.logger.debug(`Publishing ${jobs.length} jobs to the message queue.`);
+    this.logger.debug(
+      `Publishing ${jobs.length} jobs to the message queue on topic ${
+        orchestratorConstants.topics.jobRequests
+      }: ${JSON.stringify(jobs)}.`,
+    );
 
     await this.producer.send({
       topic: orchestratorConstants.topics.jobRequests,

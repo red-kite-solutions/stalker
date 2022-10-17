@@ -83,7 +83,8 @@ export class JobsService {
     await this.jobQueue.publish({
       key: createdJob.id,
       value: JSON.stringify({
-        JobId: createdJob.id,
+        jobId: createdJob.id,
+        ...job,
       }),
     });
 
