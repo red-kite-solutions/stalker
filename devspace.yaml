@@ -58,8 +58,12 @@ pipelines:
         echo "Running tests in ci mode."
         start_dev flow-manager-e2e
 
-        exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'npm run test:cicd' || true
+        # TODO: fail after sleep
+        exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'npm run test:cicd'
       fi
+
+      exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'echo "Sleeping while the test results are synced."'
+      exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'sleep 10'
 
       stop_dev --all
 
@@ -101,8 +105,8 @@ images:
 
   orchestrator:
     image: orchestrator
-    dockerfile: orchestrator/Orchestrator/Dockerfile.dev
-    context: orchestrator/Orchestrator
+    dockerfile: orchestrator/Dockerfile.dev
+    context: orchestrator
     rebuildStrategy: default
 
 deployments:
@@ -110,9 +114,7 @@ deployments:
     helm:
       values:
         containers:
-          - image: flow_manager
-            name: flow-manager-container
-            env:
+          - env:
               - name: API_KEY
                 value: ${FM_API_KEY}
               - name: JQH_ADDRESS
@@ -131,6 +133,9 @@ deployments:
                 value: ${FM_FEATURE_ORCHESTRATOR_ENABLED}
               - name: STALKER_URL
                 value: ${STALKER_URL}
+
+            image: flow_manager
+            name: flow-manager-container
 
         service:
           ports:
@@ -172,9 +177,10 @@ deployments:
     helm:
       values:
         containers:
-          - image: ui
+          - env:
+
+            image: ui
             name: ui-container
-            env:
 
         service:
           ports:
@@ -186,24 +192,24 @@ deployments:
     helm:
       values:
         containers:
-          - image: jobs_handler
-            name: jobs-handler-container
-            env:
+          - env:
               - name: FM_API_KEY
                 value: ${FM_API_KEY}
               - name: JQH_API_KEY
                 value: ${JQH_API_KEY}
+            image: jobs_handler
+            name: jobs-handler-container
   jqh:
     helm:
       values:
         containers:
-          - image: jobs_queue_handler
-            name: jqh-container
-            env:
+          - env:
               - name: JQH_API_KEY
                 value: ${JQH_API_KEY}
               - name: FLASK_ENV
                 value: development
+            image: jobs_queue_handler
+            name: jqh-container
 
         service:
           ports:
