@@ -58,12 +58,8 @@ pipelines:
         echo "Running tests in ci mode."
         start_dev flow-manager-e2e
 
-        # TODO: fail after sleep
-        exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'npm run test:cicd'
+        exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'npm run test:cicd' || true
       fi
-
-      exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'echo "Sleeping while the test results are synced."'
-      exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'sleep 10'
 
       stop_dev --all
 
@@ -272,7 +268,7 @@ dev:
 
   mongo:
     labelSelector:
-      app.kubernetes.io/component: mongodb
+      app.kubernetes.io/component: mongo
     ports:
       - port: "27017"
 
