@@ -49,12 +49,6 @@ jobs:
       - name: Run tests
         run: devspace run-pipeline flow-manager-e2e -n stalker
 
-      - name: test
-        run: |-
-          ls
-          ls flow_manager
-          ls flow_manager/test
-
       - name: Update the results in the pull request
         uses: tanmen/jest-reporter@v1
         if: always()
