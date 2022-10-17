@@ -29,7 +29,6 @@ public class JobsConsumer : KafkaConsumer<JobRequest>
     {
         try
         {
-
             // Fire and forget; the job will cleanup itself.
             var jobCommand = JobFactory.Create(request);
             await jobCommand.Execute();
