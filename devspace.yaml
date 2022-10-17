@@ -20,9 +20,19 @@ pipelines:
 
   dev:
     run: |-
-      build_images ui flow-manager jobs-handler orchestrator
-      create_deployments mongo ui flow-manager jobs-handler kafka orchestrator-service-account orchestrator --sequential
-      start_dev --all
+      build_images ui flow-manager orchestrator
+      create_deployments mongo ui flow-manager kafka orchestrator-service-account orchestrator --sequential
+
+      # Start mongo and kafka
+      start_dev mongo kafka
+
+      # Wait for kafka and mongo to be ready
+      wait_pod --namespace stalker --label-selector app.kubernetes.io/component=mongodb
+      wait_pod --namespace stalker --label-selector app.kubernetes.io/component=kafka
+      wait_pod --namespace stalker --label-selector app.kubernetes.io/component=zookeeper
+
+      # Start microservices + ui
+      start_dev orchestrator flow-manager ui
 
   purge:
     run: |-

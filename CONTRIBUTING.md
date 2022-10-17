@@ -9,7 +9,7 @@
 ### 1. Start your local K8s cluster
 
 ```
-minikube start
+minikube start --driver=docker
 ```
 
 <details>
@@ -62,7 +62,7 @@ amass_wordlists=/wordlist/path/
 From the repo root, run
 
 ```
-devspace dev
+devspace dev -n stalker
 ```
 
 You should now be good to go! 🎉 If you change a file in any microservice, the microservice will be automatically live-reloaded.
