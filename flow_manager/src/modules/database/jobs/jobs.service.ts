@@ -1,11 +1,8 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Kafka } from 'kafkajs';
 import { Model } from 'mongoose';
-import {
-  featureFlags,
-  orchestratorConstants,
-} from 'src/modules/auth/constants';
+import { featureFlags } from 'src/modules/auth/constants';
+import { JobQueue } from 'src/modules/job-queue/job-queue';
 import { JobsQueueUtils } from 'src/utils/jobs_queue.utils';
 import { CreateJobDto } from './dtos/create-job.dto';
 import { JobDto } from './dtos/job.dto';
@@ -16,6 +13,7 @@ import { SubdomainBruteforceJob } from './models/subdomain-bruteforce.model';
 @Injectable()
 export class JobsService {
   constructor(
+    private jobQueue: JobQueue,
     @InjectModel('job') private readonly jobModel: Model<Job & Document>,
   ) {}
 
@@ -84,27 +82,16 @@ export class JobsService {
 
     if (!process.env.TESTS) {
       console.info('This feature is not available while testing');
-      // TODO: Extract in service, inject through DI
-      const kafka = new Kafka({
-        clientId: orchestratorConstants.clientId,
-        brokers: orchestratorConstants.brokers,
+      await this.jobQueue.publish({
+        key: createdJob.id,
+        value: JSON.stringify({
+          jobId: createdJob.id,
+          ...job,
+        }),
       });
 
-      const producer = kafka.producer();
-      await producer.connect();
-      await producer.send({
-        topic: orchestratorConstants.topics.jobRequests, // TODO: Put in constant or something.
-        messages: [
-          {
-            key: createdJob.id,
-            value: JSON.stringify({
-              JobId: createdJob.id,
-            }),
-          },
-        ],
-      });
     }
-
+    
     return {
       id: createdJob.id,
       ...job,

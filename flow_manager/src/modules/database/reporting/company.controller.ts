@@ -169,7 +169,7 @@ export class CompanyController {
         }
         data['ipRanges'].push(range);
       }
-    } else if (dto.ipRanges === []) {
+    } else if (!dto.ipRanges?.length) {
       data['ipRanges'] = [];
     }
 
