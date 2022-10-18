@@ -143,7 +143,7 @@ export class DomainsService {
     if (!filter) {
       return await this.domainModel.estimatedDocumentCount();
     } else {
-      return await this.domainModel.count(filter);
+      return await this.domainModel.countDocuments(filter);
     }
   }
 

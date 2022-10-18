@@ -1,10 +1,13 @@
-// import { Type } from 'class-transformer';
+import { Type } from 'class-transformer';
 import {
   IsArray,
-  IsIn,
   IsMongoId,
+  IsNumber,
   IsNumberString,
   IsOptional,
+  Max,
+  Min,
+  ValidateIf,
 } from 'class-validator';
 import { Types } from 'mongoose';
 
@@ -12,8 +15,10 @@ export class DomainsPagingDto {
   @IsNumberString()
   page: string;
 
-  @IsNumberString()
-  @IsIn(['10', '25', '50', '100'])
+  @IsNumber()
+  @Min(1)
+  @Max(100)
+  @Type(() => Number)
   pageSize: string;
 
   @IsArray()
@@ -24,20 +29,7 @@ export class DomainsPagingDto {
   @IsOptional()
   tags: Array<string>;
 
-  @IsMongoId()
-  @IsOptional()
-  company: string;
-}
-
-export class GetDomainCountDto {
-  @IsArray()
-  @IsOptional()
-  domain: Array<string>;
-
-  @IsArray()
-  @IsOptional()
-  tags: Array<string>;
-
+  @ValidateIf((dto) => dto.company !== '')
   @IsMongoId()
   @IsOptional()
   company: string;

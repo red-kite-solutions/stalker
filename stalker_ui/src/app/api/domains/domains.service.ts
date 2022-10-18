@@ -1,7 +1,8 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { firstValueFrom, map, Observable } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { Domain } from 'src/app/shared/types/domain/domain.interface';
+import { Page } from 'src/app/shared/types/page.type';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -11,39 +12,26 @@ export class DomainsService {
   constructor(private http: HttpClient) {}
 
   private filtersToURL(filters: any) {
+    console.log(filters);
     const keys = Object.keys(filters);
-    let encodedFilters = '';
+    let encodedFilters = new HttpParams();
     for (const key of keys) {
       if (Array.isArray(filters[key])) {
         for (const value of filters[key]) {
-          const encodedValue = encodeURI(value);
-          encodedFilters += `&${key}[]=${encodedValue}`;
+          encodedFilters = encodedFilters.append(`${key}[]`, value);
         }
       } else {
-        encodedFilters = `&${key}=` + encodeURI(filters[key]);
+        encodedFilters = encodedFilters.set(key, filters[key]);
       }
     }
-    return encodedFilters;
+    return encodedFilters.toString();
   }
 
-  public getPage(page: number, pageSize: number, filters: any): Observable<Domain[]> {
-    const encodedFilters = this.filtersToURL(filters);
-    return <Observable<Domain[]>>(
-      this.http.get(`${environment.fmUrl}/domains?page=${page}&pageSize=${pageSize}${encodedFilters}`)
-    );
-  }
-
-  public getCount(filters: any = {}) {
+  public getPage(page: number, pageSize: number, filters: any): Observable<Page<Domain>> {
     let encodedFilters = this.filtersToURL(filters);
-    let urlParams = '';
-    if (encodedFilters) {
-      encodedFilters = encodedFilters.substring(1); // removing the first &
-      urlParams = `?${encodedFilters}`;
-    }
-    return <Observable<number>>this.http.get(`${environment.fmUrl}/domains/count${urlParams}`).pipe(
-      map((v: any) => {
-        return v.count;
-      })
+    encodedFilters = encodedFilters ? `&${encodedFilters}` : encodedFilters;
+    return <Observable<Page<Domain>>>(
+      this.http.get(`${environment.fmUrl}/domains?page=${page}&pageSize=${pageSize}${encodedFilters}`)
     );
   }
 

@@ -81,16 +81,34 @@ describe('Domain Controller (e2e)', () => {
 
     // Assert
     expect(r.statusCode).toBe(HttpStatus.OK);
-    expect(r.body.length).toBeGreaterThanOrEqual(3);
-    expect(r.body.length).toBeLessThanOrEqual(10);
+    expect(r.body.items.length).toBeGreaterThanOrEqual(3);
+    expect(r.body.totalRecords).toBeGreaterThanOrEqual(3);
+    expect(r.body.items.length).toBeLessThanOrEqual(10);
+    expect(r.body.totalRecords).toBeLessThanOrEqual(10);
 
-    const domains: any[] = r.body;
+    const domains: any[] = r.body.items;
     for (let d of domains) {
       if (d.name === domain) {
         domainId = d._id;
       }
     }
     expect(domainId).toBeTruthy();
+  });
+
+  it('Should get a paginated list of domains with empty filters (GET /domains)', async () => {
+    // Arrange & Act
+    const r = await getReq(
+      app,
+      testData.admin.token,
+      '/domains?page=0&pageSize=10tags[]=&domain[]=&company=',
+    );
+
+    // Assert
+    expect(r.statusCode).toBe(HttpStatus.OK);
+    expect(r.body.items.length).toBeGreaterThanOrEqual(3);
+    expect(r.body.totalRecords).toBeGreaterThanOrEqual(3);
+    expect(r.body.items.length).toBeLessThanOrEqual(10);
+    expect(r.body.totalRecords).toBeLessThanOrEqual(10);
   });
 
   it('Should edit the specific domain by id (PUT /domains/:id)', async () => {
@@ -132,9 +150,10 @@ describe('Domain Controller (e2e)', () => {
 
     // Assert
     expect(r.statusCode).toBe(HttpStatus.OK);
-    expect(r.body.length).toBe(1);
+    expect(r.body.items.length).toBe(1);
+    expect(r.body.totalRecords).toBe(1);
 
-    const domains: any[] = r.body;
+    const domains: any[] = r.body.items;
     for (let d of domains) {
       if (d.name === domain) {
         domainId = d._id;
@@ -153,7 +172,8 @@ describe('Domain Controller (e2e)', () => {
 
     // Assert
     expect(r.statusCode).toBe(HttpStatus.OK);
-    expect(r.body.length).toBe(3);
+    expect(r.body.items.length).toBe(3);
+    expect(r.body.totalRecords).toBe(3);
 
     const domains: any[] = r.body;
     for (let d of domains) {
@@ -174,7 +194,8 @@ describe('Domain Controller (e2e)', () => {
 
     // Assert
     expect(r.statusCode).toBe(HttpStatus.OK);
-    expect(r.body.length).toBe(1);
+    expect(r.body.items.length).toBe(1);
+    expect(r.body.totalRecords).toBe(1);
 
     const domains: any[] = r.body;
     for (let d of domains) {
@@ -183,15 +204,6 @@ describe('Domain Controller (e2e)', () => {
       }
     }
     expect(domainId).toBeTruthy();
-  });
-
-  it('Should get the domain count (GET /domains/count)', async () => {
-    // Arrange & Act
-    const r = await getReq(app, testData.admin.token, `/domains/count`);
-
-    // Assert
-    expect(r.statusCode).toBe(HttpStatus.OK);
-    expect(r.body.count).toBeGreaterThanOrEqual(1);
   });
 
   it('Should get the specific domain by id (GET /domains/:id)', async () => {
@@ -213,17 +225,6 @@ describe('Domain Controller (e2e)', () => {
       Role.ReadOnly,
       async (givenToken) => {
         return await getReq(app, givenToken, '/domains');
-      },
-    );
-    expect(success).toBe(true);
-  });
-
-  it('Should have proper authorizations (GET /domains/count)', async () => {
-    const success = await checkAuthorizations(
-      testData,
-      Role.ReadOnly,
-      async (givenToken) => {
-        return await getReq(app, givenToken, `/domains/count`);
       },
     );
     expect(success).toBe(true);

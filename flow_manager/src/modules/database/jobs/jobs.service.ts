@@ -66,16 +66,6 @@ export class JobsService {
   }
 
   public async publish(job: Job) {
-    console.debug('Publishing job to orchestrator.');
-    return await this.publishNew(job);
-  }
-
-  private async publishNew(job: Job) {
-    if (process.env.TESTS) {
-      console.warn('This feature is not available while testing');
-      return null;
-    }
-
     const createdJob = await this.jobModel.create(job);
 
     // TODO: Extract in service, inject through DI

@@ -1,4 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
+@import 'app/shared/widget/filtered-paginated-table/_filtered-paginated-table.component.scss';
+@include app-filtered-paginated-table();
 
 html,
 body {

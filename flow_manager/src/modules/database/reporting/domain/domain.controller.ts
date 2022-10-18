@@ -13,12 +13,9 @@ import { Role } from 'src/modules/auth/constants';
 import { Roles } from 'src/modules/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/modules/auth/guards/role.guard';
+import { Page } from 'src/types/page.type';
 import escapeStringRegexp from '../../../../utils/escape-string-regexp';
-import {
-  DomainsPagingDto,
-  EditDomainDto,
-  GetDomainCountDto,
-} from './domain.dto';
+import { DomainsPagingDto, EditDomainDto } from './domain.dto';
 import { DomainDocument } from './domain.model';
 import { DomainsService } from './domain.service';
 
@@ -26,18 +23,21 @@ import { DomainsService } from './domain.service';
 export class DomainsController {
   constructor(private readonly domainsService: DomainsService) {}
 
-  private buildFilters(dto: DomainsPagingDto | GetDomainCountDto) {
+  private buildFilters(dto: DomainsPagingDto) {
     const finalFilter = {};
-
+    console.log(dto);
     // Filter by domain
     if (dto.domain) {
       const preppedDomainArray = [];
       for (const domain of dto.domain) {
-        let domainRegex = escapeStringRegexp(domain.toLowerCase());
-        preppedDomainArray.push(new RegExp(domainRegex, 'i'));
+        if (domain) {
+          let domainRegex = escapeStringRegexp(domain.toLowerCase());
+          preppedDomainArray.push(new RegExp(domainRegex, 'i'));
+        }
       }
-
-      finalFilter['name'] = { $all: preppedDomainArray };
+      if (preppedDomainArray.length > 0) {
+        finalFilter['name'] = { $all: preppedDomainArray };
+      }
     }
 
     // Filter by company
@@ -51,11 +51,15 @@ export class DomainsController {
     if (dto.tags) {
       const preppedTagsArray = [];
       for (const tag of dto.tags) {
-        preppedTagsArray.push(tag.toLowerCase());
+        if (tag) {
+          preppedTagsArray.push(tag.toLowerCase());
+        }
       }
-
-      finalFilter['tags'] = { $all: preppedTagsArray };
+      if (preppedTagsArray.length > 0) {
+        finalFilter['tags'] = { $all: preppedTagsArray };
+      }
     }
+    console.log(finalFilter);
     return finalFilter;
   }
 
@@ -64,22 +68,16 @@ export class DomainsController {
   @Get()
   async getAllDomains(
     @Query() dto: DomainsPagingDto,
-  ): Promise<DomainDocument[]> {
+  ): Promise<Page<DomainDocument>> {
     const finalFilter = this.buildFilters(dto);
-
-    return await this.domainsService.getAll(
-      parseInt(dto.page),
-      parseInt(dto.pageSize),
-      finalFilter,
-    );
-  }
-
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ReadOnly)
-  @Get('/count')
-  async getDomainsCount(@Query() dto: GetDomainCountDto) {
-    const finalFilter = this.buildFilters(dto);
-    return { count: await this.domainsService.count(finalFilter) };
+    return {
+      totalRecords: await this.domainsService.count(finalFilter),
+      items: await this.domainsService.getAll(
+        parseInt(dto.page),
+        parseInt(dto.pageSize),
+        finalFilter,
+      ),
+    };
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

@@ -14,14 +14,6 @@ table {
   text-align: center;
 }
 
-table ::ng-deep .rows {
-  cursor: pointer;
-}
-
-table ::ng-deep .rows:hover {
-  background-color: rgb(243, 243, 243);
-}
-
 .check-box-cell {
   cursor: default;
 }
@@ -32,8 +24,4 @@ table ::ng-deep .rows:hover {
 
 .filter-chip-list {
   width: 100%;
-}
-
-.filter-chip-list ::ng-deep .mat-form-field-wrapper {
-  margin-bottom: -18px;
 }

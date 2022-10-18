@@ -4,13 +4,14 @@ import { MatDialog } from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, distinctUntilChanged, filter, map, startWith, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, distinctUntilChanged, filter, map, switchMap, tap } from 'rxjs';
 import { CompaniesService } from 'src/app/api/companies/companies.service';
 import { DomainsService } from 'src/app/api/domains/domains.service';
 import { TagsService } from 'src/app/api/tags/tags.service';
 import { CompanySummary } from 'src/app/shared/types/company/company.summary';
 import { Domain } from 'src/app/shared/types/domain/domain.interface';
 import { HttpStatus } from 'src/app/shared/types/http-status.type';
+import { Page } from 'src/app/shared/types/page.type';
 import { Tag } from 'src/app/shared/types/tag.type';
 
 @Component({
@@ -27,6 +28,7 @@ export class ListDomainsComponent {
   currentPage: PageEvent = this.generateFirstPageEvent();
   currentFilters: string[] = [];
   currentPage$ = new BehaviorSubject<PageEvent>(this.currentPage);
+  count = 0;
 
   dataSource$ = this.currentPage$.pipe(
     tap((currentPage) => {
@@ -36,11 +38,12 @@ export class ListDomainsComponent {
       const filters = this.buildFilters(this.currentFilters);
       return this.domainsService.getPage(currentPage.pageIndex, currentPage.pageSize, filters);
     }),
-    map((data: Domain[]) => {
+    map((data: Page<Domain>) => {
       if (!this.dataSource) {
         this.dataSource = new MatTableDataSource<Domain>();
       }
-      this.dataSource.data = data;
+      this.dataSource.data = data.items;
+      this.count = data.totalRecords;
       this.dataLoading = false;
       return data;
     })
@@ -69,8 +72,6 @@ export class ListDomainsComponent {
       return this.tags;
     })
   );
-
-  count$ = this.domainsService.getCount().pipe(startWith(10));
 
   // #addDomainDialog template variables
   selectedCompany = '';
@@ -121,7 +122,6 @@ export class ListDomainsComponent {
     this.currentFilters = filters;
     this.dataLoading = true;
     this.currentPage$.next(this.currentPage);
-    this.count$ = this.domainsService.getCount(this.buildFilters(this.currentFilters)).pipe(startWith(0));
   }
 
   buildFilters(stringFilters: string[]): any {
@@ -216,7 +216,6 @@ export class ListDomainsComponent {
 
         this.dialog.closeAll();
         this.currentPage$.next(this.currentPage);
-        this.count$ = this.domainsService.getCount(this.buildFilters(this.currentFilters)).pipe(startWith(0));
         this.selectedCompany = '';
         this.selectedNewDomains = '';
       } catch (err: any) {
