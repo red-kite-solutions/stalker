@@ -177,6 +177,11 @@ export class CompanyController {
         data['ipRanges'].push(range);
       }
     } else if (Array.isArray(dto.ipRanges)) {
+      // ^ This previous line checks for an empty array. The check is needed because the value
+      // may also be, at this point, null or undefined
+      // If an empty array is explicitly provided, it is because the user wants to
+      // empty the company's ipRanges array. Therefore, we assign an empty array to overwrite the
+      // existing one in the database.
       data['ipRanges'] = [];
     }
 

@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32407.343
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orchestrator", "Orchestrator.csproj", "{013BDE59-0F38-46F7-B6A7-FEAEE077F4BB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orchestrator", "Orchestrator\Orchestrator.csproj", "{013BDE59-0F38-46F7-B6A7-FEAEE077F4BB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orchestrator.Tests", "Orchestrator.Tests\Orchestrator.Tests.csproj", "{C64B55DC-C9BE-4146-909C-1F03ECE8F5A0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{013BDE59-0F38-46F7-B6A7-FEAEE077F4BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{013BDE59-0F38-46F7-B6A7-FEAEE077F4BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{013BDE59-0F38-46F7-B6A7-FEAEE077F4BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C64B55DC-C9BE-4146-909C-1F03ECE8F5A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C64B55DC-C9BE-4146-909C-1F03ECE8F5A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C64B55DC-C9BE-4146-909C-1F03ECE8F5A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C64B55DC-C9BE-4146-909C-1F03ECE8F5A0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

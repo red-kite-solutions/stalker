@@ -1,0 +1,32 @@
+name: Orchestrator
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/orchestrator.yml
+      - "orchestrator/**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET Core SDK 6.0.x
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: "6.0.x"
+          include-prerelease: true
+
+      - name: Build
+        working-directory: orchestrator/Orchestrator
+        run: |-
+          dotnet restore
+          dotnet build --configuration Release --no-restore
+
+      - name: Test
+        working-directory: orchestrator/Orchestrator.Tests
+        run: |-
+          dotnet restore
+          dotnet test

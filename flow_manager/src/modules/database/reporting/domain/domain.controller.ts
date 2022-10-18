@@ -25,7 +25,6 @@ export class DomainsController {
 
   private buildFilters(dto: DomainsPagingDto) {
     const finalFilter = {};
-    console.log(dto);
     // Filter by domain
     if (dto.domain) {
       const preppedDomainArray = [];
@@ -59,7 +58,6 @@ export class DomainsController {
         finalFilter['tags'] = { $all: preppedTagsArray };
       }
     }
-    console.log(finalFilter);
     return finalFilter;
   }
 
