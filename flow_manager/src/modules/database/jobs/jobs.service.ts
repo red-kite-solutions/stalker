@@ -81,7 +81,6 @@ export class JobsService {
     const createdJob = await this.jobModel.create(job);
 
     if (!process.env.TESTS) {
-      console.info('This feature is not available while testing');
       await this.jobQueue.publish({
         key: createdJob.id,
         value: JSON.stringify({
@@ -89,6 +88,8 @@ export class JobsService {
           ...job,
         }),
       });
+    } else {
+      console.info('This feature is not available while testing');
     }
 
     return {
