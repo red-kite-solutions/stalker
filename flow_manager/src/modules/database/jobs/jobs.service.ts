@@ -80,14 +80,18 @@ export class JobsService {
   private async publishNew(job: Job) {
     const createdJob = await this.jobModel.create(job);
 
-    await this.jobQueue.publish({
-      key: createdJob.id,
-      value: JSON.stringify({
-        jobId: createdJob.id,
-        ...job,
-      }),
-    });
-    
+    if (!process.env.TESTS) {
+      await this.jobQueue.publish({
+        key: createdJob.id,
+        value: JSON.stringify({
+          jobId: createdJob.id,
+          ...job,
+        }),
+      });
+    } else {
+      console.info('This feature is not available while testing');
+    }
+
     return {
       id: createdJob.id,
       ...job,
