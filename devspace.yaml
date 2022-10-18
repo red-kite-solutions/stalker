@@ -274,7 +274,7 @@ dev:
 
   mongo:
     labelSelector:
-      app.kubernetes.io/component: mongo
+      app.kubernetes.io/component: mongodb
     ports:
       - port: "27017"
 
