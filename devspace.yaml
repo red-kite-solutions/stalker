@@ -106,7 +106,7 @@ images:
   orchestrator:
     image: orchestrator
     dockerfile: orchestrator/Orchestrator/Dockerfile.dev
-    context: orchestrator
+    context: orchestrator/Orchestrator
     rebuildStrategy: default
 
 deployments:
