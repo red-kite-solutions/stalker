@@ -155,7 +155,7 @@ deployments:
               - name: API_KEY
                 value: ${FM_API_KEY}
               - name: MONGO_ADDRESS
-                value: mongodb://mongo:27017/stalker
+                value: ${FM_MONGO_ADDRESS}
               - name: FM_JWT_SECRET
                 value: ${FM_JWT_SECRET}
               - name: FM_REFRESH_SECRET
