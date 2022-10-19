@@ -66,8 +66,6 @@ describe('Job Controller (e2e)', () => {
       domainNameResolvingJob,
     );
 
-    console.log(r.body);
-
     expect(r.statusCode).toBe(HttpStatus.CREATED);
     expect(r.body.id).toBeTruthy();
 
