@@ -4,11 +4,12 @@ import { Kafka } from 'kafkajs';
 import { orchestratorConstants } from '../auth/constants';
 import { JobsModule } from '../database/jobs/jobs.module';
 import { CompanyModule } from '../database/reporting/company.module';
+import { HostModule } from '../database/reporting/host/host.module';
 import { FindingsCommands } from './commands/findings-commands';
 import { FindingsService } from './findings.service';
 
 @Module({
-  imports: [CqrsModule, JobsModule, CompanyModule],
+  imports: [CqrsModule, JobsModule, CompanyModule, HostModule],
   controllers: [],
   providers: [FindingsService, ...FindingsCommands],
   exports: [],
