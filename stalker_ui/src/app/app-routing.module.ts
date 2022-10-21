@@ -13,6 +13,7 @@ import { EditCompaniesComponent } from './modules/companies/edit-companies/edit-
 import { ListCompaniesComponent } from './modules/companies/list-companies/list-companies.component';
 import { DashboardComponent } from './modules/dashboard/dashboard.component';
 import { ListDomainsComponent } from './modules/domains/list-domains/list-domains.component';
+import { ViewDomainComponent } from './modules/domains/view-domain/view-domain.component';
 import { ProfileComponent } from './modules/user/profile/profile.component';
 
 const routes: Routes = [
@@ -55,6 +56,10 @@ const routes: Routes = [
       {
         path: 'domains',
         component: ListDomainsComponent,
+      },
+      {
+        path: 'domains/:id',
+        component: ViewDomainComponent,
       },
     ],
   },

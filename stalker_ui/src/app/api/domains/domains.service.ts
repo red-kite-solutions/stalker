@@ -12,7 +12,6 @@ export class DomainsService {
   constructor(private http: HttpClient) {}
 
   private filtersToURL(filters: any) {
-    console.log(filters);
     const keys = Object.keys(filters);
     let encodedFilters = new HttpParams();
     for (const key of keys) {
@@ -39,5 +38,9 @@ export class DomainsService {
     return await firstValueFrom(
       this.http.post<any[]>(`${environment.fmUrl}/company/${companyId}/domain`, { domains: newDomains })
     );
+  }
+
+  public get(domainId: string): Observable<Domain> {
+    return <Observable<Domain>>this.http.get(`${environment.fmUrl}/domains/${domainId}`);
   }
 }
