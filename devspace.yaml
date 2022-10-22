@@ -21,18 +21,20 @@ pipelines:
   dev:
     run: |-
       build_images ui flow-manager orchestrator
-      create_deployments mongo ui flow-manager kafka orchestrator-service-account orchestrator --sequential
 
       # Start mongo and kafka
-      start_dev mongo kafka
+      create_deployments orchestrator-service-account mongo kafka --sequential
 
       # Wait for kafka and mongo to be ready
       wait_pod --label-selector app.kubernetes.io/component=mongodb
       wait_pod --label-selector app.kubernetes.io/component=kafka
       wait_pod --label-selector app.kubernetes.io/component=zookeeper
 
-      # Start microservices + ui
-      start_dev orchestrator flow-manager ui
+      # Start orchestator, flow manager and ui
+      create_deployments orchestrator flow-manager ui --sequential
+
+      # Start sync and dev stuff
+      start_dev orchestrator flow-manager ui mongo kafka
 
   flow-manager-e2e:
     flags:
@@ -41,12 +43,14 @@ pipelines:
         type: bool
     run: |-
       build_images flow-manager-e2e orchestrator
-      create_deployments mongo kafka orchestrator-service-account orchestrator flow-manager-e2e --sequential
+      create_deployments mongo kafka orchestrator-service-account --sequential
 
       # Wait for kafka and mongo to be ready
       wait_pod --label-selector app.kubernetes.io/component=mongodb
       wait_pod --label-selector app.kubernetes.io/component=kafka
       wait_pod --label-selector app.kubernetes.io/component=zookeeper
+
+      create_deployments orchestrator flow-manager-e2e --sequential
 
       # Run tests
       if [ $(get_flag "watch") == "true" ]; 
