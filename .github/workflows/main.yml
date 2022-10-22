@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Run flow manager tests for PRs on main
+name: Flow Manager / Tests
 
 # Controls when the workflow will run
 on:
@@ -26,11 +26,28 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
-      - name: Build the containers
-        run: docker-compose -f docker-compose.cicd.yml build --no-cache
+      - name: Setup MiniKube
+        id: minikube
+        uses: medyagh/setup-minikube@master
 
-      - name: Run the containers which run the tests
-        run: docker-compose -f docker-compose.cicd.yml up --abort-on-container-exit
+      - name: Install DevSpace
+        uses: loft-sh/setup-devspace@main
+        with:
+          kubectl-install: true
+
+      - name: Create test configurations
+        run: |-
+          echo "version: v2beta1" >> devspace.dev.yaml
+          echo "name: stalker-vars-dev" >> devspace.dev.yaml
+          echo "" >> devspace.dev.yaml
+          echo "vars:" >> devspace.dev.yaml
+          echo "  FM_FEATURE_ORCHESTRATOR_ENABLED: true" >> devspace.dev.yaml
+
+      - name: Create namespace
+        run: kubectl create namespace stalker
+
+      - name: Run tests
+        run: devspace run-pipeline flow-manager-e2e -n stalker
 
       - name: Update the results in the pull request
         uses: tanmen/jest-reporter@v1

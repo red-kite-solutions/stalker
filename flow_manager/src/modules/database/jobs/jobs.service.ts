@@ -1,9 +1,7 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { featureFlags } from 'src/modules/auth/constants';
 import { JobQueue } from 'src/modules/job-queue/job-queue';
-import { JobsQueueUtils } from 'src/utils/jobs_queue.utils';
 import { CreateJobDto } from './dtos/create-job.dto';
 import { JobDto } from './dtos/job.dto';
 import { DomainNameResolvingJob } from './models/domain-name-resolving.model';
@@ -34,6 +32,12 @@ export class JobsService {
 
   public async delete(id: string) {
     await this.jobModel.deleteOne({ _id: { $eq: id } });
+  }
+
+  public async deleteAllForCompany(companyId: string) {
+    return await this.jobModel.deleteMany({
+      companyId: { $eq: companyId },
+    });
   }
 
   public async deleteAll() {
@@ -68,42 +72,18 @@ export class JobsService {
   }
 
   public async publish(job: Job) {
-    if (featureFlags.orchestratorEnabled) {
-      console.debug('Publishing job to orchestrator.');
-      return await this.publishNew(job);
+    const createdJob = await this.jobModel.create(job);
+
+    if (!process.env.TESTS) {
+      await this.jobQueue.publish({
+        key: createdJob.id,
+        value: JSON.stringify({
+          jobId: createdJob.id,
+          ...job,
+        }),
+      });
     } else {
-      console.debug('Publishing job to job handler queue.');
-      return await this.publishLegacy(job);
-    }
-  }
-
-  private async publishNew(job: Job) {
-    const createdJob = await this.jobModel.create(job);
-
-    await this.jobQueue.publish({
-      key: createdJob.id,
-      value: JSON.stringify({
-        jobId: createdJob.id,
-        ...job,
-      }),
-    });
-
-    return {
-      id: createdJob.id,
-      ...job,
-    };
-  }
-
-  private async publishLegacy(job: Job) {
-    const createdJob = await this.jobModel.create(job);
-
-    const success = await JobsQueueUtils.add({
-      id: createdJob.id,
-      ...job,
-    });
-
-    if (!success) {
-      throw new HttpException('Error sending the job to the job queue.', 500);
+      console.info('This feature is not available while testing');
     }
 
     return {
