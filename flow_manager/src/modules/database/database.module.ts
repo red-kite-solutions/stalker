@@ -11,6 +11,7 @@ import { ReportModule } from './reporting/report/report.module';
       useNewUrlParser: true,
       useUnifiedTopology: true,
       useCreateIndex: true,
+      dbName: process.env.MONGO_DATABASE_NAME,
     }),
     JobsModule,
     CompanyModule,
