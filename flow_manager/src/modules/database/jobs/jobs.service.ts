@@ -36,6 +36,12 @@ export class JobsService {
     await this.jobModel.deleteOne({ _id: { $eq: id } });
   }
 
+  public async deleteAllForCompany(companyId: string) {
+    return await this.jobModel.deleteMany({
+      companyId: { $eq: companyId },
+    });
+  }
+
   public async deleteAll() {
     await this.jobModel.deleteMany({});
   }

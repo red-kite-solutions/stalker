@@ -54,6 +54,7 @@ export class CompanyService {
     const result = await this.companyModel.deleteOne({ _id: { $eq: id } });
     await this.hostsService.deleteAllForCompany(id);
     await this.domainsService.deleteAllForCompany(id);
+    await this.jobsService.deleteAllForCompany(id);
     return result;
   }
 
