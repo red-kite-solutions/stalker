@@ -34,6 +34,12 @@ export class JobsService {
     await this.jobModel.deleteOne({ _id: { $eq: id } });
   }
 
+  public async deleteAllForCompany(companyId: string) {
+    return await this.jobModel.deleteMany({
+      companyId: { $eq: companyId },
+    });
+  }
+
   public async deleteAll() {
     await this.jobModel.deleteMany({});
   }
@@ -68,13 +74,17 @@ export class JobsService {
   public async publish(job: Job) {
     const createdJob = await this.jobModel.create(job);
 
-    await this.jobQueue.publish({
-      key: createdJob.id,
-      value: JSON.stringify({
-        jobId: createdJob.id,
-        ...job,
-      }),
-    });
+    if (!process.env.TESTS) {
+      await this.jobQueue.publish({
+        key: createdJob.id,
+        value: JSON.stringify({
+          jobId: createdJob.id,
+          ...job,
+        }),
+      });
+    } else {
+      console.info('This feature is not available while testing');
+    }
 
     return {
       id: createdJob.id,

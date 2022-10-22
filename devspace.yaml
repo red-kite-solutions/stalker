@@ -22,29 +22,61 @@ pipelines:
     run: |-
       build_images ui flow-manager orchestrator
       create_deployments mongo ui flow-manager kafka orchestrator-service-account orchestrator --sequential
-
       # Start mongo and kafka
       start_dev mongo kafka
-
       # Wait for kafka and mongo to be ready
-      wait_pod --namespace stalker --label-selector app.kubernetes.io/component=mongodb
-      wait_pod --namespace stalker --label-selector app.kubernetes.io/component=kafka
-      wait_pod --namespace stalker --label-selector app.kubernetes.io/component=zookeeper
-
+      wait_pod --label-selector app.kubernetes.io/component=mongodb
+      wait_pod --label-selector app.kubernetes.io/component=kafka
+      wait_pod --label-selector app.kubernetes.io/component=zookeeper
       # Start microservices + ui
       start_dev orchestrator flow-manager ui
 
+  flow-manager-e2e:
+    flags:
+      - name: watch
+        short: w
+        type: bool
+    run: |-
+      build_images flow-manager-e2e orchestrator
+      create_deployments mongo kafka orchestrator-service-account orchestrator flow-manager-e2e --sequential
+
+      # Wait for kafka and mongo to be ready
+      wait_pod --label-selector app.kubernetes.io/component=mongodb
+      wait_pod --label-selector app.kubernetes.io/component=kafka
+      wait_pod --label-selector app.kubernetes.io/component=zookeeper
+      # Run tests
+
+      if [ $(get_flag "watch") == "true" ]; 
+      then
+        echo "Running tests in watch mode."
+        start_dev flow-manager-e2e mongo
+        exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'npm run test:e2e:watch'
+      else
+        echo "Running tests in ci mode."
+        start_dev flow-manager-e2e
+        # TODO: fail after sleep
+        exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'npm run test:cicd'
+      fi
+
+      exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'echo "Sleeping while the test results are synced."'
+      exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'sleep 10'
+      stop_dev --all
   purge:
     run: |-
       stop_dev --all
-      purge_deployments mongo ui flow-manager kafka orchestrator-service-account orchestrator --sequential
-
+      purge_deployments mongo ui flow-manager flow-manager-e2e kafka orchestrator-service-account orchestrator --sequential
 images:
   flow-manager:
     image: flow_manager
     dockerfile: flow_manager/Dockerfile.dev
     context: flow_manager
     rebuildStrategy: default
+
+  flow-manager-e2e:
+    image: flow_manager_e2e
+    dockerfile: flow_manager/Dockerfile.dev
+    context: flow_manager
+    rebuildStrategy: always
 
   ui:
     image: ui
@@ -54,8 +86,8 @@ images:
 
   orchestrator:
     image: orchestrator
-    dockerfile: orchestrator/Orchestrator/Dockerfile.dev
-    context: orchestrator/Orchestrator
+    dockerfile: orchestrator/Dockerfile.dev
+    context: orchestrator
     rebuildStrategy: default
 
 deployments:
@@ -63,19 +95,54 @@ deployments:
     helm:
       values:
         containers:
-          - image: flow_manager
-            name: flow-manager-container
-            env:
+          - env:
               - name: API_KEY
                 value: ${FM_API_KEY}
               - name: MONGO_ADDRESS
                 value: ${FM_MONGO_ADDRESS}
+              - name: MONGO_DATABASE_NAME
+                value: ${FM_MONGO_DATABASE_NAME}
               - name: FM_JWT_SECRET
                 value: ${FM_JWT_SECRET}
               - name: FM_REFRESH_SECRET
                 value: ${FM_REFRESH_SECRET}
               - name: KAFKA_URI
                 value: ${KAFKA_URI}
+              - name: STALKER_URL
+                value: ${STALKER_URL}
+
+            image: flow_manager
+            name: flow-manager-container
+
+        service:
+          ports:
+            - containerPort: 3000
+              port: 3000
+              protocol: TCP
+
+  flow-manager-e2e:
+    helm:
+      values:
+        containers:
+          - image: flow_manager_e2e
+            name: flow-manager-container-e2e
+            env:
+              - name: TESTS
+                value: "true"
+              - name: API_KEY
+                value: ${FM_API_KEY}
+              - name: MONGO_ADDRESS
+                value: ${FM_MONGO_ADDRESS}
+              - name: MONGO_DATABASE_NAME
+                value: stalker-flow-manager-e2e
+              - name: FM_JWT_SECRET
+                value: ${FM_JWT_SECRET}
+              - name: FM_REFRESH_SECRET
+                value: ${FM_REFRESH_SECRET}
+              - name: KAFKA_URI
+                value: ${KAFKA_URI}
+              - name: FEATURE_ORCHESTRATOR_ENABLED
+                value: "true"
               - name: STALKER_URL
                 value: ${STALKER_URL}
 
@@ -89,16 +156,16 @@ deployments:
     helm:
       values:
         containers:
-          - image: ui
+          - env:
+
+            image: ui
             name: ui-container
-            env:
 
         service:
           ports:
             - containerPort: 4200
               port: 4200
               protocol: TCP
-
   mongo:
     helm:
       chart:
@@ -158,6 +225,8 @@ dev:
     labelSelector:
       app.kubernetes.io/component: flow-manager
     container: flow-manager-container
+    logs:
+      enabled: true
     sync:
       - path: ./flow_manager/src/:/app/src/
         disableDownload: true
@@ -165,6 +234,23 @@ dev:
       inject: false
     ports:
       - port: "3000"
+
+  flow-manager-e2e:
+    labelSelector:
+      app.kubernetes.io/component: flow-manager-e2e
+    container: flow-manager-container-e2e
+    logs:
+      enabled: true
+    sync:
+      - path: ./flow_manager/src/:/app/src/
+        disableDownload: true
+      - path: ./flow_manager/test/jest-output.json:/app/test/jest-output.json
+        disableUpload: true
+        file: true
+    restartHelper:
+      inject: false
+    ports:
+      - port: "9229"
 
   ui:
     labelSelector:
