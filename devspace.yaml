@@ -17,25 +17,18 @@ pipelines:
     run: |-
       build_images ui flow-manager jobs-handler jqh orchestrator
       create_deployments  jqh mongo ui flow-manager jobs-handler kafka orchestrator-service-account orchestrator --sequential
-
   dev:
     run: |-
       build_images ui flow-manager orchestrator
-
+      create_deployments mongo ui flow-manager kafka orchestrator-service-account orchestrator --sequential
       # Start mongo and kafka
-      create_deployments orchestrator-service-account mongo kafka --sequential
-
+      start_dev mongo kafka
       # Wait for kafka and mongo to be ready
       wait_pod --label-selector app.kubernetes.io/component=mongodb
       wait_pod --label-selector app.kubernetes.io/component=kafka
       wait_pod --label-selector app.kubernetes.io/component=zookeeper
-
-      # Start orchestator, flow manager and ui
-      create_deployments orchestrator flow-manager ui --sequential
-
-      # Start sync and dev stuff
-      start_dev orchestrator flow-manager ui mongo kafka
-
+      # Start microservices + ui
+      start_dev orchestrator flow-manager ui
   flow-manager-e2e:
     flags:
       - name: watch
@@ -43,15 +36,11 @@ pipelines:
         type: bool
     run: |-
       build_images flow-manager-e2e orchestrator
-      create_deployments mongo kafka orchestrator-service-account --sequential
-
+      create_deployments mongo kafka orchestrator-service-account orchestrator flow-manager-e2e --sequential
       # Wait for kafka and mongo to be ready
       wait_pod --label-selector app.kubernetes.io/component=mongodb
       wait_pod --label-selector app.kubernetes.io/component=kafka
       wait_pod --label-selector app.kubernetes.io/component=zookeeper
-
-      create_deployments orchestrator flow-manager-e2e --sequential
-
       # Run tests
       if [ $(get_flag "watch") == "true" ]; 
       then
@@ -61,21 +50,16 @@ pipelines:
       else
         echo "Running tests in ci mode."
         start_dev flow-manager-e2e
-
         # TODO: fail after sleep
         exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'npm run test:cicd'
       fi
-
       exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'echo "Sleeping while the test results are synced."'
       exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'sleep 10'
-
       stop_dev --all
-
   purge:
     run: |-
       stop_dev --all
       purge_deployments mongo ui flow-manager flow-manager-e2e kafka orchestrator-service-account orchestrator --sequential
-
 images:
   flow-manager:
     image: flow_manager
