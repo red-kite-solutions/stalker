@@ -7,14 +7,14 @@ EXPOSE 7135
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-COPY ["Orchestrator.csproj", "."]
-RUN dotnet restore "./Orchestrator.csproj"
 COPY . .
+RUN dotnet restore "./Orchestrator.sln"
+
 WORKDIR "/src/."
-RUN dotnet build "Orchestrator.csproj" -c Release -o /app/build
+RUN dotnet build "Orchestrator.sln" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "Orchestrator.csproj" -c Release -o /app/publish
+RUN dotnet publish --project Orchestrator -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
