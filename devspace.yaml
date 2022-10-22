@@ -17,6 +17,7 @@ pipelines:
     run: |-
       build_images ui flow-manager jobs-handler jqh orchestrator
       create_deployments  jqh mongo ui flow-manager jobs-handler kafka orchestrator-service-account orchestrator --sequential
+
   dev:
     run: |-
       build_images ui flow-manager orchestrator
@@ -29,6 +30,7 @@ pipelines:
       wait_pod --label-selector app.kubernetes.io/component=zookeeper
       # Start microservices + ui
       start_dev orchestrator flow-manager ui
+
   flow-manager-e2e:
     flags:
       - name: watch
@@ -37,11 +39,13 @@ pipelines:
     run: |-
       build_images flow-manager-e2e orchestrator
       create_deployments mongo kafka orchestrator-service-account orchestrator flow-manager-e2e --sequential
+
       # Wait for kafka and mongo to be ready
       wait_pod --label-selector app.kubernetes.io/component=mongodb
       wait_pod --label-selector app.kubernetes.io/component=kafka
       wait_pod --label-selector app.kubernetes.io/component=zookeeper
       # Run tests
+
       if [ $(get_flag "watch") == "true" ]; 
       then
         echo "Running tests in watch mode."
@@ -53,6 +57,7 @@ pipelines:
         # TODO: fail after sleep
         exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'npm run test:cicd'
       fi
+
       exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'echo "Sleeping while the test results are synced."'
       exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'sleep 10'
       stop_dev --all
