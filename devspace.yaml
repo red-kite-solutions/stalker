@@ -102,8 +102,6 @@ deployments:
       values:
         containers:
           - env:
-              - name: API_KEY
-                value: ${FM_API_KEY}
               - name: MONGO_ADDRESS
                 value: ${FM_MONGO_ADDRESS}
               - name: MONGO_DATABASE_NAME
@@ -135,8 +133,6 @@ deployments:
             env:
               - name: TESTS
                 value: "true"
-              - name: API_KEY
-                value: ${FM_API_KEY}
               - name: MONGO_ADDRESS
                 value: ${FM_MONGO_ADDRESS}
               - name: MONGO_DATABASE_NAME
