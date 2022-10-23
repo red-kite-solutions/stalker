@@ -12,6 +12,7 @@ import { TagsModule } from './tags/tag.module';
       useNewUrlParser: true,
       useUnifiedTopology: true,
       useCreateIndex: true,
+      dbName: process.env.MONGO_DATABASE_NAME,
     }),
     JobsModule,
     CompanyModule,

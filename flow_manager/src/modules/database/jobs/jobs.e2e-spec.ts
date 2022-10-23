@@ -70,9 +70,6 @@ describe('Job Controller (e2e)', () => {
     expect(r.body.id).toBeTruthy();
 
     jobId = r.body.id;
-
-    r = await deleteReq(app, testData.admin.token, `/company/${companyId}`);
-    expect(r.statusCode).toBe(HttpStatus.OK);
   });
 
   it('Should get a job by id (GET /jobs/:id)', async () => {

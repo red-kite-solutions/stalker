@@ -175,7 +175,7 @@ describe('Domain Controller (e2e)', () => {
     expect(r.body.items.length).toBe(3);
     expect(r.body.totalRecords).toBe(3);
 
-    const domains: any[] = r.body;
+    const domains: any[] = r.body.items;
     for (let d of domains) {
       if (d.name === domain) {
         domainId = d._id;
@@ -197,7 +197,7 @@ describe('Domain Controller (e2e)', () => {
     expect(r.body.items.length).toBe(1);
     expect(r.body.totalRecords).toBe(1);
 
-    const domains: any[] = r.body;
+    const domains: any[] = r.body.items;
     for (let d of domains) {
       if (d.name === domain) {
         domainId = d._id;
