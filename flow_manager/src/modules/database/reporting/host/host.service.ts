@@ -91,4 +91,8 @@ export class HostService {
       companyId: { $eq: new ObjectId(companyId) },
     });
   }
+
+  public async getHost(id: string) {
+    return this.hostModel.findById(id);
+  }
 }

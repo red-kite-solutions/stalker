@@ -48,7 +48,7 @@ export class CompanyService {
    * @returns A company object document
    */
   public async get(id: string): Promise<CompanyDocument> {
-    return await this.companyModel.findOne({ _id: { $eq: id } }).exec();
+    return await this.companyModel.findById(id).exec();
   }
 
   public async addCompany(dto: CreateCompanyDto) {

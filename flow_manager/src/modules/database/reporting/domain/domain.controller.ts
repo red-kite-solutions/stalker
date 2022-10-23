@@ -13,6 +13,7 @@ import { Role } from 'src/modules/auth/constants';
 import { Roles } from 'src/modules/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/modules/auth/guards/role.guard';
+import { MongoIdDto } from 'src/types/dto/MongoIdDto';
 import { Page } from 'src/types/page.type';
 import escapeStringRegexp from '../../../../utils/escape-string-regexp';
 import { DomainsPagingDto, EditDomainDto } from './domain.dto';
@@ -81,17 +82,17 @@ export class DomainsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ReadOnly)
   @Get(':id')
-  async getDomain(@Param('id') id: string): Promise<DomainDocument> {
-    return await this.domainsService.getDomain(id);
+  async getDomain(@Param() dto: MongoIdDto): Promise<DomainDocument> {
+    return await this.domainsService.getDomain(dto.id);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
   @Put(':id')
   async editDomain(
-    @Param('id') id: string,
+    @Param() idDto: MongoIdDto,
     @Body(new ValidationPipe()) dto: EditDomainDto,
   ) {
-    return await this.domainsService.editDomain(id, dto);
+    return await this.domainsService.editDomain(idDto.id, dto);
   }
 }

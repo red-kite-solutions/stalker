@@ -65,11 +65,11 @@
     </div>
   </div>
 
-  <mat-drawer-container class="host-side-nav">
+  <mat-drawer-container class="host-side-nav" autosize="true">
     <mat-drawer closed mode="side" position="end">
       <h2 matSubheader i18n="Host|A host object, a server">Host</h2>
       <h3 *ngIf="selectedHost">{{ selectedHost.ip }}</h3>
-      <!-- <p *ngIf="hostDetails$">{{ (hostDetails$ | async)?.companyId }}</p> -->
+      <p *ngIf="hostDetails$">{{ (hostDetails$ | async)?.companyId }}</p>
     </mat-drawer>
   </mat-drawer-container>
 </div>

@@ -86,6 +86,6 @@ export class ViewDomainComponent {
       this.hostDrawer?.open();
     }
 
-    // this.hostDetails$ = this.hostsService.get(this.selectedHost.id);
+    this.hostDetails$ = this.hostsService.get(this.selectedHost.id);
   }
 }

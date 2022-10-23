@@ -12,6 +12,7 @@ import { Role } from 'src/modules/auth/constants';
 import { Roles } from 'src/modules/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/modules/auth/guards/role.guard';
+import { MongoIdDto } from 'src/types/dto/MongoIdDto';
 import { CreateTagDto } from './tag.dto';
 import { TagsDocument } from './tag.model';
 import { TagsService } from './tag.service';
@@ -30,8 +31,8 @@ export class TagsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ReadOnly)
   @Get(':id')
-  async getTag(@Param('id') id: string): Promise<TagsDocument> {
-    return await this.tagsService.getById(id);
+  async getTag(@Param() dto: MongoIdDto): Promise<TagsDocument> {
+    return await this.tagsService.getById(dto.id);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -44,7 +45,7 @@ export class TagsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
   @Delete(':id')
-  async deleteTag(@Param('id') id: string) {
-    return await this.tagsService.delete(id);
+  async deleteTag(@Param() dto: MongoIdDto) {
+    return await this.tagsService.delete(dto.id);
   }
 }

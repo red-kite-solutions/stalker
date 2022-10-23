@@ -16,9 +16,9 @@ import {
 } from 'src/exceptions/http.exceptions';
 import { Role } from 'src/modules/auth/constants';
 import { Roles } from 'src/modules/auth/decorators/roles.decorator';
-import { ApiKeyGuard } from 'src/modules/auth/guards/api-key.guard';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/modules/auth/guards/role.guard';
+import { MongoIdDto } from 'src/types/dto/MongoIdDto';
 import { Job } from '../jobs/models/jobs.model';
 import {
   CreateCompanyDto,
@@ -88,12 +88,12 @@ export class CompanyController {
   @Post(':id/host')
   async submitHostsManually(
     @Body(new ValidationPipe()) dto: SubmitHostDto,
-    @Param('id') id: string,
+    @Param() idDto: MongoIdDto,
   ) {
     return await this.companyService.addHostsWithDomain(
       dto.ips,
       dto.domainName,
-      id,
+      idDto.id,
     );
   }
 
@@ -101,10 +101,13 @@ export class CompanyController {
   @Roles(Role.User)
   @Post(':id/job')
   async createJob(
-    @Param('id') id: string,
+    @Param() idDto: MongoIdDto,
     @Body(new ValidationPipe()) dto: CreateJobDto,
   ): Promise<Job> {
-    return await this.companyService.publishJob({ ...dto, companyId: id });
+    return await this.companyService.publishJob({
+      ...dto,
+      companyId: idDto.id,
+    });
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -112,34 +115,9 @@ export class CompanyController {
   @Post(':id/domain')
   async submitDomains(
     @Body(new ValidationPipe()) dto: SubmitDomainsDto,
-    @Param('id') id: string,
+    @Param() idDto: MongoIdDto,
   ) {
-    return await this.companyService.addDomains(dto.domains, id);
-  }
-
-  @UseGuards(ApiKeyGuard)
-  @Post(':id/host/:jobId')
-  async submitHostsFromJob(
-    @Param('id') id: string,
-    @Param('jobId') jobId: string,
-    @Body(new ValidationPipe()) dto: SubmitHostDto,
-  ) {
-    return await this.companyService.addHostsWithDomainFromJob(
-      dto.ips,
-      dto.domainName,
-      id,
-      jobId,
-    );
-  }
-
-  @UseGuards(ApiKeyGuard)
-  @Post(':id/domain/:jobId')
-  async submitDomainsFromJob(
-    @Param('id') id: string,
-    @Param('jobId') jobId: string,
-    @Body(new ValidationPipe()) dto: SubmitDomainsDto,
-  ): Promise<void> {
-    await this.companyService.addDomainsFromJob(dto.domains, id, jobId);
+    return await this.companyService.addDomains(dto.domains, idDto.id);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

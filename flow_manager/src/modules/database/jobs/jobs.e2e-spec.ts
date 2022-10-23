@@ -3,7 +3,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { randomUUID } from 'crypto';
 import { AppModule } from 'src/modules/app.module';
 import { Role } from 'src/modules/auth/constants';
-import request from 'supertest';
 import {
   checkAuthorizations,
   deleteReq,
@@ -140,16 +139,8 @@ describe('Job Controller (e2e)', () => {
     expect(success).toBe(true);
   });
 
-  it('Should have proper authorizations (DELETE /jobs/byworker/:id)', async () => {
-    const r = await request(app.getHttpServer())
-      .delete('/jobs/byworker/6271641f2c0920007820b5f2')
-      .set('API_KEY', `ThisIsNotAValidKey`);
-
-    expect(r.statusCode).toBe(HttpStatus.UNAUTHORIZED);
-  });
-
   // The delete all jobs path cannot be called using this method
-  // because it breaks the tests because they are run in parallel
+  // because it breaks the tests as they are run in parallel
 
   afterAll(async () => {
     await app.close();

@@ -1,9 +1,9 @@
 import { Controller, Delete, Get, Param, UseGuards } from '@nestjs/common';
 import { Role } from 'src/modules/auth/constants';
 import { Roles } from 'src/modules/auth/decorators/roles.decorator';
-import { ApiKeyGuard } from 'src/modules/auth/guards/api-key.guard';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/modules/auth/guards/role.guard';
+import { MongoIdDto } from 'src/types/dto/MongoIdDto';
 import { JobsService } from './jobs.service';
 
 @Controller('jobs')
@@ -17,12 +17,6 @@ export class JobsController {
     return await this.jobsService.getAll();
   }
 
-  @UseGuards(ApiKeyGuard)
-  @Delete('byworker/:id')
-  async deleteJobByWorker(@Param('id') id: string) {
-    return await this.deleteJob(id);
-  }
-
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
   @Delete()
@@ -33,14 +27,14 @@ export class JobsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
   @Delete(':id')
-  async deleteJob(@Param('id') id: string) {
-    return await this.jobsService.delete(id);
+  async deleteJob(@Param() dto: MongoIdDto) {
+    return await this.jobsService.delete(dto.id);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ReadOnly)
   @Get(':id')
-  async getJob(@Param('id') id: string): Promise<any> {
-    return await this.jobsService.getById(id);
+  async getJob(@Param() dto: MongoIdDto): Promise<any> {
+    return await this.jobsService.getById(dto.id);
   }
 }
