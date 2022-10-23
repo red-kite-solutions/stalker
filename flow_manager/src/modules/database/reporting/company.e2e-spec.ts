@@ -15,7 +15,7 @@ import {
 describe('Company Controller (e2e)', () => {
   let app: INestApplication;
   let testData: TestingData;
-  const companyNames = ['Stalker', 'StalkerTwo', 'StalkerThree'];
+  const companyNames = ['Stalker', 'StalkerTwo', 'StalkerThree', 'StalkerFour'];
   let companyId: string;
   const companies: string[] = [];
 
@@ -131,7 +131,7 @@ describe('Company Controller (e2e)', () => {
   it('Should get the list of company summaries (GET /company/summary)', async () => {
     // Arrange
     let r = await postReq(app, testData.user.token, '/company', {
-      name: companyNames[0],
+      name: companyNames[3],
     });
 
     expect(r.statusCode).toBe(HttpStatus.CREATED);
