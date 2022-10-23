@@ -4,7 +4,7 @@ import { FormControl, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { distinctUntilChanged, filter, map } from 'rxjs';
 import { CompaniesService } from 'src/app/api/companies/companies.service';
-import { Company } from 'src/app/shared/types/company.interface';
+import { Company } from 'src/app/shared/types/company/company.interface';
 import { HttpStatus } from 'src/app/shared/types/http-status.type';
 
 @Component({

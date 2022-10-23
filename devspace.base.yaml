@@ -9,9 +9,6 @@ vars:
   FM_MONGO_ADDRESS: mongodb://root:${MONGO_ROOT_PASSWORD}@mongo-mongodb:27017 # The address of the FM's mongo database
   FM_MONGO_DATABASE_NAME: stalker
 
-  JQH_API_KEY: "123456" # The API key for the Jobs Queue
-  JQH_ADDRESS: http://jqh:5000 # The address of the job queue
-
   KAFKA_URI: "kafka:9092"
 
   STALKER_URL: "http://localhost:4200"

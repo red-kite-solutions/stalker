@@ -17,10 +17,6 @@ export const orchestratorConstants = {
   },
 };
 
-export const featureFlags = {
-  orchestratorEnabled: process.env['FEATURE_ORCHESTRATOR_ENABLED'] === 'true',
-};
-
 export enum Role {
   User = 'user',
   Admin = 'admin',

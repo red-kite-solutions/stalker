@@ -1,6 +1,7 @@
 import {
   IsArray,
   IsBase64,
+  IsFQDN,
   IsIn,
   IsNotEmpty,
   IsNumber,
@@ -51,6 +52,7 @@ export class EditCompanyDto {
 export class SubmitDomainsDto {
   @IsNotEmpty()
   @IsArray()
+  @IsFQDN({}, { each: true })
   domains: string[];
 }
 

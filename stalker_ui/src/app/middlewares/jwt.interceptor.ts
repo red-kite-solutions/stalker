@@ -2,18 +2,21 @@ import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/c
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { EMPTY, from, mergeMap, Observable, tap } from 'rxjs';
+import { environment } from 'src/environments/environment';
 import { AuthService } from '../api/auth/auth.service';
-import { fmUrl } from '../api/constants';
 
 @Injectable()
 export class JwtInterceptor implements HttpInterceptor {
   constructor(private authService: AuthService, private router: Router) {}
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    if (request.url.startsWith(`${fmUrl}/auth/login`) || request.url.startsWith(`${fmUrl}/auth/refresh`)) {
+    if (
+      request.url.startsWith(`${environment.fmUrl}/auth/login`) ||
+      request.url.startsWith(`${environment.fmUrl}/auth/refresh`)
+    ) {
       return next.handle(request);
     }
-    const isApiUrl = request.url.startsWith(fmUrl);
+    const isApiUrl = request.url.startsWith(environment.fmUrl);
     if (isApiUrl) {
       if (this.authService.isTokenValid()) {
         request = request.clone({

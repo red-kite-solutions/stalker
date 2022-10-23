@@ -16,7 +16,7 @@ export class Host {
   public domains?: DomainSummary[];
 
   @Prop()
-  public tags?: string[];
+  public tags?: Types.ObjectId[];
 
   @Prop()
   public notes?: string;

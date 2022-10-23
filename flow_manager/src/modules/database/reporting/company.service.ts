@@ -30,6 +30,18 @@ export class CompanyService {
     return await query;
   }
 
+  public async getAllSummaries(
+    page: number = null,
+    pageSize: number = null,
+  ): Promise<Company[]> {
+    let query = this.companyModel.find().select('name');
+    if (page != null && pageSize != null) {
+      query = query.skip(page).limit(pageSize);
+    }
+
+    return await query;
+  }
+
   /**
    * This method returns the company with the id provided
    * @param id
@@ -66,7 +78,11 @@ export class CompanyService {
       throw new HttpNotFoundException();
     }
 
-    await this.domainsService.addDomains(domains, companyId, company.name);
+    return await this.domainsService.addDomains(
+      domains,
+      companyId,
+      company.name,
+    );
   }
 
   public async addDomainsFromJob(

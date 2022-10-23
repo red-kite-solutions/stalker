@@ -15,8 +15,9 @@ import {
 describe('Company Controller (e2e)', () => {
   let app: INestApplication;
   let testData: TestingData;
-  const companyName = 'Stalker';
+  const companyNames = ['Stalker', 'StalkerTwo', 'StalkerThree', 'StalkerFour'];
   let companyId: string;
+  const companies: string[] = [];
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -26,11 +27,19 @@ describe('Company Controller (e2e)', () => {
     app = moduleFixture.createNestApplication();
     await app.init();
     testData = await initTesting(app);
+
+    // Pre-cleaning
+    const r = await getReq(app, testData.user.token, '/company/summary');
+    const currentCompanies = r.body;
+    for (let c of currentCompanies) {
+      if (companyNames.includes(c.name))
+        await deleteReq(app, testData.user.token, `/company/${c._id}`);
+    }
   });
 
   it('Should create a company (POST /company)', async () => {
     const r = await postReq(app, testData.user.token, '/company', {
-      name: companyName,
+      name: companyNames[0],
     });
 
     expect(r.statusCode).toBe(HttpStatus.CREATED);
@@ -41,7 +50,7 @@ describe('Company Controller (e2e)', () => {
   it('Should get a company by id (GET /company/:id)', async () => {
     const r = await getReq(app, testData.user.token, `/company/${companyId}`);
     expect(r.statusCode).toBe(HttpStatus.OK);
-    expect(r.body.name).toBe(companyName);
+    expect(r.body.name).toBe(companyNames[0]);
     expect(r.body._id).toBeTruthy();
   });
 
@@ -94,9 +103,9 @@ describe('Company Controller (e2e)', () => {
   });
 
   it('Should get the list of companies (GET /company)', async () => {
-    let companies: string[] = [];
+    // Arrange
     let r = await postReq(app, testData.user.token, '/company', {
-      name: companyName,
+      name: companyNames[0],
     });
 
     expect(r.statusCode).toBe(HttpStatus.CREATED);
@@ -104,21 +113,45 @@ describe('Company Controller (e2e)', () => {
     companies.push(r.body._id);
 
     r = await postReq(app, testData.user.token, '/company', {
-      name: 'StalkerTwo',
+      name: companyNames[1],
     });
 
     expect(r.statusCode).toBe(HttpStatus.CREATED);
     expect(r.body._id).toBeTruthy();
     companies.push(r.body._id);
 
+    // Act
     r = await getReq(app, testData.user.token, '/company');
+
+    // Assert
     expect(r.statusCode).toBe(HttpStatus.OK);
     expect(r.body.length).toBeGreaterThanOrEqual(2);
+  });
 
-    for (let c of companies) {
-      r = await deleteReq(app, testData.user.token, `/company/${c}`);
-      expect(r.statusCode).toBe(HttpStatus.OK);
-    }
+  it('Should get the list of company summaries (GET /company/summary)', async () => {
+    // Arrange
+    let r = await postReq(app, testData.user.token, '/company', {
+      name: companyNames[3],
+    });
+
+    expect(r.statusCode).toBe(HttpStatus.CREATED);
+    expect(r.body._id).toBeTruthy();
+    companies.push(r.body._id);
+
+    r = await postReq(app, testData.user.token, '/company', {
+      name: companyNames[2],
+    });
+
+    expect(r.statusCode).toBe(HttpStatus.CREATED);
+    expect(r.body._id).toBeTruthy();
+    companies.push(r.body._id);
+
+    // Act
+    r = await getReq(app, testData.user.token, '/company/summary');
+
+    // Assert
+    expect(r.statusCode).toBe(HttpStatus.OK);
+    expect(r.body.length).toBeGreaterThanOrEqual(2);
   });
 
   it('Should have proper authorizations (GET /company)', async () => {
@@ -127,6 +160,17 @@ describe('Company Controller (e2e)', () => {
       Role.ReadOnly,
       async (givenToken: string) => {
         return await getReq(app, givenToken, `/company`);
+      },
+    );
+    expect(success).toBe(true);
+  });
+
+  it('Should have proper authorizations (GET /company/summary)', async () => {
+    const success = await checkAuthorizations(
+      testData,
+      Role.ReadOnly,
+      async (givenToken: string) => {
+        return await getReq(app, givenToken, `/company/summary`);
       },
     );
     expect(success).toBe(true);
@@ -233,6 +277,8 @@ describe('Company Controller (e2e)', () => {
   });
 
   afterAll(async () => {
+    for (let c of companies)
+      await deleteReq(app, testData.user.token, `/company/${c}`);
     await app.close();
   });
 });

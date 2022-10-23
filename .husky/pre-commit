@@ -10,7 +10,7 @@ fi
 root=$(pwd)
 echo "[PRECOMMIT] Using $root as root directory."
 
-for project in "flow_manager" "jobs_handler" "jobs_queue_handler" "orchestrator"
+for project in "flow_manager" "orchestrator"
 do
     cd "$root/$project"
     if [ -f "./.husky/pre-commit" ]; then

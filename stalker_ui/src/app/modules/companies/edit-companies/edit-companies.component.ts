@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { combineLatest, debounceTime, filter, map, merge, Subscription, switchMap } from 'rxjs';
 import { CompaniesService } from 'src/app/api/companies/companies.service';
-import { Company } from 'src/app/shared/types/company.interface';
+import { Company } from 'src/app/shared/types/company/company.interface';
 import { HttpStatus } from 'src/app/shared/types/http-status.type';
 import { Ipv4Subnet } from 'src/app/shared/types/ipv4-subnet';
 import {

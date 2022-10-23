@@ -1,3 +1,4 @@
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import { json } from 'express';
@@ -17,6 +18,12 @@ async function bootstrap() {
   });
   // https://github.com/lm-sec/Stalker/issues/94
   app.use(json({ limit: '10mb' }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
   await app.listen(3000);
 }
 

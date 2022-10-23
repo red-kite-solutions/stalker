@@ -3,7 +3,8 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import jwt_decode from 'jwt-decode';
 import { firstValueFrom } from 'rxjs';
-import { fmUrl, refreshTokenName, tokenName } from '../constants';
+import { environment } from 'src/environments/environment';
+import { refreshTokenName, tokenName } from '../constants';
 
 @Injectable({
   providedIn: 'root',
@@ -71,7 +72,7 @@ export class AuthService {
     let data: any;
     try {
       data = await firstValueFrom(
-        this.http.post(`${fmUrl}/auth/login`, {
+        this.http.post(`${environment.fmUrl}/auth/login`, {
           email: email,
           password: password,
         })
@@ -92,7 +93,9 @@ export class AuthService {
 
   public async logout() {
     try {
-      await firstValueFrom(this.http.delete(`${fmUrl}/auth/logout`, { body: { refresh_token: this.refreshToken } }));
+      await firstValueFrom(
+        this.http.delete(`${environment.fmUrl}/auth/logout`, { body: { refresh_token: this.refreshToken } })
+      );
     } finally {
       localStorage.removeItem(tokenName);
       localStorage.removeItem(refreshTokenName);
@@ -109,7 +112,7 @@ export class AuthService {
   public async refresh(): Promise<boolean> {
     try {
       const data: any = await firstValueFrom(
-        this.http.put(`${fmUrl}/auth/refresh`, {
+        this.http.put(`${environment.fmUrl}/auth/refresh`, {
           refresh_token: this.refreshToken,
         })
       );

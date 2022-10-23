@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { ObjectId } from 'mongodb';
 import { Model, Types } from 'mongoose';
 import { ConfigService } from '../../admin/config/config.service';
 import { JobsService } from '../../jobs/jobs.service';
@@ -62,6 +63,7 @@ export class DomainsService {
       const job = this.jobService.createDomainResolvingJob(companyId, domain);
       this.jobService.publish(job);
     });
+    return insertedDomains;
   }
 
   public async getDomain(id: string): Promise<DomainDocument> {
@@ -114,10 +116,41 @@ export class DomainsService {
   }
 
   public async deleteAllForCompany(companyId: string) {
-    return await this.domainModel.deleteMany({ companyId: { $eq: companyId } });
+    return await this.domainModel.deleteMany({
+      companyId: { $eq: new ObjectId(companyId) },
+    });
   }
 
-  public async getAll() {
-    return await this.domainModel.find({});
+  public async getAll(
+    page: number = null,
+    pageSize: number = null,
+    filter: any = null,
+  ): Promise<DomainDocument[]> {
+    let query;
+    if (filter) {
+      query = this.domainModel.find(filter);
+    } else {
+      query = this.domainModel.find({});
+    }
+
+    if (page != null && pageSize != null) {
+      query = query.skip(page * pageSize).limit(pageSize);
+    }
+    return await query;
+  }
+
+  public async count(filter = null) {
+    if (!filter) {
+      return await this.domainModel.estimatedDocumentCount();
+    } else {
+      return await this.domainModel.countDocuments(filter);
+    }
+  }
+
+  public async editDomain(id: string, domain: Partial<DomainDocument>) {
+    return await this.domainModel.updateOne(
+      { _id: { $eq: new ObjectId(id) } },
+      domain,
+    );
   }
 }

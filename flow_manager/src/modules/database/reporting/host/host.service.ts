@@ -1,5 +1,6 @@
 import { HttpException, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { ObjectId } from 'mongodb';
 import { Model, Types } from 'mongoose';
 import { ConfigService } from '../../admin/config/config.service';
 import { DomainsService } from '../domain/domain.service';
@@ -86,6 +87,8 @@ export class HostService {
   }
 
   public async deleteAllForCompany(companyId: string) {
-    return await this.hostModel.deleteMany({ companyId: { $eq: companyId } });
+    return await this.hostModel.deleteMany({
+      companyId: { $eq: new ObjectId(companyId) },
+    });
   }
 }

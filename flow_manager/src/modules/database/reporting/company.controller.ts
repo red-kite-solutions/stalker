@@ -59,6 +59,13 @@ export class CompanyController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ReadOnly)
+  @Get('summary')
+  async getCompanySummaries() {
+    return await this.companyService.getAllSummaries();
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
   @Post()
   async createCompany(@Body(new ValidationPipe()) dto: CreateCompanyDto) {
@@ -103,7 +110,7 @@ export class CompanyController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
   @Post(':id/domain')
-  async submitDomainsManually(
+  async submitDomains(
     @Body(new ValidationPipe()) dto: SubmitDomainsDto,
     @Param('id') id: string,
   ) {
@@ -112,7 +119,7 @@ export class CompanyController {
 
   @UseGuards(ApiKeyGuard)
   @Post(':id/host/:jobId')
-  async submitHosts(
+  async submitHostsFromJob(
     @Param('id') id: string,
     @Param('jobId') jobId: string,
     @Body(new ValidationPipe()) dto: SubmitHostDto,
@@ -127,7 +134,7 @@ export class CompanyController {
 
   @UseGuards(ApiKeyGuard)
   @Post(':id/domain/:jobId')
-  async submitSubdomainsFromJob(
+  async submitDomainsFromJob(
     @Param('id') id: string,
     @Param('jobId') jobId: string,
     @Body(new ValidationPipe()) dto: SubmitDomainsDto,
@@ -169,7 +176,12 @@ export class CompanyController {
         }
         data['ipRanges'].push(range);
       }
-    } else if (!dto.ipRanges?.length) {
+    } else if (Array.isArray(dto.ipRanges)) {
+      // ^ This previous line checks for an empty array. The check is needed because the value
+      // may also be, at this point, null or undefined
+      // If an empty array is explicitly provided, it is because the user wants to
+      // empty the company's ipRanges array. Therefore, we assign an empty array to overwrite the
+      // existing one in the database.
       data['ipRanges'] = [];
     }
 

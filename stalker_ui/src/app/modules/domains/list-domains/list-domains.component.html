@@ -1,0 +1,109 @@
+<div fxLayout="row" fxLayoutAlign="center">
+  <mat-card fxFlex.gt-sm="90" class="container" fxFlex.lt-md="100">
+    <h1 i18n="Domains|Domain names">Domains</h1>
+
+    <button
+      mat-raised-button
+      color="primary"
+      class="left-action-button"
+      (click)="openNewDomainsDialog(addDomainDialog)"
+    >
+      <mat-icon class="material-icons-outlined">add</mat-icon>
+      <label i18n="Add domains|Add a new domain to a company">Add Domains</label>
+    </button>
+
+    <!-- Add Domain Dialog Template -->
+    <ng-template #addDomainDialog>
+      <h1 mat-dialog-title i18n="Add domains|Add a new domain to a company">Add Domains</h1>
+      <mat-dialog-content>
+        <div fxLayout="column">
+          <mat-form-field fxFlex>
+            <mat-label i18n="Company|Company or business">Company</mat-label>
+            <mat-select [(value)]="selectedCompany">
+              <mat-option>None</mat-option>
+              <mat-option *ngFor="let company of companies$ | async" value="{{ company.id }}">{{
+                company.name
+              }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width" fxFlex>
+            <mat-label i18n="Domain Names|A domain name, or DNS name, used to resolve an IP address"
+              >Domain Names</mat-label
+            >
+            <textarea
+              [(ngModel)]="selectedNewDomains"
+              matInput
+              cdkTextareaAutosize
+              cdkAutosizeMinRows="8"
+              cdkAutosizeMaxRows="20"
+              placeholder="One domain name per line, ex:
+example.stalker.is
+another.stalker.is"
+              i18n-placeholder="One Domain Per Line|Tells the user to enter exactly one domain name per line"
+            ></textarea>
+          </mat-form-field>
+        </div>
+      </mat-dialog-content>
+      <mat-dialog-actions>
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="addNewDomains()"
+          i18n="Add domains|Add a new domain to a company"
+        >
+          Add Domains
+        </button>
+        <button mat-raised-button color="warn" matDialogClose>Cancel</button>
+      </mat-dialog-actions>
+    </ng-template>
+
+    <app-filtered-paginated-table
+      *ngIf="((dataSource$ | async) && (companies$ | async) && (tags$ | async)) || true"
+      [dataSource]="dataSource"
+      (pageChange)="pageChange($event)"
+      [isLoading]="dataLoading"
+      [length]="count"
+      [columns]="displayColumns$ | async"
+      [filterOptions]="filterOptions"
+      [routerLinkPrefix]="'/domains/'"
+      (filtersChange)="filtersChange($event)"
+    >
+      <!-- Domain Column -->
+      <ng-container matColumnDef="domain">
+        <th mat-header-cell *matHeaderCellDef i18n="Domain|A domain name">Domain</th>
+        <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+      </ng-container>
+
+      <!-- Hosts Column -->
+      <ng-container matColumnDef="hosts">
+        <th mat-header-cell *matHeaderCellDef i18n="Hosts|Multiple server hosts">Hosts</th>
+        <td mat-cell *matCellDef="let element">
+          <div class="host-container" fxLayout="column">
+            <div *ngFor="let host of element.hosts; let i = index">
+              <label *ngIf="i <= 5" fxFlex>{{ host.ip }}</label>
+              <label *ngIf="i === 6" fxFlex>...</label>
+            </div>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Company Column -->
+      <ng-container matColumnDef="company">
+        <th mat-header-cell *matHeaderCellDef i18n="Company|A business">Company</th>
+        <td mat-cell *matCellDef="let element">{{ (companies | whereId: [element.companyId])?.name }}</td>
+      </ng-container>
+
+      <!-- Tags Column -->
+      <ng-container matColumnDef="tags">
+        <th mat-header-cell *matHeaderCellDef i18n="Tags|Multiple tags describing somthing">Tags</th>
+        <td mat-cell *matCellDef="let element">
+          <app-pill-tag *ngFor="let tag of element.tags" [color]="(tags | whereId: [tag])?.color">{{
+            (tags | whereId: [tag])?.text
+          }}</app-pill-tag>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayColumns$ | async"></tr>
+    </app-filtered-paginated-table>
+  </mat-card>
+</div>

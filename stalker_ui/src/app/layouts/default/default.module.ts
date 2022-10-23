@@ -5,6 +5,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -28,6 +29,7 @@ import { SettingsComponent } from 'src/app/modules/admin/settings/settings.compo
 import { EditCompaniesComponent } from 'src/app/modules/companies/edit-companies/edit-companies.component';
 import { ListCompaniesComponent } from 'src/app/modules/companies/list-companies/list-companies.component';
 import { DashboardComponent } from 'src/app/modules/dashboard/dashboard.component';
+import { ListDomainsComponent } from 'src/app/modules/domains/list-domains/list-domains.component';
 import { ProfileComponent } from 'src/app/modules/user/profile/profile.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { DefaultComponent } from './default.component';
@@ -43,6 +45,7 @@ import { DefaultComponent } from './default.component';
     SettingsComponent,
     ListCompaniesComponent,
     EditCompaniesComponent,
+    ListDomainsComponent,
   ],
   imports: [
     CommonModule,
@@ -50,6 +53,7 @@ import { DefaultComponent } from './default.component';
     SharedModule,
     MatSidenavModule,
     MatDividerModule,
+    MatDialogModule,
     MatCardModule,
     FlexLayoutModule,
     FormsModule,
