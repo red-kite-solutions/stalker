@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { HttpNotFoundException } from 'src/exceptions/http.exceptions';
+import { HttpNotFoundException } from '../../../exceptions/http.exceptions';
 import { JobsService } from '../jobs/jobs.service';
 import { Job } from '../jobs/models/jobs.model';
 import { CreateCompanyDto } from './company.dto';

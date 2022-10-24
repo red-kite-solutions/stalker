@@ -13,13 +13,14 @@ import {
   HttpBadRequestException,
   HttpConflictException,
   HttpServerErrorException,
-} from 'src/exceptions/http.exceptions';
-import { Role } from 'src/modules/auth/constants';
-import { Roles } from 'src/modules/auth/decorators/roles.decorator';
-import { ApiKeyGuard } from 'src/modules/auth/guards/api-key.guard';
-import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
-import { RolesGuard } from 'src/modules/auth/guards/role.guard';
+} from '../../../exceptions/http.exceptions';
+import { Role } from '../../auth/constants';
+import { Roles } from '../../auth/decorators/roles.decorator';
+import { ApiKeyGuard } from '../../auth/guards/api-key.guard';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../auth/guards/role.guard';
 import { Job } from '../jobs/models/jobs.model';
+
 import {
   CreateCompanyDto,
   CreateJobDto,

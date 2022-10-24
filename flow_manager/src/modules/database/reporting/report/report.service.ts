@@ -4,7 +4,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { writeFileSync } from 'fs';
 import { Model, UpdateWriteOpResult } from 'mongoose';
 import Mustache from 'mustache';
-import { KeybaseService } from 'src/modules/alerts/keybase/keybase.service';
+import { KeybaseService } from '../../../alerts/keybase/keybase.service';
 import { ReportEntryDto } from './report.dto';
 import { DomainReport, HostReport, Report } from './report.model';
 import { reportTemplate } from './report.template.md';

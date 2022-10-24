@@ -1,10 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import {
-  hashPassword,
-  passwordEquals,
-} from 'src/modules/auth/utils/auth.utils';
+import { hashPassword, passwordEquals } from '../../auth/utils/auth.utils';
+
 import { User } from './users.model';
 import { USER_INIT } from './users.provider';
 

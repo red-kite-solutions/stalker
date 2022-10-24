@@ -5,10 +5,10 @@ import {
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
-import { Role } from 'src/modules/auth/constants';
-import { Roles } from 'src/modules/auth/decorators/roles.decorator';
-import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
-import { RolesGuard } from 'src/modules/auth/guards/role.guard';
+import { Role } from '../../auth/constants';
+import { Roles } from '../../auth/decorators/roles.decorator';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../auth/guards/role.guard';
 import { SendSimpleAlertDto } from './keybase.dto';
 import { KeybaseService } from './keybase.service';
 
