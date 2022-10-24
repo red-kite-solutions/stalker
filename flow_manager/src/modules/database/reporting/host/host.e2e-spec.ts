@@ -99,7 +99,7 @@ describe('Host Controller (e2e)', () => {
       expect(secondPage.body.items.length).toBe(2);
     });
 
-    it('List hosts - Filtered - Should return only hosts matching the filter', async () => {
+    it('List hosts - Filter by company - Should return only hosts matching the filter', async () => {
       // Arrange
       const company1 = await createCompany(app, testData, getName());
       const company2 = await createCompany(app, testData, getName());
@@ -117,7 +117,7 @@ describe('Host Controller (e2e)', () => {
         company1.name,
       );
       await hostsService.addHostsWithDomain(
-        ['192.168.2.3', '192.168.2.4', '192.168.2.5', '192.168.2.6'],
+        ['192.168.2.2', '192.168.2.4', '192.168.2.5', '192.168.2.6'],
         domain2,
         company2._id,
         company2.name,

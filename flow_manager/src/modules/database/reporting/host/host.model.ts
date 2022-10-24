@@ -6,7 +6,7 @@ export type HostDocument = Host & Document;
 
 @Schema()
 export class Host {
-  @Prop({ unique: true, index: true })
+  @Prop({ index: true })
   public ip!: string;
 
   @Prop()
@@ -27,3 +27,4 @@ export class Host {
 }
 
 export const HostSchema = SchemaFactory.createForClass(Host);
+HostSchema.index({ ip: 1, companyId: 1 }, { unique: true });

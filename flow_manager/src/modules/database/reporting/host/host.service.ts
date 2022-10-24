@@ -81,7 +81,7 @@ export class HostService {
       let mongoId = new Types.ObjectId();
       const hostResult = await this.hostModel
         .findOneAndUpdate(
-          { ip: { $eq: ip } },
+          { ip: { $eq: ip }, companyId: { $eq: companyId } },
           {
             $setOnInsert: {
               _id: mongoId,
