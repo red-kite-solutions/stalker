@@ -150,4 +150,4 @@ bin
 obj
 
 # test output when run for cicd
-jest-output.json
+jest-output*.json
