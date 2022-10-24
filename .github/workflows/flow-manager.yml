@@ -19,7 +19,10 @@ jobs:
           node-version: 16
 
       - run: npm ci
+        working-directory: flow_manager
+
       - run: npm test
+        working-directory: flow_manager
 
       - uses: tanmen/jest-reporter@v1
         if: always()
