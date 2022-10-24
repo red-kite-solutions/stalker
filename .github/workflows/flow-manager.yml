@@ -1,4 +1,4 @@
-name: Orchestrator
+name: Flow Manager
 
 on:
   pull_request:
