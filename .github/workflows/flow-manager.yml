@@ -10,7 +10,7 @@ jobs:
   tests:
     name: Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v3
 
@@ -22,7 +22,7 @@ jobs:
       - run: npm ci
         working-directory: flow_manager
 
-      - run: npm test:cicd
+      - run: npm run test:cicd
         working-directory: flow_manager
 
       - uses: tanmen/jest-reporter@v1
