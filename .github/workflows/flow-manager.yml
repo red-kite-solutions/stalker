@@ -7,7 +7,8 @@ on:
       - "flow_manager/**"
 
 jobs:
-  build:
+  tests:
+    name: Tests
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -21,7 +22,7 @@ jobs:
       - run: npm ci
         working-directory: flow_manager
 
-      - run: npm test
+      - run: npm test:cicd
         working-directory: flow_manager
 
       - uses: tanmen/jest-reporter@v1
