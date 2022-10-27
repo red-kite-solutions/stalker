@@ -85,18 +85,15 @@ export class CompanyService {
     );
   }
 
-  public async addDomainsFromJob(
-    domains: string[],
-    companyId: string,
-    jobId: string,
-  ) {
-    const job = await this.jobsService.getById(jobId);
-
-    if (!job) {
+  public async addHosts(hosts: string[], companyId: string) {
+    const company = await this.companyModel.findOne({
+      _id: { $eq: companyId },
+    });
+    if (!company) {
       throw new HttpNotFoundException();
     }
 
-    await this.addDomains(domains, companyId);
+    return await this.hostsService.addHosts(hosts, companyId, company.name);
   }
 
   public async addHostsWithDomain(
@@ -117,21 +114,6 @@ export class CompanyService {
       companyId,
       company.name,
     );
-  }
-
-  public async addHostsWithDomainFromJob(
-    ips: string[],
-    domainName: string,
-    companyId: string,
-    jobId: string,
-  ) {
-    const job = await this.jobsService.getById(jobId);
-
-    if (!job) {
-      throw new HttpNotFoundException();
-    }
-
-    return this.addHostsWithDomain(ips, domainName, companyId);
   }
 
   public async publishJob(job: Job) {

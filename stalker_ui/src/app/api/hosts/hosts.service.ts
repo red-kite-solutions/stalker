@@ -13,4 +13,8 @@ export class HostsService {
   public get(hostId: string): Observable<Host> {
     return <Observable<Host>>this.http.get(`${environment.fmUrl}/hosts/${hostId}`);
   }
+
+  public getTopPorts(hostId: string, top: number): Observable<number[]> {
+    return <Observable<number[]>>this.http.get(`${environment.fmUrl}/hosts/${hostId}/top-tcp-ports/${top}`);
+  }
 }

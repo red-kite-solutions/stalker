@@ -26,6 +26,7 @@ import {
   EditCompanyDto,
   SubmitDomainsDto,
   SubmitHostDto,
+  SubmitHostsDto,
 } from './company.dto';
 import { Company } from './company.model';
 import { CompanyService } from './company.service';
@@ -121,6 +122,16 @@ export class CompanyController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User)
+  @Post(':id/host')
+  async submitHost(
+    @Body(new ValidationPipe()) dto: SubmitHostsDto,
+    @Param() idDto: MongoIdDto,
+  ) {
+    return await this.companyService.addHosts(dto.domains, idDto.id);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ReadOnly)
   @Get(':id')
   async getCompany(@Param('id') id: string) {
@@ -149,6 +160,7 @@ export class CompanyController {
     if (dto.ipRanges) {
       data['ipRanges'] = [];
       for (const range of dto.ipRanges) {
+        // TODO: Validate the ip ranges through a decorator
         if (!this.isValidIpRange(range)) {
           throw new HttpBadRequestException();
         }

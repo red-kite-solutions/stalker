@@ -2,6 +2,12 @@
   app-filtered-paginated-table {
     table .rows {
       cursor: pointer;
+      label {
+        cursor: pointer;
+      }
+      span {
+        cursor: pointer;
+      }
     }
 
     table .rows:hover {

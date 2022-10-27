@@ -2,6 +2,7 @@ import { HttpException, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ObjectId } from 'mongodb';
 import { Model, Types } from 'mongoose';
+import { getTopTcpPorts } from 'src/utils/ports.utils';
 import { ConfigService } from '../../admin/config/config.service';
 import { DomainsService } from '../domain/domain.service';
 import { DomainSummary } from '../domain/domain.summary';
@@ -94,5 +95,18 @@ export class HostService {
 
   public async getHost(id: string) {
     return this.hostModel.findById(id);
+  }
+
+  public async addHosts(
+    hosts: string[],
+    companyId: string,
+    companyName: string,
+  ) {
+    console.log('Not implemented');
+  }
+
+  public async getHostTopTcpPorts(id: string, top: number): Promise<number[]> {
+    const ports = (await this.hostModel.findById(id).select('ports')).ports;
+    return getTopTcpPorts(ports, top);
   }
 }
