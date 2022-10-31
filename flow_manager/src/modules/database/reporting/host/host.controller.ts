@@ -1,4 +1,4 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Delete, Get, Param, UseGuards } from '@nestjs/common';
 import { Role } from 'src/modules/auth/constants';
 import { Roles } from 'src/modules/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
@@ -24,5 +24,12 @@ export class HostController {
   @Get(':id')
   async getHost(@Param() dto: MongoIdDto): Promise<HostDocument> {
     return await this.hostsService.getHost(dto.id);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User)
+  @Delete(':id')
+  async deleteHost(@Param() dto: MongoIdDto) {
+    return await this.hostsService.delete(dto.id);
   }
 }

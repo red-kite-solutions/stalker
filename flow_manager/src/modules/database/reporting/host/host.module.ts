@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '../../admin/config/config.module';
 import { JobsModule } from '../../jobs/jobs.module';
@@ -19,7 +19,7 @@ import { HostService } from './host.service';
     JobsModule,
     ReportModule,
     ConfigModule,
-    DomainsModule,
+    forwardRef(() => DomainsModule),
   ],
   controllers: [HostController],
   providers: [HostService],

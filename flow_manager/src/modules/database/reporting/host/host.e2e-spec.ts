@@ -40,13 +40,13 @@ describe('Host Controller (e2e)', () => {
       app,
       testData.admin.token,
       `/company/${companyId}/host`,
-      { hosts: [host] },
+      { ips: [host] },
     );
 
     // Assert
     expect(r.statusCode).toBe(HttpStatus.CREATED);
-    expect(r.body._id).toBeTruthy();
-    hostId = r.body._id;
+    expect(r.body[0]._id).toBeTruthy();
+    hostId = r.body[0]._id;
   });
 
   it('Should get a host by id (GET /hosts/:id)', async () => {
@@ -57,6 +57,27 @@ describe('Host Controller (e2e)', () => {
     expect(r.statusCode).toBe(HttpStatus.OK);
     expect(r.body._id).toBeTruthy();
     expect(r.body._id).toStrictEqual(hostId);
+  });
+
+  it('Should get a the top 10 TCP ports of a host without ports (GET /hosts/:id/top-tcp-ports/:top)', async () => {
+    // Arrange & Act
+    const r = await getReq(
+      app,
+      testData.admin.token,
+      `/hosts/${hostId}/top-tcp-ports/10`,
+    );
+
+    // Assert
+    expect(r.statusCode).toBe(HttpStatus.OK);
+    expect(r.body.length).toStrictEqual(0);
+  });
+
+  it('Should delete host by id (DELETE /hosts/:id)', async () => {
+    // Arrange & Act
+    const r = await deleteReq(app, testData.admin.token, `/hosts/${hostId}`);
+
+    // Assert
+    expect(r.statusCode).toBe(HttpStatus.OK);
   });
 
   // ####################################
@@ -82,6 +103,32 @@ describe('Host Controller (e2e)', () => {
       Role.ReadOnly,
       async (givenToken) => {
         return await getReq(app, givenToken, `/hosts/${hostId}`);
+      },
+    );
+    expect(success).toBe(true);
+  });
+
+  it('Should have proper authorizations (GET /hosts/:id/top-tcp-ports/:top)', async () => {
+    const success = await checkAuthorizations(
+      testData,
+      Role.ReadOnly,
+      async (givenToken) => {
+        return await getReq(
+          app,
+          givenToken,
+          `/hosts/${hostId}/top-tcp-ports/10`,
+        );
+      },
+    );
+    expect(success).toBe(true);
+  });
+
+  it('Should have proper authorizations (DELETE /hosts/:id)', async () => {
+    const success = await checkAuthorizations(
+      testData,
+      Role.User,
+      async (givenToken) => {
+        return await deleteReq(app, givenToken, `/hosts/${hostId}`);
       },
     );
     expect(success).toBe(true);

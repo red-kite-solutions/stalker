@@ -61,16 +61,6 @@ export class SubmitHostsDto {
   @IsNotEmpty()
   @IsArray()
   @IsIPv4({ each: true })
-  domains: string[];
-}
-
-export class SubmitHostDto {
-  @IsNotEmpty()
-  @IsString()
-  domainName: string;
-
-  @IsNotEmpty()
-  @IsArray()
   ips: string[];
 }
 

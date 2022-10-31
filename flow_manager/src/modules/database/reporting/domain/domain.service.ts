@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { ObjectId } from 'mongodb';
 import { Model, Types } from 'mongoose';
 import { ConfigService } from '../../admin/config/config.service';
 import { JobsService } from '../../jobs/jobs.service';
+import { HostService } from '../host/host.service';
 import { HostSummary } from '../host/host.summary';
 import { ReportService } from '../report/report.service';
 import { Domain, DomainDocument } from './domain.model';
@@ -15,6 +15,8 @@ export class DomainsService {
     private jobService: JobsService,
     private reportService: ReportService,
     private configService: ConfigService,
+    @Inject(forwardRef(() => HostService))
+    private hostService: HostService,
   ) {}
 
   public async addDomains(
@@ -24,11 +26,12 @@ export class DomainsService {
   ) {
     // for each domain, create a mongo id
     const domainDocuments: DomainDocument[] = [];
+    const companyIdObject = new Types.ObjectId(companyId);
     domains.forEach((domain) => {
       const model = new this.domainModel({
         _id: new Types.ObjectId(),
         name: domain,
-        companyId: new Types.ObjectId(companyId),
+        companyId: companyIdObject,
       });
       domainDocuments.push(model);
     });
@@ -117,7 +120,7 @@ export class DomainsService {
 
   public async deleteAllForCompany(companyId: string) {
     return await this.domainModel.deleteMany({
-      companyId: { $eq: new ObjectId(companyId) },
+      companyId: { $eq: Types.ObjectId(companyId) },
     });
   }
 
@@ -148,9 +151,25 @@ export class DomainsService {
   }
 
   public async editDomain(id: string, domain: Partial<DomainDocument>) {
+    return await this.domainModel.updateOne({ _id: { $eq: id } }, domain);
+  }
+
+  public async delete(domainId: string) {
+    const hosts = (await this.domainModel.findById(domainId).select('hosts'))
+      ?.hosts;
+    if (hosts) {
+      for (const host of hosts) {
+        this.hostService.unlinkDomain(host.id.toString(), domainId);
+      }
+    }
+
+    return await this.domainModel.deleteOne({ _id: { $eq: domainId } });
+  }
+
+  public async unlinkHost(domainId: string, hostId: string) {
     return await this.domainModel.updateOne(
-      { _id: { $eq: new ObjectId(id) } },
-      domain,
+      { _id: { $eq: domainId } },
+      { $pull: { hosts: { id: hostId } } },
     );
   }
 }

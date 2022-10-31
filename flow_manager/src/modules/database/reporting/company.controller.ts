@@ -25,7 +25,6 @@ import {
   CreateJobDto,
   EditCompanyDto,
   SubmitDomainsDto,
-  SubmitHostDto,
   SubmitHostsDto,
 } from './company.dto';
 import { Company } from './company.model';
@@ -87,15 +86,11 @@ export class CompanyController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
   @Post(':id/host')
-  async submitHostsManually(
-    @Body(new ValidationPipe()) dto: SubmitHostDto,
+  async submitHosts(
+    @Body(new ValidationPipe()) dto: SubmitHostsDto,
     @Param() idDto: MongoIdDto,
   ) {
-    return await this.companyService.addHostsWithDomain(
-      dto.ips,
-      dto.domainName,
-      idDto.id,
-    );
+    return await this.companyService.addHosts(dto.ips, idDto.id);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -122,27 +117,17 @@ export class CompanyController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.User)
-  @Post(':id/host')
-  async submitHost(
-    @Body(new ValidationPipe()) dto: SubmitHostsDto,
-    @Param() idDto: MongoIdDto,
-  ) {
-    return await this.companyService.addHosts(dto.domains, idDto.id);
-  }
-
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ReadOnly)
   @Get(':id')
-  async getCompany(@Param('id') id: string) {
-    return await this.companyService.get(id);
+  async getCompany(@Param() id: MongoIdDto) {
+    return await this.companyService.get(id.id);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
   @Put(':id')
   async editCompany(
-    @Param('id') id: string,
+    @Param() id: MongoIdDto,
     @Body(new ValidationPipe()) dto: EditCompanyDto,
   ) {
     const data: Partial<Company> = {};
@@ -186,7 +171,7 @@ export class CompanyController {
     }
 
     try {
-      return await this.companyService.editCompany(id, data);
+      return await this.companyService.editCompany(id.id, data);
     } catch (err) {
       if (err.code === 11000) {
         // Duplicate key error
@@ -199,7 +184,7 @@ export class CompanyController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
   @Delete(':id')
-  async deleteCompany(@Param('id') id: string) {
-    return await this.companyService.delete(id);
+  async deleteCompany(@Param() id: MongoIdDto) {
+    return await this.companyService.delete(id.id);
   }
 }

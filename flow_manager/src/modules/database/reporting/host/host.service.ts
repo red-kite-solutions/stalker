@@ -1,13 +1,18 @@
-import { HttpException, Injectable, Logger } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  Inject,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { ObjectId } from 'mongodb';
 import { Model, Types } from 'mongoose';
 import { getTopTcpPorts } from 'src/utils/ports.utils';
 import { ConfigService } from '../../admin/config/config.service';
 import { DomainsService } from '../domain/domain.service';
 import { DomainSummary } from '../domain/domain.summary';
 import { ReportService } from '../report/report.service';
-import { Host } from './host.model';
+import { Host, HostDocument } from './host.model';
 import { HostSummary } from './host.summary';
 
 @Injectable()
@@ -18,6 +23,7 @@ export class HostService {
     @InjectModel('host') private readonly hostModel: Model<Host>,
     private reportService: ReportService,
     private configService: ConfigService,
+    @Inject(forwardRef(() => DomainsService))
     private domainService: DomainsService,
   ) {}
 
@@ -51,7 +57,10 @@ export class HostService {
         .findOneAndUpdate(
           { ip: { $eq: ip } },
           {
-            $setOnInsert: { _id: mongoId, companyId: companyId },
+            $setOnInsert: {
+              _id: mongoId,
+              companyId: new Types.ObjectId(companyId),
+            },
             $addToSet: { domains: ds },
           },
           { upsert: true, useFindAndModify: false },
@@ -89,7 +98,7 @@ export class HostService {
 
   public async deleteAllForCompany(companyId: string) {
     return await this.hostModel.deleteMany({
-      companyId: { $eq: new ObjectId(companyId) },
+      companyId: { $eq: new Types.ObjectId(companyId) },
     });
   }
 
@@ -102,11 +111,69 @@ export class HostService {
     companyId: string,
     companyName: string,
   ) {
-    console.log('Not implemented');
+    const hostDocuments: HostDocument[] = [];
+    for (let ip of hosts) {
+      const model = new this.hostModel({
+        _id: new Types.ObjectId(),
+        ip: ip,
+        companyId: new Types.ObjectId(companyId),
+      });
+      hostDocuments.push(model);
+    }
+
+    let insertedHosts: any = [];
+
+    // insertmany with ordered false to continue on fail and use the exception
+    try {
+      insertedHosts = await this.hostModel.insertMany(hostDocuments, {
+        ordered: false,
+      });
+    } catch (err) {
+      if (!err.writeErrors) {
+        throw err;
+      }
+      console.log(err);
+      insertedHosts = err.insertedDocs;
+    }
+
+    const newIps: string[] = [];
+    insertedHosts.forEach((host: HostDocument) => {
+      newIps.push(host.ip);
+    });
+
+    const config = await this.configService.getConfig();
+
+    if (config.isNewContentReported) {
+      this.reportService.addHosts(companyName, newIps);
+    }
+
+    return insertedHosts;
   }
 
   public async getHostTopTcpPorts(id: string, top: number): Promise<number[]> {
-    const ports = (await this.hostModel.findById(id).select('ports')).ports;
+    const ports = (await this.hostModel.findById(id).select('ports'))?.ports;
+
+    if (!ports) return [];
+
     return getTopTcpPorts(ports, top);
+  }
+
+  public async delete(hostId: string) {
+    const domains = (await this.hostModel.findById(hostId).select('domains'))
+      ?.domains;
+    if (domains) {
+      for (const domain of domains) {
+        this.domainService.unlinkHost(domain.id.toString(), hostId);
+      }
+    }
+
+    return await this.hostModel.deleteOne({ _id: { $eq: hostId } });
+  }
+
+  public async unlinkDomain(hostId: string, domainId: string) {
+    return await this.hostModel.updateOne(
+      { _id: { $eq: hostId } },
+      { $pull: { domains: { id: domainId } } },
+    );
   }
 }

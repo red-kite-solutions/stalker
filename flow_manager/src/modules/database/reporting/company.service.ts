@@ -86,9 +86,7 @@ export class CompanyService {
   }
 
   public async addHosts(hosts: string[], companyId: string) {
-    const company = await this.companyModel.findOne({
-      _id: { $eq: companyId },
-    });
+    const company = await this.companyModel.findById(companyId);
     if (!company) {
       throw new HttpNotFoundException();
     }
@@ -101,9 +99,7 @@ export class CompanyService {
     domainName: string,
     companyId: string,
   ) {
-    const company = await this.companyModel.findOne({
-      _id: { $eq: companyId },
-    });
+    const company = await this.companyModel.findById(companyId);
     if (!company) {
       throw new HttpNotFoundException();
     }
@@ -117,9 +113,7 @@ export class CompanyService {
   }
 
   public async publishJob(job: Job) {
-    const company = await this.companyModel.findOne({
-      _id: { $eq: job.companyId },
-    });
+    const company = await this.companyModel.findById(job.companyId);
     if (!company) {
       throw new HttpNotFoundException();
     }
