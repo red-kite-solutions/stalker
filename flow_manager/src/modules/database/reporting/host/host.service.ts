@@ -50,7 +50,7 @@ export class HostService {
     for (let ip of ips) {
       const ds: DomainSummary = {
         name: domain.name,
-        id: new Types.ObjectId(domain._id),
+        id: domain._id,
       };
       let mongoId = new Types.ObjectId();
       const hostResult = await this.hostModel
@@ -116,7 +116,7 @@ export class HostService {
       const model = new this.hostModel({
         _id: new Types.ObjectId(),
         ip: ip,
-        companyId: new Types.ObjectId(companyId),
+        companyId: companyId,
       });
       hostDocuments.push(model);
     }
