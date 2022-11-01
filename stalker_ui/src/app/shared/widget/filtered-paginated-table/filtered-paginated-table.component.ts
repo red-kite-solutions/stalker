@@ -11,7 +11,7 @@ import {
   QueryList,
   ViewChild,
 } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { MatAutocomplete, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatChipInputEvent, MatChipList } from '@angular/material/chips';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
@@ -59,7 +59,7 @@ export class FilteredPaginatedTableComponent<T> {
   currentPage = 0;
   pageSizeOptions: number[] = [10, 25, 50, 100];
   separatorKeysCodes: number[] = [TAB, ENTER];
-  filterForm = new FormControl('');
+  filterForm = new UntypedFormControl('');
   filteredColumns$: Observable<string[] | null | undefined>;
 
   constructor() {
