@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -11,5 +11,9 @@ export class TagsService {
 
   public getTags(): Observable<any[]> {
     return <Observable<Array<any>>>this.http.get(`${environment.fmUrl}/tags/`);
+  }
+
+  public async delete(id: string) {
+    return await firstValueFrom(this.http.delete(`${environment.fmUrl}/tags/${id}`));
   }
 }
