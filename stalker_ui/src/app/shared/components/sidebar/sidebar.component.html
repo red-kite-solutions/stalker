@@ -29,12 +29,24 @@
     mat-list-item
     routerLinkActive="list-item-active"
     routerLink="/domains"
-    [matTooltip]="expanded ? '' : companies"
+    [matTooltip]="expanded ? '' : domains"
     [matTooltipShowDelay]="700"
     matTooltipPosition="right"
   >
     <mat-icon class="material-icons-outlined">language</mat-icon>
     <span *ngIf="expanded" i18n="Domains|Domain names">Domains</span>
+  </a>
+
+  <a
+    mat-list-item
+    routerLinkActive="list-item-active"
+    routerLink="/tags"
+    [matTooltip]="expanded ? '' : tags"
+    [matTooltipShowDelay]="700"
+    matTooltipPosition="right"
+  >
+    <mat-icon class="material-icons-outlined">sell</mat-icon>
+    <span *ngIf="expanded" i18n="Tags|An item's tags">Tags</span>
   </a>
 
   <div *ngIf="this.authService.role === 'admin'">

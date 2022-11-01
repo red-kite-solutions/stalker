@@ -13,6 +13,8 @@ export class SidebarComponent {
   public users = $localize`:Users|Users list page title:Users`;
   public settings = $localize`:Settings|Settings page title to edit the application configuration:Settings`;
   public companies = $localize`:Companies|Multiple businesses:Companies`;
+  public domains = $localize`:Domains|A domain name:Domains`;
+  public tags = $localize`:Tags|An item's tags:Tags`;
 
   constructor(public authService: AuthService) {}
 }

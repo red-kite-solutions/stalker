@@ -14,6 +14,7 @@ import { ListCompaniesComponent } from './modules/companies/list-companies/list-
 import { DashboardComponent } from './modules/dashboard/dashboard.component';
 import { ListDomainsComponent } from './modules/domains/list-domains/list-domains.component';
 import { ViewDomainComponent } from './modules/domains/view-domain/view-domain.component';
+import { ManageTagsComponent } from './modules/tags/manage-tags/manage-tags.component';
 import { ProfileComponent } from './modules/user/profile/profile.component';
 
 const routes: Routes = [
@@ -60,6 +61,10 @@ const routes: Routes = [
       {
         path: 'domains/:id',
         component: ViewDomainComponent,
+      },
+      {
+        path: 'tags',
+        component: ManageTagsComponent,
       },
     ],
   },
