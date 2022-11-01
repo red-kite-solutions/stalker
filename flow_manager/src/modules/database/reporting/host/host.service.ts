@@ -172,8 +172,8 @@ export class HostService {
 
   public async unlinkDomain(hostId: string, domainId: string) {
     return await this.hostModel.updateOne(
-      { _id: { $eq: hostId } },
-      { $pull: { domains: { id: domainId } } },
+      { _id: { $eq: new Types.ObjectId(hostId) } },
+      { $pull: { domains: { id: new Types.ObjectId(domainId) } } },
     );
   }
 }

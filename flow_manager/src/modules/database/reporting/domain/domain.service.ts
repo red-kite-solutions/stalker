@@ -167,9 +167,12 @@ export class DomainsService {
   }
 
   public async unlinkHost(domainId: string, hostId: string) {
+    console.log('domain Id: ' + domainId);
+    console.log('host Id: ' + hostId);
+
     return await this.domainModel.updateOne(
-      { _id: { $eq: domainId } },
-      { $pull: { hosts: { id: hostId } } },
+      { _id: { $eq: new Types.ObjectId(domainId) } },
+      { $pull: { hosts: { id: { $eq: new Types.ObjectId(hostId) } } } },
     );
   }
 }
