@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { UsersService } from 'src/modules/database/users/users.service';
+import { UsersService } from '../../database/users/users.service';
 import { rtConstants } from '../constants';
 
 @Injectable()

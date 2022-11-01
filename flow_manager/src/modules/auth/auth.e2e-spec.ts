@@ -1,9 +1,9 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import jwt_decode from 'jwt-decode';
-import { AppModule } from 'src/modules/app.module';
 import request from 'supertest';
 import { admin, createUser, deleteReq, login, putReq } from 'test/e2e.utils';
+import { AppModule } from '../app.module';
 import { Role } from './constants';
 
 describe('Auth Controller (e2e)', () => {

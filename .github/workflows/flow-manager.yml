@@ -1,0 +1,32 @@
+name: Flow Manager
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/flow-manager.yml
+      - "flow_manager/**"
+
+jobs:
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - run: npm ci
+        working-directory: flow_manager
+
+      - run: npm run test:cicd
+        working-directory: flow_manager
+
+      - uses: tanmen/jest-reporter@v1
+        if: always()
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          result-file: ./flow_manager/test/jest-output.json

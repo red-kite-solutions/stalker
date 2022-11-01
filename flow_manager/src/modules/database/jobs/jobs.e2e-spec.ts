@@ -1,8 +1,6 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { randomUUID } from 'crypto';
-import { AppModule } from 'src/modules/app.module';
-import { Role } from 'src/modules/auth/constants';
 import request from 'supertest';
 import {
   checkAuthorizations,
@@ -12,6 +10,8 @@ import {
   postReq,
   TestingData,
 } from 'test/e2e.utils';
+import { AppModule } from '../../app.module';
+import { Role } from '../../auth/constants';
 
 describe('Job Controller (e2e)', () => {
   let app: INestApplication;

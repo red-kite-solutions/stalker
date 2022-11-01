@@ -9,12 +9,12 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ObjectId } from 'mongodb';
-import { Role } from 'src/modules/auth/constants';
-import { Roles } from 'src/modules/auth/decorators/roles.decorator';
-import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
-import { RolesGuard } from 'src/modules/auth/guards/role.guard';
-import { Page } from 'src/types/page.type';
+import { Page } from '../../../../types/page.type';
 import escapeStringRegexp from '../../../../utils/escape-string-regexp';
+import { Role } from '../../../auth/constants';
+import { Roles } from '../../../auth/decorators/roles.decorator';
+import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../../auth/guards/role.guard';
 import { DomainsPagingDto, EditDomainDto } from './domain.dto';
 import { DomainDocument } from './domain.model';
 import { DomainsService } from './domain.service';

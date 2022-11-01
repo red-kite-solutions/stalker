@@ -1,9 +1,9 @@
 import { Controller, Delete, Get, Param, UseGuards } from '@nestjs/common';
-import { Role } from 'src/modules/auth/constants';
-import { Roles } from 'src/modules/auth/decorators/roles.decorator';
-import { ApiKeyGuard } from 'src/modules/auth/guards/api-key.guard';
-import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
-import { RolesGuard } from 'src/modules/auth/guards/role.guard';
+import { Role } from '../../auth/constants';
+import { Roles } from '../../auth/decorators/roles.decorator';
+import { ApiKeyGuard } from '../../auth/guards/api-key.guard';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../auth/guards/role.guard';
 import { JobsService } from './jobs.service';
 
 @Controller('jobs')
