@@ -56,6 +56,10 @@
 
         <tr mat-header-row *matHeaderRowDef="['select', 'text', 'color', 'tag']"></tr>
         <tr mat-row *matRowDef="let row; columns: ['select', 'text', 'color', 'tag']" class="rows"></tr>
+
+        <tr class="mat-row nodata" *matNoDataRow>
+          <td class="mat-cell" colspan="100%" i18n="No tags found|No tags were found for this item">No tags found</td>
+        </tr>
       </table>
 
       <mat-paginator
