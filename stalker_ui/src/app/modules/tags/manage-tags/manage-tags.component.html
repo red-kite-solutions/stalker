@@ -71,7 +71,7 @@
 </div>
 
 <!-- Add tag Dialog Template -->
-<ng-template #addTagDialog>
+<ng-template #addTagDialog class="coucou">
   <div mat-dialog-title fxLayout="row" fxLayoutAlign="start">
     <h1 i18n="Create Tag|Create a new tag or label" fxFlex>Create Tag</h1>
     <app-pill-tag [color]="newTagColor.hex ? '#' + newTagColor.hex : '#' + placeholderColor.hex">{{
@@ -86,6 +86,8 @@
         <input matInput name="text" [(ngModel)]="newTagText" />
       </mat-form-field>
 
+      <!-- This element is the color picker. It is altered in the style.scss file
+      to remove the alpha option of the rgba  values -->
       <mat-form-field appearance="outline" class="right-form-field" fxFlex>
         <input
           matInput
