@@ -116,7 +116,7 @@ export class ManageTagsComponent {
       };
     } else {
       data = {
-        text: $localize`:Select users again|No users were selected so there is nothing to delete:Select the users to delete and try again.`,
+        text: $localize`:Select tags again|No tags were selected so there is nothing to delete:Select the tags to delete and try again.`,
         title: $localize`:Nothing to delete|Tried to delete something, but there was nothing to delete:Nothing to delete`,
         primaryButtonText: $localize`:Ok|Accept or confirm:Ok`,
         onPrimaryButtonClick: () => {
