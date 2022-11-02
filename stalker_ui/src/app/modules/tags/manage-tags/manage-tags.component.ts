@@ -1,10 +1,17 @@
+import { Color } from '@angular-material-components/color-picker';
 import { SelectionModel } from '@angular/cdk/collections';
-import { Component, ViewChild } from '@angular/core';
+import { Component, TemplateRef, ViewChild } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
+import { ToastrService } from 'ngx-toastr';
 import { map } from 'rxjs';
 import { TagsService } from 'src/app/api/tags/tags.service';
 import { Tag } from 'src/app/shared/types/tag.type';
+import {
+  ConfirmDialogComponent,
+  ConfirmDialogData,
+} from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-manage-tags',
@@ -16,6 +23,9 @@ export class ManageTagsComponent {
   displayedColumns: string[] = ['select', 'firstName', 'lastName', 'email', 'role', 'active'];
   dataSource = new MatTableDataSource<Tag>();
   selection = new SelectionModel<Tag>(true, []);
+
+  public newTagText = '';
+  public newTagColor: Color = new Color(0, 0, 0);
 
   public dataSource$ = this.tagsService.getTags().pipe(
     map((next) => {
@@ -36,7 +46,7 @@ export class ManageTagsComponent {
     })
   );
 
-  constructor(private tagsService: TagsService) {
+  constructor(private tagsService: TagsService, public dialog: MatDialog, private toastr: ToastrService) {
     this.paginator = null;
   }
 
@@ -65,5 +75,59 @@ export class ManageTagsComponent {
     return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.id + 1}`;
   }
 
-  public deleteTags() {}
+  public deleteTags() {
+    const bulletPoints: string[] = Array<string>();
+    this.selection.selected.forEach((tag: Tag) => {
+      bulletPoints.push(`${tag.text}`);
+    });
+    let data: ConfirmDialogData;
+    if (bulletPoints.length > 0) {
+      data = {
+        text: $localize`:Confirm delete tags|Confirmation message asking if the user really wants to delete the selected tags:Do you really wish to delete these tags permanently ?`,
+        title: $localize`:Deleting tags|Title of a page to delete selected tags:Deleting tags`,
+        primaryButtonText: $localize`:Cancel|Cancel current action:Cancel`,
+        dangerButtonText: $localize`:Delete permanently|Confirm that the user wants to delete the item permanently:Delete permanently`,
+        listElements: bulletPoints,
+        onPrimaryButtonClick: () => {
+          this.dialog.closeAll();
+        },
+        onDangerButtonClick: () => {
+          this.selection.selected.forEach(async (tag: Tag) => {
+            await this.tagsService.delete(tag.id);
+            this.selection.deselect(tag);
+            const removeIndex = this.dataSource.data.findIndex((t: Tag) => t.id === tag.id);
+            this.dataSource.data.splice(removeIndex, 1);
+            this.dataSource.paginator = this.paginator;
+            this.toastr.success(
+              $localize`:Tag deleted|Confirm the successful deletion of a tag:Tag deleted successfully`
+            );
+          });
+          this.dialog.closeAll();
+        },
+      };
+    } else {
+      data = {
+        text: $localize`:Select users again|No users were selected so there is nothing to delete:Select the users to delete and try again.`,
+        title: $localize`:Nothing to delete|Tried to delete something, but there was nothing to delete:Nothing to delete`,
+        primaryButtonText: $localize`:Ok|Accept or confirm:Ok`,
+        onPrimaryButtonClick: () => {
+          this.dialog.closeAll();
+        },
+      };
+    }
+
+    this.dialog.open(ConfirmDialogComponent, {
+      data,
+      restoreFocus: false,
+    });
+  }
+
+  public createTag() {}
+
+  openNewTagDialog(templateRef: TemplateRef<any>) {
+    this.dialog.open(templateRef, {
+      restoreFocus: false,
+      minWidth: '50%',
+    });
+  }
 }

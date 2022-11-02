@@ -1,7 +1,7 @@
 <div fxLayout="row" fxLayoutAlign="center">
   <mat-card fxFlex.gt-sm="90" class="container" fxFlex.lt-md="100">
     <h1 i18n="Tags|Tags or labels">Tags</h1>
-    <button mat-raised-button color="primary" class="left-action-button">
+    <button mat-raised-button color="primary" class="left-action-button" (click)="openNewTagDialog(addTagDialog)">
       <mat-icon class="material-icons-outlined"> new_label </mat-icon>
       <label i18n="New tag|Button to create a new tag">New Tag</label>
     </button>
@@ -69,3 +69,27 @@
     </div>
   </mat-card>
 </div>
+
+<!-- Add tag Dialog Template -->
+<ng-template #addTagDialog>
+  <h1 mat-dialog-title i18n="Create Tag|Create a new tag or label">Create Tag</h1>
+  <mat-dialog-content>
+    <div fxLayout="row">
+      <mat-form-field appearance="outline" fxFlex>
+        <mat-label i18n="Text|Text of an item">Text</mat-label>
+        <input matInput name="text" [value]="newTagText" />
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput [ngxMatColorPicker]="picker" [value]="newTagColor" />
+        <ngx-mat-color-toggle matSuffix [for]="picker"></ngx-mat-color-toggle>
+        <ngx-mat-color-picker #picker [touchUi]="false"></ngx-mat-color-picker>
+      </mat-form-field>
+    </div>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button mat-raised-button color="primary" (click)="createTag()" i18n="Create Tag|Create a new tag or label">
+      Create Tag
+    </button>
+    <button mat-raised-button color="warn" matDialogClose i18n="Cancel|Cancel an action">Cancel</button>
+  </mat-dialog-actions>
+</ng-template>
