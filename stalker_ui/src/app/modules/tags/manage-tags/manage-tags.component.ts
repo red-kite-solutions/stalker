@@ -33,6 +33,9 @@ export class ManageTagsComponent {
   private refreshData() {
     return this.tagsService.getTags().pipe(
       map((next) => {
+        for (const n of next) {
+          n.id = n._id;
+        }
         this.dataSource.data = next;
         this.dataSource.paginator = this.paginator;
         if (this.paginator) {
@@ -136,7 +139,7 @@ export class ManageTagsComponent {
         );
         return;
       }
-      const newTag = await this.tagsService.createTag(this.newTagText, '#' + this.newTagColor.hex);
+      await this.tagsService.createTag(this.newTagText, '#' + this.newTagColor.hex);
       this.toastr.success($localize`:Tag created|Confirm the successful creation of a tag:Tag created successfully`);
       this.dataSource$ = this.refreshData();
       this.newTagText = '';
