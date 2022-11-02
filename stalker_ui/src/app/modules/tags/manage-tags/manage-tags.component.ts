@@ -1,6 +1,7 @@
 import { Color } from '@angular-material-components/color-picker';
 import { SelectionModel } from '@angular/cdk/collections';
 import { Component, TemplateRef, ViewChild } from '@angular/core';
+import { ThemePalette } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
@@ -26,25 +27,30 @@ export class ManageTagsComponent {
 
   public newTagText = '';
   public newTagColor: Color = new Color(0, 0, 0);
+  public placeholderColor: Color = new Color(0, 0, 0);
+  public color: ThemePalette = 'primary';
 
-  public dataSource$ = this.tagsService.getTags().pipe(
-    map((next) => {
-      this.dataSource.data = next;
-      this.dataSource.paginator = this.paginator;
-      if (this.paginator) {
-        this.paginator._intl.itemsPerPageLabel = $localize`:Items per page|Paginator items per page label:Items per page`;
-        this.paginator._intl.nextPageLabel = $localize`:Next page|Paginator next page label:Next page`;
-        this.paginator._intl.lastPageLabel = $localize`:Last page|Paginator last page label:Last page`;
-        this.paginator._intl.previousPageLabel = $localize`:Previous page|Paginator previous page label:Previous page`;
-        this.paginator._intl.firstPageLabel = $localize`:First page|Paginator first page label:First page`;
-        this.paginator._intl.getRangeLabel = (page: number, pageSize: number, length: number) => {
-          const low = page * pageSize + 1;
-          const high = page * pageSize + pageSize <= length ? page * pageSize + pageSize : length;
-          return $localize`:Paginator range|Item numbers and range of the paginator:${low} – ${high} of ${length}`;
-        };
-      }
-    })
-  );
+  private refreshData() {
+    return this.tagsService.getTags().pipe(
+      map((next) => {
+        this.dataSource.data = next;
+        this.dataSource.paginator = this.paginator;
+        if (this.paginator) {
+          this.paginator._intl.itemsPerPageLabel = $localize`:Items per page|Paginator items per page label:Items per page`;
+          this.paginator._intl.nextPageLabel = $localize`:Next page|Paginator next page label:Next page`;
+          this.paginator._intl.lastPageLabel = $localize`:Last page|Paginator last page label:Last page`;
+          this.paginator._intl.previousPageLabel = $localize`:Previous page|Paginator previous page label:Previous page`;
+          this.paginator._intl.firstPageLabel = $localize`:First page|Paginator first page label:First page`;
+          this.paginator._intl.getRangeLabel = (page: number, pageSize: number, length: number) => {
+            const low = page * pageSize + 1;
+            const high = page * pageSize + pageSize <= length ? page * pageSize + pageSize : length;
+            return $localize`:Paginator range|Item numbers and range of the paginator:${low} – ${high} of ${length}`;
+          };
+        }
+      })
+    );
+  }
+  public dataSource$ = this.refreshData();
 
   constructor(private tagsService: TagsService, public dialog: MatDialog, private toastr: ToastrService) {
     this.paginator = null;
@@ -122,7 +128,26 @@ export class ManageTagsComponent {
     });
   }
 
-  public createTag() {}
+  public async createTag() {
+    try {
+      if (!(this.newTagText && this.newTagColor.hex && /^[a-f0-9]{6}$/.test(this.newTagColor.hex))) {
+        this.toastr.warning(
+          $localize`:Invalid tag values|The values provided for the new tag are invalid:Invalid tag values`
+        );
+        return;
+      }
+      const newTag = await this.tagsService.createTag(this.newTagText, '#' + this.newTagColor.hex);
+      this.toastr.success($localize`:Tag created|Confirm the successful creation of a tag:Tag created successfully`);
+      this.dataSource$ = this.refreshData();
+      this.newTagText = '';
+      this.newTagColor = new Color(0, 0, 0);
+      this.dialog.closeAll();
+    } catch (err) {
+      this.toastr.error(
+        $localize`:Error while submitting tag|There was a server error while submitting the new tag:Error while submitting tag`
+      );
+    }
+  }
 
   openNewTagDialog(templateRef: TemplateRef<any>) {
     this.dialog.open(templateRef, {

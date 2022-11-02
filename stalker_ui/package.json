@@ -33,6 +33,7 @@
     "jwt-decode": "^3.1.2",
     "ngx-file-drop": "^13.0.0",
     "ngx-toastr": "^14.2.2",
+    "prettier": "^2.7.1",
     "rxjs": "~7.5.0",
     "ts-md5": "^1.2.11",
     "tslib": "^2.3.0",

@@ -72,17 +72,29 @@
 
 <!-- Add tag Dialog Template -->
 <ng-template #addTagDialog>
-  <h1 mat-dialog-title i18n="Create Tag|Create a new tag or label">Create Tag</h1>
+  <div mat-dialog-title fxLayout="row" fxLayoutAlign="start">
+    <h1 i18n="Create Tag|Create a new tag or label" fxFlex>Create Tag</h1>
+    <app-pill-tag [color]="newTagColor.hex ? '#' + newTagColor.hex : '#' + placeholderColor.hex">{{
+      newTagText ? newTagText : 'Example'
+    }}</app-pill-tag>
+  </div>
+
   <mat-dialog-content>
     <div fxLayout="row">
-      <mat-form-field appearance="outline" fxFlex>
+      <mat-form-field appearance="outline" class="left-form-field" fxFlex>
         <mat-label i18n="Text|Text of an item">Text</mat-label>
-        <input matInput name="text" [value]="newTagText" />
+        <input matInput name="text" [(ngModel)]="newTagText" />
       </mat-form-field>
-      <mat-form-field>
-        <input matInput [ngxMatColorPicker]="picker" [value]="newTagColor" />
+
+      <mat-form-field appearance="outline" class="right-form-field" fxFlex>
+        <input
+          matInput
+          [ngxMatColorPicker]="picker"
+          [ngModel]="newTagColor"
+          (ngModelChange)="newTagColor = $event ? $event : newTagColor"
+        />
         <ngx-mat-color-toggle matSuffix [for]="picker"></ngx-mat-color-toggle>
-        <ngx-mat-color-picker #picker [touchUi]="false"></ngx-mat-color-picker>
+        <ngx-mat-color-picker #picker [touchUi]="false" [color]="color"></ngx-mat-color-picker>
       </mat-form-field>
     </div>
   </mat-dialog-content>
