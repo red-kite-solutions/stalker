@@ -1,9 +1,9 @@
 import { Logger } from '@nestjs/common';
 import { CommandHandler } from '@nestjs/cqrs';
-import { JobsService } from 'src/modules/database/jobs/jobs.service';
-import { Job } from 'src/modules/database/jobs/models/jobs.model';
-import { CompanyService } from 'src/modules/database/reporting/company.service';
+import { JobsService } from '../../database/jobs/jobs.service';
+import { Job } from '../../database/jobs/models/jobs.model';
 import { Company } from '../../database/reporting/company.model';
+import { CompanyService } from '../../database/reporting/company.service';
 import { HostService } from '../../database/reporting/host/host.service';
 import { FindingHandlerBase } from './findings-handler-base';
 import { HostnameIpCommand } from './hostname-ip.command';

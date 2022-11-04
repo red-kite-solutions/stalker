@@ -1,7 +1,5 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppModule } from 'src/modules/app.module';
-import { Role } from 'src/modules/auth/constants';
 import {
   checkAuthorizations,
   deleteReq,
@@ -11,6 +9,8 @@ import {
   putReq,
   TestingData,
 } from 'test/e2e.utils';
+import { AppModule } from '../../app.module';
+import { Role } from '../../auth/constants';
 
 describe('Company Controller (e2e)', () => {
   let app: INestApplication;

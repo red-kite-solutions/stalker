@@ -8,11 +8,11 @@ import {
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
-import { Role } from 'src/modules/auth/constants';
-import { Roles } from 'src/modules/auth/decorators/roles.decorator';
-import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
-import { RolesGuard } from 'src/modules/auth/guards/role.guard';
-import { MongoIdDto } from 'src/types/dto/MongoIdDto';
+import { MongoIdDto } from '../../../types/dto/MongoIdDto';
+import { Role } from '../../auth/constants';
+import { Roles } from '../../auth/decorators/roles.decorator';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../auth/guards/role.guard';
 import { CreateTagDto } from './tag.dto';
 import { TagsDocument } from './tag.model';
 import { TagsService } from './tag.service';

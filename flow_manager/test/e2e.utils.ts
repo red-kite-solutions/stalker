@@ -1,7 +1,7 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import jwt_decode from 'jwt-decode';
-import { Role } from 'src/modules/auth/constants';
 import request from 'supertest';
+import { Role } from '../src/modules/auth/constants';
 
 export interface UserTestingData {
   token: string;

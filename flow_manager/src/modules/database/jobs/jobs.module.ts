@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { JobQueueModule } from 'src/modules/job-queue/job-queue.module';
+import { JobQueueModule } from '../../job-queue/job-queue.module';
 import { JobsController } from './jobs.controller';
 import { JobsService } from './jobs.service';
 import {

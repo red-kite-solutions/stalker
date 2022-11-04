@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { KeybaseModule } from 'src/modules/alerts/keybase/keybase.module';
+import { KeybaseModule } from '../../../alerts/keybase/keybase.module';
 import { ReportController } from './report.controller';
 import { ReportSchema } from './report.model';
 import { ReportService } from './report.service';
