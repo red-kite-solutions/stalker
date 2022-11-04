@@ -15,7 +15,11 @@ export function IsIPv4(validationOptions?: ValidationOptions) {
         validate(value: any, args: ValidationArguments) {
           return (
             typeof value === 'string' &&
-            /^\d\d?\d?\.\d\d?\d?\.\d\d?\d?\.\d\d?\d?$/.test(value)
+            /^\d\d?\d?\.\d\d?\d?\.\d\d?\d?\.\d\d?\d?$/.test(value) &&
+            value
+              .split('.')
+              .map((x) => +x)
+              .filter((x) => x >= 0 && x <= 255).length === 4
           );
         },
       },

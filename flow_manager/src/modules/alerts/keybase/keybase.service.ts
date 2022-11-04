@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import Bot from 'keybase-bot';
-import { ConfigService } from 'src/modules/database/admin/config/config.service';
+import { ConfigService } from '../../database/admin/config/config.service';
 import { SendSimpleAlertDto } from './keybase.dto';
 
 @Injectable()
