@@ -66,6 +66,10 @@ const routes: Routes = [
         path: 'tags',
         component: ManageTagsComponent,
       },
+      {
+        path: 'hosts',
+        loadChildren: () => import('./modules/hosts/hosts.module').then((m) => m.HostsListModule),
+      },
     ],
   },
   {

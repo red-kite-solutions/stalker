@@ -48,6 +48,17 @@
     <mat-icon class="material-icons-outlined">sell</mat-icon>
     <span *ngIf="expanded" i18n="Tags|An item's tags">Tags</span>
   </a>
+  <a
+    mat-list-item
+    routerLinkActive="list-item-active"
+    routerLink="/hosts"
+    [matTooltip]="expanded ? '' : companies"
+    [matTooltipShowDelay]="700"
+    matTooltipPosition="right"
+  >
+    <mat-icon class="material-icons-outlined">alt_route</mat-icon>
+    <span *ngIf="expanded" i18n="Hosts|Hosts">Hosts</span>
+  </a>
 
   <div *ngIf="this.authService.role === 'admin'">
     <mat-divider></mat-divider>

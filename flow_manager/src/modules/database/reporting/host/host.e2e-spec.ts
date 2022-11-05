@@ -109,12 +109,7 @@ describe('Host Controller (e2e)', () => {
       await createDomains(app, testData, company1._id, [domain1]);
       await createDomains(app, testData, company2._id, [domain2]);
 
-      const allDataResult = await getReq(
-        app,
-        testData.user.token,
-        '/hosts?page=0&pageSize=10',
-      );
-
+      // Act
       await hostsService.addHostsWithDomain(
         ['192.168.2.1', '192.168.2.2'],
         domain1,

@@ -1,7 +1,8 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Host } from 'src/app/shared/types/host/host.interface';
+import { Page } from 'src/app/shared/types/page.type';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -16,5 +17,28 @@ export class HostsService {
 
   public getTopPorts(hostId: string, top: number): Observable<number[]> {
     return <Observable<number[]>>this.http.get(`${environment.fmUrl}/hosts/${hostId}/top-tcp-ports/${top}`);
+  }
+
+  private filtersToURL(filters: any) {
+    const keys = Object.keys(filters);
+    let encodedFilters = new HttpParams();
+    for (const key of keys) {
+      if (Array.isArray(filters[key])) {
+        for (const value of filters[key]) {
+          encodedFilters = encodedFilters.append(`${key}[]`, value);
+        }
+      } else {
+        encodedFilters = encodedFilters.set(key, filters[key]);
+      }
+    }
+    return encodedFilters.toString();
+  }
+
+  public getPage(page: number, pageSize: number, filters: any): Observable<Page<Host>> {
+    let encodedFilters = this.filtersToURL(filters);
+    encodedFilters = encodedFilters ? `&${encodedFilters}` : encodedFilters;
+    return <Observable<Page<Host>>>(
+      this.http.get(`${environment.fmUrl}/hosts?page=${page}&pageSize=${pageSize}${encodedFilters}`)
+    );
   }
 }
