@@ -2,6 +2,7 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import jwt_decode from 'jwt-decode';
 import request from 'supertest';
 import { Role } from '../src/modules/auth/constants';
+import { CompanyDocument } from '../src/modules/database/reporting/company.model';
 
 export interface UserTestingData {
   token: string;
@@ -226,4 +227,43 @@ export async function checkAuthorizations(
   }
 
   return true;
+}
+
+export async function createCompany(
+  app,
+  testData: TestingData,
+  companyName,
+): Promise<CompanyDocument> {
+  const res = await postReq(app, testData.user.token, '/company', {
+    name: companyName,
+  });
+
+  expect(res.statusCode).toBe(201);
+  res.body._id = `${res.body._id}`;
+  return res.body;
+}
+
+export async function createDomain(
+  app,
+  testData: TestingData,
+  companyId: string,
+  domains: string[],
+) {
+  const r = await postReq(
+    app,
+    testData.admin.token,
+    `/company/${companyId}/domain`,
+    { domains: domains },
+  );
+
+  return r.body;
+}
+
+export async function cleanup(app, testData: TestingData, testPrefix: string) {
+  const allCompanies = await getReq(app, testData.user.token, '/company');
+  for (const company of allCompanies.body) {
+    if (!(company.name as string).startsWith(testPrefix)) continue;
+
+    await deleteReq(app, testData.user.token, `/company/${company._id}`);
+  }
 }

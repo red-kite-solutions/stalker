@@ -27,6 +27,32 @@ export class HostService {
     private domainService: DomainsService,
   ) {}
 
+  public async getAll(
+    page: number = null,
+    pageSize: number = null,
+    filter: any = null,
+  ): Promise<HostDocument[]> {
+    let query;
+    if (filter) {
+      query = this.hostModel.find(filter);
+    } else {
+      query = this.hostModel.find({});
+    }
+
+    if (page != null && pageSize != null) {
+      query = query.skip(page * pageSize).limit(pageSize);
+    }
+    return await query;
+  }
+
+  public async count(filter = null) {
+    if (!filter) {
+      return await this.hostModel.estimatedDocumentCount();
+    } else {
+      return await this.hostModel.countDocuments(filter);
+    }
+  }
+
   public async addHostsWithDomain(
     ips: string[],
     domainName: string,
@@ -74,7 +100,7 @@ export class HostService {
           ip: ip,
           _id: mongoId.toString(),
           domainName: domainName,
-          companyId: companyId,
+          companyId: new Types.ObjectId(companyId),
         });
         hostSummaries.push({ id: mongoId, ip: ip });
       } else if (
