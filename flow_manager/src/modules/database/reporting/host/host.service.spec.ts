@@ -1,4 +1,4 @@
-import { Test } from '@nestjs/testing';
+import { Test, TestingModule } from '@nestjs/testing';
 import { randomUUID } from 'crypto';
 import { AppModule } from '../../../app.module';
 import { CompanyService } from '../company.service';
@@ -6,18 +6,22 @@ import { DomainsService } from '../domain/domain.service';
 import { HostService } from './host.service';
 
 describe('Host Service', () => {
+  let moduleFixture: TestingModule;
   let hostService: HostService;
   let domainService: DomainsService;
   let companyService: CompanyService;
 
   beforeAll(async () => {
-    const moduleFixture = await Test.createTestingModule({
+    moduleFixture = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-
     hostService = moduleFixture.get(HostService);
     domainService = moduleFixture.get(DomainsService);
     companyService = moduleFixture.get(CompanyService);
+  });
+
+  afterAll(async () => {
+    await moduleFixture.close();
   });
 
   describe('Add domains', () => {
@@ -28,14 +32,12 @@ describe('Host Service', () => {
         imageType: null,
         logo: null,
       });
-
       const domains = await domainService.addDomains(
         ['company1.example.org'],
         company._id,
         company.name,
       );
       const domain = domains[0];
-
       // Act & Assert
       let newHosts = await hostService.addHostsWithDomain(
         ['1.1.1.1'],
@@ -43,9 +45,7 @@ describe('Host Service', () => {
         company._id.toString(),
         company.name,
       );
-
       expect(newHosts.length).toBe(1);
-
       // Act & Assert
       newHosts = await hostService.addHostsWithDomain(
         ['1.1.1.1'],
@@ -53,7 +53,6 @@ describe('Host Service', () => {
         company._id.toString(),
         company.name,
       );
-
       // Assert
       expect(newHosts.length).toBe(0);
     });
