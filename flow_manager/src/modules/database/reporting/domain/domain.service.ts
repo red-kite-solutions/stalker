@@ -62,10 +62,11 @@ export class DomainsService {
     }
 
     // For each new domain name found, create a domain name resolution job for the domain
-    newDomains.forEach((domain) => {
+    for (const domain of newDomains) {
       const job = this.jobService.createDomainResolvingJob(companyId, domain);
-      this.jobService.publish(job);
-    });
+      await this.jobService.publish(job);
+    }
+
     return insertedDomains;
   }
 
@@ -108,13 +109,14 @@ export class DomainsService {
       query = query.skip(page).limit(pageSize);
       domains = await query.exec();
 
-      domains.forEach((domain) => {
+      for (const domain of domains) {
         const job = this.jobService.createDomainResolvingJob(
           domain.companyId.toString(),
           domain.name,
         );
-        this.jobService.publish(job);
-      });
+
+        await this.jobService.publish(job);
+      }
     } while (domains);
   }
 

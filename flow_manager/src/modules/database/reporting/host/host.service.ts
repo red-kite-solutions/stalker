@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { getTopTcpPorts } from 'src/utils/ports.utils';
+import { getTopTcpPorts } from '../../../../utils/ports.utils';
 import { ConfigService } from '../../admin/config/config.service';
 import { DomainsService } from '../domain/domain.service';
 import { DomainSummary } from '../domain/domain.summary';
@@ -62,9 +62,9 @@ export class HostService {
     const domain = await this.domainService.getDomainByName(domainName);
 
     if (!domain) {
-      this.logger.debug(`Could not find the domain ${domainName}`);
+      this.logger.debug(`Could not find the domain (domainName=${domainName})`);
       throw new HttpException(
-        'The domain associated with the given job does not exist.',
+        `The domain associated with the given job does not exist (domainName=${domainName})`,
         400,
       );
     }
@@ -81,7 +81,10 @@ export class HostService {
       let mongoId = new Types.ObjectId();
       const hostResult = await this.hostModel
         .findOneAndUpdate(
-          { ip: { $eq: ip }, companyId: { $eq: companyId } },
+          {
+            ip: { $eq: ip },
+            companyId: { $eq: new Types.ObjectId(companyId) },
+          },
           {
             $setOnInsert: {
               _id: mongoId,
