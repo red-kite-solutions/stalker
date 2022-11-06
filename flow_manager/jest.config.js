@@ -12,4 +12,5 @@ module.exports = {
   ],
   coverageReporters: ['json', 'lcov'],
   globalSetup: './global-setup.ts',
+  globalTeardown: './global-teardown.ts',
 };

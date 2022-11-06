@@ -10,4 +10,5 @@ module.exports = async function () {
   process.env.FM_API_KEY = '123456';
   process.env.FM_JWT_SECRET = '123456';
   process.env.FM_REFRESH_SECRET = '123456';
+  globalThis.__IN_MEMORY_DB__ = mongo;
 };
