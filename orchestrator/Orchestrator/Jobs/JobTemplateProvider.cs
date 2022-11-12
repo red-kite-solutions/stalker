@@ -24,10 +24,7 @@ namespace Orchestrator.Jobs
                 var pythonScriptFilePath = PythonTemplatesPath + pythonJob + ".py";
                 try
                 {
-                    CodeDictionary.Add(pythonJob, System.IO.File.ReadAllText(pythonScriptFilePath, System.Text.Encoding.UTF8));
-                } catch (ArgumentException)
-                {
-                    Logger.LogError($"Error adding the python job template to the CodeDictionary (key already exists) : {pythonJob}");
+                    CodeDictionary[pythonJob] = System.IO.File.ReadAllText(pythonScriptFilePath, System.Text.Encoding.UTF8);
                 }
                 catch
                 {
