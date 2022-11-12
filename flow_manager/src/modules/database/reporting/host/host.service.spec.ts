@@ -1,6 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { randomUUID } from 'crypto';
+import { Document } from 'mongoose';
 import { AppModule } from '../../../app.module';
+import { Company } from '../company.model';
 import { CompanyService } from '../company.service';
 import { DomainsService } from '../domain/domain.service';
 import { HostService } from './host.service';
@@ -59,32 +61,11 @@ describe('Host Service', () => {
 
     it('Should support same ip for multiple hosts', async () => {
       // Arrange
-      const c1 = await companyService.addCompany({
-        name: randomUUID(),
-        imageType: null,
-        logo: null,
-      });
+      const c1 = await company();
+      const c2 = await company();
 
-      const c2 = await companyService.addCompany({
-        name: randomUUID(),
-        imageType: null,
-        logo: null,
-      });
-
-      const d1 = (
-        await domainService.addDomains(
-          ['company3.example.org'],
-          c1._id,
-          c1.name,
-        )
-      )[0];
-      const d2 = (
-        await domainService.addDomains(
-          ['company4.example.org'],
-          c2._id,
-          c2.name,
-        )
-      )[0];
+      const d1 = await domain('company3.example.org', c1);
+      const d2 = await domain('company4.example.org', c1);
 
       // Act
       await hostService.addHostsWithDomain(
@@ -101,7 +82,7 @@ describe('Host Service', () => {
       );
 
       // Assert
-      const allHosts = await hostService.getAll(0, 10, {});
+      const allHosts = await hostService.getAll(0, 10, null);
       const h1 = allHosts[1];
       expect(h1.companyId.toString()).toBe(c1._id.toString());
       expect(h1.ip).toBe('8.8.8.8');
@@ -111,4 +92,59 @@ describe('Host Service', () => {
       expect(h2.ip).toBe('8.8.8.8');
     });
   });
+
+  describe('Get all', () => {
+    it('Filter by company', async () => {
+      // Arrange
+      const c1 = await company();
+      const d1 = await domain('company5.example.org', c1);
+
+      const c2 = await company();
+      const d2 = await domain('company6.example.org', c1);
+
+      await hostService.addHostsWithDomain(
+        ['8.8.8.8', '1.2.3.4'],
+        d1.name,
+        c1._id.toString(),
+        c1.name,
+      );
+
+      await hostService.addHostsWithDomain(
+        ['2.3.4.5', '6.7.8.9'],
+        d2.name,
+        c2._id.toString(),
+        c2.name,
+      );
+
+      // Act
+      const allHosts = await hostService.getAll(0, 10, {
+        company: c1._id,
+      });
+
+      // Assert
+      expect(allHosts.length).toBe(2);
+
+      const h1 = allHosts[0];
+      expect(h1.companyId.toString()).toBe(c1._id.toString());
+      expect(h1.ip).toBe('8.8.8.8');
+
+      const h2 = allHosts[1];
+      expect(h2.companyId.toString()).toBe(c1._id.toString());
+      expect(h2.ip).toBe('1.2.3.4');
+    });
+  });
+
+  async function company() {
+    return await companyService.addCompany({
+      name: randomUUID(),
+      imageType: null,
+      logo: null,
+    });
+  }
+
+  async function domain(domain: string, company: Company & Document) {
+    return (
+      await domainService.addDomains([domain], company._id, company.name)
+    )[0];
+  }
 });

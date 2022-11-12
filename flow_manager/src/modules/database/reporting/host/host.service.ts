@@ -12,6 +12,7 @@ import { ConfigService } from '../../admin/config/config.service';
 import { DomainsService } from '../domain/domain.service';
 import { DomainSummary } from '../domain/domain.summary';
 import { ReportService } from '../report/report.service';
+import { GetHostCountModel, HostsPagingModel } from './host-filter.model';
 import { Host, HostDocument } from './host.model';
 import { HostSummary } from './host.summary';
 
@@ -30,11 +31,11 @@ export class HostService {
   public async getAll(
     page: number = null,
     pageSize: number = null,
-    filter: any = null,
+    filter: HostsPagingModel | GetHostCountModel = null,
   ): Promise<HostDocument[]> {
     let query;
     if (filter) {
-      query = this.hostModel.find(filter);
+      query = this.hostModel.find(this.buildFilters(filter));
     } else {
       query = this.hostModel.find({});
     }
@@ -45,11 +46,11 @@ export class HostService {
     return await query;
   }
 
-  public async count(filter = null) {
+  public async count(filter: HostsPagingModel | GetHostCountModel = null) {
     if (!filter) {
       return await this.hostModel.estimatedDocumentCount();
     } else {
-      return await this.hostModel.countDocuments(filter);
+      return await this.hostModel.countDocuments(this.buildFilters(filter));
     }
   }
 
@@ -204,5 +205,32 @@ export class HostService {
       { _id: { $eq: new Types.ObjectId(hostId) } },
       { $pull: { domains: { id: new Types.ObjectId(domainId) } } },
     );
+  }
+
+  private buildFilters(dto: HostsPagingModel | GetHostCountModel) {
+    const finalFilter = {};
+
+    // Filter by domain
+    if (dto.domain) {
+      finalFilter['domains.id'] = { $eq: new Types.ObjectId(dto.domain) };
+    }
+
+    // Filter by company
+    if (dto.company) {
+      finalFilter['companyId'] = {
+        $eq: new Types.ObjectId(dto.company),
+      };
+    }
+
+    // Filter by tag
+    if (dto.tags) {
+      const preppedTagsArray = [];
+      for (const tag of dto.tags) {
+        preppedTagsArray.push(tag.toLowerCase());
+      }
+
+      finalFilter['tags'] = { $all: preppedTagsArray };
+    }
+    return finalFilter;
   }
 }
