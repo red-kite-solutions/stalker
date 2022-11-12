@@ -68,6 +68,8 @@ export class HostService {
         .exec();
 
       if (!hostResult) {
+        console.log('not hostResult');
+
         // inserted
         newIps.push(ip);
         newHosts.push({
@@ -79,8 +81,9 @@ export class HostService {
         hostSummaries.push({ id: mongoId, ip: ip });
       } else if (
         !hostResult.domains ||
-        hostResult.domains.some((ds) => ds.name === domainName)
+        !hostResult.domains.some((ds) => ds.name === domainName)
       ) {
+        console.log('not domains or domains include');
         // updated, so sync with relevant domain document must be done
         hostSummaries.push({ id: hostResult._id, ip: ip });
       }

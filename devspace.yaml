@@ -199,6 +199,8 @@ deployments:
           - env:
               - name: JobsQueue__QueueUri
                 value: ${KAFKA_URI}
+              - name: ORCHESTRATOR_PYTHON_JOB_TEMPLATES_PATH
+                value: ${ORCHESTRATOR_PYTHON_JOB_TEMPLATES_PATH}
 
             image: orchestrator
             name: orchestrator-container

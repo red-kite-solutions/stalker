@@ -8,11 +8,25 @@ public abstract class PythonJobTemplate : KubernetesJobTemplate
 
     public override string Image => "python:3.10.4-slim-bullseye";
 
-    protected abstract string PythonCommand { get; }
+    protected virtual string PythonCommand { get; set; }
+
+    /// <summary>
+    /// Creates a PythonJobTemplate object where the python code is read from a JobTemplateProvider
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="namespace"></param>
+    /// <param name="jobProvider">A JobTemplateProvider that will be used to automatically find the job command</param>
+    public PythonJobTemplate(string? id, string @namespace, JobTemplateProvider jobProvider)
+    {
+        Id = Id;
+        Namespace = @namespace;
+        PythonCommand = jobProvider.GetJobTemplateCode(this.GetType().UnderlyingSystemType);
+    }
 
     public PythonJobTemplate(string? id, string @namespace)
     {
         Id = Id;
         Namespace = @namespace;
+        PythonCommand = "";
     }
 }
