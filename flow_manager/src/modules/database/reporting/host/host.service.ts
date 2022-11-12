@@ -9,6 +9,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { getTopTcpPorts } from '../../../../utils/ports.utils';
 import { ConfigService } from '../../admin/config/config.service';
+import { Company } from '../company.model';
 import { DomainsService } from '../domain/domain.service';
 import { DomainSummary } from '../domain/domain.summary';
 import { ReportService } from '../report/report.service';
@@ -22,6 +23,7 @@ export class HostService {
 
   constructor(
     @InjectModel('host') private readonly hostModel: Model<Host>,
+    @InjectModel('company') private readonly companyModel: Model<Company>,
     private reportService: ReportService,
     private configService: ConfigService,
     @Inject(forwardRef(() => DomainsService))
@@ -58,15 +60,22 @@ export class HostService {
     ips: string[],
     domainName: string,
     companyId: string,
-    companyName,
   ) {
     const domain = await this.domainService.getDomainByName(domainName);
-
     if (!domain) {
       this.logger.debug(`Could not find the domain (domainName=${domainName})`);
       throw new HttpException(
         `The domain associated with the given job does not exist (domainName=${domainName})`,
-        400,
+        404,
+      );
+    }
+
+    const company = await this.companyModel.findById(companyId);
+    if (!company) {
+      this.logger.debug(`Could not find the company (companyId=${companyId})`);
+      throw new HttpException(
+        `The company does not exist (companyId=${companyId})`,
+        404,
       );
     }
 
@@ -120,7 +129,7 @@ export class HostService {
     await this.domainService.addHostsToDomain(domain._id, hostSummaries);
 
     if (config.isNewContentReported) {
-      this.reportService.addHosts(companyName, newIps, domainName);
+      this.reportService.addHosts(company.name, newIps, domainName);
     }
 
     return newHosts;

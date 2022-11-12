@@ -1,8 +1,15 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  Inject,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { ConfigService } from '../../admin/config/config.service';
 import { JobsService } from '../../jobs/jobs.service';
+import { Company } from '../company.model';
 import { HostService } from '../host/host.service';
 import { HostSummary } from '../host/host.summary';
 import { ReportService } from '../report/report.service';
@@ -10,8 +17,11 @@ import { Domain, DomainDocument } from './domain.model';
 
 @Injectable()
 export class DomainsService {
+  private logger = new Logger(DomainsService.name);
+
   constructor(
     @InjectModel('domain') private readonly domainModel: Model<Domain>,
+    @InjectModel('company') private readonly companyModel: Model<Company>,
     private jobService: JobsService,
     private reportService: ReportService,
     private configService: ConfigService,
@@ -19,11 +29,16 @@ export class DomainsService {
     private hostService: HostService,
   ) {}
 
-  public async addDomains(
-    domains: string[],
-    companyId: string,
-    companyName: string,
-  ) {
+  public async addDomains(domains: string[], companyId: string) {
+    const company = await this.companyModel.findById(companyId);
+    if (!company) {
+      this.logger.debug(`Could not find the company (companyId=${companyId})`);
+      throw new HttpException(
+        `The company does not exist (companyId=${companyId})`,
+        404,
+      );
+    }
+
     // for each domain, create a mongo id
     const domainDocuments: DomainDocument[] = [];
     const companyIdObject = new Types.ObjectId(companyId);
@@ -58,7 +73,7 @@ export class DomainsService {
     const config = await this.configService.getConfig();
 
     if (config?.isNewContentReported) {
-      this.reportService.addDomains(companyName, newDomains);
+      this.reportService.addDomains(company.name, newDomains);
     }
 
     // For each new domain name found, create a domain name resolution job for the domain
