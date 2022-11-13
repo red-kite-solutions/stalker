@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { ICommandHandler } from '@nestjs/cqrs';
-import { FindingCommand } from './hostname-ip.command';
+import { FindingCommand } from './findings.command';
 
 export abstract class FindingHandlerBase<T extends FindingCommand>
   implements ICommandHandler<T>

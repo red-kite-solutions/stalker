@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
-import { HostnameIpCommand } from './commands/hostname-ip.command';
+import { HostnameIpCommand } from './commands/JobFindings/hostname-ip.command';
 
 type Finding = HostnameIpFinding;
 

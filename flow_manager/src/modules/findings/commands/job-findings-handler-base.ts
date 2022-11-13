@@ -4,7 +4,7 @@ import { JobsService } from '../../database/jobs/jobs.service';
 import { Job } from '../../database/jobs/models/jobs.model';
 import { Company } from '../../database/reporting/company.model';
 import { CompanyService } from '../../database/reporting/company.service';
-import { JobFindingCommand } from './hostname-ip.command';
+import { JobFindingCommand } from './findings.command';
 
 export abstract class JobFindingHandlerBase<T extends JobFindingCommand>
   implements ICommandHandler<T>
