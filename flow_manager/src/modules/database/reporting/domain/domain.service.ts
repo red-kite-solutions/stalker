@@ -1,6 +1,8 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { HostnameFinding } from 'src/modules/findings/findings.service';
+import { FindingsQueue } from 'src/modules/job-queue/findings-queue';
 import { ConfigService } from '../../admin/config/config.service';
 import { JobsService } from '../../jobs/jobs.service';
 import { HostService } from '../host/host.service';
@@ -17,6 +19,7 @@ export class DomainsService {
     private configService: ConfigService,
     @Inject(forwardRef(() => HostService))
     private hostService: HostService,
+    private findingsQueue: FindingsQueue,
   ) {}
 
   public async addDomains(
@@ -61,11 +64,17 @@ export class DomainsService {
       this.reportService.addDomains(companyName, newDomains);
     }
 
-    // For each new domain name found, create a domain name resolution job for the domain
+    const findings: HostnameFinding[] = [];
+    // For each new domain name found, a finding is created
     newDomains.forEach((domain) => {
-      const job = this.jobService.createDomainResolvingJob(companyId, domain);
-      this.jobService.publish(job);
+      findings.push({
+        type: 'HostnameFinding',
+        domainName: domain,
+        companyId: companyId,
+      });
     });
+    this.findingsQueue.publish(...findings);
+
     return insertedDomains;
   }
 

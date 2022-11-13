@@ -38,17 +38,28 @@ export class FindingsModule {
           this.logger.debug('Kafka message found!');
           try {
             const findingsRaw = JSON.parse(message.value.toString());
-            const findings = {
-              jobId: findingsRaw.JobId,
-              findings: JSON.parse(findingsRaw.FindingsJson).findings,
-            };
-            this.logger.debug(
-              `Kafka findings for Job ID ${findings.jobId} : ${JSON.stringify(
-                findings.findings,
-              )}`,
-            );
-
-            this.findingsService.handle(findings);
+            if (findingsRaw.JobId) {
+              const findings = {
+                jobId: findingsRaw.JobId,
+                findings: JSON.parse(findingsRaw.FindingsJson).findings,
+              };
+              this.logger.debug(
+                `Kafka findings for Job ID ${findings.jobId} : ${JSON.stringify(
+                  findings.findings,
+                )}`,
+              );
+              this.findingsService.handleJobFindings(findings);
+            } else {
+              const findings = {
+                findings: JSON.parse(findingsRaw.FindingsJson).findings,
+              };
+              this.logger.debug(
+                `Kafka findings (no Job ID) : ${JSON.stringify(
+                  findings.findings,
+                )}`,
+              );
+              this.findingsService.handleFindings(findings);
+            }
           } catch (err) {
             this.logger.error(
               'Error while reading Kafka message : ' +
