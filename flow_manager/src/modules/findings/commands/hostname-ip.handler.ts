@@ -5,11 +5,11 @@ import { Job } from '../../database/jobs/models/jobs.model';
 import { Company } from '../../database/reporting/company.model';
 import { CompanyService } from '../../database/reporting/company.service';
 import { HostService } from '../../database/reporting/host/host.service';
-import { FindingHandlerBase } from './findings-handler-base';
 import { HostnameIpCommand } from './hostname-ip.command';
+import { JobFindingHandlerBase } from './job-findings-handler-base';
 
 @CommandHandler(HostnameIpCommand)
-export class HostnameIpHandler extends FindingHandlerBase<HostnameIpCommand> {
+export class HostnameIpHandler extends JobFindingHandlerBase<HostnameIpCommand> {
   protected logger: Logger = new Logger('HostnameIpHandler');
 
   constructor(

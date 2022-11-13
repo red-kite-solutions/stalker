@@ -1,8 +1,12 @@
-export class FindingCommand {
-  constructor(public readonly jobId) {}
+export class FindingCommand {}
+
+export class JobFindingCommand extends FindingCommand {
+  constructor(public readonly jobId) {
+    super();
+  }
 }
 
-export class HostnameIpCommand extends FindingCommand {
+export class HostnameIpCommand extends JobFindingCommand {
   constructor(
     jobId,
     public readonly domainName: string,

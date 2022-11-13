@@ -32,7 +32,7 @@ export class HostService {
     domainName: string,
     companyId: string,
     companyName,
-  ) {
+  ): Promise<Partial<HostDocument>[]> {
     const domain = await this.domainService.getDomainByName(domainName);
 
     if (!domain) {
@@ -45,7 +45,7 @@ export class HostService {
 
     let hostSummaries: HostSummary[] = [];
     let newIps: string[] = [];
-    let newHosts = [];
+    let newHosts: Partial<HostDocument>[] = [];
 
     for (let ip of ips) {
       const ds: DomainSummary = {
@@ -72,9 +72,9 @@ export class HostService {
         newIps.push(ip);
         newHosts.push({
           ip: ip,
-          _id: mongoId.toString(),
-          domainName: domainName,
-          companyId: companyId,
+          _id: mongoId,
+          domains: [ds],
+          companyId: new Types.ObjectId(companyId),
         });
         hostSummaries.push({ id: mongoId, ip: ip });
       } else if (

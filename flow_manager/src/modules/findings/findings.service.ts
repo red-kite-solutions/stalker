@@ -11,15 +11,18 @@ export interface HostnameIpFinding {
 }
 
 export interface Findings {
-  jobId: string;
   findings: Finding[];
+}
+
+export interface JobFindings extends Findings {
+  jobId: string;
 }
 
 @Injectable()
 export class FindingsService {
   constructor(private commandBus: CommandBus) {}
 
-  public handle(findings: Findings) {
+  public handle(findings: JobFindings) {
     for (const finding of findings.findings) {
       this.handleFinding(findings.jobId, finding);
     }

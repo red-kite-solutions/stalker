@@ -17,7 +17,7 @@ namespace Orchestrator.Jobs
             RefreshTemplates();
         }
 
-        public void RefreshTemplates() 
+        public void RefreshTemplates()
         {
             foreach (var pythonJob in PythonJobs)
             {
