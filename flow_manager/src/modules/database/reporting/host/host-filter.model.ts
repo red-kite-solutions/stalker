@@ -1,13 +1,10 @@
 export class HostsPagingModel {
   page: string;
   pageSize: string;
-  tags?: Array<string>;
-  company?: string;
-  domain?: string;
 }
 
 export class GetHostCountModel {
-  domain?: string;
+  domain?: Array<string>;
   tags?: Array<string>;
-  company?: string;
+  company?: Array<string>;
 }

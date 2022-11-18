@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import escapeStringRegexp from '../../../../utils/escape-string-regexp';
 import { getTopTcpPorts } from '../../../../utils/ports.utils';
 import { ConfigService } from '../../admin/config/config.service';
 import { Company } from '../company.model';
@@ -33,7 +34,7 @@ export class HostService {
   public async getAll(
     page: number = null,
     pageSize: number = null,
-    filter: HostsPagingModel | GetHostCountModel = null,
+    filter: GetHostCountModel = null,
   ): Promise<HostDocument[]> {
     let query;
     if (filter) {
@@ -48,7 +49,7 @@ export class HostService {
     return await query;
   }
 
-  public async count(filter: HostsPagingModel | GetHostCountModel = null) {
+  public async count(filter: HostsPagingModel & GetHostCountModel = null) {
     if (!filter) {
       return await this.hostModel.estimatedDocumentCount();
     } else {
@@ -99,6 +100,7 @@ export class HostService {
             $setOnInsert: {
               _id: mongoId,
               companyId: new Types.ObjectId(companyId),
+              companyName: company.name,
             },
             $addToSet: { domains: ds },
           },
@@ -216,19 +218,35 @@ export class HostService {
     );
   }
 
-  private buildFilters(dto: HostsPagingModel | GetHostCountModel) {
+  private buildFilters(dto: GetHostCountModel) {
     const finalFilter = {};
 
     // Filter by domain
     if (dto.domain) {
-      finalFilter['domains.id'] = { $eq: new Types.ObjectId(dto.domain) };
+      const domainRegexes = [];
+      for (const domain of dto.domain) {
+        if (domain) {
+          let domainRegex = escapeStringRegexp(domain.toLowerCase());
+          domainRegexes.push(new RegExp(domainRegex, 'i'));
+        }
+      }
+      if (domainRegexes.length > 0) {
+        finalFilter['domains.name'] = { $all: domainRegexes };
+      }
     }
 
     // Filter by company
     if (dto.company) {
-      finalFilter['companyId'] = {
-        $eq: new Types.ObjectId(dto.company),
-      };
+      const companiesRegexes = [];
+      for (const company of dto.company) {
+        if (company) {
+          let companyRegex = escapeStringRegexp(company.toLowerCase());
+          companiesRegexes.push(new RegExp(companyRegex, 'i'));
+        }
+      }
+      if (companiesRegexes.length > 0) {
+        finalFilter['companyName'] = { $all: companiesRegexes };
+      }
     }
 
     // Filter by tag

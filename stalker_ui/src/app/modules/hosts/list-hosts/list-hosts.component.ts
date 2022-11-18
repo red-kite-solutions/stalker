@@ -98,7 +98,7 @@ export class ListHostsComponent {
     map((screen: string) => {
       if (screen === 'xs') return ['select', 'domain', 'company'];
       if (screen === 'sm') return ['select', 'domain', 'company', 'tags'];
-      if (screen === 'md') return ['select', 'domain', 'hosts', 'company', 'tags'];
+      if (screen === 'md') return ['select', 'domain', 'company', 'tags'];
       return this.displayedColumns;
     })
   );

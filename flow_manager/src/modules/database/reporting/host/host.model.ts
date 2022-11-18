@@ -13,6 +13,9 @@ export class Host {
   public companyId: Types.ObjectId;
 
   @Prop()
+  public companyName: string;
+
+  @Prop()
   public domains?: DomainSummary[];
 
   @Prop()

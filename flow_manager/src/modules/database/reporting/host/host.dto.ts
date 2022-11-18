@@ -32,13 +32,13 @@ export class HostsPagingDto {
   @IsOptional()
   tags: Array<string>;
 
-  @IsMongoId()
+  @IsArray()
   @IsOptional()
-  company: string;
+  company: Array<string>;
 
-  @IsMongoId()
+  @IsArray()
   @IsOptional()
-  domain: string;
+  domain: Array<string>;
 }
 
 export class GetHostCountDto {
