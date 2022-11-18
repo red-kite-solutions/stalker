@@ -123,7 +123,7 @@ describe('Host Controller (e2e)', () => {
       const filtered = await getReq(
         app,
         testData.user.token,
-        `/hosts?page=0&pageSize=2&company=${company2._id}`,
+        `/hosts?page=0&pageSize=2&company=${company2.name}`,
       );
 
       expect(filtered.body.totalRecords).toBe(4);
