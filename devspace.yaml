@@ -25,10 +25,11 @@ pipelines:
 
       # Start mongo and kafka
       start_dev mongo kafka
+
       # Wait for kafka and mongo to be ready
-      wait_pod --label-selector app.kubernetes.io/component=mongo
-      wait_pod --label-selector app.kubernetes.io/component=kafka
-      wait_pod --label-selector app.kubernetes.io/component=zookeeper
+      wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 2
+      wait_pod --label-selector app.kubernetes.io/component=kafka --timeout 2
+      wait_pod --label-selector app.kubernetes.io/component=zookeeper --timeout 2
 
       create_deployments ui flow-manager orchestrator-service-account orchestrator --sequential
 
@@ -45,9 +46,9 @@ pipelines:
       create_deployments mongo kafka orchestrator-service-account orchestrator flow-manager-e2e --sequential
 
       # Wait for kafka and mongo to be ready
-      wait_pod --label-selector app.kubernetes.io/component=mongo
-      wait_pod --label-selector app.kubernetes.io/component=kafka
-      wait_pod --label-selector app.kubernetes.io/component=zookeeper
+      wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 2
+      wait_pod --label-selector app.kubernetes.io/component=kafka --timeout 2
+      wait_pod --label-selector app.kubernetes.io/component=zookeeper --timeout 2
 
       # Run tests
 
@@ -285,7 +286,7 @@ hooks:
       terminatedWithCode: 0
     container:
       labelSelector:
-        app.kubernetes.io/component: mongo
+        app.kubernetes.io/component: mongodb
       containerName: mongo-container
 
   - events:
