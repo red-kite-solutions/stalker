@@ -47,6 +47,9 @@ jobs:
       - name: Run tests
         run: devspace run-pipeline flow-manager-e2e -n stalker
 
+      - name: Diagnosis
+        run: kubectl -n stalker get all -o yaml
+
       - name: Update the results in the pull request
         uses: tanmen/jest-reporter@v1
         if: always()
