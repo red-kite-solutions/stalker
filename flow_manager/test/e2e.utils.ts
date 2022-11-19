@@ -1,5 +1,7 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import jwt_decode from 'jwt-decode';
+import { MongoClient } from 'mongodb';
+import { MongoMemoryServer } from 'mongodb-memory-server';
 import request from 'supertest';
 import { Role } from '../src/modules/auth/constants';
 import { CompanyDocument } from '../src/modules/database/reporting/company.model';
@@ -259,11 +261,21 @@ export async function createDomain(
   return r.body;
 }
 
-export async function cleanup(app, testData: TestingData, testPrefix: string) {
-  const allCompanies = await getReq(app, testData.user.token, '/company');
-  for (const company of allCompanies.body) {
-    if (!(company.name as string).startsWith(testPrefix)) continue;
-
-    await deleteReq(app, testData.user.token, `/company/${company._id}`);
+export async function cleanup() {
+  if (process.env.TESTS) {
+    console.error('Cannot wipe data if not in TEST mode.');
+    return;
   }
+
+  const mongo: MongoMemoryServer = globalThis.__IN_MEMORY_DB__;
+  const uri = mongo.getUri();
+  const client = new MongoClient(uri);
+  const db = client.db();
+  const collections = db.listCollections();
+  for (const collection of await collections.toArray()) {
+    console.log(`Dropping ${collection.name}`);
+    db.dropCollection(collection.name);
+  }
+
+  await client.close();
 }

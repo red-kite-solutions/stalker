@@ -32,8 +32,11 @@ describe('Host Controller (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     await app.init();
+  });
+
+  beforeEach(async () => {
     testData = await initTesting(app);
-    await cleanup(app, testData, testPrefix);
+    await cleanup();
   });
 
   afterAll(async () => {

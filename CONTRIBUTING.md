@@ -11,13 +11,13 @@
 If it is the first time that you start minikube on a computer, give it additional memory and cpus to avoid inconsistant behavior. It will create the minikube container, and this container will be used in the future. If you already have minikube running, you might want to `minikube delete`.
 
 ```
-minikube start --driver=docker --cpus=4 --memory=8192
+minikube start --driver docker --cpus 4 --memory 8192
 ```
 
 Otherwise, if the minikube container was created before, you can just launch it with :
 
 ```
-minikube start --driver=docker
+minikube start
 ```
 
 <details>
