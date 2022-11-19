@@ -26,7 +26,7 @@ pipelines:
       # Start mongo and kafka
       start_dev mongo kafka
       # Wait for kafka and mongo to be ready
-      wait_pod --label-selector app.kubernetes.io/component=mongodb
+      wait_pod --label-selector app.kubernetes.io/component=mongo
       wait_pod --label-selector app.kubernetes.io/component=kafka
       wait_pod --label-selector app.kubernetes.io/component=zookeeper
 
@@ -45,7 +45,7 @@ pipelines:
       create_deployments mongo kafka orchestrator-service-account orchestrator flow-manager-e2e --sequential
 
       # Wait for kafka and mongo to be ready
-      wait_pod --label-selector app.kubernetes.io/component=mongodb
+      wait_pod --label-selector app.kubernetes.io/component=mongo
       wait_pod --label-selector app.kubernetes.io/component=kafka
       wait_pod --label-selector app.kubernetes.io/component=zookeeper
 
