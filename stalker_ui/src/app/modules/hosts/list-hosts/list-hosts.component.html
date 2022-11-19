@@ -10,7 +10,7 @@
       [length]="count"
       [columns]="displayColumns$ | async"
       [filterOptions]="filterOptions"
-      [routerLinkPrefix]="'/domains/'"
+      [routerLinkPrefix]="'/hosts/'"
       (filtersChange)="filtersChange($event)"
     >
       <!-- Ip Column -->
@@ -25,7 +25,9 @@
 
       <!-- Domain Column -->
       <ng-container matColumnDef="domains">
-        <th mat-header-cell *matHeaderCellDef i18n="Domain|A domain name">Domain</th>
+        <th mat-header-cell *matHeaderCellDef i18n="Domain|A domain name">
+          Domain
+        </th>
         <td mat-cell *matCellDef="let element">
           <ng-container *ngFor="let domain of element.domains; let last = last"
             >{{ domain.name }}{{ !last ? ', ' : '' }}</ng-container
@@ -35,17 +37,29 @@
 
       <!-- Company Column -->
       <ng-container matColumnDef="company">
-        <th mat-header-cell *matHeaderCellDef i18n="Company|A business">Company</th>
-        <td mat-cell *matCellDef="let element">{{ (companies | whereId: [element.companyId])?.name }}</td>
+        <th mat-header-cell *matHeaderCellDef i18n="Company|A business">
+          Company
+        </th>
+        <td mat-cell *matCellDef="let element">
+          {{ (companies | whereId: [element.companyId])?.name }}
+        </td>
       </ng-container>
 
       <!-- Tags Column -->
       <ng-container matColumnDef="tags">
-        <th mat-header-cell *matHeaderCellDef i18n="Tags|Multiple tags describing somthing">Tags</th>
+        <th
+          mat-header-cell
+          *matHeaderCellDef
+          i18n="Tags|Multiple tags describing somthing"
+        >
+          Tags
+        </th>
         <td mat-cell *matCellDef="let element">
-          <app-pill-tag *ngFor="let tag of element.tags" [color]="(tags | whereId: [tag])?.color">{{
-            (tags | whereId: [tag])?.text
-          }}</app-pill-tag>
+          <app-pill-tag
+            *ngFor="let tag of element.tags"
+            [color]="(tags | whereId: [tag])?.color"
+            >{{ (tags | whereId: [tag])?.text }}</app-pill-tag
+          >
         </td>
       </ng-container>
 
