@@ -48,6 +48,7 @@ jobs:
         run: devspace run-pipeline flow-manager-e2e -n stalker
 
       - name: Diagnosis
+        if: always()
         run: kubectl -n stalker get all -o yaml
 
       - name: Update the results in the pull request
