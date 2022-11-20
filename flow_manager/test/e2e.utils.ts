@@ -266,7 +266,6 @@ export async function cleanup() {
     return;
   }
 
-  console.log(process.env.MONGO_ADDRESS);
   const uri = process.env.MONGO_ADDRESS;
   const client = new MongoClient(uri);
   await client.connect();
