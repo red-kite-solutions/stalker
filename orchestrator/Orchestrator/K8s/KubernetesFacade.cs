@@ -32,7 +32,6 @@ public class KubernetesFacade : IKubernetesFacade
         var jobNameParts = new[] { jobPrefix, jobTemplate.Id, randomId };
         var jobName = string.Join("-", jobNameParts.Where(x => !string.IsNullOrEmpty(x)));
 
-
         var kubernetesJob = new V1Job("batch/v1", "Job",
             new V1ObjectMeta
             {
@@ -51,7 +50,8 @@ public class KubernetesFacade : IKubernetesFacade
                                     Name = "jobtemplate",
                                     Image = jobTemplate.Image,
                                     Command = jobTemplate.Command,
-                                    Env = jobTemplate.EnvironmentVariable.Select(x => new V1EnvVar(x.Key, x.Value)).ToList()
+                                    Env = jobTemplate.EnvironmentVariable.Select(x => new V1EnvVar(x.Key, x.Value)).ToList(),
+                                    Resources = jobTemplate.Ressources
                                 }
                         },
                         RestartPolicy = "Never",

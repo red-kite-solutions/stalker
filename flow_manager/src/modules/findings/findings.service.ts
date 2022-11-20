@@ -3,8 +3,15 @@ import { CommandBus } from '@nestjs/cqrs';
 import { JobsService } from '../database/jobs/jobs.service';
 import { HostnameCommand } from './commands/Findings/hostname.command';
 import { HostnameIpCommand } from './commands/JobFindings/hostname-ip.command';
+import { TcpPortsCommand } from './commands/JobFindings/tcp-ports.command';
 
-export type Finding = HostnameIpFinding | HostnameFinding;
+export type Finding = HostnameIpFinding | HostnameFinding | TcpPortsFinding;
+
+export interface TcpPortsFinding {
+  type: 'TcpPortsFinding';
+  ip: string;
+  ports: number[];
+}
 
 export interface HostnameFinding {
   type: 'HostnameFinding';
@@ -60,6 +67,12 @@ export class FindingsService {
       case 'HostnameFinding':
         this.commandBus.execute(
           new HostnameCommand(finding.domainName, finding.companyId),
+        );
+        break;
+
+      case 'TcpPortsFinding':
+        this.commandBus.execute(
+          new TcpPortsCommand(jobId, finding.ip, finding.ports),
         );
         break;
 

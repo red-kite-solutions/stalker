@@ -1,4 +1,6 @@
-﻿namespace Orchestrator.K8s;
+﻿using k8s.Models;
+
+namespace Orchestrator.K8s;
 
 public class KubernetesJobTemplate
 {
@@ -28,4 +30,11 @@ public class KubernetesJobTemplate
     /// Gets the namespace the job should be created in.
     /// </summary>
     public string Namespace { get; init; } = "default";
+
+
+    /// <summary>
+    /// Specifies the ressource requirements for the container.
+    /// Additional info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+    /// </summary>
+    public virtual V1ResourceRequirements Ressources { get; init; }
 }

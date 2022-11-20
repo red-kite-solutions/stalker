@@ -7,7 +7,7 @@ namespace Orchestrator.Jobs
         private ILogger<JobTemplateProvider> Logger { get; }
         private string PythonTemplatesPath { get; }
         private Dictionary<string,string> CodeDictionary { get; }
-        private string[] PythonJobs = new[] { "DomainNameResolvingJobTemplate" };
+        private string[] PythonJobs = new[] { "DomainNameResolvingJobTemplate", "TcpPortScanningJobTemplate" };
 
         public JobTemplateProvider(ILogger<JobTemplateProvider> logger, string pythonTemplatesPath)
         {

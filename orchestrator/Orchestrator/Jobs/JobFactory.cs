@@ -1,7 +1,9 @@
 ﻿using Orchestrator.Events;
+using Orchestrator.Jobs.Commands;
 using Orchestrator.K8s;
 using Orchestrator.Queue;
 using Orchestrator.Queue.JobsConsumer;
+using Orchestrator.Queue.JobsConsumer.JobRequests;
 using System.Text.Json;
 
 namespace Orchestrator.Jobs;
@@ -36,7 +38,8 @@ public class JobFactory : IJobFactory
         return request switch
         {
             DomainNameResolvingJobRequest domainResolving => new DomainNameResolvingCommand(domainResolving, Kubernetes, EventsProducer, Parser, LoggerFactory.CreateLogger<DomainNameResolvingCommand>(), JobProvider),
-            _ => null,
-        } ?? throw new InvalidOperationException();
+            TcpPortScanningJobRequest tcpPortScanning => new TcpPortScanningCommand(tcpPortScanning, Kubernetes, EventsProducer, Parser, LoggerFactory.CreateLogger<TcpPortScanningCommand>(), JobProvider),
+            _ => throw new InvalidOperationException(),
+        };
     }
 }

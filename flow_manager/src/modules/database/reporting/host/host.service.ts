@@ -8,6 +8,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { getTopTcpPorts } from 'src/utils/ports.utils';
+import { HttpNotFoundException } from '../../../../exceptions/http.exceptions';
 import { ConfigService } from '../../admin/config/config.service';
 import { DomainsService } from '../domain/domain.service';
 import { DomainSummary } from '../domain/domain.summary';
@@ -175,5 +176,24 @@ export class HostService {
       { _id: { $eq: new Types.ObjectId(hostId) } },
       { $pull: { domains: { id: new Types.ObjectId(domainId) } } },
     );
+  }
+
+  public async addPortsByIp(ip: string, ports: number[]) {
+    const host = await this.hostModel.findOne({ ip: { $eq: ip } });
+    if (!host) throw new HttpNotFoundException();
+
+    await this.hostModel.updateOne(
+      { ip: { $eq: ip } },
+      { $addToSet: { ports: ports } },
+    );
+    const newPorts = host.ports
+      ? ports.filter(
+          (a) =>
+            !host.ports.some((b) => {
+              return a === b;
+            }),
+        )
+      : ports;
+    return newPorts;
   }
 }

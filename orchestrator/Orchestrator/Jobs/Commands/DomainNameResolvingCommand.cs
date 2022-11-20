@@ -2,9 +2,9 @@
 using Orchestrator.Jobs.JobTemplates;
 using Orchestrator.K8s;
 using Orchestrator.Queue;
-using Orchestrator.Queue.JobsConsumer;
+using Orchestrator.Queue.JobsConsumer.JobRequests;
 
-namespace Orchestrator.Jobs;
+namespace Orchestrator.Jobs.Commands;
 
 public class DomainNameResolvingCommand : KubernetesCommand<DomainNameResolvingJobRequest>
 {

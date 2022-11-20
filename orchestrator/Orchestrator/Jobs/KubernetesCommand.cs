@@ -41,11 +41,31 @@ public abstract class KubernetesCommand<T> : JobCommand where T : JobRequest
             var evt = Parser.Parse(line);
             if (evt == null) continue;
 
-            await EventsProducer.Produce(new JobEventMessage
+            var evtType = evt.GetType().UnderlyingSystemType;
+
+            if (evtType == typeof(LogEventModel))
             {
-                JobId = Request.JobId,
-                FindingsJson = evt.FindingsJson,
-            });
+                var logEvt = (LogEventModel)evt;
+                switch (logEvt.LogType)
+                {
+                    case LogType.Debug:
+                        Logger.LogDebug(logEvt.data);
+                        continue;
+                    default:
+                        continue;
+                }
+            }
+            
+            if(evtType == typeof(FindingsEventModel))
+            {
+                await EventsProducer.Produce(new JobEventMessage
+                {
+                    JobId = Request.JobId,
+                    FindingsJson = evt.data,
+                });
+            }
+
+            
         }
 
         await Kubernetes.DeleteJob(job.Name, job.Namespace);

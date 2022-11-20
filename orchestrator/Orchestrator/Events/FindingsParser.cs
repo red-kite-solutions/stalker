@@ -2,23 +2,49 @@
 
 public class FindingsParser : IFindingsParser
 {
-    private readonly string EventPrefix = "@event ";
+    private const string FindingEventPrefix = "@finding";
+    private const string LogDebugEventPrefix = "@logdebug";
 
-    public string? GetEventJson(string? evtString)
+    public string? GetEventData(string? evtString, string? prefix = null)
     {
         if (evtString == null) return null;
-        if (!evtString.StartsWith(EventPrefix)) return null;
+        if (prefix == null)
+        {
+            prefix = GetEventPrefix(evtString);
+            if (prefix == null) return null;
+        }
 
-        return evtString.Substring(EventPrefix.Length);
+        return evtString.Substring(prefix.Length + 1);
+    }
+
+    public string? GetEventPrefix(string evtString)
+    {
+        if (evtString == null) return null;
+        if (!evtString.StartsWith("@")) return null;
+
+        var spaceIndex = evtString.IndexOf(" ");
+        if (spaceIndex == -1) return null;
+
+        return evtString[..spaceIndex];
     }
 
     // TODO: It would probably be ideal if the parser could take in a stream instead of a string
     public EventModel? Parse(string? evtString)
     {
-        var json = GetEventJson(evtString);
-        if (json == null) return null;
+        if (evtString == null) return null;
 
-        return new EventModel { FindingsJson = json };
+        var prefix = GetEventPrefix(evtString);
+        if (prefix == null) return null;
+
+        var data = GetEventData(evtString, prefix);
+        if (data == null) return null;
+
+        return prefix switch
+        {
+            FindingEventPrefix => new FindingsEventModel { data = data },
+            LogDebugEventPrefix => new LogEventModel { data = data, LogType = LogType.Debug },
+            _ => null
+        };
     }
 
 }

@@ -6,11 +6,11 @@ import { CompanyDocument } from '../../../database/reporting/company.model';
 import { CompanyService } from '../../../database/reporting/company.service';
 import { HostService } from '../../../database/reporting/host/host.service';
 import { JobFindingHandlerBase } from '../job-findings-handler-base';
-import { HostnameIpCommand } from './hostname-ip.command';
+import { TcpPortsCommand } from './tcp-ports.command';
 
-@CommandHandler(HostnameIpCommand)
-export class HostnameIpHandler extends JobFindingHandlerBase<HostnameIpCommand> {
-  protected logger: Logger = new Logger('HostnameIpHandler');
+@CommandHandler(TcpPortsCommand)
+export class TcpPortsHandler extends JobFindingHandlerBase<TcpPortsCommand> {
+  protected logger: Logger = new Logger('TcpPortsHandler');
 
   constructor(
     private hostService: HostService,
@@ -23,21 +23,8 @@ export class HostnameIpHandler extends JobFindingHandlerBase<HostnameIpCommand> 
   protected async executeCore(
     job: Job,
     company: CompanyDocument,
-    command: HostnameIpCommand,
+    command: TcpPortsCommand,
   ) {
-    const newHosts = await this.hostService.addHostsWithDomain(
-      command.ips,
-      command.domainName,
-      job.companyId,
-      company.name,
-    );
-
-    for (const host of newHosts) {
-      const job = this.jobService.createSimpleTcpScan1000PortsJob(
-        company._id,
-        host.ip,
-      );
-      this.jobService.publish(job);
-    }
+    await this.hostService.addPortsByIp(command.ip, command.ports);
   }
 }

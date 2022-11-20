@@ -7,6 +7,7 @@ public abstract class PythonJobTemplate : KubernetesJobTemplate
     public override string[] Command => new[] { "python", "-c", PythonCommand };
 
     public override string Image => "python:3.10.4-slim-bullseye";
+    //public override string Image => "python:3.8.15-bullseye";
 
     protected virtual string PythonCommand { get; set; }
 
@@ -20,7 +21,10 @@ public abstract class PythonJobTemplate : KubernetesJobTemplate
     {
         Id = Id;
         Namespace = @namespace;
-        PythonCommand = jobProvider.GetJobTemplateCode(this.GetType().UnderlyingSystemType);
+        var command = jobProvider.GetJobTemplateCode(this.GetType().UnderlyingSystemType);
+        var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(command);
+        string b64command = System.Convert.ToBase64String(plainTextBytes);
+        PythonCommand = "exec(__import__('base64').b64decode('" + b64command + "'))";
     }
 
     public PythonJobTemplate(string? id, string @namespace)

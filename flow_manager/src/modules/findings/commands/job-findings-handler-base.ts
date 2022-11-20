@@ -2,7 +2,7 @@ import { Logger } from '@nestjs/common';
 import { ICommandHandler } from '@nestjs/cqrs';
 import { JobsService } from '../../database/jobs/jobs.service';
 import { Job } from '../../database/jobs/models/jobs.model';
-import { Company } from '../../database/reporting/company.model';
+import { CompanyDocument } from '../../database/reporting/company.model';
 import { CompanyService } from '../../database/reporting/company.service';
 import { JobFindingCommand } from './findings.command';
 
@@ -12,7 +12,7 @@ export abstract class JobFindingHandlerBase<T extends JobFindingCommand>
   protected abstract logger: Logger;
 
   constructor(
-    private jobService: JobsService,
+    protected jobService: JobsService,
     private companyService: CompanyService,
   ) {}
 
@@ -38,7 +38,7 @@ export abstract class JobFindingHandlerBase<T extends JobFindingCommand>
 
   protected abstract executeCore(
     job: Job,
-    company: Company,
+    company: CompanyDocument,
     command: T,
   ): Promise<unknown | void>;
 }
