@@ -1,7 +1,6 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import jwt_decode from 'jwt-decode';
 import { MongoClient } from 'mongodb';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import request from 'supertest';
 import { Role } from '../src/modules/auth/constants';
 import { CompanyDocument } from '../src/modules/database/reporting/company.model';
@@ -262,20 +261,34 @@ export async function createDomain(
 }
 
 export async function cleanup() {
-  if (process.env.TESTS) {
+  if (!process.env.TESTS) {
     console.error('Cannot wipe data if not in TEST mode.');
     return;
   }
 
-  const mongo: MongoMemoryServer = globalThis.__IN_MEMORY_DB__;
-  const uri = mongo.getUri();
+  console.log(process.env.MONGO_ADDRESS);
+  const uri = process.env.MONGO_ADDRESS;
   const client = new MongoClient(uri);
-  const db = client.db();
-  const collections = db.listCollections();
-  for (const collection of await collections.toArray()) {
-    console.log(`Dropping ${collection.name}`);
-    db.dropCollection(collection.name);
-  }
+  await client.connect();
+  const db = client.db(process.env.MONGO_DATABASE_NAME);
+  const collectionsToDelete = [
+    'jobs',
+    'domains',
+    'hosts',
+    'companies',
+    'tags',
+    'reports',
+  ];
+
+  const promises = collectionsToDelete.map(async (c) => {
+    try {
+      await db.dropCollection(c);
+    } catch (e) {
+      // Do nothing, the collection probably does not exist.
+    }
+  });
+
+  await Promise.all(promises);
 
   await client.close();
 }
