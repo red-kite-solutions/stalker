@@ -93,7 +93,7 @@ export class ViewDomainComponent implements OnDestroy {
         for (const h of domain.hosts) {
           this.hostPortsSubs.push(
             this.hostsService
-              .getTopPorts(h.id, 10)
+              .getPorts(h.id, 0, 10, { sortType: 'popularity' })
               .pipe(
                 map((ports: number[]) => {
                   for (const summary of this.dataSource.data) {

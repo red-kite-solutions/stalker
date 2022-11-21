@@ -29,3 +29,9 @@ export class HttpBadRequestException extends HttpException {
     super('Error in request parameters', HttpStatus.BAD_REQUEST);
   }
 }
+
+export class HttpNotImplementedException extends HttpException {
+  constructor() {
+    super('Feature not yet implemented', HttpStatus.NOT_IMPLEMENTED);
+  }
+}
