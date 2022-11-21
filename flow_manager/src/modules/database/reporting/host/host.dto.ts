@@ -21,7 +21,7 @@ export class PortsDto {
   @IsInt()
   @Min(0)
   @Type(() => Number)
-  page: number = 1;
+  page: number = 0;
 
   @IsInt()
   @Min(1)
