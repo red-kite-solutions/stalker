@@ -8,12 +8,17 @@ import { Component, Input, OnChanges } from '@angular/core';
 export class PillTagComponent implements OnChanges {
   @Input() color = '#991822';
 
+  textColor = this.color;
   bgColor = this.colorToBackgroundColor(this.color);
   border = this.colorToBorderColor(this.color);
 
   ngOnChanges(): void {
-    this.bgColor = this.colorToBackgroundColor(this.color);
-    this.border = this.colorToBorderColor(this.color);
+    this.color = this.color.trim();
+    if (/^\#?[0-9a-fA-F]{6}$/.test(this.color)) {
+      this.textColor = this.color.startsWith('#') ? this.color : '#' + this.color;
+      this.bgColor = this.colorToBackgroundColor(this.color);
+      this.border = this.colorToBorderColor(this.color);
+    }
   }
 
   private colorToBackgroundColor(c: string) {

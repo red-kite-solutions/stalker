@@ -1,0 +1,39 @@
+.table-container {
+  margin: 0 -16px -16px -16px;
+}
+
+table {
+  width: 100%;
+}
+
+.rows:hover {
+  background-color: rgb(243, 243, 243);
+}
+
+.check-box-cell {
+  cursor: default;
+}
+
+.left-action-button {
+  margin: 10px 20px 20px 0px;
+}
+
+.right-action-button {
+  margin: 10px 0px 20px 10px;
+}
+
+.button-container {
+  width: 100%;
+}
+
+.left-form-field {
+  margin-right: 10px;
+}
+
+.right-form-field {
+  margin-left: 10px;
+}
+
+.nodata {
+  text-align: center;
+}

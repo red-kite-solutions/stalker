@@ -1,0 +1,113 @@
+<div fxLayout="row" fxLayoutAlign="center">
+  <mat-card fxFlex.gt-sm="90" class="container" fxFlex.lt-md="100">
+    <h1 i18n="Tags|Tags or labels">Tags</h1>
+    <button mat-raised-button color="primary" class="left-action-button" (click)="openNewTagDialog(addTagDialog)">
+      <mat-icon class="material-icons-outlined"> new_label </mat-icon>
+      <label i18n="New tag|Button to create a new tag">New Tag</label>
+    </button>
+    <button mat-raised-button color="warn" class="left-action-button" (click)="deleteTags()">
+      <mat-icon class="material-icons-outlined"> delete_outline </mat-icon>
+      <label i18n="Delete|Delete an item">Delete</label>
+    </button>
+
+    <div class="table-container">
+      <table mat-table [dataSource]="dataSource" *ngIf="(dataSource$ | async) || true">
+        <!-- Checkbox Column -->
+        <ng-container matColumnDef="select">
+          <th mat-header-cell *matHeaderCellDef>
+            <mat-checkbox
+              (change)="$event ? masterToggle() : null"
+              [checked]="selection.hasValue() && isAllSelected()"
+              [indeterminate]="selection.hasValue() && !isAllSelected()"
+              [aria-label]="checkboxLabel()"
+            >
+            </mat-checkbox>
+          </th>
+          <td mat-cell *matCellDef="let row" (click)="$event.stopPropagation()" class="check-box-cell">
+            <mat-checkbox
+              (click)="$event.stopPropagation()"
+              (change)="$event ? selection.toggle(row) : null"
+              [checked]="selection.isSelected(row)"
+              [aria-label]="checkboxLabel(row)"
+            >
+            </mat-checkbox>
+          </td>
+        </ng-container>
+
+        <!-- Text Column -->
+        <ng-container matColumnDef="text">
+          <th mat-header-cell *matHeaderCellDef i18n="Text|Text of an item">Text</th>
+          <td mat-cell *matCellDef="let element">{{ element.text }}</td>
+        </ng-container>
+
+        <!-- Color Column -->
+        <ng-container matColumnDef="color">
+          <th mat-header-cell *matHeaderCellDef i18n="Color|Color of an item">Color</th>
+          <td mat-cell *matCellDef="let element">{{ element.color }}</td>
+        </ng-container>
+
+        <!-- Tag Column -->
+        <ng-container matColumnDef="tag">
+          <th mat-header-cell *matHeaderCellDef i18n="Tag|A tag, or label, of an item">Tag</th>
+          <td mat-cell *matCellDef="let element">
+            <app-pill-tag [color]="element.color">{{ element.text }}</app-pill-tag>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="['select', 'text', 'color', 'tag']"></tr>
+        <tr mat-row *matRowDef="let row; columns: ['select', 'text', 'color', 'tag']" class="rows"></tr>
+
+        <tr class="mat-row nodata" *matNoDataRow>
+          <td class="mat-cell" colspan="100%" i18n="No tags found|No tags were found for this item">No tags found</td>
+        </tr>
+      </table>
+
+      <mat-paginator
+        [length]="100"
+        [pageSize]="10"
+        [pageSizeOptions]="[5, 10, 25, 100]"
+        showFirstLastButtons
+        aria-label="Select page"
+      >
+      </mat-paginator>
+    </div>
+  </mat-card>
+</div>
+
+<!-- Add tag Dialog Template -->
+<ng-template #addTagDialog>
+  <div class="create-tag-color-picker-class" mat-dialog-title fxLayout="row" fxLayoutAlign="start">
+    <h1 i18n="Create Tag|Create a new tag or label" fxFlex>Create Tag</h1>
+    <app-pill-tag [color]="newTagColor.hex ? '#' + newTagColor.hex : '#' + placeholderColor.hex">{{
+      newTagText ? newTagText : 'Example'
+    }}</app-pill-tag>
+  </div>
+
+  <mat-dialog-content>
+    <div fxLayout="row">
+      <mat-form-field appearance="outline" class="left-form-field" fxFlex>
+        <mat-label i18n="Text|Text of an item">Text</mat-label>
+        <input matInput name="text" [(ngModel)]="newTagText" />
+      </mat-form-field>
+
+      <!-- This element is the color picker. It is altered in the style.scss file
+      to remove the alpha option of the rgba  values -->
+      <mat-form-field appearance="outline" class="right-form-field" fxFlex>
+        <input
+          matInput
+          [ngxMatColorPicker]="picker"
+          [ngModel]="newTagColor"
+          (ngModelChange)="newTagColor = $event ? $event : newTagColor"
+        />
+        <ngx-mat-color-toggle matSuffix [for]="picker"></ngx-mat-color-toggle>
+        <ngx-mat-color-picker #picker [touchUi]="false" [color]="color"></ngx-mat-color-picker>
+      </mat-form-field>
+    </div>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button mat-raised-button color="primary" (click)="createTag()" i18n="Create Tag|Create a new tag or label">
+      Create Tag
+    </button>
+    <button mat-raised-button color="warn" matDialogClose i18n="Cancel|Cancel an action">Cancel</button>
+  </mat-dialog-actions>
+</ng-template>
