@@ -1,5 +1,5 @@
 import { Component, OnDestroy } from '@angular/core';
-import { AbstractControl, FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
+import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormControl, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -137,7 +137,7 @@ export class EditCompaniesComponent implements OnDestroy {
           })
         )
         .subscribe((subnetData) => {
-          const fa = this.form.controls['ipRanges'] as FormArray;
+          const fa = this.form.controls['ipRanges'] as UntypedFormArray;
           fa.controls[subnetData.line].get('minIp')?.setValue(subnetData.subnet.minIp);
           fa.controls[subnetData.line].get('maxIp')?.setValue(subnetData.subnet.maxIp);
           fa.controls[subnetData.line].get('ipCount')?.setValue(subnetData.subnet.ipCount);
@@ -168,7 +168,7 @@ export class EditCompaniesComponent implements OnDestroy {
           ranges.push(new Ipv4Subnet(rangeSplit[0], '/' + rangeSplit[1]));
         }
 
-        const control = this.form.get('ipRanges') as FormArray;
+        const control = this.form.get('ipRanges') as UntypedFormArray;
 
         const subnetForm$ = this.generateSubnetSubscription(control.controls[0], 0);
         if (subnetForm$) {
@@ -202,7 +202,7 @@ export class EditCompaniesComponent implements OnDestroy {
     );
 
   constructor(
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private route: ActivatedRoute,
     private toastr: ToastrService,
     private dialog: MatDialog,
@@ -217,7 +217,7 @@ export class EditCompaniesComponent implements OnDestroy {
   }
 
   public addSubnet() {
-    const ipRanges = this.form.controls['ipRanges'] as FormArray;
+    const ipRanges = this.form.controls['ipRanges'] as UntypedFormArray;
     const newSubnetForm = ipRanges.controls[0];
     if (!newSubnetForm.valid) {
       return;
@@ -237,21 +237,21 @@ export class EditCompaniesComponent implements OnDestroy {
     newSubnetForm.reset();
   }
 
-  ipValidator(ip: FormControl) {
+  ipValidator(ip: UntypedFormControl) {
     return Ipv4Subnet.isValidIp(ip.value) ? null : { error: 'Ip is not valid' };
   }
 
-  shortMaskValidator(shortMask: FormControl) {
+  shortMaskValidator(shortMask: UntypedFormControl) {
     return Ipv4Subnet.isValidShortMask(shortMask.value) ? null : { error: 'Mask is not valid' };
   }
 
-  longMaskValidator(longMask: FormControl) {
+  longMaskValidator(longMask: UntypedFormControl) {
     return Ipv4Subnet.isValidLongMask(longMask.value) ? null : { error: 'Mask is not valid' };
   }
 
   deleteSubnet($event: Event, line: number) {
     $event.stopPropagation();
-    const fa = this.form.controls['ipRanges'] as FormArray;
+    const fa = this.form.controls['ipRanges'] as UntypedFormArray;
     const subnet = fa.controls[line].get('ip')?.value + fa.controls[line].get('shortMask')?.value;
     const list = [subnet];
 
@@ -305,7 +305,7 @@ export class EditCompaniesComponent implements OnDestroy {
     this.editLoading = true;
     const companyUpdates: Partial<Company> = {};
     let formValid = this.form.controls['name'].valid;
-    const fa = this.form.controls['ipRanges'] as FormArray;
+    const fa = this.form.controls['ipRanges'] as UntypedFormArray;
     companyUpdates.ipRanges = [];
     for (let i = 1; i < fa.length; ++i) {
       formValid = formValid && fa.controls[i].valid;

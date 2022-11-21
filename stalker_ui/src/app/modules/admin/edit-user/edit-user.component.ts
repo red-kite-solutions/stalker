@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormControl, ValidationErrors, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormControl, ValidationErrors, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -51,7 +51,7 @@ export class EditUserComponent {
     newPassword: [
       '',
       [
-        (control: FormControl): ValidationErrors | null => {
+        (control: UntypedFormControl): ValidationErrors | null => {
           if (control.value == '') {
             return null;
           }
@@ -67,7 +67,7 @@ export class EditUserComponent {
   hideUserPassword = true;
 
   constructor(
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     public dialog: MatDialog,
     private route: ActivatedRoute,
     private usersService: UsersService,

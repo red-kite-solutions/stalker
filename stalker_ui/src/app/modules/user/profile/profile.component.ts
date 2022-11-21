@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormControl, ValidationErrors, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormControl, ValidationErrors, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { map } from 'rxjs';
 import { AuthService } from 'src/app/api/auth/auth.service';
@@ -16,7 +16,7 @@ export class ProfileComponent {
   profileEditValid = true;
   invalidPassword = false;
 
-  private validatePasswordEquals: Function = (control: FormControl): ValidationErrors | null => {
+  private validatePasswordEquals: Function = (control: UntypedFormControl): ValidationErrors | null => {
     if (control.root.get('newPassword')?.value === control.root.get('passwordConfirm')?.value) {
       control.root.get('passwordConfirm')?.setErrors(null);
       return null;
@@ -87,7 +87,7 @@ export class ProfileComponent {
   );
 
   constructor(
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private usersService: UsersService,
     private toastr: ToastrService,
     private authService: AuthService

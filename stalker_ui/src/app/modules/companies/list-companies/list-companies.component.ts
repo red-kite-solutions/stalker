@@ -1,6 +1,6 @@
 import { Component, OnDestroy } from '@angular/core';
 import { MediaChange, MediaObserver } from '@angular/flex-layout';
-import { FormControl, Validators } from '@angular/forms';
+import { UntypedFormControl, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { distinctUntilChanged, filter, map } from 'rxjs';
 import { CompaniesService } from 'src/app/api/companies/companies.service';
@@ -66,7 +66,7 @@ export class ListCompaniesComponent implements OnDestroy {
     })
   );
 
-  public companyNameControl = new FormControl('', [Validators.required]);
+  public companyNameControl = new UntypedFormControl('', [Validators.required]);
 
   public fileSelected = false;
   public previewSource: string | undefined;
