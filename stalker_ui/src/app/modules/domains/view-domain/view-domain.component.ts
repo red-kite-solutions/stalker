@@ -77,19 +77,6 @@ export class ViewDomainComponent implements OnDestroy {
         this.dataSource.data = domain.hosts;
         this.dataSource.paginator = this.paginator;
 
-        if (this.paginator) {
-          this.paginator._intl.itemsPerPageLabel = $localize`:Items per page|Paginator items per page label:Items per page`;
-          this.paginator._intl.nextPageLabel = $localize`:Next page|Paginator next page label:Next page`;
-          this.paginator._intl.lastPageLabel = $localize`:Last page|Paginator last page label:Last page`;
-          this.paginator._intl.previousPageLabel = $localize`:Previous page|Paginator previous page label:Previous page`;
-          this.paginator._intl.firstPageLabel = $localize`:First page|Paginator first page label:First page`;
-          this.paginator._intl.getRangeLabel = (page: number, pageSize: number, length: number) => {
-            const low = page * pageSize + 1;
-            const high = page * pageSize + pageSize <= length ? page * pageSize + pageSize : length;
-            return $localize`:Paginator range|Item numbers and range of the paginator:${low} – ${high} of ${length}`;
-          };
-        }
-
         for (const h of domain.hosts) {
           this.hostPortsSubs.push(
             this.hostsService
