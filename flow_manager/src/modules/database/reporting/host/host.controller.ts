@@ -1,10 +1,18 @@
-import { Controller, Delete, Get, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
+import { HttpNotImplementedException } from 'src/exceptions/http.exceptions';
 import { Role } from 'src/modules/auth/constants';
 import { Roles } from 'src/modules/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/modules/auth/guards/role.guard';
 import { MongoIdDto } from 'src/types/dto/MongoIdDto';
-import { TopPortsDto } from './host.dto';
+import { PortsDto } from './host.dto';
 import { HostDocument } from './host.model';
 import { HostService } from './host.service';
 
@@ -14,9 +22,24 @@ export class HostController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ReadOnly)
-  @Get(':id/top-tcp-ports/:top')
-  async getHostTopTcpPorts(@Param() dto: TopPortsDto): Promise<number[]> {
-    return await this.hostsService.getHostTopTcpPorts(dto.id, dto.top);
+  @Get(':id/ports')
+  async getHostTopTcpPorts(
+    @Param() idDto: MongoIdDto,
+    @Query() dto: PortsDto,
+  ): Promise<number[]> {
+    if (
+      dto.sortOrder === 'ascending' &&
+      dto.detailsLevel === 'number' &&
+      dto.protocol === 'tcp' &&
+      dto.sortType === 'popularity'
+    )
+      return await this.hostsService.getHostTopTcpPorts(
+        idDto.id,
+        dto.page,
+        dto.pageSize,
+      );
+
+    throw new HttpNotImplementedException();
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
