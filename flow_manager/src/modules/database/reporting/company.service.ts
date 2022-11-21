@@ -48,7 +48,7 @@ export class CompanyService {
    * @returns A company object document
    */
   public async get(id: string): Promise<CompanyDocument> {
-    return await this.companyModel.findOne({ _id: { $eq: id } }).exec();
+    return await this.companyModel.findById(id).exec();
   }
 
   public async addCompany(dto: CreateCompanyDto) {
@@ -85,18 +85,13 @@ export class CompanyService {
     );
   }
 
-  public async addDomainsFromJob(
-    domains: string[],
-    companyId: string,
-    jobId: string,
-  ) {
-    const job = await this.jobsService.getById(jobId);
-
-    if (!job) {
+  public async addHosts(hosts: string[], companyId: string) {
+    const company = await this.companyModel.findById(companyId);
+    if (!company) {
       throw new HttpNotFoundException();
     }
 
-    await this.addDomains(domains, companyId);
+    return await this.hostsService.addHosts(hosts, companyId, company.name);
   }
 
   public async addHostsWithDomain(
@@ -104,9 +99,7 @@ export class CompanyService {
     domainName: string,
     companyId: string,
   ) {
-    const company = await this.companyModel.findOne({
-      _id: { $eq: companyId },
-    });
+    const company = await this.companyModel.findById(companyId);
     if (!company) {
       throw new HttpNotFoundException();
     }
@@ -119,25 +112,8 @@ export class CompanyService {
     );
   }
 
-  public async addHostsWithDomainFromJob(
-    ips: string[],
-    domainName: string,
-    companyId: string,
-    jobId: string,
-  ) {
-    const job = await this.jobsService.getById(jobId);
-
-    if (!job) {
-      throw new HttpNotFoundException();
-    }
-
-    return this.addHostsWithDomain(ips, domainName, companyId);
-  }
-
   public async publishJob(job: Job) {
-    const company = await this.companyModel.findOne({
-      _id: { $eq: job.companyId },
-    });
+    const company = await this.companyModel.findById(job.companyId);
     if (!company) {
       throw new HttpNotFoundException();
     }

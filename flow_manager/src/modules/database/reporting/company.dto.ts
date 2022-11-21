@@ -8,6 +8,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
+import { IsIPv4 } from 'src/validators/ipv4.validator';
 
 export class CreateCompanyDto {
   @IsNotEmpty()
@@ -56,13 +57,10 @@ export class SubmitDomainsDto {
   domains: string[];
 }
 
-export class SubmitHostDto {
-  @IsNotEmpty()
-  @IsString()
-  domainName: string;
-
+export class SubmitHostsDto {
   @IsNotEmpty()
   @IsArray()
+  @IsIPv4({ each: true })
   ips: string[];
 }
 

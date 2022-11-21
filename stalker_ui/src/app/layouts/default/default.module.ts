@@ -12,6 +12,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatListModule } from '@angular/material/list';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
@@ -30,6 +31,7 @@ import { EditCompaniesComponent } from 'src/app/modules/companies/edit-companies
 import { ListCompaniesComponent } from 'src/app/modules/companies/list-companies/list-companies.component';
 import { DashboardComponent } from 'src/app/modules/dashboard/dashboard.component';
 import { ListDomainsComponent } from 'src/app/modules/domains/list-domains/list-domains.component';
+import { ViewDomainComponent } from 'src/app/modules/domains/view-domain/view-domain.component';
 import { ProfileComponent } from 'src/app/modules/user/profile/profile.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { DefaultComponent } from './default.component';
@@ -46,6 +48,7 @@ import { DefaultComponent } from './default.component';
     ListCompaniesComponent,
     EditCompaniesComponent,
     ListDomainsComponent,
+    ViewDomainComponent,
   ],
   imports: [
     CommonModule,
@@ -73,6 +76,7 @@ import { DefaultComponent } from './default.component';
     NgxFileDropModule,
     MatProgressSpinnerModule,
     MatExpansionModule,
+    MatListModule,
   ],
 })
 export class DefaultModule {}

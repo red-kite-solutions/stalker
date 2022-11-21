@@ -16,11 +16,11 @@ import {
   HttpForbiddenException,
   HttpServerErrorException,
 } from '../../../exceptions/http.exceptions';
+import { MongoIdDto } from '../../../types/dto/MongoIdDto';
 import { Role } from '../../auth/constants';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/role.guard';
-
 import { ChangePasswordDto, CreateUserDto, EditUserDto } from './users.dto';
 import { User, UserDocument } from './users.model';
 import { UsersService } from './users.service';
@@ -82,12 +82,15 @@ export class UsersController {
 
   @Roles(Role.ReadOnly)
   @Get(':id')
-  public async getUser(@Request() req, @Param('id') id: string): Promise<User> {
-    if (req.user.role !== Role.Admin && req.user.id !== id) {
+  public async getUser(
+    @Request() req,
+    @Param() dto: MongoIdDto,
+  ): Promise<User> {
+    if (req.user.role !== Role.Admin && req.user.id !== dto.id) {
       throw new HttpForbiddenException();
     }
     try {
-      return await this.usersService.findOneById(id);
+      return await this.usersService.findOneById(dto.id);
     } catch (err) {
       this.logger.error(err);
       throw new HttpServerErrorException();
@@ -98,10 +101,10 @@ export class UsersController {
   @Put(':id')
   public async editUser(
     @Request() req,
-    @Param('id') id: string,
+    @Param() idDto: MongoIdDto,
     @Body(new ValidationPipe()) dto: EditUserDto,
   ): Promise<void> {
-    if (req.user.role !== Role.Admin && req.user.id !== id) {
+    if (req.user.role !== Role.Admin && req.user.id !== idDto.id) {
       throw new HttpForbiddenException();
     }
 
@@ -130,7 +133,7 @@ export class UsersController {
     update.lastName = dto.lastName;
 
     try {
-      await this.usersService.editUserById(id, update);
+      await this.usersService.editUserById(idDto.id, update);
     } catch (err) {
       if (err.code === 11000) {
         // Duplicate key error
@@ -145,10 +148,10 @@ export class UsersController {
   @Put(':id/password')
   public async editUserPassword(
     @Request() req,
-    @Param('id') id: string,
+    @Param() idDto: MongoIdDto,
     @Body(new ValidationPipe()) dto: ChangePasswordDto,
   ): Promise<void> {
-    if (req.user.role !== Role.Admin && req.user.id !== id) {
+    if (req.user.role !== Role.Admin && req.user.id !== idDto.id) {
       throw new HttpForbiddenException();
     }
 
@@ -166,7 +169,7 @@ export class UsersController {
     }
 
     try {
-      await this.usersService.changePasswordById(id, dto.newPassword);
+      await this.usersService.changePasswordById(idDto.id, dto.newPassword);
     } catch (err) {
       this.logger.error(err);
       throw new HttpServerErrorException();
@@ -175,9 +178,9 @@ export class UsersController {
 
   @Roles(Role.Admin)
   @Delete(':id')
-  public async deleteUser(@Param('id') id: string) {
+  public async deleteUser(@Param() dto: MongoIdDto) {
     try {
-      return await this.usersService.deleteUserById(id);
+      return await this.usersService.deleteUserById(dto.id);
     } catch (err) {
       this.logger.error(err);
       throw new HttpServerErrorException();

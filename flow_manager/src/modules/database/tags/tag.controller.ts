@@ -8,6 +8,7 @@ import {
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
+import { MongoIdDto } from '../../../types/dto/MongoIdDto';
 import { Role } from '../../auth/constants';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
@@ -30,8 +31,8 @@ export class TagsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ReadOnly)
   @Get(':id')
-  async getTag(@Param('id') id: string): Promise<TagsDocument> {
-    return await this.tagsService.getById(id);
+  async getTag(@Param() dto: MongoIdDto): Promise<TagsDocument> {
+    return await this.tagsService.getById(dto.id);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -44,7 +45,7 @@ export class TagsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
   @Delete(':id')
-  async deleteTag(@Param('id') id: string) {
-    return await this.tagsService.delete(id);
+  async deleteTag(@Param() dto: MongoIdDto) {
+    return await this.tagsService.delete(dto.id);
   }
 }

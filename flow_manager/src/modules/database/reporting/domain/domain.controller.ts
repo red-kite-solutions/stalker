@@ -9,6 +9,8 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ObjectId } from 'mongodb';
+
+import { MongoIdDto } from '../../../../types/dto/MongoIdDto';
 import { Page } from '../../../../types/page.type';
 import escapeStringRegexp from '../../../../utils/escape-string-regexp';
 import { Role } from '../../../auth/constants';
@@ -81,17 +83,17 @@ export class DomainsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ReadOnly)
   @Get(':id')
-  async getDomain(@Param('id') id: string): Promise<DomainDocument> {
-    return await this.domainsService.getDomain(id);
+  async getDomain(@Param() dto: MongoIdDto): Promise<DomainDocument> {
+    return await this.domainsService.getDomain(dto.id);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
   @Put(':id')
   async editDomain(
-    @Param('id') id: string,
+    @Param() idDto: MongoIdDto,
     @Body(new ValidationPipe()) dto: EditDomainDto,
   ) {
-    return await this.domainsService.editDomain(id, dto);
+    return await this.domainsService.editDomain(idDto.id, dto);
   }
 }

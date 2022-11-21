@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { map } from 'rxjs';
 import { SettingsService } from 'src/app/api/settings/settings.service';
@@ -59,7 +59,7 @@ export class SettingsComponent {
 
   hidePaperkey = true;
 
-  constructor(private fb: FormBuilder, private toastr: ToastrService, private settingsService: SettingsService) {}
+  constructor(private fb: UntypedFormBuilder, private toastr: ToastrService, private settingsService: SettingsService) {}
 
   syncKeybase() {
     this.toastr.error('Sorry, not implemented yet');
