@@ -122,6 +122,7 @@ export class ViewDomainComponent implements OnDestroy {
 
     this.hostDetails$ = this.hostsService.get(this.selectedHost.id).pipe(
       map((hd: Host) => {
+        hd.ports.sort((a, b) => a - b);
         this.hostDetails = hd;
         this.hostDomainsDataSource.data = hd.domains;
         this.hostPortsDataSource.data = hd.ports;

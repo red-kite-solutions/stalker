@@ -76,16 +76,6 @@
             <mat-divider [vertical]="true" class="vertical-dvider"></mat-divider>
             <div fxFlex="35">
               <div fxLayout="column">
-                <mat-form-field appearance="outline" class="full-width">
-                  <mat-label i18n="Company|A business">Company</mat-label>
-                  <input
-                    matInput
-                    i18n-placeholder="Company|A business"
-                    placeholder="Company"
-                    readonly="true"
-                    [value]="(companies | whereId: [domain?.companyId]).name"
-                  />
-                </mat-form-field>
                 <div fxFlex>
                   <h2 class="fake-mat-subheader" i18n="Tags|The tags of an item">Tags</h2>
                   <div
@@ -105,8 +95,18 @@
                     </div>
                   </div>
                 </div>
+
+                <mat-form-field appearance="outline" class="full-width margin-top-10" *ngIf="domain && companies">
+                  <mat-label i18n="Company|A business">Company</mat-label>
+                  <input
+                    matInput
+                    i18n-placeholder="Company|A business"
+                    placeholder="Company"
+                    readonly="true"
+                    [value]="(companies | whereId: [domain.companyId]).name"
+                  />
+                </mat-form-field>
               </div>
-              <mat-divider class="horizontal-divider-important" [inset]="true"></mat-divider>
             </div>
           </div>
         </mat-card-content>
