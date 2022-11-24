@@ -151,12 +151,24 @@ export class HostService {
     return insertedHosts;
   }
 
-  public async getHostTopTcpPorts(id: string, top: number): Promise<number[]> {
+  public async getHostTopTcpPorts(
+    id: string,
+    page: number,
+    pageSize: number,
+  ): Promise<number[]> {
     const ports = (await this.hostModel.findById(id).select('ports'))?.ports;
 
     if (!ports) return [];
 
-    return getTopTcpPorts(ports, top);
+    const firstPort = page * pageSize;
+    let lastPort = firstPort + pageSize;
+
+    const topPorts = getTopTcpPorts(ports, lastPort);
+
+    if (firstPort >= topPorts.length) return [];
+
+    lastPort = lastPort >= topPorts.length ? topPorts.length - 1 : lastPort;
+    return topPorts.slice(firstPort, lastPort);
   }
 
   public async delete(hostId: string) {

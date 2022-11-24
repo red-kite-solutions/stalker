@@ -1,11 +1,31 @@
 import { Type } from 'class-transformer';
-import { IsInt, Max, Min } from 'class-validator';
-import { MongoIdDto } from 'src/types/dto/MongoIdDto';
+import { IsIn, IsInt, IsNotEmpty, Max, Min } from 'class-validator';
 
-export class TopPortsDto extends MongoIdDto {
+export class PortsDto {
+  @IsNotEmpty()
+  @IsIn(['tcp', 'udp'])
+  protocol: string = 'tcp';
+
+  @IsNotEmpty()
+  @IsIn(['full', 'summary', 'number'])
+  detailsLevel: string = 'number';
+
+  @IsNotEmpty()
+  @IsIn(['popularity', 'port'])
+  sortType: string = 'port';
+
+  @IsNotEmpty()
+  @IsIn(['ascending', 'descending'])
+  sortOrder: string = 'ascending';
+
+  @IsInt()
+  @Min(0)
+  @Type(() => Number)
+  page: number = 0;
+
   @IsInt()
   @Min(1)
   @Max(100)
   @Type(() => Number)
-  top: number;
+  pageSize: number = 10;
 }

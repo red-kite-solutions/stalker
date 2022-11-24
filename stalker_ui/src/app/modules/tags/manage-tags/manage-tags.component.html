@@ -75,8 +75,8 @@
 </div>
 
 <!-- Add tag Dialog Template -->
-<ng-template #addTagDialog class="coucou">
-  <div mat-dialog-title fxLayout="row" fxLayoutAlign="start">
+<ng-template #addTagDialog>
+  <div class="create-tag-color-picker-class" mat-dialog-title fxLayout="row" fxLayoutAlign="start">
     <h1 i18n="Create Tag|Create a new tag or label" fxFlex>Create Tag</h1>
     <app-pill-tag [color]="newTagColor.hex ? '#' + newTagColor.hex : '#' + placeholderColor.hex">{{
       newTagText ? newTagText : 'Example'

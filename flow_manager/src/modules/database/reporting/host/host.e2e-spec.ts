@@ -1,4 +1,4 @@
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from 'src/modules/app.module';
 import { Role } from 'src/modules/auth/constants';
@@ -25,6 +25,12 @@ describe('Host Controller (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+      }),
+    );
     await app.init();
     testData = await initTesting(app);
     companyId = (
@@ -59,12 +65,12 @@ describe('Host Controller (e2e)', () => {
     expect(r.body._id).toStrictEqual(hostId);
   });
 
-  it('Should get a the top 10 TCP ports of a host without ports (GET /hosts/:id/top-tcp-ports/:top)', async () => {
+  it('Should get the top 10 TCP ports of a host without ports (GET /hosts/:id/ports)', async () => {
     // Arrange & Act
     const r = await getReq(
       app,
       testData.admin.token,
-      `/hosts/${hostId}/top-tcp-ports/10`,
+      `/hosts/${hostId}/ports?sortType=popularity&page=0&pageSize=10`,
     );
 
     // Assert
@@ -108,16 +114,12 @@ describe('Host Controller (e2e)', () => {
     expect(success).toBe(true);
   });
 
-  it('Should have proper authorizations (GET /hosts/:id/top-tcp-ports/:top)', async () => {
+  it('Should have proper authorizations (GET /hosts/:id/ports)', async () => {
     const success = await checkAuthorizations(
       testData,
       Role.ReadOnly,
       async (givenToken) => {
-        return await getReq(
-          app,
-          givenToken,
-          `/hosts/${hostId}/top-tcp-ports/10`,
-        );
+        return await getReq(app, givenToken, `/hosts/${hostId}/ports`);
       },
     );
     expect(success).toBe(true);
