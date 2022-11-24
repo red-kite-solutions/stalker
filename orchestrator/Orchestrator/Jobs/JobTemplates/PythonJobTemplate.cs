@@ -25,6 +25,7 @@ public abstract class PythonJobTemplate : KubernetesJobTemplate
         var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(command);
         string b64command = System.Convert.ToBase64String(plainTextBytes);
         PythonCommand = "exec(__import__('base64').b64decode('" + b64command + "'))";
+        PythonCommand = command;
     }
 
     public PythonJobTemplate(string? id, string @namespace)

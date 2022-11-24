@@ -1,4 +1,5 @@
-﻿using Orchestrator.Events;
+﻿using Microsoft.AspNetCore.Components.Web;
+using Orchestrator.Events;
 using Orchestrator.K8s;
 using Orchestrator.Queue;
 using Orchestrator.Queue.JobsConsumer;
@@ -31,6 +32,17 @@ public abstract class KubernetesCommand<T> : JobCommand where T : JobRequest
         var job = await Kubernetes.CreateJob(JobTemplate);
 
         Logger.LogDebug(Request.JobId, "Job created, listening for events.");
+
+        bool sleep = false;
+        do
+        {
+            if (sleep)
+                Thread.Sleep(50);
+            else
+                sleep = true;
+
+        } while (!await Kubernetes.IsJobPodFinished(job.Name, job.Namespace));
+
         var logs = await Kubernetes.GetJobLogs(job.Name, job.Namespace);
 
         var streamReader = new StreamReader(logs);
@@ -55,8 +67,8 @@ public abstract class KubernetesCommand<T> : JobCommand where T : JobRequest
                         continue;
                 }
             }
-            
-            if(evtType == typeof(FindingsEventModel))
+
+            if (evtType == typeof(FindingsEventModel))
             {
                 await EventsProducer.Produce(new JobEventMessage
                 {
@@ -64,8 +76,6 @@ public abstract class KubernetesCommand<T> : JobCommand where T : JobRequest
                     FindingsJson = evt.data,
                 });
             }
-
-            
         }
 
         await Kubernetes.DeleteJob(job.Name, job.Namespace);

@@ -1,5 +1,6 @@
 ﻿using k8s;
 using k8s.Models;
+using System.Formats.Asn1;
 
 namespace Orchestrator.K8s;
 
@@ -82,6 +83,7 @@ public class KubernetesFacade : IKubernetesFacade
         {
             Thread.Sleep(100);
             pods = await client.ListNamespacedPodAsync(labelSelector: $"job-name={jobName}", limit: 1, namespaceParameter: jobNamespace);
+            
         } while (pods?.Items == null || pods.Items.Count < 1 || pods.Items.FirstOrDefault()?.Status?.Phase == "Pending");
 
         return await client.ReadNamespacedPodLogAsync(pods.Items.FirstOrDefault().Metadata.Name, jobNamespace);
@@ -94,5 +96,19 @@ public class KubernetesFacade : IKubernetesFacade
     {
         using var client = new Kubernetes(KubernetesConfiguration);
         await client.DeleteCollectionNamespacedJobAsync(jobNamespace, fieldSelector: $"metadata.name={jobName}", propagationPolicy: "Foreground");
+    }
+
+    /// <summary>
+    /// True if the pod is in the status "Failed" or "Succeeded", false otherwise
+    /// </summary>
+    public async Task<bool> IsJobPodFinished(string jobName, string jobNamespace = "default")
+    {
+        using var client = new Kubernetes(KubernetesConfiguration);
+        V1PodList pods = await client.ListNamespacedPodAsync(labelSelector: $"job-name={jobName}", limit: 1, namespaceParameter: jobNamespace);
+
+        if (pods.Items == null || pods.Items.Count < 1)
+            return false;
+
+        return pods.Items.FirstOrDefault()?.Status?.Phase == "Succeeded" || pods.Items.FirstOrDefault()?.Status?.Phase == "Failed";
     }
 }

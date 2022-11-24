@@ -16,7 +16,7 @@ public class TcpPortScanningJobTemplate : PythonJobTemplate
         // EnvironmentVariable["PORT_MIN"] = portMin.ToString();
         // EnvironmentVariable["PORT_MAX"] = portMax.ToString();
         EnvironmentVariable["PORT_MIN"] = "22";
-        EnvironmentVariable["PORT_MAX"] = "24";
+        EnvironmentVariable["PORT_MAX"] = "32";
         StringBuilder portsStringBuilder = new StringBuilder();
         
         if(ports.Length > 0)
