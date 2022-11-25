@@ -25,6 +25,42 @@ public abstract class KubernetesCommand<T> : JobCommand where T : JobRequest
         Logger = logger;
     }
 
+    /// <summary>
+    /// Waits for a scaling amount of time everytime you call it, according to the iteration parameter
+    /// During 10 seconds, wait for 100ms for every call (100i)
+    /// During 20 seconds, wait for 200ms for every call (100i)
+    /// During 30 seconds, wait for 300ms for every call (100i)
+    /// During 4 minutes, wait for 1000ms for every call (240i)
+    /// During 5 minutes, wait for 5000ms for every call (60i)
+    /// During 20 minutes, wait for 20000ms for every call (60i)
+    /// If the function is called more than 660 times (660i), wait for 30000ms for every call
+    /// </summary>
+    private static void ScalingSleep(int iteration)
+    {
+        int waitTime;
+        if (iteration < 300)
+        {
+            waitTime = (iteration / 100) + 100;
+        }
+        else if (iteration >= 300 && iteration < 540)
+        {
+            waitTime = 1000;
+        }
+        else if (iteration >= 540 && iteration < 600)
+        {
+            waitTime = 5000;
+        }
+        else if (iteration >= 600 && iteration < 660)
+        {
+            waitTime = 20000;
+        }
+        else
+        {
+            waitTime = 30000;
+        }
+        Thread.Sleep(waitTime);
+    }
+
     public override async Task Execute()
     {
         Logger.LogDebug(Request.JobId, "Creating job.");
@@ -33,13 +69,11 @@ public abstract class KubernetesCommand<T> : JobCommand where T : JobRequest
 
         Logger.LogDebug(Request.JobId, "Job created, listening for events.");
 
-        bool sleep = false;
+        int i = 0;
         do
         {
-            if (sleep)
-                Thread.Sleep(50);
-            else
-                sleep = true;
+            ScalingSleep(i);
+            ++i;
 
         } while (!await Kubernetes.IsJobPodFinished(job.Name, job.Namespace));
 
