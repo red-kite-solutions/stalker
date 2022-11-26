@@ -167,7 +167,7 @@ export class HostService {
 
     if (firstPort >= topPorts.length) return [];
 
-    lastPort = lastPort >= topPorts.length ? topPorts.length - 1 : lastPort;
+    lastPort = lastPort >= topPorts.length ? topPorts.length : lastPort;
     return topPorts.slice(firstPort, lastPort);
   }
 
