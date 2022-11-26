@@ -1,5 +1,6 @@
 ﻿using k8s;
 using k8s.Models;
+using System;
 using System.Formats.Asn1;
 
 namespace Orchestrator.K8s;
@@ -32,6 +33,17 @@ public class KubernetesFacade : IKubernetesFacade
         var randomId = Guid.NewGuid().ToString(); // This id is used to avoid job name collisions in K8s
         var jobNameParts = new[] { jobPrefix, jobTemplate.Id, randomId };
         var jobName = string.Join("-", jobNameParts.Where(x => !string.IsNullOrEmpty(x)));
+        V1ResourceRequirements ressources = null;
+        if (jobTemplate.MilliCpu > 0 || jobTemplate.MemoryMegaBytes > 0)
+        {
+            var limitQuantity = new Dictionary<string, ResourceQuantity>();
+            if (jobTemplate.MilliCpu > 0)
+                limitQuantity["cpu"] = new ResourceQuantity(jobTemplate.MilliCpu.ToString() + "m");
+            if (jobTemplate.MemoryMegaBytes > 0)
+                limitQuantity["memory"] = new ResourceQuantity(jobTemplate.MemoryMegaBytes.ToString() + "Mi");
+
+            ressources = new V1ResourceRequirements(limitQuantity);
+        }
 
         var kubernetesJob = new V1Job("batch/v1", "Job",
             new V1ObjectMeta
@@ -52,7 +64,7 @@ public class KubernetesFacade : IKubernetesFacade
                                     Image = jobTemplate.Image,
                                     Command = jobTemplate.Command,
                                     Env = jobTemplate.EnvironmentVariable.Select(x => new V1EnvVar(x.Key, x.Value)).ToList(),
-                                    Resources = jobTemplate.Ressources
+                                    Resources = ressources
                                 }
                         },
                         RestartPolicy = "Never",

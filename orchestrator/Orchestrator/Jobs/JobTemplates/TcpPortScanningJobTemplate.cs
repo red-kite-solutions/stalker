@@ -48,12 +48,7 @@ public class TcpPortScanningJobTemplate : PythonJobTemplate
         cpuUnit = 1000;
         memory = 1024;
 
-        var limitQuantity = new Dictionary<string, k8s.Models.ResourceQuantity>();
-        limitQuantity["cpu"] = new k8s.Models.ResourceQuantity(cpuUnit.ToString() + "m");
-        limitQuantity["memory"] = new k8s.Models.ResourceQuantity(memory.ToString() + "Mi");
-
-        Ressources = new k8s.Models.V1ResourceRequirements(limitQuantity);
-
-        
+        this.MilliCpu = cpuUnit;
+        this.MemoryMegaBytes = memory;
     }
 }
