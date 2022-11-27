@@ -16,6 +16,10 @@ public class TcpPortScanningJobTemplate : PythonJobTemplate
         EnvironmentVariable["PORT_MAX"] = portMax.ToString();
         StringBuilder portsStringBuilder = new StringBuilder();
         
+
+        // C'est obv pas la meilleure facon de faire, mais je me suis dit que tu saurais
+        // convertir en json de la meilleure facon pour notre contexte d'application
+        // Ce code ne merite pas "Let's get to merge" 
         if(ports.Length > 0)
         {
             portsStringBuilder.Append('[');
