@@ -30,12 +30,6 @@ public class TcpPortScanningJobTemplate : PythonJobTemplate
         }
 
         EnvironmentVariable["PORTS"] = portsStringBuilder.ToString();
-        Console.WriteLine(EnvironmentVariable["TARGET_IP"]);
-        Console.WriteLine(EnvironmentVariable["THREADS"]);
-        Console.WriteLine(EnvironmentVariable["SOCKET_TIMEOUT"]);
-        Console.WriteLine(EnvironmentVariable["PORT_MIN"]);
-        Console.WriteLine(EnvironmentVariable["PORT_MAX"]);
-        Console.WriteLine(EnvironmentVariable["PORTS"]);
 
         int cpuUnit = 10 * threads;
         cpuUnit = cpuUnit > CpuUnitLimit ? CpuUnitLimit : cpuUnit;
