@@ -32,17 +32,18 @@ public class KubernetesJobTemplate
     public string Namespace { get; init; } = "default";
 
     /// <summary>
-    /// Specifies the amount of CPU time will be dedicated for a job pod, in millicpu. 
+    /// Specifies the limit amount of CPU time that will be dedicated for a job pod, in millicpu. 
     /// 1000 millicpu represents a full CPU dedicated to the job pod.
     /// Additional info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
     /// </summary>
-    public int MilliCpu { get; init; } = -1;
+    public int MilliCpuLimit { get; init; } = -1;
 
     /// <summary>
-    /// Specifies the amount of memory (RAM) that will be dedicated for a job pod, in megabytes. 
-    /// The value 1024 would represent a full gigabytes of ram dedicated to the job pod.
-    /// The suffix used is the power of two, Mi
+    /// Specifies the limit amount of memory (RAM) that will be dedicated for a job pod, in kilobytes. 
+    /// The value 1024 would represent a full megabyte of ram dedicated to the job pod.
+    /// The value 1048576 would represent a full gigabyte of ram dedicated to the job pod.
+    /// The suffix used is the power of two, Ki
     /// Additional info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
     /// </summary>
-    public int MemoryMegaBytes { get; init; } = -1;
+    public int MemoryKiloBytesLimit { get; init; } = -1;
 }

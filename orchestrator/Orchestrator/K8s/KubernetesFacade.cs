@@ -33,14 +33,17 @@ public class KubernetesFacade : IKubernetesFacade
         var randomId = Guid.NewGuid().ToString(); // This id is used to avoid job name collisions in K8s
         var jobNameParts = new[] { jobPrefix, jobTemplate.Id, randomId };
         var jobName = string.Join("-", jobNameParts.Where(x => !string.IsNullOrEmpty(x)));
+
+        // Adding a resource limit per namespace (ResourceQuota) with a custom namespace for jobs
+        // could be interesting to prevent the jobs from taking over all the cluster's cpu and memory
         V1ResourceRequirements ressources = null;
-        if (jobTemplate.MilliCpu > 0 || jobTemplate.MemoryMegaBytes > 0)
+        if (jobTemplate.MilliCpuLimit > 0 || jobTemplate.MemoryKiloBytesLimit > 0)
         {
             var limitQuantity = new Dictionary<string, ResourceQuantity>();
-            if (jobTemplate.MilliCpu > 0)
-                limitQuantity["cpu"] = new ResourceQuantity(jobTemplate.MilliCpu.ToString() + "m");
-            if (jobTemplate.MemoryMegaBytes > 0)
-                limitQuantity["memory"] = new ResourceQuantity(jobTemplate.MemoryMegaBytes.ToString() + "Mi");
+            if (jobTemplate.MilliCpuLimit > 0)
+                limitQuantity["cpu"] = new ResourceQuantity(jobTemplate.MilliCpuLimit.ToString() + "m");
+            if (jobTemplate.MemoryKiloBytesLimit > 0)
+                limitQuantity["memory"] = new ResourceQuantity(jobTemplate.MemoryKiloBytesLimit.ToString() + "Ki");
 
             ressources = new V1ResourceRequirements(limitQuantity);
         }

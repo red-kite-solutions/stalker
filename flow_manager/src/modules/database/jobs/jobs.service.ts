@@ -77,9 +77,7 @@ export class JobsService {
   }
 
   public createSimpleTcpScan1000PortsJob(companyId: string, targetIp: string) {
-    return this.createTcpPortScanJob(companyId, targetIp, 1, 0.7, 1, 100);
-    // return this.createTcpPortScanJob(companyId, targetIp, 1, 0.7, 22, 24);
-    // return this.createTcpPortScanJob(companyId, targetIp, 1, 1, 0, 0, [22]);
+    return this.createTcpPortScanJob(companyId, targetIp, 10, 0.7, 1, 1000);
   }
 
   public createTcpPortScanJob(

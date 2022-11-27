@@ -116,7 +116,7 @@ public abstract class KubernetesCommand<T> : JobCommand where T : JobRequest
             }
         }
 
-        await Kubernetes.DeleteJob(job.Name, job.Namespace);
+        // await Kubernetes.DeleteJob(job.Name, job.Namespace);
     }
 
 }

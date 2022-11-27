@@ -33,7 +33,7 @@ export class HostnameIpHandler extends JobFindingHandlerBase<HostnameIpCommand> 
     );
 
     for (const host of newHosts) {
-      const job = this.jobService.createSimpleTcpScan1000PortsJob(
+      const job = this.jobService.createSimpleTcpScanAllPortsJob(
         company._id,
         host.ip,
       );
