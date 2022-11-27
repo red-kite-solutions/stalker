@@ -37,7 +37,7 @@ SOCKET_TIMEOUT: float = float(os.environ['SOCKET_TIMEOUT']) # time in seconds to
 PORT_MIN: int = int(os.environ['PORT_MIN']) # expects a number (0 < p1 < 65535)
 PORT_MAX: int = int(os.environ['PORT_MAX']) # expects a number (0 < p2 <= 65535 and p2 > p1)
 
-PORTS = os.environ['PORTS'] # expects a json array of numbers [ 80, 443, 3389 ]. Array can be empty
+PORTS = os.environ['PORTS'] # expects a json array of numbers, ex: [ 80, 443, 3389 ]. Array can be empty
 
 ports_list: list = json.loads(PORTS) if PORTS and PORTS != '' else []
 ports_set: set =  set(ports_list)
