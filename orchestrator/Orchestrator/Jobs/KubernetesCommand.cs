@@ -42,7 +42,8 @@ public abstract class KubernetesCommand<T> : JobCommand where T : JobRequest
         if(iteration == 0)
         {
             waitTime = 0;
-        } else if (iteration <= 300)
+        }
+        else if (iteration <= 300)
         {
             waitTime = (iteration / 100) + 100;
         }
