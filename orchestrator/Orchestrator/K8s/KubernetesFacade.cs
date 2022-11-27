@@ -34,7 +34,7 @@ public class KubernetesFacade : IKubernetesFacade
         var jobNameParts = new[] { jobPrefix, jobTemplate.Id, randomId };
         var jobName = string.Join("-", jobNameParts.Where(x => !string.IsNullOrEmpty(x)));
 
-        // Adding a resource limit per namespace (ResourceQuota) with a custom namespace for jobs
+        // TODO: Adding a resource limit per namespace (ResourceQuota) with a custom namespace for jobs
         // could be interesting to prevent the jobs from taking over all the cluster's cpu and memory
         V1ResourceRequirements ressources = null;
         if (jobTemplate.MilliCpuLimit > 0 || jobTemplate.MemoryKiloBytesLimit > 0)
