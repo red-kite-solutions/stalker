@@ -10,7 +10,7 @@ public class TcpPortScanningCommand : KubernetesCommand<TcpPortScanningJobReques
 {
     protected override KubernetesJobTemplate JobTemplate { get; }
 
-    public TcpPortScanningCommand(TcpPortScanningJobRequest request, IKubernetesFacade kubernetes, IMessagesProducer<JobEventMessage> eventsProducer, IFindingsParser parser, ILogger<TcpPortScanningCommand> logger, JobTemplateProvider jobProvider) : base(request, kubernetes, eventsProducer, parser, logger)
+    public TcpPortScanningCommand(TcpPortScanningJobRequest request, IKubernetesFacade kubernetes, IMessagesProducer<JobEventMessage> eventsProducer, IFindingsParser parser, ILogger<TcpPortScanningCommand> logger, PythonJobTemplateProvider jobProvider) : base(request, kubernetes, eventsProducer, parser, logger)
     {
         JobTemplate = new TcpPortScanningJobTemplate(request.JobId, "stalker", request.TargetIp, request.Threads, request.SocketTimeoutSeconds, request.PortMin, request.PortMax, request.Ports, jobProvider);
     }

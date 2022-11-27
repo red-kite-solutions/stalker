@@ -2,14 +2,17 @@
 
 namespace Orchestrator.Jobs
 {
-    public class JobTemplateProvider
+    public class PythonJobTemplateProvider : IJobTemplateProvider
     {
-        private ILogger<JobTemplateProvider> Logger { get; }
+        private ILogger<PythonJobTemplateProvider> Logger { get; }
         private string PythonTemplatesPath { get; }
         private Dictionary<string,string> CodeDictionary { get; }
+
+        // TODO: To prevent having to modify this file everytime a new python job is created, we could simply list the
+        // content of the folder pythonTemplatesPath and automatically load all .py files
         private string[] PythonJobs = new[] { "DomainNameResolvingJobTemplate", "TcpPortScanningJobTemplate" };
 
-        public JobTemplateProvider(ILogger<JobTemplateProvider> logger, string pythonTemplatesPath)
+        public PythonJobTemplateProvider(ILogger<PythonJobTemplateProvider> logger, string pythonTemplatesPath)
         {
             Logger = logger;
             CodeDictionary = new Dictionary<string,string>();

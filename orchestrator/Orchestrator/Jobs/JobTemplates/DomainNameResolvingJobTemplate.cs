@@ -3,7 +3,7 @@
 public class DomainNameResolvingJobTemplate : PythonJobTemplate
 {
 
-    public DomainNameResolvingJobTemplate(string? id, string @namespace, string hostname, JobTemplateProvider jobProvider) : base(id, @namespace, jobProvider)
+    public DomainNameResolvingJobTemplate(string? id, string @namespace, string hostname, PythonJobTemplateProvider jobProvider) : base(id, @namespace, jobProvider)
     {
         EnvironmentVariable["HOSTNAME"] = hostname;
     }

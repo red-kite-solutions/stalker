@@ -7,7 +7,7 @@ public class TcpPortScanningJobTemplate : PythonJobTemplate
     private readonly int CpuUnitLimit = 2000;
     private readonly int MemoryLimit = 2048*1024;
 
-    public TcpPortScanningJobTemplate(string? id, string @namespace, string targetIp, int threads, float socketTimeoutSeconds, int portMin, int portMax, int[] ports, JobTemplateProvider jobProvider) : base(id, @namespace, jobProvider)
+    public TcpPortScanningJobTemplate(string? id, string @namespace, string targetIp, int threads, float socketTimeoutSeconds, int portMin, int portMax, int[] ports, PythonJobTemplateProvider jobProvider) : base(id, @namespace, jobProvider)
     {
         EnvironmentVariable["TARGET_IP"] = targetIp;
         EnvironmentVariable["THREADS"] = threads.ToString();
