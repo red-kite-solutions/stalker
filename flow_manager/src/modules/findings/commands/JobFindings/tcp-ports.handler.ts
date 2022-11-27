@@ -25,6 +25,6 @@ export class TcpPortsHandler extends JobFindingHandlerBase<TcpPortsCommand> {
     company: CompanyDocument,
     command: TcpPortsCommand,
   ) {
-    await this.hostService.addPortsByIp(command.ip, command.ports);
+    await this.hostService.addPortsByIp(company._id, command.ip, command.ports);
   }
 }

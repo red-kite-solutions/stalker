@@ -190,8 +190,11 @@ export class HostService {
     );
   }
 
-  public async addPortsByIp(ip: string, ports: number[]) {
-    const host = await this.hostModel.findOne({ ip: { $eq: ip } });
+  public async addPortsByIp(companyId: string, ip: string, ports: number[]) {
+    const host = await this.hostModel.findOne({
+      ip: { $eq: ip },
+      companyId: { $eq: companyId },
+    });
     if (!host) throw new HttpNotFoundException();
 
     await this.hostModel.updateOne(
