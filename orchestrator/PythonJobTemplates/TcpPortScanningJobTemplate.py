@@ -39,9 +39,6 @@ PORT_MAX: int = int(os.environ['PORT_MAX']) # expects a number (0 < p2 <= 65535 
 
 PORTS = os.environ['PORTS'] # expects a json array of numbers [ 80, 443, 3389 ]. Array can be empty
 
-
-# Validate my values maybe? Never hurts
-
 ports_list: list = json.loads(PORTS) if PORTS and PORTS != '' else []
 ports_set: set =  set(ports_list)
 
