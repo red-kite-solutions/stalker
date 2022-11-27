@@ -1,6 +1,7 @@
 using Confluent.Kafka;
 using FluentAssertions;
 using Orchestrator.Queue.JobsConsumer;
+using Orchestrator.Queue.JobsConsumer.JobRequests;
 
 namespace Orchestrator.Tests;
 
