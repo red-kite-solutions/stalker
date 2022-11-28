@@ -3,7 +3,7 @@ export class HostsPagingModel {
   pageSize: string;
 }
 
-export class GetHostCountModel {
+export class HostFilterModel {
   domain?: Array<string>;
   tags?: Array<string>;
   company?: Array<string>;

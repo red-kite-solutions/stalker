@@ -14,7 +14,7 @@ import { Company } from '../company.model';
 import { DomainsService } from '../domain/domain.service';
 import { DomainSummary } from '../domain/domain.summary';
 import { ReportService } from '../report/report.service';
-import { GetHostCountModel, HostsPagingModel } from './host-filter.model';
+import { HostFilterModel, HostsPagingModel } from './host-filter.model';
 import { Host, HostDocument } from './host.model';
 import { HostSummary } from './host.summary';
 
@@ -34,7 +34,7 @@ export class HostService {
   public async getAll(
     page: number = null,
     pageSize: number = null,
-    filter: GetHostCountModel = null,
+    filter: HostFilterModel = null,
   ): Promise<HostDocument[]> {
     let query;
     if (filter) {
@@ -49,7 +49,7 @@ export class HostService {
     return await query;
   }
 
-  public async count(filter: HostsPagingModel & GetHostCountModel = null) {
+  public async count(filter: HostsPagingModel & HostFilterModel = null) {
     if (!filter) {
       return await this.hostModel.estimatedDocumentCount();
     } else {
@@ -218,7 +218,7 @@ export class HostService {
     );
   }
 
-  private buildFilters(dto: GetHostCountModel) {
+  private buildFilters(dto: HostFilterModel) {
     const finalFilter = {};
 
     // Filter by domain
