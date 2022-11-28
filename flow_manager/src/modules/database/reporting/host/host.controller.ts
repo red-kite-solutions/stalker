@@ -6,7 +6,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { HttpNotImplementedException } from 'src/exceptions/http.exceptions';
+import { HttpNotImplementedException } from '../../../../exceptions/http.exceptions';
 import { MongoIdDto } from '../../../../types/dto/MongoIdDto';
 import { Page } from '../../../../types/page.type';
 import { Role } from '../../../auth/constants';
