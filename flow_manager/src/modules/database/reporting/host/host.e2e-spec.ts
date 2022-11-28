@@ -1,4 +1,4 @@
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { randomUUID } from 'crypto';
 import {
@@ -31,6 +31,12 @@ describe('Host Controller (e2e)', () => {
     hostsService = await moduleFixture.resolve(HostService);
 
     app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+      }),
+    );
     await app.init();
   });
 
@@ -201,11 +207,37 @@ describe('Host Controller (e2e)', () => {
 
     const hostId = rHost.body[0]._id;
 
+    const r = await getReq(
+      app,
+      testData.admin.token,
+      `/hosts/${hostId}/ports?sortType=popularity&page=0&pageSize=10`,
+    );
+
+    // Assert
+    expect(r.statusCode).toBe(HttpStatus.OK);
+    expect(r.body.length).toStrictEqual(0);
+  });
+
+  // Act
+  it('Should get the top 10 TCP ports of a host without ports (GET /hosts/:id/ports)', async () => {
+    // Arrange
+    const company = await createCompany(app, testData, getName());
+    const domain = 'www.example.org';
+    await createDomains(app, testData, company._id, [domain]);
+    const rHost = await postReq(
+      app,
+      testData.admin.token,
+      `/company/${company._id}/host`,
+      { ips: ['192.168.2.1'] },
+    );
+
+    const hostId = rHost.body[0]._id;
+
     // Act
     const r = await getReq(
       app,
       testData.admin.token,
-      `/hosts/${hostId}/top-tcp-ports/10`,
+      `/hosts/${hostId}/ports?sortType=popularity&page=0&pageSize=10`,
     );
 
     // Assert
@@ -294,16 +326,35 @@ describe('Host Controller (e2e)', () => {
 
     const hostId = rHost.body[0]._id;
 
-    // Act
     const success = await checkAuthorizations(
       testData,
       Role.ReadOnly,
       async (givenToken) => {
-        return await getReq(
-          app,
-          givenToken,
-          `/hosts/${hostId}/top-tcp-ports/10`,
-        );
+        return await getReq(app, givenToken, `/hosts/${hostId}/ports`);
+      },
+    );
+    expect(success).toBe(true);
+  });
+
+  it('Should have proper authorizations (GET /hosts/:id/ports)', async () => {
+    // Arrange
+    const company = await createCompany(app, testData, getName());
+    const domain = 'www.example.org';
+    await createDomains(app, testData, company._id, [domain]);
+    const rHost = await postReq(
+      app,
+      testData.admin.token,
+      `/company/${company._id}/host`,
+      { ips: ['192.168.2.1'] },
+    );
+
+    const hostId = rHost.body[0]._id;
+
+    const success = await checkAuthorizations(
+      testData,
+      Role.ReadOnly,
+      async (givenToken) => {
+        return await getReq(app, givenToken, `/hosts/${hostId}/ports`);
       },
     );
     expect(success).toBe(true);

@@ -68,12 +68,6 @@ app-pill-tag {
   margin-bottom: 10px;
 }
 
-.horizontal-divider-important {
-  // !important is required to counter the fact that this element is an inset mat-divider
-  margin-top: 10px !important;
-  margin-bottom: 10px !important;
-}
-
 .fake-mat-subheader {
   font-family: Roboto, 'Helvetica Neue', sans-serif;
   font-size: 14px;
@@ -127,4 +121,8 @@ app-pill-tag {
 
 .nodata {
   text-align: center;
+}
+
+.margin-top-10 {
+  margin-top: 10px;
 }

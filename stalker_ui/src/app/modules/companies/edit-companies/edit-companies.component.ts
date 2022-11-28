@@ -12,7 +12,7 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
-import { Md5 } from 'ts-md5/dist/md5';
+import { Md5 } from 'ts-md5';
 
 @Component({
   selector: 'app-edit-companies',
@@ -195,7 +195,8 @@ export class EditCompaniesComponent implements OnDestroy {
           this.previewSource = company.logo;
           const md5 = new Md5();
           md5.appendStr(company.logo);
-          this.md5Logo = md5.end().toString();
+          const logoMd5 = md5.end()?.toString();
+          this.md5Logo = logoMd5 ? logoMd5 : '';
           this.fileSelected = true;
         }
       })
@@ -330,7 +331,8 @@ export class EditCompaniesComponent implements OnDestroy {
     if (this.previewSource) {
       const md5 = new Md5();
       md5.appendStr(this.previewSource.toString());
-      currentLogoHash = md5.end().toString();
+      const logoMd5 = md5.end()?.toString();
+      currentLogoHash = logoMd5 ? logoMd5 : '';
     }
 
     if (currentLogoHash !== this.md5Logo) {
