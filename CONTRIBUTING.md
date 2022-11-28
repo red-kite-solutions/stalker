@@ -17,7 +17,7 @@ minikube start --driver docker --cpus 4 --memory 8192
 Otherwise, if the minikube container was created before, you can just launch it with :
 
 ```
-minikube start
+minikube start --driver=docker
 ```
 
 <details>
