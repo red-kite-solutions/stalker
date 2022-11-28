@@ -44,7 +44,7 @@ export class HostService {
     return await query;
   }
 
-  public async count(filter: HostsPagingModel & HostFilterModel = null) {
+  public async count(filter: HostFilterModel = null) {
     if (!filter) {
       return await this.hostModel.estimatedDocumentCount();
     } else {
