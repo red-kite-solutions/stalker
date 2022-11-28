@@ -2,9 +2,7 @@
 import { Type } from 'class-transformer';
 import {
   IsArray,
-  IsIn,
   IsInt,
-  IsMongoId,
   IsNumberString,
   IsOptional,
   Max,
@@ -25,7 +23,8 @@ export class HostsPagingDto {
   page: string;
 
   @IsNumberString()
-  @IsIn(['10', '25', '50', '100'])
+  @Min(1)
+  @Max(100)
   pageSize: string;
 
   @IsArray()
@@ -39,18 +38,4 @@ export class HostsPagingDto {
   @IsArray()
   @IsOptional()
   domain: Array<string>;
-}
-
-export class GetHostCountDto {
-  @IsArray()
-  @IsOptional()
-  domain: string;
-
-  @IsArray()
-  @IsOptional()
-  tags: Array<string>;
-
-  @IsMongoId()
-  @IsOptional()
-  company: string;
 }

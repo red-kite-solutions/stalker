@@ -1,12 +1,7 @@
-import {
-  forwardRef,
-  HttpException,
-  Inject,
-  Injectable,
-  Logger,
-} from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { HttpNotFoundException } from '../../../../exceptions/http.exceptions';
 import { ConfigService } from '../../admin/config/config.service';
 import { JobsService } from '../../jobs/jobs.service';
 import { Company } from '../company.model';
@@ -33,10 +28,7 @@ export class DomainsService {
     const company = await this.companyModel.findById(companyId);
     if (!company) {
       this.logger.debug(`Could not find the company (companyId=${companyId})`);
-      throw new HttpException(
-        `The company does not exist (companyId=${companyId})`,
-        404,
-      );
+      throw new HttpNotFoundException(`companyId=${companyId}`);
     }
 
     // for each domain, create a mongo id
