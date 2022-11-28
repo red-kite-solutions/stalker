@@ -13,7 +13,7 @@ import { Role } from '../../../auth/constants';
 import { Roles } from '../../../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../auth/guards/role.guard';
-import { HostsPagingDto, PortsDto } from './host.dto';
+import { HostsFilterDto, PortsDto } from './host.dto';
 import { HostDocument } from './host.model';
 import { HostService } from './host.service';
 
@@ -60,13 +60,10 @@ export class HostController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ReadOnly)
   @Get()
-  async getAllHosts(@Query() dto: HostsPagingDto): Promise<Page<HostDocument>> {
+  async getAllHosts(@Query() dto: HostsFilterDto): Promise<Page<HostDocument>> {
+    console.log(dto);
     const totalRecords = await this.hostsService.count(dto);
-    const items = await this.hostsService.getAll(
-      parseInt(dto.page),
-      parseInt(dto.pageSize),
-      dto,
-    );
+    const items = await this.hostsService.getAll(dto.page, dto.pageSize, dto);
 
     return {
       items,

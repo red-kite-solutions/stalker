@@ -93,6 +93,7 @@ describe('Host Controller (e2e)', () => {
         '/hosts?page=0&pageSize=10',
       );
 
+      expect(allDataResult.statusCode).toBe(200);
       expect(allDataResult.body.totalRecords).toBe(6);
       expect(allDataResult.body.items.length).toBe(6);
 
@@ -143,7 +144,7 @@ describe('Host Controller (e2e)', () => {
       const filtered = await getReq(
         app,
         testData.user.token,
-        `/hosts?page=0&pageSize=2&company=${company2.name}`,
+        `/hosts?page=0&pageSize=2&company[]=${company2.name}`,
       );
 
       expect(filtered.body.totalRecords).toBe(4);

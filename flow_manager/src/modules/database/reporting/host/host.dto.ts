@@ -5,7 +5,6 @@ import {
   IsIn,
   IsInt,
   IsNotEmpty,
-  IsNumberString,
   IsOptional,
   Max,
   Min,
@@ -40,24 +39,26 @@ export class PortsDto {
   pageSize: number = 10;
 }
 
-export class HostsPagingDto {
-  @IsNumberString()
-  page: string;
+export class HostsFilterDto {
+  @IsInt()
+  @Type(() => Number)
+  page: number = 0;
 
-  @IsNumberString()
+  @IsInt()
   @Min(1)
   @Max(100)
-  pageSize: string;
+  @Type(() => Number)
+  pageSize: number = 10;
+
+  @IsOptional()
+  @Type(() => Array)
+  tags: string[];
 
   @IsArray()
   @IsOptional()
-  tags: Array<string>;
+  company: string[];
 
   @IsArray()
   @IsOptional()
-  company: Array<string>;
-
-  @IsArray()
-  @IsOptional()
-  domain: Array<string>;
+  domain: string[];
 }
