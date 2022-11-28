@@ -48,6 +48,17 @@ describe('Host Controller (e2e)', () => {
   }
 
   describe('GET /host', () => {
+    it('List hosts - Not authorized - Should return 401', async () => {
+      const success = await checkAuthorizations(
+        testData,
+        Role.ReadOnly,
+        async (givenToken) => {
+          return await getReq(app, givenToken, `/hosts`);
+        },
+      );
+      expect(success).toBe(true);
+    });
+
     it('List hosts - Different page sizes - Should return expected hosts', async () => {
       // Arrange
       const company1 = await createCompany(app, testData, getName());
