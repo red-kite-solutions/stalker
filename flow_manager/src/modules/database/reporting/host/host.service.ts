@@ -1,12 +1,7 @@
-import {
-  forwardRef,
-  HttpException,
-  Inject,
-  Injectable,
-  Logger,
-} from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { HttpNotFoundException } from '../../../../exceptions/http.exceptions';
 import escapeStringRegexp from '../../../../utils/escape-string-regexp';
 import { getTopTcpPorts } from '../../../../utils/ports.utils';
 import { ConfigService } from '../../admin/config/config.service';
@@ -65,19 +60,13 @@ export class HostService {
     const domain = await this.domainService.getDomainByName(domainName);
     if (!domain) {
       this.logger.debug(`Could not find the domain (domainName=${domainName})`);
-      throw new HttpException(
-        `The domain associated with the given job does not exist (domainName=${domainName})`,
-        404,
-      );
+      throw new HttpNotFoundException(`domainName=${domainName})`);
     }
 
     const company = await this.companyModel.findById(companyId);
     if (!company) {
       this.logger.debug(`Could not find the company (companyId=${companyId})`);
-      throw new HttpException(
-        `The company does not exist (companyId=${companyId})`,
-        404,
-      );
+      throw new HttpNotFoundException(`companyId=${companyId}`);
     }
 
     let hostSummaries: HostSummary[] = [];
