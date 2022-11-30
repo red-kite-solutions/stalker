@@ -15,6 +15,7 @@ import { DashboardComponent } from './modules/dashboard/dashboard.component';
 import { ListDomainsComponent } from './modules/domains/list-domains/list-domains.component';
 import { ViewDomainComponent } from './modules/domains/view-domain/view-domain.component';
 import { ViewHostComponent } from './modules/hosts/view-host/view-host.component';
+import { AutomationComponent } from './modules/jobs/automation/automation.component';
 import { ManageTagsComponent } from './modules/tags/manage-tags/manage-tags.component';
 import { ProfileComponent } from './modules/user/profile/profile.component';
 
@@ -70,6 +71,10 @@ const routes: Routes = [
       {
         path: 'tags',
         component: ManageTagsComponent,
+      },
+      {
+        path: 'jobs/automation',
+        component: AutomationComponent,
       },
     ],
   },

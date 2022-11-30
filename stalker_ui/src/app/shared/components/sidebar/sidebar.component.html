@@ -49,6 +49,25 @@
     <span *ngIf="expanded" i18n="Tags|An item's tags">Tags</span>
   </a>
 
+  <!-- Jobs -->
+
+  <mat-divider></mat-divider>
+
+  <h2 matSubheader *ngIf="expanded" i18n="Jobs|Jobs done by the backend">Jobs</h2>
+  <a
+    mat-list-item
+    routerLinkActive="list-item-active"
+    routerLink="/jobs/automation"
+    [matTooltip]="expanded ? '' : automation"
+    [matTooltipShowDelay]="700"
+    matTooltipPosition="right"
+  >
+    <mat-icon class="material-icons-outlined">precision_manufacturing</mat-icon>
+    <span *ngIf="expanded" i18n="Automation|The jobs automation process">Automation</span>
+  </a>
+
+  <!-- Administration -->
+
   <div *ngIf="this.authService.role === 'admin'">
     <mat-divider></mat-divider>
 
