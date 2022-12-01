@@ -5,11 +5,12 @@ import { HttpNotFoundException } from '../../../../exceptions/http.exceptions';
 import escapeStringRegexp from '../../../../utils/escape-string-regexp';
 import { getTopTcpPorts } from '../../../../utils/ports.utils';
 import { ConfigService } from '../../admin/config/config.service';
+import { TagsService } from '../../tags/tag.service';
 import { Company } from '../company.model';
 import { DomainsService } from '../domain/domain.service';
 import { DomainSummary } from '../domain/domain.summary';
 import { ReportService } from '../report/report.service';
-import { HostFilterModel, HostsPagingModel } from './host-filter.model';
+import { HostFilterModel } from './host-filter.model';
 import { Host, HostDocument } from './host.model';
 import { HostSummary } from './host.summary';
 
@@ -22,6 +23,7 @@ export class HostService {
     @InjectModel('company') private readonly companyModel: Model<Company>,
     private reportService: ReportService,
     private configService: ConfigService,
+    private tagsService: TagsService,
     @Inject(forwardRef(() => DomainsService))
     private domainService: DomainsService,
   ) {}
@@ -56,6 +58,7 @@ export class HostService {
     ips: string[],
     domainName: string,
     companyId: string,
+    tagsIds: string[],
   ) {
     const domain = await this.domainService.getDomainByName(domainName);
     if (!domain) {
@@ -67,6 +70,20 @@ export class HostService {
     if (!company) {
       this.logger.debug(`Could not find the company (companyId=${companyId})`);
       throw new HttpNotFoundException(`companyId=${companyId}`);
+    }
+
+    const allTags = await this.tagsService.getAll();
+    const allTagsIds = new Set(allTags.map((x) => x._id.toString()));
+    const existingTags = tagsIds
+      .filter((x) => allTagsIds.has(x.toString()))
+      .map((x) => new Types.ObjectId(x));
+
+    if (existingTags.length != tagsIds.length) {
+      this.logger.debug(
+        `Some tags do not exist (tagsIds=${tagsIds
+          .filter((x) => !allTagsIds.has(x))
+          .join(',')})`,
+      );
     }
 
     let hostSummaries: HostSummary[] = [];
@@ -91,7 +108,7 @@ export class HostService {
               companyId: new Types.ObjectId(companyId),
               companyName: company.name,
             },
-            $addToSet: { domains: ds },
+            $addToSet: { domains: ds, tags: existingTags },
           },
           { upsert: true, useFindAndModify: false },
         )
@@ -180,6 +197,28 @@ export class HostService {
     return insertedHosts;
   }
 
+  public async tagHost(hostId: string, tagId: string) {
+    const host = await this.hostModel.findById(hostId);
+    if (host == null) {
+      this.logger.debug(`Could not find the host (hostId=${hostId})`);
+      throw new HttpNotFoundException(`hostId=${hostId})`);
+    }
+
+    const tag = await this.tagsService.getById(tagId);
+    if (tag == null) {
+      this.logger.debug(`Could not find the tag (tagId=${tagId})`);
+      throw new HttpNotFoundException(`tagId=${tagId})`);
+    }
+
+    const updatedHost = await this.hostModel.findByIdAndUpdate(hostId, {
+      $addToSet: {
+        tags: new Types.ObjectId(tagId),
+      },
+    });
+
+    return updatedHost;
+  }
+
   public async getHostTopTcpPorts(
     id: string,
     page: number,
@@ -254,7 +293,7 @@ export class HostService {
     if (dto.tags) {
       const preppedTagsArray = [];
       for (const tag of dto.tags) {
-        preppedTagsArray.push(tag.toLowerCase());
+        preppedTagsArray.push(new Types.ObjectId(tag));
       }
 
       finalFilter['tags'] = { $all: preppedTagsArray };

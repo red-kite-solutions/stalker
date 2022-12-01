@@ -100,7 +100,7 @@ export class CompanyService {
       throw new HttpNotFoundException();
     }
 
-    await this.hostsService.addHostsWithDomain(ips, domainName, companyId);
+    await this.hostsService.addHostsWithDomain(ips, domainName, companyId, []);
   }
 
   public async publishJob(job: Job) {

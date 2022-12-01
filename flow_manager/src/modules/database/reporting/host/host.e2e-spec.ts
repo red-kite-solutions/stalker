@@ -79,11 +79,13 @@ describe('Host Controller (e2e)', () => {
         ['192.168.1.1', '192.168.1.2'],
         domain1,
         company1._id,
+        [],
       );
       await hostsService.addHostsWithDomain(
         ['192.168.1.3', '192.168.1.4', '192.168.1.5', '192.168.1.6'],
         domain2,
         company2._id,
+        [],
       );
 
       // Act & Assert
@@ -133,11 +135,13 @@ describe('Host Controller (e2e)', () => {
         ['192.168.2.1', '192.168.2.2'],
         domain1,
         company1._id,
+        [],
       );
       await hostsService.addHostsWithDomain(
         ['192.168.2.2', '192.168.2.4', '192.168.2.5', '192.168.2.6'],
         domain2,
         company2._id,
+        [],
       );
 
       // Act & Assert

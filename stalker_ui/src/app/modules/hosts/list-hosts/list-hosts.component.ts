@@ -1,34 +1,27 @@
-import { Component, TemplateRef } from "@angular/core";
-import { MediaChange, MediaObserver } from "@angular/flex-layout/core";
-import { MatDialog } from "@angular/material/dialog";
-import { PageEvent } from "@angular/material/paginator";
-import { MatTableDataSource } from "@angular/material/table";
-import { ToastrService } from "ngx-toastr";
-import {
-  BehaviorSubject,
-  distinctUntilChanged,
-  filter,
-  map,
-  switchMap,
-  tap,
-} from "rxjs";
-import { CompaniesService } from "src/app/api/companies/companies.service";
-import { TagsService } from "src/app/api/tags/tags.service";
-import { CompanySummary } from "src/app/shared/types/company/company.summary";
-import { Page } from "src/app/shared/types/page.type";
-import { Tag } from "src/app/shared/types/tag.type";
-import { HostsService } from "../../../api/hosts/hosts.service";
-import { Host } from "../../../shared/types/host/host.interface";
+import { Component, TemplateRef } from '@angular/core';
+import { MediaChange, MediaObserver } from '@angular/flex-layout/core';
+import { MatDialog } from '@angular/material/dialog';
+import { PageEvent } from '@angular/material/paginator';
+import { MatTableDataSource } from '@angular/material/table';
+import { ToastrService } from 'ngx-toastr';
+import { BehaviorSubject, distinctUntilChanged, filter, map, switchMap, tap } from 'rxjs';
+import { CompaniesService } from 'src/app/api/companies/companies.service';
+import { TagsService } from 'src/app/api/tags/tags.service';
+import { CompanySummary } from 'src/app/shared/types/company/company.summary';
+import { Page } from 'src/app/shared/types/page.type';
+import { Tag } from 'src/app/shared/types/tag.type';
+import { HostsService } from '../../../api/hosts/hosts.service';
+import { Host } from '../../../shared/types/host/host.interface';
 
 @Component({
-  selector: "app-list-hosts",
-  templateUrl: "./list-hosts.component.html",
-  styleUrls: ["./list-hosts.component.scss"],
+  selector: 'app-list-hosts',
+  templateUrl: './list-hosts.component.html',
+  styleUrls: ['./list-hosts.component.scss'],
 })
 export class ListHostsComponent {
   dataLoading = true;
-  displayedColumns: string[] = ["select", "ip", "domains", "company"];
-  filterOptions: string[] = ["domain", "company"];
+  displayedColumns: string[] = ['select', 'ip', 'domains', 'company', 'tags'];
+  filterOptions: string[] = ['domain', 'company', 'tags'];
 
   dataSource = new MatTableDataSource<Host>();
   currentPage: PageEvent = this.generateFirstPageEvent();
@@ -42,11 +35,7 @@ export class ListHostsComponent {
     }),
     switchMap((currentPage) => {
       const filters = this.buildFilters(this.currentFilters);
-      return this.hostsService.getPage(
-        currentPage.pageIndex,
-        currentPage.pageSize,
-        filters
-      );
+      return this.hostsService.getPage(currentPage.pageIndex, currentPage.pageSize, filters);
     }),
     map((data: Page<Host>) => {
       if (!this.dataSource) {
@@ -84,8 +73,8 @@ export class ListHostsComponent {
   );
 
   // #addDomainDialog template variables
-  selectedCompany = "";
-  selectedNewDomains = "";
+  selectedCompany = '';
+  selectedNewDomains = '';
 
   private generateFirstPageEvent() {
     const p = new PageEvent();
@@ -107,9 +96,9 @@ export class ListHostsComponent {
 
   public displayColumns$ = this.screenSize$.pipe(
     map((screen: string) => {
-      if (screen === "xs") return ["select", "domains", "company"];
-      if (screen === "sm") return ["select", "domains", "company", "tags"];
-      if (screen === "md") return ["select", "domains", "company", "tags"];
+      if (screen === 'xs') return ['select', 'domains', 'company'];
+      if (screen === 'sm') return ['select', 'domains', 'company', 'tags'];
+      if (screen === 'md') return ['select', 'domains', 'company', 'tags'];
       return this.displayedColumns;
     })
   );
@@ -135,7 +124,7 @@ export class ListHostsComponent {
   }
 
   buildFilters(stringFilters: string[]): any {
-    const SEPARATOR = ":";
+    const SEPARATOR = ':';
     const filterObject: any = {};
     const tags = [];
     const domains = [];
@@ -153,40 +142,36 @@ export class ListHostsComponent {
       if (!key || !value) continue;
 
       switch (key) {
-        case "company":
-          const company = this.companies.find(
-            (c) => c.name.trim().toLowerCase() === value.trim().toLowerCase()
-          );
-          if (company) filterObject["company"] = company.id;
+        case 'company':
+          const company = this.companies.find((c) => c.name.trim().toLowerCase() === value.trim().toLowerCase());
+          if (company) filterObject['company'] = company.id;
           else
             this.toastrService.warning(
               $localize`:Company does not exist|The given company name is not known to the application:Company name not recognized`
             );
           break;
-        case "tags":
-          const tag = this.tags.find(
-            (t) => t.text.trim().toLowerCase() === value.trim().toLowerCase()
-          );
+        case 'tags':
+          const tag = this.tags.find((t) => t.text.trim().toLowerCase() === value.trim().toLowerCase());
           if (tag) tags.push(tag.id);
           else
             this.toastrService.warning(
               $localize`:Tag does not exist|The given tag is not known to the application:Tag not recognized`
             );
           break;
-        case "domain":
+        case 'domain':
           domains.push(value);
           break;
       }
     }
-    if (tags) filterObject["tags"] = tags;
-    if (domains) filterObject["domain"] = domains;
+    if (tags) filterObject['tags'] = tags;
+    if (domains) filterObject['domain'] = domains;
     return filterObject;
   }
 
   openNewDomainsDialog(templateRef: TemplateRef<any>) {
     this.dialog.open(templateRef, {
       restoreFocus: false,
-      minWidth: "50%",
+      minWidth: '50%',
     });
   }
 }

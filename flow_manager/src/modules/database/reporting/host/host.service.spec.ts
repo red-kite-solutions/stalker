@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { randomUUID } from 'crypto';
 import { AppModule } from '../../../app.module';
+import { TagsService } from '../../tags/tag.service';
 import { CompanyDocument } from '../company.model';
 import { CompanyService } from '../company.service';
 import { Domain } from '../domain/domain.model';
@@ -12,6 +13,7 @@ describe('Host Service', () => {
   let hostService: HostService;
   let domainService: DomainsService;
   let companyService: CompanyService;
+  let tagsService: TagsService;
 
   beforeAll(async () => {
     moduleFixture = await Test.createTestingModule({
@@ -20,6 +22,7 @@ describe('Host Service', () => {
     hostService = moduleFixture.get(HostService);
     domainService = moduleFixture.get(DomainsService);
     companyService = moduleFixture.get(CompanyService);
+    tagsService = moduleFixture.get(TagsService);
   });
 
   beforeEach(async () => {
@@ -45,11 +48,11 @@ describe('Host Service', () => {
       const d = domains;
 
       // Act & Assert
-      let newHosts = await host(d, c, '1.1.1.1');
+      let newHosts = await host(d, c, [], '1.1.1.1');
       expect(newHosts.length).toBe(1);
 
       // Act & Assert
-      newHosts = await host(d, c, '1.1.1.1');
+      newHosts = await host(d, c, [], '1.1.1.1');
 
       // Assert
       expect(newHosts.length).toBe(0);
@@ -64,8 +67,8 @@ describe('Host Service', () => {
       const d2 = await domain('company4.example.org', c2);
 
       // Act
-      await host(d1, c1, '8.8.8.8');
-      await host(d2, c2, '8.8.8.8');
+      await host(d1, c1, [], '8.8.8.8');
+      await host(d2, c2, [], '8.8.8.8');
 
       // Assert
       const allHosts = await hostService.getAll(0, 10, null);
@@ -88,8 +91,8 @@ describe('Host Service', () => {
       const c2 = await company('my second company');
       const d2 = await domain('company6.example.org', c1);
 
-      await host(d1, c1, '8.8.8.8', '1.2.3.4');
-      await host(d2, c2, '2.3.4.5', '6.7.8.9');
+      await host(d1, c1, [], '8.8.8.8', '1.2.3.4');
+      await host(d2, c2, [], '2.3.4.5', '6.7.8.9');
 
       // Act
       const allHosts = await hostService.getAll(0, 10, {
@@ -119,16 +122,16 @@ describe('Host Service', () => {
         const c2 = await company('c2');
 
         const d1 = await domain('foo.example.org', c1);
-        await host(d1, c1, '1.1.1.1', '2.2.2.2');
+        await host(d1, c1, [], '1.1.1.1', '2.2.2.2');
 
         const d2 = await domain('bar.foo.company.example.org', c1);
-        await host(d2, c1, '1.1.1.1', '3.3.3.3');
+        await host(d2, c1, [], '1.1.1.1', '3.3.3.3');
 
         const d3 = await domain('foo.bar.somethingelse.example.org', c2);
-        await host(d3, c2, '4.4.4.4', '5.5.5.5');
+        await host(d3, c2, [], '4.4.4.4', '5.5.5.5');
 
         const d4 = await domain('unrelated.example.org', c2);
-        await host(d4, c2, '6.6.6.6');
+        await host(d4, c2, [], '6.6.6.6');
 
         // Act
         const allHosts = await hostService.getAll(0, 10, {
@@ -141,18 +144,58 @@ describe('Host Service', () => {
         );
       },
     );
+
+    it('Filter by tag', async () => {
+      // Arrange
+      const c1 = await company('c1');
+      const c2 = await company('c2');
+
+      const t1 = await tag('t1');
+      const t2 = await tag('t2');
+
+      const d1 = await domain('abc.example.org', c1);
+      await host(d1, c1, [t1._id], '1.1.1.1', '2.2.2.2');
+
+      const d2 = await domain('abc.company.example.org', c1);
+      await host(d2, c1, [t1._id], '1.1.1.1', '3.3.3.3');
+
+      const d3 = await domain('xyz.example.org', c2);
+      await host(d3, c2, [t2._id], '4.4.4.4', '5.5.5.5');
+
+      const d4 = await domain('unrelated.example.org', c2);
+      await host(d4, c2, [], '6.6.6.6');
+
+      // Act
+      const allHosts = await hostService.getAll(0, 10, {
+        tags: [t1._id],
+      });
+      const allHosts2 = await hostService.getAll(0, 10, {});
+
+      // Assert
+      expect(allHosts.map((x) => x.ip).sort()).toStrictEqual([
+        '1.1.1.1',
+        '2.2.2.2',
+        '3.3.3.3',
+      ]);
+    });
   });
 
   async function host(
     domain: Domain,
     company: CompanyDocument,
+    tags: string[],
     ...ips: string[]
   ) {
     return await hostService.addHostsWithDomain(
       ips,
       domain.name,
       company._id.toString(),
+      tags,
     );
+  }
+
+  async function tag(name: string) {
+    return await tagsService.create(name, '#cccccc');
   }
 
   async function company(name: string) {

@@ -61,7 +61,6 @@ export class HostController {
   @Roles(Role.ReadOnly)
   @Get()
   async getAllHosts(@Query() dto: HostsFilterDto): Promise<Page<HostDocument>> {
-    console.log(dto);
     const totalRecords = await this.hostsService.count(dto);
     const items = await this.hostsService.getAll(dto.page, dto.pageSize, dto);
 
