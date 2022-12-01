@@ -29,7 +29,7 @@ export class HostnameIpHandler extends FindingHandlerBase<HostnameIpCommand> {
       command.ips,
       command.domainName,
       job.companyId,
-      company.name,
+      [],
     );
   }
 }

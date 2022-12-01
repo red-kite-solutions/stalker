@@ -1,7 +1,9 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import jwt_decode from 'jwt-decode';
+import { MongoClient } from 'mongodb';
 import request from 'supertest';
 import { Role } from '../src/modules/auth/constants';
+import { CompanyDocument } from '../src/modules/database/reporting/company.model';
 
 export interface UserTestingData {
   token: string;
@@ -226,4 +228,66 @@ export async function checkAuthorizations(
   }
 
   return true;
+}
+
+export async function createCompany(
+  app,
+  testData: TestingData,
+  companyName,
+): Promise<CompanyDocument> {
+  const res = await postReq(app, testData.user.token, '/company', {
+    name: companyName,
+  });
+
+  expect(res.statusCode).toBe(201);
+  res.body._id = `${res.body._id}`;
+  return res.body;
+}
+
+export async function createDomain(
+  app,
+  testData: TestingData,
+  companyId: string,
+  domains: string[],
+) {
+  const r = await postReq(
+    app,
+    testData.admin.token,
+    `/company/${companyId}/domain`,
+    { domains: domains },
+  );
+
+  return r.body;
+}
+
+export async function cleanup() {
+  if (!process.env.TESTS) {
+    console.error('Cannot wipe data if not in TEST mode.');
+    return;
+  }
+
+  const uri = process.env.MONGO_ADDRESS;
+  const client = new MongoClient(uri);
+  await client.connect();
+  const db = client.db(process.env.MONGO_DATABASE_NAME);
+  const collectionsToDelete = [
+    'jobs',
+    'domains',
+    'hosts',
+    'companies',
+    'tags',
+    'reports',
+  ];
+
+  const promises = collectionsToDelete.map(async (c) => {
+    try {
+      await db.dropCollection(c);
+    } catch (e) {
+      // Do nothing, the collection probably does not exist.
+    }
+  });
+
+  await Promise.all(promises);
+
+  await client.close();
 }
