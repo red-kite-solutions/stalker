@@ -1,2 +1,12 @@
-<p>automation works!</p>
-<app-code-editor></app-code-editor>
+<div fxLayout="column" class="code-editor-container">
+  <app-code-editor
+    [code]="code"
+    [language]="language"
+    [minimapEnabled]="minimapEnabled"
+    [theme]="theme"
+    [readonly]="readonly"
+    fxFlex
+  ></app-code-editor>
+</div>
+
+<button (click)="Test()">Test</button>
