@@ -12,11 +12,11 @@ import {
 import { stringify } from 'yaml';
 
 @Component({
-  selector: 'app-automation',
-  templateUrl: './automation.component.html',
-  styleUrls: ['./automation.component.scss'],
+  selector: 'app-subscription',
+  templateUrl: './subscription.component.html',
+  styleUrls: ['./subscription.component.scss'],
 })
-export class AutomationComponent {
+export class SubscriptionComponent {
   public code = '';
   public currentCodeBackup: string | undefined;
   public language = 'yaml';
@@ -32,6 +32,7 @@ export class AutomationComponent {
 
   public selectedRow: FindingEventSubscription | undefined;
   public tempSelectedRow: FindingEventSubscription | undefined;
+  public isInNewSubscriptionContext = true;
 
   private genData = [1];
   public data = new Array<FindingEventSubscription>(
@@ -128,6 +129,7 @@ export class AutomationComponent {
   }
 
   private NewSubscriptionNext() {
+    this.isInNewSubscriptionContext = true;
     this.selectedRow = undefined;
     this.code = this.subscriptionTemplate;
     this.currentCodeBackup = this.subscriptionTemplate;
@@ -139,6 +141,7 @@ export class AutomationComponent {
   }
 
   private SelectFindingSubscriptionNext() {
+    this.isInNewSubscriptionContext = false;
     this.selectedRow = this.tempSelectedRow;
     const newYaml = this.data.find((v) => v.name === this.tempSelectedRow?.name);
     this.code = stringify(newYaml);
@@ -146,6 +149,11 @@ export class AutomationComponent {
   }
 
   public SaveSubscriptionEdits() {
+    if (this.isInNewSubscriptionContext) {
+      // create a new subscription
+    } else {
+      // edit an existing subscription
+    }
     this.currentCodeBackup = this.code;
   }
 }

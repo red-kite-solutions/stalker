@@ -16,7 +16,7 @@ export class SidebarComponent {
   public companies = $localize`:Companies|Multiple businesses:Companies`;
   public domains = $localize`:Domains|A domain name:Domains`;
   public tags = $localize`:Tags|An item's tags:Tags`;
-  public automation = $localize`:Automation|Jobs' automation process:Automation`;
+  public subscriptions = $localize`:Subscriptions|The jobs automation process to subscribe to finding events:Subscriptions`;
 
   constructor(public authService: AuthService) {}
 }

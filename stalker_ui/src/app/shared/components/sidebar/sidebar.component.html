@@ -57,13 +57,15 @@
   <a
     mat-list-item
     routerLinkActive="list-item-active"
-    routerLink="/jobs/automation"
-    [matTooltip]="expanded ? '' : automation"
+    routerLink="/jobs/subscriptions"
+    [matTooltip]="expanded ? '' : subscriptions"
     [matTooltipShowDelay]="700"
     matTooltipPosition="right"
   >
     <mat-icon class="material-icons-outlined">precision_manufacturing</mat-icon>
-    <span *ngIf="expanded" i18n="Automation|The jobs automation process">Automation</span>
+    <span *ngIf="expanded" i18n="Subscriptions|The jobs automation process to subscribe to finding events"
+      >Subscriptions</span
+    >
   </a>
 
   <!-- Administration -->
