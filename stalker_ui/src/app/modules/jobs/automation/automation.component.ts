@@ -97,10 +97,6 @@ export class AutomationComponent {
     this.currentCodeBackup = this.code;
   }
 
-  public Test() {
-    console.log(this.code);
-  }
-
   private validateCurrentChanges(next: Function) {
     if (this.code === this.currentCodeBackup) {
       next();
