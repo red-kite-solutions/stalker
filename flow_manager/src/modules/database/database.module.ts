@@ -4,6 +4,7 @@ import { ConfigModule } from './admin/config/config.module';
 import { JobsModule } from './jobs/jobs.module';
 import { CompanyModule } from './reporting/company.module';
 import { ReportModule } from './reporting/report/report.module';
+import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { TagsModule } from './tags/tag.module';
 
 @Module({
@@ -19,6 +20,7 @@ import { TagsModule } from './tags/tag.module';
     ReportModule,
     ConfigModule,
     TagsModule,
+    SubscriptionsModule,
   ],
   exports: [JobsModule],
 })
