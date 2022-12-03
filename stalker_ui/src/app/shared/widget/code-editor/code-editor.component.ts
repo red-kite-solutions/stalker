@@ -1,5 +1,5 @@
-import { AfterViewInit, Component, ElementRef, Input, OnDestroy, ViewChild } from '@angular/core';
-import { debounceTime, first, fromEvent, Subscription } from 'rxjs';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy, Output, ViewChild } from '@angular/core';
+import { first, Subscription } from 'rxjs';
 import { CodeEditorService } from './code-editor.service';
 
 declare const monaco: any;
@@ -22,7 +22,7 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
   private _language!: string;
   private _readonly = false;
   private _tabSize = 2;
-  private _windowResizeSubscription: Subscription | undefined;
+  private _divResizeObserver: ResizeObserver | undefined;
 
   private loadSub: Subscription | undefined;
 
@@ -33,6 +33,9 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
       this._editor.setValue(val);
     }
   }
+
+  @Output()
+  public codeChange = new EventEmitter<string>();
 
   @Input()
   public set language(val: string) {
@@ -76,6 +79,11 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
 
   constructor(private codeEditorService: CodeEditorService) {}
 
+  private propagateChange(value: string) {
+    this._code = value;
+    this.codeChange.emit(value);
+  }
+
   private initMonaco(): void {
     if (!this.codeEditorService.loaded) {
       this.loadSub = this.codeEditorService.loadingFinished.pipe(first()).subscribe(() => {
@@ -97,15 +105,18 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
 
     this._editor = monaco.editor.create(this._editorContainer.nativeElement, options);
 
-    if (this._windowResizeSubscription) {
-      this._windowResizeSubscription.unsubscribe();
-    }
-    this._windowResizeSubscription = fromEvent(window, 'resize')
-      .pipe(debounceTime(0))
-      .subscribe(() => {
-        this._editor.layout();
-        console.log('resize :)');
-      });
+    this._editor.onDidChangeModelContent(() => {
+      const code = this._editor.getValue();
+
+      this.propagateChange(code);
+    });
+
+    const containerElement = document.querySelector('.editor-container');
+    this._divResizeObserver = new ResizeObserver(() => {
+      this._editor.layout();
+    });
+
+    if (containerElement) this._divResizeObserver.observe(containerElement);
   }
 
   ngAfterViewInit(): void {
@@ -114,10 +125,10 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     if (this.loadSub) this.loadSub.unsubscribe();
-    if (this._windowResizeSubscription) this._windowResizeSubscription.unsubscribe();
     if (this._editor) {
       this._editor.dispose();
       this._editor = undefined;
     }
+    this._divResizeObserver?.disconnect();
   }
 }
