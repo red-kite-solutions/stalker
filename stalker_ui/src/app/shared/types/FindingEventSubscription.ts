@@ -1,4 +1,8 @@
-export interface FindingEventSubscription {
+export interface FindingEventSubscription extends SubscriptionData {
+  _id: string;
+}
+
+export interface SubscriptionData {
   name: string;
   finding: string;
   job: {

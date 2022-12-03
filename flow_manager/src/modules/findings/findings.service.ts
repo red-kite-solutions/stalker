@@ -6,6 +6,11 @@ import { HostnameIpCommand } from './commands/JobFindings/hostname-ip.command';
 import { TcpPortsCommand } from './commands/JobFindings/tcp-ports.command';
 
 export type Finding = HostnameIpFinding | HostnameFinding | TcpPortsFinding;
+export const FindingTypes = [
+  'HostnameIpFinding',
+  'HostnameFinding',
+  'TcpPortsFinding',
+];
 
 export interface TcpPortsFinding {
   type: 'TcpPortsFinding';

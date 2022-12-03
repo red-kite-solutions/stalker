@@ -3,12 +3,12 @@ import {
   IsBase64,
   IsFQDN,
   IsIn,
+  IsIP,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
-import { IsIPv4 } from 'src/validators/ipv4.validator';
 
 export class CreateCompanyDto {
   @IsNotEmpty()
@@ -60,7 +60,7 @@ export class SubmitDomainsDto {
 export class SubmitHostsDto {
   @IsNotEmpty()
   @IsArray()
-  @IsIPv4({ each: true })
+  @IsIP('4', { each: true })
   ips: string[];
 }
 

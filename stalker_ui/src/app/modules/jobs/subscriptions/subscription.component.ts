@@ -2,14 +2,16 @@ import { Component, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
+import { ToastrService } from 'ngx-toastr';
 import { from, map } from 'rxjs';
-import { FindingEventSubscription } from 'src/app/shared/types/FindingEventSubscription';
+import { SubscriptionsService } from 'src/app/api/jobs/subscriptions/subscriptions.service';
+import { FindingEventSubscription, SubscriptionData } from 'src/app/shared/types/FindingEventSubscription';
 import { CodeEditorService } from 'src/app/shared/widget/code-editor/code-editor.service';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
-import { stringify } from 'yaml';
+import { parse, stringify } from 'yaml';
 
 @Component({
   selector: 'app-subscription',
@@ -25,7 +27,7 @@ export class SubscriptionComponent {
   public readonly = false;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
-  dataSource = new MatTableDataSource<FindingEventSubscription>();
+  dataSource = new MatTableDataSource<SubscriptionData>();
 
   public subscriptionTemplate =
     'name: my subscription\nfinding: FindingTypeName\njob:\n  name: JobName\n  parameters:\n  - name: ParamName\n    value: param value\nconditions:\n  - lhs: string\n    operator: contains\n    rhs: ring';
@@ -37,6 +39,7 @@ export class SubscriptionComponent {
   private genData = [1];
   public data = new Array<FindingEventSubscription>(
     {
+      _id: 'asdfasdf',
       name: 'This is the subscription of a lifetime',
       finding: 'HostNameIpFinding',
       job: {
@@ -77,6 +80,7 @@ export class SubscriptionComponent {
       ],
     },
     {
+      _id: 'qwertyqwerty',
       name: 'My subscription',
       finding: 'HostnameIpFinding',
       job: {
@@ -92,7 +96,12 @@ export class SubscriptionComponent {
     })
   );
 
-  constructor(private codeEditorService: CodeEditorService, private dialog: MatDialog) {
+  constructor(
+    private codeEditorService: CodeEditorService,
+    private dialog: MatDialog,
+    private subscriptionsService: SubscriptionsService,
+    private toastr: ToastrService
+  ) {
     this.codeEditorService.load();
     this.code = this.subscriptionTemplate;
     this.currentCodeBackup = this.code;
@@ -143,17 +152,47 @@ export class SubscriptionComponent {
   private SelectFindingSubscriptionNext() {
     this.isInNewSubscriptionContext = false;
     this.selectedRow = this.tempSelectedRow;
-    const newYaml = this.data.find((v) => v.name === this.tempSelectedRow?.name);
-    this.code = stringify(newYaml);
+    const rowData = this.data.find((v) => v._id === this.tempSelectedRow?._id);
+    const rowCopy = JSON.parse(JSON.stringify(rowData));
+    delete rowCopy._id;
+    this.code = stringify(<SubscriptionData>rowCopy);
     this.currentCodeBackup = this.code;
   }
 
-  public SaveSubscriptionEdits() {
-    if (this.isInNewSubscriptionContext) {
-      // create a new subscription
-    } else {
-      // edit an existing subscription
+  public async SaveSubscriptionEdits() {
+    let sub: SubscriptionData;
+    try {
+      sub = parse(this.code);
+    } catch {
+      this.toastr.error(
+        $localize`:Yaml syntax error|There was a syntax error in the user provided yaml:Yaml syntax error`
+      );
+      return;
     }
-    this.currentCodeBackup = this.code;
+
+    const invalidSubscription = $localize`:Invalid subscription|Subscription is not in a valid format:Invalid subscription`;
+    // validate the content of the sub variable?
+    let valid = true;
+    if (!sub.finding || !sub.name || !sub.job.name) valid = false;
+
+    if (!valid) {
+      this.toastr.error(invalidSubscription);
+    }
+
+    try {
+      if (this.isInNewSubscriptionContext) {
+        // create a new subscription
+        const newSub = await this.subscriptionsService.create(sub);
+        this.toastr.success(
+          $localize`:Successfully created subscription|Successfully created subscription:Successfully created subscription`
+        );
+        this.dataSource.data.push(newSub);
+      } else {
+        // edit an existing subscription
+      }
+      this.currentCodeBackup = this.code;
+    } catch {
+      this.toastr.error(invalidSubscription);
+    }
   }
 }
