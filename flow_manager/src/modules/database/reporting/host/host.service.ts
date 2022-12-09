@@ -1,9 +1,9 @@
 import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { getTopTcpPorts } from 'src/utils/ports.utils';
 import { HttpNotFoundException } from '../../../../exceptions/http.exceptions';
 import escapeStringRegexp from '../../../../utils/escape-string-regexp';
+import { getTopTcpPorts } from '../../../../utils/ports.utils';
 import { ConfigService } from '../../admin/config/config.service';
 import { TagsService } from '../../tags/tag.service';
 import { Company } from '../company.model';
