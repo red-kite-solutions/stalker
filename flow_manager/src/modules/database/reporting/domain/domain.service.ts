@@ -1,9 +1,9 @@
 import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { HostnameFinding } from 'src/modules/findings/findings.service';
-import { FindingsQueue } from 'src/modules/job-queue/findings-queue';
 import { HttpNotFoundException } from '../../../../exceptions/http.exceptions';
+import { HostnameFinding } from '../../../findings/findings.service';
+import { FindingsQueue } from '../../../job-queue/findings-queue';
 import { ConfigService } from '../../admin/config/config.service';
 import { JobsService } from '../../jobs/jobs.service';
 import { Company } from '../company.model';
