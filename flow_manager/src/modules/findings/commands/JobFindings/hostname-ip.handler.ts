@@ -29,7 +29,6 @@ export class HostnameIpHandler extends JobFindingHandlerBase<HostnameIpCommand> 
       command.ips,
       command.domainName,
       job.companyId,
-      company.name,
     );
 
     for (const host of newHosts) {

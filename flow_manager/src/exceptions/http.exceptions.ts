@@ -19,8 +19,11 @@ export class HttpForbiddenException extends HttpException {
 }
 
 export class HttpNotFoundException extends HttpException {
-  constructor() {
-    super('Item not found', HttpStatus.NOT_FOUND);
+  constructor(...ids: string[]) {
+    super(
+      `Item not found ${ids.length > 0 ? ` (${ids.join(', ')})` : ''}`,
+      HttpStatus.NOT_FOUND,
+    );
   }
 }
 

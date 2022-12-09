@@ -8,7 +8,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import { IsIPv4 } from 'src/validators/ipv4.validator';
+import { IsIPv4 } from '../../../validators/ipv4.validator';
 
 export class CreateCompanyDto {
   @IsNotEmpty()

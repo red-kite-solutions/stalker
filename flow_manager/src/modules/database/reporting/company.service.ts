@@ -21,7 +21,7 @@ export class CompanyService {
   public async getAll(
     page: number = null,
     pageSize: number = null,
-  ): Promise<Company[]> {
+  ): Promise<CompanyDocument[]> {
     let query = this.companyModel.find();
     if (page != null && pageSize != null) {
       query = query.skip(page).limit(pageSize);
@@ -78,11 +78,7 @@ export class CompanyService {
       throw new HttpNotFoundException();
     }
 
-    return await this.domainsService.addDomains(
-      domains,
-      companyId,
-      company.name,
-    );
+    return await this.domainsService.addDomains(domains, companyId);
   }
 
   public async addHosts(hosts: string[], companyId: string) {
@@ -104,12 +100,7 @@ export class CompanyService {
       throw new HttpNotFoundException();
     }
 
-    await this.hostsService.addHostsWithDomain(
-      ips,
-      domainName,
-      companyId,
-      company.name,
-    );
+    await this.hostsService.addHostsWithDomain(ips, domainName, companyId, []);
   }
 
   public async publishJob(job: Job) {

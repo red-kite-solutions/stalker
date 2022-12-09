@@ -1,5 +1,14 @@
+// import { Type } from 'class-transformer';
 import { Type } from 'class-transformer';
-import { IsIn, IsInt, IsNotEmpty, Max, Min } from 'class-validator';
+import {
+  IsArray,
+  IsIn,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  Max,
+  Min,
+} from 'class-validator';
 
 export class PortsDto {
   @IsNotEmpty()
@@ -28,4 +37,28 @@ export class PortsDto {
   @Max(100)
   @Type(() => Number)
   pageSize: number = 10;
+}
+
+export class HostsFilterDto {
+  @IsInt()
+  @Type(() => Number)
+  page: number = 0;
+
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  @Type(() => Number)
+  pageSize: number = 10;
+
+  @IsOptional()
+  @Type(() => Array)
+  tags: string[];
+
+  @IsArray()
+  @IsOptional()
+  company: string[];
+
+  @IsArray()
+  @IsOptional()
+  domain: string[];
 }
