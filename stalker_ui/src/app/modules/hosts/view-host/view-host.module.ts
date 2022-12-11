@@ -16,7 +16,6 @@ import { SharedModule } from '../../../shared/shared.module';
 import { DomainDetailsModule } from '../../domains/domain-details/domains-details.module';
 import { FindingsModule } from '../../findings/findings.module';
 import { PortDetailsModule } from '../../ports/port-details/port-details.module';
-
 import { ViewHostComponent } from './view-host.component';
 
 @NgModule({
