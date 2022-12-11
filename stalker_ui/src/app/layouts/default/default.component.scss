@@ -5,7 +5,7 @@
 .layout {
   height: 100%;
   display: grid;
-  grid-template-rows: minmax(64px, 64px) auto minmax(64px, 64px);
+  grid-template-rows: minmax(64px, 64px) auto;
 }
 
 mat-drawer-container {
