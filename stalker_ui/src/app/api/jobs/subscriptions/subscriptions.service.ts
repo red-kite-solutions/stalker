@@ -19,6 +19,7 @@ export class SubscriptionsService {
             _id: item._id,
             name: item.name,
             finding: item.finding,
+            companyId: item.companyId,
             job: { name: item.jobName },
           };
           if (item.jobParameters) {
@@ -53,6 +54,7 @@ export class SubscriptionsService {
       name: subscription.name,
       finding: subscription.finding,
       jobName: subscription.job.name,
+      companyId: subscription.companyId,
     };
 
     if (subscription.job.parameters) {

@@ -2,6 +2,7 @@ import { Type } from 'class-transformer';
 import {
   IsArray,
   IsIn,
+  IsMongoId,
   IsOptional,
   IsString,
   ValidateNested,
@@ -13,6 +14,9 @@ import { JobTypes } from '../jobs/job-model.module';
 export class SubscriptionDto {
   @IsString()
   public name!: string;
+
+  @IsMongoId()
+  public companyId!: string;
 
   @IsString()
   @IsIn(FindingTypes)

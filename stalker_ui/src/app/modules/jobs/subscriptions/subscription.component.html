@@ -65,13 +65,26 @@
       </div>
     </mat-card>
   </div>
-  <app-code-editor
-    [(code)]="code"
-    [language]="language"
-    [minimapEnabled]="minimapEnabled"
-    [theme]="theme"
-    [readonly]="readonly"
-    fxFlex="55"
-    (saveEvent)="SaveSubscriptionEdits()"
-  ></app-code-editor>
+  <div fxFlex="55" *ngIf="companies$ | async">
+    <div fxLayout="column" class="code-editor-container">
+      <mat-form-field appearance="outline">
+        <mat-label i18n="Company|Company or business">Company</mat-label>
+        <mat-select [(value)]="selectedCompany">
+          <mat-option>None</mat-option>
+          <mat-option *ngFor="let company of companies$ | async" value="{{ company.id }}">{{
+            company.name
+          }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <app-code-editor
+        [(code)]="code"
+        [language]="language"
+        [minimapEnabled]="minimapEnabled"
+        [theme]="theme"
+        [readonly]="readonly"
+        (saveEvent)="SaveSubscriptionEdits()"
+        fxFlex
+      ></app-code-editor>
+    </div>
+  </div>
 </div>

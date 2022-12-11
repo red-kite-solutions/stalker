@@ -12,6 +12,8 @@ import {
   ConfirmDialogData,
 } from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
 import { parse, stringify } from 'yaml';
+import { CompaniesService } from '../../../api/companies/companies.service';
+import { CompanySummary } from '../../../shared/types/company/company.summary';
 
 @Component({
   selector: 'app-subscription',
@@ -30,7 +32,7 @@ export class SubscriptionComponent {
   dataSource = new MatTableDataSource<SubscriptionData>();
 
   public subscriptionTemplate =
-    'name: my subscription\nfinding: FindingTypeName\njob:\n  name: JobName\n  parameters:\n  - name: ParamName\n    value: param value\nconditions:\n  - lhs: string\n    operator: contains\n    rhs: ring';
+    'name: my subscription\nfinding: FindingTypeName\njob:\n  name: JobName\n  parameters:\n    - name: ParamName\n      value: param value\nconditions:\n  - lhs: string\n    operator: contains\n    rhs: ring';
 
   public selectedRow: FindingEventSubscription | undefined;
   public tempSelectedRow: FindingEventSubscription | undefined;
@@ -40,11 +42,25 @@ export class SubscriptionComponent {
 
   public dataSource$ = this.refreshData();
 
+  selectedCompany: string | undefined = undefined;
+  companies: CompanySummary[] = [];
+  companies$ = this.companiesService.getAllSummaries().pipe(
+    map((next: any[]) => {
+      const comp: CompanySummary[] = [];
+      for (const company of next) {
+        comp.push({ id: company._id, name: company.name });
+      }
+      this.companies = comp;
+      return this.companies;
+    })
+  );
+
   constructor(
     private codeEditorService: CodeEditorService,
     private dialog: MatDialog,
     private subscriptionsService: SubscriptionsService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private companiesService: CompaniesService
   ) {
     this.codeEditorService.load();
     this.code = this.subscriptionTemplate;
@@ -94,6 +110,7 @@ export class SubscriptionComponent {
   private NewSubscriptionNext() {
     this.isInNewSubscriptionContext = true;
     this.selectedRow = undefined;
+    this.selectedCompany = undefined;
     this.code = this.subscriptionTemplate;
     this.currentCodeBackup = this.subscriptionTemplate;
   }
@@ -106,10 +123,12 @@ export class SubscriptionComponent {
   private SelectFindingSubscriptionNext() {
     this.isInNewSubscriptionContext = false;
     this.selectedRow = this.tempSelectedRow;
+    this.selectedCompany = this.tempSelectedRow?.companyId;
     const rowData = this.data.find((v) => v._id === this.tempSelectedRow?._id);
     if (rowData?._id) this.currentSubscriptionId = rowData._id;
     const rowCopy = JSON.parse(JSON.stringify(rowData));
     delete rowCopy._id;
+    delete rowCopy.companyId;
     if (rowCopy.job?.parameters?.length === 0) {
       delete rowCopy.job.parameters;
     }
@@ -130,6 +149,15 @@ export class SubscriptionComponent {
       );
       return;
     }
+
+    if (!this.selectedCompany) {
+      this.toastr.error(
+        $localize`:Select company before submitting|Select company before submitting:Select company before submitting`
+      );
+      return;
+    }
+
+    sub.companyId = this.selectedCompany;
 
     const invalidSubscription = $localize`:Invalid subscription|Subscription is not in a valid format:Invalid subscription`;
     // validate the content of the sub variable?

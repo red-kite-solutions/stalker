@@ -20,6 +20,9 @@ export class Subscription {
   public name!: string;
 
   @Prop()
+  public companyId!: string;
+
+  @Prop()
   public finding!: string;
 
   @Prop()
