@@ -154,7 +154,7 @@
           </button>
 
           <ng-template #noMoreFindings>
-            <button mat-button color="primary" disabled>No more findings!</button>
+            <button *ngIf="findings.totalRecords > 0" mat-button color="primary" disabled>No more findings!</button>
           </ng-template>
         </div>
       </div>

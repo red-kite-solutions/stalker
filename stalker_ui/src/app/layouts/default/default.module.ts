@@ -40,6 +40,7 @@ import { ViewDomainComponent } from 'src/app/modules/domains/view-domain/view-do
 import { ManageTagsComponent } from 'src/app/modules/tags/manage-tags/manage-tags.component';
 import { ProfileComponent } from 'src/app/modules/user/profile/profile.component';
 import { SharedModule } from 'src/app/shared/shared.module';
+import { HostDetailsModule } from '../../modules/hosts/host-details/host-details.module';
 import { ViewHostModule } from '../../modules/hosts/view-host/view-host.module';
 import { DefaultComponent } from './default.component';
 
@@ -87,6 +88,7 @@ import { DefaultComponent } from './default.component';
     MatListModule,
     NgxMatColorPickerModule,
     ViewHostModule,
+    HostDetailsModule,
   ],
   providers: [{ provide: MAT_COLOR_FORMATS, useValue: NGX_MAT_COLOR_FORMATS }],
 })

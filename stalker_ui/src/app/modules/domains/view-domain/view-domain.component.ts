@@ -10,8 +10,7 @@ import { HostsService } from 'src/app/api/hosts/hosts.service';
 import { TagsService } from 'src/app/api/tags/tags.service';
 import { CompanySummary } from 'src/app/shared/types/company/company.summary';
 import { Domain } from 'src/app/shared/types/domain/domain.interface';
-import { DomainSummary } from 'src/app/shared/types/domain/domain.summary';
-import { Host, Port } from 'src/app/shared/types/host/host.interface';
+import { Host } from 'src/app/shared/types/host/host.interface';
 import { HostSummary } from 'src/app/shared/types/host/host.summary';
 import { Tag } from 'src/app/shared/types/tag.type';
 
@@ -30,10 +29,7 @@ export class ViewDomainComponent implements OnDestroy {
 
   // Host drawer
   public selectedHost: HostSummary | null = null;
-  public hostDetails: Host | null = null;
   public hostDetails$: Observable<Host> | null = null;
-  public hostDomainsDataSource = new MatTableDataSource<DomainSummary>();
-  public hostPortsDataSource = new MatTableDataSource<Port>();
 
   @ViewChild(MatPaginator) paginator: MatPaginator | null;
   @ViewChild(MatDrawer) hostDrawer: MatDrawer | null;
@@ -122,10 +118,7 @@ export class ViewDomainComponent implements OnDestroy {
 
     this.hostDetails$ = this.hostsService.get(this.selectedHost.id).pipe(
       map((hd: Host) => {
-        hd.ports.sort((a, b) => a?.port - b?.port);
-        this.hostDetails = hd;
-        this.hostDomainsDataSource.data = hd.domains;
-        this.hostPortsDataSource.data = hd.ports;
+        hd.ports = hd.ports.sort((a, b) => a?.port - b?.port);
         return hd;
       })
     );
