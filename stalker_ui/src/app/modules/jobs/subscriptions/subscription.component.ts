@@ -160,4 +160,40 @@ export class SubscriptionComponent {
       this.toastr.error(invalidSubscription);
     }
   }
+
+  public async delete() {
+    if (this.isInNewSubscriptionContext) {
+      this.toastr.warning(
+        $localize`:Select a subscription to delete|The user needs to select a subscription to delete:Select a subscription to delete`
+      );
+      return;
+    }
+
+    const data: ConfirmDialogData = {
+      text: $localize`:Confirm subscription deletion|Confirmation message asking if the user really wants to delete this description:Do you really wish to delete this description permanently ?`,
+      title: $localize`:Deleting subscription|Title of a page to delete a subscription:Deleting subscription`,
+      primaryButtonText: $localize`:Cancel|Cancel current action:Cancel`,
+      dangerButtonText: $localize`:Delete permanently|Confirm that the user wants to delete the item permanently:Delete permanently`,
+      onPrimaryButtonClick: () => {
+        this.dialog.closeAll();
+      },
+      onDangerButtonClick: async () => {
+        try {
+          await this.subscriptionsService.delete(this.currentSubscriptionId);
+          this.toastr.success(
+            $localize`:Successfully deleted subscription|Successfully deleted subscription:Successfully deleted subscription`
+          );
+          this.dataSource$ = this.refreshData();
+        } catch {
+          this.toastr.error($localize`:Error while deleting|Error while deleting:Error while deleting`);
+        }
+        this.dialog.closeAll();
+      },
+    };
+
+    this.dialog.open(ConfirmDialogComponent, {
+      data,
+      restoreFocus: false,
+    });
+  }
 }

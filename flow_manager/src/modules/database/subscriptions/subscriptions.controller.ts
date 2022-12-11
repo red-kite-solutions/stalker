@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { Role } from 'src/modules/auth/constants';
 import { Roles } from 'src/modules/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
@@ -29,7 +37,17 @@ export class SubscriptionsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
   @Post(':id')
-  async deleteTag(@Param() IdDto: MongoIdDto, @Body() dto: SubscriptionDto) {
+  async editSubscription(
+    @Param() IdDto: MongoIdDto,
+    @Body() dto: SubscriptionDto,
+  ) {
     return await this.subscriptionsService.edit(IdDto.id, dto);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User)
+  @Delete(':id')
+  async deleteSubscription(@Param() IdDto: MongoIdDto) {
+    return await this.subscriptionsService.delete(IdDto.id);
   }
 }

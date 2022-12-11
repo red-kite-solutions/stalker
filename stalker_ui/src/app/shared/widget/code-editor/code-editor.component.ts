@@ -79,6 +79,9 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+  @Output()
+  public saveEvent = new EventEmitter();
+
   constructor(private codeEditorService: CodeEditorService) {}
 
   private propagateChange(value: string) {
@@ -132,5 +135,12 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
       this._editor = undefined;
     }
     this._divResizeObserver?.disconnect();
+  }
+
+  public onKeyDown(event: any) {
+    if (event.ctrlKey && event.key === 's') {
+      event.preventDefault();
+      this.saveEvent.emit();
+    }
   }
 }

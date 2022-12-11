@@ -6,7 +6,7 @@
         <button mat-raised-button color="primary" class="left-action-button" (click)="NewSubscriptionClick()">
           <label i18n="New subscription|Button to create a new subscription">New subscription</label>
         </button>
-        <button mat-raised-button color="warn" class="left-action-button">
+        <button mat-raised-button color="warn" class="left-action-button" (click)="delete()">
           <label i18n="Delete|Delete an item">Delete</label>
         </button>
         <div fxLayoutAlign="end" fxFlex>
@@ -72,5 +72,6 @@
     [theme]="theme"
     [readonly]="readonly"
     fxFlex="55"
+    (saveEvent)="SaveSubscriptionEdits()"
   ></app-code-editor>
 </div>

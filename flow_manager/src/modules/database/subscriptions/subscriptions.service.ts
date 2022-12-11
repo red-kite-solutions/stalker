@@ -27,4 +27,10 @@ export class SubscriptionsService {
       dto,
     );
   }
+
+  public async delete(id: string) {
+    return await this.subscriptionModel.deleteOne({
+      _id: { $eq: new Types.ObjectId(id) },
+    });
+  }
 }

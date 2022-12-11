@@ -44,6 +44,10 @@ export class SubscriptionsService {
     return await firstValueFrom(this.http.post(`${environment.fmUrl}/subscriptions/${id}`, data));
   }
 
+  public async delete(id: string) {
+    return await firstValueFrom(this.http.delete(`${environment.fmUrl}/subscriptions/${id}`));
+  }
+
   private parseSubscription(subscription: SubscriptionData) {
     const data: any = {
       name: subscription.name,
