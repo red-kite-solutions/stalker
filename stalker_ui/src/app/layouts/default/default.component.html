@@ -1,12 +1,10 @@
-<div class="layout">
-  <app-header (toggleSideBarEvent)="this.toggleSideBar()"></app-header>
+<app-header (toggleSideBarEvent)="this.toggleSideBar()"></app-header>
 
-  <mat-drawer-container autosize>
-    <mat-drawer mode="side" disableClose="true" opened="true">
-      <app-sidebar [expanded]="sideBarOpen"></app-sidebar>
-    </mat-drawer>
-    <mat-drawer-content>
-      <router-outlet></router-outlet>
-    </mat-drawer-content>
-  </mat-drawer-container>
-</div>
+<mat-drawer-container autosize>
+  <mat-drawer mode="side" disableClose="true" opened="true">
+    <app-sidebar [expanded]="sideBarOpen"></app-sidebar>
+  </mat-drawer>
+  <mat-drawer-content>
+    <router-outlet></router-outlet>
+  </mat-drawer-content>
+</mat-drawer-container>

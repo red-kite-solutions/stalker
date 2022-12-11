@@ -1,9 +1,5 @@
 :host {
   height: 100vh;
-}
-
-.layout {
-  height: 100%;
   display: grid;
   grid-template-rows: minmax(64px, 64px) auto;
 }
