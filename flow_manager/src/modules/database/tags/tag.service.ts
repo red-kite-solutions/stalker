@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { ObjectId } from 'mongodb';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Tag } from './tag.model';
 
 @Injectable()
@@ -23,6 +22,8 @@ export class TagsService {
   }
 
   public async delete(id: string) {
-    return await this.tagsModel.deleteOne({ _id: { $eq: new ObjectId(id) } });
+    return await this.tagsModel.deleteOne({
+      _id: { $eq: new Types.ObjectId(id) },
+    });
   }
 }

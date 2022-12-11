@@ -35,6 +35,16 @@ export class SubscriptionsService {
   }
 
   public async create(subscription: SubscriptionData): Promise<FindingEventSubscription> {
+    const data: any = this.parseSubscription(subscription);
+    return <FindingEventSubscription>await firstValueFrom(this.http.post(`${environment.fmUrl}/subscriptions/`, data));
+  }
+
+  public async edit(id: string, subscription: SubscriptionData) {
+    const data: any = this.parseSubscription(subscription);
+    return await firstValueFrom(this.http.post(`${environment.fmUrl}/subscriptions/${id}`, data));
+  }
+
+  private parseSubscription(subscription: SubscriptionData) {
     const data: any = {
       name: subscription.name,
       finding: subscription.finding,
@@ -48,11 +58,6 @@ export class SubscriptionsService {
     if (subscription.conditions) {
       data['conditions'] = subscription.conditions;
     }
-
-    return <FindingEventSubscription>await firstValueFrom(this.http.post(`${environment.fmUrl}/subscriptions/`, data));
+    return data;
   }
-
-  // public async delete(id: string) {
-  //   return await firstValueFrom(this.http.delete(`${environment.fmUrl}/tags/${id}`));
-  // }
 }

@@ -35,17 +35,10 @@ export class SubscriptionComponent {
   public selectedRow: FindingEventSubscription | undefined;
   public tempSelectedRow: FindingEventSubscription | undefined;
   public isInNewSubscriptionContext = true;
-
-  private genData = [1];
+  public currentSubscriptionId = '';
   public data = new Array<FindingEventSubscription>();
 
-  public dataSource$ = this.subscriptionsService.getSubscriptions().pipe(
-    map((data) => {
-      this.data = data;
-      this.dataSource.data = data;
-      this.dataSource.paginator = this.paginator;
-    })
-  );
+  public dataSource$ = this.refreshData();
 
   constructor(
     private codeEditorService: CodeEditorService,
@@ -56,6 +49,16 @@ export class SubscriptionComponent {
     this.codeEditorService.load();
     this.code = this.subscriptionTemplate;
     this.currentCodeBackup = this.code;
+  }
+
+  private refreshData() {
+    return this.subscriptionsService.getSubscriptions().pipe(
+      map((data) => {
+        this.data = data;
+        this.dataSource.data = data;
+        this.dataSource.paginator = this.paginator;
+      })
+    );
   }
 
   private validateCurrentChanges(next: Function) {
@@ -104,6 +107,7 @@ export class SubscriptionComponent {
     this.isInNewSubscriptionContext = false;
     this.selectedRow = this.tempSelectedRow;
     const rowData = this.data.find((v) => v._id === this.tempSelectedRow?._id);
+    if (rowData?._id) this.currentSubscriptionId = rowData._id;
     const rowCopy = JSON.parse(JSON.stringify(rowData));
     delete rowCopy._id;
     if (rowCopy.job?.parameters?.length === 0) {
@@ -143,10 +147,14 @@ export class SubscriptionComponent {
         this.toastr.success(
           $localize`:Successfully created subscription|Successfully created subscription:Successfully created subscription`
         );
-        this.dataSource.data.push(newSub);
       } else {
         // edit an existing subscription
+        await this.subscriptionsService.edit(this.currentSubscriptionId, sub);
+        this.toastr.success(
+          $localize`:Successfully edited subscription|Successfully edited subscription:Successfully edited subscription`
+        );
       }
+      this.dataSource$ = this.refreshData();
       this.currentCodeBackup = this.code;
     } catch {
       this.toastr.error(invalidSubscription);

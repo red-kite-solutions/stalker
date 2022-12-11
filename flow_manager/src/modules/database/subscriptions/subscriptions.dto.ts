@@ -10,7 +10,7 @@ import { IsTypeIn } from '../../../validators/isTypeIn.validator';
 import { FindingTypes } from '../../findings/findings.service';
 import { JobTypes } from '../jobs/job-model.module';
 
-export class CreateSubscriptionDto {
+export class SubscriptionDto {
   @IsString()
   public name!: string;
 

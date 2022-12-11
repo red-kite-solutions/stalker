@@ -28,6 +28,8 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
 
   @Input()
   public set code(val: string) {
+    if (val === this._code) return;
+
     this._code = val;
     if (this.codeEditorService.loaded && this._editor) {
       this._editor.setValue(val);
@@ -81,7 +83,7 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
 
   private propagateChange(value: string) {
     this._code = value;
-    this.codeChange.emit(value);
+    this.codeChange.emit(this._code);
   }
 
   private initMonaco(): void {
