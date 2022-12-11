@@ -1,7 +1,11 @@
 :host {
-  display: flex;
-  flex-direction: column;
+  height: 100vh;
+}
+
+.layout {
   height: 100%;
+  display: grid;
+  grid-template-rows: minmax(64px, 64px) auto minmax(64px, 64px);
 }
 
 mat-drawer-container {
@@ -10,4 +14,5 @@ mat-drawer-container {
 
 mat-drawer-content {
   padding: 20px;
+  box-sizing: border-box;
 }
