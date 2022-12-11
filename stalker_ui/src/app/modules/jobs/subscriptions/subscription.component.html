@@ -44,7 +44,7 @@
             *matRowDef="let row; columns: ['name', 'finding', 'job']"
             class="rows"
             (click)="SelectFindingSubscription(row)"
-            [class.selected-subscription]="selectedRow?.name === row.name"
+            [class.selected-subscription]="selectedRow?._id === row._id"
           ></tr>
 
           <tr class="mat-row nodata" *matNoDataRow>

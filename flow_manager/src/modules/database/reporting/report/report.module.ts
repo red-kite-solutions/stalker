@@ -1,20 +1,11 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
 import { KeybaseModule } from '../../../alerts/keybase/keybase.module';
+import { DatalayerModule } from '../../datalayer.module';
 import { ReportController } from './report.controller';
-import { ReportSchema } from './report.model';
 import { ReportService } from './report.service';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([
-      {
-        name: 'report',
-        schema: ReportSchema,
-      },
-    ]),
-    KeybaseModule,
-  ],
+  imports: [KeybaseModule, DatalayerModule],
   controllers: [ReportController],
   providers: [ReportService],
   exports: [ReportService],

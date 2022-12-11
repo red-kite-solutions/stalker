@@ -1,10 +1,12 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { HostnameFinding } from 'src/modules/findings/findings.service';
-import { FindingsQueue } from 'src/modules/job-queue/findings-queue';
+import { HttpNotFoundException } from '../../../../exceptions/http.exceptions';
+import { HostnameFinding } from '../../../findings/findings.service';
+import { FindingsQueue } from '../../../job-queue/findings-queue';
 import { ConfigService } from '../../admin/config/config.service';
 import { JobsService } from '../../jobs/jobs.service';
+import { Company } from '../company.model';
 import { HostService } from '../host/host.service';
 import { HostSummary } from '../host/host.summary';
 import { ReportService } from '../report/report.service';
@@ -12,8 +14,11 @@ import { Domain, DomainDocument } from './domain.model';
 
 @Injectable()
 export class DomainsService {
+  private logger = new Logger(DomainsService.name);
+
   constructor(
     @InjectModel('domain') private readonly domainModel: Model<Domain>,
+    @InjectModel('company') private readonly companyModel: Model<Company>,
     private jobService: JobsService,
     private reportService: ReportService,
     private configService: ConfigService,
@@ -22,11 +27,13 @@ export class DomainsService {
     private findingsQueue: FindingsQueue,
   ) {}
 
-  public async addDomains(
-    domains: string[],
-    companyId: string,
-    companyName: string,
-  ) {
+  public async addDomains(domains: string[], companyId: string) {
+    const company = await this.companyModel.findById(companyId);
+    if (!company) {
+      this.logger.debug(`Could not find the company (companyId=${companyId})`);
+      throw new HttpNotFoundException(`companyId=${companyId}`);
+    }
+
     // for each domain, create a mongo id
     const domainDocuments: DomainDocument[] = [];
     const companyIdObject = new Types.ObjectId(companyId);
@@ -61,7 +68,7 @@ export class DomainsService {
     const config = await this.configService.getConfig();
 
     if (config?.isNewContentReported) {
-      this.reportService.addDomains(companyName, newDomains);
+      this.reportService.addDomains(company.name, newDomains);
     }
 
     const findings: HostnameFinding[] = [];
@@ -117,13 +124,14 @@ export class DomainsService {
       query = query.skip(page).limit(pageSize);
       domains = await query.exec();
 
-      domains.forEach((domain) => {
+      for (const domain of domains) {
         const job = this.jobService.createDomainResolvingJob(
           domain.companyId.toString(),
           domain.name,
         );
-        this.jobService.publish(job);
-      });
+
+        await this.jobService.publish(job);
+      }
     } while (domains);
   }
 

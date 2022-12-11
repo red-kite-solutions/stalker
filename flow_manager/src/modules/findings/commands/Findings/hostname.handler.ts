@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { CommandHandler } from '@nestjs/cqrs';
-import { JobsService } from 'src/modules/database/jobs/jobs.service';
+import { JobsService } from '../../../database/jobs/jobs.service';
 import { FindingHandlerBase } from '../findings-handler-base';
 import { HostnameCommand } from './hostname.command';
 

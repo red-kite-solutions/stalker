@@ -14,8 +14,10 @@ export class SubscriptionsService {
   ) {}
 
   public async create(dto: CreateSubscriptionDto) {
-    await this.subscriptionModel.create({
-      ...dto,
-    });
+    await this.subscriptionModel.create(dto);
+  }
+
+  public async getAll() {
+    return await this.subscriptionModel.find({});
   }
 }

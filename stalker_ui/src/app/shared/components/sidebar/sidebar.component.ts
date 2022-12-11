@@ -17,6 +17,7 @@ export class SidebarComponent {
   public domains = $localize`:Domains|A domain name:Domains`;
   public tags = $localize`:Tags|An item's tags:Tags`;
   public subscriptions = $localize`:Subscriptions|The jobs automation process to subscribe to finding events:Subscriptions`;
+  public hosts = $localize`:Hosts|Hosts:Hosts`;
 
   constructor(public authService: AuthService) {}
 }

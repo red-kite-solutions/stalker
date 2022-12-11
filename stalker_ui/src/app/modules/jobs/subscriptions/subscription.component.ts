@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { ToastrService } from 'ngx-toastr';
-import { from, map } from 'rxjs';
+import { map } from 'rxjs';
 import { SubscriptionsService } from 'src/app/api/jobs/subscriptions/subscriptions.service';
 import { FindingEventSubscription, SubscriptionData } from 'src/app/shared/types/FindingEventSubscription';
 import { CodeEditorService } from 'src/app/shared/widget/code-editor/code-editor.service';
@@ -37,61 +37,12 @@ export class SubscriptionComponent {
   public isInNewSubscriptionContext = true;
 
   private genData = [1];
-  public data = new Array<FindingEventSubscription>(
-    {
-      _id: 'asdfasdf',
-      name: 'This is the subscription of a lifetime',
-      finding: 'HostNameIpFinding',
-      job: {
-        name: 'TcpPortScanningJob',
-        parameters: [
-          {
-            name: 'targetIp',
-            value: '127.0.0.1',
-          },
-          {
-            name: 'threads',
-            value: 10,
-          },
-          {
-            name: 'socketTimeoutSeconds',
-            value: 1,
-          },
-          {
-            name: 'portMin',
-            value: 1,
-          },
-          {
-            name: 'portMax',
-            value: 1000,
-          },
-          {
-            name: 'ports',
-            value: '[1234, 3389, 8080]',
-          },
-        ],
-      },
-      conditions: [
-        {
-          lhs: '${ip}',
-          operator: 'contains',
-          rhs: '127',
-        },
-      ],
-    },
-    {
-      _id: 'qwertyqwerty',
-      name: 'My subscription',
-      finding: 'HostnameIpFinding',
-      job: {
-        name: 'TcpPortScanningJob',
-      },
-    }
-  );
+  public data = new Array<FindingEventSubscription>();
 
-  public dataSource$ = from(this.genData).pipe(
+  public dataSource$ = this.subscriptionsService.getSubscriptions().pipe(
     map((data) => {
-      this.dataSource.data = this.data;
+      this.data = data;
+      this.dataSource.data = data;
       this.dataSource.paginator = this.paginator;
     })
   );
@@ -155,6 +106,12 @@ export class SubscriptionComponent {
     const rowData = this.data.find((v) => v._id === this.tempSelectedRow?._id);
     const rowCopy = JSON.parse(JSON.stringify(rowData));
     delete rowCopy._id;
+    if (rowCopy.job?.parameters?.length === 0) {
+      delete rowCopy.job.parameters;
+    }
+    if (rowCopy.conditions?.length === 0) {
+      delete rowCopy.conditions;
+    }
     this.code = stringify(<SubscriptionData>rowCopy);
     this.currentCodeBackup = this.code;
   }

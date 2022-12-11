@@ -6,13 +6,14 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { HttpNotImplementedException } from 'src/exceptions/http.exceptions';
-import { Role } from 'src/modules/auth/constants';
-import { Roles } from 'src/modules/auth/decorators/roles.decorator';
-import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
-import { RolesGuard } from 'src/modules/auth/guards/role.guard';
-import { MongoIdDto } from 'src/types/dto/MongoIdDto';
-import { PortsDto } from './host.dto';
+import { HttpNotImplementedException } from '../../../../exceptions/http.exceptions';
+import { MongoIdDto } from '../../../../types/dto/MongoIdDto';
+import { Page } from '../../../../types/page.type';
+import { Role } from '../../../auth/constants';
+import { Roles } from '../../../auth/decorators/roles.decorator';
+import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../../auth/guards/role.guard';
+import { HostsFilterDto, PortsDto } from './host.dto';
 import { HostDocument } from './host.model';
 import { HostService } from './host.service';
 
@@ -54,5 +55,18 @@ export class HostController {
   @Delete(':id')
   async deleteHost(@Param() dto: MongoIdDto) {
     return await this.hostsService.delete(dto.id);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ReadOnly)
+  @Get()
+  async getAllHosts(@Query() dto: HostsFilterDto): Promise<Page<HostDocument>> {
+    const totalRecords = await this.hostsService.count(dto);
+    const items = await this.hostsService.getAll(dto.page, dto.pageSize, dto);
+
+    return {
+      items,
+      totalRecords,
+    };
   }
 }

@@ -65,6 +65,10 @@ const routes: Routes = [
         component: ViewDomainComponent,
       },
       {
+        path: 'hosts',
+        loadChildren: () => import('./modules/hosts/hosts.module').then((m) => m.HostsListModule),
+      },
+      {
         path: 'hosts/:id',
         component: ViewHostComponent,
       },

@@ -1,21 +1,12 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
+import { DatalayerModule } from '../../datalayer.module';
 import { ConfigController } from './config.controller';
-import { ConfigSchema } from './config.model';
-import { databaseConfigInitProvider } from './config.provider';
 import { ConfigService } from './config.service';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([
-      {
-        name: 'config',
-        schema: ConfigSchema,
-      },
-    ]),
-  ],
+  imports: [DatalayerModule],
   controllers: [ConfigController],
-  providers: [ConfigService, ...databaseConfigInitProvider],
-  exports: [ConfigService, ...databaseConfigInitProvider],
+  providers: [ConfigService],
+  exports: [ConfigService],
 })
 export class ConfigModule {}

@@ -6,16 +6,20 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
-import { IsTypeIn } from 'src/validators/isTypeIn.validator';
+import { IsTypeIn } from '../../../validators/isTypeIn.validator';
+import { FindingTypes } from '../../findings/findings.service';
+import { JobTypes } from '../jobs/job-model.module';
 
 export class CreateSubscriptionDto {
   @IsString()
   public name!: string;
 
   @IsString()
+  @IsIn(FindingTypes)
   public finding!: string;
 
   @IsString()
+  @IsIn(JobTypes)
   public jobName!: string;
 
   @IsArray()

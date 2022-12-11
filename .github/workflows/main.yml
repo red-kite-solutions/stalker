@@ -5,10 +5,7 @@ name: Stalker
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
-  push:
-    branches: [main]
   pull_request:
-    branches: [main]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -49,6 +46,10 @@ jobs:
 
       - name: Run tests
         run: devspace run-pipeline flow-manager-e2e -n stalker
+
+      - name: Diagnosis
+        if: always()
+        run: kubectl -n stalker get all -o yaml
 
       - name: Update the results in the pull request
         uses: tanmen/jest-reporter@v1
