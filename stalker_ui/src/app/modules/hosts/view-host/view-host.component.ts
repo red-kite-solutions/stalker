@@ -1,9 +1,9 @@
-import { Component, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatDrawer } from '@angular/material/sidenav';
 import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute } from '@angular/router';
-import { map, Observable, switchMap } from 'rxjs';
+import { BehaviorSubject, concatMap, map, Observable, of, scan, shareReplay, switchMap, tap } from 'rxjs';
 import { CompaniesService } from 'src/app/api/companies/companies.service';
 import { DomainsService } from 'src/app/api/domains/domains.service';
 import { HostsService } from 'src/app/api/hosts/hosts.service';
@@ -11,14 +11,17 @@ import { TagsService } from 'src/app/api/tags/tags.service';
 import { CompanySummary } from 'src/app/shared/types/company/company.summary';
 import { Domain } from 'src/app/shared/types/domain/domain.interface';
 import { DomainSummary } from 'src/app/shared/types/domain/domain.summary';
-import { Host } from 'src/app/shared/types/host/host.interface';
-import { HostSummary } from 'src/app/shared/types/host/host.summary';
+import { Host, Port } from 'src/app/shared/types/host/host.interface';
 import { Tag } from 'src/app/shared/types/tag.type';
+import { FindingsService } from '../../../api/findings/findings.service';
+import { Finding } from '../../../shared/types/finding/finding.type';
+import { Page } from '../../../shared/types/page.type';
 
 @Component({
   selector: 'app-view-host',
   templateUrl: './view-host.component.html',
   styleUrls: ['./view-host.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ViewHostComponent {
   public routeLoading = false;
@@ -27,14 +30,17 @@ export class ViewHostComponent {
   dataSource = new MatTableDataSource<DomainSummary>();
   displayedColumns: string[] = ['domainName'];
 
-  // Domain drawer
+  // Drawer
+  public currentDetailsId: string | null = null;
   public selectedDomain: DomainSummary | null = null;
-  public domainDetails: Domain | null = null;
   public domainDetails$: Observable<Domain> | null = null;
-  public domainsHostDataSource = new MatTableDataSource<HostSummary>();
+  public portDetails$: Observable<Port> | null = null;
+  public loadMoreFindings$: BehaviorSubject<null> = new BehaviorSubject(null);
+  public isLoadingMoreFindings$: BehaviorSubject<boolean> = new BehaviorSubject(false);
+  public selectedItemFindings$: Observable<Page<Finding>> | null = null;
 
   @ViewChild(MatPaginator) paginator: MatPaginator | null;
-  @ViewChild(MatDrawer) domainDrawer: MatDrawer | null;
+  @ViewChild(MatDrawer) detailsDrawer: MatDrawer | null;
 
   companies: CompanySummary[] = [];
   companies$ = this.companiesService.getAllSummaries().pipe(
@@ -71,7 +77,7 @@ export class ViewHostComponent {
     .pipe(
       map((host: Host) => {
         this.routeLoading = false;
-        host.ports.sort((a, b) => a - b);
+        host.ports.sort((a, b) => a.port - b.port);
         this.host = host;
         this.dataSource.data = host.domains;
 
@@ -97,32 +103,67 @@ export class ViewHostComponent {
     private companiesService: CompaniesService,
     private hostsService: HostsService,
     private domainsService: DomainsService,
-    private tagsService: TagsService
+    private tagsService: TagsService,
+    private findingsService: FindingsService
   ) {
     this.paginator = null;
-    this.domainDrawer = null;
+    this.detailsDrawer = null;
   }
 
-  public selectDomainAndView(domainSummary: DomainSummary) {
-    const previousSelection = this.selectedDomain;
-    this.selectedDomain = domainSummary;
+  public selectDomainAndView(domain: DomainSummary) {
+    if (domain == null) return;
 
-    if (previousSelection && previousSelection.id === this.selectedDomain.id) {
-      this.domainDrawer?.close();
-      this.selectedDomain = null;
+    const previouslySelectedId = this.currentDetailsId;
+    this.clearDetails();
+
+    if (previouslySelectedId == domain.id) {
+      this.detailsDrawer?.close();
       return;
     }
 
-    if (!previousSelection) {
-      this.domainDrawer?.open();
+    this.currentDetailsId = domain.id;
+    this.domainDetails$ = this.domainsService.get(domain.id);
+    this.detailsDrawer?.open();
+  }
+
+  public selectPortAndView(port: Port) {
+    if (port == null) return;
+
+    const previouslySelectedId = this.currentDetailsId;
+    this.clearDetails();
+
+    if (previouslySelectedId == port.id) {
+      this.detailsDrawer?.close();
+      return;
     }
 
-    this.domainDetails$ = this.domainsService.get(this.selectedDomain.id).pipe(
-      map((dd: Domain) => {
-        this.domainDetails = dd;
-        this.domainsHostDataSource.data = dd.hosts;
-        return dd;
-      })
+    this.currentDetailsId = port.id;
+    this.portDetails$ = of(port);
+    this.loadMoreFindings$ = new BehaviorSubject(null);
+    this.selectedItemFindings$ = this.loadMoreFindings$.pipe(
+      tap(() => this.isLoadingMoreFindings$.next(true)),
+      scan((acc) => acc + 1, 0),
+      concatMap((page) => this.findingsService.getFindings(port.findingsKey, page, 15)),
+      scan((acc, value) => {
+        acc.items.push(...value.items);
+        acc.totalRecords = value.totalRecords;
+        return acc;
+      }),
+      tap(() => this.isLoadingMoreFindings$.next(false)),
+      shareReplay(1)
     );
+
+    this.detailsDrawer?.open();
+  }
+
+  public loadMoreFindings() {
+    this.loadMoreFindings$.next(null);
+  }
+
+  private clearDetails() {
+    this.currentDetailsId = null;
+    this.portDetails$ = null;
+    this.domainDetails$ = null;
+    this.selectedItemFindings$ = null;
   }
 }

@@ -11,7 +11,7 @@ import { TagsService } from 'src/app/api/tags/tags.service';
 import { CompanySummary } from 'src/app/shared/types/company/company.summary';
 import { Domain } from 'src/app/shared/types/domain/domain.interface';
 import { DomainSummary } from 'src/app/shared/types/domain/domain.summary';
-import { Host } from 'src/app/shared/types/host/host.interface';
+import { Host, Port } from 'src/app/shared/types/host/host.interface';
 import { HostSummary } from 'src/app/shared/types/host/host.summary';
 import { Tag } from 'src/app/shared/types/tag.type';
 
@@ -33,7 +33,7 @@ export class ViewDomainComponent implements OnDestroy {
   public hostDetails: Host | null = null;
   public hostDetails$: Observable<Host> | null = null;
   public hostDomainsDataSource = new MatTableDataSource<DomainSummary>();
-  public hostPortsDataSource = new MatTableDataSource<number>();
+  public hostPortsDataSource = new MatTableDataSource<Port>();
 
   @ViewChild(MatPaginator) paginator: MatPaginator | null;
   @ViewChild(MatDrawer) hostDrawer: MatDrawer | null;
@@ -122,7 +122,7 @@ export class ViewDomainComponent implements OnDestroy {
 
     this.hostDetails$ = this.hostsService.get(this.selectedHost.id).pipe(
       map((hd: Host) => {
-        hd.ports.sort((a, b) => a - b);
+        hd.ports.sort((a, b) => a?.port - b?.port);
         this.hostDetails = hd;
         this.hostDomainsDataSource.data = hd.domains;
         this.hostPortsDataSource.data = hd.ports;

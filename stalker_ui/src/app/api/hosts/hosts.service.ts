@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { Host } from 'src/app/shared/types/host/host.interface';
 import { Page } from 'src/app/shared/types/page.type';
 import { environment } from 'src/environments/environment';
@@ -12,7 +12,32 @@ export class HostsService {
   constructor(private http: HttpClient) {}
 
   public get(hostId: string): Observable<Host> {
-    return <Observable<Host>>this.http.get(`${environment.fmUrl}/hosts/${hostId}`);
+    // return <Observable<Host>>this.http.get(`${environment.fmUrl}/hosts/${hostId}`);
+    return of({
+      _id: hostId,
+      companyId: '637a4c8d3e6a000046f7b3da',
+      domains: [
+        {
+          id: '637a4cb53e6a000046f7b3e7',
+          name: 'amazon.com',
+        },
+      ],
+      ip: '13.225.195.52',
+      notes: '',
+      ports: [
+        {
+          id: '1',
+          port: 80,
+          findingsKey: '123',
+        },
+        {
+          id: '2',
+          port: 443,
+          findingsKey: '1234',
+        },
+      ],
+      tags: [],
+    } as Host);
   }
 
   public getPorts(

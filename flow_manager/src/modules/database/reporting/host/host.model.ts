@@ -4,6 +4,14 @@ import { DomainSummary } from '../domain/domain.summary';
 
 export type HostDocument = Host & Document;
 
+export class Port {
+  public id!: string;
+
+  @Prop()
+  public port: number;
+}
+export const PortSchema = SchemaFactory.createForClass(Port);
+
 @Schema()
 export class Host {
   @Prop({ index: true })
@@ -26,7 +34,7 @@ export class Host {
 
   // Simplified for now, but it will eventually be a full class
   @Prop()
-  public ports?: number[];
+  public ports?: Port[];
 }
 
 export const HostSchema = SchemaFactory.createForClass(Host);

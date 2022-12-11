@@ -1,3 +1,35 @@
+h2 {
+  padding: 16px;
+  padding-bottom: 0;
+  margin-bottom: 8px;
+}
+
+.table-container {
+  margin: 0 0px -16px 0px;
+}
+
+.table-container-host {
+  margin: 0 0px 0px 0px;
+}
+
+table {
+  width: 100%;
+}
+
+.rows:hover {
+  background-color: rgb(243, 243, 243);
+}
+
+.rows-cursor {
+  cursor: pointer;
+  label {
+    cursor: pointer;
+  }
+  span {
+    cursor: pointer;
+  }
+}
+
 .full-width {
   width: 100%;
 }
@@ -87,4 +119,12 @@ app-pill-tag {
 
 .margin-top-10 {
   margin-top: 10px;
+}
+
+a {
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
