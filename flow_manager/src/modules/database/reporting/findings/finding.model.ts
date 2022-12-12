@@ -28,8 +28,15 @@ export class FindingTextField {
  */
 @Schema()
 export class Finding {
+  /**
+   * A pseudo-unique key identifying the entity related to this finding.
+   *
+   * The key should be generated using the static methods found in FindingsUtils.
+   *
+   * @see [CorrelationUtils](./correlation.utils.ts)
+   */
   @Prop({ index: true })
-  public target: string;
+  public correlationKey: string;
 
   @Prop()
   public targetName: string;

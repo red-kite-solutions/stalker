@@ -76,7 +76,7 @@
                     i18n-placeholder="Company|A business"
                     placeholder="Company"
                     readonly="true"
-                    [ngModel]="(companies | whereId: [host.companyId]).name"
+                    [ngModel]="(companies | whereId: [host.companyId])?.name"
                   />
                 </mat-form-field>
 
@@ -85,7 +85,7 @@
                   <table mat-table [dataSource]="dataSource">
                     <!-- Domain name -->
                     <ng-container matColumnDef="domainName">
-                      <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+                      <td mat-cell *matCellDef="let element">{{ element?.name }}</td>
                     </ng-container>
 
                     <tr

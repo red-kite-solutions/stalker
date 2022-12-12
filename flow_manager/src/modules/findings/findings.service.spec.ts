@@ -31,32 +31,32 @@ describe('Findings Service Spec', () => {
     await findingsModel.insertMany([
       {
         created: new Date(2011, 1, 1),
-        target: 'my-target',
+        correlationKey: 'my-target',
         name: 'b',
       },
       {
         created: new Date(2010, 1, 1),
-        target: 'my-target',
+        correlationKey: 'my-target',
         name: 'a',
       },
       {
         created: new Date(2022, 1, 1),
-        target: 'my-other-target',
+        correlationKey: 'my-other-target',
         name: 'should not be returned',
       },
       {
         created: new Date(2012, 1, 1),
-        target: 'my-target',
+        correlationKey: 'my-target',
         name: 'c',
       },
       {
         created: new Date(2014, 1, 1),
-        target: 'my-target',
+        correlationKey: 'my-target',
         name: 'e',
       },
       {
         created: new Date(2013, 1, 1),
-        target: 'my-target',
+        correlationKey: 'my-target',
         name: 'd',
       },
     ]);

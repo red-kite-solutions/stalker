@@ -7,6 +7,13 @@ export type HostDocument = Host & Document;
 export class Port {
   public id!: string;
 
+  /**
+   * A pseudo-unique key identifying this entity. Used for findings.
+   * This key should not change if this entity were to be recreated.
+   */
+  @Prop()
+  public correlationKey!: string;
+
   @Prop()
   public port: number;
 }
@@ -16,6 +23,13 @@ export const PortSchema = SchemaFactory.createForClass(Port);
 export class Host {
   @Prop({ index: true })
   public ip!: string;
+
+  /**
+   * A pseudo-unique key identifying this entity. Used for findings.
+   * This key should not change if this entity were to be recreated.
+   */
+  @Prop()
+  public correlationKey!: string;
 
   @Prop()
   public companyId: Types.ObjectId;

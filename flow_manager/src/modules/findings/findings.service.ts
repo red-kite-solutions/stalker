@@ -36,7 +36,7 @@ export class FindingsService {
     if (page < 1) throw new HttpBadRequestException('Page starts at 1.');
 
     const filters: FilterQuery<Finding> = {
-      target: {
+      correlationKey: {
         $eq: target,
       },
     };
