@@ -28,12 +28,12 @@ export class HostsService {
         {
           id: '1',
           port: 80,
-          findingsKey: '123',
+          findingsCorrelationKey: '123',
         },
         {
           id: '2',
           port: 443,
-          findingsKey: '1234',
+          findingsCorrelationKey: '1234',
         },
       ],
       tags: [],

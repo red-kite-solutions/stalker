@@ -1,12 +1,12 @@
-import { Prop, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
-export type FindingType = 'image' | 'data';
+export type FindingType = 'image' | 'text';
 
 export type FindingField = FindingImageField | FindingTextField;
 
 export class FindingImageField {
   @Prop()
-  public readonly type = 'image';
+  public readonly type: FindingType = 'image';
 
   @Prop()
   public data: string;
@@ -14,7 +14,7 @@ export class FindingImageField {
 
 export class FindingTextField {
   @Prop()
-  public readonly type = 'text';
+  public readonly type: FindingType = 'text';
 
   @Prop()
   public label: string;
@@ -26,6 +26,7 @@ export class FindingTextField {
 /**
  * Represents a finding.
  */
+@Schema()
 export class Finding {
   @Prop({ index: true })
   public target: string;

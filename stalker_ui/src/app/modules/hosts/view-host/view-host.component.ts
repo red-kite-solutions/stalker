@@ -143,7 +143,7 @@ export class ViewHostComponent {
     this.selectedItemFindings$ = this.loadMoreFindings$.pipe(
       tap(() => this.isLoadingMoreFindings$.next(true)),
       scan((acc) => acc + 1, 0),
-      concatMap((page) => this.findingsService.getFindings(port.findingsKey, page, 15)),
+      concatMap((page) => this.findingsService.getFindings(port.findingsCorrelationKey, page, 15)),
       scan((acc, value) => {
         acc.items.push(...value.items);
         acc.totalRecords = value.totalRecords;

@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
+import { InjectModel } from '@nestjs/mongoose';
+import { FilterQuery, Model } from 'mongoose';
+import { HttpBadRequestException } from '../../exceptions/http.exceptions';
 import { Page } from '../../types/page.type';
 import { Finding } from '../database/reporting/findings/finding.model';
 import { HostnameIpCommand } from './commands/hostname-ip.command';
@@ -19,52 +22,38 @@ export interface NewFindings {
 
 @Injectable()
 export class FindingsService {
-  constructor(private commandBus: CommandBus) {}
+  constructor(
+    private commandBus: CommandBus,
+    @InjectModel('finding')
+    private readonly findingModel: Model<Finding>,
+  ) {}
 
   public async getAll(
     target: string,
     page: number,
     pageSize: number,
   ): Promise<Page<Finding>> {
-    return Promise.resolve({
-      totalRecords: 5,
-      items: [
-        {
-          created: new Date(2022, 10, 18),
-          jobId: '123',
-          target: '',
-          targetName: '',
-          name: 'Screenshot',
-          key: '123',
-          fields: [
-            {
-              type: 'text',
-              label: 'Some more info',
-              content: 'lvl >9999',
-            },
-            {
-              type: 'image',
-              data: 'https://themeisle.com/blog/wp-content/uploads/2018/06/browshot_dashboard.png',
-            },
-          ],
-        },
-        {
-          created: new Date(2022, 9, 18),
-          jobId: '123',
-          target: '',
-          targetName: '',
-          name: 'SMTP',
-          key: '123',
-          fields: [
-            {
-              type: 'text',
-              label: 'Iz dis running SMTP?',
-              content: 'yup',
-            },
-          ],
-        },
-      ],
-    });
+    if (page < 1) throw new HttpBadRequestException('Page starts at 1.');
+
+    const filters: FilterQuery<Finding> = {
+      target: {
+        $eq: target,
+      },
+    };
+    const items = await this.findingModel
+      .find(filters)
+      .sort({
+        created: 'desc',
+      })
+      .skip((page - 1) * pageSize)
+      .limit(pageSize)
+      .exec();
+    const totalRecords = await this.findingModel.countDocuments(filters);
+
+    return {
+      items,
+      totalRecords,
+    };
   }
 
   public handle(findings: NewFindings) {
