@@ -163,7 +163,7 @@ export class HostService {
       const model = new this.hostModel({
         _id: new Types.ObjectId(),
         ip: ip,
-        companyId: companyId,
+        companyId: new Types.ObjectId(companyId),
       });
       hostDocuments.push(model);
     }
@@ -304,12 +304,12 @@ export class HostService {
   public async addPortsByIp(companyId: string, ip: string, ports: number[]) {
     const host = await this.hostModel.findOne({
       ip: { $eq: ip },
-      companyId: { $eq: companyId },
+      companyId: { $eq: new Types.ObjectId(companyId) },
     });
     if (!host) throw new HttpNotFoundException();
 
     await this.hostModel.updateOne(
-      { ip: { $eq: ip } },
+      { ip: { $eq: ip }, companyId: { $eq: new Types.ObjectId(companyId) } },
       { $addToSet: { ports: ports } },
     );
     const newPorts = host.ports

@@ -1,34 +1,33 @@
 import { MongooseModule } from '@nestjs/mongoose';
+import { JobsService } from './jobs.service';
 import {
   DomainNameResolvingJob,
   DomainNameResolvingJobSchema,
 } from './models/domain-name-resolving.model';
 import { JobSchema } from './models/jobs.model';
 import {
-  SubdomainBruteforceJob,
-  SubdomainBruteforceJobSchema,
-} from './models/subdomain-bruteforce.model';
-import {
   TcpPortScanningJob,
   TcpPortScanningJobSchema,
 } from './models/tcp-port-scanning.model';
 
-const discriminators = [
+export const JobDefinitions = [
   {
     name: DomainNameResolvingJob.name,
     schema: DomainNameResolvingJobSchema,
-  },
-  {
-    name: SubdomainBruteforceJob.name,
-    schema: SubdomainBruteforceJobSchema,
+    pointer: JobsService.createDomainResolvingJob_,
   },
   {
     name: TcpPortScanningJob.name,
     schema: TcpPortScanningJobSchema,
+    pointer: JobsService.createTcpPortScanJob_,
   },
 ];
 
-export const JobTypes = discriminators.map((d) => d.name);
+export const JobTypes = JobDefinitions.map((j) => j.name);
+
+const discriminators = JobDefinitions.map((j) => {
+  return { name: j.name, schema: j.schema };
+});
 
 export const JobModelModule = MongooseModule.forFeature([
   {

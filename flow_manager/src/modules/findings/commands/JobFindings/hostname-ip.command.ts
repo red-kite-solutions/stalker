@@ -2,10 +2,12 @@ import { JobFindingCommand } from '../findings.command';
 
 export class HostnameIpCommand extends JobFindingCommand {
   constructor(
-    jobId,
+    jobId: string,
+    companyId: string,
+    commandType: string,
     public readonly domainName: string,
     public readonly ips: string[],
   ) {
-    super(jobId);
+    super(jobId, companyId, commandType);
   }
 }

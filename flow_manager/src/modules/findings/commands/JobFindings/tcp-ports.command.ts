@@ -2,10 +2,12 @@ import { JobFindingCommand } from '../findings.command';
 
 export class TcpPortsCommand extends JobFindingCommand {
   constructor(
-    jobId,
+    jobId: string,
+    companyId: string,
+    commandType: string,
     public readonly ip: string,
     public readonly ports: number[],
   ) {
-    super(jobId);
+    super(jobId, companyId, commandType);
   }
 }

@@ -14,7 +14,15 @@ export class SubscriptionsService {
   ) {}
 
   public async create(dto: SubscriptionDto) {
-    await this.subscriptionModel.create(dto);
+    const sub: Subscription = {
+      companyId: new Types.ObjectId(dto.companyId),
+      name: dto.name,
+      finding: dto.finding,
+      jobName: dto.jobName,
+      jobParameters: dto.jobParameters,
+      conditions: dto.conditions,
+    };
+    await this.subscriptionModel.create(sub);
   }
 
   public async getAll() {
@@ -22,15 +30,36 @@ export class SubscriptionsService {
   }
 
   public async edit(id: string, dto: SubscriptionDto) {
+    const sub: Subscription = {
+      companyId: new Types.ObjectId(dto.companyId),
+      name: dto.name,
+      finding: dto.finding,
+      jobName: dto.jobName,
+      jobParameters: dto.jobParameters,
+      conditions: dto.conditions,
+    };
     return await this.subscriptionModel.updateOne(
       { _id: { $eq: new Types.ObjectId(id) } },
-      dto,
+      sub,
     );
   }
 
   public async delete(id: string) {
     return await this.subscriptionModel.deleteOne({
       _id: { $eq: new Types.ObjectId(id) },
+    });
+  }
+
+  public async getAllForFinding(companyId: string, finding: string) {
+    return await this.subscriptionModel.find({
+      companyId: { $eq: new Types.ObjectId(companyId) },
+      finding: { $eq: finding },
+    });
+  }
+
+  public async deleteAllForCompany(companyId: string) {
+    return await this.subscriptionModel.deleteMany({
+      companyId: { $eq: new Types.ObjectId(companyId) },
     });
   }
 }

@@ -5,13 +5,20 @@ import { orchestratorConstants } from '../auth/constants';
 import { JobsModule } from '../database/jobs/jobs.module';
 import { CompanyModule } from '../database/reporting/company.module';
 import { HostModule } from '../database/reporting/host/host.module';
-import { FindingsCommands } from './commands/findings-commands';
+import { SubscriptionsModule } from '../database/subscriptions/subscriptions.module';
+import { FindingsHandlers } from './commands/findings-commands';
 import { FindingsService } from './findings.service';
 
 @Module({
-  imports: [CqrsModule, JobsModule, CompanyModule, HostModule],
+  imports: [
+    CqrsModule,
+    JobsModule,
+    CompanyModule,
+    HostModule,
+    SubscriptionsModule,
+  ],
   controllers: [],
-  providers: [FindingsService, ...FindingsCommands],
+  providers: [FindingsService, ...FindingsHandlers],
   exports: [],
 })
 export class FindingsModule {

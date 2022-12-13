@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 export type SubscriptionsDocument = Subscription & Document;
 
@@ -20,7 +20,7 @@ export class Subscription {
   public name!: string;
 
   @Prop()
-  public companyId!: string;
+  public companyId!: Types.ObjectId;
 
   @Prop()
   public finding!: string;

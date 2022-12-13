@@ -109,32 +109,6 @@ export class DomainsService {
     );
   }
 
-  /**
-   * Starts a job for every domain name trying to resolve them to one
-   * or many IP addresses
-   */
-  public async resolveAll() {
-    let page = -1;
-    let pageSize = 100;
-
-    let domains: DomainDocument[] = [];
-    do {
-      page++;
-      let query = this.domainModel.find();
-      query = query.skip(page).limit(pageSize);
-      domains = await query.exec();
-
-      for (const domain of domains) {
-        const job = this.jobService.createDomainResolvingJob(
-          domain.companyId.toString(),
-          domain.name,
-        );
-
-        await this.jobService.publish(job);
-      }
-    } while (domains);
-  }
-
   public async deleteAllForCompany(companyId: string) {
     return await this.domainModel.deleteMany({
       companyId: { $eq: Types.ObjectId(companyId) },
