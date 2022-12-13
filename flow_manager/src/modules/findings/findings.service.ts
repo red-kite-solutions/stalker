@@ -4,14 +4,15 @@ import { JobsService } from '../database/jobs/jobs.service';
 import { CompanyService } from '../database/reporting/company.service';
 import { HostnameCommand } from './commands/Findings/hostname.command';
 import { HostnameIpCommand } from './commands/JobFindings/hostname-ip.command';
-import { TcpPortsCommand } from './commands/JobFindings/tcp-ports.command';
+import { PortCommand } from './commands/JobFindings/port.command';
 
-export type Finding = HostnameIpFinding | HostnameFinding | TcpPortsFinding;
+export type Finding = HostnameIpFinding | HostnameFinding | PortFinding;
 
-export interface TcpPortsFinding {
-  type: 'TcpPortsFinding';
+export interface PortFinding {
+  type: 'PortFinding';
+  protocol: 'tcp' | 'udp';
   ip: string;
-  ports: number[];
+  port: number;
 }
 
 export interface HostnameFinding {
@@ -23,7 +24,7 @@ export interface HostnameFinding {
 export interface HostnameIpFinding {
   type: 'HostnameIpFinding';
   domainName: string;
-  ips: string[];
+  ip: string;
 }
 
 export interface Findings {
@@ -91,7 +92,7 @@ export class FindingsService {
             companyId,
             HostnameIpCommand.name,
             finding.domainName,
-            finding.ips,
+            finding.ip,
           ),
         );
         break;
@@ -105,14 +106,15 @@ export class FindingsService {
         );
         break;
 
-      case 'TcpPortsFinding':
+      case 'PortFinding':
         this.commandBus.execute(
-          new TcpPortsCommand(
+          new PortCommand(
             jobId,
             companyId,
-            TcpPortsCommand.name,
+            PortCommand.name,
             finding.ip,
-            finding.ports,
+            finding.port,
+            finding.protocol,
           ),
         );
         break;

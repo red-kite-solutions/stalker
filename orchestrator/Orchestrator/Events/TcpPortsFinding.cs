@@ -1,11 +1,13 @@
 ﻿namespace Orchestrator.Events
 {
-    public class TcpPortsFinding: Finding
+    public class PortFinding: Finding
     {
-        public override string Type => nameof(TcpPortsFinding);
+        public override string Type => nameof(PortFinding);
 
         public string? Ip { get; init; }
 
-        public IList<string>? Ports { get; init; }
+        public string? Port { get; init; }
+
+        public string? Protocol { get; init; }
     }
 }

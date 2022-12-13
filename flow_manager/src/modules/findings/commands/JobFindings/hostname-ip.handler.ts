@@ -20,7 +20,7 @@ export class HostnameIpHandler extends JobFindingHandlerBase<HostnameIpCommand> 
 
   protected async executeCore(command: HostnameIpCommand) {
     const newHosts = await this.hostService.addHostsWithDomain(
-      command.ips,
+      [command.ip],
       command.domainName,
       command.companyId,
     );

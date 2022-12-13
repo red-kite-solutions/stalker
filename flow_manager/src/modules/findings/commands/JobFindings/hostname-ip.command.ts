@@ -6,7 +6,7 @@ export class HostnameIpCommand extends JobFindingCommand {
     companyId: string,
     commandType: string,
     public readonly domainName: string,
-    public readonly ips: string[],
+    public readonly ip: string,
   ) {
     super(jobId, companyId, commandType);
   }

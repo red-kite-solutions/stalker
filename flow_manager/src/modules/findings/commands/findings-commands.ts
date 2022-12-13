@@ -2,8 +2,8 @@ import { HostnameCommand } from './Findings/hostname.command';
 import { HostnameHandler } from './Findings/hostname.handler';
 import { HostnameIpCommand } from './JobFindings/hostname-ip.command';
 import { HostnameIpHandler } from './JobFindings/hostname-ip.handler';
-import { TcpPortsCommand } from './JobFindings/tcp-ports.command';
-import { TcpPortsHandler } from './JobFindings/tcp-ports.handler';
+import { PortCommand } from './JobFindings/port.command';
+import { PortHandler } from './JobFindings/port.handler';
 
 export const FindingsCommandMapping = [
   {
@@ -17,9 +17,9 @@ export const FindingsCommandMapping = [
     command: HostnameCommand,
   },
   {
-    finding: 'TcpPortsFinding',
-    handler: TcpPortsHandler,
-    command: TcpPortsCommand,
+    finding: 'PortFinding',
+    handler: PortHandler,
+    command: PortCommand,
   },
 ];
 

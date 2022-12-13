@@ -5,4 +5,6 @@ import socket
 hostname = os.environ['HOSTNAME']
 data = socket.gethostbyname_ex(hostname)
 ipx = data[2]
-print('@finding {{ "findings": [ {{ "type": "HostnameIpFinding", "domainName": {0}, "ips": {1} }} ] }}'.format(json.dumps(hostname), json.dumps(ipx)))
+
+for ip in ipx:
+  print('@finding {{ "findings": [ {{ "type": "HostnameIpFinding", "domainName": {0}, "ip": {1} }} ] }}'.format(json.dumps(hostname), json.dumps(ip)))

@@ -6,5 +6,5 @@ public class HostnameIpFinding : Finding
 
     public string? DomainName { get; init; }
 
-    public IList<string>? Ips { get; init; }
+    public string? Ip { get; init; }
 }

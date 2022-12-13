@@ -4,11 +4,11 @@ import { JobsService } from '../../../database/jobs/jobs.service';
 import { HostService } from '../../../database/reporting/host/host.service';
 import { SubscriptionsService } from '../../../database/subscriptions/subscriptions.service';
 import { JobFindingHandlerBase } from '../job-findings-handler-base';
-import { TcpPortsCommand } from './tcp-ports.command';
+import { PortCommand } from './port.command';
 
-@CommandHandler(TcpPortsCommand)
-export class TcpPortsHandler extends JobFindingHandlerBase<TcpPortsCommand> {
-  protected logger: Logger = new Logger('TcpPortsHandler');
+@CommandHandler(PortCommand)
+export class PortHandler extends JobFindingHandlerBase<PortCommand> {
+  protected logger: Logger = new Logger('PortHandler');
 
   constructor(
     private hostService: HostService,
@@ -18,11 +18,11 @@ export class TcpPortsHandler extends JobFindingHandlerBase<TcpPortsCommand> {
     super(jobService, subscriptionsService);
   }
 
-  protected async executeCore(command: TcpPortsCommand) {
-    await this.hostService.addPortsByIp(
-      command.companyId,
-      command.ip,
-      command.ports,
-    );
+  protected async executeCore(command: PortCommand) {
+    if (command.protocol === 'tcp') {
+      await this.hostService.addPortsByIp(command.companyId, command.ip, [
+        command.port,
+      ]);
+    }
   }
 }
