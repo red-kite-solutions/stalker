@@ -1,3 +1,4 @@
+import { HostnameIpFinding } from '../../findings.service';
 import { JobFindingCommand } from '../findings.command';
 
 export class HostnameIpCommand extends JobFindingCommand {
@@ -5,8 +6,7 @@ export class HostnameIpCommand extends JobFindingCommand {
     jobId: string,
     companyId: string,
     commandType: string,
-    public readonly domainName: string,
-    public readonly ip: string,
+    public readonly finding: HostnameIpFinding,
   ) {
     super(jobId, companyId, commandType);
   }

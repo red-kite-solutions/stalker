@@ -19,10 +19,12 @@ export class PortHandler extends JobFindingHandlerBase<PortCommand> {
   }
 
   protected async executeCore(command: PortCommand) {
-    if (command.protocol === 'tcp') {
-      await this.hostService.addPortsByIp(command.companyId, command.ip, [
-        command.port,
-      ]);
+    if (command.finding.protocol === 'tcp') {
+      await this.hostService.addPortsByIp(
+        command.companyId,
+        command.finding.ip,
+        [command.finding.port],
+      );
     }
   }
 }

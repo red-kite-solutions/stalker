@@ -1,3 +1,4 @@
+import { PortFinding } from '../../findings.service';
 import { JobFindingCommand } from '../findings.command';
 
 export class PortCommand extends JobFindingCommand {
@@ -5,9 +6,7 @@ export class PortCommand extends JobFindingCommand {
     jobId: string,
     companyId: string,
     commandType: string,
-    public readonly ip: string,
-    public readonly port: number,
-    public readonly protocol: 'tcp' | 'udp',
+    public readonly finding: PortFinding,
   ) {
     super(jobId, companyId, commandType);
   }

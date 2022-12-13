@@ -8,20 +8,20 @@ import { PortCommand } from './commands/JobFindings/port.command';
 
 export type Finding = HostnameIpFinding | HostnameFinding | PortFinding;
 
-export interface PortFinding {
+export class PortFinding {
   type: 'PortFinding';
   protocol: 'tcp' | 'udp';
   ip: string;
   port: number;
 }
 
-export interface HostnameFinding {
+export class HostnameFinding {
   type: 'HostnameFinding';
   domainName: string;
   companyId: string;
 }
 
-export interface HostnameIpFinding {
+export class HostnameIpFinding {
   type: 'HostnameIpFinding';
   domainName: string;
   ip: string;
@@ -91,31 +91,19 @@ export class FindingsService {
             jobId,
             companyId,
             HostnameIpCommand.name,
-            finding.domainName,
-            finding.ip,
+            finding,
           ),
         );
         break;
       case 'HostnameFinding':
         this.commandBus.execute(
-          new HostnameCommand(
-            finding.domainName,
-            finding.companyId,
-            HostnameCommand.name,
-          ),
+          new HostnameCommand(finding.companyId, HostnameCommand.name, finding),
         );
         break;
 
       case 'PortFinding':
         this.commandBus.execute(
-          new PortCommand(
-            jobId,
-            companyId,
-            PortCommand.name,
-            finding.ip,
-            finding.port,
-            finding.protocol,
-          ),
+          new PortCommand(jobId, companyId, PortCommand.name, finding),
         );
         break;
 

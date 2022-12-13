@@ -20,7 +20,7 @@ export class HostnameHandler extends UserFindingHandlerBase<HostnameCommand> {
     // Launch a domain name resolving job
     const job = JobsService.createDomainResolvingJob(
       command.companyId,
-      command.domainName,
+      command.finding.domainName,
     );
     this.jobsService.publish(job);
   }

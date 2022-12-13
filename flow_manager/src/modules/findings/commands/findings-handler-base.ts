@@ -39,6 +39,41 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
     for (const sub of subs) {
       const jobDefinition = JobDefinitions.find((j) => j.name === sub.jobName);
 
+      for (const param of sub.jobParameters) {
+        if (typeof param.value !== 'string') {
+          continue;
+        }
+        const paramRegex = /^\$\{[a-z]+\}$/i;
+        const trimValue = param.value.trim();
+
+        if (!paramRegex.test(trimValue)) {
+          continue;
+        }
+
+        // removing the starting '${' and the ending '}'
+        const findingOutputVarName = trimValue
+          .substring(2, trimValue.length - 1)
+          .toLowerCase();
+        let findingOutputVarKeys = Object.keys(command.finding);
+        findingOutputVarKeys = findingOutputVarKeys.filter((e) => e !== 'type');
+
+        console.log('///////////////////////');
+        console.log(findingOutputVarKeys);
+        console.log('<<<<<<<<<<<<<<<<<<<<<<<');
+
+        // Validates that the asked for parameter exists within the output of the finding
+        const varKey = findingOutputVarKeys.find(
+          (s) => s.toLowerCase() === findingOutputVarName,
+        );
+        if (!varKey) {
+          continue;
+        }
+
+        param.value = command.finding[varKey];
+        console.log('################');
+        console.log(param);
+      }
+
       sub.jobParameters.push(companyIdParameter);
       const job: Job = jobDefinition.pointer(sub.jobParameters);
       this.jobsService.publish(job);
