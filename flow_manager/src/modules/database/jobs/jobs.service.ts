@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { isArray, isInt, isMongoId, isNumber } from 'class-validator';
+import { isArray, isFQDN, isInt, isMongoId, isNumber } from 'class-validator';
 import { Model } from 'mongoose';
 import { isIP } from 'net';
 import {
@@ -89,6 +89,24 @@ export class JobsService {
     job.priority = 3;
     job.domainName = domainName;
     job.companyId = companyId;
+    const jobName = DomainNameResolvingJob.name;
+
+    if (!isMongoId(companyId)) {
+      JobsService.logJobInputError(
+        jobName,
+        new JobParameterValueException('companyId', job.companyId),
+      );
+      return null;
+    }
+
+    if (!isFQDN(domainName)) {
+      JobsService.logJobInputError(
+        jobName,
+        new JobParameterValueException('domainName', job.domainName),
+      );
+      return null;
+    }
+
     return job;
   }
 
