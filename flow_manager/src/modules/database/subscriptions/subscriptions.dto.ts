@@ -64,8 +64,7 @@ class JobConditionDto {
     'startsWith_i',
     'endsWith',
     'endsWith_i',
-    'matches',
-    'matches_i',
+    'equals_i',
   ])
   public operator: string;
 
