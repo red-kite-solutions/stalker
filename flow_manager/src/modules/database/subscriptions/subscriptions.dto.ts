@@ -3,6 +3,7 @@ import {
   IsArray,
   IsIn,
   IsMongoId,
+  IsNotEmpty,
   IsOptional,
   IsString,
   ValidateNested,
@@ -13,16 +14,20 @@ import { JobTypes } from '../jobs/job-model.module';
 
 export class SubscriptionDto {
   @IsString()
+  @IsNotEmpty()
   public name!: string;
 
   @IsMongoId()
+  @IsNotEmpty()
   public companyId!: string;
 
   @IsString()
+  @IsNotEmpty()
   @IsIn(FindingTypes)
   public finding!: string;
 
   @IsString()
+  @IsNotEmpty()
   @IsIn(JobTypes)
   public jobName!: string;
 

@@ -22,7 +22,7 @@ export class SubscriptionsService {
       jobParameters: dto.jobParameters,
       conditions: dto.conditions,
     };
-    await this.subscriptionModel.create(sub);
+    return await this.subscriptionModel.create(sub);
   }
 
   public async getAll() {
