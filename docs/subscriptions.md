@@ -35,6 +35,8 @@ A Subscription can contain four main elements :
 
 Here is one of the shortest Subscription possible. It reacts to a `HostnameFinding` to launch a `DomainNameResolvingJob`, using the output of the Finding as the `domainName` parameter value.
 
+Therefore, it will resolve the domain name found in the `HostnameFinding` to an IP address by launching a `DomainNameResolvingJob`. It will emit a `HostnameIpFinding` if it properly resolves the domain name.
+
 > Something similar in behavior is already built in Stalker.
 
 ```yaml
@@ -53,6 +55,8 @@ job:
 Here is an example of how to start a `TcpPortScanningJob` when a `HostnameIpFinding` is emitted. This job will however only start if all the conditions are met. The Finding's found `ip` must contain the case insensitive string "13.37", and 5 must be greater than or equal to 3.
 
 If the conditions are met when a `HostnameIpFinding` is emitted, then the job will start with the specified parameters. Note here that the `targetIp` parameter will contain the value of the Finding's output variable `ip`.
+
+The Job, in this case, will scan the `${ip}`'s 1000 first ports ([1-1000]) as well as the ports 1234, 3389 and 8080. It will do so in 10 parallel threads. Every thread's socket will have a 1 second timeout if it does not respond. We can therefore expect the Job to finish in a maximum of around 100 seconds.
 
 > Something similar in behavior, except from the conditions, is already built in Stalker.
 
