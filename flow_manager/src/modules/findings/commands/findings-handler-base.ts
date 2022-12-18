@@ -22,6 +22,11 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
     protected jobsService: JobsService,
   ) {}
 
+  /**
+   * Evaluates a JobCondition to a boolean value.
+   * @param condition A JobCondition object to be evaluated
+   * @returns true if the condition is true, false otherwise
+   */
   private evaluateCondition(condition: JobCondition): boolean {
     let operator = condition.operator;
     let lhs = condition.lhs;
@@ -76,6 +81,12 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
     }
   }
 
+  /**
+   * Identifies the matching Finding output variable to a ${paramName} tag, if it exists
+   * @param value The parameter or condition operand that may be a ${paramName} string
+   * @param finding The finding we are currently reacting to
+   * @returns The finding's referenced output value if it exits, the given *value* otherwise
+   */
   private replaceValueIfReferingToFinding(value: unknown, finding: Finding) {
     const paramRegex = /^\$\{[a-z]+\}$/i;
     let findingOutputVarKeys = Object.keys(finding);
@@ -151,11 +162,13 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
         );
       }
 
+      // Adding the companyId JobParameter to every job as it is always needed
       const companyIdParameter = new JobParameter();
       companyIdParameter.name = 'companyId';
       companyIdParameter.value = command.companyId;
-
       sub.jobParameters.push(companyIdParameter);
+
+      // Launching the generic function that creates the appropriate job and publishing it
       const job: Job = jobDefinition.pointer(sub.jobParameters);
       if (job !== null) this.jobsService.publish(job);
     }
