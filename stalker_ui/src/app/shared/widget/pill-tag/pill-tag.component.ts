@@ -13,7 +13,7 @@ export class PillTagComponent implements OnChanges {
   border = this.colorToBorderColor(this.color);
 
   ngOnChanges(): void {
-    this.color = this.color.trim();
+    this.color = this.color?.trim();
     if (/^\#?[0-9a-fA-F]{6}$/.test(this.color)) {
       this.textColor = this.color.startsWith('#') ? this.color : '#' + this.color;
       this.bgColor = this.colorToBackgroundColor(this.color);
