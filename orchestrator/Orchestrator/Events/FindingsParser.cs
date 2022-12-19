@@ -14,7 +14,7 @@ public class FindingsParser : IFindingsParser
             if (prefix == null) return null;
         }
 
-        return evtString.Substring(prefix.Length + 1);
+        return evtString.Substring(prefix.Length).Trim();
     }
 
     public string? GetEventPrefix(string evtString)

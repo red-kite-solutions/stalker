@@ -12,4 +12,3 @@ vars:
   KAFKA_URI: "kafka:9092"
 
   STALKER_URL: "http://localhost:4200"
-  ORCHESTRATOR_PYTHON_JOB_TEMPLATES_PATH: "/app/PythonJobTemplates/"
