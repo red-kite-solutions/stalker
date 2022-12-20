@@ -97,7 +97,7 @@ A finding event is propagated by Stalker whenever an information comes into play
 * HostnameIpFinding
 * PortFinding
 
-It is possible to reference a finding's output variable as an input of a new job, as well as a condition operand. All references to a finding's output variable are case insensitive.
+It is possible to reference a finding outputted by a job as an input of a new job, as well as a condition operand. All references to a finding's output variable are case insensitive.
 
 ### HostnameFinding
 
