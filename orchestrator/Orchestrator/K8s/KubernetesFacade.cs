@@ -1,5 +1,7 @@
 ﻿using k8s;
 using k8s.Models;
+using System;
+using System.Formats.Asn1;
 
 namespace Orchestrator.K8s;
 
@@ -32,6 +34,19 @@ public class KubernetesFacade : IKubernetesFacade
         var jobNameParts = new[] { jobPrefix, jobTemplate.Id, randomId };
         var jobName = string.Join("-", jobNameParts.Where(x => !string.IsNullOrEmpty(x)));
 
+        // TODO: Adding a resource limit per namespace (ResourceQuota) with a custom namespace for jobs
+        // could be interesting to prevent the jobs from taking over all the cluster's cpu and memory
+        V1ResourceRequirements ressources = null;
+        if (jobTemplate.MilliCpuLimit != null || jobTemplate.MemoryKiloBytesLimit != null)
+        {
+            var limitQuantity = new Dictionary<string, ResourceQuantity>();
+            if (jobTemplate.MilliCpuLimit > 0)
+                limitQuantity["cpu"] = new ResourceQuantity(jobTemplate.MilliCpuLimit.ToString() + "m");
+            if (jobTemplate.MemoryKiloBytesLimit > 0)
+                limitQuantity["memory"] = new ResourceQuantity(jobTemplate.MemoryKiloBytesLimit.ToString() + "Ki");
+
+            ressources = new V1ResourceRequirements(limitQuantity);
+        }
 
         var kubernetesJob = new V1Job("batch/v1", "Job",
             new V1ObjectMeta
@@ -51,7 +66,8 @@ public class KubernetesFacade : IKubernetesFacade
                                     Name = "jobtemplate",
                                     Image = jobTemplate.Image,
                                     Command = jobTemplate.Command,
-                                    Env = jobTemplate.EnvironmentVariable.Select(x => new V1EnvVar(x.Key, x.Value)).ToList()
+                                    Env = jobTemplate.EnvironmentVariable.Select(x => new V1EnvVar(x.Key, x.Value)).ToList(),
+                                    Resources = ressources
                                 }
                         },
                         RestartPolicy = "Never",
@@ -82,6 +98,7 @@ public class KubernetesFacade : IKubernetesFacade
         {
             Thread.Sleep(100);
             pods = await client.ListNamespacedPodAsync(labelSelector: $"job-name={jobName}", limit: 1, namespaceParameter: jobNamespace);
+            
         } while (pods?.Items == null || pods.Items.Count < 1 || pods.Items.FirstOrDefault()?.Status?.Phase == "Pending");
 
         return await client.ReadNamespacedPodLogAsync(pods.Items.FirstOrDefault().Metadata.Name, jobNamespace);
@@ -94,5 +111,19 @@ public class KubernetesFacade : IKubernetesFacade
     {
         using var client = new Kubernetes(KubernetesConfiguration);
         await client.DeleteCollectionNamespacedJobAsync(jobNamespace, fieldSelector: $"metadata.name={jobName}", propagationPolicy: "Foreground");
+    }
+
+    /// <summary>
+    /// True if the pod is in the status "Failed" or "Succeeded", false otherwise
+    /// </summary>
+    public async Task<bool> IsJobPodFinished(string jobName, string jobNamespace = "default")
+    {
+        using var client = new Kubernetes(KubernetesConfiguration);
+        V1PodList pods = await client.ListNamespacedPodAsync(labelSelector: $"job-name={jobName}", limit: 1, namespaceParameter: jobNamespace);
+
+        if (pods.Items == null || pods.Items.Count < 1)
+            return false;
+
+        return pods.Items.FirstOrDefault()?.Status?.Phase == "Succeeded" || pods.Items.FirstOrDefault()?.Status?.Phase == "Failed";
     }
 }

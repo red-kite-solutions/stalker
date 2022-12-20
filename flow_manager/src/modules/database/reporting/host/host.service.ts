@@ -58,7 +58,7 @@ export class HostService {
     ips: string[],
     domainName: string,
     companyId: string,
-    tagsIds: string[],
+    tagsIds: string[] = [],
   ) {
     const domain = await this.domainService.getDomainByName(domainName);
     if (!domain) {
@@ -88,7 +88,7 @@ export class HostService {
 
     let hostSummaries: HostSummary[] = [];
     let newIps: string[] = [];
-    let newHosts = [];
+    let newHosts: Partial<HostDocument>[] = [];
 
     for (let ip of ips) {
       const ds: DomainSummary = {
@@ -120,13 +120,13 @@ export class HostService {
         newHosts.push({
           ip: ip,
           _id: mongoId.toString(),
-          domainName: domainName,
+          domains: [ds],
           companyId: new Types.ObjectId(companyId),
         });
         hostSummaries.push({ id: mongoId, ip: ip });
       } else if (
         !hostResult.domains ||
-        hostResult.domains.some((ds) => ds.name === domainName)
+        !hostResult.domains.some((ds) => ds.name === domainName)
       ) {
         // updated, so sync with relevant domain document must be done
         hostSummaries.push({ id: hostResult._id, ip: ip });
@@ -235,7 +235,7 @@ export class HostService {
 
     if (firstPort >= topPorts.length) return [];
 
-    lastPort = lastPort >= topPorts.length ? topPorts.length - 1 : lastPort;
+    lastPort = lastPort >= topPorts.length ? topPorts.length : lastPort;
     return topPorts.slice(firstPort, lastPort);
   }
 
@@ -299,5 +299,27 @@ export class HostService {
       finalFilter['tags'] = { $all: preppedTagsArray };
     }
     return finalFilter;
+  }
+
+  public async addPortsByIp(companyId: string, ip: string, ports: number[]) {
+    const host = await this.hostModel.findOne({
+      ip: { $eq: ip },
+      companyId: { $eq: companyId },
+    });
+    if (!host) throw new HttpNotFoundException();
+
+    await this.hostModel.updateOne(
+      { ip: { $eq: ip } },
+      { $addToSet: { ports: ports } },
+    );
+    const newPorts = host.ports
+      ? ports.filter(
+          (a) =>
+            !host.ports.some((b) => {
+              return a === b;
+            }),
+        )
+      : ports;
+    return newPorts;
   }
 }

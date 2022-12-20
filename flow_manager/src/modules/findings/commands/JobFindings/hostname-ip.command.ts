@@ -1,8 +1,6 @@
-export class FindingCommand {
-  constructor(public readonly jobId) {}
-}
+import { JobFindingCommand } from '../findings.command';
 
-export class HostnameIpCommand extends FindingCommand {
+export class HostnameIpCommand extends JobFindingCommand {
   constructor(
     jobId,
     public readonly domainName: string,

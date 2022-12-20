@@ -7,6 +7,7 @@ import { JobDto } from './dtos/job.dto';
 import { DomainNameResolvingJob } from './models/domain-name-resolving.model';
 import { Job, JobDocument } from './models/jobs.model';
 import { SubdomainBruteforceJob } from './models/subdomain-bruteforce.model';
+import { TcpPortScanningJob } from './models/tcp-port-scanning.model';
 
 @Injectable()
 export class JobsService {
@@ -68,6 +69,36 @@ export class JobsService {
     job.domainName = domainName;
     job.wordList = wordList;
     job.companyId = companyId;
+    return job;
+  }
+
+  public createSimpleTcpScanAllPortsJob(companyId: string, targetIp: string) {
+    return this.createTcpPortScanJob(companyId, targetIp, 1000, 0.7, 1, 65535);
+  }
+
+  public createSimpleTcpScan1000PortsJob(companyId: string, targetIp: string) {
+    return this.createTcpPortScanJob(companyId, targetIp, 10, 0.7, 1, 1000);
+  }
+
+  public createTcpPortScanJob(
+    companyId: string,
+    targetIp: string,
+    threads: number,
+    socketTimeoutSeconds: number,
+    portMin: number,
+    portMax: number,
+    ports: number[] = [],
+  ) {
+    const job = new TcpPortScanningJob();
+    job.task = TcpPortScanningJob.name;
+    job.priority = 3;
+    job.companyId = companyId;
+    job.targetIp = targetIp;
+    job.threads = threads;
+    job.socketTimeoutSeconds = socketTimeoutSeconds;
+    job.portMin = portMin;
+    job.portMax = portMax;
+    job.ports = ports;
     return job;
   }
 

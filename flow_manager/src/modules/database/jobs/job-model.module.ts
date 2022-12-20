@@ -8,6 +8,10 @@ import {
   SubdomainBruteforceJob,
   SubdomainBruteforceJobSchema,
 } from './models/subdomain-bruteforce.model';
+import {
+  TcpPortScanningJob,
+  TcpPortScanningJobSchema,
+} from './models/tcp-port-scanning.model';
 
 export const JobModelModule = MongooseModule.forFeature([
   {
@@ -21,6 +25,10 @@ export const JobModelModule = MongooseModule.forFeature([
       {
         name: SubdomainBruteforceJob.name,
         schema: SubdomainBruteforceJobSchema,
+      },
+      {
+        name: TcpPortScanningJob.name,
+        schema: TcpPortScanningJobSchema,
       },
     ],
   },
