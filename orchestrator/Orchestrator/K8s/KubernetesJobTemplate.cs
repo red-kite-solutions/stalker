@@ -4,6 +4,9 @@ namespace Orchestrator.K8s;
 
 public class KubernetesJobTemplate
 {
+    private readonly int MaxCpu = 2000;
+    private readonly int MaxMemory = 2048 * 1024;
+
     public string Id { get; init; }
 
     /// <summary>
@@ -31,12 +34,26 @@ public class KubernetesJobTemplate
     /// </summary>
     public string Namespace { get; init; } = "default";
 
+    private int? _MilliCpuLimit;
+
     /// <summary>
     /// Specifies the limit amount of CPU time that will be dedicated for a job pod, in millicpu. 
     /// 1000 millicpu represents a full CPU dedicated to the job pod.
     /// Additional info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
     /// </summary>
-    public int MilliCpuLimit { get; init; } = -1;
+    public int? MilliCpuLimit { 
+        get
+        {
+            return _MilliCpuLimit;
+        }
+        init
+        {
+            if (value <= 0) return;
+            _MilliCpuLimit = value <= MaxCpu ? value : MaxCpu;
+        }
+    }
+
+    private int? _MemoryKiloBytesLimit;
 
     /// <summary>
     /// Specifies the limit amount of memory (RAM) that will be dedicated for a job pod, in kilobytes. 
@@ -45,5 +62,15 @@ public class KubernetesJobTemplate
     /// The suffix used is the power of two, Ki
     /// Additional info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
     /// </summary>
-    public int MemoryKiloBytesLimit { get; init; } = -1;
+    public int? MemoryKiloBytesLimit { 
+        get 
+        {
+            return _MemoryKiloBytesLimit;
+        }
+        init
+        {
+            if (value <= 0) return;
+            _MemoryKiloBytesLimit = value <= MaxMemory ? value : MaxMemory;
+        }
+    }
 }
