@@ -37,7 +37,7 @@ public class KubernetesFacade : IKubernetesFacade
         // TODO: Adding a resource limit per namespace (ResourceQuota) with a custom namespace for jobs
         // could be interesting to prevent the jobs from taking over all the cluster's cpu and memory
         V1ResourceRequirements ressources = null;
-        if (jobTemplate.MilliCpuLimit > 0 || jobTemplate.MemoryKiloBytesLimit > 0)
+        if (jobTemplate.MilliCpuLimit != null || jobTemplate.MemoryKiloBytesLimit != null)
         {
             var limitQuantity = new Dictionary<string, ResourceQuantity>();
             if (jobTemplate.MilliCpuLimit > 0)

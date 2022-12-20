@@ -17,7 +17,7 @@ public class JobFactory : IJobFactory
     private ILogger<JobFactory> Logger { get; }
     private PythonJobTemplateProvider JobProvider { get; }
 
-    public JobFactory(IKubernetesFacade kubernetes, IMessagesProducer<JobEventMessage> eventsProducer, IFindingsParser parser, ILoggerFactory loggerFactoryFactory)
+    public JobFactory(IKubernetesFacade kubernetes, IMessagesProducer<JobEventMessage> eventsProducer, IFindingsParser parser, ILoggerFactory loggerFactoryFactory, IConfiguration config)
     {
         Kubernetes = kubernetes;
         EventsProducer = eventsProducer;
@@ -25,8 +25,8 @@ public class JobFactory : IJobFactory
         LoggerFactory = loggerFactoryFactory;
         Logger = loggerFactoryFactory.CreateLogger<JobFactory>();
 
-        string? pythonJobTemplatePath = System.Environment.GetEnvironmentVariable("ORCHESTRATOR_PYTHON_JOB_TEMPLATES_PATH");
-        if (pythonJobTemplatePath == null) throw new NullReferenceException("Environment variable ORCHESTRATOR_PYTHON_JOB_TEMPLATES_PATH was not declared.");
+        string? pythonJobTemplatePath = config.GetSection("JobsProvider").GetValue<string>("PythonTemplatesPath");
+        if (pythonJobTemplatePath == null) throw new NullReferenceException("Setting PythonTemplatesPath is missing.");
 
         JobProvider = new PythonJobTemplateProvider(LoggerFactory.CreateLogger<PythonJobTemplateProvider>(), pythonJobTemplatePath);
     }
