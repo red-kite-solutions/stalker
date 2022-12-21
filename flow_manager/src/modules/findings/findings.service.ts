@@ -69,13 +69,13 @@ export class FindingsService {
     let companyId = '';
     if (jobId) {
       const job = await this.jobsService.getById(jobId);
-      if (job == null) {
+      if (job === null) {
         this.logger.error(`The given job does not exist (jobId=${jobId})`);
         return;
       }
 
       const company = await this.companyService.get(job.companyId);
-      if (company == null) {
+      if (company === null) {
         this.logger.error(
           `The company for the given job does not exist (jobId=${jobId}, companyId=${job.companyId})`,
         );

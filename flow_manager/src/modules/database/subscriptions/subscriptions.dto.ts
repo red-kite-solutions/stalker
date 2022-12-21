@@ -48,8 +48,8 @@ class JobParameterDto {
   @IsString()
   public name!: string;
 
-  @IsTypeIn(['string', 'number', 'boolean'])
-  public value!: string | number | boolean;
+  @IsTypeIn(['string', 'number', 'boolean', 'array', 'object'])
+  public value!: string | number | boolean | Array<any> | object;
 }
 
 class JobConditionDto {

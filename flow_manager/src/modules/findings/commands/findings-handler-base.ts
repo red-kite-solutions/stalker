@@ -32,6 +32,8 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
     let lhs = condition.lhs;
     let rhs = condition.rhs;
 
+    if (!lhs || !rhs || !operator) return false;
+
     // Making the case incensitive string checks all lowercase
     if (operator.endsWith('_i')) {
       if (typeof lhs !== 'string' || typeof rhs !== 'string') return false;
@@ -88,7 +90,8 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
    * @returns The finding's referenced output value if it exits, the given *value* otherwise
    */
   private replaceValueIfReferingToFinding(value: unknown, finding: Finding) {
-    const paramRegex = /^\$\{[a-z]+\}$/i;
+    // https://regex101.com/r/9yy2OH/1
+    const paramRegex = /^\s*\$\{\s*([a-z]+)\s*\}\s*$/i;
     let findingOutputVarKeys = Object.keys(finding);
     findingOutputVarKeys = findingOutputVarKeys.filter((e) => e !== 'type');
 
@@ -96,15 +99,16 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
       return value;
     }
 
-    let trimValue = value.trim();
-    if (!paramRegex.test(trimValue)) {
+    const match = value.match(paramRegex);
+
+    if (!match || match.length <= 1) {
       return value;
     }
 
-    trimValue = trimValue.substring(2, trimValue.length - 1);
+    const matchStr = match[1];
 
     const varKey = findingOutputVarKeys.find(
-      (s) => s.toLowerCase() === trimValue,
+      (s) => s.toLowerCase() === matchStr,
     );
 
     if (!varKey) {

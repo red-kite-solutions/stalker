@@ -110,7 +110,10 @@ export class JobsService {
     return job;
   }
 
-  private static bindFunctionArguments(params: any, args: JobParameter[]) {
+  private static bindFunctionArguments(
+    params: { [key: string]: unknown },
+    args: JobParameter[],
+  ) {
     for (const arg of args) {
       params[arg.name.toLowerCase()] = arg.value;
     }
@@ -152,25 +155,6 @@ export class JobsService {
       return null;
     }
 
-    let ports: undefined | Array<number>;
-    try {
-      ports = JSON.parse(params['ports']);
-    } catch {
-      JobsService.logJobInputError(
-        jobName,
-        new JobParameterValueException('ports', params['ports']),
-      );
-      return null;
-    }
-
-    if (!isArray(ports)) {
-      JobsService.logJobInputError(
-        jobName,
-        new JobParameterValueException('ports', ports),
-      );
-      return null;
-    }
-
     return JobsService.createTcpPortScanJob(
       params['companyid'],
       params['targetip'],
@@ -178,7 +162,7 @@ export class JobsService {
       params['sockettimeoutseconds'],
       params['portmin'],
       params['portmax'],
-      ports,
+      params['ports'],
     );
   }
 

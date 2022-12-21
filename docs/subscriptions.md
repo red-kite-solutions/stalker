@@ -77,7 +77,7 @@ job:
     - name: portMax
       value: 1000
     - name: ports
-      value: "[1234, 3389, 8080]"
+      value: [1234, 3389, 8080]
 conditions:
   - lhs: ${ip}
     operator: contains_i
@@ -132,7 +132,7 @@ The `PortFinding` is usually the result of a port scanning job. It signals that 
 
 ## Jobs
 
-A job is the way for Stalker to find new information. It is started by Stalker and runs in a contained environment. Different jobs will generate different findings. It is possible to reference a Finding's output variable as a job parameter. A job parameter is one of a job's input variables. 
+A job is the way for Stalker to find new information. It is started by Stalker and runs in a contained environment. Different jobs will generate different findings. It is possible to reference a Finding's output variable as a job parameter. A job parameter is one of a job's input variables.
 
 When referencing a Finding's output variable by name (ex: `${domainName}`), the variable name is case insensitive.
 

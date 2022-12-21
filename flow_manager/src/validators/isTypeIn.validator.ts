@@ -1,4 +1,5 @@
 import {
+  isArray,
   isNumberString,
   registerDecorator,
   ValidationArguments,
@@ -16,6 +17,7 @@ export function IsTypeIn(
     | 'undefined'
     | 'object'
     | 'function'
+    | 'array'
   >,
   validationOptions?: ValidationOptions,
 ) {
@@ -29,6 +31,9 @@ export function IsTypeIn(
         validate(value: any, args: ValidationArguments) {
           if (types.includes('string-number') && typeof value === 'string') {
             return isNumberString(value) || types.includes('string');
+          }
+          if (types.includes('array') && typeof value === 'object') {
+            return isArray(value) || types.includes('object');
           }
           return types.includes(typeof value);
         },
