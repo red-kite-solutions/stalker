@@ -35,13 +35,13 @@ export class SubscriptionDto {
   @ValidateNested({ each: true })
   @Type(() => JobParameterDto)
   @IsOptional()
-  public jobParameters: JobParameterDto[];
+  public jobParameters?: JobParameterDto[];
 
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => JobConditionDto)
   @IsOptional()
-  public conditions: JobConditionDto[];
+  public conditions?: JobConditionDto[];
 }
 
 class JobParameterDto {

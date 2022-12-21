@@ -32,7 +32,15 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
     let lhs = condition.lhs;
     let rhs = condition.rhs;
 
-    if (!lhs || !rhs || !operator) return false;
+    if (
+      lhs === null ||
+      lhs === undefined ||
+      rhs === null ||
+      rhs === undefined ||
+      operator === null ||
+      operator === undefined
+    )
+      return false;
 
     // Making the case incensitive string checks all lowercase
     if (operator.endsWith('_i')) {
@@ -105,7 +113,7 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
       return value;
     }
 
-    const matchStr = match[1];
+    const matchStr = match[1].toLowerCase();
 
     const varKey = findingOutputVarKeys.find(
       (s) => s.toLowerCase() === matchStr,
@@ -116,6 +124,34 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
     }
 
     return finding[varKey];
+  }
+
+  /**
+   * Validates that all the job's conditions are met
+   * If even one condition is invalid, the job should not be executed
+   * and we should go straight to the next subscription
+   * @param jobConditions The job's conditions to validate
+   * @param command The command
+   * @returns true if all the subscription's conditions matched
+   */
+  private shouldExecute(jobConditions: JobCondition[], command: T) {
+    let allConditionsMatch = true;
+    for (const condition of jobConditions) {
+      condition.lhs = this.replaceValueIfReferingToFinding(
+        condition.lhs,
+        command.finding,
+      );
+      condition.rhs = this.replaceValueIfReferingToFinding(
+        condition.rhs,
+        command.finding,
+      );
+
+      if (!this.evaluateCondition(condition)) {
+        allConditionsMatch = false;
+        break;
+      }
+    }
+    return allConditionsMatch;
   }
 
   public async execute(command: T) {
@@ -133,28 +169,9 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
     for (const sub of subs) {
       const jobDefinition = JobDefinitions.find((j) => j.name === sub.jobName);
 
-      // Validating that all the subscription's conditions are valid
-      // If even one condition is invalid, the job should not be executed
-      // and we should go straight to the next subscription
-      let allConditionsMatch = true;
-      for (const condition of sub.conditions) {
-        condition.lhs = this.replaceValueIfReferingToFinding(
-          condition.lhs,
-          command.finding,
-        );
-        condition.rhs = this.replaceValueIfReferingToFinding(
-          condition.rhs,
-          command.finding,
-        );
-
-        if (!this.evaluateCondition(condition)) {
-          allConditionsMatch = false;
-          break;
-        }
-      }
-      if (!allConditionsMatch) {
-        continue;
-      }
+      // Validate that, according to the conditions, the job should be executed.
+      // If not, then we go straight for the other subscription
+      if (!this.shouldExecute(sub.conditions, command)) continue;
 
       // This loop ensures that all parameters refering to a finding's output
       // (ex: ${ip} for refering to an ip parameter of a finding) is replaced with the
