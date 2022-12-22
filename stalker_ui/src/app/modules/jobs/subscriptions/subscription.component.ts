@@ -103,11 +103,11 @@ export class SubscriptionComponent {
     });
   }
 
-  public NewSubscriptionClick() {
-    this.validateCurrentChanges(this.NewSubscriptionNext.bind(this));
+  public newSubscriptionClick() {
+    this.validateCurrentChanges(this.newSubscriptionNext.bind(this));
   }
 
-  private NewSubscriptionNext() {
+  private newSubscriptionNext() {
     this.isInNewSubscriptionContext = true;
     this.selectedRow = undefined;
     this.selectedCompany = undefined;
@@ -115,12 +115,12 @@ export class SubscriptionComponent {
     this.currentCodeBackup = this.subscriptionTemplate;
   }
 
-  public SelectFindingSubscription(sub: FindingEventSubscription) {
+  public selectFindingSubscription(sub: FindingEventSubscription) {
     this.tempSelectedRow = sub;
-    this.validateCurrentChanges(this.SelectFindingSubscriptionNext.bind(this));
+    this.validateCurrentChanges(this.selectFindingSubscriptionNext.bind(this));
   }
 
-  private SelectFindingSubscriptionNext() {
+  private selectFindingSubscriptionNext() {
     this.isInNewSubscriptionContext = false;
     this.selectedRow = this.tempSelectedRow;
     this.selectedCompany = this.tempSelectedRow?.companyId;
@@ -139,7 +139,7 @@ export class SubscriptionComponent {
     this.currentCodeBackup = this.code;
   }
 
-  public async SaveSubscriptionEdits() {
+  public async saveSubscriptionEdits() {
     let sub: SubscriptionData;
     try {
       sub = parse(this.code);
@@ -167,11 +167,11 @@ export class SubscriptionComponent {
     if (!valid) {
       this.toastr.error(invalidSubscription);
     }
-
+    let newSub: undefined | FindingEventSubscription = undefined;
     try {
       if (this.isInNewSubscriptionContext) {
         // create a new subscription
-        const newSub = await this.subscriptionsService.create(sub);
+        newSub = await this.subscriptionsService.create(sub);
         this.toastr.success(
           $localize`:Successfully created subscription|Successfully created subscription:Successfully created subscription`
         );
@@ -182,8 +182,15 @@ export class SubscriptionComponent {
           $localize`:Successfully edited subscription|Successfully edited subscription:Successfully edited subscription`
         );
       }
-      this.dataSource$ = this.refreshData();
+
       this.currentCodeBackup = this.code;
+      if (newSub) {
+        this.dataSource.data.push(newSub);
+        this.data.push(newSub);
+        this.selectFindingSubscription(newSub);
+      }
+
+      this.dataSource$ = this.refreshData();
     } catch {
       this.toastr.error(invalidSubscription);
     }
@@ -216,6 +223,13 @@ export class SubscriptionComponent {
           this.toastr.error($localize`:Error while deleting|Error while deleting:Error while deleting`);
         }
         this.dialog.closeAll();
+        this.code = '';
+        this.currentCodeBackup = '';
+        this.currentSubscriptionId = '';
+        this.isInNewSubscriptionContext = true;
+        this.selectedRow = undefined;
+        this.tempSelectedRow = undefined;
+        this.selectedCompany = '';
       },
     };
 

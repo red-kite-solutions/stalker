@@ -3,14 +3,14 @@
     <mat-card class="container">
       <h1 i18n="Subscriptions|Findings Event Subscriptions">Subscriptions</h1>
       <div fxLayout="row">
-        <button mat-raised-button color="primary" class="left-action-button" (click)="NewSubscriptionClick()">
+        <button mat-raised-button color="primary" class="left-action-button" (click)="newSubscriptionClick()">
           <label i18n="New subscription|Button to create a new subscription">New subscription</label>
         </button>
         <button mat-raised-button color="warn" class="left-action-button" (click)="delete()">
           <label i18n="Delete|Delete an item">Delete</label>
         </button>
         <div fxLayoutAlign="end" fxFlex>
-          <button mat-raised-button color="primary" class="right-action-button" (click)="SaveSubscriptionEdits()">
+          <button mat-raised-button color="primary" class="right-action-button" (click)="saveSubscriptionEdits()">
             <label i18n="Save|Save the information">Save</label>
           </button>
         </div>
@@ -43,7 +43,7 @@
             mat-row
             *matRowDef="let row; columns: ['name', 'finding', 'job']"
             class="rows"
-            (click)="SelectFindingSubscription(row)"
+            (click)="selectFindingSubscription(row)"
             [class.selected-subscription]="selectedRow?._id === row._id"
           ></tr>
 
@@ -82,7 +82,7 @@
         [minimapEnabled]="minimapEnabled"
         [theme]="theme"
         [readonly]="readonly"
-        (saveEvent)="SaveSubscriptionEdits()"
+        (saveEvent)="saveSubscriptionEdits()"
         fxFlex
       ></app-code-editor>
     </div>
