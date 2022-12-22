@@ -108,3 +108,13 @@ Example:
 ```
 
 ### Producing logs
+
+Logs let jobs communicate miscellaneous information to the outside world. It could be a progress report, an error log, an inspirational quote, anything works.
+
+To output a log, simply write a string prefixed with `@logdebug` to the standard output.
+
+Example:
+
+```
+@logdebug Hello world!
+```
