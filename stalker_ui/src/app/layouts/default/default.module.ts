@@ -38,6 +38,7 @@ import { DashboardComponent } from 'src/app/modules/dashboard/dashboard.componen
 import { ListDomainsComponent } from 'src/app/modules/domains/list-domains/list-domains.component';
 import { ViewDomainComponent } from 'src/app/modules/domains/view-domain/view-domain.component';
 import { ViewHostComponent } from 'src/app/modules/hosts/view-host/view-host.component';
+import { SubscriptionComponent } from 'src/app/modules/jobs/subscriptions/subscription.component';
 import { ManageTagsComponent } from 'src/app/modules/tags/manage-tags/manage-tags.component';
 import { ProfileComponent } from 'src/app/modules/user/profile/profile.component';
 import { SharedModule } from 'src/app/shared/shared.module';
@@ -58,6 +59,7 @@ import { DefaultComponent } from './default.component';
     ViewDomainComponent,
     ManageTagsComponent,
     ViewHostComponent,
+    SubscriptionComponent,
   ],
   imports: [
     CommonModule,

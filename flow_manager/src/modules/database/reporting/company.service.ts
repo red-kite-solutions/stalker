@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { HttpNotFoundException } from '../../../exceptions/http.exceptions';
 import { JobsService } from '../jobs/jobs.service';
 import { Job } from '../jobs/models/jobs.model';
+import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 import { CreateCompanyDto } from './company.dto';
 import { Company, CompanyDocument } from './company.model';
 import { DomainsService } from './domain/domain.service';
@@ -16,6 +17,7 @@ export class CompanyService {
     private readonly domainsService: DomainsService,
     private readonly hostsService: HostService,
     private readonly jobsService: JobsService,
+    private readonly subscriptionsService: SubscriptionsService,
   ) {}
 
   public async getAll(
@@ -67,6 +69,7 @@ export class CompanyService {
     await this.hostsService.deleteAllForCompany(id);
     await this.domainsService.deleteAllForCompany(id);
     await this.jobsService.deleteAllForCompany(id);
+    await this.subscriptionsService.deleteAllForCompany(id);
     return result;
   }
 

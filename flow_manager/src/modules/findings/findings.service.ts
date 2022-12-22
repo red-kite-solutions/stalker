@@ -1,28 +1,30 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { JobsService } from '../database/jobs/jobs.service';
+import { CompanyService } from '../database/reporting/company.service';
 import { HostnameCommand } from './commands/Findings/hostname.command';
 import { HostnameIpCommand } from './commands/JobFindings/hostname-ip.command';
-import { TcpPortsCommand } from './commands/JobFindings/tcp-ports.command';
+import { PortCommand } from './commands/JobFindings/port.command';
 
-export type Finding = HostnameIpFinding | HostnameFinding | TcpPortsFinding;
+export type Finding = HostnameIpFinding | HostnameFinding | PortFinding;
 
-export interface TcpPortsFinding {
-  type: 'TcpPortsFinding';
+export class PortFinding {
+  type: 'PortFinding';
+  protocol: 'tcp' | 'udp';
   ip: string;
-  ports: number[];
+  port: number;
 }
 
-export interface HostnameFinding {
+export class HostnameFinding {
   type: 'HostnameFinding';
   domainName: string;
   companyId: string;
 }
 
-export interface HostnameIpFinding {
+export class HostnameIpFinding {
   type: 'HostnameIpFinding';
   domainName: string;
-  ips: string[];
+  ip: string;
 }
 
 export interface Findings {
@@ -35,7 +37,13 @@ export interface JobFindings extends Findings {
 
 @Injectable()
 export class FindingsService {
-  constructor(private commandBus: CommandBus, jobsService: JobsService) {}
+  private logger = new Logger(FindingsService.name);
+
+  constructor(
+    private commandBus: CommandBus,
+    private jobsService: JobsService,
+    private companyService: CompanyService,
+  ) {}
 
   /**
    * Handles findings that WERE found by a job
@@ -57,22 +65,45 @@ export class FindingsService {
     }
   }
 
-  private handleFinding(finding: Finding, jobId: string = '') {
+  private async handleFinding(finding: Finding, jobId: string = '') {
+    let companyId = '';
+    if (jobId) {
+      const job = await this.jobsService.getById(jobId);
+      if (job === null) {
+        this.logger.error(`The given job does not exist (jobId=${jobId})`);
+        return;
+      }
+
+      const company = await this.companyService.get(job.companyId);
+      if (company === null) {
+        this.logger.error(
+          `The company for the given job does not exist (jobId=${jobId}, companyId=${job.companyId})`,
+        );
+        return;
+      }
+      companyId = company._id.toString();
+    }
+
     switch (finding.type) {
       case 'HostnameIpFinding':
         this.commandBus.execute(
-          new HostnameIpCommand(jobId, finding.domainName, finding.ips),
+          new HostnameIpCommand(
+            jobId,
+            companyId,
+            HostnameIpCommand.name,
+            finding,
+          ),
         );
         break;
       case 'HostnameFinding':
         this.commandBus.execute(
-          new HostnameCommand(finding.domainName, finding.companyId),
+          new HostnameCommand(finding.companyId, HostnameCommand.name, finding),
         );
         break;
 
-      case 'TcpPortsFinding':
+      case 'PortFinding':
         this.commandBus.execute(
-          new TcpPortsCommand(jobId, finding.ip, finding.ports),
+          new PortCommand(jobId, companyId, PortCommand.name, finding),
         );
         break;
 

@@ -15,6 +15,7 @@ import { DashboardComponent } from './modules/dashboard/dashboard.component';
 import { ListDomainsComponent } from './modules/domains/list-domains/list-domains.component';
 import { ViewDomainComponent } from './modules/domains/view-domain/view-domain.component';
 import { ViewHostComponent } from './modules/hosts/view-host/view-host.component';
+import { SubscriptionComponent } from './modules/jobs/subscriptions/subscription.component';
 import { ManageTagsComponent } from './modules/tags/manage-tags/manage-tags.component';
 import { ProfileComponent } from './modules/user/profile/profile.component';
 
@@ -64,6 +65,10 @@ const routes: Routes = [
         component: ViewDomainComponent,
       },
       {
+        path: 'hosts',
+        loadChildren: () => import('./modules/hosts/hosts.module').then((m) => m.HostsListModule),
+      },
+      {
         path: 'hosts/:id',
         component: ViewHostComponent,
       },
@@ -72,8 +77,8 @@ const routes: Routes = [
         component: ManageTagsComponent,
       },
       {
-        path: 'hosts',
-        loadChildren: () => import('./modules/hosts/hosts.module').then((m) => m.HostsListModule),
+        path: 'jobs/subscriptions',
+        component: SubscriptionComponent,
       },
     ],
   },

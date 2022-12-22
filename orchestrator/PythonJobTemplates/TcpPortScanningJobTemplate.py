@@ -93,4 +93,5 @@ for t in threads_list:
 
 open_ports_output.sort()
 
-print('@finding {{ "findings": [ {{ "type": "TcpPortsFinding", "ip": {0}, "ports": {1} }} ] }}'.format(json.dumps(TARGET_IP), json.dumps(open_ports_output)))
+for port in open_ports_output:
+  print('@finding {{ "findings": [ {{ "type": "PortFinding", "protocol":"tcp", "ip": {0}, "port": {1} }} ] }}'.format(json.dumps(TARGET_IP), json.dumps(port)))
