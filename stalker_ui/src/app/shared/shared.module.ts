@@ -28,6 +28,7 @@ import { TimeAgoPipe } from './pipes/time-ago.pipe';
 import { WhereIdPipe } from './pipes/where-id.pipe';
 import { AreaComponent } from './widget/area/area.component';
 import { CardComponent } from './widget/card/card.component';
+import { CodeEditorComponent } from './widget/code-editor/code-editor.component';
 import { ConfirmDialogComponent } from './widget/confirm-dialog/confirm-dialog.component';
 import { FilteredPaginatedTableComponent } from './widget/filtered-paginated-table/filtered-paginated-table.component';
 import { ImageUploadComponent } from './widget/image-upload/image-upload.component';
@@ -48,6 +49,7 @@ import { SpinnerButtonComponent } from './widget/spinner-button/spinner-button.c
     WhereIdPipe,
     PillTagComponent,
     TimeAgoPipe,
+    CodeEditorComponent,
   ],
   imports: [
     CommonModule,
@@ -86,6 +88,7 @@ import { SpinnerButtonComponent } from './widget/spinner-button/spinner-button.c
     WhereIdPipe,
     PillTagComponent,
     TimeAgoPipe,
+    CodeEditorComponent,
   ],
 })
 export class SharedModule {}

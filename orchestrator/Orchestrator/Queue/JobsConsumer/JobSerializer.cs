@@ -1,4 +1,5 @@
 ﻿using Confluent.Kafka;
+using Orchestrator.Queue.JobsConsumer.JobRequests;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
@@ -22,6 +23,7 @@ public class JobSerializer<T> : ISerializer<T>, IDeserializer<T> where T : JobRe
         return type switch
         {
             "DomainNameResolvingJob" => JsonSerializer.Deserialize<DomainNameResolvingJobRequest>(data.ToArray(), Options) as T,
+            "TcpPortScanningJob" => JsonSerializer.Deserialize<TcpPortScanningJobRequest>(data.ToArray(), Options) as T,
             _ => default
         } ?? throw new InvalidOperationException();
     }

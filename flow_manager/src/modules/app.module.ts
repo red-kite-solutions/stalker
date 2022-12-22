@@ -4,7 +4,6 @@ import { KeybaseModule } from './alerts/keybase/keybase.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
-import { AutomationModule } from './automation/automation.module';
 import { DatabaseModule } from './database/database.module';
 import { FindingsModule } from './findings/findings.module';
 
@@ -12,7 +11,6 @@ import { FindingsModule } from './findings/findings.module';
   imports: [
     DatabaseModule,
     KeybaseModule,
-    AutomationModule,
     ScheduleModule.forRoot(),
     AuthModule,
     FindingsModule,

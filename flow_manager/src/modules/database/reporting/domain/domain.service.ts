@@ -2,6 +2,8 @@ import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { HttpNotFoundException } from '../../../../exceptions/http.exceptions';
+import { HostnameFinding } from '../../../findings/findings.service';
+import { FindingsQueue } from '../../../job-queue/findings-queue';
 import { ConfigService } from '../../admin/config/config.service';
 import { JobsService } from '../../jobs/jobs.service';
 import { Company } from '../company.model';
@@ -23,6 +25,7 @@ export class DomainsService {
     private configService: ConfigService,
     @Inject(forwardRef(() => HostService))
     private hostService: HostService,
+    private findingsQueue: FindingsQueue,
   ) {}
 
   public async addDomains(domains: string[], companyId: string) {
@@ -73,11 +76,16 @@ export class DomainsService {
       this.reportService.addDomains(company.name, newDomains);
     }
 
-    // For each new domain name found, create a domain name resolution job for the domain
-    for (const domain of newDomains) {
-      const job = this.jobService.createDomainResolvingJob(companyId, domain);
-      await this.jobService.publish(job);
-    }
+    const findings: HostnameFinding[] = [];
+    // For each new domain name found, a finding is created
+    newDomains.forEach((domain) => {
+      findings.push({
+        type: 'HostnameFinding',
+        domainName: domain,
+        companyId: companyId,
+      });
+    });
+    this.findingsQueue.publish(...findings);
 
     return insertedDomains;
   }
@@ -104,32 +112,6 @@ export class DomainsService {
       { _id: { $eq: domainId } },
       { $addToSet: { hosts: { $each: hostSummaries } } },
     );
-  }
-
-  /**
-   * Starts a job for every domain name trying to resolve them to one
-   * or many IP addresses
-   */
-  public async resolveAll() {
-    let page = -1;
-    let pageSize = 100;
-
-    let domains: DomainDocument[] = [];
-    do {
-      page++;
-      let query = this.domainModel.find();
-      query = query.skip(page).limit(pageSize);
-      domains = await query.exec();
-
-      for (const domain of domains) {
-        const job = this.jobService.createDomainResolvingJob(
-          domain.companyId.toString(),
-          domain.name,
-        );
-
-        await this.jobService.publish(job);
-      }
-    } while (domains);
   }
 
   public async deleteAllForCompany(companyId: string) {

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { Kafka } from 'kafkajs';
 import { orchestratorConstants } from '../auth/constants';
@@ -6,7 +6,8 @@ import { JobsModule } from '../database/jobs/jobs.module';
 import { CompanyModule } from '../database/reporting/company.module';
 import { FindingModelModule } from '../database/reporting/findings/findings-model.module';
 import { HostModule } from '../database/reporting/host/host.module';
-import { FindingsCommands } from './commands/findings-commands';
+import { SubscriptionsModule } from '../database/subscriptions/subscriptions.module';
+import { FindingsHandlers } from './commands/findings-commands';
 import { FindingsController } from './findings.controller';
 import { FindingsService } from './findings.service';
 
@@ -19,10 +20,12 @@ import { FindingsService } from './findings.service';
     FindingModelModule,
   ],
   controllers: [FindingsController],
-  providers: [FindingsService, ...FindingsCommands],
+  providers: [FindingsService, SubscriptionsModule, ...FindingsHandlers],
   exports: [],
 })
 export class FindingsModule {
+  private logger: Logger = new Logger('FindingsModule');
+
   public constructor(private findingsService: FindingsService) {}
 
   public async onApplicationBootstrap() {
@@ -41,13 +44,39 @@ export class FindingsModule {
 
       consumer.run({
         eachMessage: async ({ topic, partition, message }) => {
-          const findingsRaw = JSON.parse(message.value.toString());
-          const findings = {
-            jobId: findingsRaw.JobId,
-            findings: JSON.parse(findingsRaw.FindingsJson).findings,
-          };
-
-          this.findingsService.handle(findings);
+          this.logger.debug('Kafka message found!');
+          try {
+            const findingsRaw = JSON.parse(message.value.toString());
+            if (findingsRaw.JobId) {
+              const findings = {
+                jobId: findingsRaw.JobId,
+                findings: JSON.parse(findingsRaw.FindingsJson).findings,
+              };
+              this.logger.debug(
+                `Kafka findings for Job ID ${findings.jobId} : ${JSON.stringify(
+                  findings.findings,
+                )}`,
+              );
+              this.findingsService.handleJobFindings(findings);
+            } else {
+              const findings = {
+                findings: JSON.parse(findingsRaw.FindingsJson).findings,
+              };
+              this.logger.debug(
+                `Kafka findings (no Job ID) : ${JSON.stringify(
+                  findings.findings,
+                )}`,
+              );
+              this.findingsService.handleFindings(findings);
+            }
+          } catch (err) {
+            this.logger.error(
+              'Error while reading Kafka message : ' +
+                err +
+                '\nMessage content: ' +
+                message.value.toString(),
+            );
+          }
         },
       });
     }

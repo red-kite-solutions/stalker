@@ -1,4 +1,4 @@
-namespace Orchestrator.Queue.JobsConsumer;
+namespace Orchestrator.Queue.JobsConsumer.JobRequests;
 
 public class DomainNameResolvingJobRequest : JobRequest
 {

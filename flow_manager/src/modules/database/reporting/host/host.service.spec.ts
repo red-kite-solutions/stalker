@@ -73,11 +73,11 @@ describe('Host Service', () => {
       // Assert
       const allHosts = await hostService.getAll(0, 10, null);
       const h1 = allHosts[0];
-      expect(h1.companyId.toString()).toBe(c1._id.toString());
+      expect(h1.companyId.toString()).toStrictEqual(c1._id.toString());
       expect(h1.ip).toBe('8.8.8.8');
 
       const h2 = allHosts[1];
-      expect(h2.companyId.toString()).toBe(c2._id.toString());
+      expect(h2.companyId.toString()).toStrictEqual(c2._id.toString());
       expect(h2.ip).toBe('8.8.8.8');
     });
   });
