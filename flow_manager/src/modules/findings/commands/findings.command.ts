@@ -1,7 +1,7 @@
-import { Finding } from '../findings.service';
+import { NewFinding } from '../findings.service';
 
 export abstract class FindingCommand {
-  public abstract finding: Finding;
+  public abstract finding: NewFinding;
   constructor(
     public readonly companyId: string,
     public readonly commandType: string,

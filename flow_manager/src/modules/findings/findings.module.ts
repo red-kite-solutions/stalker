@@ -18,9 +18,10 @@ import { FindingsService } from './findings.service';
     CompanyModule,
     HostModule,
     FindingModelModule,
+    SubscriptionsModule,
   ],
   controllers: [FindingsController],
-  providers: [FindingsService, SubscriptionsModule, ...FindingsHandlers],
+  providers: [FindingsService, ...FindingsHandlers],
   exports: [],
 })
 export class FindingsModule {

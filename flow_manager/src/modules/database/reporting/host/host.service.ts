@@ -319,7 +319,7 @@ export class HostService {
       ? ports.filter(
           (a) =>
             !host.ports.some((b) => {
-              return a === b;
+              return a === b.port;
             }),
         )
       : ports;

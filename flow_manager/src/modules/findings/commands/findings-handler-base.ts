@@ -8,7 +8,7 @@ import {
   JobParameter,
 } from '../../database/subscriptions/subscriptions.model';
 import { SubscriptionsService } from '../../database/subscriptions/subscriptions.service';
-import { Finding } from '../findings.service';
+import { NewFinding } from '../findings.service';
 import { FindingsCommandMapping } from './findings-commands';
 import { FindingCommand } from './findings.command';
 
@@ -97,7 +97,7 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
    * @param finding The finding we are currently reacting to
    * @returns The finding's referenced output value if it exits, the given *value* otherwise
    */
-  private replaceValueIfReferingToFinding(value: unknown, finding: Finding) {
+  private replaceValueIfReferingToFinding(value: unknown, finding: NewFinding) {
     // https://regex101.com/r/9yy2OH/1
     const paramRegex = /^\s*\$\{\s*([a-z]+)\s*\}\s*$/i;
     let findingOutputVarKeys = Object.keys(finding);
