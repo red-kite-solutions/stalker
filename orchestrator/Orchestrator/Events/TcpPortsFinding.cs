@@ -1,6 +1,6 @@
 ﻿namespace Orchestrator.Events
 {
-    public class PortFinding: Finding
+    public class PortFinding : Finding
     {
         public override string Type => nameof(PortFinding);
 

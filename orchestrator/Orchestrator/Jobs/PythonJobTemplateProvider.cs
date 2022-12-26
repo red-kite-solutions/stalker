@@ -6,7 +6,7 @@ namespace Orchestrator.Jobs
     {
         private ILogger<PythonJobTemplateProvider> Logger { get; }
         private string PythonTemplatesPath { get; }
-        private Dictionary<string,string> CodeDictionary { get; }
+        private Dictionary<string, string> CodeDictionary { get; }
 
         // TODO: To prevent having to modify this file everytime a new python job is created, we could simply list the
         // content of the folder pythonTemplatesPath and automatically load all .py files
@@ -15,7 +15,7 @@ namespace Orchestrator.Jobs
         public PythonJobTemplateProvider(ILogger<PythonJobTemplateProvider> logger, string pythonTemplatesPath)
         {
             Logger = logger;
-            CodeDictionary = new Dictionary<string,string>();
+            CodeDictionary = new Dictionary<string, string>();
             PythonTemplatesPath = pythonTemplatesPath;
             RefreshTemplates();
         }
@@ -44,7 +44,8 @@ namespace Orchestrator.Jobs
             try
             {
                 code = CodeDictionary[templateKey];
-            } catch (KeyNotFoundException e)
+            }
+            catch (KeyNotFoundException e)
             {
                 Logger.LogError($"Key {templateKey} not found in CodeDictionnary");
                 throw e;
