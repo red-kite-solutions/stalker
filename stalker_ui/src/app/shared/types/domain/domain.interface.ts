@@ -8,4 +8,5 @@ export interface Domain {
   hosts: HostSummary[];
   tags: Tag[];
   companyId: string;
+  correlationKey: string;
 }

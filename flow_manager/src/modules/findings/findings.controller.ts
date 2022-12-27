@@ -10,7 +10,7 @@ import { Role } from '../auth/constants';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/role.guard';
-import { Finding } from '../database/reporting/findings/finding.model';
+import { CustomFinding } from '../database/reporting/findings/finding.model';
 import { FindingsService } from './findings.service';
 
 @Roles(Role.User)
@@ -24,7 +24,7 @@ export class FindingsController {
     @Query('target') target: string,
     @Query('page ') page = 1,
     @Query('pageSize ') pageSize = 15,
-  ): Promise<Page<Finding>> {
+  ): Promise<Page<CustomFinding>> {
     if (target == null || target.trim() === '')
       throw new BadRequestException('Must provide a target.');
 

@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
 import { AppModule } from '../app.module';
 import {
-  Finding,
+  CustomFinding,
   FindingImageField,
   FindingTextField,
 } from '../database/reporting/findings/finding.model';
@@ -12,18 +12,24 @@ import { FindingsService } from './findings.service';
 describe('Findings Service Spec', () => {
   let moduleFixture: TestingModule;
   let findingsService: FindingsService;
-  let findingsModel: Model<Finding>;
+  let findingsModel: Model<CustomFinding>;
 
   beforeAll(async () => {
     moduleFixture = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
     findingsService = moduleFixture.get(FindingsService);
-    findingsModel = moduleFixture.get<Model<Finding>>(getModelToken('finding'));
+    findingsModel = moduleFixture.get<Model<CustomFinding>>(
+      getModelToken('finding'),
+    );
   });
 
   beforeEach(async () => {
     findingsModel.deleteMany();
+  });
+
+  afterAll(async () => {
+    await moduleFixture.close();
   });
 
   it('Test', async () => {

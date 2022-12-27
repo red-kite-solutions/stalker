@@ -1,4 +1,4 @@
-<div fxLayout="row" class="full-height">
+<div fxLayout="row" class="full-height" *ngIf="domain$ | async as domain">
   <div fxFlex>
     <div fxLayout="row" fxLayoutAlign="center">
       <mat-card fxFlex.lt-md="95" [fxFlex.gt-sm]="selectedHost ? 100 : 80" *ngIf="(routeSub$ | async) || true">
@@ -11,7 +11,7 @@
           </h1>
 
           <div fxLayout="row">
-            <div fxFlex="50">
+            <div fxFlex>
               <div fxLayout="column">
                 <div class="table-container" *ngIf="domain" fxFlex fxLayout="column">
                   <table mat-table [dataSource]="dataSource">
@@ -74,7 +74,7 @@
               </div>
             </div>
             <mat-divider [vertical]="true" class="vertical-dvider"></mat-divider>
-            <div fxFlex="35">
+            <div fxFlex>
               <div fxLayout="column">
                 <div fxFlex>
                   <h2 class="fake-mat-subheader" i18n="Tags|The tags of an item">Tags</h2>
@@ -106,6 +106,13 @@
                     [value]="(companies | whereId: [domain.companyId])?.name"
                   />
                 </mat-form-field>
+
+                <div class="findings-container">
+                  <findings-list
+                    *ngIf="findings$ | async as findings"
+                    [correlationKey]="domain.correlationKey"
+                  ></findings-list>
+                </div>
               </div>
             </div>
           </div>
@@ -121,6 +128,8 @@
         [host]="host"
         [company]="companies$ | async | whereId: [host?.companyId]"
       ></host-details>
+
+      <findings-list *ngIf="hostDetails$ | async as host" [correlationKey]="host.correlationKey"></findings-list>
     </mat-drawer>
   </mat-drawer-container>
 </div>

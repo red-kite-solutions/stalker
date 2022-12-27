@@ -27,7 +27,7 @@ export class FindingTextField {
  * Represents a finding.
  */
 @Schema()
-export class Finding {
+export class CustomFinding {
   /**
    * A pseudo-unique key identifying the entity related to this finding.
    *
@@ -37,9 +37,6 @@ export class Finding {
    */
   @Prop({ index: true })
   public correlationKey: string;
-
-  @Prop()
-  public targetName: string;
 
   @Prop()
   public created: Date;
@@ -57,4 +54,4 @@ export class Finding {
   public fields: FindingField[];
 }
 
-export const FindingSchema = SchemaFactory.createForClass(Finding);
+export const FindingSchema = SchemaFactory.createForClass(CustomFinding);

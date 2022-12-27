@@ -3,22 +3,22 @@ export type FindingType = 'image' | 'data';
 /**
  * Represents a generic finding.
  */
-export interface Finding {
+export interface CustomFinding {
   created: Date; // TODO: The server will send a string, must translate to date
   name: string;
   key: string;
   jobId: string;
-  fields: FindingField[];
+  fields: CustomFindingField[];
 }
 
-export type FindingField = FindingImageField | FindingTextField;
+export type CustomFindingField = CustomFindingImageField | CustomFindingTextField;
 
-export interface FindingImageField {
+export interface CustomFindingImageField {
   type: 'image';
   data: string;
 }
 
-export interface FindingTextField {
+export interface CustomFindingTextField {
   type: 'text';
   label: string;
   content: string;

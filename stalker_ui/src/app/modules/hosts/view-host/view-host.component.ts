@@ -3,7 +3,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatDrawer } from '@angular/material/sidenav';
 import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, concatMap, map, Observable, of, scan, shareReplay, switchMap, tap } from 'rxjs';
+import { map, Observable, of, Subject, switchMap, tap } from 'rxjs';
 import { CompaniesService } from 'src/app/api/companies/companies.service';
 import { DomainsService } from 'src/app/api/domains/domains.service';
 import { HostsService } from 'src/app/api/hosts/hosts.service';
@@ -14,8 +14,6 @@ import { DomainSummary } from 'src/app/shared/types/domain/domain.summary';
 import { Host, Port } from 'src/app/shared/types/host/host.interface';
 import { Tag } from 'src/app/shared/types/tag.type';
 import { FindingsService } from '../../../api/findings/findings.service';
-import { Finding } from '../../../shared/types/finding/finding.type';
-import { Page } from '../../../shared/types/page.type';
 
 @Component({
   selector: 'app-view-host',
@@ -26,7 +24,6 @@ import { Page } from '../../../shared/types/page.type';
 export class ViewHostComponent {
   public routeLoading = false;
   public hostId = '';
-  public host: Host | null = null;
   dataSource = new MatTableDataSource<DomainSummary>();
   displayedColumns: string[] = ['domainName'];
 
@@ -35,9 +32,7 @@ export class ViewHostComponent {
   public selectedDomain: DomainSummary | null = null;
   public domainDetails$: Observable<Domain> | null = null;
   public portDetails$: Observable<Port> | null = null;
-  public loadMoreFindings$: BehaviorSubject<null> = new BehaviorSubject(null);
-  public isLoadingMoreFindings$: BehaviorSubject<boolean> = new BehaviorSubject(false);
-  public selectedItemFindings$: Observable<Page<Finding>> | null = null;
+  public selectedItemCorrelationKey$ = new Subject<string | null>();
 
   @ViewChild(MatPaginator) paginator: MatPaginator | null;
   @ViewChild(MatDrawer) detailsDrawer: MatDrawer | null;
@@ -66,37 +61,31 @@ export class ViewHostComponent {
     })
   );
 
-  public routeSub$ = this.route.params
-    .pipe(
-      switchMap((params) => {
-        this.routeLoading = true;
-        this.hostId = params['id'];
-        return this.hostsService.get(this.hostId);
-      })
-    )
-    .pipe(
-      map((host: Host) => {
-        this.routeLoading = false;
-        host.ports.sort((a, b) => a.port - b.port);
-        this.host = host;
-        this.dataSource.data = host.domains;
+  public hostId$ = this.route.params.pipe(map((params) => params['id'] as string));
 
-        this.dataSource.paginator = this.paginator;
+  public host$ = this.hostId$.pipe(
+    switchMap((hostId) => this.hostsService.get(hostId)),
+    tap((host: Host) => {
+      this.routeLoading = false;
+      host.ports.sort((a, b) => a.port - b.port);
+      this.dataSource.data = host.domains;
 
-        if (this.paginator) {
-          this.paginator._intl.itemsPerPageLabel = $localize`:Items per page|Paginator items per page label:Items per page`;
-          this.paginator._intl.nextPageLabel = $localize`:Next page|Paginator next page label:Next page`;
-          this.paginator._intl.lastPageLabel = $localize`:Last page|Paginator last page label:Last page`;
-          this.paginator._intl.previousPageLabel = $localize`:Previous page|Paginator previous page label:Previous page`;
-          this.paginator._intl.firstPageLabel = $localize`:First page|Paginator first page label:First page`;
-          this.paginator._intl.getRangeLabel = (page: number, pageSize: number, length: number) => {
-            const low = page * pageSize + 1;
-            const high = page * pageSize + pageSize <= length ? page * pageSize + pageSize : length;
-            return $localize`:Paginator range|Item numbers and range of the paginator:${low} – ${high} of ${length}`;
-          };
-        }
-      })
-    );
+      this.dataSource.paginator = this.paginator;
+
+      if (this.paginator) {
+        this.paginator._intl.itemsPerPageLabel = $localize`:Items per page|Paginator items per page label:Items per page`;
+        this.paginator._intl.nextPageLabel = $localize`:Next page|Paginator next page label:Next page`;
+        this.paginator._intl.lastPageLabel = $localize`:Last page|Paginator last page label:Last page`;
+        this.paginator._intl.previousPageLabel = $localize`:Previous page|Paginator previous page label:Previous page`;
+        this.paginator._intl.firstPageLabel = $localize`:First page|Paginator first page label:First page`;
+        this.paginator._intl.getRangeLabel = (page: number, pageSize: number, length: number) => {
+          const low = page * pageSize + 1;
+          const high = page * pageSize + pageSize <= length ? page * pageSize + pageSize : length;
+          return $localize`:Paginator range|Item numbers and range of the paginator:${low} – ${high} of ${length}`;
+        };
+      }
+    })
+  );
 
   constructor(
     private route: ActivatedRoute,
@@ -122,7 +111,10 @@ export class ViewHostComponent {
     }
 
     this.currentDetailsId = domain.id;
-    this.domainDetails$ = this.domainsService.get(domain.id);
+    this.domainDetails$ = this.domainsService
+      .get(domain.id)
+      .pipe(tap((domain) => this.selectedItemCorrelationKey$.next(domain.correlationKey)));
+
     this.detailsDrawer?.open();
   }
 
@@ -139,31 +131,15 @@ export class ViewHostComponent {
 
     this.currentDetailsId = port.id;
     this.portDetails$ = of(port);
-    this.loadMoreFindings$ = new BehaviorSubject(null);
-    this.selectedItemFindings$ = this.loadMoreFindings$.pipe(
-      tap(() => this.isLoadingMoreFindings$.next(true)),
-      scan((acc) => acc + 1, 0),
-      concatMap((page) => this.findingsService.getFindings(port.findingsCorrelationKey, page, 15)),
-      scan((acc, value) => {
-        acc.items.push(...value.items);
-        acc.totalRecords = value.totalRecords;
-        return acc;
-      }),
-      tap(() => this.isLoadingMoreFindings$.next(false)),
-      shareReplay(1)
-    );
+    this.selectedItemCorrelationKey$.next(port.correlationKey);
 
     this.detailsDrawer?.open();
-  }
-
-  public loadMoreFindings() {
-    this.loadMoreFindings$.next(null);
   }
 
   private clearDetails() {
     this.currentDetailsId = null;
     this.portDetails$ = null;
     this.domainDetails$ = null;
-    this.selectedItemFindings$ = null;
+    this.selectedItemCorrelationKey$.next(null);
   }
 }

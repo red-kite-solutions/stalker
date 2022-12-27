@@ -3,7 +3,19 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatDrawer } from '@angular/material/sidenav';
 import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute } from '@angular/router';
-import { map, Observable, Subscription, switchMap } from 'rxjs';
+import {
+  BehaviorSubject,
+  combineLatest,
+  concatMap,
+  finalize,
+  map,
+  Observable,
+  scan,
+  shareReplay,
+  Subscription,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { CompaniesService } from 'src/app/api/companies/companies.service';
 import { DomainsService } from 'src/app/api/domains/domains.service';
 import { HostsService } from 'src/app/api/hosts/hosts.service';
@@ -13,6 +25,7 @@ import { Domain } from 'src/app/shared/types/domain/domain.interface';
 import { Host } from 'src/app/shared/types/host/host.interface';
 import { HostSummary } from 'src/app/shared/types/host/host.summary';
 import { Tag } from 'src/app/shared/types/tag.type';
+import { FindingsService } from '../../../api/findings/findings.service';
 
 @Component({
   selector: 'app-view-domain',
@@ -21,8 +34,6 @@ import { Tag } from 'src/app/shared/types/tag.type';
 })
 export class ViewDomainComponent implements OnDestroy {
   public routeLoading = false;
-  public domainId = '';
-  public domain: Domain | null = null;
   dataSource = new MatTableDataSource<HostSummary & { ports?: number[] }>();
   displayedColumns: string[] = ['ipAddress', 'ports'];
   hostPortsSubs: Subscription[] = [];
@@ -58,45 +69,61 @@ export class ViewDomainComponent implements OnDestroy {
     })
   );
 
-  public routeSub$ = this.route.params
-    .pipe(
-      switchMap((params) => {
-        this.routeLoading = true;
-        this.domainId = params['id'];
-        return this.domainsService.get(this.domainId);
-      })
-    )
-    .pipe(
-      map((domain: Domain) => {
-        this.routeLoading = false;
-        this.domain = domain;
-        this.dataSource.data = domain.hosts;
-        this.dataSource.paginator = this.paginator;
+  public domain$ = this.route.params.pipe(
+    switchMap((params) => {
+      this.routeLoading = true;
+      return this.domainsService.get(params['id']);
+    }),
+    tap(() => (this.routeLoading = false)),
+    finalize(() => (this.routeLoading = false))
+  );
 
-        for (const h of domain.hosts) {
-          this.hostPortsSubs.push(
-            this.hostsService
-              .getPorts(h.id, 0, 10, { sortType: 'popularity' })
-              .pipe(
-                map((ports: number[]) => {
-                  for (const summary of this.dataSource.data) {
-                    summary.ports = ports.sort((a, b) => a - b);
-                  }
-                  this.dataSource.paginator = this.paginator;
-                })
-              )
-              .subscribe()
-          );
-        }
-      })
-    );
+  public routeSub$ = this.domain$.pipe(
+    map((domain: Domain) => {
+      this.routeLoading = false;
+      this.dataSource.data = domain.hosts;
+      this.dataSource.paginator = this.paginator;
+
+      for (const h of domain.hosts) {
+        this.hostPortsSubs.push(
+          this.hostsService
+            .getPorts(h.id, 0, 10, { sortType: 'popularity' })
+            .pipe(
+              map((ports: number[]) => {
+                for (const summary of this.dataSource.data) {
+                  summary.ports = ports.sort((a, b) => a - b);
+                }
+                this.dataSource.paginator = this.paginator;
+              })
+            )
+            .subscribe()
+        );
+      }
+    })
+  );
+
+  // Findings
+  public loadMoreFindings$: BehaviorSubject<null> = new BehaviorSubject(null);
+  public isLoadingMoreFindings$: BehaviorSubject<boolean> = new BehaviorSubject(false);
+  public findings$ = combineLatest([this.domain$, this.loadMoreFindings$.pipe(scan((acc) => acc + 1, 0))]).pipe(
+    tap(() => this.isLoadingMoreFindings$.next(true)),
+    concatMap(([domain, page]) => this.findingsService.getFindings(domain.correlationKey, page, 15)),
+    scan((acc, value) => {
+      acc.items.push(...value.items);
+      acc.totalRecords = value.totalRecords;
+      return acc;
+    }),
+    tap(() => this.isLoadingMoreFindings$.next(false)),
+    shareReplay(1)
+  );
 
   constructor(
     private route: ActivatedRoute,
     private domainsService: DomainsService,
     private hostsService: HostsService,
     private companiesService: CompaniesService,
-    private tagsService: TagsService
+    private tagsService: TagsService,
+    private findingsService: FindingsService
   ) {
     this.paginator = null;
     this.hostDrawer = null;
@@ -122,6 +149,10 @@ export class ViewDomainComponent implements OnDestroy {
         return hd;
       })
     );
+  }
+
+  public loadMoreFindings() {
+    this.loadMoreFindings$.next(null);
   }
 
   public ngOnDestroy(): void {

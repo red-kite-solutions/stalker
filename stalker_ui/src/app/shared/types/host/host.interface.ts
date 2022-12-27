@@ -4,7 +4,7 @@ import { Tag } from '../tag.type';
 export interface Port {
   id: string;
   port: number;
-  findingsCorrelationKey: string;
+  correlationKey: string;
 }
 
 export interface Host {
@@ -15,4 +15,5 @@ export interface Host {
   tags: Tag[];
   companyId: string;
   ports: Port[];
+  correlationKey: string;
 }

@@ -1,7 +1,7 @@
 <div fxLayout="row" class="full-height">
   <div fxFlex>
     <div fxLayout="row" fxLayoutAlign="center">
-      <mat-card fxFlex.lt-md="95" [fxFlex.gt-sm]="currentDetailsId ? 100 : 80" *ngIf="(routeSub$ | async) || true">
+      <mat-card fxFlex.lt-md="95" [fxFlex.gt-sm]="currentDetailsId ? 100 : 80" *ngIf="host$ | async as host">
         <mat-card-content>
           <h1 fxLayoutAlign="flex-start center">
             <button type="button" mat-icon-button routerLinkActive="list-item-active" routerLink="/hosts">
@@ -114,12 +114,15 @@
                   </mat-paginator>
                 </div>
               </div>
+
+              <findings-list *ngIf="host" [correlationKey]="host.correlationKey"></findings-list>
             </div>
           </div>
         </mat-card-content>
       </mat-card>
     </div>
   </div>
+
   <mat-drawer-container class="domain-side-nav" autosize="true">
     <mat-drawer closed mode="side" position="end">
       <domain-details
@@ -130,33 +133,7 @@
       <port-details *ngIf="portDetails$ | async as portDetails" [port]="portDetails"></port-details>
 
       <div class="findings-container">
-        <findings-list
-          *ngIf="selectedItemFindings$ | async as findings"
-          [findings]="findings?.items ?? []"
-        ></findings-list>
-
-        <div class="findings-paginator" *ngIf="selectedItemFindings$ | async as findings">
-          <button
-            *ngIf="findings.items.length < findings.totalRecords; else noMoreFindings"
-            mat-button
-            color="primary"
-            (click)="loadMoreFindings()"
-            [disabled]="isLoadingMoreFindings$ | async"
-          >
-            <span class="load-more-findings">
-              <mat-progress-spinner
-                *ngIf="isLoadingMoreFindings$ | async"
-                [mode]="'indeterminate'"
-                [diameter]="16"
-              ></mat-progress-spinner>
-              <span> Load more </span>
-            </span>
-          </button>
-
-          <ng-template #noMoreFindings>
-            <button *ngIf="findings.totalRecords > 0" mat-button color="primary" disabled>No more findings!</button>
-          </ng-template>
-        </div>
+        <findings-list [correlationKey]="selectedItemCorrelationKey$ | async"></findings-list>
       </div>
     </mat-drawer>
   </mat-drawer-container>

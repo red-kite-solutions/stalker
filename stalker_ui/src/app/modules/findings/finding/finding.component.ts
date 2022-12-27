@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Finding } from '../../../shared/types/finding/finding.type';
+import { CustomFinding } from '../../../shared/types/finding/finding.type';
 
 @Component({
   selector: 'finding',
@@ -7,5 +7,5 @@ import { Finding } from '../../../shared/types/finding/finding.type';
   styleUrls: ['./finding.component.scss'],
 })
 export class FindingComponent {
-  @Input() finding: Finding | null = null;
+  @Input() finding: CustomFinding | null = null;
 }

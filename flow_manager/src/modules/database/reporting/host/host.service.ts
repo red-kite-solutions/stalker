@@ -108,6 +108,10 @@ export class HostService {
               _id: mongoId,
               companyId: new Types.ObjectId(companyId),
               companyName: company.name,
+              correlationKey: CorrelationKeyUtils.hostCorrelationKey(
+                companyId,
+                ip,
+              ),
             },
             $addToSet: { domains: ds, tags: existingTags },
           },
@@ -168,6 +172,7 @@ export class HostService {
         companyId: new Types.ObjectId(companyId),
         correlationKey: CorrelationKeyUtils.hostCorrelationKey(companyId, ip),
       });
+
       hostDocuments.push(model);
     }
 

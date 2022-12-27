@@ -6,18 +6,34 @@ import { HttpBadRequestException } from '../../exceptions/http.exceptions';
 import { Page } from '../../types/page.type';
 import { JobsService } from '../database/jobs/jobs.service';
 import { CompanyService } from '../database/reporting/company.service';
-import { Finding } from '../database/reporting/findings/finding.model';
+import { CorrelationKeyUtils } from '../database/reporting/correlation.utils';
+import { CustomFinding } from '../database/reporting/findings/finding.model';
 import { HostnameCommand } from './commands/Findings/hostname.command';
+import { CustomFindingCommand } from './commands/JobFindings/custom.command';
 import { HostnameIpCommand } from './commands/JobFindings/hostname-ip.command';
 import { PortCommand } from './commands/JobFindings/port.command';
+import { CustomFindingFieldDto } from './finding.dto';
 
-export type NewFinding = HostnameIpFinding | HostnameFinding | PortFinding;
+export type Finding =
+  | HostnameIpFinding
+  | HostnameFinding
+  | PortFinding
+  | CreateCustomFinding;
 
 export class PortFinding {
   type: 'PortFinding';
   protocol: 'tcp' | 'udp';
   ip: string;
   port: number;
+}
+
+export class CreateCustomFinding {
+  type: 'CustomFinding';
+  domainName?: string;
+  ip?: string;
+  port?: number;
+  name: string;
+  fields: CustomFindingFieldDto[];
 }
 
 export class HostnameFinding {
@@ -32,11 +48,11 @@ export class HostnameIpFinding {
   ip: string;
 }
 
-export interface NewFindings {
-  findings: NewFinding[];
+export interface Findings {
+  findings: Finding[];
 }
 
-export interface JobFindings extends NewFindings {
+export interface JobFindings extends Findings {
   jobId: string;
 }
 
@@ -49,17 +65,17 @@ export class FindingsService {
     private jobsService: JobsService,
     private companyService: CompanyService,
     @InjectModel('finding')
-    private readonly findingModel: Model<Finding>,
+    private readonly findingModel: Model<CustomFinding>,
   ) {}
 
   public async getAll(
     target: string,
     page: number,
     pageSize: number,
-  ): Promise<Page<Finding>> {
+  ): Promise<Page<CustomFinding>> {
     if (page < 1) throw new HttpBadRequestException('Page starts at 1.');
 
-    const filters: FilterQuery<Finding> = {
+    const filters: FilterQuery<CustomFinding> = {
       correlationKey: {
         $eq: target,
       },
@@ -81,6 +97,75 @@ export class FindingsService {
   }
 
   /**
+   * Saves the given finding.
+   */
+  public async save(
+    companyId: string,
+    dto: CreateCustomFinding,
+    jobId: string = null,
+  ) {
+    const correlationKey = this.getCorrelationKey(
+      companyId,
+      dto.domainName,
+      dto.ip,
+      dto.port,
+    );
+
+    const finding: CustomFinding = {
+      correlationKey,
+      jobId,
+      created: null,
+      fields: dto.fields,
+      name: dto.name,
+      key: 'lel',
+    };
+
+    await this.findingModel.create(finding);
+  }
+
+  private getCorrelationKey(
+    companyId: string,
+    domainName?: string,
+    ip?: string,
+    port?: number,
+  ) {
+    let correlationKey = null;
+
+    if (!companyId) {
+      throw new HttpBadRequestException(
+        'CompanyId is required in order to create a custom finding.',
+      );
+    }
+
+    if (domainName) {
+      if (ip || port)
+        throw new HttpBadRequestException(
+          'Ambiguous request; must provide a domainName, an ip or a pair of ip and port.',
+        );
+
+      correlationKey = CorrelationKeyUtils.domainCorrelationKey(
+        companyId,
+        domainName,
+      );
+    } else if (ip) {
+      if (port) {
+        correlationKey = CorrelationKeyUtils.portCorrelationKey(
+          companyId,
+          ip,
+          port,
+        );
+      } else
+        correlationKey = CorrelationKeyUtils.hostCorrelationKey(companyId, ip);
+    } else if (port) {
+      throw new HttpBadRequestException(
+        'The ip must be specified with the port.',
+      );
+    }
+
+    return correlationKey;
+  }
+
+  /**
    * Handles findings that WERE found by a job
    * @param findings
    */
@@ -94,13 +179,13 @@ export class FindingsService {
    * Handles findings that were NOT found by a job
    * @param findings
    */
-  public handleFindings(findings: NewFindings) {
+  public handleFindings(findings: Findings) {
     for (const finding of findings.findings) {
       this.handleFinding(finding);
     }
   }
 
-  private async handleFinding(finding: NewFinding, jobId: string = '') {
+  private async handleFinding(finding: Finding, jobId: string = '') {
     let companyId = '';
     if (jobId) {
       const job = await this.jobsService.getById(jobId);
@@ -139,6 +224,12 @@ export class FindingsService {
       case 'PortFinding':
         this.commandBus.execute(
           new PortCommand(jobId, companyId, PortCommand.name, finding),
+        );
+        break;
+
+      case 'CustomFinding':
+        this.commandBus.execute(
+          new CustomFindingCommand(jobId, companyId, PortCommand.name, finding),
         );
         break;
 

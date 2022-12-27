@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { FindingField, FindingImageField } from '../../../shared/types/finding/finding.type';
+import { CustomFindingField, CustomFindingImageField } from '../../../shared/types/finding/finding.type';
 
 @Component({
   selector: 'image-finding-field',
@@ -7,8 +7,8 @@ import { FindingField, FindingImageField } from '../../../shared/types/finding/f
   styleUrls: ['./image-finding-field.component.scss'],
 })
 export class ImageFindingFieldComponent {
-  public _data: FindingImageField | null = null;
-  @Input() public set data(value: FindingField | null) {
+  public _data: CustomFindingImageField | null = null;
+  @Input() public set data(value: CustomFindingField | null) {
     if (value?.type !== 'image') {
       this._data = null;
       return;
