@@ -63,15 +63,33 @@ Dynamic findings allow jobs to attach custom data to core entities.
 | `port`   | The port to which to attach the custom finding                  |
 | `fields` | A list of [fields](#dynamic-fields) containing the finding data |
 
-Example:
+Examples:
 
 ```json
 {
-  "type": "HostnameIpFinding",
-  "domain": "stalker.is",
+  "type": "CustomFinding",
   "host": "0.0.0.0",
   "port": "80",
-  "fields": []
+  "fields": [
+    {
+      "type": "image",
+      "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII"
+    }
+  ]
+}
+```
+
+```json
+{
+  "type": "CustomFinding",
+  "domain": "stalker.is",
+  "fields": [
+    {
+      "type": "text",
+      "label": "Domain greatness level",
+      "content": "This domain is great, would recommend"
+    }
+  ]
 }
 ```
 
