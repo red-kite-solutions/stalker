@@ -11,7 +11,7 @@
           </h1>
 
           <div fxLayout="row">
-            <div fxFlex="50">
+            <div fxFlex>
               <div fxLayout="column">
                 <div fxFlex>
                   <h2 class="fake-mat-subheader" i18n="Ports|The ports of a host">
@@ -47,7 +47,7 @@
               </div>
             </div>
             <mat-divider [vertical]="true" class="vertical-dvider"></mat-divider>
-            <div fxFlex="50">
+            <div fxFlex>
               <div fxLayout="column">
                 <div fxFlex *ngIf="tags$ | async">
                   <h2 class="fake-mat-subheader" i18n="Tags|The tags of an item">Tags</h2>

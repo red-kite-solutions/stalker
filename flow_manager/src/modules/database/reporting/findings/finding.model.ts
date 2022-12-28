@@ -31,7 +31,7 @@ export class CustomFinding {
   /**
    * A pseudo-unique key identifying the entity related to this finding.
    *
-   * The key should be generated using the static methods found in FindingsUtils.
+   * The key should be generated using the static methods found in CorrelationUtils.
    *
    * @see [CorrelationUtils](./correlation.utils.ts)
    */

@@ -25,8 +25,9 @@ export class FindingsController {
     @Query('page ') page = 1,
     @Query('pageSize ') pageSize = 15,
   ): Promise<Page<CustomFinding>> {
-    if (target == null || target.trim() === '')
+    if (target == null || target.trim() === '') {
       throw new BadRequestException('Must provide a target.');
+    }
 
     return await this.findingsService.getAll(target, page, pageSize);
   }

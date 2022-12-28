@@ -132,7 +132,7 @@ export class FindingsService {
     const finding: CustomFinding = {
       correlationKey,
       jobId,
-      created: null,
+      created: new Date(),
       fields: dto.fields,
       name: dto.name,
       key: dto.key,
@@ -147,14 +147,13 @@ export class FindingsService {
     ip?: string,
     port?: number,
   ) {
-    let correlationKey = null;
-
     if (!companyId) {
       throw new HttpBadRequestException(
         'CompanyId is required in order to create a custom finding.',
       );
     }
 
+    let correlationKey = null;
     if (domainName) {
       if (ip || port)
         throw new HttpBadRequestException(
