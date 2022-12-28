@@ -2,7 +2,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
-import { HttpBadRequestException } from '../../exceptions/http.exceptions';
+import {
+  HttpBadRequestException,
+  HttpNotFoundException,
+} from '../../exceptions/http.exceptions';
 import { Page } from '../../types/page.type';
 import { JobsService } from '../database/jobs/jobs.service';
 import { CompanyService } from '../database/reporting/company.service';
@@ -29,6 +32,7 @@ export class PortFinding {
 
 export class CreateCustomFinding {
   type: 'CustomFinding';
+  key: string;
   domainName?: string;
   ip?: string;
   port?: number;
@@ -101,9 +105,23 @@ export class FindingsService {
    */
   public async save(
     companyId: string,
-    dto: CreateCustomFinding,
     jobId: string = null,
+    dto: CreateCustomFinding,
   ) {
+    const company = await this.companyService.get(companyId);
+    if (company === null) {
+      throw new HttpNotFoundException(
+        `The company for the given job does not exist (jobId=${jobId}, companyId=${companyId})`,
+      );
+    }
+
+    const job = await this.jobsService.getById(jobId);
+    if (job === null) {
+      throw new HttpNotFoundException(
+        `The given job does not exist (jobId=${jobId})`,
+      );
+    }
+
     const correlationKey = this.getCorrelationKey(
       companyId,
       dto.domainName,
@@ -117,7 +135,7 @@ export class FindingsService {
       created: null,
       fields: dto.fields,
       name: dto.name,
-      key: 'lel',
+      key: dto.key,
     };
 
     await this.findingModel.create(finding);
@@ -159,6 +177,10 @@ export class FindingsService {
     } else if (port) {
       throw new HttpBadRequestException(
         'The ip must be specified with the port.',
+      );
+    } else {
+      throw new HttpBadRequestException(
+        'Correlation key must contain at least a domain or a host.',
       );
     }
 

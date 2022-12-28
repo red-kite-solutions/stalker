@@ -23,8 +23,8 @@ export class CustomFindingHandler extends JobFindingHandlerBase<CustomFindingCom
 
     this.findingsService.save(
       command.companyId,
-      command.finding,
       command.jobId,
+      command.finding,
     );
   }
 }
