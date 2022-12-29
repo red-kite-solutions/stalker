@@ -1,9 +1,14 @@
 <div class="findings-list" *ngIf="findings$ | async as findings">
-  <finding *ngFor="let finding of findings.items" [finding]="finding"></finding>
+  <h1>Findings</h1>
+
+  <div class="finding-wrapper" *ngFor="let finding of findings.items">
+    <finding [finding]="finding"></finding>
+    <mat-divider></mat-divider>
+  </div>
 
   <div class="findings-paginator">
     <button
-      *ngIf="findings.items.length < findings.totalRecords; else noMoreFindings"
+      *ngIf="findings.items.length < findings.totalRecords"
       mat-button
       color="primary"
       (click)="loadMoreFindings()"
@@ -18,10 +23,6 @@
         <span> Load more </span>
       </span>
     </button>
-
-    <ng-template #noMoreFindings>
-      <button *ngIf="findings.totalRecords > 0" mat-button color="primary" disabled>No more findings!</button>
-    </ng-template>
   </div>
 
   <div *ngIf="!findings.totalRecords" class="no-findings">There are no finding yet</div>

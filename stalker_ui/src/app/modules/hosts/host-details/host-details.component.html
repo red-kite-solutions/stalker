@@ -1,8 +1,8 @@
 <div *ngIf="host" fxLayout="column">
-  <h2 matSubheader i18n="Host|A host object, a server">
+  <h1 matSubheader i18n="Host|A host object, a server">
     Host (<a routerLink="{{ '/hosts/' + host._id }}">{{ host.ip }}</a>
     )
-  </h2>
+  </h1>
   <mat-divider class="horizontal-divider"></mat-divider>
   <div fxLayout="column">
     <div class="drawer-item" fxFlex>

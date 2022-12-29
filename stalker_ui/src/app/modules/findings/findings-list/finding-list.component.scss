@@ -1,13 +1,8 @@
 .findings-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-}
-
-h2 {
+  gap: 6px;
   padding: 16px;
-  padding-bottom: 0;
-  margin-bottom: 8px;
 }
 
 .finding {
@@ -19,4 +14,24 @@ h2 {
   text-align: center;
   opacity: 0.4;
   font-weight: 500;
+}
+
+.finding-wrapper {
+  width: 100%;
+
+  finding {
+    margin: 32px 0;
+  }
+
+  mat-divider {
+    margin-top: 4px;
+    width: calc(100% + 32px);
+    margin-left: -16px;
+  }
+}
+
+.findings-paginator {
+  display: flex;
+  width: 100%;
+  justify-content: center;
 }

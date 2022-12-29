@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -12,6 +11,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTableModule } from '@angular/material/table';
+import { RouterModule } from '@angular/router';
 import { SharedModule } from '../../../shared/shared.module';
 import { DomainDetailsModule } from '../../domains/domain-details/domains-details.module';
 import { FindingsModule } from '../../findings/findings.module';
@@ -33,10 +33,10 @@ import { ViewHostComponent } from './view-host.component';
     MatInputModule,
     MatProgressSpinnerModule,
     FormsModule,
-    FlexLayoutModule,
     DomainDetailsModule,
     PortDetailsModule,
     FindingsModule,
+    RouterModule,
   ],
   exports: [ViewHostComponent],
   declarations: [ViewHostComponent],

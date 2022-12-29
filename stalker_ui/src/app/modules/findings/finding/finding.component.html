@@ -1,14 +1,12 @@
-<mat-card>
-  <mat-card-title>{{ finding?.name }}</mat-card-title>
+<h3>{{ finding?.name }}</h3>
 
-  <mat-card-content>
-    <div class="field" *ngFor="let field of finding?.fields">
-      <ng-container [ngSwitch]="field.type">
-        <image-finding-field *ngSwitchCase="'image'" [data]="field"></image-finding-field>
-        <text-finding-field *ngSwitchCase="'text'" [data]="field"></text-finding-field>
-      </ng-container>
-    </div>
-  </mat-card-content>
+<div>
+  <div class="field" *ngFor="let field of finding?.fields">
+    <ng-container [ngSwitch]="field.type">
+      <image-finding-field *ngSwitchCase="'image'" [data]="field"></image-finding-field>
+      <text-finding-field *ngSwitchCase="'text'" [data]="field"></text-finding-field>
+    </ng-container>
+  </div>
+</div>
 
-  <span class="date">{{ finding?.created | timeAgo }}</span>
-</mat-card>
+<span class="date">{{ finding?.created | timeAgo }}</span>

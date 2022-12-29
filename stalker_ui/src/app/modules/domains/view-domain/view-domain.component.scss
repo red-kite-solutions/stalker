@@ -2,101 +2,80 @@
   width: 100%;
 }
 
+.full-height {
+  height: 100%;
+}
+
+.container {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+}
+
+h1 {
+  padding-top: 16px;
+  display: flex;
+  align-items: center;
+}
+
 .content {
+  margin: 16px;
   display: grid;
   gap: 16px;
-
-  grid-template-columns: auto auto;
-
-  @media screen and (max-width: 992px) {
-    grid-template-columns: auto;
-  }
 }
 
 .header {
   font-weight: 500;
 }
 
-// mat-card {
-//   margin-right: 20px;
-// }
+table {
+  // Accounts for the mat-card padding
+  margin-left: -16px;
+  width: calc(100% + 32px);
 
-// .full-height {
-//   height: 100%;
-// }
+  tr {
+    cursor: pointer;
 
-// .notes {
-//   margin-top: 15px;
-// }
+    &:hover {
+      color: #eee;
+    }
 
-// .host-side-nav {
-//   margin-top: -20px;
-//   margin-right: -20px;
-//   margin-bottom: -20px;
-// }
+    &.nodata {
+      cursor: auto;
+      opacity: 0.7;
+      font-style: italic;
+    }
+  }
+}
 
-// .selected-host {
-//   font-weight: bold;
-// }
+.show-all-button-wrapper {
+  display: flex;
+  justify-content: center;
 
-// .port {
-//   margin-right: 5px;
-// }
+  .show-all-button {
+    margin-top: 8px;
+    opacity: 0.6;
+  }
+}
 
-// mat-drawer {
-//   padding-left: 0px;
-//   min-width: 400px;
-//   max-width: 400px;
-// }
+mat-drawer {
+  min-width: 500px;
+  max-width: 500px;
+}
 
-// app-pill-tag {
-//   margin-left: 1px;
-//   margin-right: 4px;
-//   margin-top: 5px;
-// }
+.note {
+  opacity: 0.7;
+  font-style: italic;
+}
 
-// .ip-address {
-//   margin-left: 20px;
-//   margin-right: 20px;
-// }
+.close-panel {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
 
-// .horizontal-divider {
-//   margin-top: 10px;
-//   margin-bottom: 10px;
-// }
-
-// .fake-mat-subheader {
-//   font-family: Roboto, 'Helvetica Neue', sans-serif;
-//   font-size: 14px;
-//   font-weight: 500;
-//   color: rgba(0, 0, 0, 0.54);
-//   margin-bottom: 10px;
-// }
-
-// .drawer-item {
-//   margin-left: 16px;
-//   margin-right: 16px;
-// }
-
-// .first-cell {
-//   .mat-cell {
-//     border-bottom-width: 1px;
-//     border-bottom-style: solid;
-//     border-top-width: 1px;
-//     border-top-style: solid;
-//     border-top-color: rgba(0, 0, 0, 0.12);
-//   }
-// }
-
-// .vertical-dvider {
-//   margin-left: 10px;
-//   margin-right: 10px;
-// }
-
-// .nodata {
-//   text-align: center;
-// }
-
-// .margin-top-10 {
-//   margin-top: 10px;
-// }
+.selected-host {
+  background-color: #f3f3f3;
+}
