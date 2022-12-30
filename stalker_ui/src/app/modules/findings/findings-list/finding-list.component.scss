@@ -1,8 +1,7 @@
 .findings-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 16px;
+  gap: 16px;
 }
 
 .finding {
@@ -12,7 +11,7 @@
 .no-findings {
   width: 100%;
   text-align: center;
-  opacity: 0.4;
+  opacity: 0.6;
   font-weight: 500;
 }
 

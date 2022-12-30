@@ -15,7 +15,7 @@ import { RouterModule } from '@angular/router';
 import { PanelSectionModule } from '../../../shared/components/panel-section/panel-section.module';
 import { SharedModule } from '../../../shared/shared.module';
 import { FindingsModule } from '../../findings/findings.module';
-import { ViewHostComponent } from './view-host.component';
+import { ViewPortComponent } from './view-port.component';
 
 @NgModule({
   imports: [
@@ -36,8 +36,8 @@ import { ViewHostComponent } from './view-host.component';
     RouterModule,
     PanelSectionModule,
   ],
-  exports: [ViewHostComponent],
-  declarations: [ViewHostComponent],
+  exports: [ViewPortComponent],
+  declarations: [ViewPortComponent],
   providers: [],
 })
-export class ViewHostModule {}
+export class ViewPortModule {}

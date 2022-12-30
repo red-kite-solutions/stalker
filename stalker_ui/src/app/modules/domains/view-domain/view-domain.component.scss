@@ -1,52 +1,32 @@
-.full-width {
-  width: 100%;
-}
-
-.full-height {
-  height: 100%;
-}
-
 .container {
   position: absolute;
   top: 0;
   bottom: 0;
   right: 0;
   left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.content-wrapper {
+  box-sizing: border-box;
+  padding: 0 16px 16px 16px;
+  display: grid;
+  grid-template-columns: 1fr 200px;
+  max-width: 1100px;
+  width: 100%;
+  gap: 16px;
+  align-self: center;
 }
 
 h1 {
   padding-top: 16px;
   display: flex;
   align-items: center;
-}
 
-.content {
-  margin: 16px;
-  display: grid;
-  gap: 16px;
-}
-
-.header {
-  font-weight: 500;
-}
-
-table {
-  // Accounts for the mat-card padding
-  margin-left: -16px;
-  width: calc(100% + 32px);
-
-  tr {
-    cursor: pointer;
-
-    &:hover {
-      color: #eee;
-    }
-
-    &.nodata {
-      cursor: auto;
-      opacity: 0.7;
-      font-style: italic;
-    }
+  .slash {
+    opacity: 0.6;
   }
 }
 
@@ -60,22 +40,16 @@ table {
   }
 }
 
-mat-drawer {
-  min-width: 500px;
-  max-width: 500px;
+.context {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.note {
-  opacity: 0.7;
+.ports {
   font-style: italic;
-}
 
-.close-panel {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-}
-
-.selected-host {
-  background-color: #f3f3f3;
+  a {
+    font-weight: 400;
+  }
 }

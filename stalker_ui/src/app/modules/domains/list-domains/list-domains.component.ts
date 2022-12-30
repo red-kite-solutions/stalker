@@ -3,6 +3,7 @@ import { MediaChange, MediaObserver } from '@angular/flex-layout/core';
 import { MatDialog } from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
+import { Title } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, distinctUntilChanged, filter, map, switchMap, tap } from 'rxjs';
 import { CompaniesService } from 'src/app/api/companies/companies.service';
@@ -115,8 +116,11 @@ export class ListDomainsComponent {
     private domainsService: DomainsService,
     private toastrService: ToastrService,
     private tagsService: TagsService,
-    public dialog: MatDialog
-  ) {}
+    public dialog: MatDialog,
+    private titleService: Title
+  ) {
+    this.titleService.setTitle($localize`:Domains list page title|:Domains`);
+  }
 
   filtersChange(filters: string[]) {
     this.currentFilters = filters;

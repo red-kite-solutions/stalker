@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, combineLatest, map, Observable, Subject, switchMap, tap } from 'rxjs';
+import { combineLatest, map, Observable, shareReplay, Subject, switchMap, tap } from 'rxjs';
 import { CompaniesService } from 'src/app/api/companies/companies.service';
 import { HostsService } from 'src/app/api/hosts/hosts.service';
 import { TagsService } from 'src/app/api/tags/tags.service';
@@ -12,12 +12,12 @@ import { Port } from 'src/app/shared/types/host/host.interface';
 import { Tag } from 'src/app/shared/types/tag.type';
 
 @Component({
-  selector: 'app-view-host',
-  templateUrl: './view-host.component.html',
-  styleUrls: ['./view-host.component.scss'],
+  selector: 'app-view-port',
+  templateUrl: './view-port.component.html',
+  styleUrls: ['./view-port.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ViewHostComponent {
+export class ViewPortComponent {
   displayedColumns: string[] = ['domainName'];
 
   // Drawer
@@ -52,20 +52,19 @@ export class ViewHostComponent {
   );
 
   public hostId$ = this.route.params.pipe(map((params) => params['id'] as string));
+  public portNumber$ = this.route.params.pipe(map((params) => params['port'] as string));
 
   public host$ = this.hostId$.pipe(
     switchMap((hostId) => this.hostsService.get(hostId)),
-    tap((host) => this.titleService.setTitle($localize`:Hosts page title|:Hosts · ${host.ip}`))
+    shareReplay(1)
   );
 
-  public shownDomainsCount$ = new BehaviorSubject(3);
-  public domains$ = combineLatest([this.host$, this.shownDomainsCount$]).pipe(
-    map(([host, size]) => host.domains.slice(0, size))
-  );
-
-  public shownPortsCount$ = new BehaviorSubject(3);
-  public ports$ = combineLatest([this.host$, this.shownPortsCount$]).pipe(
-    map(([host, size]) => host.ports.slice(0, size))
+  public port$ = combineLatest([this.host$, this.portNumber$]).pipe(
+    tap(([host, portNumber]) =>
+      this.titleService.setTitle($localize`:Hosts port page title|:Hosts · ${host.ip}:${portNumber}`)
+    ),
+    map(([host, portNumber]) => host.ports.find((p) => p.port === +portNumber)),
+    shareReplay(1)
   );
 
   constructor(

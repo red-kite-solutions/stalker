@@ -1,9 +1,10 @@
 import { Component, OnDestroy } from '@angular/core';
 import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormControl, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { combineLatest, debounceTime, filter, map, merge, Subscription, switchMap } from 'rxjs';
+import { combineLatest, debounceTime, filter, map, merge, Subscription, switchMap, tap } from 'rxjs';
 import { CompaniesService } from 'src/app/api/companies/companies.service';
 import { Company } from 'src/app/shared/types/company/company.interface';
 import { HttpStatus } from 'src/app/shared/types/http-status.type';
@@ -149,58 +150,56 @@ export class EditCompaniesComponent implements OnDestroy {
     return null;
   }
 
-  public routeSub$ = this.route.params
-    .pipe(
-      switchMap((params) => {
-        this.fileLoading = true;
-        this.companyId = params['id'];
-        return this.companiesService.get(this.companyId);
-      })
-    )
-    .pipe(
-      map((company: Company) => {
-        this.form.controls['name'].setValue(company.name);
-        this.form.controls['notes'].setValue(company.notes);
-        const ranges = [];
+  public routeSub$ = this.route.params.pipe(
+    switchMap((params) => {
+      this.fileLoading = true;
+      this.companyId = params['id'];
+      return this.companiesService.get(this.companyId);
+    }),
+    tap((company) => this.titleService.setTitle($localize`:Company page title|:Companies · ${company.name}`)),
+    map((company: Company) => {
+      this.form.controls['name'].setValue(company.name);
+      this.form.controls['notes'].setValue(company.notes);
+      const ranges = [];
 
-        for (const range of company.ipRanges) {
-          const rangeSplit = range.split('/');
-          ranges.push(new Ipv4Subnet(rangeSplit[0], '/' + rangeSplit[1]));
+      for (const range of company.ipRanges) {
+        const rangeSplit = range.split('/');
+        ranges.push(new Ipv4Subnet(rangeSplit[0], '/' + rangeSplit[1]));
+      }
+
+      const control = this.form.get('ipRanges') as UntypedFormArray;
+
+      const subnetForm$ = this.generateSubnetSubscription(control.controls[0], 0);
+      if (subnetForm$) {
+        this.valueChangeSubscriptions.push(subnetForm$);
+      }
+
+      ranges.forEach((x) => {
+        const group = this.generateSubnetFormGroup(x);
+        control.push(group);
+        const current = control.controls.length - 1;
+        const subnet$ = this.generateSubnetSubscription(control.controls[current], current);
+        if (subnet$) {
+          this.valueChangeSubscriptions.push(subnet$);
         }
 
-        const control = this.form.get('ipRanges') as UntypedFormArray;
+        group.controls['ip'].setValue(x.ip);
+        group.controls['shortMask'].setValue(x.shortMask);
+      });
 
-        const subnetForm$ = this.generateSubnetSubscription(control.controls[0], 0);
-        if (subnetForm$) {
-          this.valueChangeSubscriptions.push(subnetForm$);
-        }
+      this.form.controls['frequency'].setValue(company.dataRefreshFrequency);
 
-        ranges.forEach((x) => {
-          const group = this.generateSubnetFormGroup(x);
-          control.push(group);
-          const current = control.controls.length - 1;
-          const subnet$ = this.generateSubnetSubscription(control.controls[current], current);
-          if (subnet$) {
-            this.valueChangeSubscriptions.push(subnet$);
-          }
-
-          group.controls['ip'].setValue(x.ip);
-          group.controls['shortMask'].setValue(x.shortMask);
-        });
-
-        this.form.controls['frequency'].setValue(company.dataRefreshFrequency);
-
-        this.fileLoading = false;
-        if (company.logo) {
-          this.previewSource = company.logo;
-          const md5 = new Md5();
-          md5.appendStr(company.logo);
-          const logoMd5 = md5.end()?.toString();
-          this.md5Logo = logoMd5 ? logoMd5 : '';
-          this.fileSelected = true;
-        }
-      })
-    );
+      this.fileLoading = false;
+      if (company.logo) {
+        this.previewSource = company.logo;
+        const md5 = new Md5();
+        md5.appendStr(company.logo);
+        const logoMd5 = md5.end()?.toString();
+        this.md5Logo = logoMd5 ? logoMd5 : '';
+        this.fileSelected = true;
+      }
+    })
+  );
 
   constructor(
     private fb: UntypedFormBuilder,
@@ -208,7 +207,8 @@ export class EditCompaniesComponent implements OnDestroy {
     private toastr: ToastrService,
     private dialog: MatDialog,
     private companiesService: CompaniesService,
-    private router: Router
+    private router: Router,
+    private titleService: Title
   ) {}
 
   ngOnDestroy(): void {

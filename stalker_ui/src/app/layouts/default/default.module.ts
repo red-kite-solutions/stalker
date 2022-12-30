@@ -42,8 +42,9 @@ import { ManageTagsComponent } from 'src/app/modules/tags/manage-tags/manage-tag
 import { ProfileComponent } from 'src/app/modules/user/profile/profile.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { FindingsModule } from '../../modules/findings/findings.module';
-import { HostDetailsModule } from '../../modules/hosts/host-details/host-details.module';
 import { ViewHostModule } from '../../modules/hosts/view-host/view-host.module';
+import { ViewPortModule } from '../../modules/hosts/view-port/view-port.module';
+import { PanelSectionModule } from '../../shared/components/panel-section/panel-section.module';
 import { DefaultComponent } from './default.component';
 
 @NgModule({
@@ -91,8 +92,9 @@ import { DefaultComponent } from './default.component';
     MatListModule,
     NgxMatColorPickerModule,
     ViewHostModule,
-    HostDetailsModule,
+    ViewPortModule,
     FindingsModule,
+    PanelSectionModule,
   ],
   providers: [{ provide: MAT_COLOR_FORMATS, useValue: NGX_MAT_COLOR_FORMATS }],
 })
