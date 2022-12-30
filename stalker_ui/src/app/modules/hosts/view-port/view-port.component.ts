@@ -61,7 +61,7 @@ export class ViewPortComponent {
 
   public port$ = combineLatest([this.host$, this.portNumber$]).pipe(
     tap(([host, portNumber]) =>
-      this.titleService.setTitle($localize`:Hosts port page title|:Hosts · ${host.ip}:${portNumber}`)
+      this.titleService.setTitle($localize`:Hosts port page title|:Hosts · ${host.ip}\:${portNumber}`)
     ),
     map(([host, portNumber]) => host.ports.find((p) => p.port === +portNumber)),
     shareReplay(1)
