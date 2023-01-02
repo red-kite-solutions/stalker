@@ -1,0 +1,17 @@
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: dev-ui-allow-4200
+  namespace: stalker
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/component: ui
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - ports:
+        - protocol: TCP
+          port: 4200
+  egress: []

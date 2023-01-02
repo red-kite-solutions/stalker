@@ -1,0 +1,18 @@
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: dev-mongo-allow-27017
+  namespace: stalker
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/component: mongodb
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Do not allow all pods in production. This is only for debugging purposes
+    - ports:
+        - protocol: TCP
+          port: 27017
+  egress: []

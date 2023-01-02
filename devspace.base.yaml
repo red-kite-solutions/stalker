@@ -12,3 +12,4 @@ vars:
   KAFKA_URI: "kafka:9092"
 
   STALKER_URL: "http://localhost:4200"
+  NETWORK_POLICY: "network-policy.yml"
