@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import jwt_decode from 'jwt-decode';
 import { firstValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { getReturnUrl } from '../../utils/return-url';
 import { refreshTokenName, tokenName } from '../constants';
 
 @Injectable({
@@ -41,7 +42,11 @@ export class AuthService {
       this.initSession(token);
       this.initRefreshToken(refresh);
     } else {
-      this.router.navigate(['/auth/login']);
+      this.router.navigate([`/auth/login`], {
+        queryParams: {
+          returnUrl: getReturnUrl(this.router),
+        },
+      });
     }
   }
 
