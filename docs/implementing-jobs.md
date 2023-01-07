@@ -15,10 +15,10 @@ job communicates its _findings_ and more to Stalker.
 The goal of jobs is to produce _findings_. A job may also produce logs to inform the outside world whether things are going well or not. Jobs communicate with Stalker through their standard output (STDOUT).
 To differentiate common logs from logs that are pertinent to Stalker, jobs must tag logs with a prefix. Here's a list of supported prefixes.
 
-| Syntax                                   | Description           |
-| ---------------------------------------- | --------------------- |
-| @event \<[finding](#producing-findings)> | Produces a finding.   |
-| @logdebug \<[message](#producing-logs)>  | Logs a debug message. |
+| Syntax                                     | Description           |
+| ------------------------------------------ | --------------------- |
+| @finding \<[finding](#producing-findings)> | Produces a finding.   |
+| @logdebug \<[message](#producing-logs)>    | Logs a debug message. |
 
 ### Producing findings
 
