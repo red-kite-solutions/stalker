@@ -31,6 +31,7 @@ The finding object must contain the `type` field. Here is a list of available ty
 | Type                                    | Description                                        |
 | --------------------------------------- | -------------------------------------------------- |
 | [HostnameIpFinding](#hostnameipfinding) | Creates a new host, attaches it to a given domain. |
+| [PortFinding](#portfinding)             | Creates a new port, attaches it to the given host. |
 | [DynamicFinding](#dynamicfinding)       | Attaches custom finding data to a given entity.    |
 
 #### HostnameIpFinding
@@ -49,6 +50,27 @@ Example:
   "type": "HostnameIpFinding",
   "domain": "stalker.is",
   "ip": "0.0.0.0"
+}
+```
+
+#### PortFinding
+
+A port finding creates a new port attaches it to the given host.
+
+| Field      | Description                         |
+| ---------- | ----------------------------------- |
+| `protocol` | The protocol, either 'tcp' or 'udp' |
+| `ip`       | The ip                              |
+| `port`     | The port number                     |
+
+Example:
+
+```json
+{
+  "type": "PortFinding",
+  "protocol": "tcp",
+  "ip": "1.2.3.4",
+  "port": 80
 }
 ```
 
