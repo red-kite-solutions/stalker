@@ -22,7 +22,7 @@ To differentiate common logs from logs that are pertinent to Stalker, jobs must 
 
 ### Producing findings
 
-Findings are pieces of informations attached to a company and a core entity like a domain, a host or a port.
+Findings are pieces of information attached to a company and a core entity like a domain, a host or a port.
 Findings come in different shapes and forms. Some findings will create new core entities, others may simply add data to existing ones.
 To produce a finding, the job must create an object containing the necessary information and serialize it as JSON.
 
