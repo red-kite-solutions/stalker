@@ -46,7 +46,6 @@ export class Host {
   @Prop()
   public notes?: string;
 
-  // Simplified for now, but it will eventually be a full class
   @Prop()
   public ports?: Port[];
 }

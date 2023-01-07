@@ -13,7 +13,7 @@ import { RolesGuard } from '../auth/guards/role.guard';
 import { CustomFinding } from '../database/reporting/findings/finding.model';
 import { FindingsService } from './findings.service';
 
-@Roles(Role.User)
+@Roles(Role.ReadOnly)
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('findings')
 export class FindingsController {

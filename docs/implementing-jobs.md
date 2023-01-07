@@ -22,7 +22,7 @@ To differentiate common logs from logs that are pertinent to Stalker, jobs must 
 
 ### Producing findings
 
-Findings are pieces of informations attached to a company and a core entity like a domain, a host or a port.
+Findings are pieces of information attached to a company and a core entity like a domain, a host or a port.
 Findings come in different shapes and forms. Some findings will create new core entities, others may simply add data to existing ones.
 To produce a finding, the job must create an object containing the necessary information and serialize it as JSON.
 
@@ -90,7 +90,7 @@ Examples:
 ```json
 {
   "type": "CustomFinding",
-  "host": "0.0.0.0",
+  "host": "1.2.3.4",
   "port": "80",
   "fields": [
     {
@@ -130,9 +130,9 @@ Example:
 
 ```json
 {
-  "type" = "text",
-  "label" = "Top 3 keywords found in web page"
-  "content" = "Potato, celery, transformers"
+  "type": "text",
+  "label": "Top 3 keywords found in web page"
+  "content": "Potato, celery, transformers"
 }
 ```
 
@@ -142,8 +142,8 @@ Example:
 
 ```json
 {
-  "type" = "image",
-  "data" = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII"
+  "type": "image",
+  "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII"
 }
 ```
 
