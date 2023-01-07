@@ -26,5 +26,12 @@ export class PortHandler extends JobFindingHandlerBase<PortCommand> {
         [command.finding.port],
       );
     }
+
+    const job = JobsService.createHttpOrHttpsServerCheckJob(
+      command.companyId,
+      command.finding.ip,
+      [command.finding.port],
+    );
+    this.jobsService.publish(job);
   }
 }

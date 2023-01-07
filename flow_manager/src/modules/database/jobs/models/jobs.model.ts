@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { DomainNameResolvingJob } from './domain-name-resolving.model';
+import { HttpOrHttpsServerCheckJob } from './http-or-https-server-check.model';
 import { SubdomainBruteforceJob } from './subdomain-bruteforce.model';
 import { TcpPortScanningJob } from './tcp-port-scanning.model';
 
@@ -15,6 +16,7 @@ export class Job {
       DomainNameResolvingJob.name,
       SubdomainBruteforceJob.name,
       TcpPortScanningJob.name,
+      HttpOrHttpsServerCheckJob.name,
     ],
   })
   task: string;

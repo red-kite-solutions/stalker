@@ -12,6 +12,7 @@ import { JobParameter } from '../subscriptions/subscriptions.model';
 import { CreateJobDto } from './dtos/create-job.dto';
 import { JobDto } from './dtos/job.dto';
 import { DomainNameResolvingJob } from './models/domain-name-resolving.model';
+import { HttpOrHttpsServerCheckJob } from './models/http-or-https-server-check.model';
 import { Job, JobDocument } from './models/jobs.model';
 import { TcpPortScanningJob } from './models/tcp-port-scanning.model';
 
@@ -134,6 +135,76 @@ export class JobsService {
     // TODO: Log the errors for the user to see, will allow for simpler debugging of finding subscriptions
   }
 
+  public static createHttpOrHttpsServerCheckJob_(
+    args: JobParameter[],
+  ): HttpOrHttpsServerCheckJob {
+    let params = {};
+    params['companyid'] = undefined;
+    params['targetip'] = undefined;
+    params['ports'] = undefined;
+    const jobName = HttpOrHttpsServerCheckJob.name;
+
+    try {
+      params = JobsService.bindFunctionArguments(params, args);
+    } catch (err) {
+      JobsService.logJobInputError(
+        jobName,
+        `${err} (A parameter is likely missing)`,
+      );
+      return null;
+    }
+
+    return JobsService.createHttpOrHttpsServerCheckJob(
+      params['companyid'],
+      params['targetip'],
+      params['ports'],
+    );
+  }
+
+  public static createHttpOrHttpsServerCheckJob(
+    companyId: string,
+    targetIp: string,
+    ports: number[] = [],
+  ) {
+    const job = new HttpOrHttpsServerCheckJob();
+    job.task = HttpOrHttpsServerCheckJob.name;
+    job.priority = 3;
+    job.companyId = companyId;
+    job.targetIp = targetIp;
+    job.ports = ports;
+
+    const jobName = HttpOrHttpsServerCheckJob.name;
+
+    if (!isMongoId(job.companyId)) {
+      JobsService.logJobInputError(
+        jobName,
+        new JobParameterValueException('companyId', job.companyId),
+      );
+      return null;
+    }
+
+    if (isIP(job.targetIp) !== 4) {
+      JobsService.logJobInputError(
+        jobName,
+        new JobParameterValueException('targetIp', job.targetIp),
+      );
+      return null;
+    }
+
+    if (
+      !isArray(job.ports) ||
+      job.ports.some((v) => !isInt(v) && v <= 0 && v > 65535)
+    ) {
+      JobsService.logJobInputError(
+        jobName,
+        new JobParameterValueException('ports', job.ports),
+      );
+      return null;
+    }
+
+    return job;
+  }
+
   public static createTcpPortScanJob_(args: JobParameter[]) {
     let params = {};
     params['companyid'] = undefined;
@@ -174,7 +245,7 @@ export class JobsService {
       companyId,
       targetIp,
       1000,
-      0.7,
+      2,
       1,
       65535,
     );
@@ -190,7 +261,7 @@ export class JobsService {
       10,
       0.7,
       1,
-      1000,
+      500,
     );
   }
 

@@ -1,6 +1,4 @@
-﻿using AutoMapper.Mappers;
-
-namespace Orchestrator.Jobs
+﻿namespace Orchestrator.Jobs
 {
     public class PythonJobTemplateProvider : IJobTemplateProvider
     {
@@ -10,7 +8,7 @@ namespace Orchestrator.Jobs
 
         // TODO: To prevent having to modify this file everytime a new python job is created, we could simply list the
         // content of the folder pythonTemplatesPath and automatically load all .py files
-        private string[] PythonJobs = new[] { "DomainNameResolvingJobTemplate", "TcpPortScanningJobTemplate" };
+        private string[] PythonJobs = new[] { "DomainNameResolvingJobTemplate", "TcpPortScanningJobTemplate", "HttpOrHttpsServerCheckJobTemplate" };
 
         public PythonJobTemplateProvider(ILogger<PythonJobTemplateProvider> logger, string pythonTemplatesPath)
         {

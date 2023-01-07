@@ -39,6 +39,7 @@ public class JobFactory : IJobFactory
         {
             DomainNameResolvingJobRequest domainResolving => new DomainNameResolvingCommand(domainResolving, Kubernetes, EventsProducer, Parser, LoggerFactory.CreateLogger<DomainNameResolvingCommand>(), JobProvider),
             TcpPortScanningJobRequest tcpPortScanning => new TcpPortScanningCommand(tcpPortScanning, Kubernetes, EventsProducer, Parser, LoggerFactory.CreateLogger<TcpPortScanningCommand>(), JobProvider),
+            HttpOrHttpsServerCheckJobRequest httpCheck => new HttpOrHttpServerCheckCommand(httpCheck, Kubernetes, EventsProducer, Parser, LoggerFactory.CreateLogger<TcpPortScanningCommand>(), JobProvider),
             _ => throw new InvalidOperationException(),
         };
     }

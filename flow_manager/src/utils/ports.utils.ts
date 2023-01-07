@@ -24,7 +24,7 @@ export function getTopTcpPorts(ports: Port[], top: number = 100): number[] {
   top = Math.floor(top);
   if (top > 100) top = 100;
 
-  const top_ports = [];
+  const top_ports: number[] = [];
 
   for (let i = 0; top_ports.length < top && i < 100; ++i) {
     if (ports.map((x) => x.port).includes(top100TcpPorts[i])) {
@@ -35,8 +35,8 @@ export function getTopTcpPorts(ports: Port[], top: number = 100): number[] {
   if (top_ports.length == top) return top_ports;
 
   for (let i = 0; top_ports.length < top && i < ports.length; ++i) {
-    if (!top_ports.includes(ports[i])) {
-      top_ports.push(ports[i]);
+    if (!top_ports.includes(ports[i].port)) {
+      top_ports.push(ports[i].port);
     }
   }
 

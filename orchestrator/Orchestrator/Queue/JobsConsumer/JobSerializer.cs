@@ -24,6 +24,7 @@ public class JobSerializer<T> : ISerializer<T>, IDeserializer<T> where T : JobRe
         {
             "DomainNameResolvingJob" => JsonSerializer.Deserialize<DomainNameResolvingJobRequest>(data.ToArray(), Options) as T,
             "TcpPortScanningJob" => JsonSerializer.Deserialize<TcpPortScanningJobRequest>(data.ToArray(), Options) as T,
+            "HttpOrHttpsServerCheckJob" => JsonSerializer.Deserialize<HttpOrHttpsServerCheckJobRequest>(data.ToArray(), Options) as T,
             _ => default
         } ?? throw new InvalidOperationException();
     }

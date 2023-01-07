@@ -12,7 +12,7 @@ import { DomainsService } from '../domain/domain.service';
 import { DomainSummary } from '../domain/domain.summary';
 import { ReportService } from '../report/report.service';
 import { HostFilterModel } from './host-filter.model';
-import { Host, HostDocument } from './host.model';
+import { Host, HostDocument, Port } from './host.model';
 import { HostSummary } from './host.summary';
 
 @Injectable()
@@ -316,10 +316,16 @@ export class HostService {
     });
     if (!host) throw new HttpNotFoundException();
 
+    const portModels: Port[] = ports.map((p) => ({
+      correlationKey: CorrelationKeyUtils.portCorrelationKey(companyId, ip, p),
+      port: p,
+    }));
+
     await this.hostModel.updateOne(
       { ip: { $eq: ip }, companyId: { $eq: new Types.ObjectId(companyId) } },
-      { $addToSet: { ports: ports } },
+      { $addToSet: { ports: portModels } },
     );
+
     const newPorts = host.ports
       ? ports.filter(
           (a) =>
