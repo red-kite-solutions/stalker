@@ -1,0 +1,80 @@
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: kafka-dev
+  namespace: stalker
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/component: kafka
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - ports:
+        - protocol: TCP
+          port: 9092
+        - protocol: TCP
+          port: 9093
+
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/component: zookeeper
+      ports:
+        - protocol: TCP
+          port: 2181
+        - protocol: TCP
+          port: 2888
+        - protocol: TCP
+          port: 3888
+
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: zookeeper-dev
+  namespace: stalker
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/component: zookeeper
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - ports:
+        - protocol: TCP
+          port: 2181
+        - protocol: TCP
+          port: 2888
+        - protocol: TCP
+          port: 3888
+
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/component: kafka
+      ports:
+        - protocol: TCP
+          port: 9092
+        - protocol: TCP
+          port: 9093
+
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53

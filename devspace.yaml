@@ -223,6 +223,10 @@ deployments:
       manifests:
         - stalker_ui/${NETWORK_POLICY}
         - database/${NETWORK_POLICY}
+        - flow_manager/${NETWORK_POLICY}
+        - queue/${NETWORK_POLICY}
+        - orchestrator/${NETWORK_POLICY}
+        - jobs/${NETWORK_POLICY}
 
 dev:
   mongo:

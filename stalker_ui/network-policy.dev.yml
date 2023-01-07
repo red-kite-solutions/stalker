@@ -1,7 +1,7 @@
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
 metadata:
-  name: dev-ui-allow-4200
+  name: ui-dev
   namespace: stalker
 spec:
   podSelector:

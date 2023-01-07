@@ -1,7 +1,7 @@
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
 metadata:
-  name: dev-mongo-allow-27017
+  name: mongo-dev
   namespace: stalker
 spec:
   podSelector:

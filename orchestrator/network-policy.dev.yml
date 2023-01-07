@@ -1,28 +1,21 @@
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
 metadata:
-  name: flow-manager-dev
+  name: orchestrator-dev
   namespace: stalker
 spec:
   podSelector:
     matchLabels:
-      app.kubernetes.io/component: flow-manager
+      app.kubernetes.io/component: kafka
   policyTypes:
     - Ingress
     - Egress
   ingress:
     - ports:
         - protocol: TCP
-          port: 3000
-  egress:
-    - to:
-        - podSelector:
-            matchLabels:
-              app.kubernetes.io/component: mongodb
-      ports:
-        - protocol: TCP
-          port: 27017
+          port: 5135
 
+  egress:
     - to:
         - podSelector:
             matchLabels:
@@ -38,3 +31,5 @@ spec:
       ports:
         - protocol: UDP
           port: 53
+        - protocol: TCP
+          port: 443
