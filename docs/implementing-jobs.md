@@ -68,7 +68,7 @@ Examples:
 ```json
 {
   "type": "CustomFinding",
-  "host": "0.0.0.0",
+  "host": "1.2.3.4",
   "port": "80",
   "fields": [
     {
@@ -108,9 +108,9 @@ Example:
 
 ```json
 {
-  "type" = "text",
-  "label" = "Top 3 keywords found in web page"
-  "content" = "Potato, celery, transformers"
+  "type": "text",
+  "label": "Top 3 keywords found in web page"
+  "content": "Potato, celery, transformers"
 }
 ```
 
@@ -120,8 +120,8 @@ Example:
 
 ```json
 {
-  "type" = "image",
-  "data" = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII"
+  "type": "image",
+  "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII"
 }
 ```
 
