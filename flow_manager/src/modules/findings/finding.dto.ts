@@ -1,3 +1,12 @@
+import { Type } from 'class-transformer';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsNumberString,
+  Max,
+  Min,
+} from 'class-validator';
+
 export type CustomFindingFieldDto =
   | CustomFindingImageFieldDto
   | CustomFindingTextFieldDto;
@@ -24,4 +33,18 @@ export class CustomFindingDto {
   public key: string;
   public jobId: string;
   public fields: CustomFindingFieldDto[];
+}
+
+export class FindingsPagingDto {
+  @IsNumberString()
+  page: string = '1';
+
+  @IsNumber()
+  @Min(1)
+  @Max(100)
+  @Type(() => Number)
+  pageSize: string = '15';
+
+  @IsNotEmpty()
+  target: string;
 }

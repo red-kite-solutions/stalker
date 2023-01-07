@@ -27,8 +27,7 @@ export class CorrelationKeyUtils {
     port: number,
   ) {
     return CorrelationKeyUtils.buildCorrelationKey(
-      CorrelationKeyUtils.companyCorrelationKey(companyId),
-      `host:${ip}`,
+      CorrelationKeyUtils.hostCorrelationKey(companyId, ip),
       `port:${port}`,
     );
   }

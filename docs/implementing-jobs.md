@@ -15,14 +15,14 @@ job communicates its _findings_ and more to Stalker.
 The goal of jobs is to produce _findings_. A job may also produce logs to inform the outside world whether things are going well or not. Jobs communicate with Stalker through their standard output (STDOUT).
 To differentiate common logs from logs that are pertinent to Stalker, jobs must tag logs with a prefix. Here's a list of supported prefixes.
 
-| Syntax                                   | Description           |
-| ---------------------------------------- | --------------------- |
-| @event \<[finding](#producing-findings)> | Produces a finding.   |
-| @logdebug \<[message](#producing-logs)>  | Logs a debug message. |
+| Syntax                                     | Description           |
+| ------------------------------------------ | --------------------- |
+| @finding \<[finding](#producing-findings)> | Produces a finding.   |
+| @logdebug \<[message](#producing-logs)>    | Logs a debug message. |
 
 ### Producing findings
 
-Findings are pieces of informations attached to a company and a core entity like a domain, a host or a port.
+Findings are pieces of information attached to a company and a core entity like a domain, a host or a port.
 Findings come in different shapes and forms. Some findings will create new core entities, others may simply add data to existing ones.
 To produce a finding, the job must create an object containing the necessary information and serialize it as JSON.
 
@@ -31,6 +31,7 @@ The finding object must contain the `type` field. Here is a list of available ty
 | Type                                    | Description                                        |
 | --------------------------------------- | -------------------------------------------------- |
 | [HostnameIpFinding](#hostnameipfinding) | Creates a new host, attaches it to a given domain. |
+| [PortFinding](#portfinding)             | Creates a new port, attaches it to the given host. |
 | [DynamicFinding](#dynamicfinding)       | Attaches custom finding data to a given entity.    |
 
 #### HostnameIpFinding
@@ -52,6 +53,27 @@ Example:
 }
 ```
 
+#### PortFinding
+
+A port finding creates a new port attaches it to the given host.
+
+| Field      | Description                         |
+| ---------- | ----------------------------------- |
+| `protocol` | The protocol, either 'tcp' or 'udp' |
+| `ip`       | The ip                              |
+| `port`     | The port number                     |
+
+Example:
+
+```json
+{
+  "type": "PortFinding",
+  "protocol": "tcp",
+  "ip": "1.2.3.4",
+  "port": 80
+}
+```
+
 #### DynamicFinding
 
 Dynamic findings allow jobs to attach custom data to core entities.
@@ -68,7 +90,7 @@ Examples:
 ```json
 {
   "type": "CustomFinding",
-  "host": "0.0.0.0",
+  "host": "1.2.3.4",
   "port": "80",
   "fields": [
     {
@@ -108,9 +130,9 @@ Example:
 
 ```json
 {
-  "type" = "text",
-  "label" = "Top 3 keywords found in web page"
-  "content" = "Potato, celery, transformers"
+  "type": "text",
+  "label": "Top 3 keywords found in web page"
+  "content": "Potato, celery, transformers"
 }
 ```
 
@@ -120,8 +142,8 @@ Example:
 
 ```json
 {
-  "type" = "image",
-  "data" = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII"
+  "type": "image",
+  "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII"
 }
 ```
 
