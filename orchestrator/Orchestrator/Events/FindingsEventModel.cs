@@ -1,6 +1,6 @@
 ﻿namespace Orchestrator.Events
 {
-    public class FindingsEventModel: EventModel
+    public class FindingsEventModel : EventModel
     {
     }
 }

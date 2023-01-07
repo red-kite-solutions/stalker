@@ -1,3 +1,7 @@
+mat-card {
+  margin-right: 20px;
+}
+
 .fake-mat-subheader {
   font-family: Roboto, 'Helvetica Neue', sans-serif;
   font-size: 14px;
@@ -71,7 +75,7 @@
   }
 }
 
-.selected-host {
+.selected {
   font-weight: bold;
 }
 
@@ -83,20 +87,13 @@
 
 mat-drawer {
   padding-left: 0px;
-  min-width: 300px;
-  max-width: 500px;
+  min-width: 400px;
+  max-width: 400px;
 }
 
 .drawer-item {
   margin-left: 16px;
   margin-right: 16px;
-}
-
-.last-drawer-item {
-  margin-bottom: 30px;
-  mat-form-field {
-    margin-top: 0px;
-  }
 }
 
 .table-container-domain {
@@ -122,9 +119,24 @@ mat-drawer {
 
 .ports-div {
   max-height: 480px;
-  overflow: scroll;
+  overflow: auto;
 }
 
 .margin-top-10 {
   margin-top: 10px;
+}
+
+.findings-container {
+  margin: 12px;
+}
+
+.findings-paginator {
+  display: flex;
+  justify-content: center;
+}
+
+.load-more-findings {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }

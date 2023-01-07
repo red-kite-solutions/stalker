@@ -1,0 +1,98 @@
+<div *ngIf="host" fxLayout="column">
+  <h2 matSubheader i18n="Host|A host object, a server">
+    Host (<a routerLink="{{ '/hosts/' + host._id }}">{{ host.ip }}</a>
+    )
+  </h2>
+  <mat-divider class="horizontal-divider"></mat-divider>
+  <div fxLayout="column">
+    <div class="drawer-item" fxFlex>
+      <h2 class="fake-mat-subheader" i18n="Tags|The tags of an item">Tags</h2>
+      <div fxLayout="row" fxLayoutAlign="center" *ngIf="!host || !host.tags || host.tags.length === 0">
+        <div>
+          <p i18n="No tags found|No tags were found for this item" fxFlex>No tags found</p>
+        </div>
+      </div>
+      <div fxLayout="row">
+        <div>
+          <app-pill-tag *ngFor="let tag of host?.tags" [color]="tag.color">{{ tag.text }}</app-pill-tag>
+        </div>
+      </div>
+    </div>
+
+    <mat-divider class="horizontal-divider" fxFlex></mat-divider>
+    <div fxFlex>
+      <div class="drawer-item" fxLayout="column">
+        <h2 class="fake-mat-subheader" i18n="Domains|The domains of a host" fxFlex>Domains</h2>
+        <div fxFlex>
+          <div class="table-container-host" *ngIf="host.domains" fxFlex>
+            <table mat-table [dataSource]="host.domains">
+              <!-- Domain Name Column -->
+              <ng-container matColumnDef="hostDomainName">
+                <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+              </ng-container>
+              <tr
+                mat-row
+                *matRowDef="let row; columns: ['hostDomainName']; let i = index"
+                class="rows rows-cursor"
+                [class.first-cell]="i === 0"
+                routerLinkActive="list-item-active"
+                [routerLink]="['/domains/', row.id]"
+              ></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <mat-divider class="horizontal-divider" fxFlex></mat-divider>
+
+    <div fxFlex>
+      <div class="drawer-item" fxLayout="column">
+        <h2 class="fake-mat-subheader" i18n="Ports|The ports of a host" fxFlex>Ports</h2>
+        <div fxFlex>
+          <div fxLayout="row" fxLayoutAlign="center" *ngIf="host.ports?.length">
+            <div>
+              <p i18n="No ports found|No ports were found for this item" fxFlex>No ports found</p>
+            </div>
+          </div>
+          <div class="table-container-host" *ngIf="host.ports">
+            <table mat-table [dataSource]="host.ports">
+              <!-- Ports Column -->
+              <ng-container matColumnDef="hostPort">
+                <td mat-cell *matCellDef="let element">{{ element.port }}</td>
+              </ng-container>
+              <tr
+                mat-row
+                *matRowDef="let row; columns: ['hostPort']; let i = index"
+                class="rows"
+                [class.first-cell]="i === 0"
+              ></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <mat-divider class="horizontal-divider" fxFlex></mat-divider>
+    <div class="drawer-item" fxFlex>
+      <h2 class="fake-mat-subheader" i18n="General|Generic information title">General</h2>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label i18n="Company|A business">Company</mat-label>
+        <input
+          matInput
+          i18n-placeholder="Company|A business"
+          placeholder="Company"
+          name="company"
+          readonly="true"
+          [value]="company?.name"
+        />
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="full-width notes">
+        <mat-label i18n="Notes|Notes about an item">Notes</mat-label>
+        <textarea readonly="true" matInput cdkTextareaAutosize cdkAutosizeMinRows="8" cdkAutosizeMaxRows="20">{{
+          host.notes
+        }}</textarea>
+      </mat-form-field>
+    </div>
+  </div>
+</div>

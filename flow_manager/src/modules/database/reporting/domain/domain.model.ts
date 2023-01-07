@@ -9,6 +9,13 @@ export class Domain {
   @Prop({ unique: true, index: true })
   public name!: string;
 
+  /**
+   * A pseudo-unique key identifying this entity. Used for findings.
+   * This key should not change if this entity were to be recreated.
+   */
+  @Prop()
+  public correlationKey!: string;
+
   @Prop()
   public companyId!: Types.ObjectId;
 

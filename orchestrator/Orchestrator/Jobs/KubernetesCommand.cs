@@ -39,7 +39,7 @@ public abstract class KubernetesCommand<T> : JobCommand where T : JobRequest
     private static void ScalingSleep(int iteration)
     {
         int waitTime;
-        if(iteration == 0)
+        if (iteration == 0)
         {
             waitTime = 0;
         }

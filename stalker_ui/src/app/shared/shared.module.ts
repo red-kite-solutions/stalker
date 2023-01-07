@@ -24,6 +24,7 @@ import { NgxFileDropModule } from 'ngx-file-drop';
 import { FooterComponent } from './components/footer/footer.component';
 import { HeaderComponent } from './components/header/header.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
+import { TimeAgoPipe } from './pipes/time-ago.pipe';
 import { WhereIdPipe } from './pipes/where-id.pipe';
 import { AreaComponent } from './widget/area/area.component';
 import { CardComponent } from './widget/card/card.component';
@@ -47,6 +48,7 @@ import { SpinnerButtonComponent } from './widget/spinner-button/spinner-button.c
     FilteredPaginatedTableComponent,
     WhereIdPipe,
     PillTagComponent,
+    TimeAgoPipe,
     CodeEditorComponent,
   ],
   imports: [
@@ -85,6 +87,7 @@ import { SpinnerButtonComponent } from './widget/spinner-button/spinner-button.c
     FilteredPaginatedTableComponent,
     WhereIdPipe,
     PillTagComponent,
+    TimeAgoPipe,
     CodeEditorComponent,
   ],
 })

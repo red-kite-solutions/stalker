@@ -41,7 +41,8 @@ public class KubernetesJobTemplate
     /// 1000 millicpu represents a full CPU dedicated to the job pod.
     /// Additional info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
     /// </summary>
-    public int? MilliCpuLimit { 
+    public int? MilliCpuLimit
+    {
         get
         {
             return _MilliCpuLimit;
@@ -62,8 +63,9 @@ public class KubernetesJobTemplate
     /// The suffix used is the power of two, Ki
     /// Additional info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
     /// </summary>
-    public int? MemoryKiloBytesLimit { 
-        get 
+    public int? MemoryKiloBytesLimit
+    {
+        get
         {
             return _MemoryKiloBytesLimit;
         }

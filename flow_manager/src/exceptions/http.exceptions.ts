@@ -28,8 +28,8 @@ export class HttpNotFoundException extends HttpException {
 }
 
 export class HttpBadRequestException extends HttpException {
-  constructor() {
-    super('Error in request parameters', HttpStatus.BAD_REQUEST);
+  constructor(message: string | null = null) {
+    super(message ?? 'Error in request parameters', HttpStatus.BAD_REQUEST);
   }
 }
 

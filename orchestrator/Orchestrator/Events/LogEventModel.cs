@@ -1,11 +1,11 @@
 ﻿namespace Orchestrator.Events
 {
-    public enum LogType 
+    public enum LogType
     {
         Debug
     }
 
-    public class LogEventModel: EventModel
+    public class LogEventModel : EventModel
     {
         public LogType? LogType { get; init; }
     }

@@ -98,7 +98,7 @@ public class KubernetesFacade : IKubernetesFacade
         {
             Thread.Sleep(100);
             pods = await client.ListNamespacedPodAsync(labelSelector: $"job-name={jobName}", limit: 1, namespaceParameter: jobNamespace);
-            
+
         } while (pods?.Items == null || pods.Items.Count < 1 || pods.Items.FirstOrDefault()?.Status?.Phase == "Pending");
 
         return await client.ReadNamespacedPodLogAsync(pods.Items.FirstOrDefault().Metadata.Name, jobNamespace);

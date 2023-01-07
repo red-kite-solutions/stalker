@@ -10,6 +10,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { RouterModule, Routes } from '@angular/router';
 import { SharedModule } from '../../shared/shared.module';
+import { DomainDetailsModule } from '../domains/domain-details/domains-details.module';
 
 import { ListHostsComponent } from './list-hosts/list-hosts.component';
 
@@ -32,6 +33,7 @@ const routes: Routes = [
     FormsModule,
     MatButtonModule,
     MatTableModule,
+    DomainDetailsModule,
     RouterModule.forChild(routes),
   ],
   exports: [],

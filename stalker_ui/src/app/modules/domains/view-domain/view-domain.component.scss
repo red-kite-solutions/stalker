@@ -1,23 +1,5 @@
-.table-container {
-  margin: 0 0px -16px 0px;
-}
-
-.table-container-host {
-  margin: 0 0px 0px 0px;
-}
-
-.rows:hover {
-  background-color: rgb(243, 243, 243);
-}
-
-.rows-cursor {
-  cursor: pointer;
-  label {
-    cursor: pointer;
-  }
-  span {
-    cursor: pointer;
-  }
+mat-card {
+  margin-right: 20px;
 }
 
 .full-width {
@@ -48,8 +30,8 @@
 
 mat-drawer {
   padding-left: 0px;
-  min-width: 300px;
-  max-width: 500px;
+  min-width: 400px;
+  max-width: 400px;
 }
 
 app-pill-tag {
@@ -81,13 +63,6 @@ app-pill-tag {
   margin-right: 16px;
 }
 
-.last-drawer-item {
-  margin-bottom: 30px;
-  mat-form-field {
-    margin-top: 0px;
-  }
-}
-
 .first-cell {
   .mat-cell {
     border-bottom-width: 1px;
@@ -95,22 +70,6 @@ app-pill-tag {
     border-top-width: 1px;
     border-top-style: solid;
     border-top-color: rgba(0, 0, 0, 0.12);
-  }
-}
-
-.table-container-host {
-  max-height: 150px;
-  overflow: scroll;
-  width: 100%;
-  table {
-    max-height: 150px;
-    overflow: scroll;
-    width: 100%;
-  }
-
-  tr.mat-row {
-    border: 1px solid #e7e7e7;
-    height: 30px !important;
   }
 }
 

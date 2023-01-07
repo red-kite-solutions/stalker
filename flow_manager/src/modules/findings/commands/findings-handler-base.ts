@@ -194,7 +194,11 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
       if (job !== null) this.jobsService.publish(job);
     }
 
-    await this.executeCore(command);
+    try {
+      await this.executeCore(command);
+    } catch (e) {
+      this.logger.error('An error occurred while executing the handler.', e);
+    }
   }
 
   protected abstract executeCore(command: T): Promise<unknown | void>;
