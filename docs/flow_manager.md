@@ -1,3 +1,6 @@
+> **Warning**
+> Deprecated, some information is not valid anymore
+
 # Flow Manager
 
 A NestJS TypeScript API that creates jobs, accepts job results and creates new jobs based on output and adds them to the Jobs Queue Handler. All results are tracked in the database.
@@ -28,12 +31,12 @@ mongodb://localhost:27017/recon_automation
 
 A job consists of a task to do for the Job Handlers. They can be to find subdomains, to take a screenshot of a website, to try a check of a vulnerability, anything really. In the Flow Manager, jobs are stored in the database to keep track of them. The Flow Manager also accepts the outputs of the jobs to gather the information and react by creating new jobs, sending alerts, etc. 
 
-|Field Name|Description|
-|----------|-----------|
-|id|A string uuid. It is used to reference the job in the database. It is passed all the way and back to know which job just finished.|
-|priority|An integer, usually between 1 and 5. Used to prioritize jobs, 1 being the higher priority. Flow Manager usually sets 3 as a priority, but it can depend.|
-|task|A string of the name of the task, simply past along with the job. The Job Handler uses the task name to determine what he has to do and what should be contained in the data object.|
-|data|A JSON object, simply past along with the job. It contains the necessary information for the completion of the job in the Job Handlers|
+| Field Name | Description                                                                                                                                                                          |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| id         | A string uuid. It is used to reference the job in the database. It is passed all the way and back to know which job just finished.                                                   |
+| priority   | An integer, usually between 1 and 5. Used to prioritize jobs, 1 being the higher priority. Flow Manager usually sets 3 as a priority, but it can depend.                             |
+| task       | A string of the name of the task, simply past along with the job. The Job Handler uses the task name to determine what he has to do and what should be contained in the data object. |
+| data       | A JSON object, simply past along with the job. It contains the necessary information for the completion of the job in the Job Handlers                                               |
 
 ## Programs
 
