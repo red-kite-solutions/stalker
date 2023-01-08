@@ -50,6 +50,7 @@ pipelines:
         short: w
         type: bool
     run: |-
+      create_deployments namespaces
       build_images flow-manager-e2e orchestrator
       create_deployments mongo kafka orchestrator-service-account orchestrator flow-manager-e2e --sequential
 
