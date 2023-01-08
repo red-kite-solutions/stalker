@@ -4,9 +4,11 @@ import { Kafka } from 'kafkajs';
 import { orchestratorConstants } from '../auth/constants';
 import { JobsModule } from '../database/jobs/jobs.module';
 import { CompanyModule } from '../database/reporting/company.module';
+import { FindingModelModule } from '../database/reporting/findings/findings-model.module';
 import { HostModule } from '../database/reporting/host/host.module';
 import { SubscriptionsModule } from '../database/subscriptions/subscriptions.module';
 import { FindingsHandlers } from './commands/findings-commands';
+import { FindingsController } from './findings.controller';
 import { FindingsService } from './findings.service';
 
 @Module({
@@ -15,9 +17,10 @@ import { FindingsService } from './findings.service';
     JobsModule,
     CompanyModule,
     HostModule,
+    FindingModelModule,
     SubscriptionsModule,
   ],
-  controllers: [],
+  controllers: [FindingsController],
   providers: [FindingsService, ...FindingsHandlers],
   exports: [],
 })

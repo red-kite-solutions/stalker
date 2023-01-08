@@ -1,3 +1,5 @@
+import { Port } from '../modules/database/reporting/host/host.model';
+
 // This data is according to nmap nmap-services ports data file
 export const top100TcpPorts = [
   80, 23, 443, 21, 22, 25, 3389, 110, 445, 139, 143, 53, 135, 3306, 8080, 1723,
@@ -16,7 +18,7 @@ export const top100TcpPorts = [
  * @param top The desired amount of top ports, max 100.
  * @returns The list of the top port numbers, in order of popularity for the top 100 ones.
  */
-export function getTopTcpPorts(ports: number[], top: number = 100): number[] {
+export function getTopTcpPorts(ports: Port[], top: number = 100): number[] {
   if (!ports || top < 1) return [];
 
   top = Math.floor(top);
@@ -25,7 +27,7 @@ export function getTopTcpPorts(ports: number[], top: number = 100): number[] {
   const top_ports = [];
 
   for (let i = 0; top_ports.length < top && i < 100; ++i) {
-    if (ports.includes(top100TcpPorts[i])) {
+    if (ports.map((x) => x.port).includes(top100TcpPorts[i])) {
       top_ports.push(top100TcpPorts[i]);
     }
   }

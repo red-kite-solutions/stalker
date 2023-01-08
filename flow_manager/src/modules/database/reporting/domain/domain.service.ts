@@ -7,6 +7,7 @@ import { FindingsQueue } from '../../../job-queue/findings-queue';
 import { ConfigService } from '../../admin/config/config.service';
 import { JobsService } from '../../jobs/jobs.service';
 import { Company } from '../company.model';
+import { CorrelationKeyUtils } from '../correlation.utils';
 import { HostService } from '../host/host.service';
 import { HostSummary } from '../host/host.summary';
 import { ReportService } from '../report/report.service';
@@ -41,6 +42,10 @@ export class DomainsService {
       const model = new this.domainModel({
         _id: new Types.ObjectId(),
         name: domain,
+        correlationKey: CorrelationKeyUtils.domainCorrelationKey(
+          companyIdObject.toString(),
+          domain,
+        ),
         companyId: companyIdObject,
       });
       domainDocuments.push(model);

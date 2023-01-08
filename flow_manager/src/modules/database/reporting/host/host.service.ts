@@ -7,6 +7,7 @@ import { getTopTcpPorts } from '../../../../utils/ports.utils';
 import { ConfigService } from '../../admin/config/config.service';
 import { TagsService } from '../../tags/tag.service';
 import { Company } from '../company.model';
+import { CorrelationKeyUtils } from '../correlation.utils';
 import { DomainsService } from '../domain/domain.service';
 import { DomainSummary } from '../domain/domain.summary';
 import { ReportService } from '../report/report.service';
@@ -107,6 +108,10 @@ export class HostService {
               _id: mongoId,
               companyId: new Types.ObjectId(companyId),
               companyName: company.name,
+              correlationKey: CorrelationKeyUtils.hostCorrelationKey(
+                companyId,
+                ip,
+              ),
             },
             $addToSet: { domains: ds, tags: existingTags },
           },
@@ -122,6 +127,7 @@ export class HostService {
           _id: mongoId.toString(),
           domains: [ds],
           companyId: new Types.ObjectId(companyId),
+          correlationKey: CorrelationKeyUtils.hostCorrelationKey(companyId, ip),
         });
         hostSummaries.push({ id: mongoId, ip: ip });
       } else if (
@@ -164,7 +170,9 @@ export class HostService {
         _id: new Types.ObjectId(),
         ip: ip,
         companyId: new Types.ObjectId(companyId),
+        correlationKey: CorrelationKeyUtils.hostCorrelationKey(companyId, ip),
       });
+
       hostDocuments.push(model);
     }
 
@@ -316,7 +324,7 @@ export class HostService {
       ? ports.filter(
           (a) =>
             !host.ports.some((b) => {
-              return a === b;
+              return a === b.port;
             }),
         )
       : ports;

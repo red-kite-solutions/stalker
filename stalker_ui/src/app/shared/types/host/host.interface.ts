@@ -1,6 +1,12 @@
 import { DomainSummary } from '../domain/domain.summary';
 import { Tag } from '../tag.type';
 
+export interface Port {
+  id: string;
+  port: number;
+  correlationKey: string;
+}
+
 export interface Host {
   ip: string;
   _id: string;
@@ -8,5 +14,6 @@ export interface Host {
   domains: DomainSummary[];
   tags: Tag[];
   companyId: string;
-  ports: number[];
+  ports: Port[];
+  correlationKey: string;
 }
