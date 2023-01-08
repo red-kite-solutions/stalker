@@ -227,6 +227,7 @@ deployments:
   network-policies:
     kubectl:
       manifests:
+        - network-policy.yml
         - stalker_ui/${NETWORK_POLICY}
         - database/${NETWORK_POLICY}
         - flow_manager/${NETWORK_POLICY}
