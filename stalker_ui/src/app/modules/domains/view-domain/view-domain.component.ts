@@ -58,7 +58,7 @@ export class ViewDomainComponent {
           const ports$ = this.getTopPorts(h.id);
           return {
             ...h,
-            portsSubset$: ports$.pipe(map((p) => p.slice(0, 1))),
+            portsSubset$: ports$.pipe(map((p) => p.slice(0, 12))),
             ports$: ports$,
             numberOfPorts$: ports$.pipe(map((p) => p.length)),
           };
