@@ -37,14 +37,23 @@
           >No hosts yet</panel-section-subtitle
         >
 
-        <div *ngFor="let ip of (ipAddresses$ | async) ?? []">
+        <div class="host" *ngFor="let ip of (ipAddresses$ | async) ?? []">
           <a [routerLink]="['/hosts', ip.id]">{{ ip.ip }}</a>
 
-          <span class="ports" *ngIf="(ip.ports$ | async)?.length">
-            (<a *ngFor="let port of ip.ports$ | async; let last = last" [routerLink]="['/hosts', ip.id, 'ports', port]"
-              >{{ port }}{{ !last ? ', ' : '' }}</a
-            >)</span
-          >
+          <ul class="ports" *ngIf="(showAllPorts[ip.ip] ? ip.ports$ : ip.portsSubset$) | async as ports">
+            <li *ngFor="let port of ports; let last = last" [routerLink]="['/hosts', ip.id, 'ports', port]">
+              <a>{{ port }}</a>
+            </li>
+          </ul>
+
+          <ng-container *ngIf="ip.numberOfPorts$ | async as numberOfPorts">
+            <div
+              class="show-more"
+              *ngIf="!showAllPorts[ip.ip] && numberOfPorts > ((ip.portsSubset$ | async)?.length ?? 0)"
+            >
+              <button panel-load-more (click)="showAllPorts[ip.ip] = true">Show all ports ({{ numberOfPorts }})</button>
+            </div>
+          </ng-container>
         </div>
 
         <button

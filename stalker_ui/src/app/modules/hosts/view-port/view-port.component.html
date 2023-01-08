@@ -6,7 +6,7 @@
     <div *ngIf="host">
       {{ (companies$ | async | whereId: [host?.companyId])?.name }} <span class="slash">/</span> Hosts
       <span class="slash">/</span>
-      {{ host.ip }}:{{ portNumber$ | async }}
+      {{ host.ip }} <span class="slash">/</span> {{ portNumber$ | async }}
     </div>
   </h1>
 

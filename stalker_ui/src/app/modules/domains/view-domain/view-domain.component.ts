@@ -48,9 +48,23 @@ export class ViewDomainComponent {
     shareReplay(1)
   );
 
+  public showAllPorts: { [ip: string]: boolean } = {};
+
   public ipAddressesDataSourceShowCount$ = new BehaviorSubject(8);
   public ipAddresses$ = combineLatest([this.domain$, this.ipAddressesDataSourceShowCount$]).pipe(
-    map(([domain, size]) => domain.hosts.map((h) => ({ ...h, ports$: this.getTopPorts(h.id) })).slice(0, size))
+    map(([domain, size]) =>
+      domain.hosts
+        .map((h) => {
+          const ports$ = this.getTopPorts(h.id);
+          return {
+            ...h,
+            portsSubset$: ports$.pipe(map((p) => p.slice(0, 1))),
+            ports$: ports$,
+            numberOfPorts$: ports$.pipe(map((p) => p.length)),
+          };
+        })
+        .slice(0, size)
+    )
   );
   constructor(
     private route: ActivatedRoute,
@@ -62,8 +76,9 @@ export class ViewDomainComponent {
   ) {}
 
   private getTopPorts(hostId: string) {
-    return this.hostsService
-      .getPorts(hostId, 0, 10, { sortType: 'popularity' })
-      .pipe(map((ports: number[]) => ports.sort((a, b) => a - b)));
+    return this.hostsService.getPorts(hostId, 0, 65535, { sortType: 'popularity' }).pipe(
+      map((ports: number[]) => ports.sort((a, b) => a - b)),
+      shareReplay(1)
+    );
   }
 }
