@@ -6,8 +6,9 @@ metadata:
 spec:
   podSelector: {}
   policyTypes:
-    - Egress
     - Ingress
+    - Egress
+  ingress: []
   egress:
     - to:
         - ipBlock:
@@ -30,4 +31,3 @@ spec:
       ports:
         - protocol: UDP
           port: 53
-  ingress: []

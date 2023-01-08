@@ -20,6 +20,7 @@ pipelines:
 
   dev:
     run: |-
+      create_deployments namespaces
       build_images ui flow-manager orchestrator
       create_deployments mongo kafka --sequential
 
@@ -217,6 +218,11 @@ deployments:
             - containerPort: 5135
               port: 5135
               protocol: TCP
+
+  namespaces:
+    kubectl:
+      manifests:
+        - jobs/namespace.yml
 
   network-policies:
     kubectl:
