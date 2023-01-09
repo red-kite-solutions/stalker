@@ -1,7 +1,7 @@
 
 # Network Architecture
 
-The Stalker application is deployed in a Kubernetes cluster on a one instance per cluster basis. [Kubernetes network policies](https://kubernetes.io/docs/concepts/services-networking/network-policies/) are used to segment the different pods. The Stalker jobs, which are [Kubernetes Jobs](https://kubernetes.io/docs/concepts/workloads/controllers/job/), are run in their own namespace, called `stalker-jobs`.
+The Stalker application is deployed in a Kubernetes cluster on a one instance per cluster basis. [Kubernetes network policies](https://kubernetes.io/docs/concepts/services-networking/network-policies/) are used to segment the different pods. The Stalker jobs, which are [Kubernetes Jobs](https://kubernetes.io/docs/concepts/workloads/controllers/job/), are run in their own namespace called `stalker-jobs` to isolate them.
 
 > A **default deny all** network policy is in place for the `stalker`, `stalker-jobs` and `default` namespaces. Any pod in these namespaces require a custom network policy to allow any connectivity.
 
@@ -11,7 +11,7 @@ Microsegmentation is implemented throughout the cluster in the dev environement 
 
 ![Development Stalker Network Architecture](./ressources/stalker_dev_arch.drawio.png)
 
-The folowing table goes over the main aspects of the graph :
+The following table goes over the main aspects of the graph :
 
 | Pod            | Ingress          | Egress                                                                      |
 | -------------- | ---------------- | --------------------------------------------------------------------------- |
