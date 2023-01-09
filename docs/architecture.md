@@ -7,7 +7,7 @@ The Stalker application is deployed in a Kubernetes cluster on a one instance pe
 
 ## Development
 
-Microsegmentation is implemented throughout the cluster in the dev environement following this graph:
+Microsegmentation is implemented throughout the cluster in the dev environment following this graph:
 
 ![Development Stalker Network Architecture](./ressources/stalker_dev_arch.drawio.png)
 
