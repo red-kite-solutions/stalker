@@ -4,18 +4,17 @@ import { Router } from '@angular/router';
 import { EMPTY, from, mergeMap, Observable, tap } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { AuthService } from '../api/auth/auth.service';
+import { getReturnUrl } from '../utils/return-url';
 
 @Injectable()
 export class JwtInterceptor implements HttpInterceptor {
   constructor(private authService: AuthService, private router: Router) {}
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    if (
-      request.url.startsWith(`${environment.fmUrl}/auth/login`) ||
-      request.url.startsWith(`${environment.fmUrl}/auth/refresh`)
-    ) {
+    if (!this.shouldBeAuthenticated(request)) {
       return next.handle(request);
     }
+
     const isApiUrl = request.url.startsWith(environment.fmUrl);
     if (isApiUrl) {
       if (this.authService.isTokenValid()) {
@@ -32,7 +31,11 @@ export class JwtInterceptor implements HttpInterceptor {
                       Authorization: `Bearer ${this.authService.token}`,
                     },
                   }))
-                : this.router.navigate(['/auth/login'])
+                : this.router.navigate([`/auth/login`], {
+                    queryParams: {
+                      returnUrl: getReturnUrl(this.router),
+                    },
+                  })
             ),
             mergeMap((isConnected) => (isConnected ? next.handle(request) : EMPTY))
           );
@@ -41,5 +44,12 @@ export class JwtInterceptor implements HttpInterceptor {
     }
 
     return next.handle(request);
+  }
+
+  private shouldBeAuthenticated(request: HttpRequest<any>) {
+    return !(
+      request.url.startsWith(`${environment.fmUrl}/auth/login`) ||
+      request.url.startsWith(`${environment.fmUrl}/auth/refresh`)
+    );
   }
 }

@@ -46,10 +46,23 @@ h1 {
   gap: 16px;
 }
 
-.ports {
-  font-style: italic;
+.host {
+  margin-bottom: 10px;
 
-  a {
-    font-weight: 400;
+  ul {
+    padding-inline-start: 16px;
+    margin-top: 2px;
+    margin-bottom: 0px;
+    list-style-type: '';
+
+    a {
+      cursor: pointer;
+      font-weight: 400;
+      margin-left: -4px;
+    }
+  }
+
+  .show-more {
+    margin-left: 14px;
   }
 }
