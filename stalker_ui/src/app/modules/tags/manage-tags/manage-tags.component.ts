@@ -5,6 +5,7 @@ import { ThemePalette } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
+import { Title } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
 import { map } from 'rxjs';
 import { TagsService } from 'src/app/api/tags/tags.service';
@@ -43,8 +44,14 @@ export class ManageTagsComponent {
   }
   public dataSource$ = this.refreshData();
 
-  constructor(private tagsService: TagsService, public dialog: MatDialog, private toastr: ToastrService) {
+  constructor(
+    private tagsService: TagsService,
+    public dialog: MatDialog,
+    private toastr: ToastrService,
+    private titleService: Title
+  ) {
     this.paginator = null;
+    this.titleService.setTitle($localize`:Manage tags page title|:Manage tags`);
   }
 
   /** Whether the number of selected elements matches the total number of rows. */

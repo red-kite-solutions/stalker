@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { CustomFinding } from '../../shared/types/finding/finding.type';
 import { Page } from '../../shared/types/page.type';
@@ -12,8 +12,8 @@ export class FindingsService {
   constructor(private http: HttpClient) {}
 
   public getFindings(target: string, page = 1, pageSize = 25): Observable<Page<CustomFinding>> {
-    return <Observable<Page<CustomFinding>>>(
-      this.http.get(`${environment.fmUrl}/findings?target=${target}&page=${page}&pageSize=${pageSize}`)
-    );
+    return this.http
+      .get<Page<CustomFinding>>(`${environment.fmUrl}/findings?target=${target}&page=${page}&pageSize=${pageSize}`)
+      .pipe(tap((x) => (x.items = x.items.map((i) => ({ ...i, created: new Date() })))));
   }
 }

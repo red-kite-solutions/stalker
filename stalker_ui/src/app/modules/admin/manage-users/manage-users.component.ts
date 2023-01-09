@@ -4,6 +4,7 @@ import { MediaChange, MediaObserver } from '@angular/flex-layout';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
+import { Title } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
 import { distinctUntilChanged, filter, map } from 'rxjs';
 import { UsersService } from 'src/app/api/users/users.service';
@@ -60,8 +61,10 @@ export class ManageUsersComponent implements OnDestroy {
     public dialog: MatDialog,
     private usersService: UsersService,
     private toastr: ToastrService,
-    private mediaObserver: MediaObserver
+    private mediaObserver: MediaObserver,
+    private titleService: Title
   ) {
+    this.titleService.setTitle($localize`:Users list management page title|:Users`);
     this.paginator = null;
   }
 

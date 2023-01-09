@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { UntypedFormBuilder, Validators } from '@angular/forms';
+import { Title } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
 import { map } from 'rxjs';
 import { SettingsService } from 'src/app/api/settings/settings.service';
@@ -59,7 +60,14 @@ export class SettingsComponent {
 
   hidePaperkey = true;
 
-  constructor(private fb: UntypedFormBuilder, private toastr: ToastrService, private settingsService: SettingsService) {}
+  constructor(
+    private fb: UntypedFormBuilder,
+    private toastr: ToastrService,
+    private settingsService: SettingsService,
+    private titleService: Title
+  ) {
+    this.titleService.setTitle($localize`:Settings page title|:Settings`);
+  }
 
   syncKeybase() {
     this.toastr.error('Sorry, not implemented yet');

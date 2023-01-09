@@ -1,9 +1,13 @@
 <div class="findings-list" *ngIf="findings$ | async as findings">
-  <finding *ngFor="let finding of findings.items" [finding]="finding"></finding>
+  <div class="finding-wrapper" *ngFor="let finding of findings.items">
+    <mat-card>
+      <finding [finding]="finding"></finding>
+    </mat-card>
+  </div>
 
   <div class="findings-paginator">
     <button
-      *ngIf="findings.items.length < findings.totalRecords; else noMoreFindings"
+      *ngIf="findings.items.length < findings.totalRecords"
       mat-button
       color="primary"
       (click)="loadMoreFindings()"
@@ -15,14 +19,12 @@
           [mode]="'indeterminate'"
           [diameter]="16"
         ></mat-progress-spinner>
-        <span> Load more </span>
+        <span>Load more</span>
       </span>
     </button>
-
-    <ng-template #noMoreFindings>
-      <button *ngIf="findings.totalRecords > 0" mat-button color="primary" disabled>No more findings!</button>
-    </ng-template>
   </div>
-
-  <div *ngIf="!findings.totalRecords" class="no-findings">There are no finding yet</div>
 </div>
+
+<mat-card *ngIf="!(findings$ | async)?.totalRecords" i18n="There are no finding yet|There are no finding yet">
+  <span class="no-findings"> There are no finding yet </span>
+</mat-card>

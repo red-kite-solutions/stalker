@@ -34,7 +34,7 @@ export class PortsDto {
 
   @IsInt()
   @Min(1)
-  @Max(100)
+  @Max(65535)
   @Type(() => Number)
   pageSize: number = 10;
 }

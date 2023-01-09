@@ -1,6 +1,7 @@
 import { Component, OnDestroy } from '@angular/core';
 import { MediaChange, MediaObserver } from '@angular/flex-layout';
 import { UntypedFormControl, Validators } from '@angular/forms';
+import { Title } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
 import { distinctUntilChanged, filter, map } from 'rxjs';
 import { CompaniesService } from 'src/app/api/companies/companies.service';
@@ -75,8 +76,11 @@ export class ListCompaniesComponent implements OnDestroy {
   constructor(
     private mediaObserver: MediaObserver,
     private companiesService: CompaniesService,
-    private toastrService: ToastrService
-  ) {}
+    private toastrService: ToastrService,
+    private titleService: Title
+  ) {
+    this.titleService.setTitle($localize`:Companies list page title|:Companies`);
+  }
 
   ngOnDestroy(): void {
     this.companies$.unsubscribe();

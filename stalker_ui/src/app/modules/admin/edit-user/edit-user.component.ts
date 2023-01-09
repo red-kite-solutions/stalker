@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormControl, ValidationErrors, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { map, startWith, switchMap } from 'rxjs';
+import { map, startWith, switchMap, tap } from 'rxjs';
 import { UsersService } from 'src/app/api/users/users.service';
 import { HttpStatus } from 'src/app/shared/types/http-status.type';
 import { User } from 'src/app/shared/types/user.interface';
@@ -72,7 +73,8 @@ export class EditUserComponent {
     private route: ActivatedRoute,
     private usersService: UsersService,
     private toastr: ToastrService,
-    private router: Router
+    private router: Router,
+    private titleService: Title
   ) {}
 
   currentPasswordForm = this.fb.group({
@@ -111,22 +113,18 @@ export class EditUserComponent {
     })
   );
 
-  public routeSub$ = this.route.params
-    .pipe(
-      switchMap((params) => {
-        this.userId = params['id'];
-        return this.usersService.getUser(this.userId);
-      })
-    )
-    .pipe(
-      map((user: any) => {
-        this.form.controls['firstName'].setValue(user.firstName);
-        this.form.controls['lastName'].setValue(user.lastName);
-        this.form.controls['email'].setValue(user.email);
-        this.form.controls['role'].setValue(this.roles.find((role: Role) => role.name === user?.role));
-        this.form.controls['active'].setValue(user.active);
-      })
-    );
+  private userId$ = this.route.params.pipe(map((params) => params['id']));
+  public routeSub$ = this.userId$.pipe(
+    switchMap((id) => this.usersService.getUser(id)),
+    tap((user) => this.setTitle(user.email)),
+    map((user: any) => {
+      this.form.controls['firstName'].setValue(user.firstName);
+      this.form.controls['lastName'].setValue(user.lastName);
+      this.form.controls['email'].setValue(user.email);
+      this.form.controls['role'].setValue(this.roles.find((role: Role) => role.name === user?.role));
+      this.form.controls['active'].setValue(user.active);
+    })
+  );
 
   async onSubmit() {
     this.newUserValid = this.form.valid && this.currentPasswordForm.valid;
@@ -237,5 +235,9 @@ export class EditUserComponent {
       data,
       restoreFocus: false,
     });
+  }
+
+  private setTitle(username: string) {
+    this.titleService.setTitle($localize`:Edit user page title|:Users · ${username}`);
   }
 }

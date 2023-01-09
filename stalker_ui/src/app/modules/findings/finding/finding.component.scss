@@ -1,19 +1,14 @@
-.mat-card-title {
-  font-size: 16px;
+h3 {
+  margin: 0;
+  font-weight: 600;
 }
 
-mat-card-content {
-  margin-bottom: 0;
-}
-
-.field {
+.field:not(:last-child) {
   padding-bottom: 4px;
 }
 
 .date {
-  position: absolute;
-  right: 10px;
-  bottom: 6px;
+  font-size: smaller;
   opacity: 0.6;
   font-style: italic;
 }

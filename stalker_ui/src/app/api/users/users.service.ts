@@ -33,7 +33,7 @@ export class UsersService {
   }
 
   public getUser(userId: string) {
-    return this.http.get(`${environment.fmUrl}/users/${userId}`);
+    return this.http.get<User>(`${environment.fmUrl}/users/${userId}`);
   }
 
   public async deleteUser(userId: string): Promise<void> {

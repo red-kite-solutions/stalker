@@ -15,6 +15,7 @@ import { DashboardComponent } from './modules/dashboard/dashboard.component';
 import { ListDomainsComponent } from './modules/domains/list-domains/list-domains.component';
 import { ViewDomainComponent } from './modules/domains/view-domain/view-domain.component';
 import { ViewHostComponent } from './modules/hosts/view-host/view-host.component';
+import { ViewPortComponent } from './modules/hosts/view-port/view-port.component';
 import { SubscriptionComponent } from './modules/jobs/subscriptions/subscription.component';
 import { ManageTagsComponent } from './modules/tags/manage-tags/manage-tags.component';
 import { ProfileComponent } from './modules/user/profile/profile.component';
@@ -67,6 +68,10 @@ const routes: Routes = [
       {
         path: 'hosts',
         loadChildren: () => import('./modules/hosts/hosts.module').then((m) => m.HostsListModule),
+      },
+      {
+        path: 'hosts/:id/ports/:port',
+        component: ViewPortComponent,
       },
       {
         path: 'hosts/:id',
