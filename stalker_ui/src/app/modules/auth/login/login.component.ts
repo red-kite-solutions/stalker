@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/api/auth/auth.service';
 
@@ -13,7 +14,9 @@ export class LoginComponent {
   hide = true;
   loginValid = true;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router, private titleService: Title) {
+    this.titleService.setTitle($localize`:Sign in page title|:Sign in to Stalker`);
+  }
 
   async onSubmit() {
     const res = await this.authService.login(this.username, this.password);

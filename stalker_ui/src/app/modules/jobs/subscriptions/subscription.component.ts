@@ -2,6 +2,7 @@ import { Component, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
+import { Title } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
 import { map } from 'rxjs';
 import { SubscriptionsService } from 'src/app/api/jobs/subscriptions/subscriptions.service';
@@ -60,11 +61,13 @@ export class SubscriptionComponent {
     private dialog: MatDialog,
     private subscriptionsService: SubscriptionsService,
     private toastr: ToastrService,
-    private companiesService: CompaniesService
+    private companiesService: CompaniesService,
+    private titleService: Title
   ) {
     this.codeEditorService.load();
     this.code = this.subscriptionTemplate;
     this.currentCodeBackup = this.code;
+    this.titleService.setTitle($localize`:Subscriptions list page title|:Subscriptions`);
   }
 
   private refreshData() {

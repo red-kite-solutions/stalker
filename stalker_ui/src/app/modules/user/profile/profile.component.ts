@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormControl, ValidationErrors, Validators } from '@angular/forms';
+import { Title } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
 import { map } from 'rxjs';
 import { AuthService } from 'src/app/api/auth/auth.service';
@@ -90,8 +91,11 @@ export class ProfileComponent {
     private fb: UntypedFormBuilder,
     private usersService: UsersService,
     private toastr: ToastrService,
-    private authService: AuthService
-  ) {}
+    private authService: AuthService,
+    private titleService: Title
+  ) {
+    this.titleService.setTitle($localize`:Logged in user profile page title|:Profile`);
+  }
 
   async onSubmit() {
     this.profileEditValid = this.form.valid && this.currentPasswordForm.valid;

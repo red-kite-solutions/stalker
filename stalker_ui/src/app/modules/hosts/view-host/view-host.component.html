@@ -1,140 +1,72 @@
-<div fxLayout="row" class="full-height">
-  <div fxFlex>
-    <div fxLayout="row" fxLayoutAlign="center">
-      <mat-card fxFlex.lt-md="95" [fxFlex.gt-sm]="currentDetailsId ? 100 : 80" *ngIf="host$ | async as host">
-        <mat-card-content>
-          <h1 fxLayoutAlign="flex-start center">
-            <button type="button" mat-icon-button routerLinkActive="list-item-active" routerLink="/hosts">
-              <mat-icon class="material-icons-outlined">arrow_back</mat-icon>
-            </button>
-            <div *ngIf="host">{{ host.ip }}</div>
-          </h1>
+<div class="container" *ngIf="host$ | async as host">
+  <h1>
+    <button type="button" mat-icon-button routerLinkActive="list-item-active" routerLink="/hosts">
+      <mat-icon class="material-icons-outlined">arrow_back</mat-icon>
+    </button>
+    <div *ngIf="host">
+      {{ (companies$ | async | whereId: [host?.companyId])?.name }} <span class="slash">/</span> Hosts
+      <span class="slash">/</span>
+      {{ host.ip }}
+    </div>
+  </h1>
 
-          <div fxLayout="row">
-            <div fxFlex>
-              <div fxLayout="column">
-                <div fxFlex>
-                  <h2 class="fake-mat-subheader" i18n="Ports|The ports of a host">
-                    Ports {{ host && host.ports && host.ports.length > 0 ? '(' + host.ports.length + ')' : '' }}
-                  </h2>
-                  <div class="ports-div">
-                    <mat-selection-list *ngIf="host && host.ports && host.ports.length > 0" [multiple]="false">
-                      <mat-list-option
-                        *ngFor="let port of host.ports"
-                        [value]="port"
-                        (click)="selectPortAndView(port)"
-                        [selected]="currentDetailsId === port.id"
-                        [class.selected]="currentDetailsId === port.id"
-                      >
-                        {{ port.port }}
-                      </mat-list-option>
-                    </mat-selection-list>
-                  </div>
-                </div>
-                <mat-divider class="horizontal-divider-important" [inset]="true"></mat-divider>
-                <div fxFlex>
-                  <mat-form-field appearance="outline" class="full-width notes">
-                    <mat-label i18n="Notes|Notes about an item">Notes</mat-label>
-                    <textarea
-                      readonly="true"
-                      matInput
-                      cdkTextareaAutosize
-                      cdkAutosizeMinRows="8"
-                      cdkAutosizeMaxRows="20"
-                    ></textarea>
-                  </mat-form-field>
-                </div>
-              </div>
-            </div>
-            <mat-divider [vertical]="true" class="vertical-dvider"></mat-divider>
-            <div fxFlex>
-              <div fxLayout="column">
-                <div fxFlex *ngIf="tags$ | async">
-                  <h2 class="fake-mat-subheader" i18n="Tags|The tags of an item">Tags</h2>
-                  <div fxLayout="row" fxLayoutAlign="center" *ngIf="!host || !host.tags || host.tags.length === 0">
-                    <div>
-                      <p i18n="No tags found|No tags were found for this item" fxFlex>No tags found</p>
-                    </div>
-                  </div>
-                  <div fxLayout="row">
-                    <div>
-                      <app-pill-tag *ngFor="let tag of host?.tags" [color]="(tags | whereId: [tag])?.color">{{
-                        (tags | whereId: [tag])?.text
-                      }}</app-pill-tag>
-                    </div>
-                  </div>
-                </div>
+  <div class="content-wrapper">
+    <div class="content">
+      <findings-list [correlationKey]="host.correlationKey"></findings-list>
+    </div>
 
-                <mat-form-field
-                  appearance="outline"
-                  class="full-width margin-top-10"
-                  *ngIf="(companies$ | async) && host"
-                >
-                  <mat-label i18n="Company|A business">Company</mat-label>
-                  <input
-                    matInput
-                    i18n-placeholder="Company|A business"
-                    placeholder="Company"
-                    readonly="true"
-                    [ngModel]="(companies | whereId: [host.companyId])?.name"
-                  />
-                </mat-form-field>
+    <div class="context">
+      <panel-section>
+        <panel-section-title i18n="Tags|The tags of an item">Tags</panel-section-title>
 
-                <div class="table-container" fxFlex fxLayout="column">
-                  <h2 class="fake-mat-subheader" i18n="Domain Names|Multiple domain names">Domain Names</h2>
-                  <table mat-table [dataSource]="dataSource">
-                    <!-- Domain name -->
-                    <ng-container matColumnDef="domainName">
-                      <td mat-cell *matCellDef="let element">{{ element?.name }}</td>
-                    </ng-container>
+        <panel-section-subtitle *ngIf="!host?.tags?.length" i18n="No tags yet|There are no tags for this item"
+          >No tags yet</panel-section-subtitle
+        >
 
-                    <tr
-                      mat-row
-                      *matRowDef="let row; columns: displayedColumns; let i = index"
-                      class="rows rows-cursor"
-                      (click)="selectDomainAndView(row)"
-                      [class.selected]="currentDetailsId === row.id"
-                      [class.first-cell]="i === 0"
-                    ></tr>
+        <app-pill-tag *ngFor="let tag of host?.tags" [color]="(tags | whereId: [tag])?.color">{{
+          (tags | whereId: [tag])?.text
+        }}</app-pill-tag>
+      </panel-section>
 
-                    <tr class="mat-row nodata" *matNoDataRow>
-                      <td class="mat-cell" colspan="100%" i18n="No domains found|No domains were found for this item">
-                        No domains found
-                      </td>
-                    </tr>
-                  </table>
+      <panel-section>
+        <panel-section-title i18n="Domains|An IP's related domains">Domains</panel-section-title>
 
-                  <mat-paginator
-                    [length]="100"
-                    [pageSize]="5"
-                    [pageSizeOptions]="[5, 10, 25, 100]"
-                    showFirstLastButtons
-                    aria-label="Select page"
-                  >
-                  </mat-paginator>
-                </div>
-              </div>
+        <panel-section-subtitle *ngIf="!host?.domains?.length" i18n="No domains yet|There are no domains for this item"
+          >No domains yet</panel-section-subtitle
+        >
 
-              <findings-list *ngIf="host" [correlationKey]="host.correlationKey"></findings-list>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
+        <div *ngFor="let domain of domains$ | async">
+          <a [routerLink]="['/domains', domain.id]">{{ domain.name }}</a>
+        </div>
+
+        <button
+          panel-load-more
+          *ngIf="((shownDomainsCount$ | async) ?? 0) < (host?.domains?.length ?? 0)"
+          (click)="shownDomainsCount$.next(1000)"
+        >
+          Show more ({{ host?.domains?.length }})
+        </button>
+      </panel-section>
+
+      <panel-section>
+        <panel-section-title i18n="Ports|An IP's related ports">Ports</panel-section-title>
+
+        <panel-section-subtitle *ngIf="!host?.ports?.length" i18n="No ports yet|There are no ports for this item"
+          >No ports yet</panel-section-subtitle
+        >
+
+        <div *ngFor="let port of ports$ | async">
+          <a [routerLink]="['.', 'ports', port]">{{ port }}</a>
+        </div>
+
+        <button
+          panel-load-more
+          *ngIf="((shownPortsCount$ | async) ?? 0) < (host?.ports?.length ?? 0)"
+          (click)="shownPortsCount$.next(1000)"
+        >
+          Show more ({{ host?.ports?.length }})
+        </button>
+      </panel-section>
     </div>
   </div>
-
-  <mat-drawer-container class="domain-side-nav" autosize="true">
-    <mat-drawer closed mode="side" position="end">
-      <domain-details
-        *ngIf="domainDetails$ | async as domainDetails"
-        [domain]="domainDetails"
-        [company]="companies | whereId: [domainDetails?.companyId]"
-      ></domain-details>
-      <port-details *ngIf="portDetails$ | async as portDetails" [port]="portDetails"></port-details>
-
-      <div class="findings-container">
-        <findings-list [correlationKey]="selectedItemCorrelationKey$ | async"></findings-list>
-      </div>
-    </mat-drawer>
-  </mat-drawer-container>
 </div>

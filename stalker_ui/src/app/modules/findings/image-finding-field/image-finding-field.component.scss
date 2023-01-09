@@ -1,5 +1,4 @@
 img {
-  // This compensates for the mat card margin
-  width: calc(100% + 32px);
-  margin-left: -16px;
+  border-radius: 8px;
+  width: 64px;
 }

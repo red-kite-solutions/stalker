@@ -10,11 +10,11 @@ import { Page } from '../../../shared/types/page.type';
   styleUrls: ['./finding-list.component.scss'],
 })
 export class FindingsListComponent {
-  private _correlationKey: string | null = null;
+  private _correlationKey: string | undefined = undefined;
   public get correlationKey() {
     return this._correlationKey;
   }
-  @Input() public set correlationKey(value: string | null) {
+  @Input() public set correlationKey(value: string | undefined) {
     this._correlationKey = value;
     this.initFindings();
   }

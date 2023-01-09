@@ -19,7 +19,7 @@ export class CompaniesService {
   }
 
   public get(id: string) {
-    return this.http.get(`${environment.fmUrl}/company/${id}`) as Observable<Company>;
+    return this.http.get<Company>(`${environment.fmUrl}/company/${id}`);
   }
 
   public async delete(id: string) {

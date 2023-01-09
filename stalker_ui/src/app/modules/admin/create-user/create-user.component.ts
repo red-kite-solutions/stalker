@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { Title } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
 import { map, startWith } from 'rxjs';
 import { UsersService } from 'src/app/api/users/users.service';
@@ -91,8 +92,11 @@ export class CreateUserComponent {
     private fb: UntypedFormBuilder,
     public dialog: MatDialog,
     private toastr: ToastrService,
-    private usersService: UsersService
-  ) {}
+    private usersService: UsersService,
+    private titleService: Title
+  ) {
+    this.titleService.setTitle($localize`:New users page title|:New user`);
+  }
 
   async onSubmit() {
     this.newUserValid = this.form.valid && this.currentPasswordForm.valid;
