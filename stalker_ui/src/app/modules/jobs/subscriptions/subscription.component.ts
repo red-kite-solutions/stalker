@@ -6,7 +6,7 @@ import { Title } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
 import { map } from 'rxjs';
 import { SubscriptionsService } from 'src/app/api/jobs/subscriptions/subscriptions.service';
-import { FindingEventSubscription, SubscriptionData } from 'src/app/shared/types/FindingEventSubscription';
+import { FindingEventSubscription, SubscriptionData } from 'src/app/shared/types/finding-event-subscription';
 import { CodeEditorService } from 'src/app/shared/widget/code-editor/code-editor.service';
 import {
   ConfirmDialogComponent,

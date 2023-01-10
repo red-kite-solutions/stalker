@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom, map, Observable } from 'rxjs';
-import { FindingEventSubscription, SubscriptionData } from 'src/app/shared/types/FindingEventSubscription';
+import { FindingEventSubscription, SubscriptionData } from 'src/app/shared/types/finding-event-subscription';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
