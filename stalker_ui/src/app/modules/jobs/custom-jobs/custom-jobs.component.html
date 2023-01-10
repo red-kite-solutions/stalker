@@ -44,7 +44,7 @@
             *matRowDef="let row; columns: ['name', 'type', 'language']"
             class="rows"
             (click)="selectCustomJob(row)"
-            [class.selected-subscription]="selectedRow?._id === row._id"
+            [class.selected-job]="selectedRow?._id === row._id"
           ></tr>
 
           <tr class="mat-row nodata" *matNoDataRow>
@@ -65,11 +65,11 @@
       </div>
     </mat-card>
   </div>
-  <div fxFlex="55" *ngIf="companies$ | async">
+  <div fxFlex="55">
     <div fxLayout="column" class="code-editor-container">
       <mat-form-field appearance="outline">
         <mat-label i18n="Name|Name">Name</mat-label>
-        <input matInput [value]="customJobName" />
+        <input matInput [(ngModel)]="customJobName" />
       </mat-form-field>
       <app-code-editor
         [(code)]="code"

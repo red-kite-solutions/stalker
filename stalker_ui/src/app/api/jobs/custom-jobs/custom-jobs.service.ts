@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { firstValueFrom, from, Observable } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { CustomJob, CustomJobData } from '../../../shared/types/custom-job';
 
@@ -11,25 +11,7 @@ export class CustomJobsService {
   constructor(private http: HttpClient) {}
 
   public getCustomJobs(): Observable<CustomJob[]> {
-    // return <Observable<Array<CustomJob>>>this.http.get(`${environment.fmUrl}/custom-jobs/`);
-    return from(
-      Array([
-        {
-          _id: 'asdf',
-          name: 'my first job',
-          type: 'code',
-          code: 'qwerty\nasdf\nzxcv',
-          language: 'python',
-        },
-        {
-          _id: 'asdf2',
-          name: 'my second job',
-          type: 'code',
-          code: 'qwerty\n\nuiop',
-          language: 'python',
-        },
-      ])
-    );
+    return <Observable<Array<CustomJob>>>this.http.get(`${environment.fmUrl}/custom-jobs/`);
   }
 
   public async create(data: CustomJobData): Promise<CustomJob> {

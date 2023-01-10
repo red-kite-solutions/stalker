@@ -10,9 +10,7 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
-import { CompaniesService } from '../../../api/companies/companies.service';
 import { CustomJobsService } from '../../../api/jobs/custom-jobs/custom-jobs.service';
-import { CompanySummary } from '../../../shared/types/company/company.summary';
 import { CustomJob, CustomJobData } from '../../../shared/types/custom-job';
 
 @Component({
@@ -21,7 +19,7 @@ import { CustomJob, CustomJobData } from '../../../shared/types/custom-job';
   styleUrls: ['./custom-jobs.component.scss'],
 })
 export class CustomJobsComponent {
-  public customJobName = 'Temp Name For Testing';
+  public customJobName = '';
   public code = '';
   public currentCodeBackup: string | undefined;
   public language = 'python';
@@ -40,25 +38,11 @@ export class CustomJobsComponent {
 
   public dataSource$ = this.refreshData();
 
-  selectedCompany: string | undefined = undefined;
-  companies: CompanySummary[] = [];
-  companies$ = this.companiesService.getAllSummaries().pipe(
-    map((next: any[]) => {
-      const comp: CompanySummary[] = [];
-      for (const company of next) {
-        comp.push({ id: company._id, name: company.name });
-      }
-      this.companies = comp;
-      return this.companies;
-    })
-  );
-
   constructor(
     private codeEditorService: CodeEditorService,
     private dialog: MatDialog,
     private customJobsService: CustomJobsService,
     private toastr: ToastrService,
-    private companiesService: CompaniesService,
     private titleService: Title
   ) {
     this.codeEditorService.load();
@@ -110,7 +94,7 @@ export class CustomJobsComponent {
   private newCustomJobNext() {
     this.isInNewCustomJobContext = true;
     this.selectedRow = undefined;
-    this.selectedCompany = undefined;
+    this.customJobName = '';
     this.code = '';
     this.currentCodeBackup = this.code;
   }
@@ -125,15 +109,9 @@ export class CustomJobsComponent {
     this.selectedRow = this.tempSelectedRow;
     const rowData = this.data.find((v) => v._id === this.tempSelectedRow?._id);
     if (rowData?._id) this.currentCustomJobId = rowData._id;
-    const rowCopy = JSON.parse(JSON.stringify(rowData));
-    delete rowCopy._id;
-    if (rowCopy.job?.parameters?.length === 0) {
-      delete rowCopy.job.parameters;
-    }
-    if (rowCopy.conditions?.length === 0) {
-      delete rowCopy.conditions;
-    }
-    this.code = rowCopy.code;
+
+    this.customJobName = rowData?.name ? rowData.name : '';
+    this.code = rowData?.code ? rowData.code : '';
     this.currentCodeBackup = this.code;
   }
 
@@ -151,13 +129,6 @@ export class CustomJobsComponent {
       return;
     }
     const code = this.code;
-
-    if (!this.selectedCompany) {
-      this.toastr.error(
-        $localize`:Select company before submitting|Select company before submitting:Select company before submitting`
-      );
-      return;
-    }
 
     const job: CustomJobData = {
       language: this.language, // always python for now
@@ -230,7 +201,7 @@ export class CustomJobsComponent {
         this.isInNewCustomJobContext = true;
         this.selectedRow = undefined;
         this.tempSelectedRow = undefined;
-        this.selectedCompany = '';
+        this.customJobName = '';
       },
     };
 
