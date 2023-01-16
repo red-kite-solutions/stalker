@@ -1,16 +1,34 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { isArray, isFQDN, isInt, isMongoId, isNumber } from 'class-validator';
+import {
+  isArray,
+  isEmpty,
+  isFQDN,
+  isIn,
+  isInt,
+  isMongoId,
+  isNumber,
+  isString,
+} from 'class-validator';
 import { Model } from 'mongoose';
 import { isIP } from 'net';
 import {
   JobParameterCountException,
   JobParameterValueException,
 } from '../../../exceptions/job-parameter.exception';
+import {
+  environmentVariableConflict,
+  environmentVariableRegex,
+} from '../../../utils/linux-environment-variables.utils';
 import { JobQueue } from '../../job-queue/job-queue';
 import { JobParameter } from '../subscriptions/subscriptions.model';
 import { CreateJobDto } from './dtos/create-job.dto';
 import { JobDto } from './dtos/job.dto';
+import {
+  CustomJob,
+  CustomJobLanguages,
+  CustomJobTypes,
+} from './models/custom-job.model';
 import { DomainNameResolvingJob } from './models/domain-name-resolving.model';
 import { Job, JobDocument } from './models/jobs.model';
 import { TcpPortScanningJob } from './models/tcp-port-scanning.model';
@@ -280,6 +298,127 @@ export class JobsService {
       JobsService.logJobInputError(
         jobName,
         new JobParameterValueException('ports', job.ports),
+      );
+      return null;
+    }
+
+    return job;
+  }
+
+  public static createCustomJob_(args: JobParameter[]) {
+    let params = {};
+    params['companyid'] = undefined;
+    params['name'] = undefined;
+    params['type'] = undefined;
+    params['code'] = undefined;
+    params['language'] = undefined;
+    params['customjobparameters'] = undefined;
+
+    const jobName = CustomJob.name;
+
+    try {
+      params = JobsService.bindFunctionArguments(params, args);
+    } catch (err) {
+      JobsService.logJobInputError(
+        jobName,
+        `${err} (A parameter is likely missing)`,
+      );
+      return null;
+    }
+
+    return JobsService.createCustomJob(
+      params['companyid'],
+      params['name'],
+      params['type'],
+      params['code'],
+      params['language'],
+      params['customjobparameters'],
+    );
+  }
+
+  public static createCustomJob(
+    companyId: string,
+    name: string,
+    type: string,
+    code: string,
+    language: string,
+    customJobParameters: JobParameter[],
+  ) {
+    const job = new CustomJob();
+    job.task = CustomJob.name;
+    job.companyId = companyId;
+    job.priority = 3;
+    job.name = name;
+    job.code = code;
+    job.type = type;
+    job.language = language;
+    job.customJobParameters = customJobParameters;
+
+    if (!isMongoId(job.companyId)) {
+      JobsService.logJobInputError(
+        job.task,
+        new JobParameterValueException('companyId', job.companyId),
+      );
+      return null;
+    }
+
+    if (!isString(job.name) || isEmpty(job.name)) {
+      JobsService.logJobInputError(
+        job.task,
+        new JobParameterValueException('name', job.name),
+      );
+      return null;
+    }
+
+    if (
+      !isString(job.type) ||
+      isEmpty(job.type) ||
+      !isIn(job.type, CustomJobTypes)
+    ) {
+      JobsService.logJobInputError(
+        job.task,
+        new JobParameterValueException('type', job.type),
+      );
+      return null;
+    }
+
+    if (!isString(job.code) || isEmpty(job.code)) {
+      JobsService.logJobInputError(
+        job.task,
+        new JobParameterValueException('code', job.code),
+      );
+      return null;
+    }
+
+    if (
+      !isString(job.language) ||
+      isEmpty(job.language) ||
+      !isIn(job.language, CustomJobLanguages)
+    ) {
+      JobsService.logJobInputError(
+        job.task,
+        new JobParameterValueException('language', job.language),
+      );
+      return null;
+    }
+
+    if (
+      !isArray(job.customJobParameters) ||
+      job.customJobParameters.some(
+        (param) =>
+          isEmpty(param.name) ||
+          !isString(param.name) ||
+          !environmentVariableRegex.test(param.name) ||
+          environmentVariableConflict.some((v) => v === param.name) ||
+          isEmpty(param.value),
+      )
+    ) {
+      JobsService.logJobInputError(
+        job.task,
+        new JobParameterValueException(
+          'customJobParameters',
+          job.customJobParameters,
+        ),
       );
       return null;
     }

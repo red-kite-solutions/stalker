@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { CustomJob } from './custom-job.model';
 import { DomainNameResolvingJob } from './domain-name-resolving.model';
-import { SubdomainBruteforceJob } from './subdomain-bruteforce.model';
 import { TcpPortScanningJob } from './tcp-port-scanning.model';
 
 export type JobDocument = Job & Document;
@@ -13,8 +13,8 @@ export class Job {
     required: true,
     enum: [
       DomainNameResolvingJob.name,
-      SubdomainBruteforceJob.name,
       TcpPortScanningJob.name,
+      CustomJob.name,
     ],
   })
   task: string;

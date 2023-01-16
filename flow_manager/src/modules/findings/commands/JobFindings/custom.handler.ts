@@ -1,5 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { CommandHandler } from '@nestjs/cqrs';
+import { CustomJobsService } from '../../../database/custom-jobs/custom-jobs.service';
 import { JobsService } from '../../../database/jobs/jobs.service';
 import { SubscriptionsService } from '../../../database/subscriptions/subscriptions.service';
 import { FindingsService } from '../../findings.service';
@@ -14,8 +15,9 @@ export class CustomFindingHandler extends JobFindingHandlerBase<CustomFindingCom
     private findingsService: FindingsService,
     jobService: JobsService,
     subscriptionsService: SubscriptionsService,
+    customJobsService: CustomJobsService,
   ) {
-    super(jobService, subscriptionsService);
+    super(jobService, subscriptionsService, customJobsService);
   }
 
   protected async executeCore(command: CustomFindingCommand) {

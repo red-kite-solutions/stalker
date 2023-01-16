@@ -1,11 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-export type CustomJobsDocument = CustomJob & Document;
+export type CustomJobsDocument = CustomJobEntry & Document;
 
 @Schema()
-export class CustomJob {
-  @Prop()
+export class CustomJobEntry {
+  @Prop({ unique: true, index: true })
   public name!: string;
 
   @Prop()
@@ -18,4 +18,4 @@ export class CustomJob {
   public language: string;
 }
 
-export const CustomJobsSchema = SchemaFactory.createForClass(CustomJob);
+export const CustomJobsSchema = SchemaFactory.createForClass(CustomJobEntry);

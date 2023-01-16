@@ -39,7 +39,21 @@ public class JobFactory : IJobFactory
         {
             DomainNameResolvingJobRequest domainResolving => new DomainNameResolvingCommand(domainResolving, Kubernetes, EventsProducer, Parser, LoggerFactory.CreateLogger<DomainNameResolvingCommand>(), JobProvider),
             TcpPortScanningJobRequest tcpPortScanning => new TcpPortScanningCommand(tcpPortScanning, Kubernetes, EventsProducer, Parser, LoggerFactory.CreateLogger<TcpPortScanningCommand>(), JobProvider),
+            CustomJobRequest customJob => CreateCustomJobCommand(customJob),
             _ => throw new InvalidOperationException(),
         };
+    }
+
+    private JobCommand CreateCustomJobCommand(CustomJobRequest request) 
+    {
+        if (request.Type?.ToLower() == "code")
+        {
+            return request.Language?.ToLower() switch
+            {
+                "python" => new PythonCustomJobCommand(request, Kubernetes, EventsProducer, Parser, LoggerFactory.CreateLogger<PythonCustomJobCommand>(), JobProvider),
+                _ => throw new InvalidOperationException(),
+            };
+        }
+        throw new InvalidOperationException();
     }
 }

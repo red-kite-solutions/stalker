@@ -1,11 +1,14 @@
 import { Logger } from '@nestjs/common';
 import { ICommandHandler } from '@nestjs/cqrs';
+import { CustomJobsService } from '../../database/custom-jobs/custom-jobs.service';
 import { JobDefinitions } from '../../database/jobs/job-model.module';
 import { JobsService } from '../../database/jobs/jobs.service';
+import { CustomJob } from '../../database/jobs/models/custom-job.model';
 import { Job } from '../../database/jobs/models/jobs.model';
 import {
   JobCondition,
   JobParameter,
+  Subscription,
 } from '../../database/subscriptions/subscriptions.model';
 import { SubscriptionsService } from '../../database/subscriptions/subscriptions.service';
 import { Finding } from '../findings.service';
@@ -20,6 +23,7 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
   constructor(
     private subscriptionService: SubscriptionsService,
     protected jobsService: JobsService,
+    private customJobsService: CustomJobsService,
   ) {}
 
   /**
@@ -126,6 +130,53 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
     return finding[varKey];
   }
 
+  private async getParametersForCustomJobSubscription(
+    sub: Subscription,
+  ): Promise<JobParameter[] | undefined> {
+    const customJobNameParam = sub.jobParameters.find(
+      (param) => param.name.toLowerCase() === 'customjobname',
+    );
+
+    if (!customJobNameParam) {
+      this.logger.error(
+        `Invalid subscription <${sub.name}> : The subscription has the job.name CustomJob, but the parameter customJobName is missing.`,
+      );
+      return undefined;
+    }
+
+    if (typeof customJobNameParam.value !== 'string') {
+      this.logger.error(
+        `Invalid subscription <${sub.name}> : The parameter customJobName's value must be of type string.`,
+      );
+      return undefined;
+    }
+
+    const customJobEntry = await this.customJobsService.getByName(
+      customJobNameParam.value,
+    );
+
+    if (!customJobEntry) {
+      this.logger.error(
+        `Invalid subscription <${sub.name}> : A CustomJob named <${customJobNameParam.value}> was not found.`,
+      );
+      return undefined;
+    }
+    const customJobParams = JSON.parse(JSON.stringify(sub.jobParameters));
+    const jobParameters = [];
+    jobParameters.push({ name: 'name', value: customJobEntry.name });
+    jobParameters.push({ name: 'code', value: customJobEntry.code });
+    jobParameters.push({ name: 'type', value: customJobEntry.type });
+    jobParameters.push({
+      name: 'language',
+      value: customJobEntry.language,
+    });
+    jobParameters.push({
+      name: 'customJobParameters',
+      value: customJobParams,
+    });
+    return jobParameters;
+  }
+
   /**
    * Validates that all the job's conditions are met
    * If even one condition is invalid, the job should not be executed
@@ -181,6 +232,19 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
           param.value,
           command.finding,
         );
+      }
+
+      if (jobDefinition.name === CustomJob.name) {
+        // Adding the parameters specific to a CustomJob.
+        // The jobParameters array will be customized for the CustomJob
+        // All the subscription's parameters are actually customJobParameters
+        // and the actual parameters come from the CustomJobEntry in the database
+        // If an error occures, undefined is returned.
+        sub.jobParameters = await this.getParametersForCustomJobSubscription(
+          sub,
+        );
+
+        if (!sub.jobParameters) continue;
       }
 
       // Adding the companyId JobParameter to every job as it is always needed

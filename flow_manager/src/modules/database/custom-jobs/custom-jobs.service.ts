@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { CustomJobDto } from './custom-jobs.dto';
-import { CustomJob } from './custom-jobs.model';
+import { CustomJobEntry } from './custom-jobs.model';
 
 @Injectable()
 export class CustomJobsService {
@@ -10,11 +10,11 @@ export class CustomJobsService {
 
   constructor(
     @InjectModel('customJobs')
-    private readonly customJobModel: Model<CustomJob>,
+    private readonly customJobModel: Model<CustomJobEntry>,
   ) {}
 
   public async create(dto: CustomJobDto) {
-    const job: CustomJob = {
+    const job: CustomJobEntry = {
       name: dto.name,
       code: dto.code,
       type: dto.type,
@@ -28,7 +28,7 @@ export class CustomJobsService {
   }
 
   public async edit(id: string, dto: CustomJobDto) {
-    const job: CustomJob = {
+    const job: CustomJobEntry = {
       name: dto.name,
       code: dto.code,
       type: dto.type,
@@ -44,5 +44,9 @@ export class CustomJobsService {
     return await this.customJobModel.deleteOne({
       _id: { $eq: new Types.ObjectId(id) },
     });
+  }
+
+  public async getByName(name: string) {
+    return await this.customJobModel.findOne({ name: { $eq: name } });
   }
 }
