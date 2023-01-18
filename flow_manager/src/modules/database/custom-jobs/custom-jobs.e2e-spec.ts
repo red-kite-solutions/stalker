@@ -11,50 +11,16 @@ import {
 import { AppModule } from '../../app.module';
 import { Role } from '../../auth/constants';
 
-describe('Subscriptions Controller (e2e)', () => {
+describe('Custom Jobs Controller (e2e)', () => {
   let app: INestApplication;
   let testData: TestingData;
-  let companyName = 'subscriptionCompany';
-  let companyId: string;
-  let subscriptionId: string;
+  let customJobId: string;
 
-  const subscription = {
-    name: 'My test subscription',
-    finding: 'HostnameIpFinding',
-    jobName: 'TcpPortScanningJob',
-    jobParameters: [
-      {
-        name: 'targetIp',
-        value: '${ip}',
-      },
-      {
-        name: 'socketTimeoutSeconds',
-        value: 1,
-      },
-      {
-        name: 'thread',
-        value: 10,
-      },
-      {
-        name: 'portMin',
-        value: 1,
-      },
-      {
-        name: 'portMax',
-        value: 1000,
-      },
-      {
-        name: 'ports',
-        value: '[1234, 3389, 8080]',
-      },
-    ],
-    conditions: [
-      {
-        lhs: 'asdf',
-        operator: 'contains',
-        rhs: 'qwerty',
-      },
-    ],
+  const customJob = {
+    name: 'My custom job',
+    type: 'code',
+    code: 'print("custom job controller e2e")',
+    language: 'python',
   };
 
   beforeAll(async () => {
@@ -71,63 +37,60 @@ describe('Subscriptions Controller (e2e)', () => {
     );
     await app.init();
     testData = await initTesting(app);
-
-    let r = await postReq(app, testData.user.token, '/company', {
-      name: companyName,
-    });
-    companyId = r.body._id;
   });
 
-  it('Should create a subscription (POST /subscriptions)', async () => {
+  it('Should create a custom job (POST /custom-jobs)', async () => {
     // arrange & act
-    const r = await postReq(app, testData.user.token, '/subscriptions', {
-      companyId: companyId,
-      ...subscription,
-    });
+    const r = await postReq(
+      app,
+      testData.user.token,
+      '/custom-jobs',
+      customJob,
+    );
+
     // assert
     expect(r.statusCode).toBe(HttpStatus.CREATED);
     expect(r.body._id).toBeTruthy();
-    subscriptionId = r.body._id;
+    customJobId = r.body._id;
   });
 
-  it('Should get the list of subscriptions (GET /subscriptions)', async () => {
+  it('Should get the list of custom jobs (GET /custom-jobs)', async () => {
     // arrange & act
-    const r = await getReq(app, testData.user.token, '/subscriptions');
+    const r = await getReq(app, testData.user.token, '/custom-jobs');
     // assert
     expect(r.statusCode).toBe(HttpStatus.OK);
-    expect(r.body[0]._id).toBe(subscriptionId);
-    expect(r.body[0].name).toBe(subscription.name);
+    expect(r.body[0]._id).toBe(customJobId);
+    expect(r.body[0].name).toBe(customJob.name);
   });
 
-  it('Should edit a subscription (POST /subscriptions/{id})', async () => {
+  it('Should edit a custom job (POST /custom-jobs/{id})', async () => {
     // arrange
-    const changedName = 'My changed name';
+    const changedCode = 'print("this code is changed")';
     // act
     let r = await postReq(
       app,
       testData.user.token,
-      `/subscriptions/${subscriptionId}`,
+      `/custom-jobs/${customJobId}`,
       {
-        companyId: companyId,
-        ...subscription,
-        name: changedName,
+        ...customJob,
+        code: changedCode,
       },
     );
     // assert
     expect(r.statusCode).toBe(HttpStatus.CREATED);
 
-    r = await getReq(app, testData.user.token, '/subscriptions');
+    r = await getReq(app, testData.user.token, '/custom-jobs');
     expect(r.statusCode).toBe(HttpStatus.OK);
-    expect(r.body[0]._id).toBe(subscriptionId);
-    expect(r.body[0].name).toBe(changedName);
+    expect(r.body[0]._id).toBe(customJobId);
+    expect(r.body[0].code).toBe(changedCode);
   });
 
-  it('Should delete a subscription by id (DELETE /subscriptions/{id})', async () => {
+  it('Should delete a custom job by id (DELETE /custom-jobs/{id})', async () => {
     // arrange & act
     const r = await deleteReq(
       app,
       testData.user.token,
-      `/subscriptions/${subscriptionId}`,
+      `/custom-jobs/${customJobId}`,
     );
     // assert
     expect(r.statusCode).toBe(HttpStatus.OK);
@@ -137,29 +100,29 @@ describe('Subscriptions Controller (e2e)', () => {
   // ########## Authorizations ##########
   // ####################################
 
-  it('Should have proper authorizations (GET /subscriptions)', async () => {
+  it('Should have proper authorizations (GET /custom-jobs)', async () => {
     const success = await checkAuthorizations(
       testData,
       Role.ReadOnly,
       async (givenToken: string) => {
-        return await getReq(app, givenToken, `/subscriptions`);
+        return await getReq(app, givenToken, `/custom-jobs`);
       },
     );
     expect(success).toBe(true);
   });
 
-  it('Should have proper authorizations (POST /subscriptions)', async () => {
+  it('Should have proper authorizations (POST /custom-jobs)', async () => {
     const success = await checkAuthorizations(
       testData,
       Role.User,
       async (givenToken: string) => {
-        return await postReq(app, givenToken, `/subscriptions`, {});
+        return await postReq(app, givenToken, `/custom-jobs`, {});
       },
     );
     expect(success).toBe(true);
   });
 
-  it('Should have proper authorizations (POST /subscriptions/{id})', async () => {
+  it('Should have proper authorizations (POST /custom-jobs/{id})', async () => {
     const success = await checkAuthorizations(
       testData,
       Role.User,
@@ -167,7 +130,7 @@ describe('Subscriptions Controller (e2e)', () => {
         return await postReq(
           app,
           givenToken,
-          `/subscriptions/${subscriptionId}`,
+          `/custom-jobs/${customJobId}`,
           {},
         );
       },
@@ -175,23 +138,18 @@ describe('Subscriptions Controller (e2e)', () => {
     expect(success).toBe(true);
   });
 
-  it('Should have proper authorizations (DELETE /subscriptions)', async () => {
+  it('Should have proper authorizations (DELETE /custom-jobs)', async () => {
     const success = await checkAuthorizations(
       testData,
       Role.User,
       async (givenToken: string) => {
-        return await deleteReq(
-          app,
-          givenToken,
-          `/subscriptions/${subscriptionId}`,
-        );
+        return await deleteReq(app, givenToken, `/custom-jobs/${customJobId}`);
       },
     );
     expect(success).toBe(true);
   });
 
   afterAll(async () => {
-    await deleteReq(app, testData.user.token, `/company/${companyId}`);
     await app.close();
   });
 });
