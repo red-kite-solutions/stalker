@@ -6,7 +6,7 @@ namespace Orchestrator.Jobs.JobTemplates;
 public class PythonCustomJobTemplate : PythonJobTemplate
 {
 
-    public PythonCustomJobTemplate(string? id, string @namespace, JobParameter[]? jobParameters, string? code) : base(id, @namespace)
+    public PythonCustomJobTemplate(string? id, IConfiguration config, JobParameter[]? jobParameters, string? code) : base(id, config)
     {
         // Ajouter manuellement les parametres en variable d'environnement
         if (!jobParameters.IsNullOrEmpty())
@@ -23,5 +23,10 @@ public class PythonCustomJobTemplate : PythonJobTemplate
             Console.WriteLine("Giving code : " + code);
             PythonCommand = code!;
         }
+
+        int? timeout = config.GetSection("Jobs").GetSection("CustomJobs").GetValue<int>("Timeout");
+        if (timeout == null) throw new NullReferenceException("Setting Timeout is missing.");
+
+        Timeout = timeout;
     }
 }

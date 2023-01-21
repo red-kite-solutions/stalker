@@ -40,7 +40,6 @@ public class KubernetesFacade : IKubernetesFacade
         limitQuantity["memory"] = new ResourceQuantity(jobTemplate.MemoryKiloBytesLimit.ToString() + "Ki");
 
         V1ResourceRequirements ressources = new V1ResourceRequirements(limitQuantity);
-        
 
         var kubernetesJob = new V1Job("batch/v1", "Job",
             new V1ObjectMeta
@@ -65,10 +64,10 @@ public class KubernetesFacade : IKubernetesFacade
                                 }
                         },
                         RestartPolicy = "Never",
-                        
                     },
                 },
                 BackoffLimit = jobTemplate.MaxRetries,
+                ActiveDeadlineSeconds = jobTemplate.Timeout,
             });
 
         Logger.LogDebug($"Creating job {jobName} in namespace {jobTemplate.Namespace}");

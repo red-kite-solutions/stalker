@@ -34,7 +34,7 @@ public class KubernetesJobTemplate
     /// <summary>
     /// Gets the namespace the job should be created in.
     /// </summary>
-    public string Namespace { get; init; } = "default";
+    public string Namespace { get; set; } = "default";
 
     private int? _MilliCpuLimit;
 
@@ -75,6 +75,25 @@ public class KubernetesJobTemplate
         {
             if (value <= 0) return;
             _MemoryKiloBytesLimit = value <= MaxMemory ? value : MaxMemory;
+        }
+    }
+
+    private int? _Timeout;
+
+    /// <summary>
+    /// How long in seconds a job can run before it will be terminated by the system. A value of null
+    /// will last indefinetly.
+    /// </summary>
+    public int? Timeout 
+    { 
+        get
+        {
+            return _Timeout;
+        }
+        set
+        {
+            if (value <= 0) return;
+            _Timeout = value;
         }
     }
 }
