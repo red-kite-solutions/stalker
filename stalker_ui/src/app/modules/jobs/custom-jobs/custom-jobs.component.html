@@ -69,7 +69,8 @@
     <div fxLayout="column" class="code-editor-container">
       <mat-form-field appearance="outline">
         <mat-label i18n="Name|Name">Name</mat-label>
-        <input matInput [(ngModel)]="customJobName" />
+        <input matInput [formControl]="customJobNameFormControl" required />
+        <mat-error i18n="Name required|The name input is required">Name is required</mat-error>
       </mat-form-field>
       <app-code-editor
         [(code)]="code"

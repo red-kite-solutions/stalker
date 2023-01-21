@@ -1,4 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
+import { FormControl, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
@@ -19,7 +20,7 @@ import { CustomJob, CustomJobData } from '../../../shared/types/custom-job';
   styleUrls: ['./custom-jobs.component.scss'],
 })
 export class CustomJobsComponent {
-  public customJobName = '';
+  public customJobNameFormControl = new FormControl('', [Validators.required]);
   public code = '';
   public currentCodeBackup: string | undefined;
   public language = 'python';
@@ -94,7 +95,7 @@ export class CustomJobsComponent {
   private newCustomJobNext() {
     this.isInNewCustomJobContext = true;
     this.selectedRow = undefined;
-    this.customJobName = '';
+    this.customJobNameFormControl.setValue('');
     this.code = '';
     this.currentCodeBackup = this.code;
   }
@@ -110,17 +111,18 @@ export class CustomJobsComponent {
     const rowData = this.data.find((v) => v._id === this.tempSelectedRow?._id);
     if (rowData?._id) this.currentCustomJobId = rowData._id;
 
-    this.customJobName = rowData?.name ? rowData.name : '';
+    this.customJobNameFormControl.setValue(rowData?.name ? rowData.name : '');
     this.code = rowData?.code ? rowData.code : '';
     this.currentCodeBackup = this.code;
   }
 
   public async saveCustomJobEdits() {
-    if (!this.customJobName) {
+    if (!this.customJobNameFormControl.valid || !this.customJobNameFormControl.value) {
+      this.customJobNameFormControl.markAsTouched();
       this.toastr.error($localize`:Empty Name|A job name is required:Name job before submitting`);
       return;
     }
-    const name = this.customJobName;
+    const name = this.customJobNameFormControl.value;
 
     if (!this.code) {
       this.toastr.error(
@@ -201,7 +203,7 @@ export class CustomJobsComponent {
         this.isInNewCustomJobContext = true;
         this.selectedRow = undefined;
         this.tempSelectedRow = undefined;
-        this.customJobName = '';
+        this.customJobNameFormControl.setValue('');
       },
     };
 
