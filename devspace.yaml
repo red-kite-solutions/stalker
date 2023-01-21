@@ -40,7 +40,7 @@ pipelines:
       wait_pod --label-selector app.kubernetes.io/component=orchestrator --timeout 240
 
       create_deployments network-policies
-      create_deployments resource-quotas
+      # create_deployments resource-quotas
 
       # Start microservices + ui
       start_dev orchestrator flow-manager ui
