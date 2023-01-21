@@ -6,6 +6,8 @@ public class KubernetesJobTemplate
 {
     private readonly int MaxCpu = 2000;
     private readonly int MaxMemory = 2048 * 1024;
+    private readonly int DefaultCpu = 100;
+    private readonly int DefaultMemory = 300 * 1024;
 
     public string Id { get; init; }
 
@@ -45,7 +47,7 @@ public class KubernetesJobTemplate
     {
         get
         {
-            return _MilliCpuLimit;
+            return _MilliCpuLimit != null ? _MilliCpuLimit : DefaultCpu;
         }
         init
         {
@@ -67,7 +69,7 @@ public class KubernetesJobTemplate
     {
         get
         {
-            return _MemoryKiloBytesLimit;
+            return _MemoryKiloBytesLimit != null ? _MemoryKiloBytesLimit : DefaultMemory;
         }
         init
         {
