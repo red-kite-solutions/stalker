@@ -5,9 +5,9 @@ vars:
   STALKER_ENVIRONMENT: dev
 
 imports:
-  - path: devspace.base.yaml
   - path: devspace.dev.yaml
     enabled: $(is_equal ${STALKER_ENVIRONMENT} "dev")
+  - path: devspace.base.yaml
 
 pipelines:
   build:
@@ -20,6 +20,7 @@ pipelines:
 
   dev:
     run: |-
+      create_deployments namespaces
       build_images ui flow-manager orchestrator
       create_deployments mongo kafka --sequential
 
@@ -33,6 +34,13 @@ pipelines:
 
       create_deployments ui flow-manager orchestrator-service-account orchestrator --sequential
 
+      # Wait for last services before applying network policies
+      wait_pod --label-selector app.kubernetes.io/component=ui --timeout 240
+      wait_pod --label-selector app.kubernetes.io/component=flow-manager --timeout 240
+      wait_pod --label-selector app.kubernetes.io/component=orchestrator --timeout 240
+
+      create_deployments network-policies
+
       # Start microservices + ui
       start_dev orchestrator flow-manager ui
 
@@ -42,6 +50,7 @@ pipelines:
         short: w
         type: bool
     run: |-
+      create_deployments namespaces
       build_images flow-manager-e2e orchestrator
       create_deployments mongo kafka orchestrator-service-account orchestrator flow-manager-e2e --sequential
 
@@ -168,6 +177,7 @@ deployments:
             - containerPort: 4200
               port: 4200
               protocol: TCP
+
   mongo:
     helm:
       chart:
@@ -209,6 +219,22 @@ deployments:
             - containerPort: 5135
               port: 5135
               protocol: TCP
+
+  namespaces:
+    kubectl:
+      manifests:
+        - jobs/namespace.yml
+
+  network-policies:
+    kubectl:
+      manifests:
+        - network-policy.yml
+        - stalker_ui/${NETWORK_POLICY}
+        - database/${NETWORK_POLICY}
+        - flow_manager/${NETWORK_POLICY}
+        - queue/${NETWORK_POLICY}
+        - orchestrator/${NETWORK_POLICY}
+        - jobs/${NETWORK_POLICY}
 
 dev:
   mongo:

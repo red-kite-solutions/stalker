@@ -12,6 +12,6 @@ public class TcpPortScanningCommand : KubernetesCommand<TcpPortScanningJobReques
 
     public TcpPortScanningCommand(TcpPortScanningJobRequest request, IKubernetesFacade kubernetes, IMessagesProducer<JobEventMessage> eventsProducer, IFindingsParser parser, ILogger<TcpPortScanningCommand> logger, PythonJobTemplateProvider jobProvider) : base(request, kubernetes, eventsProducer, parser, logger)
     {
-        JobTemplate = new TcpPortScanningJobTemplate(request.JobId, "stalker", request.TargetIp, request.Threads, request.SocketTimeoutSeconds, request.PortMin, request.PortMax, request.Ports, jobProvider);
+        JobTemplate = new TcpPortScanningJobTemplate(request.JobId, "stalker-jobs", request.TargetIp, request.Threads, request.SocketTimeoutSeconds, request.PortMin, request.PortMax, request.Ports, jobProvider);
     }
 }
