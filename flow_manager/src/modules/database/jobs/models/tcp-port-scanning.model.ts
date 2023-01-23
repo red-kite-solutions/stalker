@@ -27,7 +27,7 @@ export class TcpPortScanningJob {
   @Prop()
   public ports!: number[];
 
-  public static createTcpPortScanJob(
+  private static createTcpPortScanJob(
     companyId: string,
     targetIp: string,
     threads: number,

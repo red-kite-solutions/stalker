@@ -16,7 +16,7 @@ export class DomainNameResolvingJob {
   @Prop()
   public domainName!: string;
 
-  public static createDomainResolvingJob(
+  private static createDomainResolvingJob(
     companyId: string,
     domainName: string,
   ) {

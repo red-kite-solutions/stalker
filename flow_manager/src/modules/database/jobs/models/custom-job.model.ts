@@ -59,7 +59,7 @@ export class CustomJob {
     );
   }
 
-  public static createCustomJob(
+  private static createCustomJob(
     companyId: string,
     name: string,
     type: string,
