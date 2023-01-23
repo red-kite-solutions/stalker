@@ -42,7 +42,18 @@ The finding object must contain the `type` field. Here is a list of available ty
 
 A hostname ip finding creates a new host and attaches it to a given domain.
 
-| Field    | Description                                |\
+| Field    | Description                                |
+| -------- | ------------------------------------------ |
+| `domain` | The domain to which to attach the new host |
+| `ip`     | The ip                                     |
+
+Example:
+
+```json
+{
+  "type": "HostnameIpFinding",
+  "domain": "stalker.is",
+  "ip": "0.0.0.0"
 }
 ```
 
