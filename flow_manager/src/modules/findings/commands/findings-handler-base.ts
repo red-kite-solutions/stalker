@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { ICommandHandler } from '@nestjs/cqrs';
 import { CustomJobsService } from '../../database/custom-jobs/custom-jobs.service';
-import { JobDefinitions } from '../../database/jobs/job-model.module';
+import { JobFactory } from '../../database/jobs/jobs.factory';
 import { JobsService } from '../../database/jobs/jobs.service';
 import { CustomJob } from '../../database/jobs/models/custom-job.model';
 import { Job } from '../../database/jobs/models/jobs.model';
@@ -218,8 +218,6 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
     );
 
     for (const sub of subs) {
-      const jobDefinition = JobDefinitions.find((j) => j.name === sub.jobName);
-
       // Validate that, according to the conditions, the job should be executed.
       // If not, then we go straight for the other subscription
       if (!this.shouldExecute(sub.conditions, command)) continue;
@@ -234,7 +232,7 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
         );
       }
 
-      if (jobDefinition.name === CustomJob.name) {
+      if (sub.jobName === CustomJob.name) {
         // Adding the parameters specific to a CustomJob.
         // The jobParameters array will be customized for the CustomJob
         // All the subscription's parameters are actually customJobParameters
@@ -254,7 +252,7 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
       sub.jobParameters.push(companyIdParameter);
 
       // Launching the generic function that creates the appropriate job and publishing it
-      const job: Job = jobDefinition.pointer(sub.jobParameters);
+      const job: Job = JobFactory.createJob(sub.jobName, sub.jobParameters);
       if (job !== null) this.jobsService.publish(job);
     }
 
