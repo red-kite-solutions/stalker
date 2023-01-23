@@ -1,5 +1,5 @@
 import { MongooseModule } from '@nestjs/mongoose';
-import { JobsService } from './jobs.service';
+import { JobDefinition } from '../../../types/job-definition.type';
 import { CustomJob, CustomJobSchema } from './models/custom-job.model';
 import {
   DomainNameResolvingJob,
@@ -11,21 +11,21 @@ import {
   TcpPortScanningJobSchema,
 } from './models/tcp-port-scanning.model';
 
-export const JobDefinitions = [
+export const JobDefinitions: JobDefinition[] = [
   {
     name: DomainNameResolvingJob.name,
     schema: DomainNameResolvingJobSchema,
-    pointer: JobsService.createDomainResolvingJob_,
+    create: DomainNameResolvingJob.create,
   },
   {
     name: TcpPortScanningJob.name,
     schema: TcpPortScanningJobSchema,
-    pointer: JobsService.createTcpPortScanJob_,
+    create: TcpPortScanningJob.create,
   },
   {
     name: CustomJob.name,
     schema: CustomJobSchema,
-    pointer: JobsService.createCustomJob_,
+    create: CustomJob.create,
   },
 ];
 

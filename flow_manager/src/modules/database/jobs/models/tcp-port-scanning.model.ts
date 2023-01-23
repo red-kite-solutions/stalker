@@ -1,5 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { isArray, isInt, isMongoId, isNumber } from 'class-validator';
 import { Document } from 'mongoose';
+import { isIP } from 'net';
+import { JobParameterValueException } from '../../../../exceptions/job-parameter.exception';
+import { JobParameter } from '../../subscriptions/subscriptions.model';
+import { JobFactoryUtils } from '../jobs.factory';
 
 export type JobDocument = TcpPortScanningJob & Document;
 
@@ -21,6 +26,94 @@ export class TcpPortScanningJob {
   public portMax!: number;
   @Prop()
   public ports!: number[];
+
+  public static createTcpPortScanJob(
+    companyId: string,
+    targetIp: string,
+    threads: number,
+    socketTimeoutSeconds: number,
+    portMin: number,
+    portMax: number,
+    ports: number[] = [],
+  ) {
+    const job = new TcpPortScanningJob();
+    job.task = TcpPortScanningJob.name;
+    job.priority = 3;
+    job.companyId = companyId;
+    job.targetIp = targetIp;
+    job.threads = threads;
+    job.socketTimeoutSeconds = socketTimeoutSeconds;
+    job.portMin = portMin;
+    job.portMax = portMax;
+    job.ports = ports;
+
+    const jobName = TcpPortScanningJob.name;
+
+    if (!isMongoId(job.companyId)) {
+      throw new JobParameterValueException('companyId', job.companyId);
+    }
+
+    if (isIP(job.targetIp) !== 4) {
+      throw new JobParameterValueException('targetIp', job.targetIp);
+    }
+
+    if (!isInt(job.threads) || !(job.threads > 0 && job.threads <= 1000)) {
+      throw new JobParameterValueException('threads', job.threads);
+    }
+
+    if (
+      !isNumber(job.socketTimeoutSeconds) ||
+      !(job.socketTimeoutSeconds > 0 && job.socketTimeoutSeconds <= 3)
+    ) {
+      throw new JobParameterValueException(
+        'socketTimeoutSeconds',
+        job.socketTimeoutSeconds,
+      );
+    }
+
+    if (!isInt(job.portMin) || !(job.portMin > 0 && job.portMin < 65535)) {
+      throw new JobParameterValueException('portMin', job.portMin);
+    }
+
+    if (
+      !isInt(job.portMax) ||
+      !(job.portMax > 1 && job.portMax <= 65535 && job.portMax > job.portMin)
+    ) {
+      throw new JobParameterValueException('portMax', job.portMax);
+    }
+
+    if (
+      !isArray(job.ports) ||
+      job.ports.some((v) => !isInt(v) && v <= 0 && v > 65535)
+    ) {
+      throw new JobParameterValueException('ports', job.ports);
+    }
+
+    return job;
+  }
+
+  public static create(args: JobParameter[]) {
+    let params = {};
+    params['companyid'] = undefined;
+    params['targetip'] = undefined;
+    params['threads'] = undefined;
+    params['sockettimeoutseconds'] = undefined;
+    params['portmin'] = undefined;
+    params['portmax'] = undefined;
+    params['ports'] = undefined;
+
+    params = JobFactoryUtils.bindFunctionArguments(params, args);
+
+    return TcpPortScanningJob.createTcpPortScanJob(
+      params['companyid'],
+      params['targetip'],
+      params['threads'],
+      params['sockettimeoutseconds'],
+      params['portmin'],
+      params['portmax'],
+      params['ports'],
+    );
+  }
 }
 
 export const TcpPortScanningJobSchema =
