@@ -49,7 +49,7 @@ export class CustomJobsComponent {
     this.codeEditorService.load();
     this.code = '';
     this.currentCodeBackup = this.code;
-    this.titleService.setTitle($localize`:Subscriptions list page title|:Subscriptions`);
+    this.titleService.setTitle($localize`:Custom Jobs|:Custom Jobs`);
   }
 
   private refreshData() {
