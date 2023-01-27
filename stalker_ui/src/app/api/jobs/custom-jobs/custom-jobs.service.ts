@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { CustomJob, CustomJobData } from '../../../shared/types/custom-job';
+import { CustomJob, CustomJobData } from '../../../shared/types/jobs/custom-job.type';
 
 @Injectable({
   providedIn: 'root',

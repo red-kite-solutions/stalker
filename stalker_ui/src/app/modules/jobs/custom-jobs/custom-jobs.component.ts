@@ -12,7 +12,7 @@ import {
   ConfirmDialogData,
 } from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
 import { CustomJobsService } from '../../../api/jobs/custom-jobs/custom-jobs.service';
-import { CustomJob, CustomJobData } from '../../../shared/types/custom-job';
+import { CustomJob, CustomJobData } from '../../../shared/types/jobs/custom-job.type';
 
 @Component({
   selector: 'app-custom-jobs',

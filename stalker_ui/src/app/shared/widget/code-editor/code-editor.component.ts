@@ -104,7 +104,7 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
         enabled: this._minimapEnabled,
       },
       theme: this._theme,
-      readonly: this._readonly,
+      readOnly: this._readonly,
       tabSize: this._tabSize,
     };
 
