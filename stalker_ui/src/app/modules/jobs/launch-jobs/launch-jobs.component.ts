@@ -6,11 +6,11 @@ import { Title } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
 import { map } from 'rxjs';
 import { CodeEditorService } from 'src/app/shared/widget/code-editor/code-editor.service';
-import { parseDocument, stringify } from 'yaml';
+import { parse, parseDocument, stringify } from 'yaml';
 import { CompaniesService } from '../../../api/companies/companies.service';
 import { JobsService } from '../../../api/jobs/jobs/jobs.service';
 import { CompanySummary } from '../../../shared/types/company/company.summary';
-import { Job, JobListEntry } from '../../../shared/types/jobs/job.type';
+import { JobInput, JobListEntry, StartedJob } from '../../../shared/types/jobs/job.type';
 
 @Component({
   selector: 'app-launch-jobs',
@@ -24,6 +24,7 @@ export class LaunchJobsComponent {
   public minimapEnabled = false;
   public theme: 'vs-dark' = 'vs-dark';
   public readonly = false;
+  public currentStartedJob: StartedJob | undefined;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   dataSource = new MatTableDataSource<JobListEntry>();
@@ -62,7 +63,7 @@ export class LaunchJobsComponent {
   private refreshData() {
     return this.jobsService.getJobs().pipe(
       map((data) => {
-        const d = data.map((job: Job): JobListEntry => {
+        const d = data.map((job: JobInput): JobListEntry => {
           return { ...job, source: 'Stalker' };
         });
         this.data = d;
@@ -104,7 +105,37 @@ export class LaunchJobsComponent {
     return jobYml.toString();
   }
 
-  public startJob() {
-    console.log('Start Job');
+  public async startJob() {
+    if (!this.currentJobName) {
+      this.toastr.error($localize`:Select a job to run|No job were selected as a target to run:Select a job to run`);
+      return;
+    }
+
+    let parameters;
+    try {
+      parameters = parse(this.code).parameters;
+    } catch {
+      this.toastr.error($localize`:Yaml syntax error|The yaml was not in the expected format:Yaml syntax error`);
+      return;
+    }
+
+    if (!parameters) {
+      this.toastr.error(
+        $localize`:Missing Yaml field parameters|The yaml was missing the field named parameters:Missing Yaml field parameters`
+      );
+      return;
+    }
+
+    try {
+      if (this.selectedCompany) {
+        this.currentStartedJob = await this.jobsService.startJob(this.currentJobName, parameters, this.selectedCompany);
+      } else {
+        this.currentStartedJob = await this.jobsService.startJob(this.currentJobName, parameters);
+      }
+    } catch {
+      this.toastr.error(
+        $localize`:Error while starting job|There was an error while starting the job:Error while starting job`
+      );
+    }
   }
 }

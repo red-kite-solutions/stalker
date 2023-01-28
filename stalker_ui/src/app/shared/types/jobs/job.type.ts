@@ -1,4 +1,4 @@
-export interface JobListEntry extends Job {
+export interface JobListEntry extends JobInput {
   source: string;
 }
 
@@ -7,7 +7,12 @@ export interface JobParameterDefinition {
   type: string;
 }
 
-export interface Job {
+export interface JobInput {
   name: string;
   parameters: JobParameterDefinition[];
+}
+
+export interface StartedJob extends JobInput {
+  _id: string;
+  running: boolean;
 }
