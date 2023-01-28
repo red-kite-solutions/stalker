@@ -85,7 +85,7 @@ export class LaunchJobsComponent {
     delete jobCopy.name;
     delete jobCopy.source;
     jobCopy.parameters = jobCopy.parameters.map((item: any) => {
-      return { ...item, value: null };
+      return { ...item, value: 'Change Me' };
     });
     console.log(job.parameters);
     const jobYml: any = parseDocument(stringify(jobCopy));
@@ -96,14 +96,13 @@ export class LaunchJobsComponent {
     // Gets the value of the 'type' field to set it as a comment
     // It will help the user in knowing what to put in the 'value'
     for (const param of parameters.items) {
-      // console.log(param.items);
       const index = param.items.findIndex((kv: any) => kv.key.value === 'type');
-      const comment = ' type: ' + param.items[index].value.value;
+      const comment = ' Expecting type ' + param.items[index].value.value;
       param.items.splice(index, 1);
-      param.commentBefore = comment;
+
+      param.items.find((kv: any) => kv.key.value === 'value').value.comment = comment;
     }
 
-    // console.log(jobYml);
     return jobYml.toString();
   }
 
