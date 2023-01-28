@@ -9,4 +9,4 @@
   </div>
 </div>
 
-<span class="date">{{ finding?.created | timeAgo }}</span>
+<span class="date" [matTooltip]="(finding?.created | date: 'medium') || ''">{{ finding?.created | timeAgo }}</span>
