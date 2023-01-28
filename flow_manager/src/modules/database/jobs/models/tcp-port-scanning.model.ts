@@ -3,6 +3,7 @@ import { isArray, isInt, isMongoId, isNumber } from 'class-validator';
 import { Document } from 'mongoose';
 import { isIP } from 'net';
 import { JobParameterValueException } from '../../../../exceptions/job-parameter.exception';
+import { JobParameterDefinition } from '../../../../types/job-parameter-definition.type';
 import { JobParameter } from '../../subscriptions/subscriptions.model';
 import { JobFactoryUtils } from '../jobs.factory';
 
@@ -26,6 +27,15 @@ export class TcpPortScanningJob {
   public portMax!: number;
   @Prop()
   public ports!: number[];
+
+  public static parameterDefinitions: JobParameterDefinition[] = [
+    { name: 'targetIp', type: 'string' },
+    { name: 'threads', type: 'number' },
+    { name: 'socketTimeoutSeconds', type: 'number' },
+    { name: 'portMin', type: 'number' },
+    { name: 'portMax', type: 'number' },
+    { name: 'ports', type: 'number[]' },
+  ];
 
   private static createTcpPortScanJob(
     companyId: string,

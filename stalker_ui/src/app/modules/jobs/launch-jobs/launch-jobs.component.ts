@@ -87,10 +87,8 @@ export class LaunchJobsComponent {
     jobCopy.parameters = jobCopy.parameters.map((item: any) => {
       return { ...item, value: 'Change Me' };
     });
-    console.log(job.parameters);
     const jobYml: any = parseDocument(stringify(jobCopy));
 
-    // jobYml.contents.items[0].value.items[0].commentBefore = 'This is a comment';
     const parameters = jobYml.contents.items[0].value;
 
     // Gets the value of the 'type' field to set it as a comment

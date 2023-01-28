@@ -44,7 +44,7 @@ export class SubscriptionDto {
   public conditions?: JobConditionDto[];
 }
 
-class JobParameterDto {
+export class JobParameterDto {
   @IsString()
   public name!: string;
 

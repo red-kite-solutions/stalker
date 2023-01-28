@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import {
   IsArray,
   IsBase64,
@@ -5,10 +6,13 @@ import {
   IsIn,
   IsIP,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
+  ValidateNested,
 } from 'class-validator';
+import { JobTypes } from '../jobs/job-model.module';
+import { JobParameterDto } from '../subscriptions/subscriptions.dto';
+import { JobParameter } from '../subscriptions/subscriptions.model';
 
 export class CreateCompanyDto {
   @IsNotEmpty()
@@ -65,11 +69,14 @@ export class SubmitHostsDto {
 }
 
 export class CreateJobDto {
+  @IsIn(JobTypes)
   @IsNotEmpty()
   @IsString()
   public task!: string;
 
-  @IsNotEmpty()
-  @IsNumber()
-  public priority!: number;
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => JobParameterDto)
+  @IsOptional()
+  public jobParameters!: JobParameter[];
 }

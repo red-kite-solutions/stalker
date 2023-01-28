@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { isFQDN, isMongoId } from 'class-validator';
 import { Document } from 'mongoose';
 import { JobParameterValueException } from '../../../../exceptions/job-parameter.exception';
+import { JobParameterDefinition } from '../../../../types/job-parameter-definition.type';
 import { JobParameter } from '../../subscriptions/subscriptions.model';
 import { JobFactoryUtils } from '../jobs.factory';
 
@@ -15,6 +16,10 @@ export class DomainNameResolvingJob {
 
   @Prop()
   public domainName!: string;
+
+  public static parameterDefinitions: JobParameterDefinition[] = [
+    { name: 'domainName', type: 'string' },
+  ];
 
   private static createDomainResolvingJob(
     companyId: string,

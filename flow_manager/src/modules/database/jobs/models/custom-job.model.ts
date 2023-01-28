@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { isArray, isEmpty, isIn, isMongoId, isString } from 'class-validator';
 import { Document } from 'mongoose';
 import { JobParameterValueException } from '../../../../exceptions/job-parameter.exception';
+import { JobParameterDefinition } from '../../../../types/job-parameter-definition.type';
 import {
   environmentVariableConflict,
   environmentVariableRegex,
@@ -37,6 +38,10 @@ export class CustomJob {
   public customJobParameters!: JobParameter[];
 
   constructor() {}
+
+  // No parameter definition for custom jobs since we cannot know
+  // the parameters in advance, at least not in that way
+  public static parameterDefinitions: JobParameterDefinition[] = [];
 
   public static create(args: JobParameter[]): Job {
     let params = {};
