@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { HttpNotFoundException } from '../../../exceptions/http.exceptions';
 import { JobsService } from '../jobs/jobs.service';
 import { Job } from '../jobs/models/jobs.model';
@@ -8,6 +8,7 @@ import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 import { CreateCompanyDto } from './company.dto';
 import { Company, CompanyDocument } from './company.model';
 import { DomainsService } from './domain/domain.service';
+import { CustomFinding } from './findings/finding.model';
 import { HostService } from './host/host.service';
 
 @Injectable()
@@ -18,6 +19,8 @@ export class CompanyService {
     private readonly hostsService: HostService,
     private readonly jobsService: JobsService,
     private readonly subscriptionsService: SubscriptionsService,
+    @InjectModel('finding')
+    private readonly findingModel: Model<CustomFinding>,
   ) {}
 
   public async getAll(
@@ -70,6 +73,9 @@ export class CompanyService {
     await this.domainsService.deleteAllForCompany(id);
     await this.jobsService.deleteAllForCompany(id);
     await this.subscriptionsService.deleteAllForCompany(id);
+    await this.findingModel.deleteMany({
+      companyId: { $eq: new Types.ObjectId(id) },
+    });
     return result;
   }
 
