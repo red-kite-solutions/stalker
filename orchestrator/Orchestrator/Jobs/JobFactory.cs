@@ -27,7 +27,7 @@ public class JobFactory : IJobFactory
         Logger = loggerFactoryFactory.CreateLogger<JobFactory>();
         Config = config;
 
-        string? pythonJobTemplatePath = config.GetSection("Jobs").GetSection("JobsProvider").GetValue<string>("PythonTemplatesPath");
+        string? pythonJobTemplatePath = config.GetSection("Jobs").GetSection("JobsProvider").GetValue<string>("PythonTemplatesPath");
         if (pythonJobTemplatePath == null) throw new NullReferenceException("Setting PythonTemplatesPath is missing.");
 
         JobProvider = new PythonJobTemplateProvider(LoggerFactory.CreateLogger<PythonJobTemplateProvider>(), pythonJobTemplatePath);
@@ -41,6 +41,7 @@ public class JobFactory : IJobFactory
         {
             DomainNameResolvingJobRequest domainResolving => new DomainNameResolvingCommand(domainResolving, Kubernetes, EventsProducer, Parser, LoggerFactory.CreateLogger<DomainNameResolvingCommand>(), JobProvider, Config),
             TcpPortScanningJobRequest tcpPortScanning => new TcpPortScanningCommand(tcpPortScanning, Kubernetes, EventsProducer, Parser, LoggerFactory.CreateLogger<TcpPortScanningCommand>(), JobProvider, Config),
+            HttpOrHttpsServerCheckJobRequest httpCheck => new HttpOrHttpServerCheckCommand(httpCheck, Kubernetes, EventsProducer, Parser, LoggerFactory.CreateLogger<TcpPortScanningCommand>(), JobProvider),
             CustomJobRequest customJob => CreateCustomJobCommand(customJob),
             _ => throw new InvalidOperationException(),
         };
@@ -48,14 +49,14 @@ public class JobFactory : IJobFactory
 
     private JobCommand CreateCustomJobCommand(CustomJobRequest request) 
     {
-        if (request.Type?.ToLower() == "code")
-        {
-            return request.Language?.ToLower() switch
-            {
-                "python" => new PythonCustomJobCommand(request, Kubernetes, EventsProducer, Parser, LoggerFactory.CreateLogger<PythonCustomJobCommand>(), Config),
-                _ => throw new InvalidOperationException(),
-            };
+        if (request.Type?.ToLower() == "code")
+        {
+            return request.Language?.ToLower() switch
+            {
+                "python" => new PythonCustomJobCommand(request, Kubernetes, EventsProducer, Parser, LoggerFactory.CreateLogger<PythonCustomJobCommand>(), Config),
+                _ => throw new InvalidOperationException(),
+            };
         }
-        throw new InvalidOperationException();
+        throw new InvalidOperationException();
     }
 }

@@ -5,6 +5,10 @@ import {
   DomainNameResolvingJob,
   DomainNameResolvingJobSchema,
 } from './models/domain-name-resolving.model';
+import {
+  HttpOrHttpsServerCheckJob,
+  HttpOrHttpsServerCheckJobShema,
+} from './models/http-or-https-server-check.model';
 import { JobSchema } from './models/jobs.model';
 import {
   TcpPortScanningJob,
@@ -26,6 +30,11 @@ export const JobDefinitions: JobDefinition[] = [
     name: CustomJob.name,
     schema: CustomJobSchema,
     create: CustomJob.create,
+  },
+  {
+    name: HttpOrHttpsServerCheckJob.name,
+    schema: HttpOrHttpsServerCheckJobShema,
+    pointer: JobsService.createHttpOrHttpsServerCheckJob_,
   },
 ];
 
