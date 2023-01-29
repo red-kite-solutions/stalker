@@ -7,9 +7,12 @@ import {
   Min,
 } from 'class-validator';
 
-export type CustomFindingFieldDto =
-  | CustomFindingImageFieldDto
-  | CustomFindingTextFieldDto;
+export type CustomFindingFieldDto = CustomFindingBaseDto &
+  (CustomFindingImageFieldDto | CustomFindingTextFieldDto);
+
+export class CustomFindingBaseDto {
+  key: string;
+}
 
 export class CustomFindingImageFieldDto {
   public readonly type = 'image';
@@ -19,7 +22,7 @@ export class CustomFindingImageFieldDto {
 export class CustomFindingTextFieldDto {
   public readonly type = 'text';
   public label: string;
-  public content: string;
+  public data: string;
 }
 
 /**

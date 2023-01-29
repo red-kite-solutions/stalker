@@ -81,6 +81,7 @@ export class DomainsService {
     newDomains.forEach((domain) => {
       findings.push({
         type: 'HostnameFinding',
+        key: 'HostnameFinding',
         domainName: domain,
         companyId: companyId,
       });

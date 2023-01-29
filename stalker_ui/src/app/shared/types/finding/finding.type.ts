@@ -4,7 +4,7 @@ export type FindingType = 'image' | 'data';
  * Represents a generic finding.
  */
 export interface CustomFinding {
-  created: Date; // TODO: The server will send a string, must translate to date
+  created: Date;
   name: string;
   key: string;
   jobId: string;
@@ -21,5 +21,5 @@ export interface CustomFindingImageField {
 export interface CustomFindingTextField {
   type: 'text';
   label: string;
-  content: string;
+  data: string;
 }

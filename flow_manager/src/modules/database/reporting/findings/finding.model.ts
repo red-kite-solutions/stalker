@@ -20,7 +20,7 @@ export class FindingTextField {
   public label: string;
 
   @Prop()
-  public content: string;
+  public data: string;
 }
 
 /**
