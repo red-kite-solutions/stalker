@@ -51,20 +51,14 @@ public class JobFactory : IJobFactory
     private JobCommand CreateCustomJobCommand(CustomJobRequest request)
     {
         if (request.Type?.ToLower() == "code")
-
         {
-
             return request.Language?.ToLower() switch
-
             {
-
                 "python" => new PythonCustomJobCommand(request, Kubernetes, EventsProducer, Parser, LoggerFactory.CreateLogger<PythonCustomJobCommand>(), Config),
-
                 _ => throw new InvalidOperationException(),
-
             };
-
         }
+
         throw new InvalidOperationException();
 
     }
