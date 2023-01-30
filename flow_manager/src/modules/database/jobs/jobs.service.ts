@@ -45,6 +45,7 @@ export class JobsService {
   public async getById(id: string): Promise<JobDocument> {
     return await this.jobModel.findById(id);
   }
+
   public async publish(job: Job) {
     const createdJob = await this.jobModel.create(job);
 
