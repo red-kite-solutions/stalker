@@ -48,7 +48,7 @@ public class JobFactory : IJobFactory
         };
     }
 
-    private JobCommand CreateCustomJobCommand(CustomJobRequest request) 
+    private JobCommand CreateCustomJobCommand(CustomJobRequest request)
     {
         if (request.Type?.ToLower() == "code")
 
