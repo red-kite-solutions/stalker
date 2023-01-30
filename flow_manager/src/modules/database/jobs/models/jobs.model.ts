@@ -1,9 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { CustomJob } from './custom-job.model';
 import { DomainNameResolvingJob } from './domain-name-resolving.model';
-import { HttpOrHttpsServerCheckJob } from './http-or-https-server-check.model';
-import { SubdomainBruteforceJob } from './subdomain-bruteforce.model';
+import { HttpServerCheckJob } from './http-server-check.model';
 import { TcpPortScanningJob } from './tcp-port-scanning.model';
 
 export type JobDocument = Job & Document;
@@ -16,7 +14,7 @@ export class Job {
     enum: [
       DomainNameResolvingJob.name,
       TcpPortScanningJob.name,
-      HttpOrHttpsServerCheckJob.name,
+      HttpServerCheckJob.name,
     ],
   })
   task: string;

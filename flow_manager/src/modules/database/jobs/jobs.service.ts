@@ -4,8 +4,6 @@ import { Model } from 'mongoose';
 import { JobQueue } from '../../job-queue/job-queue';
 import { CreateJobDto } from './dtos/create-job.dto';
 import { JobDto } from './dtos/job.dto';
-import { DomainNameResolvingJob } from './models/domain-name-resolving.model';
-import { HttpOrHttpsServerCheckJob } from './models/http-or-https-server-check.model';
 import { Job, JobDocument } from './models/jobs.model';
 
 @Injectable()

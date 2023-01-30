@@ -111,6 +111,7 @@ images:
     dockerfile: job-base-images/Dockerfile.python
     tags:
       - "latest"
+      - "v1"
     context: job-base-images
     rebuildStrategy: always
 

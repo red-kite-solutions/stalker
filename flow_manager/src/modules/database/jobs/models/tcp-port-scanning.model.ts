@@ -47,8 +47,6 @@ export class TcpPortScanningJob {
     job.portMax = portMax;
     job.ports = ports;
 
-    const jobName = TcpPortScanningJob.name;
-
     if (!isMongoId(job.companyId)) {
       throw new JobParameterValueException('companyId', job.companyId);
     }

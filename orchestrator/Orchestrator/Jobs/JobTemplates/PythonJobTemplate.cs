@@ -6,7 +6,7 @@ public abstract class PythonJobTemplate : KubernetesJobTemplate
 {
     public override string[] Command => new[] { "python", "-c", PythonCommand };
 
-    public override string Image => "python-job-base:dgtWqAr";
+    public override string Image => "python-job-base:v1";
 
     protected virtual string PythonCommand { get; set; }
 
