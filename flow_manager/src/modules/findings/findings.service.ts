@@ -205,7 +205,9 @@ export class FindingsService {
    */
   public handleJobFindings(findings: JobFindings) {
     for (const finding of findings.findings) {
-      this.handleFinding(finding, findings.jobId);
+      this.handleFinding(finding, findings.jobId).catch((e) =>
+        this.logger.error(e),
+      );
     }
   }
 
@@ -273,7 +275,7 @@ export class FindingsService {
         break;
 
       default:
-        console.log('Unknown finding type');
+        console.log(`Unknown finding type ${finding['type']}`);
     }
   }
 }
