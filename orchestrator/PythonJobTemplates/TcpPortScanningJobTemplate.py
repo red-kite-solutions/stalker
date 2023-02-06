@@ -110,5 +110,6 @@ for port in open_ports_output:
             port,
             "Port scanning finding",
             [TextField("protocol", "This is a TCP port", "tcp")],
+            "PortFinding",
         )
     )
