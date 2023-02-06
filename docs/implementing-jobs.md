@@ -14,6 +14,18 @@ job communicates its _findings_ and more to Stalker.
 - [Built-in jobs](#built-in-jobs)
 - [Custom jobs](#custom-jobs)
 
+## Python
+
+The `stalker_job_sdk` provides utilitary functions and classes to help you implement jobs.
+
+### Setup
+
+In order for intellisense to help you, you need to create a virtual environmnet. Vscode's [python](https://marketplace.visualstudio.com/items?itemName=ms-python.python) extension can help you with that: use the "Python: Create environment" command. Then, install the requirements:
+
+```
+pip install -r requirements.txt
+```
+
 ## Making contact with the outside world
 
 The goal of jobs is to produce _findings_. A job may also produce logs to inform the outside world whether things are going well or not. Jobs communicate with Stalker through their standard output (STDOUT).
