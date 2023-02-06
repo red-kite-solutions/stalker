@@ -58,12 +58,12 @@ export class ViewHostComponent {
     tap((host) => this.titleService.setTitle($localize`:Hosts page title|:Hosts · ${host.ip}`))
   );
 
-  public shownDomainsCount$ = new BehaviorSubject(3);
+  public shownDomainsCount$ = new BehaviorSubject(5);
   public domains$ = combineLatest([this.host$, this.shownDomainsCount$]).pipe(
     map(([host, size]) => host.domains.slice(0, size))
   );
 
-  public shownPortsCount$ = new BehaviorSubject(3);
+  public shownPortsCount$ = new BehaviorSubject(5);
   public ports$ = combineLatest([this.host$, this.shownPortsCount$]).pipe(
     map(([host, size]) => host.ports.slice(0, size))
   );
