@@ -3,7 +3,7 @@
 public class FindingsParser : IFindingsParser
 {
     private const string FindingEventPrefix = "@finding";
-    private const string LogDebugEventPrefix = "@logdebug";
+    private const string LogDebugEventPrefix = "@debug";
 
     public string? GetEventData(string? evtString, string? prefix = null)
     {
