@@ -16,6 +16,7 @@ import { ListDomainsComponent } from './modules/domains/list-domains/list-domain
 import { ViewDomainComponent } from './modules/domains/view-domain/view-domain.component';
 import { ViewHostComponent } from './modules/hosts/view-host/view-host.component';
 import { ViewPortComponent } from './modules/hosts/view-port/view-port.component';
+import { CustomJobsComponent } from './modules/jobs/custom-jobs/custom-jobs.component';
 import { SubscriptionComponent } from './modules/jobs/subscriptions/subscription.component';
 import { ManageTagsComponent } from './modules/tags/manage-tags/manage-tags.component';
 import { ProfileComponent } from './modules/user/profile/profile.component';
@@ -84,6 +85,10 @@ const routes: Routes = [
       {
         path: 'jobs/subscriptions',
         component: SubscriptionComponent,
+      },
+      {
+        path: 'jobs/custom',
+        component: CustomJobsComponent,
       },
     ],
   },

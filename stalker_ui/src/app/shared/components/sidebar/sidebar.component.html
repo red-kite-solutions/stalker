@@ -80,6 +80,18 @@
     >
   </a>
 
+  <a
+    mat-list-item
+    routerLinkActive="list-item-active"
+    routerLink="/jobs/custom"
+    [matTooltip]="expanded ? '' : customJobs"
+    [matTooltipShowDelay]="700"
+    matTooltipPosition="right"
+  >
+    <mat-icon class="material-icons-outlined">engineering</mat-icon>
+    <span *ngIf="expanded" i18n="Custom Jobs|Custom Jobs">Custom Jobs</span>
+  </a>
+
   <!-- Administration -->
 
   <div *ngIf="this.authService.role === 'admin'">

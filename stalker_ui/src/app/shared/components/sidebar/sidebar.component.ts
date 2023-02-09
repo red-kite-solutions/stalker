@@ -18,6 +18,7 @@ export class SidebarComponent {
   public tags = $localize`:Tags|An item's tags:Tags`;
   public subscriptions = $localize`:Subscriptions|The jobs automation process to subscribe to finding events:Subscriptions`;
   public hosts = $localize`:Hosts|Hosts:Hosts`;
+  public customJobs = $localize`:Custom Jobs|Custom Jobs:Custom Jobs`;
 
   constructor(public authService: AuthService) {}
 }

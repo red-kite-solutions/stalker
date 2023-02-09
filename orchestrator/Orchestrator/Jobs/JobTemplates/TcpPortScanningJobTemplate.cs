@@ -5,7 +5,7 @@ namespace Orchestrator.Jobs.JobTemplates;
 
 public class TcpPortScanningJobTemplate : PythonJobTemplate
 {
-    public TcpPortScanningJobTemplate(string? id, string @namespace, string targetIp, int threads, float socketTimeoutSeconds, int portMin, int portMax, int[] ports, PythonJobTemplateProvider jobProvider) : base(id, @namespace, jobProvider)
+    public TcpPortScanningJobTemplate(string? id, IConfiguration config, string targetIp, int threads, float socketTimeoutSeconds, int portMin, int portMax, int[] ports, PythonJobTemplateProvider jobProvider) : base(id, config, jobProvider)
     {
         EnvironmentVariable["TARGET_IP"] = targetIp;
         EnvironmentVariable["THREADS"] = threads.ToString();

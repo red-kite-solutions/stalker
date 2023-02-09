@@ -34,19 +34,12 @@ public class KubernetesFacade : IKubernetesFacade
         var jobNameParts = new[] { jobPrefix, jobTemplate.Id, randomId };
         var jobName = string.Join("-", jobNameParts.Where(x => !string.IsNullOrEmpty(x)));
 
-        // TODO: Adding a resource limit per namespace (ResourceQuota) with a custom namespace for jobs
-        // could be interesting to prevent the jobs from taking over all the cluster's cpu and memory
-        V1ResourceRequirements ressources = null;
-        if (jobTemplate.MilliCpuLimit != null || jobTemplate.MemoryKiloBytesLimit != null)
-        {
-            var limitQuantity = new Dictionary<string, ResourceQuantity>();
-            if (jobTemplate.MilliCpuLimit > 0)
-                limitQuantity["cpu"] = new ResourceQuantity(jobTemplate.MilliCpuLimit.ToString() + "m");
-            if (jobTemplate.MemoryKiloBytesLimit > 0)
-                limitQuantity["memory"] = new ResourceQuantity(jobTemplate.MemoryKiloBytesLimit.ToString() + "Ki");
+        // The ResourceQuota for the jobs' namespace requires an explicit resource allocation for every pod
+        var limitQuantity = new Dictionary<string, ResourceQuantity>();
+        limitQuantity["cpu"] = new ResourceQuantity(jobTemplate.MilliCpuLimit.ToString() + "m");
+        limitQuantity["memory"] = new ResourceQuantity(jobTemplate.MemoryKiloBytesLimit.ToString() + "Ki");
 
-            ressources = new V1ResourceRequirements(limitQuantity);
-        }
+        V1ResourceRequirements ressources = new V1ResourceRequirements(limitQuantity);
 
         var kubernetesJob = new V1Job("batch/v1", "Job",
             new V1ObjectMeta
@@ -74,6 +67,7 @@ public class KubernetesFacade : IKubernetesFacade
                     },
                 },
                 BackoffLimit = jobTemplate.MaxRetries,
+                ActiveDeadlineSeconds = jobTemplate.Timeout,
             });
 
         Logger.LogDebug($"Creating job {jobName} in namespace {jobTemplate.Namespace}");

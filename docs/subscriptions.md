@@ -87,6 +87,30 @@ conditions:
     rhs: 3
 ```
 
+### Custom Job Example
+
+Launching a custom job from a Subscription is really similar to launching a built-in job. The syntax and the logic are the same. However, a custom job requires a `CustomJobName` parameter. Without it, Stalker has no way of knowing which `CustomJob` to start. The value of the `CustomJobName` parameter must match [the name of the job](./implementing-jobs.md#custom-jobs) to start.
+
+The other parameters will be provided as environment variables to the job. Therefore, they must respect some [naming rules](./implementing-jobs.md#custom-job-input).
+
+The following example will start a custom job named `"My custom job"` when a `PortFinding` is found. It will provide four environment variables named `"CustomJobName"`, `"myCustomParameter"`, `"myFindingIpParameter"`, `"myFindingPortParameter"`, with their respective values.
+
+```yaml
+name: My custom job subscription
+finding: PortFinding
+job:
+  name: CustomJob
+  parameters:
+    - name: CustomJobName
+      value: My custom job
+    - name: myCustomParameter
+      value: "This is a custom parameter"
+    - name: myFindingIpParameter
+      value: ${ip}
+    - name: myFindingPortParameter
+      value: ${port}
+```
+
 ## Findings
 
 A finding event is propagated by Stalker whenever an information comes into play. Every finding type contains information that is specific to it.

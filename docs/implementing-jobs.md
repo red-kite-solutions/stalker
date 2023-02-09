@@ -10,6 +10,10 @@ job communicates its _findings_ and more to Stalker.
 
 > This article is a work in progress, it is currently incomplete.
 
+* [Output and findings](#making-contact-with-the-outside-world)
+* [Built-in jobs](#built-in-jobs)
+* [Custom jobs](#custom-jobs)
+
 ## Making contact with the outside world
 
 The goal of jobs is to produce _findings_. A job may also produce logs to inform the outside world whether things are going well or not. Jobs communicate with Stalker through their standard output (STDOUT).
@@ -158,3 +162,83 @@ Example:
 ```
 @logdebug Hello world!
 ```
+
+## Built-in Jobs
+
+Built-in jobs, often just called jobs, are implemented within Stalker's source code.
+
+To implement a built-in job, the following files need to be edited :
+
+| File name                                                       | Service      | Description                                  |
+| --------------------------------------------------------------- | ------------ | -------------------------------------------- |
+| /flow_manager/src/modules/database/jobs/models/jobs.model.ts    | Flow manager | Add the job name in the enum array.          |
+| /flow_manager/src/modules/database/jobs/job-model.module.ts     | Flow manager | Add the job definition to the array.         |
+| /orchestrator/Orchestrator/Jobs/JobFactory.cs                   | Orchestrator | Edit the Create function to add the new job. |
+| /orchestrator/Orchestrator/Jobs/PythonJobTemplateProvider.cs    | Orchestrator | Add the new job to the `PythonJobs` array.   |
+| /orchestrator/Orchestrator/Queue/JobsConsummer/JobSerializer.cs | Orchestrator | Detail how to deserialize to a `JobRequest`. |
+
+The following files also need to be created :
+
+| File name                                                                     | Service      | Description                                                        |
+| ----------------------------------------------------------------------------- | ------------ | ------------------------------------------------------------------ |
+| /flow_manager/src/modules/database/jobs/models/my-new-job.model.ts            | Flow manager | Describes the job for the database. Implement the `create` method. |
+| /flow_manager/src/modules/database/jobs/dtos/my-new-job.dto.ts                | Flow manager | Validates the job content for the controller.                      |
+| /orchestrator/Orchestrator/Jobs/Commands/MyNewJobCommand.cs                   | Orchestrator | Create the job command.                                            |
+| /orchestrator/Orchestrator/Jobs/JobTemplates/MyNewJobTemplate.cs              | Orchestrator | Create the job template.                                           |
+| /orchestrator/Orchestrator/Queue/JobsConsummer/JobRequests/MyNewJobRequest.cs | Orchestrator | Create the job request.                                            |
+| /orchestrator/PythonJobTemplates/MyNewJob.py                                  | Job          | Create the job itself in python.                                   |
+
+> The name of the python file must match exactly the name of the job's task. The task `MyNewJob` requires a file named `MyNewJob.py`.
+
+Now that this new job has been implemented, it could be called through `subscriptions` or manually. However, for it to be added into the built-in automation process, it needs to be called within a `finding`'s handler.
+
+## Custom Jobs
+
+Custom jobs are implemented by a Stalker user or administrator. They are a type of built-in job, but are much more flexible.
+
+Custom jobs can be run manually as a one time thing, or they can be run within the automation process through [subscriptions](./subscriptions.md#custom-job-example).
+
+Implementing a `CustomJob` is easy. Simply name your new custom job, write your code, and make sure to [output your findings properly](#making-contact-with-the-outside-world).
+
+### Custom Job Input
+
+A custom job's input is provided as environment variables.
+
+Here is a python example of how to get a value from an environment variable.
+
+```python
+import os
+
+var_content = os.environ['myCustomParameter']
+```
+
+All the parameters given to a job are provided as environment variables. Therefore, parameter names must respect a fixed character set. The following regular expression is used to validate the characters of the parameter names before the creation of the job. Not respecting this regex will result in the job not being created.
+
+```javascript
+/^[A-Za-z][A-Za-z0-9_]*$/
+```
+
+Also, to avoid conflicts with common os variable names, the following varibles must not be set. Naming a parameter with one of these names will result in the job not being created.
+
+|             |             |           |            |            |
+| ----------- | ----------- | --------- | ---------- | ---------- |
+| RFLAGS      | IFS         | MAILPATH  | PS1        | CC         |
+| LANG        | MAILRC      | PS2       | CDPATH     | LC_ALL     |
+| MAKEFLAGS   | PS3         | CFLAGS    | LC_COLLATE | MAKESHELL  |
+| PS4         | CHARSET     | LC_CTYPE  | MANPATH    | PWD        |
+| COLUMNS     | LC_MESSAGES | MBOX      | RANDOM     | DATEMSK    |
+| LC_MONETARY | MORE        | SECONDS   | DEAD       | LC_NUMERIC |
+| MSGVERB     | SHELL       | EDITOR    | LC_TIME    | NLSPATH    |
+| TERM        | ENV         | LDFLAGS   | NPROC      | TERMCAP    |
+| EXINIT      | LEX         | OLDPWD    | TERMINFO   | FC         |
+| LFLAGS      | OPTARG      | TMPDIR    | FCEDIT     | LINENO     |
+| OPTERR      | TZ          | FFLAGS    | LINES      | OPTIND     |
+| USER        | GET         | LISTER    | PAGER      | VISUAL     |
+| GFLAGS      | LOGNAME     | PATH      | YACC       | HISTFILE   |
+| LPDEST      | PPID        | YFLAGS    | HISTORY    | MAIL       |
+| PRINTER     | HISTSIZE    | MAILCHECK | PROCLANG   | HOME       |
+| MAILER      | PROJECTDIR  |           |            |            |
+
+### Custom Job Output
+
+Custom jobs communicate in the exact same way as regular jobs. They print to stdout, [respecting the syntax for a @finding or a @logdebug](#making-contact-with-the-outside-world).

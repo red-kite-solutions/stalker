@@ -13,3 +13,4 @@ vars:
 
   STALKER_URL: "http://localhost:4200"
   NETWORK_POLICY: "network-policy.yml"
+  RESOURCE_QUOTA: "resource-quota.yml"

@@ -1,6 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { Types } from 'mongoose';
 import { AppModule } from '../../app.module';
-import { JobCondition } from '../../database/subscriptions/subscriptions.model';
+import { CustomJobsService } from '../../database/custom-jobs/custom-jobs.service';
+import { CompanyService } from '../../database/reporting/company.service';
+import {
+  JobCondition,
+  JobParameter,
+  Subscription,
+} from '../../database/subscriptions/subscriptions.model';
 import { HostnameFinding, HostnameIpFinding } from '../findings.service';
 import { FindingHandlerBase } from './findings-handler-base';
 import { HostnameCommand } from './Findings/hostname.command';
@@ -8,14 +15,24 @@ import { HostnameHandler } from './Findings/hostname.handler';
 
 describe('Findings Handler Base', () => {
   let moduleFixture: TestingModule;
+  let companyService: CompanyService;
+  let customJobsService: CustomJobsService;
 
   beforeAll(async () => {
     moduleFixture = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
+
+    companyService = moduleFixture.get(CompanyService);
+    customJobsService = moduleFixture.get(CustomJobsService);
   });
 
-  beforeEach(async () => {});
+  beforeEach(async () => {
+    const cjs = await customJobsService.getAll();
+    for (const cj of cjs) {
+      await customJobsService.delete(cj._id);
+    }
+  });
 
   afterAll(async () => {
     await moduleFixture.close();
@@ -133,7 +150,7 @@ describe('Findings Handler Base', () => {
     ])('Should be valid for execution', (conditions: JobCondition[]) => {
       // Arrange
       const hnHandler: FindingHandlerBase<HostnameCommand> =
-        new HostnameHandler(null, null);
+        new HostnameHandler(null, null, null);
       const hnFinding = new HostnameFinding();
       hnFinding.domainName = 'stalker.is';
       const hnCommand = new HostnameCommand(
@@ -261,7 +278,7 @@ describe('Findings Handler Base', () => {
     ])('Should be invalid for execution', (conditions: JobCondition[]) => {
       // Arrange
       const hnHandler: FindingHandlerBase<HostnameCommand> =
-        new HostnameHandler(null, null);
+        new HostnameHandler(null, null, null);
       const hnFinding = new HostnameFinding();
       const hnCommand = new HostnameCommand(
         '',
@@ -299,7 +316,7 @@ describe('Findings Handler Base', () => {
       (paramValue: string) => {
         // Arrange
         const hnHandler: FindingHandlerBase<HostnameCommand> =
-          new HostnameHandler(null, null);
+          new HostnameHandler(null, null, null);
         const hnFinding = new HostnameFinding();
         hnFinding.domainName = 'stalker.is';
         let valueCopy = paramValue;
@@ -341,7 +358,7 @@ describe('Findings Handler Base', () => {
       (paramValue: string) => {
         // Arrange
         const hnHandler: FindingHandlerBase<HostnameCommand> =
-          new HostnameHandler(null, null);
+          new HostnameHandler(null, null, null);
         const hnFinding = new HostnameFinding();
         hnFinding.domainName = 'stalker.is';
         let valueCopy = paramValue;
@@ -372,5 +389,69 @@ describe('Findings Handler Base', () => {
         expect(valueCopy).toStrictEqual(paramValue);
       },
     );
+  });
+
+  describe('Get the proper job parameters for a custom job', () => {
+    it('Should give the proper custom job parameters with the adequate structure and values', async () => {
+      // Arrange
+      const hnHandler: FindingHandlerBase<HostnameCommand> =
+        new HostnameHandler(null, null, customJobsService);
+      const cjName = 'fhb custom job';
+      const cj = await customJobsService.create({
+        name: cjName,
+        code: 'print("hello")',
+        type: 'code',
+        language: 'python',
+      });
+      const cj2 = await customJobsService.create({
+        name: cjName + ' 2',
+        code: 'print("hello")',
+        type: 'code',
+        language: 'python',
+      });
+
+      const sub = new Subscription();
+      sub.companyId = new Types.ObjectId('507f1f77bcf86cd799439011');
+      sub.conditions = [];
+      sub.finding = 'HostnameFinding';
+      sub.jobName = 'CustomJob';
+      const customParam = { name: 'custom-job-param', value: 'ASDF' };
+      sub.jobParameters = [
+        { name: 'CustomJobName', value: cjName },
+        customParam,
+      ];
+
+      // Act
+      // @ts-expect-error
+      const jobParams = await hnHandler.getParametersForCustomJobSubscription(
+        sub,
+      );
+
+      // Assert
+      expect(
+        jobParams.some((p) => p.name === 'name' && p.value == cj.name),
+      ).toStrictEqual(true);
+      expect(
+        jobParams.some((p) => p.name === 'code' && p.value == cj.code),
+      ).toStrictEqual(true);
+      expect(
+        jobParams.some((p) => p.name === 'type' && p.value == cj.type),
+      ).toStrictEqual(true);
+      expect(
+        jobParams.some((p) => p.name === 'language' && p.value == cj.language),
+      ).toStrictEqual(true);
+      const param = jobParams.find((p) => p.name === 'customJobParameters');
+
+      expect(
+        (param.value as Array<JobParameter>).some(
+          (p) => p.name === 'CustomJobName' && p.value === cjName,
+        ),
+      ).toStrictEqual(true);
+      expect(
+        (param.value as Array<JobParameter>).some(
+          (p) => p.name === customParam.name && p.value === customParam.value,
+        ),
+      ).toStrictEqual(true);
+    });
   });
 });

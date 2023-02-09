@@ -250,7 +250,12 @@ export class FindingsService {
 
       case 'CustomFinding':
         this.commandBus.execute(
-          new CustomFindingCommand(jobId, companyId, PortCommand.name, finding),
+          new CustomFindingCommand(
+            jobId,
+            companyId,
+            CustomFindingCommand.name,
+            finding,
+          ),
         );
         break;
 

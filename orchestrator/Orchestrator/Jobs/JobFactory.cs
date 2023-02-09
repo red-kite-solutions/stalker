@@ -16,6 +16,7 @@ public class JobFactory : IJobFactory
     private ILoggerFactory LoggerFactory { get; }
     private ILogger<JobFactory> Logger { get; }
     private PythonJobTemplateProvider JobProvider { get; }
+    private IConfiguration Config { get; }
 
     public JobFactory(IKubernetesFacade kubernetes, IMessagesProducer<JobEventMessage> eventsProducer, IFindingsParser parser, ILoggerFactory loggerFactoryFactory, IConfiguration config)
     {
@@ -24,8 +25,9 @@ public class JobFactory : IJobFactory
         Parser = parser;
         LoggerFactory = loggerFactoryFactory;
         Logger = loggerFactoryFactory.CreateLogger<JobFactory>();
+        Config = config;
 
-        string? pythonJobTemplatePath = config.GetSection("JobsProvider").GetValue<string>("PythonTemplatesPath");
+        string? pythonJobTemplatePath = config.GetSection("Jobs").GetSection("JobsProvider").GetValue<string>("PythonTemplatesPath");
         if (pythonJobTemplatePath == null) throw new NullReferenceException("Setting PythonTemplatesPath is missing.");
 
         JobProvider = new PythonJobTemplateProvider(LoggerFactory.CreateLogger<PythonJobTemplateProvider>(), pythonJobTemplatePath);
@@ -37,9 +39,23 @@ public class JobFactory : IJobFactory
 
         return request switch
         {
-            DomainNameResolvingJobRequest domainResolving => new DomainNameResolvingCommand(domainResolving, Kubernetes, EventsProducer, Parser, LoggerFactory.CreateLogger<DomainNameResolvingCommand>(), JobProvider),
-            TcpPortScanningJobRequest tcpPortScanning => new TcpPortScanningCommand(tcpPortScanning, Kubernetes, EventsProducer, Parser, LoggerFactory.CreateLogger<TcpPortScanningCommand>(), JobProvider),
+            DomainNameResolvingJobRequest domainResolving => new DomainNameResolvingCommand(domainResolving, Kubernetes, EventsProducer, Parser, LoggerFactory.CreateLogger<DomainNameResolvingCommand>(), JobProvider, Config),
+            TcpPortScanningJobRequest tcpPortScanning => new TcpPortScanningCommand(tcpPortScanning, Kubernetes, EventsProducer, Parser, LoggerFactory.CreateLogger<TcpPortScanningCommand>(), JobProvider, Config),
+            CustomJobRequest customJob => CreateCustomJobCommand(customJob),
             _ => throw new InvalidOperationException(),
         };
+    }
+
+    private JobCommand CreateCustomJobCommand(CustomJobRequest request) 
+    {
+        if (request.Type?.ToLower() == "code")
+        {
+            return request.Language?.ToLower() switch
+            {
+                "python" => new PythonCustomJobCommand(request, Kubernetes, EventsProducer, Parser, LoggerFactory.CreateLogger<PythonCustomJobCommand>(), Config),
+                _ => throw new InvalidOperationException(),
+            };
+        }
+        throw new InvalidOperationException();
     }
 }

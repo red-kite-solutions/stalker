@@ -6,6 +6,8 @@ public class KubernetesJobTemplate
 {
     private readonly int MaxCpu = 2000;
     private readonly int MaxMemory = 2048 * 1024;
+    private readonly int DefaultCpu = 100;
+    private readonly int DefaultMemory = 300 * 1024;
 
     public string Id { get; init; }
 
@@ -32,7 +34,7 @@ public class KubernetesJobTemplate
     /// <summary>
     /// Gets the namespace the job should be created in.
     /// </summary>
-    public string Namespace { get; init; } = "default";
+    public string Namespace { get; set; } = "default";
 
     private int? _MilliCpuLimit;
 
@@ -45,7 +47,7 @@ public class KubernetesJobTemplate
     {
         get
         {
-            return _MilliCpuLimit;
+            return _MilliCpuLimit != null ? _MilliCpuLimit : DefaultCpu;
         }
         init
         {
@@ -67,12 +69,31 @@ public class KubernetesJobTemplate
     {
         get
         {
-            return _MemoryKiloBytesLimit;
+            return _MemoryKiloBytesLimit != null ? _MemoryKiloBytesLimit : DefaultMemory;
         }
         init
         {
             if (value <= 0) return;
             _MemoryKiloBytesLimit = value <= MaxMemory ? value : MaxMemory;
+        }
+    }
+
+    private int? _Timeout;
+
+    /// <summary>
+    /// How long in seconds a job can run before it will be terminated by the system. A value of null
+    /// will last indefinetly.
+    /// </summary>
+    public int? Timeout 
+    { 
+        get
+        {
+            return _Timeout;
+        }
+        set
+        {
+            if (value <= 0) return;
+            _Timeout = value;
         }
     }
 }
