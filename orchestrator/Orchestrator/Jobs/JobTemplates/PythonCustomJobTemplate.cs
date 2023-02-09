@@ -8,7 +8,7 @@ public class PythonCustomJobTemplate : PythonJobTemplate
 
     public PythonCustomJobTemplate(string? id, IConfiguration config, JobParameter[]? jobParameters, string? code) : base(id, config)
     {
-        // Ajouter manuellement les parametres en variable d'environnement
+        // Adding parameters as environment variables
         if (!jobParameters.IsNullOrEmpty())
         {
             foreach (var param in jobParameters!)
