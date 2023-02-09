@@ -10,7 +10,6 @@ job communicates its _findings_ and more to Stalker.
 
 > This article is a work in progress, it is currently incomplete.
 
-
 * [Output and findings](#making-contact-with-the-outside-world)
 * [Built-in jobs](#built-in-jobs)
 * [Custom jobs](#custom-jobs)
@@ -170,25 +169,24 @@ Built-in jobs, often just called jobs, are implemented within Stalker's source c
 
 To implement a built-in job, the following files need to be edited :
 
-| File name                                                       | Service      | Description                                 |
-| --------------------------------------------------------------- | ------------ | ------------------------------------------- |
-| /flow_manager/src/modules/database/jobs/models/jobs.model.ts    | Flow manager | Add the job name in the enum array.         |
-| /flow_manager/src/modules/database/jobs/jobs.service.ts         | Flow manager | Add the two functions to create the job.    |
-| /flow_manager/src/modules/database/jobs/job-model.module.ts     | Flow manager | Add the job definition to the array         |
-| /orchestrator/Orchestrator/Jobs/JobFactory.cs                   | Orchestrator | Edit the Create function to add the new job |
-| /orchestrator/Orchestrator/Jobs/PythonJobTemplateProvider.cs    | Orchestrator | Add the new job to the `PythonJobs` array   |
-| /orchestrator/Orchestrator/Queue/JobsConsummer/JobSerializer.cs | Orchestrator | Detail how to deserialize to a `JobRequest` |
+| File name                                                       | Service      | Description                                  |
+| --------------------------------------------------------------- | ------------ | -------------------------------------------- |
+| /flow_manager/src/modules/database/jobs/models/jobs.model.ts    | Flow manager | Add the job name in the enum array.          |
+| /flow_manager/src/modules/database/jobs/job-model.module.ts     | Flow manager | Add the job definition to the array.         |
+| /orchestrator/Orchestrator/Jobs/JobFactory.cs                   | Orchestrator | Edit the Create function to add the new job. |
+| /orchestrator/Orchestrator/Jobs/PythonJobTemplateProvider.cs    | Orchestrator | Add the new job to the `PythonJobs` array.   |
+| /orchestrator/Orchestrator/Queue/JobsConsummer/JobSerializer.cs | Orchestrator | Detail how to deserialize to a `JobRequest`. |
 
 The following files also need to be created :
 
-| File name                                                                     | Service      | Description                                  |
-| ----------------------------------------------------------------------------- | ------------ | -------------------------------------------- |
-| /flow_manager/src/modules/database/jobs/models/my-new-job.model.ts            | Flow manager | Describes the job for the database.          |
-| /flow_manager/src/modules/database/jobs/dtos/my-new-job.dto.ts                | Flow manager | Validates the job content for the controller |
-| /orchestrator/Orchestrator/Jobs/Commands/MyNewJobCommand.cs                   | Orchestrator | Create the job command                       |
-| /orchestrator/Orchestrator/Jobs/JobTemplates/MyNewJobTemplate.cs              | Orchestrator | Create the job template                      |
-| /orchestrator/Orchestrator/Queue/JobsConsummer/JobRequests/MyNewJobRequest.cs | Orchestrator | Create the job request                       |
-| /orchestrator/PythonJobTemplates/MyNewJob.py                                  | Job          | Create the job itself in python              |
+| File name                                                                     | Service      | Description                                                        |
+| ----------------------------------------------------------------------------- | ------------ | ------------------------------------------------------------------ |
+| /flow_manager/src/modules/database/jobs/models/my-new-job.model.ts            | Flow manager | Describes the job for the database. Implement the `create` method. |
+| /flow_manager/src/modules/database/jobs/dtos/my-new-job.dto.ts                | Flow manager | Validates the job content for the controller.                      |
+| /orchestrator/Orchestrator/Jobs/Commands/MyNewJobCommand.cs                   | Orchestrator | Create the job command.                                            |
+| /orchestrator/Orchestrator/Jobs/JobTemplates/MyNewJobTemplate.cs              | Orchestrator | Create the job template.                                           |
+| /orchestrator/Orchestrator/Queue/JobsConsummer/JobRequests/MyNewJobRequest.cs | Orchestrator | Create the job request.                                            |
+| /orchestrator/PythonJobTemplates/MyNewJob.py                                  | Job          | Create the job itself in python.                                   |
 
 > The name of the python file must match exactly the name of the job's task. The task `MyNewJob` requires a file named `MyNewJob.py`.
 
@@ -198,7 +196,7 @@ Now that this new job has been implemented, it could be called through `subscrip
 
 Custom jobs are implemented by a Stalker user or administrator. They are a type of built-in job, but are much more flexible.
 
-Custom jobs can be run manually as a one time thing, or they can be run within the automation process through [subscriptions](./subscriptions.md).
+Custom jobs can be run manually as a one time thing, or they can be run within the automation process through [subscriptions](./subscriptions.md#custom-job-example).
 
 Implementing a `CustomJob` is easy. Simply name your new custom job, write your code, and make sure to [output your findings properly](#making-contact-with-the-outside-world).
 
