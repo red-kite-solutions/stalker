@@ -5,8 +5,6 @@ import { DomainSummary } from '../domain/domain.summary';
 export type HostDocument = Host & Document;
 
 export class Port {
-  public id!: string;
-
   /**
    * A pseudo-unique key identifying this entity. Used for findings.
    * This key should not change if this entity were to be recreated.

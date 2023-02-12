@@ -56,7 +56,7 @@
         >
 
         <div *ngFor="let port of ports$ | async">
-          <a [routerLink]="['.', 'ports', port]">{{ port }}</a>
+          <a [routerLink]="['.', 'ports', port.port]">{{ port.port }}</a>
         </div>
 
         <button

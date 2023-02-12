@@ -23,31 +23,44 @@ export type Finding =
   | PortFinding
   | CreateCustomFinding;
 
-export class PortFinding {
-  type: 'PortFinding';
-  protocol: 'tcp' | 'udp';
-  ip: string;
-  port: number;
+export class FindingBase {
+  fields?: CustomFindingFieldDto[];
 }
 
-export class CreateCustomFinding {
+export class PortFinding extends FindingBase {
+  type: 'PortFinding';
+  key: 'PortFinding';
+  ip: string;
+  port: number;
+  fields: [
+    {
+      type: 'text';
+      key: 'protocol';
+      data: 'tcp' | 'udp';
+      label: string;
+    },
+  ];
+}
+
+export class CreateCustomFinding extends FindingBase {
   type: 'CustomFinding';
   key: string;
   domainName?: string;
   ip?: string;
   port?: number;
   name: string;
-  fields: CustomFindingFieldDto[];
 }
 
-export class HostnameFinding {
+export class HostnameFinding extends FindingBase {
   type: 'HostnameFinding';
-  domainName: string;
+  key: 'HostnameFinding';
   companyId: string;
+  domainName: string;
 }
 
-export class HostnameIpFinding {
+export class HostnameIpFinding extends FindingBase {
   type: 'HostnameIpFinding';
+  key: 'HostnameIpFinding';
   domainName: string;
   ip: string;
 }

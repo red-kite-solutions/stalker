@@ -21,7 +21,9 @@ export class PortHandler extends JobFindingHandlerBase<PortCommand> {
   }
 
   protected async executeCore(command: PortCommand) {
-    if (command.finding.protocol === 'tcp') {
+    if (
+      command.finding.fields.find((x) => x?.key === 'protocol')?.data === 'tcp'
+    ) {
       await this.hostService.addPortsByIp(
         command.companyId,
         command.finding.ip,

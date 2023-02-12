@@ -183,9 +183,10 @@ describe('Findings Service Spec', () => {
       name: 'My finding',
       fields: [
         {
+          key: 'my-field',
           type: 'text',
           label: 'My label',
-          content: 'My content',
+          data: 'My content',
         },
       ],
       type: 'CustomFinding',
@@ -206,11 +207,11 @@ describe('Findings Service Spec', () => {
     expect(finding.correlationKey).toBe(correlationKey);
     expect(finding.name).toBe('My finding');
     expect(finding.correlationKey).toBe(correlationKey);
-    expect(finding.fields.length).toBe(1);
+    expect(Object.keys(finding.fields).length).toBe(1);
 
     expect(finding.fields[0].type).toBe('text');
     const field = finding.fields[0] as FindingTextField;
     expect(field.label).toBe('My label');
-    expect(field.content).toBe('My content');
+    expect(field.data).toBe('My content');
   });
 });

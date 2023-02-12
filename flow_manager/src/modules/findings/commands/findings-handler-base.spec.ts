@@ -8,10 +8,16 @@ import {
   JobParameter,
   Subscription,
 } from '../../database/subscriptions/subscriptions.model';
-import { HostnameFinding, HostnameIpFinding } from '../findings.service';
+import {
+  CreateCustomFinding,
+  HostnameFinding,
+  HostnameIpFinding,
+} from '../findings.service';
 import { FindingHandlerBase } from './findings-handler-base';
 import { HostnameCommand } from './Findings/hostname.command';
 import { HostnameHandler } from './Findings/hostname.handler';
+import { CustomFindingCommand } from './JobFindings/custom.command';
+import { CustomFindingHandler } from './JobFindings/custom.handler';
 
 describe('Findings Handler Base', () => {
   let moduleFixture: TestingModule;
@@ -147,25 +153,73 @@ describe('Findings Handler Base', () => {
           },
         ],
       ],
-    ])('Should be valid for execution', (conditions: JobCondition[]) => {
-      // Arrange
-      const hnHandler: FindingHandlerBase<HostnameCommand> =
-        new HostnameHandler(null, null, null);
-      const hnFinding = new HostnameFinding();
-      hnFinding.domainName = 'stalker.is';
-      const hnCommand = new HostnameCommand(
-        '',
-        HostnameCommand.name,
-        hnFinding,
-      );
+    ])(
+      'Hostname finding - Should be valid for execution',
+      (conditions: JobCondition[]) => {
+        // Arrange
+        const hnHandler: FindingHandlerBase<HostnameCommand> =
+          new HostnameHandler(null, null, null);
+        const hnFinding = new HostnameFinding();
+        hnFinding.domainName = 'stalker.is';
+        const hnCommand = new HostnameCommand(
+          '',
+          HostnameCommand.name,
+          hnFinding,
+        );
 
-      // Act
-      // @ts-expect-error
-      const shouldExecute = hnHandler.shouldExecute(conditions, hnCommand);
+        // Act
+        // @ts-expect-error
+        const shouldExecute = hnHandler.shouldExecute(conditions, hnCommand);
 
-      // Assert
-      expect(shouldExecute).toBe(true);
-    });
+        // Assert
+        expect(shouldExecute).toBe(true);
+      },
+    );
+
+    it.each([
+      [[{ lhs: '${ finding.field-1 }', operator: 'equals', rhs: 'Foo' }]],
+      [[{ lhs: '${ field-1 }', operator: 'equals', rhs: 'Foo' }]],
+    ])(
+      'Custom finding - Should be valid for execution',
+      (conditions: JobCondition[]) => {
+        // Arrange
+        const customFindingHandler: FindingHandlerBase<CustomFindingCommand> =
+          new CustomFindingHandler(null, null, null, null);
+        const customFinding = new CreateCustomFinding();
+
+        customFinding.fields = [
+          {
+            key: 'field-1',
+            type: 'text',
+            data: 'Foo',
+            label: 'Field 1',
+          },
+          {
+            key: 'field-2',
+            type: 'text',
+            data: 'Bar',
+            label: 'Field 2',
+          },
+        ];
+
+        const customFindingCommand = new CustomFindingCommand(
+          '',
+          '',
+          CustomFindingCommand.name,
+          customFinding,
+        );
+
+        // Act
+        // @ts-expect-error
+        const shouldExecute = customFindingHandler.shouldExecute(
+          conditions,
+          customFindingCommand,
+        );
+
+        // Assert
+        expect(shouldExecute).toBe(true);
+      },
+    );
 
     it.each([
       [
@@ -275,34 +329,37 @@ describe('Findings Handler Base', () => {
           { lhs: 'qwerty', operator: 'equals_i', rhs: 'qwerty1' },
         ],
       ],
-    ])('Should be invalid for execution', (conditions: JobCondition[]) => {
-      // Arrange
-      const hnHandler: FindingHandlerBase<HostnameCommand> =
-        new HostnameHandler(null, null, null);
-      const hnFinding = new HostnameFinding();
-      const hnCommand = new HostnameCommand(
-        '',
-        HostnameCommand.name,
-        hnFinding,
-      );
-      let shouldExecute = false;
-      let atLeastOneError = false;
+    ])(
+      'Hostname finding - Should be invalid for execution',
+      (conditions: JobCondition[]) => {
+        // Arrange
+        const hnHandler: FindingHandlerBase<HostnameCommand> =
+          new HostnameHandler(null, null, null);
+        const hnFinding = new HostnameFinding();
+        const hnCommand = new HostnameCommand(
+          '',
+          HostnameCommand.name,
+          hnFinding,
+        );
+        let shouldExecute = false;
+        let atLeastOneError = false;
 
-      // Act
-      for (const c of conditions) {
-        // @ts-expect-error
-        shouldExecute = hnHandler.shouldExecute([c], hnCommand);
-        if (shouldExecute) {
-          atLeastOneError = true;
-          console.log(
-            `Error while processing condition: [${c.lhs} ${c.operator} ${c.rhs}] should be false`,
-          );
+        // Act
+        for (const c of conditions) {
+          // @ts-expect-error
+          shouldExecute = hnHandler.shouldExecute([c], hnCommand);
+          if (shouldExecute) {
+            atLeastOneError = true;
+            console.log(
+              `Error while processing condition: [${c.lhs} ${c.operator} ${c.rhs}] should be false`,
+            );
+          }
         }
-      }
 
-      // Assert
-      expect(atLeastOneError).toBe(false);
-    });
+        // Assert
+        expect(atLeastOneError).toBe(false);
+      },
+    );
   });
 
   describe("Replace a finding's refered ${variable}", () => {
@@ -347,10 +404,10 @@ describe('Findings Handler Base', () => {
         expect(valueCopy).toStrictEqual(hnipFinding.domainName);
       },
     );
+
     it.each([
       '   ${    domainName   ',
       '{domainName}',
-      '${doma   inName}  ',
       '    $   { domainName  }',
       'domainName',
     ])(

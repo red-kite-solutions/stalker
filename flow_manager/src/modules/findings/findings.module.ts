@@ -3,9 +3,9 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { Kafka } from 'kafkajs';
 import { orchestratorConstants } from '../auth/constants';
 import { CustomJobsModule } from '../database/custom-jobs/custom-jobs.module';
+import { DatalayerModule } from '../database/datalayer.module';
 import { JobsModule } from '../database/jobs/jobs.module';
 import { CompanyModule } from '../database/reporting/company.module';
-import { FindingModelModule } from '../database/reporting/findings/findings-model.module';
 import { HostModule } from '../database/reporting/host/host.module';
 import { SubscriptionsModule } from '../database/subscriptions/subscriptions.module';
 import { FindingsHandlers } from './commands/findings-commands';
@@ -18,7 +18,7 @@ import { FindingsService } from './findings.service';
     JobsModule,
     CompanyModule,
     HostModule,
-    FindingModelModule,
+    DatalayerModule,
     SubscriptionsModule,
     CustomJobsModule,
   ],
