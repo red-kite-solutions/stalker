@@ -10,7 +10,10 @@ import { isMongoId } from 'class-validator';
 import { ChangeStream, ChangeStreamDocument } from 'mongodb';
 import { Server, Socket } from 'socket.io';
 import { JobsService } from './jobs.service';
-import { JobDocument } from './models/custom-job.model';
+
+export class JobOutputResponse {
+  constructor(private output: string[]) {}
+}
 
 @WebSocketGateway(3001, { cors: true })
 export class JobOutputGateway implements OnGatewayDisconnect {
@@ -24,18 +27,15 @@ export class JobOutputGateway implements OnGatewayDisconnect {
 
   constructor(private jobsService: JobsService) {}
 
-  @SubscribeMessage('JobOutputReq')
+  @SubscribeMessage('JobOutputRequest')
   listenForMessages(
     @MessageBody('jobId') jobId: string,
     @ConnectedSocket() client: Socket,
   ) {
-    console.log(`Subscribing to job id : ${jobId}`);
     if (!isMongoId(jobId)) {
       client.disconnect(true);
       return;
     }
-
-    console.log('mongo id true');
 
     // Closing the current change stream if one was already up for this socket
     const cs = this.socketChangeStreamMap.get(client.id);
@@ -45,19 +45,29 @@ export class JobOutputGateway implements OnGatewayDisconnect {
 
     // Registering for changes on the job document in mongo
     const changeStream = this.jobsService.watchForJobOutput(jobId);
-    const next = (job: Partial<JobDocument>) => {
-      console.log('COUCOU :)');
-      console.log(job);
-      client.emit('JobOutputRes', job);
-    };
     this.socketChangeStreamMap.set(client.id, changeStream);
-    // changeStream.eventNames()
+
+    const next = (change: ChangeStreamDocument) => {
+      if (change.operationType !== 'update') return;
+
+      if (change.updateDescription.updatedFields) {
+        for (const key of Object.keys(change.updateDescription.updatedFields)) {
+          if (key.startsWith('output')) {
+            client.emit(
+              JobOutputResponse.name,
+              new JobOutputResponse(
+                change.updateDescription.updatedFields[key],
+              ),
+            );
+          }
+        }
+      }
+    };
+
     changeStream.on('change', next);
-    console.log('end of call');
   }
 
   handleDisconnect(@ConnectedSocket() client: Socket) {
-    console.log(`disconnecting client ${client.id}`);
     const changeStream = this.socketChangeStreamMap.get(client.id);
     if (changeStream) {
       changeStream.close();

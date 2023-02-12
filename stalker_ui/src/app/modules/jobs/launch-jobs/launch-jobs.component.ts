@@ -1,24 +1,25 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, OnDestroy, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
-import { map } from 'rxjs';
+import { map, Subscription } from 'rxjs';
 import { CodeEditorService } from 'src/app/shared/widget/code-editor/code-editor.service';
 import { parse, parseDocument, stringify } from 'yaml';
 import { CompaniesService } from '../../../api/companies/companies.service';
 import { JobsService } from '../../../api/jobs/jobs/jobs.service';
 import { JobOutputResponse, SocketioService } from '../../../api/socketio/socketio.service';
 import { CompanySummary } from '../../../shared/types/company/company.summary';
-import { JobInput, JobListEntry, StartedJob } from '../../../shared/types/jobs/job.type';
+import { JobInput, JobListEntry, JobParameterDefinition, StartedJob } from '../../../shared/types/jobs/job.type';
+import { getLogTimestamp } from '../../../utils/time.utils';
 
 @Component({
   selector: 'app-launch-jobs',
   templateUrl: './launch-jobs.component.html',
   styleUrls: ['./launch-jobs.component.scss'],
 })
-export class LaunchJobsComponent {
+export class LaunchJobsComponent implements OnDestroy {
   public code = '';
   public output = '';
   public language = 'yaml';
@@ -26,6 +27,7 @@ export class LaunchJobsComponent {
   public theme: 'vs-dark' = 'vs-dark';
   public readonly = false;
   public currentStartedJob: StartedJob | undefined;
+  public currentJobOutputSubscription: Subscription | undefined;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   dataSource = new MatTableDataSource<JobListEntry>();
@@ -84,11 +86,12 @@ export class LaunchJobsComponent {
 
   private formatYamlFromJob(job: JobListEntry | undefined): string {
     if (!job) return '';
-    const jobCopy = JSON.parse(JSON.stringify(job));
+    const jobCopy = <Partial<JobListEntry>>JSON.parse(JSON.stringify(job));
     delete jobCopy.name;
     delete jobCopy.source;
-    jobCopy.parameters = jobCopy.parameters.map((item: any) => {
-      return { ...item, value: 'Change Me' };
+    if (!jobCopy.parameters) return '';
+    jobCopy.parameters = jobCopy.parameters.map((item: JobParameterDefinition) => {
+      return { name: item.name, type: item.type, value: item.default === undefined ? 'Change Me' : item.default };
     });
     const jobYml: any = parseDocument(stringify(jobCopy));
 
@@ -135,12 +138,14 @@ export class LaunchJobsComponent {
         this.currentStartedJob = await this.jobsService.startJob(this.currentJobName, parameters);
       }
 
-      this.socketioService.jobOutput.subscribe((res: JobOutputResponse) => {
-        console.log(`Response from websocket: " + ${res}`);
-        // this.output += `${msg.content}\n`;
-      });
+      this.output = $localize`:Starting Job Log|:${getLogTimestamp(this.currentStartedJob.startTime)} Starting job ${
+        this.currentJobName
+      } with id ${this.currentStartedJob.id}\n`;
 
-      console.log(this.currentStartedJob);
+      if (this.currentJobOutputSubscription) this.currentJobOutputSubscription.unsubscribe();
+      this.currentJobOutputSubscription = this.socketioService.jobOutput.subscribe((res: JobOutputResponse) => {
+        this.output += `${res.output}\n`;
+      });
 
       this.socketioService.sendMessage({ jobId: this.currentStartedJob.id });
     } catch {
@@ -150,19 +155,7 @@ export class LaunchJobsComponent {
     }
   }
 
-  public async testWebsocketSubscribe() {
-    this.socketioService.jobOutput.subscribe((res: JobOutputResponse) => {
-      console.log(`Response from websocket: " + ${res}`);
-      // this.output += `${msg.content}\n`;
-    });
-  }
-
-  public async testWebsocketSend() {
-    // const message: Message = {
-    //   source: 'job_output_req',
-    //   event: 'job_output_req',
-    //   content: 'gimme the output please',
-    // };
-    // this.socketioService.sendMessage(message);
+  ngOnDestroy(): void {
+    if (this.currentJobOutputSubscription) this.currentJobOutputSubscription.unsubscribe();
   }
 }

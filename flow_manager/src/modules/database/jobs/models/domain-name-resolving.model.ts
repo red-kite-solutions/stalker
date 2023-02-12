@@ -15,12 +15,14 @@ export class DomainNameResolvingJob {
   public companyId!: string;
   public priority!: number;
   public output: string[];
+  public startTime: number;
+  public endTime: number;
 
   @Prop()
   public domainName!: string;
 
   public static parameterDefinitions: JobParameterDefinition[] = [
-    { name: 'domainName', type: 'string' },
+    { name: 'domainName', type: 'string', default: undefined },
   ];
 
   private static createDomainResolvingJob(

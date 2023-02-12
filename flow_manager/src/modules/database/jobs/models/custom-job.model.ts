@@ -23,6 +23,8 @@ export class CustomJob {
   public companyId!: string;
   public priority!: number;
   public output: string[];
+  public startTime: number;
+  public endTime: number;
 
   @Prop()
   public name!: string;

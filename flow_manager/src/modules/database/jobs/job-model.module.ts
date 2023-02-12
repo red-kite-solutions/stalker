@@ -38,6 +38,7 @@ export const JobDefinitions: JobDefinition[] = [
     name: HttpServerCheckJob.name,
     schema: HttpServerCheckJobShema,
     create: HttpServerCheckJob.create,
+    params: HttpServerCheckJob.parameterDefinitions,
   },
 ];
 

@@ -5,6 +5,7 @@ export interface JobListEntry extends JobInput {
 export interface JobParameterDefinition {
   name: string;
   type: string;
+  default?: any;
 }
 
 export interface JobInput {
@@ -14,5 +15,6 @@ export interface JobInput {
 
 export interface StartedJob extends JobInput {
   id: string;
-  running: boolean;
+  startTime: number;
+  endTime: number;
 }

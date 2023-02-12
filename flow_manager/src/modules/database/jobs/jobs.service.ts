@@ -43,7 +43,11 @@ export class JobsService {
   public async publish(job: Job) {
     let createdJob: JobDocument;
     if (job.companyId === CompanyUnassigned) {
-      createdJob = await this.jobModel.create({ ...job, companyId: undefined });
+      createdJob = await this.jobModel.create({
+        ...job,
+        companyId: undefined,
+        startTime: Date.now(),
+      });
       createdJob.companyId = job.companyId;
     } else {
       createdJob = await this.jobModel.create(job);
@@ -63,6 +67,7 @@ export class JobsService {
 
     return {
       id: createdJob.id,
+      startTime: createdJob.startTime,
       ...job,
     };
   }

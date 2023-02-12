@@ -29,6 +29,12 @@ export class Job {
 
   @Prop()
   public output: string[];
+
+  @Prop()
+  public startTime: number;
+
+  @Prop()
+  public endTime: number;
 }
 
 export const JobSchema = SchemaFactory.createForClass(Job);

@@ -16,6 +16,8 @@ export class TcpPortScanningJob {
   public companyId!: string;
   public priority!: number;
   public output: string[];
+  public startTime: number;
+  public endTime: number;
 
   @Prop()
   public targetIp!: string;
@@ -31,12 +33,12 @@ export class TcpPortScanningJob {
   public ports!: number[];
 
   public static parameterDefinitions: JobParameterDefinition[] = [
-    { name: 'targetIp', type: 'string' },
-    { name: 'threads', type: 'number' },
-    { name: 'socketTimeoutSeconds', type: 'number' },
-    { name: 'portMin', type: 'number' },
-    { name: 'portMax', type: 'number' },
-    { name: 'ports', type: 'number[]' },
+    { name: 'targetIp', type: 'string', default: undefined },
+    { name: 'threads', type: 'number', default: 100 },
+    { name: 'socketTimeoutSeconds', type: 'number', default: 0.7 },
+    { name: 'portMin', type: 'number', default: 1 },
+    { name: 'portMax', type: 'number', default: 1000 },
+    { name: 'ports', type: 'number[]', default: [] },
   ];
 
   private static createTcpPortScanJob(

@@ -13,15 +13,14 @@ export interface JobOutputResponse {
   providedIn: 'root',
 })
 export class SocketioService {
-  public readonly jobOutputResponse = 'JobOutputRes';
-  public readonly jobOutputRequest = 'JobOutputReq';
+  public readonly jobOutputResponse = 'JobOutputResponse';
+  public readonly jobOutputRequest = 'JobOutputRequest';
 
   jobOutput = this.socket.fromEvent<JobOutputResponse>(this.jobOutputResponse);
 
   constructor(private socket: Socket) {}
 
   sendMessage(r: JobOutputRequest) {
-    console.log(`sending job ${r.jobId}`);
     this.socket.emit(this.jobOutputRequest, r);
   }
 }
