@@ -68,7 +68,7 @@ export class SubmitHostsDto {
   ips: string[];
 }
 
-export class CreateJobDto {
+export class StartJobDto {
   @IsIn(JobTypes)
   @IsNotEmpty()
   @IsString()

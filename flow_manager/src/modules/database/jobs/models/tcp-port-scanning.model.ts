@@ -1,9 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { isArray, isInt, isMongoId, isNumber } from 'class-validator';
+import { isArray, isInt, isNumber } from 'class-validator';
 import { Document } from 'mongoose';
 import { isIP } from 'net';
 import { JobParameterValueException } from '../../../../exceptions/job-parameter.exception';
 import { JobParameterDefinition } from '../../../../types/job-parameter-definition.type';
+import { isCompanyId } from '../../../../validators/isCompanyId.validator';
 import { JobParameter } from '../../subscriptions/subscriptions.model';
 import { JobFactoryUtils } from '../jobs.factory';
 
@@ -14,6 +15,7 @@ export class TcpPortScanningJob {
   public task: string;
   public companyId!: string;
   public priority!: number;
+  public output: string[];
 
   @Prop()
   public targetIp!: string;
@@ -59,7 +61,7 @@ export class TcpPortScanningJob {
 
     const jobName = TcpPortScanningJob.name;
 
-    if (!isMongoId(job.companyId)) {
+    if (!isCompanyId(job.companyId)) {
       throw new JobParameterValueException('companyId', job.companyId);
     }
 

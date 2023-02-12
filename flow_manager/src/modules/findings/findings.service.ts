@@ -7,6 +7,7 @@ import {
   HttpNotFoundException,
 } from '../../exceptions/http.exceptions';
 import { Page } from '../../types/page.type';
+import { CompanyUnassigned } from '../../validators/isCompanyId.validator';
 import { JobsService } from '../database/jobs/jobs.service';
 import { CompanyService } from '../database/reporting/company.service';
 import { CorrelationKeyUtils } from '../database/reporting/correlation.utils';
@@ -108,11 +109,15 @@ export class FindingsService {
     jobId: string = null,
     dto: CreateCustomFinding,
   ) {
-    const company = await this.companyService.get(companyId);
-    if (company === null) {
-      throw new HttpNotFoundException(
-        `The company for the given job does not exist (jobId=${jobId}, companyId=${companyId})`,
-      );
+    if (companyId !== undefined) {
+      const company = await this.companyService.get(companyId);
+      if (company === null) {
+        throw new HttpNotFoundException(
+          `The company for the given job does not exist (jobId=${jobId}, companyId=${companyId})`,
+        );
+      }
+    } else {
+      companyId = CompanyUnassigned;
     }
 
     const job = await this.jobsService.getById(jobId);
@@ -215,14 +220,26 @@ export class FindingsService {
         return;
       }
 
-      const company = await this.companyService.get(job.companyId);
-      if (company === null) {
-        this.logger.error(
-          `The company for the given job does not exist (jobId=${jobId}, companyId=${job.companyId})`,
-        );
-        return;
+      if (job.companyId !== undefined) {
+        const company = await this.companyService.get(job.companyId);
+        if (company === null) {
+          this.logger.error(
+            `The company for the given job does not exist (jobId=${jobId}, companyId=${job.companyId})`,
+          );
+          return;
+        }
+        companyId = company._id.toString();
+      } else {
+        companyId = CompanyUnassigned;
       }
-      companyId = company._id.toString();
+      this.jobsService.addJobOutputLine(jobId, JSON.stringify(finding));
+    }
+
+    if (companyId === CompanyUnassigned) {
+      // Skipping the findings management if it was not assigned to any company,
+      // as the job was run as a one time thing. The output will be fetched by
+      // the front-end and will be shown to the user.
+      return;
     }
 
     switch (finding.type) {

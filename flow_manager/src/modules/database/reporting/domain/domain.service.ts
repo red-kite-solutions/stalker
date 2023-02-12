@@ -116,7 +116,7 @@ export class DomainsService {
 
   public async deleteAllForCompany(companyId: string) {
     return await this.domainModel.deleteMany({
-      companyId: { $eq: Types.ObjectId(companyId) },
+      companyId: { $eq: new Types.ObjectId(companyId) },
     });
   }
 

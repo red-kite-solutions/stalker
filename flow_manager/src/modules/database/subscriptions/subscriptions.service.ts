@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { CompanyUnassigned } from '../../../validators/isCompanyId.validator';
 import { SubscriptionDto } from './subscriptions.dto';
 import { Subscription } from './subscriptions.model';
 
@@ -51,6 +52,8 @@ export class SubscriptionsService {
   }
 
   public async getAllForFinding(companyId: string, finding: string) {
+    if (companyId === CompanyUnassigned) return [];
+
     return await this.subscriptionModel.find({
       companyId: { $eq: new Types.ObjectId(companyId) },
       finding: { $eq: finding },

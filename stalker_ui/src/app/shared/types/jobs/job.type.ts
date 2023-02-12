@@ -13,6 +13,6 @@ export interface JobInput {
 }
 
 export interface StartedJob extends JobInput {
-  _id: string;
+  id: string;
   running: boolean;
 }

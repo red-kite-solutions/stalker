@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Document, Model, Types } from 'mongoose';
+import { getLogTimestamp } from '../../../utils/time.utils';
+import { CompanyUnassigned } from '../../../validators/isCompanyId.validator';
 import { JobQueue } from '../../job-queue/job-queue';
-import { CreateJobDto } from './dtos/create-job.dto';
-import { JobDto } from './dtos/job.dto';
 import { Job, JobDocument } from './models/jobs.model';
 
 @Injectable()
@@ -12,12 +12,6 @@ export class JobsService {
     private jobQueue: JobQueue,
     @InjectModel('job') private readonly jobModel: Model<Job & Document>,
   ) {}
-
-  public async create(dto: CreateJobDto): Promise<JobDto> {
-    const job = new this.jobModel(dto);
-    const savedJob = await job.save();
-    return { id: savedJob.id, ...dto };
-  }
 
   public async getAll(page = null, pageSize = null): Promise<JobDocument[]> {
     let query = this.jobModel.find();
@@ -47,7 +41,13 @@ export class JobsService {
   }
 
   public async publish(job: Job) {
-    const createdJob = await this.jobModel.create(job);
+    let createdJob: JobDocument;
+    if (job.companyId === CompanyUnassigned) {
+      createdJob = await this.jobModel.create({ ...job, companyId: undefined });
+      createdJob.companyId = job.companyId;
+    } else {
+      createdJob = await this.jobModel.create(job);
+    }
 
     if (!process.env.TESTS) {
       await this.jobQueue.publish({
@@ -65,5 +65,20 @@ export class JobsService {
       id: createdJob.id,
       ...job,
     };
+  }
+
+  public async addJobOutputLine(jobId: string, line: string) {
+    return await this.jobModel.updateOne(
+      { _id: { $eq: new Types.ObjectId(jobId) } },
+      { $push: { output: `${getLogTimestamp()} ${line}` } },
+    );
+  }
+
+  public watchForJobOutput(jobId: string) {
+    const pipeline = [
+      // { $match: { 'fullDocument._id': new Types.ObjectId(jobId) } },
+      // { $match: { operationType: 'update' } }
+    ];
+    return this.jobModel.collection.watch();
   }
 }

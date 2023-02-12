@@ -9,6 +9,7 @@ import { CodeEditorService } from 'src/app/shared/widget/code-editor/code-editor
 import { parse, parseDocument, stringify } from 'yaml';
 import { CompaniesService } from '../../../api/companies/companies.service';
 import { JobsService } from '../../../api/jobs/jobs/jobs.service';
+import { JobOutputResponse, SocketioService } from '../../../api/socketio/socketio.service';
 import { CompanySummary } from '../../../shared/types/company/company.summary';
 import { JobInput, JobListEntry, StartedJob } from '../../../shared/types/jobs/job.type';
 
@@ -54,7 +55,8 @@ export class LaunchJobsComponent {
     private jobsService: JobsService,
     private toastr: ToastrService,
     private companiesService: CompaniesService,
-    private titleService: Title
+    private titleService: Title,
+    private socketioService: SocketioService
   ) {
     this.codeEditorService.load();
     this.titleService.setTitle($localize`:Launch Jobs|:Launch Jobs`);
@@ -132,10 +134,35 @@ export class LaunchJobsComponent {
       } else {
         this.currentStartedJob = await this.jobsService.startJob(this.currentJobName, parameters);
       }
+
+      this.socketioService.jobOutput.subscribe((res: JobOutputResponse) => {
+        console.log(`Response from websocket: " + ${res}`);
+        // this.output += `${msg.content}\n`;
+      });
+
+      console.log(this.currentStartedJob);
+
+      this.socketioService.sendMessage({ jobId: this.currentStartedJob.id });
     } catch {
       this.toastr.error(
         $localize`:Error while starting job|There was an error while starting the job:Error while starting job`
       );
     }
+  }
+
+  public async testWebsocketSubscribe() {
+    this.socketioService.jobOutput.subscribe((res: JobOutputResponse) => {
+      console.log(`Response from websocket: " + ${res}`);
+      // this.output += `${msg.content}\n`;
+    });
+  }
+
+  public async testWebsocketSend() {
+    // const message: Message = {
+    //   source: 'job_output_req',
+    //   event: 'job_output_req',
+    //   content: 'gimme the output please',
+    // };
+    // this.socketioService.sendMessage(message);
   }
 }

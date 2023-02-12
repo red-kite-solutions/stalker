@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { isArray, isEmpty, isIn, isMongoId, isString } from 'class-validator';
+import { isArray, isEmpty, isIn, isString } from 'class-validator';
 import { Document } from 'mongoose';
 import { JobParameterValueException } from '../../../../exceptions/job-parameter.exception';
 import { JobParameterDefinition } from '../../../../types/job-parameter-definition.type';
@@ -7,6 +7,7 @@ import {
   environmentVariableConflict,
   environmentVariableRegex,
 } from '../../../../utils/linux-environment-variables.utils';
+import { isCompanyId } from '../../../../validators/isCompanyId.validator';
 import { JobParameter } from '../../subscriptions/subscriptions.model';
 import { JobFactoryUtils } from '../jobs.factory';
 import { Job } from './jobs.model';
@@ -21,6 +22,7 @@ export class CustomJob {
   public task: string;
   public companyId!: string;
   public priority!: number;
+  public output: string[];
 
   @Prop()
   public name!: string;
@@ -82,7 +84,7 @@ export class CustomJob {
     job.language = language;
     job.customJobParameters = customJobParameters;
 
-    if (!isMongoId(job.companyId)) {
+    if (!isCompanyId(job.companyId)) {
       throw new JobParameterValueException('companyId', job.companyId);
     }
 

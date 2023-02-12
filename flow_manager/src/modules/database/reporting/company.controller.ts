@@ -19,14 +19,14 @@ import { Role } from '../../auth/constants';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/role.guard';
-import { JobDefinitions } from '../jobs/job-model.module';
+import { JobFactory } from '../jobs/jobs.factory';
 import { Job } from '../jobs/models/jobs.model';
 import { JobParameter } from '../subscriptions/subscriptions.model';
 
 import {
   CreateCompanyDto,
-  CreateJobDto,
   EditCompanyDto,
+  StartJobDto,
   SubmitDomainsDto,
   SubmitHostsDto,
 } from './company.dto';
@@ -99,21 +99,17 @@ export class CompanyController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
   @Post(':id/job')
-  async createJobForCompany(
+  async startJobForCompany(
     @Param() idDto: MongoIdDto,
-    @Body(new ValidationPipe()) dto: CreateJobDto,
+    @Body(new ValidationPipe()) dto: StartJobDto,
   ): Promise<Job> {
-    const jobDef = JobDefinitions.find((jd) => dto.task === jd.name);
-
-    if (!jobDef) throw new HttpBadRequestException();
-
     const companyIdParameter = new JobParameter();
     companyIdParameter.name = 'companyId';
     companyIdParameter.value = idDto.id;
     dto.jobParameters.push(companyIdParameter);
 
-    // parameters are validated thoroughly in the create function
-    const job = jobDef.create(dto.jobParameters);
+    // parameters are validated thoroughly in job creation
+    const job = JobFactory.createJob(dto.task, dto.jobParameters);
 
     if (!job) throw new HttpBadRequestException();
     job.priority = 1;

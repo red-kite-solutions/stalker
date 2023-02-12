@@ -133,6 +133,9 @@ deployments:
             - containerPort: 3000
               port: 3000
               protocol: TCP
+            - containerPort: 3001
+              port: 3001
+              protocol: TCP
 
   flow-manager-e2e:
     helm:
@@ -185,7 +188,11 @@ deployments:
         name: mongodb
         repo: https://charts.bitnami.com/bitnami
       values:
-        architecture: standalone
+        architecture: replicaset
+        replicaCount: 2
+        replicaSetName: ${MONGO_REPLICA_SET_NAME}
+        # arbiter:
+        #   enabled: false
         service:
           ports:
             mongodb: 27017
@@ -234,7 +241,7 @@ deployments:
   network-policies:
     kubectl:
       manifests:
-        - network-policy.yml
+        # - network-policy.yml
         - stalker_ui/${NETWORK_POLICY}
         - database/${NETWORK_POLICY}
         - flow_manager/${NETWORK_POLICY}
@@ -268,6 +275,7 @@ dev:
       inject: false
     ports:
       - port: "3000"
+      - port: "3001"
 
   flow-manager-e2e:
     labelSelector:

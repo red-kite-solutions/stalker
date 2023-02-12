@@ -24,6 +24,9 @@ export class Job {
 
   @Prop()
   public priority!: number;
+
+  @Prop()
+  public output: string[];
 }
 
 export const JobSchema = SchemaFactory.createForClass(Job);
