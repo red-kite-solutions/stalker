@@ -24,31 +24,44 @@ export type Finding =
   | PortFinding
   | CreateCustomFinding;
 
-export class PortFinding {
-  type: 'PortFinding';
-  protocol: 'tcp' | 'udp';
-  ip: string;
-  port: number;
+export class FindingBase {
+  fields?: CustomFindingFieldDto[];
 }
 
-export class CreateCustomFinding {
+export class PortFinding extends FindingBase {
+  type: 'PortFinding';
+  key: 'PortFinding';
+  ip: string;
+  port: number;
+  fields: [
+    {
+      type: 'text';
+      key: 'protocol';
+      data: 'tcp' | 'udp';
+      label: string;
+    },
+  ];
+}
+
+export class CreateCustomFinding extends FindingBase {
   type: 'CustomFinding';
   key: string;
   domainName?: string;
   ip?: string;
   port?: number;
   name: string;
-  fields: CustomFindingFieldDto[];
 }
 
-export class HostnameFinding {
+export class HostnameFinding extends FindingBase {
   type: 'HostnameFinding';
-  domainName: string;
+  key: 'HostnameFinding';
   companyId: string;
+  domainName: string;
 }
 
-export class HostnameIpFinding {
+export class HostnameIpFinding extends FindingBase {
   type: 'HostnameIpFinding';
+  key: 'HostnameIpFinding';
   domainName: string;
   ip: string;
 }
@@ -197,7 +210,9 @@ export class FindingsService {
    */
   public handleJobFindings(findings: JobFindings) {
     for (const finding of findings.findings) {
-      this.handleFinding(finding, findings.jobId);
+      this.handleFinding(finding, findings.jobId).catch((e) =>
+        this.logger.error(e),
+      );
     }
   }
 
@@ -277,7 +292,7 @@ export class FindingsService {
         break;
 
       default:
-        console.log('Unknown finding type');
+        console.log(`Unknown finding type ${finding['type']}`);
     }
   }
 }

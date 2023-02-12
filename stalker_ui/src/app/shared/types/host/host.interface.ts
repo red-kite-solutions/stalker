@@ -2,7 +2,6 @@ import { DomainSummary } from '../domain/domain.summary';
 import { Tag } from '../tag.type';
 
 export interface Port {
-  id: string;
   port: number;
   correlationKey: string;
 }

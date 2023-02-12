@@ -12,7 +12,7 @@ import {
 } from '../../database/subscriptions/subscriptions.model';
 import { SubscriptionsService } from '../../database/subscriptions/subscriptions.service';
 import { Finding } from '../findings.service';
-import { FindingsCommandMapping } from './findings-commands';
+import { executeDsl, prepareContext } from './automation-dsl-interpreter';
 import { FindingCommand } from './findings.command';
 
 export abstract class FindingHandlerBase<T extends FindingCommand>
@@ -103,31 +103,20 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
    */
   private replaceValueIfReferingToFinding(value: unknown, finding: Finding) {
     // https://regex101.com/r/9yy2OH/1
-    const paramRegex = /^\s*\$\{\s*([a-z]+)\s*\}\s*$/i;
-    let findingOutputVarKeys = Object.keys(finding);
-    findingOutputVarKeys = findingOutputVarKeys.filter((e) => e !== 'type');
-
+    const expressionRegex = /^\s*\$\{\s*([^\s]+)\s*\}\s*$/i;
     if (typeof value !== 'string') {
       return value;
     }
 
-    const match = value.match(paramRegex);
+    const match = value.match(expressionRegex);
 
     if (!match || match.length <= 1) {
       return value;
     }
 
-    const matchStr = match[1].toLowerCase();
-
-    const varKey = findingOutputVarKeys.find(
-      (s) => s.toLowerCase() === matchStr,
-    );
-
-    if (!varKey) {
-      return value;
-    }
-
-    return finding[varKey];
+    const expression = match[1].toLowerCase();
+    const ctx = prepareContext(finding);
+    return executeDsl(expression, ctx) || '';
   }
 
   private async getParametersForCustomJobSubscription(
@@ -187,7 +176,7 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
    */
   private shouldExecute(jobConditions: JobCondition[], command: T) {
     let allConditionsMatch = true;
-    for (const condition of jobConditions) {
+    for (const condition of jobConditions ?? []) {
       condition.lhs = this.replaceValueIfReferingToFinding(
         condition.lhs,
         command.finding,
@@ -206,15 +195,11 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
   }
 
   public async execute(command: T) {
-    const mapping = FindingsCommandMapping.find(
-      (m) => command.commandType === m.command.name,
-    );
-
     // Only the subscriptions concerning the current company and the current finding
     // type are returned by the database
     const subs = await this.subscriptionService.getAllForFinding(
       command.companyId,
-      mapping.finding,
+      command.finding.key,
     );
 
     for (const sub of subs) {
@@ -253,7 +238,7 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
 
       // Launching the generic function that creates the appropriate job and publishing it
       const job: Job = JobFactory.createJob(sub.jobName, sub.jobParameters);
-      if (job !== null) this.jobsService.publish(job);
+      if (job != null) this.jobsService.publish(job);
     }
 
     try {

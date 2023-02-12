@@ -9,7 +9,6 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { IsTypeIn } from '../../../validators/isTypeIn.validator';
-import { FindingTypes } from '../../findings/commands/findings-commands';
 import { JobTypes } from '../jobs/job-model.module';
 
 export class SubscriptionDto {
@@ -23,7 +22,6 @@ export class SubscriptionDto {
 
   @IsString()
   @IsNotEmpty()
-  @IsIn(FindingTypes)
   public finding!: string;
 
   @IsString()

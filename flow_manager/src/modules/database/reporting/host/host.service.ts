@@ -12,7 +12,7 @@ import { DomainsService } from '../domain/domain.service';
 import { DomainSummary } from '../domain/domain.summary';
 import { ReportService } from '../report/report.service';
 import { HostFilterModel } from './host-filter.model';
-import { Host, HostDocument } from './host.model';
+import { Host, HostDocument, Port } from './host.model';
 import { HostSummary } from './host.summary';
 
 @Injectable()
@@ -309,22 +309,36 @@ export class HostService {
     return finalFilter;
   }
 
-  public async addPortsByIp(companyId: string, ip: string, ports: number[]) {
+  public async addPortsByIp(
+    companyId: string,
+    ip: string,
+    portNumbers: number[],
+  ) {
     const host = await this.hostModel.findOne({
       ip: { $eq: ip },
       companyId: { $eq: new Types.ObjectId(companyId) },
     });
     if (!host) throw new HttpNotFoundException();
 
+    const ports: Port[] = portNumbers.map((port) => ({
+      port: port,
+      correlationKey: CorrelationKeyUtils.portCorrelationKey(
+        companyId,
+        ip,
+        port,
+      ),
+    }));
+
     await this.hostModel.updateOne(
       { ip: { $eq: ip }, companyId: { $eq: new Types.ObjectId(companyId) } },
-      { $addToSet: { ports: ports } },
+      { $addToSet: { ports } },
     );
+
     const newPorts = host.ports
       ? ports.filter(
           (a) =>
             !host.ports.some((b) => {
-              return a === b.port;
+              return a.port === b.port;
             }),
         )
       : ports;

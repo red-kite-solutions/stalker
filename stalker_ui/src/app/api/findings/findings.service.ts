@@ -14,6 +14,6 @@ export class FindingsService {
   public getFindings(target: string, page = 1, pageSize = 25): Observable<Page<CustomFinding>> {
     return this.http
       .get<Page<CustomFinding>>(`${environment.fmUrl}/findings?target=${target}&page=${page}&pageSize=${pageSize}`)
-      .pipe(tap((x) => (x.items = x.items.map((i) => ({ ...i, created: new Date() })))));
+      .pipe(tap((x) => (x.items = x.items.map((i) => ({ ...i, created: new Date(i.created) })))));
   }
 }

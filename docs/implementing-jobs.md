@@ -10,9 +10,21 @@ job communicates its _findings_ and more to Stalker.
 
 > This article is a work in progress, it is currently incomplete.
 
-* [Output and findings](#making-contact-with-the-outside-world)
-* [Built-in jobs](#built-in-jobs)
-* [Custom jobs](#custom-jobs)
+- [Output and findings](#making-contact-with-the-outside-world)
+- [Built-in jobs](#built-in-jobs)
+- [Custom jobs](#custom-jobs)
+
+## Python
+
+The `stalker_job_sdk` provides utilitary functions and classes to help you implement jobs.
+
+### Setup
+
+In order for intellisense to help you, you need to create a virtual environmnet. Vscode's [python](https://marketplace.visualstudio.com/items?itemName=ms-python.python) extension can help you with that: use the "Python: Create environment" command. Then, install the requirements:
+
+```
+pip install -r requirements.txt
+```
 
 ## Making contact with the outside world
 
@@ -22,7 +34,7 @@ To differentiate common logs from logs that are pertinent to Stalker, jobs must 
 | Syntax                                     | Description           |
 | ------------------------------------------ | --------------------- |
 | @finding \<[finding](#producing-findings)> | Produces a finding.   |
-| @logdebug \<[message](#producing-logs)>    | Logs a debug message. |
+| @debug \<[message](#producing-logs)>       | Logs a debug message. |
 
 ### Producing findings
 
@@ -36,7 +48,7 @@ The finding object must contain the `type` field. Here is a list of available ty
 | --------------------------------------- | -------------------------------------------------- |
 | [HostnameIpFinding](#hostnameipfinding) | Creates a new host, attaches it to a given domain. |
 | [PortFinding](#portfinding)             | Creates a new port, attaches it to the given host. |
-| [DynamicFinding](#dynamicfinding)       | Attaches custom finding data to a given entity.    |
+| [CustomFinding](#customfinding)         | Attaches custom finding data to a given entity.    |
 
 #### HostnameIpFinding
 
@@ -78,7 +90,7 @@ Example:
 }
 ```
 
-#### DynamicFinding
+#### CustomFinding
 
 Dynamic findings allow jobs to attach custom data to core entities.
 
@@ -155,12 +167,12 @@ Example:
 
 Logs let jobs communicate miscellaneous information to the outside world. It could be a progress report, an error log, an inspirational quote, anything works.
 
-To output a log, simply write a string prefixed with `@logdebug` to the standard output.
+To output a log, simply write a string prefixed with `@debug` to the standard output.
 
 Example:
 
 ```
-@logdebug Hello world!
+@debug Hello world!
 ```
 
 ## Built-in Jobs
@@ -214,7 +226,7 @@ var_content = os.environ['myCustomParameter']
 All the parameters given to a job are provided as environment variables. Therefore, parameter names must respect a fixed character set. The following regular expression is used to validate the characters of the parameter names before the creation of the job. Not respecting this regex will result in the job not being created.
 
 ```javascript
-/^[A-Za-z][A-Za-z0-9_]*$/
+/^[A-Za-z][A-Za-z0-9_]*$/;
 ```
 
 Also, to avoid conflicts with common os variable names, the following varibles must not be set. Naming a parameter with one of these names will result in the job not being created.
@@ -240,4 +252,4 @@ Also, to avoid conflicts with common os variable names, the following varibles m
 
 ### Custom Job Output
 
-Custom jobs communicate in the exact same way as regular jobs. They print to stdout, [respecting the syntax for a @finding or a @logdebug](#making-contact-with-the-outside-world).
+Custom jobs communicate in the exact same way as regular jobs. They print to stdout, [respecting the syntax for a @finding or a @debug](#making-contact-with-the-outside-world).
