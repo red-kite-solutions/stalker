@@ -28,6 +28,7 @@ public class JobFactory : IJobFactory
         Config = config;
 
         string? pythonJobTemplatePath = config.GetSection("Jobs").GetSection("JobsProvider").GetValue<string>("PythonTemplatesPath");
+
         if (pythonJobTemplatePath == null) throw new NullReferenceException("Setting PythonTemplatesPath is missing.");
 
         JobProvider = new PythonJobTemplateProvider(LoggerFactory.CreateLogger<PythonJobTemplateProvider>(), pythonJobTemplatePath);
@@ -41,12 +42,13 @@ public class JobFactory : IJobFactory
         {
             DomainNameResolvingJobRequest domainResolving => new DomainNameResolvingCommand(domainResolving, Kubernetes, EventsProducer, Parser, LoggerFactory.CreateLogger<DomainNameResolvingCommand>(), JobProvider, Config),
             TcpPortScanningJobRequest tcpPortScanning => new TcpPortScanningCommand(tcpPortScanning, Kubernetes, EventsProducer, Parser, LoggerFactory.CreateLogger<TcpPortScanningCommand>(), JobProvider, Config),
+            HttpServerCheckJobRequest httpCheck => new HttpServerCheckCommand(httpCheck, Kubernetes, EventsProducer, Parser, LoggerFactory.CreateLogger<TcpPortScanningCommand>(), JobProvider, Config),
             CustomJobRequest customJob => CreateCustomJobCommand(customJob),
             _ => throw new InvalidOperationException(),
         };
     }
 
-    private JobCommand CreateCustomJobCommand(CustomJobRequest request) 
+    private JobCommand CreateCustomJobCommand(CustomJobRequest request)
     {
         if (request.Type?.ToLower() == "code")
         {
@@ -56,6 +58,8 @@ public class JobFactory : IJobFactory
                 _ => throw new InvalidOperationException(),
             };
         }
+
         throw new InvalidOperationException();
+
     }
 }

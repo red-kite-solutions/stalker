@@ -11,17 +11,17 @@ imports:
 
 pipelines:
   build:
-    run: build_images ui flow-manager
+    run: build_images ui flow-manager orchestrator python-job-base
 
   deploy:
     run: |-
-      build_images ui flow-manager orchestrator
+      build_images ui flow-manager orchestrator python-job-base
       create_deployments mongo ui flow-manager kafka orchestrator-service-account orchestrator --sequential
 
   dev:
     run: |-
       create_deployments namespaces
-      build_images ui flow-manager orchestrator
+      build_images ui flow-manager orchestrator python-job-base
       create_deployments mongo kafka --sequential
 
       # Start mongo and kafka
@@ -52,7 +52,7 @@ pipelines:
         type: bool
     run: |-
       create_deployments namespaces
-      build_images flow-manager-e2e orchestrator
+      build_images flow-manager-e2e orchestrator python-job-base
       create_deployments mongo kafka orchestrator-service-account orchestrator flow-manager-e2e --sequential
 
       # Wait for kafka and mongo to be ready
@@ -105,6 +105,15 @@ images:
     dockerfile: orchestrator/Dockerfile.dev
     context: orchestrator
     rebuildStrategy: default
+
+  python-job-base:
+    image: python-job-base
+    dockerfile: job-base-images/Dockerfile.python
+    tags:
+      - "latest"
+      - "v1"
+    context: job-base-images
+    rebuildStrategy: always
 
 deployments:
   flow-manager:
