@@ -1,7 +1,5 @@
 ﻿using k8s;
 using k8s.Models;
-using System;
-using System.Formats.Asn1;
 
 namespace Orchestrator.K8s;
 
@@ -36,10 +34,10 @@ public class KubernetesFacade : IKubernetesFacade
 
         // The ResourceQuota for the jobs' namespace requires an explicit resource allocation for every pod
         var limitQuantity = new Dictionary<string, ResourceQuantity>();
-        limitQuantity["cpu"] = new ResourceQuantity(jobTemplate.MilliCpuLimit.ToString() + "m");
-        limitQuantity["memory"] = new ResourceQuantity(jobTemplate.MemoryKiloBytesLimit.ToString() + "Ki");
+        limitQuantity["cpu"] = new ResourceQuantity(jobTemplate.MilliCpuLimit + "m");
+        limitQuantity["memory"] = new ResourceQuantity(jobTemplate.MemoryKiloBytesLimit + "Ki");
 
-        V1ResourceRequirements ressources = new V1ResourceRequirements(limitQuantity);
+        V1ResourceRequirements resources = new V1ResourceRequirements(limits: limitQuantity);
 
         var kubernetesJob = new V1Job("batch/v1", "Job",
             new V1ObjectMeta
@@ -60,7 +58,7 @@ public class KubernetesFacade : IKubernetesFacade
                                     Image = jobTemplate.Image,
                                     Command = jobTemplate.Command,
                                     Env = jobTemplate.EnvironmentVariable.Select(x => new V1EnvVar(x.Key, x.Value)).ToList(),
-                                    Resources = ressources
+                                    Resources = resources
                                 }
                         },
                         RestartPolicy = "Never",

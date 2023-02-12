@@ -197,13 +197,10 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
   public async execute(command: T) {
     // Only the subscriptions concerning the current company and the current finding
     // type are returned by the database
-    console.log(command.finding.key);
     const subs = await this.subscriptionService.getAllForFinding(
       command.companyId,
       command.finding.key,
     );
-
-    console.log(subs);
 
     for (const sub of subs) {
       // Validate that, according to the conditions, the job should be executed.
@@ -241,7 +238,7 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
 
       // Launching the generic function that creates the appropriate job and publishing it
       const job: Job = JobFactory.createJob(sub.jobName, sub.jobParameters);
-      if (job !== null) this.jobsService.publish(job);
+      if (job != null) this.jobsService.publish(job);
     }
 
     try {

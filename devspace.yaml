@@ -108,11 +108,11 @@ images:
 
   python-job-base:
     image: python-job-base
-    dockerfile: job-base-images/Dockerfile.python
+    dockerfile: job-base-images/python/Dockerfile
     tags:
       - "latest"
       - "v1"
-    context: job-base-images
+    context: job-base-images/python
     rebuildStrategy: always
 
 deployments:
