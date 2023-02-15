@@ -9,14 +9,21 @@ export interface JobOutputResponse {
   output: string[];
 }
 
+export interface JobStatusUpdate {
+  status: 'success' | 'started';
+  timestamp: number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class SocketioService {
   public readonly jobOutputResponse = 'JobOutputResponse';
   public readonly jobOutputRequest = 'JobOutputRequest';
+  public readonly jobStatusUpdate = 'JobStatusUpdate';
 
   jobOutput = this.socket.fromEvent<JobOutputResponse>(this.jobOutputResponse);
+  jobStatus = this.socket.fromEvent<JobStatusUpdate>(this.jobStatusUpdate);
 
   constructor(private socket: Socket) {}
 

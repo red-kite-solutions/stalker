@@ -46,7 +46,7 @@ export class JobsService {
       createdJob = await this.jobModel.create({
         ...job,
         companyId: undefined,
-        startTime: Date.now(),
+        publishTime: Date.now(),
       });
       createdJob.companyId = job.companyId;
     } else {
@@ -81,9 +81,24 @@ export class JobsService {
 
   public watchForJobOutput(jobId: string) {
     const pipeline = [
-      // { $match: { 'fullDocument._id': new Types.ObjectId(jobId) } },
-      // { $match: { operationType: 'update' } }
+      { $match: { 'documentKey._id': new Types.ObjectId(jobId) } },
     ];
-    return this.jobModel.collection.watch();
+    return this.jobModel.collection.watch(pipeline);
+  }
+
+  public async updateJobStatus(
+    jobId: string,
+    status: string,
+    timestamp: number,
+  ) {
+    const select = { _id: { $eq: new Types.ObjectId(jobId) } };
+    switch (status.toLowerCase()) {
+      case 'started':
+        return await this.jobModel.updateOne(select, { startTime: timestamp });
+      case 'success':
+        return await this.jobModel.updateOne(select, { endTime: timestamp });
+      default:
+        return null;
+    }
   }
 }

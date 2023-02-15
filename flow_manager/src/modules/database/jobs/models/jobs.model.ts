@@ -31,6 +31,9 @@ export class Job {
   public output: string[];
 
   @Prop()
+  public publishTime: number;
+
+  @Prop()
   public startTime: number;
 
   @Prop()

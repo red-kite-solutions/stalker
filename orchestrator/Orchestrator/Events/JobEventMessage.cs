@@ -11,4 +11,9 @@ public class JobEventMessage
     /// Gets the findings associates with this event in json.S
     /// </summary>
     public string? FindingsJson { get; init; }
+
+    /// <summary>
+    /// The time at which the message was produced, unix epoch in ms
+    /// </summary>
+    public long Timestamp { get; init; }
 }

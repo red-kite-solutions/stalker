@@ -22,6 +22,7 @@ export type Finding =
   | HostnameIpFinding
   | HostnameFinding
   | PortFinding
+  | JobStatusFinding
   | CreateCustomFinding;
 
 export class FindingBase {
@@ -52,6 +53,12 @@ export class CreateCustomFinding extends FindingBase {
   name: string;
 }
 
+export class JobStatusFinding extends FindingBase {
+  type: 'JobStatusFinding';
+  key: 'JobStatusFinding';
+  status: string;
+}
+
 export class HostnameFinding extends FindingBase {
   type: 'HostnameFinding';
   key: 'HostnameFinding';
@@ -72,6 +79,7 @@ export interface Findings {
 
 export interface JobFindings extends Findings {
   jobId: string;
+  timestamp: number;
 }
 
 @Injectable()
@@ -210,23 +218,29 @@ export class FindingsService {
    */
   public handleJobFindings(findings: JobFindings) {
     for (const finding of findings.findings) {
-      this.handleFinding(finding, findings.jobId).catch((e) =>
-        this.logger.error(e),
+      this.handleFinding(finding, findings.timestamp, findings.jobId).catch(
+        (e) => this.logger.error(e),
       );
     }
   }
 
   /**
    * Handles findings that were NOT found by a job
+   * This function generates its own finding timestamp as the finding was created by
+   * the flow manager anyway
    * @param findings
    */
   public handleFindings(findings: Findings) {
     for (const finding of findings.findings) {
-      this.handleFinding(finding);
+      this.handleFinding(finding, Date.now());
     }
   }
 
-  private async handleFinding(finding: Finding, jobId: string = '') {
+  private async handleFinding(
+    finding: Finding,
+    timestamp: number,
+    jobId: string = '',
+  ) {
     let companyId = '';
     if (jobId) {
       const job = await this.jobsService.getById(jobId);
@@ -247,7 +261,13 @@ export class FindingsService {
       } else {
         companyId = CompanyUnassigned;
       }
-      this.jobsService.addJobOutputLine(jobId, JSON.stringify(finding));
+      if (finding.type !== 'JobStatusFinding') {
+        this.jobsService.addJobOutputLine(jobId, JSON.stringify(finding));
+      } else {
+        // If it was only a status update, no need to do the whole findings' logic
+        this.jobsService.updateJobStatus(jobId, finding.status, timestamp);
+        return;
+      }
     }
 
     if (companyId === CompanyUnassigned) {

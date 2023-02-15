@@ -53,6 +53,7 @@ export class FindingsModule {
             if (findingsRaw.JobId) {
               const findings = {
                 jobId: findingsRaw.JobId,
+                timestamp: findingsRaw.Timestamp,
                 findings: JSON.parse(findingsRaw.FindingsJson).findings,
               };
               this.logger.debug(

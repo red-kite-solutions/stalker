@@ -15,6 +15,7 @@ export class HttpServerCheckJob {
   public companyId!: string;
   public priority!: number;
   public output: string[];
+  public publishTime: number;
   public startTime: number;
   public endTime: number;
 

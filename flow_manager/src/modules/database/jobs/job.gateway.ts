@@ -15,6 +15,10 @@ export class JobOutputResponse {
   constructor(private output: string[]) {}
 }
 
+export class JobStatusUpdate {
+  constructor(private status: string, private timestamp: number) {}
+}
+
 @WebSocketGateway(3001, { cors: true })
 export class JobOutputGateway implements OnGatewayDisconnect {
   @WebSocketServer()
@@ -28,7 +32,7 @@ export class JobOutputGateway implements OnGatewayDisconnect {
   constructor(private jobsService: JobsService) {}
 
   @SubscribeMessage('JobOutputRequest')
-  listenForMessages(
+  async listenForMessages(
     @MessageBody('jobId') jobId: string,
     @ConnectedSocket() client: Socket,
   ) {
@@ -45,6 +49,7 @@ export class JobOutputGateway implements OnGatewayDisconnect {
 
     // Registering for changes on the job document in mongo
     const changeStream = this.jobsService.watchForJobOutput(jobId);
+
     this.socketChangeStreamMap.set(client.id, changeStream);
 
     const next = (change: ChangeStreamDocument) => {
@@ -59,12 +64,43 @@ export class JobOutputGateway implements OnGatewayDisconnect {
                 change.updateDescription.updatedFields[key],
               ),
             );
+          } else if (key === 'startTime') {
+            client.emit(
+              JobStatusUpdate.name,
+              new JobStatusUpdate(
+                'started',
+                change.updateDescription.updatedFields[key],
+              ),
+            );
+          } else if (key === 'endTime') {
+            client.emit(
+              JobStatusUpdate.name,
+              new JobStatusUpdate(
+                'success',
+                change.updateDescription.updatedFields[key],
+              ),
+            );
           }
         }
       }
     };
 
     changeStream.on('change', next);
+
+    // Validate that the job has not already gone through some states
+    const job = await this.jobsService.getById(jobId);
+    if (job.startTime) {
+      client.emit(
+        JobStatusUpdate.name,
+        new JobStatusUpdate('started', job.startTime),
+      );
+    }
+    if (job.endTime) {
+      client.emit(
+        JobStatusUpdate.name,
+        new JobStatusUpdate('success', job.startTime),
+      );
+    }
   }
 
   handleDisconnect(@ConnectedSocket() client: Socket) {

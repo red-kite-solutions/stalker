@@ -15,6 +15,7 @@ export interface JobInput {
 
 export interface StartedJob extends JobInput {
   id: string;
+  publishTime: number;
   startTime: number;
   endTime: number;
 }
