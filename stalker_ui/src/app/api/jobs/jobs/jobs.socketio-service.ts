@@ -17,7 +17,7 @@ export interface JobStatusUpdate {
 @Injectable({
   providedIn: 'root',
 })
-export class SocketioService {
+export class JobsSocketioService {
   public readonly jobOutputResponse = 'JobOutputResponse';
   public readonly jobOutputRequest = 'JobOutputRequest';
   public readonly jobStatusUpdate = 'JobStatusUpdate';

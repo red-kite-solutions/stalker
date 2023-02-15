@@ -9,7 +9,7 @@ import { CodeEditorService } from 'src/app/shared/widget/code-editor/code-editor
 import { parse, parseDocument, stringify } from 'yaml';
 import { CompaniesService } from '../../../api/companies/companies.service';
 import { JobsService } from '../../../api/jobs/jobs/jobs.service';
-import { JobOutputResponse, JobStatusUpdate, SocketioService } from '../../../api/socketio/socketio.service';
+import { JobOutputResponse, JobsSocketioService, JobStatusUpdate } from '../../../api/jobs/jobs/jobs.socketio-service';
 import { CompanySummary } from '../../../shared/types/company/company.summary';
 import { JobInput, JobListEntry, JobParameterDefinition, StartedJob } from '../../../shared/types/jobs/job.type';
 import { getLogTimestamp } from '../../../utils/time.utils';
@@ -59,7 +59,7 @@ export class LaunchJobsComponent implements OnDestroy {
     private toastr: ToastrService,
     private companiesService: CompaniesService,
     private titleService: Title,
-    private socketioService: SocketioService
+    private jobsSocketioService: JobsSocketioService
   ) {
     this.codeEditorService.load();
     this.titleService.setTitle($localize`:Launch Jobs|:Launch Jobs`);
@@ -144,12 +144,12 @@ export class LaunchJobsComponent implements OnDestroy {
       } published with id ${this.currentStartedJob.id}\n`;
 
       if (this.currentJobOutputSubscription) this.currentJobOutputSubscription.unsubscribe();
-      this.currentJobOutputSubscription = this.socketioService.jobOutput.subscribe((res: JobOutputResponse) => {
+      this.currentJobOutputSubscription = this.jobsSocketioService.jobOutput.subscribe((res: JobOutputResponse) => {
         this.output += `${res.output}\n`;
       });
 
       if (this.currentJobStatusSubscription) this.currentJobStatusSubscription.unsubscribe();
-      this.currentJobStatusSubscription = this.socketioService.jobStatus.subscribe((update: JobStatusUpdate) => {
+      this.currentJobStatusSubscription = this.jobsSocketioService.jobStatus.subscribe((update: JobStatusUpdate) => {
         switch (update.status) {
           case 'started':
             this.output += $localize`:Job started|The orchestrator signaled that the job started:${getLogTimestamp(
@@ -166,7 +166,7 @@ export class LaunchJobsComponent implements OnDestroy {
         }
       });
 
-      this.socketioService.sendMessage({ jobId: this.currentStartedJob.id });
+      this.jobsSocketioService.sendMessage({ jobId: this.currentStartedJob.id });
     } catch {
       this.toastr.error(
         $localize`:Error while starting job|There was an error while starting the job:Error while starting job`
