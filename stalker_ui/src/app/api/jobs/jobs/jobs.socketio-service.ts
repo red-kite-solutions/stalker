@@ -6,7 +6,8 @@ export interface JobOutputRequest {
 }
 
 export interface JobOutputResponse {
-  output: string[];
+  timestamp: number;
+  value: string;
 }
 
 export interface JobStatusUpdate {

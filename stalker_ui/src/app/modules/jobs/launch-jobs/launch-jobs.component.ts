@@ -145,7 +145,7 @@ export class LaunchJobsComponent implements OnDestroy {
 
       if (this.currentJobOutputSubscription) this.currentJobOutputSubscription.unsubscribe();
       this.currentJobOutputSubscription = this.jobsSocketioService.jobOutput.subscribe((res: JobOutputResponse) => {
-        this.output += `${res.output}\n`;
+        this.output += `${getLogTimestamp(res.timestamp)} ${res.value}\n`;
       });
 
       if (this.currentJobStatusSubscription) this.currentJobStatusSubscription.unsubscribe();

@@ -190,7 +190,9 @@ deployments:
             - containerPort: 4200
               port: 4200
               protocol: TCP
-
+  # Deployed in primary-secondary-secondary (PSS) mode as recommended instead
+  # of with an arbiter
+  # https://www.mongodb.com/docs/manual/core/replica-set-architecture-three-members/
   mongo:
     helm:
       chart:
@@ -201,7 +203,7 @@ deployments:
         replicaCount: 2
         replicaSetName: ${MONGO_REPLICA_SET_NAME}
         # arbiter:
-        #   enabled: false
+        #   enabled: true
         service:
           ports:
             mongodb: 27017
@@ -250,7 +252,7 @@ deployments:
   network-policies:
     kubectl:
       manifests:
-        # - network-policy.yml
+        - network-policy.yml
         - stalker_ui/${NETWORK_POLICY}
         - database/${NETWORK_POLICY}
         - flow_manager/${NETWORK_POLICY}
@@ -261,7 +263,7 @@ deployments:
 dev:
   mongo:
     labelSelector:
-      app.kubernetes.io/component: mongodb
+      statefulset.kubernetes.io/pod-name: mongo-mongodb-0
     ports:
       - port: "27017"
 

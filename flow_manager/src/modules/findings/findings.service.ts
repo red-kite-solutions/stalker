@@ -262,7 +262,11 @@ export class FindingsService {
         companyId = CompanyUnassigned;
       }
       if (finding.type !== 'JobStatusFinding') {
-        this.jobsService.addJobOutputLine(jobId, JSON.stringify(finding));
+        this.jobsService.addJobOutputLine(
+          jobId,
+          timestamp,
+          JSON.stringify(finding),
+        );
       } else {
         // If it was only a status update, no need to do the whole findings' logic
         this.jobsService.updateJobStatus(jobId, finding.status, timestamp);

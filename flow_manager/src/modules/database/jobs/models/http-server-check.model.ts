@@ -4,6 +4,7 @@ import { Document } from 'mongoose';
 import { isIP } from 'net';
 import { JobParameterValueException } from '../../../../exceptions/job-parameter.exception';
 import { JobParameterDefinition } from '../../../../types/job-parameter-definition.type';
+import { TimestampedString } from '../../../../types/timestamped-string.type';
 import { JobParameter } from '../../subscriptions/subscriptions.model';
 import { JobFactoryUtils } from '../jobs.factory';
 
@@ -14,7 +15,7 @@ export class HttpServerCheckJob {
   public task: string;
   public companyId!: string;
   public priority!: number;
-  public output: string[];
+  public output: TimestampedString[];
   public publishTime: number;
   public startTime: number;
   public endTime: number;

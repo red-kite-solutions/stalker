@@ -12,7 +12,7 @@ import { Server, Socket } from 'socket.io';
 import { JobsService } from './jobs.service';
 
 export class JobOutputResponse {
-  constructor(private output: string[]) {}
+  constructor(private timestamp: number, private value: string) {}
 }
 
 export class JobStatusUpdate {
@@ -58,12 +58,25 @@ export class JobOutputGateway implements OnGatewayDisconnect {
       if (change.updateDescription.updatedFields) {
         for (const key of Object.keys(change.updateDescription.updatedFields)) {
           if (key.startsWith('output')) {
-            client.emit(
-              JobOutputResponse.name,
-              new JobOutputResponse(
-                change.updateDescription.updatedFields[key],
-              ),
-            );
+            // First output update event is an array, but not the next ones
+            if (Array.isArray(change.updateDescription.updatedFields[key])) {
+              for (const output of change.updateDescription.updatedFields[
+                key
+              ]) {
+                client.emit(
+                  JobOutputResponse.name,
+                  new JobOutputResponse(output.timestamp, output.value),
+                );
+              }
+            } else {
+              client.emit(
+                JobOutputResponse.name,
+                new JobOutputResponse(
+                  change.updateDescription.updatedFields[key].timestamp,
+                  change.updateDescription.updatedFields[key].value,
+                ),
+              );
+            }
           } else if (key === 'startTime') {
             client.emit(
               JobStatusUpdate.name,
