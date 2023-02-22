@@ -214,6 +214,7 @@ deployments:
     helm:
       chart:
         name: kafka
+        version: 20.0.6
         repo: https://charts.bitnami.com/bitnami
 
   orchestrator-service-account:
