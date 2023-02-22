@@ -29,6 +29,7 @@ export class LaunchJobsComponent implements OnDestroy {
   public currentStartedJob: StartedJob | undefined;
   public currentJobOutputSubscription: Subscription | undefined;
   public currentJobStatusSubscription: Subscription | undefined;
+  public jobLoading = false;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   dataSource = new MatTableDataSource<JobListEntry>();
@@ -133,6 +134,7 @@ export class LaunchJobsComponent implements OnDestroy {
     }
 
     try {
+      this.jobLoading = true;
       if (this.selectedCompany) {
         this.currentStartedJob = await this.jobsService.startJob(this.currentJobName, parameters, this.selectedCompany);
       } else {
@@ -160,6 +162,7 @@ export class LaunchJobsComponent implements OnDestroy {
             this.output += $localize`:Job success|The orchestrator signaled that the job is done and was a success:${getLogTimestamp(
               update.timestamp
             )} Job finished\n`;
+            this.jobLoading = false;
             break;
           default:
             break;
@@ -168,6 +171,7 @@ export class LaunchJobsComponent implements OnDestroy {
 
       this.jobsSocketioService.sendMessage({ jobId: this.currentStartedJob.id });
     } catch {
+      this.jobLoading = false;
       this.toastr.error(
         $localize`:Error while starting job|There was an error while starting the job:Error while starting job`
       );

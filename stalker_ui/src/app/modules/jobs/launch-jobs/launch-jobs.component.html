@@ -68,6 +68,10 @@
         fxFlex
       ></app-code-editor>
       <h3 i18n="Output|Output of a job" class="output">Output</h3>
+      <mat-progress-bar
+        mode="indeterminate"
+        [ngStyle]="{ visibility: jobLoading ? 'visible' : 'hidden' }"
+      ></mat-progress-bar>
       <app-code-editor
         [(code)]="output"
         [language]="'json'"
