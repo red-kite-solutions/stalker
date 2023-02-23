@@ -3,6 +3,7 @@ import { isArray, isEmpty, isIn, isString } from 'class-validator';
 import { Document } from 'mongoose';
 import { JobParameterValueException } from '../../../../exceptions/job-parameter.exception';
 import { JobParameterDefinition } from '../../../../types/job-parameter-definition.type';
+import { TimestampedString } from '../../../../types/timestamped-string.type';
 import {
   environmentVariableConflict,
   environmentVariableRegex,
@@ -22,7 +23,7 @@ export class CustomJob {
   public task: string;
   public companyId!: string;
   public priority!: number;
-  public output: string[];
+  public output: TimestampedString[];
   public publishTime: number;
   public startTime: number;
   public endTime: number;

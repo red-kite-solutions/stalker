@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Document, Model, Types } from 'mongoose';
 import { Page } from '../../../types/page.type';
 import { getLogTimestamp } from '../../../utils/time.utils';
+import { TimestampedString } from '../../../types/timestamped-string.type';
 import { CompanyUnassigned } from '../../../validators/isCompanyId.validator';
 import { JobQueue } from '../../job-queue/job-queue';
 import { JobLog, JobLogLevel } from './models/job-log.model';
@@ -81,10 +82,15 @@ export class JobsService {
     };
   }
 
-  public async addJobOutputLine(jobId: string, line: string) {
+  public async addJobOutputLine(
+    jobId: string,
+    timestamp: number,
+    line: string,
+  ) {
+    const str: TimestampedString = { timestamp: timestamp, value: line };
     return await this.jobModel.updateOne(
       { _id: { $eq: new Types.ObjectId(jobId) } },
-      { $push: { output: `${getLogTimestamp()} ${line}` } },
+      { $push: { output: str } },
     );
   }
 
