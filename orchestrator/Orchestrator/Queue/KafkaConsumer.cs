@@ -35,7 +35,6 @@ namespace Orchestrator.Queue
             {
                 while (true)
                 {
-
                     ct.ThrowIfCancellationRequested();
 
                     try

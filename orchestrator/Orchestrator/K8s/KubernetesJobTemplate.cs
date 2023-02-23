@@ -1,6 +1,4 @@
-﻿using k8s.Models;
-
-namespace Orchestrator.K8s;
+﻿namespace Orchestrator.K8s;
 
 public class KubernetesJobTemplate
 {
@@ -84,8 +82,8 @@ public class KubernetesJobTemplate
     /// How long in seconds a job can run before it will be terminated by the system. A value of null
     /// will last indefinetly.
     /// </summary>
-    public int? Timeout 
-    { 
+    public int? Timeout
+    {
         get
         {
             return _Timeout;

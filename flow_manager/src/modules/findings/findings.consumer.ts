@@ -4,13 +4,6 @@ import { FindingsService } from './findings.service';
 import { KafkaConsumer } from './kafka.consumer';
 
 export class FindingsConsumer extends KafkaConsumer {
-  protected constructor(
-    kafka: Kafka,
-    private findingsService: FindingsService,
-  ) {
-    super(kafka);
-  }
-
   protected get groupId(): string {
     return 'flow-manager';
   }
@@ -19,7 +12,18 @@ export class FindingsConsumer extends KafkaConsumer {
     return orchestratorConstants.topics.findings;
   }
 
-  protected consume(message: KafkaMessage) {
+  protected get fromBeginning(): boolean {
+    return true;
+  }
+
+  protected constructor(
+    kafka: Kafka,
+    private findingsService: FindingsService,
+  ) {
+    super(kafka);
+  }
+
+  protected async consume(message: KafkaMessage) {
     const findingsRaw = JSON.parse(message.value.toString());
     if (findingsRaw.JobId) {
       const findings = {

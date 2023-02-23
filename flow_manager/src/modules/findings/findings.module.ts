@@ -11,6 +11,7 @@ import { FindingsHandlers } from './commands/findings-commands';
 import { FindingsConsumer } from './findings.consumer';
 import { FindingsController } from './findings.controller';
 import { FindingsService } from './findings.service';
+import { JobLogsConsumer } from './job-logs.consumer';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ export class FindingsModule {
       });
 
       await FindingsConsumer.create(kafka, this.findingsService);
+      await JobLogsConsumer.create(kafka, this.findingsService);
     }
   }
 }

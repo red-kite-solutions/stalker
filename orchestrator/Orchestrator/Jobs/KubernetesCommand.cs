@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.Components.Web;
-using Orchestrator.Events;
+﻿using Orchestrator.Events;
 using Orchestrator.K8s;
 using Orchestrator.Queue;
 using Orchestrator.Queue.JobsConsumer;
-using System;
 
 namespace Orchestrator.Jobs;
 
@@ -11,17 +9,19 @@ public abstract class KubernetesCommand<T> : JobCommand where T : JobRequest
 {
     private IKubernetesFacade Kubernetes { get; }
     private IMessagesProducer<JobEventMessage> EventsProducer { get; }
+    private IMessagesProducer<JobLogMessage> LogsProducer { get; }
     private IFindingsParser Parser { get; }
     private ILogger Logger { get; }
     protected T Request { get; }
 
     protected abstract KubernetesJobTemplate JobTemplate { get; }
 
-    protected KubernetesCommand(T request, IKubernetesFacade kubernetes, IMessagesProducer<JobEventMessage> eventsProducer, IFindingsParser parser, ILogger logger)
+    protected KubernetesCommand(T request, IKubernetesFacade kubernetes, IMessagesProducer<JobEventMessage> eventsProducer, IMessagesProducer<JobLogMessage> jobLogsProducer, IFindingsParser parser, ILogger logger)
     {
         Request = request;
         Kubernetes = kubernetes;
         EventsProducer = eventsProducer;
+        LogsProducer = jobLogsProducer;
         Parser = parser;
         Logger = logger;
     }
@@ -107,22 +107,18 @@ public abstract class KubernetesCommand<T> : JobCommand where T : JobRequest
             var evt = Parser.Parse(line);
             if (evt == null) continue;
 
-            var evtType = evt.GetType().UnderlyingSystemType;
-
-            if (evtType == typeof(LogEventModel))
+            if (evt is JobLogModel jobLog)
             {
-                var logEvt = (LogEventModel)evt;
-                switch (logEvt.LogType)
+                await LogsProducer.Produce(new JobLogMessage()
                 {
-                    case LogType.Debug:
-                        Logger.LogDebug(logEvt.data);
-                        continue;
-                    default:
-                        continue;
-                }
+                    JobId = Request.JobId,
+                    Log = jobLog.data,
+                    LogLevel = jobLog.LogType,
+                    Timestamp = CurrentTimeMs()
+                });
             }
 
-            if (evtType == typeof(FindingsEventModel))
+            if (evt is FindingsEventModel)
             {
                 await EventsProducer.Produce(new JobEventMessage
                 {

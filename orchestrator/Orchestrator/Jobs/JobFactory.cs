@@ -12,14 +12,16 @@ public class JobFactory : IJobFactory
 {
     private IKubernetesFacade Kubernetes { get; }
     private IMessagesProducer<JobEventMessage> EventsProducer { get; }
+    private IMessagesProducer<JobLogMessage> JobLogsProducer { get; }
     private IFindingsParser Parser { get; }
     private ILoggerFactory LoggerFactory { get; }
     private ILogger<JobFactory> Logger { get; }
     private PythonJobTemplateProvider JobProvider { get; }
     private IConfiguration Config { get; }
 
-    public JobFactory(IKubernetesFacade kubernetes, IMessagesProducer<JobEventMessage> eventsProducer, IFindingsParser parser, ILoggerFactory loggerFactoryFactory, IConfiguration config)
+    public JobFactory(IKubernetesFacade kubernetes, IMessagesProducer<JobEventMessage> eventsProducer, IMessagesProducer<JobLogMessage> jobLogsProducer, IFindingsParser parser, ILoggerFactory loggerFactoryFactory, IConfiguration config)
     {
+        JobLogsProducer = jobLogsProducer;
         Kubernetes = kubernetes;
         EventsProducer = eventsProducer;
         Parser = parser;
@@ -40,9 +42,9 @@ public class JobFactory : IJobFactory
 
         return request switch
         {
-            DomainNameResolvingJobRequest domainResolving => new DomainNameResolvingCommand(domainResolving, Kubernetes, EventsProducer, Parser, LoggerFactory.CreateLogger<DomainNameResolvingCommand>(), JobProvider, Config),
-            TcpPortScanningJobRequest tcpPortScanning => new TcpPortScanningCommand(tcpPortScanning, Kubernetes, EventsProducer, Parser, LoggerFactory.CreateLogger<TcpPortScanningCommand>(), JobProvider, Config),
-            HttpServerCheckJobRequest httpCheck => new HttpServerCheckCommand(httpCheck, Kubernetes, EventsProducer, Parser, LoggerFactory.CreateLogger<TcpPortScanningCommand>(), JobProvider, Config),
+            DomainNameResolvingJobRequest domainResolving => new DomainNameResolvingCommand(domainResolving, Kubernetes, EventsProducer, JobLogsProducer, Parser, LoggerFactory.CreateLogger<DomainNameResolvingCommand>(), JobProvider, Config),
+            TcpPortScanningJobRequest tcpPortScanning => new TcpPortScanningCommand(tcpPortScanning, Kubernetes, EventsProducer, JobLogsProducer, Parser, LoggerFactory.CreateLogger<TcpPortScanningCommand>(), JobProvider, Config),
+            HttpServerCheckJobRequest httpCheck => new HttpServerCheckCommand(httpCheck, Kubernetes, EventsProducer, JobLogsProducer, Parser, LoggerFactory.CreateLogger<TcpPortScanningCommand>(), JobProvider, Config),
             CustomJobRequest customJob => CreateCustomJobCommand(customJob),
             _ => throw new InvalidOperationException(),
         };
@@ -54,7 +56,7 @@ public class JobFactory : IJobFactory
         {
             return request.Language?.ToLower() switch
             {
-                "python" => new PythonCustomJobCommand(request, Kubernetes, EventsProducer, Parser, LoggerFactory.CreateLogger<PythonCustomJobCommand>(), Config),
+                "python" => new PythonCustomJobCommand(request, Kubernetes, EventsProducer, JobLogsProducer, Parser, LoggerFactory.CreateLogger<PythonCustomJobCommand>(), Config),
                 _ => throw new InvalidOperationException(),
             };
         }

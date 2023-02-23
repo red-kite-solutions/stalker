@@ -14,6 +14,7 @@ export const orchestratorConstants = {
   topics: {
     jobRequests: 'stalker.jobs.requests',
     findings: 'stalker.jobs.findings',
+    jobLogs: 'stalker.jobs.logs',
   },
 };
 

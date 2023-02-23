@@ -81,6 +81,7 @@ void ConfigureServices(IServiceCollection services)
         .AddResponseCompression()
         .AddSingleton<JobsConsumer>()
         .AddSingleton<IMessagesProducer<JobEventMessage>, JobEventsProducer>()
+        .AddSingleton<IMessagesProducer<JobLogMessage>, JobLogsProducer>()
         .AddTransient<IKubernetesFacade, KubernetesFacade>()
         .AddTransient<IJobFactory, JobFactory>()
         .AddTransient<IFindingsParser, FindingsParser>();

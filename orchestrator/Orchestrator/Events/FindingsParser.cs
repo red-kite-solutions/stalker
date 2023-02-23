@@ -4,6 +4,9 @@ public class FindingsParser : IFindingsParser
 {
     private const string FindingEventPrefix = "@finding";
     private const string LogDebugEventPrefix = "@debug";
+    private const string LogInfoEventPrefix = "@info";
+    private const string LogWarningEventPrefix = "@warning";
+    private const string LogErrorEventPrefix = "@error";
 
     public string? GetEventData(string? evtString, string? prefix = null)
     {
@@ -42,7 +45,10 @@ public class FindingsParser : IFindingsParser
         return prefix switch
         {
             FindingEventPrefix => new FindingsEventModel { data = data },
-            LogDebugEventPrefix => new LogEventModel { data = data, LogType = LogType.Debug },
+            LogDebugEventPrefix => new JobLogModel { data = data, LogType = LogLevel.Debug },
+            LogInfoEventPrefix => new JobLogModel { data = data, LogType = LogLevel.Info },
+            LogWarningEventPrefix => new JobLogModel { data = data, LogType = LogLevel.Warning },
+            LogErrorEventPrefix => new JobLogModel { data = data, LogType = LogLevel.Error },
             _ => null
         };
     }

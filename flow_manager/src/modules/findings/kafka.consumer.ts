@@ -5,6 +5,7 @@ export abstract class KafkaConsumer {
   protected logger: Logger;
   protected abstract get groupId(): string;
   protected abstract get topic(): string;
+  protected abstract get fromBeginning(): boolean;
 
   protected constructor(private kafka: Kafka) {
     this.logger = new Logger('KafkaConsumer');
@@ -15,14 +16,14 @@ export abstract class KafkaConsumer {
     await consumer.connect();
     await consumer.subscribe({
       topic: this.topic,
-      fromBeginning: false,
+      fromBeginning: this.fromBeginning,
     });
 
     consumer.run({
-      eachMessage: async ({ topic, partition, message }) => {
-        this.logger.debug('Kafka message found!');
+      eachMessage: async ({ message }) => {
+        this.logger.debug(`Message found for ${this.topic}`);
         try {
-          this.consume(message);
+          await this.consume(message);
         } catch (err) {
           this.logger.error(
             'Error while reading Kafka message : ' +
@@ -35,5 +36,5 @@ export abstract class KafkaConsumer {
     });
   }
 
-  protected abstract consume(message: KafkaMessage);
+  protected abstract consume(message: KafkaMessage): Promise<unknown>;
 }

@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Document, Model, Types } from 'mongoose';
+import { Page } from '../../../types/page.type';
 import { getLogTimestamp } from '../../../utils/time.utils';
 import { CompanyUnassigned } from '../../../validators/isCompanyId.validator';
 import { JobQueue } from '../../job-queue/job-queue';
+import { JobLog, JobLogLevel } from './models/job-log.model';
 import { Job, JobDocument } from './models/jobs.model';
 
 @Injectable()
@@ -11,6 +13,8 @@ export class JobsService {
   constructor(
     private jobQueue: JobQueue,
     @InjectModel('job') private readonly jobModel: Model<Job & Document>,
+    @InjectModel('jobLogs')
+    private readonly jobLogsModel: Model<JobLog & Document>,
   ) {}
 
   public async getAll(page = null, pageSize = null): Promise<JobDocument[]> {
@@ -27,13 +31,18 @@ export class JobsService {
   }
 
   public async deleteAllForCompany(companyId: string) {
-    return await this.jobModel.deleteMany({
+    await this.jobModel.deleteMany({
+      companyId: { $eq: companyId },
+    });
+
+    await this.jobLogsModel.deleteMany({
       companyId: { $eq: companyId },
     });
   }
 
   public async deleteAll() {
     await this.jobModel.deleteMany({});
+    await this.jobLogsModel.deleteMany({});
   }
 
   public async getById(id: string): Promise<JobDocument> {
@@ -100,5 +109,45 @@ export class JobsService {
       default:
         return null;
     }
+  }
+
+  public async createLog(
+    jobId: string,
+    data: string,
+    level: JobLogLevel,
+    timestamp: number,
+  ) {
+    const job = await this.getById(jobId);
+    if (job == null) {
+      return;
+    }
+
+    this.jobLogsModel.create({
+      companyId: job.companyId,
+      jobId,
+      data,
+      level,
+      timestamp,
+    });
+  }
+
+  public async getLogs(
+    jobId: string,
+    page: number,
+    pageSize: number,
+  ): Promise<Page<JobLog>> {
+    const filter = { jobId: { $eq: jobId } };
+
+    const items = await this.jobLogsModel.find(filter, null, {
+      skip: page * pageSize,
+      limit: pageSize,
+    });
+
+    const totalRecords = await this.jobLogsModel.count(filter);
+
+    return {
+      items,
+      totalRecords,
+    };
   }
 }
