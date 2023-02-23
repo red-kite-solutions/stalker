@@ -15,6 +15,7 @@ import { Role } from '../../auth/constants';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/role.guard';
+import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
 import { StartJobDto } from '../reporting/company.dto';
 import { JobParameter } from '../subscriptions/subscriptions.model';
 import { JobDefinitions } from './job-model.module';
@@ -23,7 +24,10 @@ import { JobsService } from './jobs.service';
 
 @Controller('jobs')
 export class JobsController {
-  constructor(private readonly jobsService: JobsService) {}
+  constructor(
+    private readonly jobsService: JobsService,
+    private readonly customJobsService: CustomJobsService,
+  ) {}
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ReadOnly)
@@ -36,9 +40,17 @@ export class JobsController {
   @Roles(Role.ReadOnly)
   @Get('summaries')
   async getAllJobSummaries(): Promise<JobSummary[]> {
-    return JobDefinitions.map((jd): JobSummary => {
-      return { name: jd.name, parameters: jd.params };
+    const jd = JobDefinitions.map((jd): JobSummary => {
+      return { name: jd.name, parameters: jd.params, source: 'Stalker' };
     });
+
+    jd.splice(
+      jd.findIndex((v) => v.name === 'CustomJob'),
+      1,
+    );
+
+    const cjd = await this.customJobsService.getAllSummaries();
+    return jd.concat(cjd);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
