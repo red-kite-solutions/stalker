@@ -2,10 +2,9 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { JobSummary } from '../../../types/job-summary.type';
+import { JobSourceUserCreated } from '../jobs/job-model.module';
 import { CustomJobDto } from './custom-jobs.dto';
 import { CustomJobEntry } from './custom-jobs.model';
-
-export const UserCreatedJobSource = 'Custom';
 
 @Injectable()
 export class CustomJobsService {
@@ -22,7 +21,7 @@ export class CustomJobsService {
       code: dto.code,
       type: dto.type,
       language: dto.language,
-      source: UserCreatedJobSource,
+      source: JobSourceUserCreated,
       parameters: [],
     };
     return await this.customJobModel.create(job);
@@ -44,13 +43,13 @@ export class CustomJobsService {
       code: dto.code,
       type: dto.type,
       language: dto.language,
-      source: UserCreatedJobSource,
+      source: JobSourceUserCreated,
       parameters: [],
     };
     return await this.customJobModel.updateOne(
       {
         _id: { $eq: new Types.ObjectId(id) },
-        source: { $eq: UserCreatedJobSource },
+        source: { $eq: JobSourceUserCreated },
       },
       job,
     );
@@ -59,7 +58,7 @@ export class CustomJobsService {
   public async delete(id: string) {
     return await this.customJobModel.deleteOne({
       _id: { $eq: new Types.ObjectId(id) },
-      source: { $eq: UserCreatedJobSource },
+      source: { $eq: JobSourceUserCreated },
     });
   }
 

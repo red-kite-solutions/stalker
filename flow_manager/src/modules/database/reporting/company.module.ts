@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { CustomJobsModule } from '../custom-jobs/custom-jobs.module';
 import { DatalayerModule } from '../datalayer.module';
 import { JobsModule } from '../jobs/jobs.module';
 import { SubscriptionsModule } from '../subscriptions/subscriptions.module';
@@ -14,6 +15,7 @@ import { HostModule } from './host/host.module';
     HostModule,
     JobsModule,
     SubscriptionsModule,
+    CustomJobsModule,
   ],
   controllers: [CompanyController],
   providers: [CompanyService],

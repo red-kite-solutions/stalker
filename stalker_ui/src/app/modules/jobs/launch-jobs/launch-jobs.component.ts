@@ -36,6 +36,7 @@ export class LaunchJobsComponent implements OnDestroy {
 
   public selectedRow: JobListEntry | undefined;
   public currentJobName = '';
+  public currentJobSource = '';
   public data = new Array<JobListEntry>();
 
   public dataSource$ = this.refreshData();
@@ -80,6 +81,7 @@ export class LaunchJobsComponent implements OnDestroy {
     this.selectedRow = row;
     const rowData = this.data.find((v) => v.name === this.selectedRow?.name);
     if (rowData?.name) this.currentJobName = rowData.name;
+    if (rowData?.source) this.currentJobSource = rowData.source;
     this.code = this.formatYamlFromJob(rowData);
   }
 
@@ -137,9 +139,18 @@ export class LaunchJobsComponent implements OnDestroy {
     try {
       this.jobLoading = true;
       if (this.selectedCompany) {
-        this.currentStartedJob = await this.jobsService.startJob(this.currentJobName, parameters, this.selectedCompany);
+        this.currentStartedJob = await this.jobsService.startJob(
+          this.currentJobName,
+          this.currentJobSource,
+          parameters,
+          this.selectedCompany
+        );
       } else {
-        this.currentStartedJob = await this.jobsService.startJob(this.currentJobName, parameters);
+        this.currentStartedJob = await this.jobsService.startJob(
+          this.currentJobName,
+          this.currentJobSource,
+          parameters
+        );
       }
 
       this.output = $localize`:Publish Job Log|:${getLogTimestamp(this.currentStartedJob.publishTime)} Job ${
