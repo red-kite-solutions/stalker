@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Document, Model, Types } from 'mongoose';
 import { Page } from '../../../types/page.type';
-import { getLogTimestamp } from '../../../utils/time.utils';
 import { TimestampedString } from '../../../types/timestamped-string.type';
 import { CompanyUnassigned } from '../../../validators/isCompanyId.validator';
 import { JobQueue } from '../../job-queue/job-queue';
