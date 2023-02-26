@@ -55,3 +55,7 @@ export const JobModelModule = MongooseModule.forFeature([
     discriminators: discriminators,
   },
 ]);
+
+export const JobSourceBuiltIn = 'Stalker';
+export const JobSourceUserCreated = 'Custom';
+export const JobSources = [JobSourceBuiltIn, JobSourceUserCreated];

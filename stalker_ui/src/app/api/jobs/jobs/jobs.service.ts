@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { firstValueFrom, Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { JobParameter } from '../../../shared/types/finding-event-subscription';
-import { JobInput, StartedJob } from '../../../shared/types/jobs/job.type';
+import { JobListEntry, StartedJob } from '../../../shared/types/jobs/job.type';
 
 @Injectable({
   providedIn: 'root',
@@ -11,13 +11,14 @@ import { JobInput, StartedJob } from '../../../shared/types/jobs/job.type';
 export class JobsService {
   constructor(private http: HttpClient) {}
 
-  public getJobs(): Observable<JobInput[]> {
-    return <Observable<Array<JobInput>>>this.http.get(`${environment.fmUrl}/jobs/summaries`);
+  public getJobSummaries(): Observable<JobListEntry[]> {
+    return <Observable<Array<JobListEntry>>>this.http.get(`${environment.fmUrl}/jobs/summaries`);
   }
 
-  public async startJob(jobName: string, jobParameters: JobParameter[], companyId = '') {
+  public async startJob(jobName: string, source: string, jobParameters: JobParameter[], companyId = '') {
     const data = {
       task: jobName,
+      source: source,
       jobParameters: jobParameters,
     };
     if (companyId) {

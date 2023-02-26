@@ -20,7 +20,6 @@ public class PythonCustomJobTemplate : PythonJobTemplate
 
         if (!code.IsNullOrEmpty())
         {
-            Console.WriteLine("Giving code : " + code);
             PythonCommand = code!;
         }
 

@@ -11,7 +11,7 @@ import { CompaniesService } from '../../../api/companies/companies.service';
 import { JobsService } from '../../../api/jobs/jobs/jobs.service';
 import { JobOutputResponse, JobsSocketioService, JobStatusUpdate } from '../../../api/jobs/jobs/jobs.socketio-service';
 import { CompanySummary } from '../../../shared/types/company/company.summary';
-import { JobInput, JobListEntry, JobParameterDefinition, StartedJob } from '../../../shared/types/jobs/job.type';
+import { JobListEntry, JobParameterDefinition, StartedJob } from '../../../shared/types/jobs/job.type';
 import { getLogTimestamp } from '../../../utils/time.utils';
 
 @Component({
@@ -36,6 +36,7 @@ export class LaunchJobsComponent implements OnDestroy {
 
   public selectedRow: JobListEntry | undefined;
   public currentJobName = '';
+  public currentJobSource = '';
   public data = new Array<JobListEntry>();
 
   public dataSource$ = this.refreshData();
@@ -67,13 +68,10 @@ export class LaunchJobsComponent implements OnDestroy {
   }
 
   private refreshData() {
-    return this.jobsService.getJobs().pipe(
-      map((data) => {
-        const d = data.map((job: JobInput): JobListEntry => {
-          return { ...job, source: 'Stalker' };
-        });
-        this.data = d;
-        this.dataSource.data = d;
+    return this.jobsService.getJobSummaries().pipe(
+      map((data: JobListEntry[]) => {
+        this.data = data;
+        this.dataSource.data = data;
         this.dataSource.paginator = this.paginator;
       })
     );
@@ -83,6 +81,7 @@ export class LaunchJobsComponent implements OnDestroy {
     this.selectedRow = row;
     const rowData = this.data.find((v) => v.name === this.selectedRow?.name);
     if (rowData?.name) this.currentJobName = rowData.name;
+    if (rowData?.source) this.currentJobSource = rowData.source;
     this.code = this.formatYamlFromJob(rowData);
   }
 
@@ -98,6 +97,10 @@ export class LaunchJobsComponent implements OnDestroy {
     const jobYml: any = parseDocument(stringify(jobCopy));
 
     const parameters = jobYml.contents.items[0].value;
+
+    if (!parameters.items) {
+      return jobYml.toString();
+    }
 
     // Gets the value of the 'type' field to set it as a comment
     // It will help the user in knowing what to put in the 'value'
@@ -136,9 +139,18 @@ export class LaunchJobsComponent implements OnDestroy {
     try {
       this.jobLoading = true;
       if (this.selectedCompany) {
-        this.currentStartedJob = await this.jobsService.startJob(this.currentJobName, parameters, this.selectedCompany);
+        this.currentStartedJob = await this.jobsService.startJob(
+          this.currentJobName,
+          this.currentJobSource,
+          parameters,
+          this.selectedCompany
+        );
       } else {
-        this.currentStartedJob = await this.jobsService.startJob(this.currentJobName, parameters);
+        this.currentStartedJob = await this.jobsService.startJob(
+          this.currentJobName,
+          this.currentJobSource,
+          parameters
+        );
       }
 
       this.output = this.formatLog(

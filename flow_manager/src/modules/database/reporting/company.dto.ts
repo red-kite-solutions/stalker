@@ -8,9 +8,14 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  ValidateIf,
   ValidateNested,
 } from 'class-validator';
-import { JobTypes } from '../jobs/job-model.module';
+import {
+  JobSources,
+  JobSourceUserCreated,
+  JobTypes,
+} from '../jobs/job-model.module';
 import { JobParameterDto } from '../subscriptions/subscriptions.dto';
 import { JobParameter } from '../subscriptions/subscriptions.model';
 
@@ -69,6 +74,11 @@ export class SubmitHostsDto {
 }
 
 export class StartJobDto {
+  /**
+   * The whole validation will be skipped when ValidateIf returns
+   * false. The string checks must be done in the code, in that case
+   */
+  @ValidateIf((o) => o.source !== JobSourceUserCreated)
   @IsIn(JobTypes)
   @IsNotEmpty()
   @IsString()
@@ -79,4 +89,9 @@ export class StartJobDto {
   @Type(() => JobParameterDto)
   @IsOptional()
   public jobParameters!: JobParameter[];
+
+  @IsIn(JobSources)
+  @IsNotEmpty()
+  @IsString()
+  public source!: string;
 }
