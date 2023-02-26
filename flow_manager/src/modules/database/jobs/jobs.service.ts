@@ -85,8 +85,13 @@ export class JobsService {
     jobId: string,
     timestamp: number,
     line: string,
+    level: JobLogLevel,
   ) {
-    const str: TimestampedString = { timestamp: timestamp, value: line };
+    const str: TimestampedString = {
+      timestamp: timestamp,
+      value: line,
+      level: level,
+    };
     return await this.jobModel.updateOne(
       { _id: { $eq: new Types.ObjectId(jobId) } },
       { $push: { output: str } },

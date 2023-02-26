@@ -8,6 +8,7 @@ export interface JobOutputRequest {
 export interface JobOutputResponse {
   timestamp: number;
   value: string;
+  level: 'debug' | 'info' | 'warning' | 'error' | 'finding';
 }
 
 export interface JobStatusUpdate {

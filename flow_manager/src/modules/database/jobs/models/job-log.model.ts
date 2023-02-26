@@ -3,12 +3,7 @@ import { Document } from 'mongoose';
 
 export type JobLogDocument = JobLog & Document;
 
-export enum JobLogLevel {
-  Debug,
-  Info,
-  Warning,
-  Error,
-}
+export type JobLogLevel = 'debug' | 'info' | 'warning' | 'error';
 
 @Schema()
 export class JobLog {

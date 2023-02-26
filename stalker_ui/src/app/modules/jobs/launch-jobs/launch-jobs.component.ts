@@ -141,27 +141,33 @@ export class LaunchJobsComponent implements OnDestroy {
         this.currentStartedJob = await this.jobsService.startJob(this.currentJobName, parameters);
       }
 
-      this.output = $localize`:Publish Job Log|:${getLogTimestamp(this.currentStartedJob.publishTime)} Job ${
-        this.currentJobName
-      } published with id ${this.currentStartedJob.id}\n`;
+      this.output = this.formatLog(
+        this.currentStartedJob.publishTime,
+        'debug',
+        $localize`:Publish Job Log|:{ "lel": 123 } Job ${this.currentJobName}  { "lel": 23 } published with id ${this.currentStartedJob.id}`
+      );
 
       if (this.currentJobOutputSubscription) this.currentJobOutputSubscription.unsubscribe();
       this.currentJobOutputSubscription = this.jobsSocketioService.jobOutput.subscribe((res: JobOutputResponse) => {
-        this.output += `${getLogTimestamp(res.timestamp)} ${res.value}\n`;
+        this.output += this.formatLog(res.timestamp, res.level, res.value);
       });
 
       if (this.currentJobStatusSubscription) this.currentJobStatusSubscription.unsubscribe();
       this.currentJobStatusSubscription = this.jobsSocketioService.jobStatus.subscribe((update: JobStatusUpdate) => {
         switch (update.status) {
           case 'started':
-            this.output += $localize`:Job started|The orchestrator signaled that the job started:${getLogTimestamp(
-              update.timestamp
-            )} Job started\n`;
+            this.output += this.formatLog(
+              update.timestamp,
+              'debug',
+              $localize`:Job started|The orchestrator signaled that the job started:Job started`
+            );
             break;
           case 'success':
-            this.output += $localize`:Job success|The orchestrator signaled that the job is done and was a success:${getLogTimestamp(
-              update.timestamp
-            )} Job finished\n`;
+            this.output += this.formatLog(
+              update.timestamp,
+              'debug',
+              $localize`:Job success|The orchestrator signaled that the job is done and was a success:Job finished`
+            );
             this.jobLoading = false;
             break;
           default:
@@ -181,5 +187,10 @@ export class LaunchJobsComponent implements OnDestroy {
   ngOnDestroy(): void {
     if (this.currentJobOutputSubscription) this.currentJobOutputSubscription.unsubscribe();
     if (this.currentJobStatusSubscription) this.currentJobStatusSubscription.unsubscribe();
+  }
+
+  private formatLog(timestamp: number, level: string, log: string) {
+    level = `[${level}]`.padEnd('[warning]'.length, ' ');
+    return `${getLogTimestamp(timestamp)} ${level} ${log}\n`;
   }
 }

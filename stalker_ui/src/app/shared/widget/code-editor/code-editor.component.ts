@@ -58,9 +58,9 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
 
   @Input()
   public set theme(val: 'vs' | 'vs-dark' | 'hc-black' | 'hc-light') {
-    this._theme = val;
+    this._theme = `${val}-stalker`;
     if (this.codeEditorService.loaded && this._editor) {
-      this._editor._themeService.setTheme(val);
+      this._editor._themeService.setTheme(this._theme);
     }
   }
 
@@ -95,6 +95,7 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
       this.loadSub = this.codeEditorService.loadingFinished.pipe(first()).subscribe(() => {
         this.initMonaco();
       });
+
       return;
     }
 
@@ -110,6 +111,78 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
     };
 
     this._editor = monaco.editor.create(this._editorContainer.nativeElement, options);
+
+    try {
+      // Doc: https://microsoft.github.io/monaco-editor/monarch.html
+      monaco.languages.register({ id: 'stalker-logs' });
+      monaco.languages.setMonarchTokensProvider('stalker-logs', {
+        tokenizer: {
+          root: [
+            [/^\[[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}\]/, 'keyword.timestamp', '@level'],
+
+            // String
+            [/".*?"/, 'string.quote'],
+
+            // Numbers
+            [/\d*\.\d+([eE][\-+]?\d+)?/, 'number.float'],
+            [/0[xX][0-9a-fA-F]+/, 'number.hex'],
+            [/\d+/, 'number'],
+          ],
+          level: [
+            [/\[(debug)\] .*/, { token: 'keyword.debug', next: '@pop', log: 'Found debug in "$0"' }],
+            [/\[(info)\]/, { token: 'keyword.info', next: '@pop', log: 'Found info in "$0"' }],
+            [/\[(warning)\]/, { token: 'keyword.warning', next: '@pop', log: 'Found warning in "$0"' }],
+            [/\[(error)\]/, { token: 'keyword.error', next: '@pop', log: 'Found error in "$0"' }],
+          ],
+        },
+      });
+
+      const darkThemeRules: any[] = [
+        { token: 'keyword.timestamp.stalker-logs', foreground: '#959595' },
+        { token: 'keyword.debug.stalker-logs', foreground: '#867993' },
+        { token: 'keyword.info.stalker-logs', foreground: '#61c5ff' },
+        { token: 'keyword.warning.stalker-logs', foreground: '#ffd100' },
+        { token: 'keyword.error.stalker-logs', foreground: '#ff6161' },
+      ];
+
+      const lightThemeRules: any[] = [
+        { token: 'keyword.timestamp.stalker-logs', foreground: '#bbbbbb' },
+        { token: 'keyword.debug.stalker-logs', foreground: '#b6aac1' },
+        { token: 'keyword.info.stalker-logs', foreground: '#61c5ff' },
+        { token: 'keyword.warning.stalker-logs', foreground: '#dbb300' },
+        { token: 'keyword.error.stalker-logs', foreground: '#f51010' },
+      ];
+
+      monaco.editor.defineTheme('vs-stalker', {
+        base: 'vs',
+        inherit: true,
+        rules: lightThemeRules,
+        colors: {},
+      });
+
+      monaco.editor.defineTheme('vs-dark-stalker', {
+        base: 'vs-dark',
+        inherit: true,
+        rules: darkThemeRules,
+        colors: {},
+      });
+
+      monaco.editor.defineTheme('hc-light-stalker', {
+        base: 'hc-light',
+        inherit: true,
+        rules: lightThemeRules,
+        colors: {},
+      });
+
+      monaco.editor.defineTheme('hc-black-stalker', {
+        base: 'hc-black',
+        inherit: true,
+        rules: darkThemeRules,
+        colors: {},
+      });
+    } catch (err) {
+      console.log(err);
+    }
 
     this._editor.onDidChangeModelContent(() => {
       const code = this._editor.getValue();

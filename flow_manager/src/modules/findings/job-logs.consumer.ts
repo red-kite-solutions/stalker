@@ -1,6 +1,7 @@
 import { Kafka, KafkaMessage } from 'kafkajs';
+import { JobLogLevel } from '../../types/timestamped-string.type';
 import { orchestratorConstants } from '../auth/constants';
-import { FindingsService } from './findings.service';
+import { JobsService } from '../database/jobs/jobs.service';
 import { KafkaConsumer } from './kafka.consumer';
 
 export class JobLogsConsumer extends KafkaConsumer {
@@ -16,41 +17,24 @@ export class JobLogsConsumer extends KafkaConsumer {
     return false;
   }
 
-  protected constructor(
-    kafka: Kafka,
-    private findingsService: FindingsService,
-  ) {
+  protected constructor(kafka: Kafka, private jobService: JobsService) {
     super(kafka);
   }
 
   protected async consume(message: KafkaMessage) {
-    const findingsRaw = JSON.parse(message.value.toString());
-    this.logger.debug(findingsRaw);
-    // if (findingsRaw.JobId) {
-    //   const findings = {
-    //     jobId: findingsRaw.JobId,
-    //     timestamp: findingsRaw.Timestamp,
-    //     findings: JSON.parse(findingsRaw.FindingsJson).findings,
-    //   };
-    //   this.logger.debug(
-    //     `Kafka findings for Job ID ${findings.jobId} : ${JSON.stringify(
-    //       findings.findings,
-    //     )}`,
-    //   );
-    //   this.findingsService.handleJobFindings(findings);
-    // } else {
-    //   const findings = {
-    //     findings: JSON.parse(findingsRaw.FindingsJson).findings,
-    //   };
-    //   this.logger.debug(
-    //     `Kafka findings (no Job ID) : ${JSON.stringify(findings.findings)}`,
-    //   );
-    //   this.findingsService.handleFindings(findings);
-    // }
+    const log = JSON.parse(message.value.toString());
+    this.logger.debug(log);
+
+    let level: JobLogLevel = 'debug';
+    if (log.LogLevel == 1) level = 'info';
+    if (log.LogLevel == 2) level = 'warning';
+    if (log.LogLevel == 3) level = 'error';
+
+    this.jobService.addJobOutputLine(log.JobId, log.Timestamp, log.Log, level);
   }
 
-  public static async create(kafka: Kafka, findingsService: FindingsService) {
-    const consumer = new JobLogsConsumer(kafka, findingsService);
+  public static async create(kafka: Kafka, jobService: JobsService) {
+    const consumer = new JobLogsConsumer(kafka, jobService);
     await consumer.start();
     return consumer;
   }

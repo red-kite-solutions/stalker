@@ -4,6 +4,7 @@ import { Kafka } from 'kafkajs';
 import { CustomJobsModule } from '../database/custom-jobs/custom-jobs.module';
 import { DatalayerModule } from '../database/datalayer.module';
 import { JobsModule } from '../database/jobs/jobs.module';
+import { JobsService } from '../database/jobs/jobs.service';
 import { CompanyModule } from '../database/reporting/company.module';
 import { HostModule } from '../database/reporting/host/host.module';
 import { SubscriptionsModule } from '../database/subscriptions/subscriptions.module';
@@ -30,7 +31,10 @@ import { JobLogsConsumer } from './job-logs.consumer';
 export class FindingsModule {
   private logger: Logger = new Logger('FindingsModule');
 
-  public constructor(private findingsService: FindingsService) {}
+  public constructor(
+    private findingsService: FindingsService,
+    private jobService: JobsService,
+  ) {}
 
   public async onApplicationBootstrap() {
     if (!process.env.TESTS) {
@@ -40,7 +44,7 @@ export class FindingsModule {
       });
 
       await FindingsConsumer.create(kafka, this.findingsService);
-      await JobLogsConsumer.create(kafka, this.findingsService);
+      await JobLogsConsumer.create(kafka, this.jobService);
     }
   }
 }

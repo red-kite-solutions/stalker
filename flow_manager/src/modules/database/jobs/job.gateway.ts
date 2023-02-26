@@ -10,9 +10,14 @@ import { isMongoId } from 'class-validator';
 import { ChangeStream, ChangeStreamDocument } from 'mongodb';
 import { Server, Socket } from 'socket.io';
 import { JobsService } from './jobs.service';
+import { JobLogLevel } from './models/job-log.model';
 
 export class JobOutputResponse {
-  constructor(private timestamp: number, private value: string) {}
+  constructor(
+    private timestamp: number,
+    private value: string,
+    private level: JobLogLevel,
+  ) {}
 }
 
 export class JobStatusUpdate {
@@ -65,7 +70,11 @@ export class JobOutputGateway implements OnGatewayDisconnect {
               ]) {
                 client.emit(
                   JobOutputResponse.name,
-                  new JobOutputResponse(output.timestamp, output.value),
+                  new JobOutputResponse(
+                    output.timestamp,
+                    output.value,
+                    output.level,
+                  ),
                 );
               }
             } else {
@@ -74,6 +83,7 @@ export class JobOutputGateway implements OnGatewayDisconnect {
                 new JobOutputResponse(
                   change.updateDescription.updatedFields[key].timestamp,
                   change.updateDescription.updatedFields[key].value,
+                  change.updateDescription.updatedFields[key].level,
                 ),
               );
             }
