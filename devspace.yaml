@@ -190,8 +190,7 @@ deployments:
             - containerPort: 4200
               port: 4200
               protocol: TCP
-  # Deployed in primary-secondary-secondary (PSS) mode as recommended instead
-  # of with an arbiter
+  # Deployed in primary-secondary-arbiter (PSA) mode. Additionnal details:
   # https://www.mongodb.com/docs/manual/core/replica-set-architecture-three-members/
   mongo:
     helm:
