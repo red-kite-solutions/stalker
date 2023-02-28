@@ -8,7 +8,7 @@ public class JobEventMessage
     public string? JobId { get; init; }
 
     /// <summary>
-    /// Gets the findings associates with this event in json.S
+    /// Gets the findings associates with this event in json.
     /// </summary>
     public string? FindingsJson { get; init; }
 
