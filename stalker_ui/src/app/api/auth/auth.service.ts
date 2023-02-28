@@ -7,10 +7,14 @@ import { environment } from 'src/environments/environment';
 import { getReturnUrl } from '../../utils/return-url';
 import { refreshTokenName, tokenName } from '../constants';
 
+export interface AuthTokenProvider {
+  token: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
-export class AuthService {
+export class AuthService implements AuthTokenProvider {
   private _token: string | undefined;
   private _role: string | undefined;
   private _email: string | undefined;
@@ -52,7 +56,7 @@ export class AuthService {
 
   private initSession(token: string) {
     this.decodedToken = jwt_decode(token);
-    const epochNow = Math.floor(new Date().getTime() / 1000);
+    const epochNow = Math.floor(Date.now() / 1000);
     if (this.decodedToken.exp > epochNow) {
       localStorage.setItem(tokenName, token);
       this._token = token;
@@ -66,7 +70,7 @@ export class AuthService {
 
   private initRefreshToken(token: string) {
     this.decodedRefreshToken = jwt_decode(token);
-    const epoch = Math.floor(new Date().getTime() / 1000);
+    const epoch = Math.floor(Date.now() / 1000);
     if (this.decodedRefreshToken.exp > epoch) {
       localStorage.setItem(refreshTokenName, token);
       this.refreshToken = token;
@@ -130,12 +134,12 @@ export class AuthService {
   }
 
   public isTokenValid(): boolean {
-    const epoch = Math.floor(new Date().getTime() / 1000);
+    const epoch = Math.floor(Date.now() / 1000);
     return this.decodedToken?.exp > epoch;
   }
 
   public isRefreshValid(): boolean {
-    const epoch = Math.floor(new Date().getTime() / 1000);
+    const epoch = Math.floor(Date.now() / 1000);
     return this.decodedRefreshToken?.exp > epoch;
   }
 }
