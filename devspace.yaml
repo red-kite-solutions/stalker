@@ -202,8 +202,6 @@ deployments:
         architecture: replicaset
         replicaCount: 2
         replicaSetName: ${MONGO_REPLICA_SET_NAME}
-        # arbiter:
-        #   enabled: true
         service:
           ports:
             mongodb: 27017
