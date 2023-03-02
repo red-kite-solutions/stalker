@@ -15,6 +15,10 @@ export class JobsService {
     return <Observable<Array<JobListEntry>>>this.http.get(`${environment.fmUrl}/jobs/summaries`);
   }
 
+  public getJobExecutions(): Observable<StartedJob[]> {
+    return <Observable<Array<StartedJob>>>this.http.get(`${environment.fmUrl}/jobs`);
+  }
+
   public async startJob(jobName: string, source: string, jobParameters: JobParameter[], companyId = '') {
     const data = {
       task: jobName,

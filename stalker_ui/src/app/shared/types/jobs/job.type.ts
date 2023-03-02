@@ -1,3 +1,5 @@
+import { JobOutputResponse } from '../../../api/jobs/jobs/jobs.socketio-service';
+
 export interface JobListEntry extends JobInput {
   source: string;
 }
@@ -18,4 +20,8 @@ export interface StartedJob extends JobInput {
   publishTime: number;
   startTime: number;
   endTime: number;
+  task: string;
+  companyId: string;
+  priority: number;
+  output: JobOutputResponse[];
 }

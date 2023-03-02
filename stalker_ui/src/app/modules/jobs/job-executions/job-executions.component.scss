@@ -1,0 +1,56 @@
+.code-editor-container {
+  height: 98%;
+}
+
+app-code-editor {
+  height: 100%;
+  width: 100%;
+}
+
+.left-action-button {
+  margin: 10px 20px 20px 0px;
+}
+
+.container {
+  margin-right: 20px;
+}
+
+.nodata {
+  text-align: center;
+}
+
+.table-container {
+  margin: 0 -16px -16px -16px;
+}
+
+table {
+  width: 100%;
+}
+
+.rows:hover {
+  background-color: rgb(243, 243, 243);
+}
+
+.rows {
+  cursor: pointer;
+}
+
+.selected-job {
+  font-weight: bold;
+}
+
+mat-divider {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+h3 {
+  color: rgb(0, 0, 0);
+  opacity: 0.7;
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+h3.output {
+  margin-top: 10px;
+}

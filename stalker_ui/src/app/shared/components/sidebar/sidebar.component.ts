@@ -20,6 +20,7 @@ export class SidebarComponent {
   public hosts = $localize`:Hosts|Hosts:Hosts`;
   public customJobs = $localize`:Custom Jobs|Custom Jobs:Custom Jobs`;
   public launchJobs = $localize`:Launch Jobs|Launch Jobs:Launch Jobs`;
+  public jobExecutions = $localize`:Job executions|Job Executions:Job Executions`;
 
   constructor(public authService: AuthService) {}
 }
