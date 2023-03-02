@@ -1,5 +1,4 @@
 import { Component, OnDestroy, ViewChild } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
@@ -7,9 +6,10 @@ import { ToastrService } from 'ngx-toastr';
 import { map, Subscription } from 'rxjs';
 import { CodeEditorService } from 'src/app/shared/widget/code-editor/code-editor.service';
 import { parse, parseDocument, stringify } from 'yaml';
+import { AuthService } from '../../../api/auth/auth.service';
 import { CompaniesService } from '../../../api/companies/companies.service';
 import { JobsService } from '../../../api/jobs/jobs/jobs.service';
-import { JobOutputResponse, JobsSocketioService, JobStatusUpdate } from '../../../api/jobs/jobs/jobs.socketio-service';
+import { JobOutputResponse, JobsSocketioClient, JobStatusUpdate } from '../../../api/jobs/jobs/jobs.socketio-client';
 import { CompanySummary } from '../../../shared/types/company/company.summary';
 import { JobListEntry, JobParameterDefinition, StartedJob } from '../../../shared/types/jobs/job.type';
 import { getLogTimestamp } from '../../../utils/time.utils';
@@ -30,6 +30,7 @@ export class LaunchJobsComponent implements OnDestroy {
   public currentJobOutputSubscription: Subscription | undefined;
   public currentJobStatusSubscription: Subscription | undefined;
   public jobLoading = false;
+  private socketioClient: JobsSocketioClient | undefined;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   dataSource = new MatTableDataSource<JobListEntry>();
@@ -56,12 +57,11 @@ export class LaunchJobsComponent implements OnDestroy {
 
   constructor(
     private codeEditorService: CodeEditorService,
-    private dialog: MatDialog,
     private jobsService: JobsService,
     private toastr: ToastrService,
     private companiesService: CompaniesService,
     private titleService: Title,
-    private jobsSocketioService: JobsSocketioService
+    public authService: AuthService
   ) {
     this.codeEditorService.load();
     this.titleService.setTitle($localize`:Launch Jobs|:Launch Jobs`);
@@ -116,6 +116,7 @@ export class LaunchJobsComponent implements OnDestroy {
   }
 
   public async startJob() {
+    this.clearSubscriptionsAndSockets();
     if (!this.currentJobName) {
       this.toastr.error($localize`:Select a job to run|No job were selected as a target to run:Select a job to run`);
       return;
@@ -137,6 +138,8 @@ export class LaunchJobsComponent implements OnDestroy {
     }
 
     try {
+      this.socketioClient = new JobsSocketioClient(this.authService);
+
       this.jobLoading = true;
       if (this.selectedCompany) {
         this.currentStartedJob = await this.jobsService.startJob(
@@ -164,8 +167,7 @@ export class LaunchJobsComponent implements OnDestroy {
         this.output += this.formatLog(res.timestamp, res.level, res.value);
       });
 
-      if (this.currentJobStatusSubscription) this.currentJobStatusSubscription.unsubscribe();
-      this.currentJobStatusSubscription = this.jobsSocketioService.jobStatus.subscribe((update: JobStatusUpdate) => {
+      this.currentJobStatusSubscription = this.socketioClient.jobStatus.subscribe((update: JobStatusUpdate) => {
         switch (update.status) {
           case 'started':
             this.output += this.formatLog(
@@ -181,24 +183,33 @@ export class LaunchJobsComponent implements OnDestroy {
               $localize`:Job success|The orchestrator signaled that the job is done and was a success:Job finished`
             );
             this.jobLoading = false;
+            this.socketioClient?.disconnect();
             break;
           default:
             break;
         }
       });
 
-      this.jobsSocketioService.sendMessage({ jobId: this.currentStartedJob.id });
+      this.socketioClient.sendMessage({ jobId: this.currentStartedJob.id });
     } catch {
       this.jobLoading = false;
+      this.clearSubscriptionsAndSockets();
       this.toastr.error(
         $localize`:Error while starting job|There was an error while starting the job:Error while starting job`
       );
     }
   }
 
-  ngOnDestroy(): void {
+  clearSubscriptionsAndSockets() {
     if (this.currentJobOutputSubscription) this.currentJobOutputSubscription.unsubscribe();
     if (this.currentJobStatusSubscription) this.currentJobStatusSubscription.unsubscribe();
+    if (this.socketioClient && this.socketioClient.isConnected()) {
+      this.socketioClient.disconnect();
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.clearSubscriptionsAndSockets();
   }
 
   private formatLog(timestamp: number, level: string, log: string) {

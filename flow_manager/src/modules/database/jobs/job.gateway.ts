@@ -1,3 +1,4 @@
+import { UseGuards } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -9,6 +10,10 @@ import {
 import { isMongoId } from 'class-validator';
 import { ChangeStream, ChangeStreamDocument } from 'mongodb';
 import { Server, Socket } from 'socket.io';
+import { Role } from '../../auth/constants';
+import { Roles } from '../../auth/decorators/roles.decorator';
+import { JwtSocketioGuard } from '../../auth/guards/jwt-socketio.guard';
+import { RolesSocketioGuard } from '../../auth/guards/role-socketio.guard';
 import { JobsService } from './jobs.service';
 import { JobLogLevel } from './models/job-log.model';
 
@@ -25,6 +30,8 @@ export class JobStatusUpdate {
 }
 
 @WebSocketGateway(3001, { cors: true })
+@UseGuards(JwtSocketioGuard, RolesSocketioGuard)
+@Roles(Role.User)
 export class JobOutputGateway implements OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
@@ -121,7 +128,7 @@ export class JobOutputGateway implements OnGatewayDisconnect {
     if (job.endTime) {
       client.emit(
         JobStatusUpdate.name,
-        new JobStatusUpdate('success', job.startTime),
+        new JobStatusUpdate('success', job.endTime),
       );
     }
   }

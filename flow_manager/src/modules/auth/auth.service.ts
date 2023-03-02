@@ -9,7 +9,7 @@ import { passwordEquals } from './utils/auth.utils';
 export class AuthService {
   constructor(
     private usersService: UsersService,
-    private jwtService: JwtService,
+    public jwtService: JwtService,
   ) {}
 
   public async validateUser(email: string, pass: string): Promise<any> {

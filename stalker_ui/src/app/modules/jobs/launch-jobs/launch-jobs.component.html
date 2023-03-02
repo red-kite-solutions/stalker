@@ -3,7 +3,13 @@
     <mat-card class="container">
       <h1 i18n="Launch Jobs|Starting jobs manually">Launch Jobs</h1>
       <div fxLayout="row">
-        <button mat-raised-button color="primary" class="left-action-button" (click)="startJob()">
+        <button
+          mat-raised-button
+          color="primary"
+          class="left-action-button"
+          (click)="startJob()"
+          [disabled]="this.authService.role === 'read-only'"
+        >
           <label i18n="Start|Start the job">Start</label>
         </button>
       </div>

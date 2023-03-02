@@ -4,7 +4,7 @@ import { Role, roleIsAuthorized } from '../constants';
 import { ROLES_KEY } from '../decorators/roles.decorator';
 
 @Injectable()
-export class RolesGuard implements CanActivate {
+export class RolesSocketioGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
@@ -17,8 +17,8 @@ export class RolesGuard implements CanActivate {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest();
-    const user = request.user;
+    const handshake = context.switchToWs().getClient().handshake;
+    const user = handshake.user;
 
     return roleIsAuthorized(user.role, requiredRole);
   }

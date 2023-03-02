@@ -55,6 +55,8 @@ pipelines:
       build_images flow-manager-e2e orchestrator python-job-base
       create_deployments mongo kafka orchestrator-service-account orchestrator flow-manager-e2e --sequential
 
+      start_dev mongo
+
       # Wait for kafka and mongo to be ready
       wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 240
       wait_pod --label-selector app.kubernetes.io/component=kafka --timeout 240
@@ -65,7 +67,7 @@ pipelines:
       if [ $(get_flag "watch") == "true" ]; 
       then
         echo "Running tests in watch mode."
-        start_dev flow-manager-e2e mongo
+        start_dev flow-manager-e2e
         exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'npm run test:e2e:watch'
       else
         echo "Running tests in ci mode."
@@ -190,8 +192,7 @@ deployments:
             - containerPort: 4200
               port: 4200
               protocol: TCP
-  # Deployed in primary-secondary-secondary (PSS) mode as recommended instead
-  # of with an arbiter
+  # Deployed in primary-secondary-arbiter (PSA) mode. Additionnal details:
   # https://www.mongodb.com/docs/manual/core/replica-set-architecture-three-members/
   mongo:
     helm:
@@ -202,8 +203,6 @@ deployments:
         architecture: replicaset
         replicaCount: 2
         replicaSetName: ${MONGO_REPLICA_SET_NAME}
-        # arbiter:
-        #   enabled: true
         service:
           ports:
             mongodb: 27017
