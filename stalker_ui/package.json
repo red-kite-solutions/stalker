@@ -7,6 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
+    "test:cicd": "ng test --watch=false --browsers=ChromeHeadless",
     "format:write": "prettier --write \"src/**/*.{ts,html,scss}\"",
     "lint:write": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "lint-staged:run": "npm run lint:write && npm run format:write",

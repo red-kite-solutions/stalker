@@ -1,0 +1,26 @@
+name: Frontend
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/frontend.yml
+      - "stalker_ui/**"
+
+jobs:
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - run: npm ci
+        working-directory: stalker_ui
+
+      - run: npm run test:cicd
+        working-directory: stalker_ui
