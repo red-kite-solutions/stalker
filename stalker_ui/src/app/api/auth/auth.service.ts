@@ -64,7 +64,11 @@ export class AuthService implements AuthTokenProvider {
       this._email = this.decodedToken.email;
       this._id = this.decodedToken.id;
     } else {
-      this.router.navigate(['/auth/login']);
+      this.router.navigate(['/auth/login'], {
+        queryParams: {
+          returnUrl: getReturnUrl(this.router),
+        },
+      });
     }
   }
 

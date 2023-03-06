@@ -5,9 +5,10 @@ import { MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
 import { map } from 'rxjs';
+import { AuthService } from '../../../api/auth/auth.service';
 import { CompaniesService } from '../../../api/companies/companies.service';
 import { JobsService } from '../../../api/jobs/jobs/jobs.service';
-import { JobsSocketioService } from '../../../api/jobs/jobs/jobs.socketio-service';
+import { JobsSocketioClient } from '../../../api/jobs/jobs/jobs.socketio-client';
 import { JobListEntry, StartedJob } from '../../../shared/types/jobs/job.type';
 
 @Component({
@@ -16,15 +17,16 @@ import { JobListEntry, StartedJob } from '../../../shared/types/jobs/job.type';
   styleUrls: ['./job-executions.component.scss'],
 })
 export class JobExecutionsComponent implements OnDestroy {
+  readonly displayColumns = ['name', 'time'];
+
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   dataSource = new MatTableDataSource<StartedJob>();
 
   public selectedRow: JobListEntry | undefined;
-  public currentJobName = '';
-  public currentJobSource = '';
   public data = new Array<StartedJob>();
 
   public dataSource$ = this.refreshData();
+  private socketioClient: JobsSocketioClient;
 
   constructor(
     private dialog: MatDialog,
@@ -32,9 +34,10 @@ export class JobExecutionsComponent implements OnDestroy {
     private toastr: ToastrService,
     private companiesService: CompaniesService,
     private titleService: Title,
-    private jobsSocketioService: JobsSocketioService
+    private authService: AuthService
   ) {
     this.titleService.setTitle($localize`:Launch Jobs|:Launch Jobs`);
+    this.socketioClient = new JobsSocketioClient(this.authService);
   }
 
   private refreshData() {

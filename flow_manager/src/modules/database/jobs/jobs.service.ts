@@ -18,7 +18,7 @@ export class JobsService {
   ) {}
 
   public async getAll(page = null, pageSize = null): Promise<JobDocument[]> {
-    let query = this.jobModel.find();
+    let query = this.jobModel.find({}, {}, { sort: { startTime: -1 } });
     if (page != null && pageSize != null) {
       query = query.skip(page).limit(pageSize);
     }
