@@ -15,7 +15,7 @@
           <th mat-header-cell *matHeaderCellDef></th>
           <td mat-cell *matCellDef="let element">
             <div *ngIf="element.endTime; else started">
-              <div i18n="Ended|Ended x days ago">Ended {{ element.endTime | timeAgo }}</div>
+              <div i18n="Started|Started x days ago">Started {{ element.endTime | timeAgo }}</div>
               <div>Took {{ element.endTime - element.startTime | humanize }}</div>
             </div>
             <ng-template #started>

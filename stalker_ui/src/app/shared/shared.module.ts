@@ -90,6 +90,7 @@ import { SpinnerButtonComponent } from './widget/spinner-button/spinner-button.c
     WhereIdPipe,
     PillTagComponent,
     TimeAgoPipe,
+    HumanizePipe,
     CodeEditorComponent,
   ],
 })

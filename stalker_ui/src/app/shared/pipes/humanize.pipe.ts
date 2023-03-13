@@ -1,7 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  name: 'timeAgo',
+  name: 'humanize',
   pure: true,
 })
 export class HumanizePipe implements PipeTransform {
