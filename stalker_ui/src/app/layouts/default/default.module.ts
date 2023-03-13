@@ -46,6 +46,7 @@ import { FindingsModule } from '../../modules/findings/findings.module';
 import { ViewHostModule } from '../../modules/hosts/view-host/view-host.module';
 import { ViewPortModule } from '../../modules/hosts/view-port/view-port.module';
 import { CustomJobsComponent } from '../../modules/jobs/custom-jobs/custom-jobs.component';
+import { JobExecutionDetailComponent } from '../../modules/jobs/job-executions/job-execution-detail.component';
 import { JobExecutionsComponent } from '../../modules/jobs/job-executions/job-executions.component';
 import { LaunchJobsComponent } from '../../modules/jobs/launch-jobs/launch-jobs.component';
 import { PanelSectionModule } from '../../shared/components/panel-section/panel-section.module';
@@ -69,6 +70,7 @@ import { DefaultComponent } from './default.component';
     CustomJobsComponent,
     LaunchJobsComponent,
     JobExecutionsComponent,
+    JobExecutionDetailComponent,
   ],
   imports: [
     CommonModule,
