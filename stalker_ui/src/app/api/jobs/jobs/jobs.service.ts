@@ -4,6 +4,8 @@ import { firstValueFrom, Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { JobParameter } from '../../../shared/types/finding-event-subscription';
 import { JobListEntry, StartedJob } from '../../../shared/types/jobs/job.type';
+import { Page } from '../../../shared/types/page.type';
+import { filtersToParams } from '../../../utils/filters-to-params';
 
 @Injectable({
   providedIn: 'root',
@@ -15,8 +17,12 @@ export class JobsService {
     return <Observable<Array<JobListEntry>>>this.http.get(`${environment.fmUrl}/jobs/summaries`);
   }
 
-  public getJobExecutions(): Observable<StartedJob[]> {
-    return <Observable<Array<StartedJob>>>this.http.get(`${environment.fmUrl}/jobs`);
+  public getJobExecutions(page: number, pageSize: number, filters: any): Observable<Page<StartedJob>> {
+    let params = filtersToParams(filters);
+    params = params.append('page', page);
+    params = params.append('pageSize', pageSize);
+
+    return <Observable<Page<StartedJob>>>this.http.get(`${environment.fmUrl}/jobs`, { params });
   }
 
   public async startJob(jobName: string, source: string, jobParameters: JobParameter[], companyId = '') {

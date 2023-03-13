@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { ObjectId } from 'mongodb';
 import { Document, Model, Types } from 'mongoose';
 import { Page } from '../../../types/page.type';
 import { TimestampedString } from '../../../types/timestamped-string.type';
 import { CompanyUnassigned } from '../../../validators/isCompanyId.validator';
 import { JobQueue } from '../../job-queue/job-queue';
+import { JobExecutionsDto } from './job-executions.dto';
 import { JobLog, JobLogLevel } from './models/job-log.model';
 import { Job, JobDocument } from './models/jobs.model';
 
@@ -17,13 +19,31 @@ export class JobsService {
     private readonly jobLogsModel: Model<JobLog & Document>,
   ) {}
 
-  public async getAll(page = null, pageSize = null): Promise<JobDocument[]> {
-    let query = this.jobModel.find({}, {}, { sort: { startTime: -1 } });
-    if (page != null && pageSize != null) {
-      query = query.skip(page).limit(pageSize);
+  public async getAll(dto: JobExecutionsDto): Promise<Page<JobDocument>> {
+    // Build filter
+    const filters = {};
+    if (dto.company) {
+      filters['companyId'] = {
+        $eq: new ObjectId(dto.company),
+      };
     }
 
-    return await query;
+    let itemsQuery = this.jobModel.find(
+      filters,
+      {},
+      { sort: { startTime: -1 } },
+    );
+    if (dto.page != null && dto.pageSize != null) {
+      itemsQuery = itemsQuery.skip(+dto.page).limit(+dto.pageSize);
+    }
+
+    const items = await itemsQuery;
+    const totalRecords = await this.jobModel.countDocuments(filters);
+
+    return {
+      items,
+      totalRecords,
+    };
   }
 
   public async delete(id: string) {

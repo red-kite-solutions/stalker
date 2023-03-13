@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { isNotEmpty, isString } from 'class-validator';
@@ -23,6 +24,7 @@ import { CustomJobEntry } from '../custom-jobs/custom-jobs.model';
 import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
 import { StartJobDto } from '../reporting/company.dto';
 import { JobParameter } from '../subscriptions/subscriptions.model';
+import { JobExecutionsDto } from './job-executions.dto';
 import {
   JobDefinitions,
   JobSourceBuiltIn,
@@ -42,8 +44,11 @@ export class JobsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ReadOnly)
   @Get()
-  async getAllJobs(): Promise<any> {
-    return await this.jobsService.getAll();
+  async getAllJobs(
+    @Query()
+    dto: JobExecutionsDto,
+  ): Promise<any> {
+    return await this.jobsService.getAll(dto);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

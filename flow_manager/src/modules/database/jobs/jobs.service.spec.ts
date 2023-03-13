@@ -6,7 +6,6 @@ import { AppModule } from '../../app.module';
 import { CompanyDocument } from '../reporting/company.model';
 import { CompanyService } from '../reporting/company.service';
 import { JobsService } from './jobs.service';
-import { JobLogLevel } from './models/job-log.model';
 import { Job } from './models/jobs.model';
 
 describe('Jobs Service', () => {
@@ -51,9 +50,9 @@ describe('Jobs Service', () => {
     const j = await job(c);
 
     // Act
-    jobsService.createLog(j.id, 'C', JobLogLevel.Debug, 3);
-    jobsService.createLog(j.id, 'A', JobLogLevel.Debug, 1);
-    jobsService.createLog(j.id, 'B', JobLogLevel.Debug, 2);
+    jobsService.createLog(j.id, 'C', 'debug', 3);
+    jobsService.createLog(j.id, 'A', 'debug', 1);
+    jobsService.createLog(j.id, 'B', 'debug', 2);
 
     const actual = await jobsService.getLogs('507f1f77bcf86cd799439011', 0, 10);
 
@@ -71,9 +70,9 @@ describe('Jobs Service', () => {
     const j = await job(c);
 
     // Act
-    jobsService.createLog(j.id, 'C', JobLogLevel.Debug, 3);
-    jobsService.createLog(j.id, 'A', JobLogLevel.Debug, 1);
-    jobsService.createLog(j.id, 'B', JobLogLevel.Debug, 2);
+    jobsService.createLog(j.id, 'C', 'debug', 3);
+    jobsService.createLog(j.id, 'A', 'debug', 1);
+    jobsService.createLog(j.id, 'B', 'debug', 2);
 
     const actual = await jobsService.getLogs('507f1f77bcf86cd799439011', 0, 10);
 
