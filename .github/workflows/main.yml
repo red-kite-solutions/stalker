@@ -49,7 +49,9 @@ jobs:
 
       - name: Diagnosis
         if: always()
-        run: kubectl -n stalker get all -o yaml
+        run: |-
+          kubectl get all
+          kubectl -n stalker get all -o yaml
 
       - name: Update the results in the pull request
         uses: tanmen/jest-reporter@v1
