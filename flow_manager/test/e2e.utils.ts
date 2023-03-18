@@ -266,10 +266,15 @@ export async function cleanup() {
     return;
   }
 
+  console.log('Cleaning up.');
+
   const uri = process.env.MONGO_ADDRESS;
-  const client = new MongoClient(uri);
+  const database = process.env.MONGO_DATABASE_NAME;
+  const client = new MongoClient(uri, { useUnifiedTopology: true });
   await client.connect();
-  const db = client.db(process.env.MONGO_DATABASE_NAME);
+  const db = client.db(database);
+
+  console.log(`Connected to ${uri}, db=${database}.`);
   const collectionsToDelete = [
     'jobs',
     'domains',
