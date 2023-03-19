@@ -24,7 +24,7 @@ describe('Subscriptions Service', () => {
     }
     const allSubs = await subscriptionsService.getAll();
     for (const s of allSubs) {
-      await subscriptionsService.delete(s._id);
+      await subscriptionsService.delete(s._id.toString());
     }
   });
 
@@ -47,15 +47,21 @@ describe('Subscriptions Service', () => {
         finding: finding,
       };
 
-      const s1 = await subscription({ ...subData, companyId: c1._id });
+      const s1 = await subscription({
+        ...subData,
+        companyId: c1._id.toString(),
+      });
       const s2 = await subscription({
         ...subData,
-        companyId: c2._id,
+        companyId: c2._id.toString(),
         name: name,
       });
 
       // Act
-      const subs = await subscriptionsService.getAllForFinding(c2._id, finding);
+      const subs = await subscriptionsService.getAllForFinding(
+        c2._id.toString(),
+        finding,
+      );
 
       // Assert
       expect(subs.length).toStrictEqual(1);
@@ -77,16 +83,19 @@ describe('Subscriptions Service', () => {
         finding: finding,
       };
 
-      const s1 = await subscription({ ...subData, companyId: c1._id });
+      const s1 = await subscription({
+        ...subData,
+        companyId: c1._id.toString(),
+      });
       const s2 = await subscription({
         ...subData,
-        companyId: c2._id,
+        companyId: c2._id.toString(),
         finding: finding2,
       });
 
       // Act
       const subs = await subscriptionsService.getAllForFinding(
-        c2._id,
+        c2._id.toString(),
         finding2,
       );
 

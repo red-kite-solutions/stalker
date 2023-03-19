@@ -4,6 +4,7 @@ import {
   IsArray,
   IsIn,
   IsInt,
+  IsMongoId,
   IsNotEmpty,
   IsOptional,
   Max,
@@ -51,14 +52,17 @@ export class HostsFilterDto {
   pageSize: number = 10;
 
   @IsOptional()
+  @IsMongoId({ each: true })
   @Type(() => Array)
   tags: string[];
 
   @IsArray()
   @IsOptional()
+  @IsMongoId({ each: true })
   company: string[];
 
   @IsArray()
   @IsOptional()
+  @IsMongoId({ each: true })
   domain: string[];
 }

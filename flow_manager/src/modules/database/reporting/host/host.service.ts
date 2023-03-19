@@ -114,7 +114,7 @@ export class HostService {
                 ip,
               ),
             },
-            $addToSet: { domains: ds, tags: existingTags },
+            $addToSet: { domains: ds, tags: { $each: existingTags } },
           },
           { upsert: true, useFindAndModify: false },
         )
