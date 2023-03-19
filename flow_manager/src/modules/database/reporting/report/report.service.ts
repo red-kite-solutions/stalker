@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { writeFileSync } from 'fs';
+import { UpdateResult } from 'mongodb';
 import { Model, UpdateWriteOpResult } from 'mongoose';
 import Mustache from 'mustache';
 import { KeybaseService } from '../../../alerts/keybase/keybase.service';
@@ -101,7 +102,7 @@ export class ReportService {
     companyName: string,
     ips: string[],
     domain: string = '',
-  ) {
+  ): Promise<UpdateResult> {
     const date = this.getCurrentReportPrefix();
     let hostReports: HostReport[] = [];
     ips.forEach((ip) => {

@@ -18,8 +18,8 @@ describe('Job Controller (e2e)', () => {
   let jobId: string;
   const domainNameResolvingJob = {
     task: 'DomainNameResolvingJob',
-    priority: 1,
-    domainName: 'stalker.is',
+    jobParameters: [{ name: 'domainName', value: 'stalker.is' }],
+    source: 'Stalker',
   };
 
   beforeAll(async () => {
@@ -77,7 +77,9 @@ describe('Job Controller (e2e)', () => {
     expect(r.statusCode).toBe(HttpStatus.OK);
     expect(r.body._id).toBe(jobId);
     expect(r.body.task).toBe(domainNameResolvingJob.task);
-    expect(r.body.domainName).toBe(domainNameResolvingJob.domainName);
+    expect(r.body.domainName).toBe(
+      domainNameResolvingJob.jobParameters[0].value,
+    );
     expect(r.body.priority).toBe(1);
   });
 

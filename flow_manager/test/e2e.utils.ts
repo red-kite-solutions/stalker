@@ -270,7 +270,7 @@ export async function cleanup() {
 
   const uri = process.env.MONGO_ADDRESS;
   const database = process.env.MONGO_DATABASE_NAME;
-  const client = new MongoClient(uri, { useUnifiedTopology: true });
+  const client = new MongoClient(uri, {});
   await client.connect();
   const db = client.db(database);
 

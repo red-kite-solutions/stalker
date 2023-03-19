@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { DeleteResult, UpdateResult } from 'mongodb';
 import { Model } from 'mongoose';
 import { hashPassword, passwordEquals } from '../../auth/utils/auth.utils';
 
@@ -54,26 +55,38 @@ export class UsersService {
       .lean();
   }
 
-  public editUserByEmail(email: string, userEdits: Partial<User>) {
-    return this.userModel.updateOne({ email: email }, { ...userEdits });
+  public async editUserByEmail(
+    email: string,
+    userEdits: Partial<User>,
+  ): Promise<UpdateResult> {
+    return await this.userModel.updateOne({ email: email }, { ...userEdits });
   }
 
-  public editUserById(id: string, userEdits: Partial<User>) {
-    return this.userModel.updateOne({ _id: id }, { ...userEdits });
+  public async editUserById(
+    id: string,
+    userEdits: Partial<User>,
+  ): Promise<UpdateResult> {
+    return await this.userModel.updateOne({ _id: id }, { ...userEdits });
   }
 
-  public async changePasswordByEmail(email: string, password: string) {
+  public async changePasswordByEmail(
+    email: string,
+    password: string,
+  ): Promise<UpdateResult> {
     const pass: string = await hashPassword(password);
-    return this.userModel.updateOne({ email: email }, { password: pass });
+    return await this.userModel.updateOne({ email: email }, { password: pass });
   }
 
-  public async changePasswordById(id: string, password: string) {
+  public async changePasswordById(
+    id: string,
+    password: string,
+  ): Promise<UpdateResult> {
     const pass: string = await hashPassword(password);
-    return this.userModel.updateOne({ _id: id }, { password: pass });
+    return await this.userModel.updateOne({ _id: id }, { password: pass });
   }
 
-  public deleteUserById(userId: string) {
-    return this.userModel.deleteOne({ _id: userId });
+  public async deleteUserById(userId: string): Promise<DeleteResult> {
+    return await this.userModel.deleteOne({ _id: userId });
   }
 
   public async validateIdentity(

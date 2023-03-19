@@ -8,7 +8,7 @@ import {
   environmentVariableConflict,
   environmentVariableRegex,
 } from '../../../../utils/linux-environment-variables.utils';
-import { isCompanyId } from '../../../../validators/isCompanyId.validator';
+import { isCompanyId } from '../../../../validators/is-company-id.validator';
 import { JobParameter } from '../../subscriptions/subscriptions.model';
 import { JobFactoryUtils } from '../jobs.factory';
 import { Job } from './jobs.model';

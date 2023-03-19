@@ -140,9 +140,6 @@ deployments:
             - containerPort: 3000
               port: 3000
               protocol: TCP
-            - containerPort: 3001
-              port: 3001
-              protocol: TCP
 
   flow-manager-e2e:
     helm:
@@ -216,7 +213,6 @@ deployments:
     helm:
       chart:
         name: kafka
-        version: 20.0.6
         repo: https://charts.bitnami.com/bitnami
         version: "21.0.0"
 

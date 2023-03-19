@@ -14,7 +14,7 @@ import {
 } from '../../../exceptions/http.exceptions';
 import { MongoIdDto } from '../../../types/dto/MongoIdDto';
 import { JobSummary } from '../../../types/job-summary.type';
-import { CompanyUnassigned } from '../../../validators/isCompanyId.validator';
+import { CompanyUnassigned } from '../../../validators/is-company-id.validator';
 import { Role } from '../../auth/constants';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
@@ -23,11 +23,7 @@ import { CustomJobEntry } from '../custom-jobs/custom-jobs.model';
 import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
 import { StartJobDto } from '../reporting/company.dto';
 import { JobParameter } from '../subscriptions/subscriptions.model';
-import {
-  JobDefinitions,
-  JobSourceBuiltIn,
-  JobSourceUserCreated,
-} from './job-model.module';
+import { JobDefinitions, JobSources } from './job-model.module';
 import { JobFactory } from './jobs.factory';
 import { JobsService } from './jobs.service';
 import { CustomJob } from './models/custom-job.model';
@@ -51,7 +47,11 @@ export class JobsController {
   @Get('summaries')
   async getAllJobSummaries(): Promise<JobSummary[]> {
     const jd = JobDefinitions.map((jd): JobSummary => {
-      return { name: jd.name, parameters: jd.params, source: JobSourceBuiltIn };
+      return {
+        name: jd.name,
+        parameters: jd.params,
+        source: JobSources.builtIn,
+      };
     });
 
     jd.splice(
@@ -67,7 +67,7 @@ export class JobsController {
   @Roles(Role.User)
   @Post()
   async startJob(@Body() dto: StartJobDto) {
-    if (dto.source === JobSourceUserCreated) {
+    if (dto.source === JobSources.userCreated) {
       if (!isNotEmpty(dto.task) || !isString(dto.task))
         throw new HttpBadRequestException(
           'The task parameter is not a valid string',

@@ -10,6 +10,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { isNotEmpty, isString } from 'class-validator';
+import { DeleteResult, UpdateResult } from 'mongodb';
 import {
   HttpBadRequestException,
   HttpConflictException,
@@ -23,7 +24,7 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/role.guard';
 import { CustomJobEntry } from '../custom-jobs/custom-jobs.model';
 import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
-import { JobSourceUserCreated } from '../jobs/job-model.module';
+import { JobSources } from '../jobs/job-model.module';
 import { JobFactory } from '../jobs/jobs.factory';
 import { CustomJob } from '../jobs/models/custom-job.model';
 import { Job } from '../jobs/models/jobs.model';
@@ -112,7 +113,7 @@ export class CompanyController {
     @Param() idDto: MongoIdDto,
     @Body(new ValidationPipe()) dto: StartJobDto,
   ): Promise<Job> {
-    if (dto.source === JobSourceUserCreated) {
+    if (dto.source === JobSources.userCreated) {
       if (!isNotEmpty(dto.task) || !isString(dto.task))
         throw new HttpBadRequestException(
           'The task parameter is not a valid string',
@@ -177,7 +178,7 @@ export class CompanyController {
   async editCompany(
     @Param() id: MongoIdDto,
     @Body(new ValidationPipe()) dto: EditCompanyDto,
-  ) {
+  ): Promise<UpdateResult> {
     const data: Partial<Company> = {};
     if ((dto.imageType && !dto.logo) || (dto.logo && !dto.imageType)) {
       throw new HttpBadRequestException();
@@ -232,7 +233,7 @@ export class CompanyController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
   @Delete(':id')
-  async deleteCompany(@Param() id: MongoIdDto) {
+  async deleteCompany(@Param() id: MongoIdDto): Promise<DeleteResult> {
     return await this.companyService.delete(id.id);
   }
 }

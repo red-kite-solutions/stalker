@@ -6,6 +6,7 @@ import {
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
+  WsException,
 } from '@nestjs/websockets';
 import { isMongoId } from 'class-validator';
 import { ChangeStream, ChangeStreamDocument } from 'mongodb';
@@ -24,7 +25,7 @@ export class JobStatusUpdate {
   constructor(private status: string, private timestamp: number) {}
 }
 
-@WebSocketGateway(3001, { cors: true })
+@WebSocketGateway({ cors: true })
 @UseGuards(JwtSocketioGuard, RolesSocketioGuard)
 @Roles(Role.User)
 export class JobOutputGateway implements OnGatewayDisconnect {
@@ -46,6 +47,10 @@ export class JobOutputGateway implements OnGatewayDisconnect {
     if (!isMongoId(jobId)) {
       client.disconnect(true);
       return;
+    }
+
+    if ((await this.jobsService.getById(jobId)) === null) {
+      throw new WsException('Job not found.');
     }
 
     // Closing the current change stream if one was already up for this socket

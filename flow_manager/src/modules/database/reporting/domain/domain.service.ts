@@ -1,5 +1,6 @@
 import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { DeleteResult, UpdateResult } from 'mongodb';
 import { Model, Types } from 'mongoose';
 import { HttpNotFoundException } from '../../../../exceptions/http.exceptions';
 import { HostnameFinding } from '../../../findings/findings.service';
@@ -108,14 +109,14 @@ export class DomainsService {
   public async addHostsToDomain(
     domainId: string,
     hostSummaries: HostSummary[],
-  ) {
+  ): Promise<UpdateResult> {
     return this.domainModel.updateOne(
       { _id: { $eq: domainId } },
       { $addToSet: { hosts: { $each: hostSummaries } } },
     );
   }
 
-  public async deleteAllForCompany(companyId: string) {
+  public async deleteAllForCompany(companyId: string): Promise<DeleteResult> {
     return await this.domainModel.deleteMany({
       companyId: { $eq: new Types.ObjectId(companyId) },
     });
@@ -147,11 +148,14 @@ export class DomainsService {
     }
   }
 
-  public async editDomain(id: string, domain: Partial<DomainDocument>) {
+  public async editDomain(
+    id: string,
+    domain: Partial<DomainDocument>,
+  ): Promise<UpdateResult> {
     return await this.domainModel.updateOne({ _id: { $eq: id } }, domain);
   }
 
-  public async delete(domainId: string) {
+  public async delete(domainId: string): Promise<DeleteResult> {
     const hosts = (await this.domainModel.findById(domainId).select('hosts'))
       ?.hosts;
     if (hosts) {
@@ -163,7 +167,10 @@ export class DomainsService {
     return await this.domainModel.deleteOne({ _id: { $eq: domainId } });
   }
 
-  public async unlinkHost(domainId: string, hostId: string) {
+  public async unlinkHost(
+    domainId: string,
+    hostId: string,
+  ): Promise<UpdateResult> {
     console.log('domain Id: ' + domainId);
     console.log('host Id: ' + hostId);
 

@@ -14,8 +14,6 @@ spec:
     - ports:
         - protocol: TCP
           port: 3000
-        - protocol: TCP
-          port: 3001
   egress:
     - to:
         - podSelector:

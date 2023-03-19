@@ -7,7 +7,7 @@ import {
   HttpNotFoundException,
 } from '../../exceptions/http.exceptions';
 import { Page } from '../../types/page.type';
-import { CompanyUnassigned } from '../../validators/isCompanyId.validator';
+import { CompanyUnassigned } from '../../validators/is-company-id.validator';
 import { JobsService } from '../database/jobs/jobs.service';
 import { CompanyService } from '../database/reporting/company.service';
 import { CorrelationKeyUtils } from '../database/reporting/correlation.utils';
