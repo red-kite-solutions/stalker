@@ -58,11 +58,9 @@ export class HostsFilterDto {
 
   @IsArray()
   @IsOptional()
-  @IsMongoId({ each: true })
   company: string[];
 
   @IsArray()
   @IsOptional()
-  @IsMongoId({ each: true })
   domain: string[];
 }
