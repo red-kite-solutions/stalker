@@ -56,9 +56,9 @@ pipelines:
       create_deployments mongo kafka orchestrator-service-account orchestrator flow-manager-e2e --sequential
 
       # Wait for kafka and mongo to be ready
-      wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 360
+      wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 600
       wait_pod --label-selector app.kubernetes.io/component=kafka --timeout 600
-      wait_pod --label-selector app.kubernetes.io/component=zookeeper --timeout 360
+      wait_pod --label-selector app.kubernetes.io/component=zookeeper --timeout 600
 
       # Run tests
       if [ $(get_flag "watch") == "true" ]; 
