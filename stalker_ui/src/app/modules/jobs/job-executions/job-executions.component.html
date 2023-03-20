@@ -17,7 +17,15 @@
         <!-- Name Column -->
         <ng-container matColumnDef="name">
           <th mat-header-cell *matHeaderCellDef i18n="Name|Name of an item">Name</th>
-          <td mat-cell *matCellDef="let element">{{ element.task }}</td>
+          <td mat-cell *matCellDef="let element">
+            <div class="name-cell">
+              <app-job-state [state]="element.state"></app-job-state>
+              <div>
+                <div>{{ element.task }}</div>
+                <div class="execution-info"><app-job-logs-summary [job]="element"></app-job-logs-summary></div>
+              </div>
+            </div>
+          </td>
         </ng-container>
 
         <!-- Company Column -->
@@ -32,7 +40,7 @@
           <td mat-cell *matCellDef="let element">
             <div *ngIf="element.endTime; else started">
               <div i18n="Started|Started x days ago">Started {{ element.endTime | timeAgo }}</div>
-              <div>Took {{ element.endTime - element.startTime | humanize }}</div>
+              <div i18n="Took|Took x seconds">Took {{ element.endTime - element.startTime | humanize }}</div>
             </div>
             <ng-template #started>
               <div i18n="Started|Started x days ago">Started {{ element.startTime | timeAgo }}</div>

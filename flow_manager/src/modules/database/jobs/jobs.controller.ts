@@ -13,8 +13,10 @@ import {
   HttpBadRequestException,
   HttpNotFoundException,
 } from '../../../exceptions/http.exceptions';
+import { JobDocument } from '../../../modules/database/jobs/models/jobs.model';
 import { MongoIdDto } from '../../../types/dto/MongoIdDto';
 import { JobSummary } from '../../../types/job-summary.type';
+import { Page } from '../../../types/page.type';
 import { CompanyUnassigned } from '../../../validators/isCompanyId.validator';
 import { Role } from '../../auth/constants';
 import { Roles } from '../../auth/decorators/roles.decorator';
@@ -47,7 +49,7 @@ export class JobsController {
   async getAllJobs(
     @Query()
     dto: JobExecutionsDto,
-  ): Promise<any> {
+  ): Promise<Page<JobDocument>> {
     return await this.jobsService.getAll(dto);
   }
 

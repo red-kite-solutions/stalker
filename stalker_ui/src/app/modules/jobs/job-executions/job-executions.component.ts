@@ -10,7 +10,7 @@ import { CompaniesService } from '../../../api/companies/companies.service';
 import { JobsService } from '../../../api/jobs/jobs/jobs.service';
 import { JobsSocketioClient } from '../../../api/jobs/jobs/jobs.socketio-client';
 import { CompanySummary } from '../../../shared/types/company/company.summary';
-import { StartedJob } from '../../../shared/types/jobs/job.type';
+import { StartedJobViewModel } from '../../../shared/types/jobs/job.type';
 import { Page } from '../../../shared/types/page.type';
 
 @Component({
@@ -25,7 +25,7 @@ export class JobExecutionsComponent implements OnDestroy {
   @ViewChild(MatPaginator, { static: true }) paginator!: MatPaginator;
 
   dataLoading = true;
-  dataSource = new MatTableDataSource<StartedJob>();
+  dataSource = new MatTableDataSource<StartedJobViewModel>();
   currentPage: PageEvent = this.generateFirstPageEvent();
   currentFilters: string[] = [];
   currentPage$ = new BehaviorSubject<PageEvent>(this.currentPage);
@@ -39,9 +39,9 @@ export class JobExecutionsComponent implements OnDestroy {
       const filters = this.buildFilters(this.currentFilters);
       return this.jobsService.getJobExecutions(currentPage.pageIndex, currentPage.pageSize, filters);
     }),
-    map((data: Page<StartedJob>) => {
+    map((data: Page<StartedJobViewModel>) => {
       if (!this.dataSource) {
-        this.dataSource = new MatTableDataSource<StartedJob>();
+        this.dataSource = new MatTableDataSource<StartedJobViewModel>();
       }
       this.dataSource.data = data.items;
       this.count = data.totalRecords;

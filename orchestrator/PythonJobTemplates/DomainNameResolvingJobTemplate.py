@@ -1,5 +1,6 @@
 import os
 import socket
+import time
 
 from stalker_job_sdk import (
     DomainFinding,
@@ -18,6 +19,8 @@ log_error("Starting job (error log)")
 hostname = os.environ["HOSTNAME"]
 data = socket.gethostbyname_ex(hostname)
 ipx = data[2]
+
+time.sleep(20)
 
 for ip in ipx:
     log_finding(

@@ -1,1 +1,6 @@
-Hello {{ executionId$ | async }}
+<mat-card>
+  <app-job-logs-summary [job]="(execution$ | async) || undefined"></app-job-logs-summary>
+</mat-card>
+<div *ngFor="let output of (execution$ | async)?.output">
+  {{ output.value }}
+</div>

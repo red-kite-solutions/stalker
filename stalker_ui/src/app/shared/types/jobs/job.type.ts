@@ -25,3 +25,20 @@ export interface StartedJob extends JobInput {
   priority: number;
   output: JobOutputResponse[];
 }
+
+export type StartedJobState = 'in-progress' | 'done' | 'errored';
+
+export interface StartedJobViewModel {
+  id: string;
+  publishTime: number;
+  startTime: number;
+  endTime: number;
+  task: string;
+  companyId: string;
+  priority: number;
+  output: JobOutputResponse[];
+  state: StartedJobState | undefined;
+  numberOfErrors: number;
+  numberOfWarnings: number;
+  numberOfFindings: number;
+}
