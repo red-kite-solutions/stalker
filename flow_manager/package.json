@@ -21,9 +21,9 @@
     "test:cicd": "jest  --runInBand --json --outputFile=./test/jest-output.json",
     "test:watch": "jest --watchAll --runInBand",
     "test:cov": "jest --coverage",
-    "test:e2e": "jest --colors --config  ./test/jest-e2e.json",
+    "test:e2e": "jest --colors --config  ./test/jest.config.e2e.js",
     "test:e2e:cicd": "jest --json --outputFile=./test/jest-output-e2e.json --runInBand --testLocationInResults --config ./test/jest.config.e2e.ga.js",
-    "test:e2e:watch": "jest --watchAll --colors --runInBand --config ./test/jest-e2e.json"
+    "test:e2e:watch": "jest --watchAll --colors --runInBand --config ./test/jest.config.e2e.js"
   },
   "dependencies": {
     "@nestjs/common": "^9.2.1",

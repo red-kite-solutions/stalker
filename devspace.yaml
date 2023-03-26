@@ -69,7 +69,7 @@ pipelines:
       else
         echo "Running tests in ci mode."
         start_dev flow-manager-e2e
-        exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'npm run test:e2e:cicd' || true
+        exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'npm run test:e2e:cicd'
       fi
       exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'echo "Sleeping while the test results are synced."'
       exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'sleep 10'
