@@ -28,16 +28,16 @@ pipelines:
       start_dev mongo kafka
 
       # Wait for kafka and mongo to be ready
-      wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 240
-      wait_pod --label-selector app.kubernetes.io/component=kafka --timeout 240
-      wait_pod --label-selector app.kubernetes.io/component=zookeeper --timeout 240
+      wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 300
+      wait_pod --label-selector app.kubernetes.io/component=kafka --timeout 300
+      wait_pod --label-selector app.kubernetes.io/component=zookeeper --timeout 300
 
       create_deployments ui flow-manager orchestrator-service-account orchestrator --sequential
 
       # Wait for last services before applying network policies
-      wait_pod --label-selector app.kubernetes.io/component=ui --timeout 240
-      wait_pod --label-selector app.kubernetes.io/component=flow-manager --timeout 240
-      wait_pod --label-selector app.kubernetes.io/component=orchestrator --timeout 240
+      wait_pod --label-selector app.kubernetes.io/component=ui --timeout 300
+      wait_pod --label-selector app.kubernetes.io/component=flow-manager --timeout 300
+      wait_pod --label-selector app.kubernetes.io/component=orchestrator --timeout 300
 
       create_deployments network-policies
       create_deployments resource-quotas
