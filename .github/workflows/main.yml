@@ -52,6 +52,16 @@ jobs:
         run: |-
           kubectl get all -n stalker
 
+      - name: Kafka describe
+        if: always()
+        run: |-
+          kubectl describe -n stalker pod kafka-0
+
+      - name: Kafka logs
+        if: always()
+        run: |-
+          kubectl logs -n stalker kafka-0
+
       # - name: Update the results in the pull request
       #   uses: tanmen/jest-reporter@v1
       #   if: always()
