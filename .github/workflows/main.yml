@@ -46,7 +46,6 @@ jobs:
 
       - name: Run tests
         run: devspace run-pipeline flow-manager-e2e -n stalker
-        continue-on-error: true
 
       - name: Diagnosis
         if: always()
@@ -54,9 +53,9 @@ jobs:
           kubectl get all
           kubectl -n stalker get all -o yaml
 
-      - name: Update the results in the pull request
-        uses: tanmen/jest-reporter@v1
-        if: always()
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          result-file: ./flow_manager/test/jest-output-e2e.json
+      # - name: Update the results in the pull request
+      #   uses: tanmen/jest-reporter@v1
+      #   if: always()
+      #   with:
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     result-file: ./flow_manager/test/jest-output-e2e.json
