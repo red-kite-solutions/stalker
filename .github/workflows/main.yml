@@ -44,8 +44,18 @@ jobs:
       - name: Create namespace
         run: kubectl create namespace stalker
 
+      - name: Build tests containers
+        run: devspace run-pipeline build -n stalker
+
+      - name: Deploy test containers
+        run: devspace run-pipeline flow-manager-e2e-cicd-deploy -n stalker
+
+      - name: "2 min :coffee: break"
+        run: sleep 120s
+        shell: bash
+
       - name: Run tests
-        run: devspace run-pipeline flow-manager-e2e -n stalker
+        run: devspace run-pipeline flow-manager-e2e-cicd-run -n stalker
 
       - name: Diagnosis
         if: always()

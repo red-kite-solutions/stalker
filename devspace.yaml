@@ -77,6 +77,22 @@ pipelines:
       stop_dev --all
       purge_deployments mongo ui flow-manager flow-manager-e2e kafka orchestrator-service-account orchestrator --sequential
 
+  flow-manager-e2e-cicd-deploy:
+    run: |-
+      # Running the build pipeline is required before running this
+      create_deployments mongo kafka orchestrator-service-account orchestrator flow-manager-e2e --sequential
+
+      # Wait for kafka and mongo to be ready
+      wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 600
+      wait_pod --label-selector app.kubernetes.io/component=kafka --timeout 600
+      wait_pod --label-selector app.kubernetes.io/component=zookeeper --timeout 600
+
+  flow-manager-e2e-cicd-run:
+    run: |-
+      # Running flow-manager-e2e-cicd-deploy pipeline is required before running this
+      start_dev flow-manager-e2e
+      exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'npm run test:e2e:cicd'
+
 images:
   flow-manager:
     image: flow_manager
