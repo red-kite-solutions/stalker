@@ -45,7 +45,7 @@ jobs:
         run: kubectl create namespace stalker
 
       - name: Build tests containers
-        run: devspace run-pipeline build -n stalker
+        run: devspace run-pipeline build-e2e -n stalker
 
       - name: Deploy test containers
         run: devspace run-pipeline flow-manager-e2e-cicd-deploy -n stalker

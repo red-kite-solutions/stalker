@@ -77,6 +77,9 @@ pipelines:
       stop_dev --all
       purge_deployments mongo ui flow-manager flow-manager-e2e kafka orchestrator-service-account orchestrator --sequential
 
+  build-e2e:
+    run: build_images ui flow-manager-e2e orchestrator python-job-base
+
   flow-manager-e2e-cicd-deploy:
     run: |-
       # Running the build pipeline is required before running this
