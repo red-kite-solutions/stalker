@@ -80,6 +80,7 @@ pipelines:
   flow-manager-e2e-cicd-deploy:
     run: |-
       # Running the build pipeline is required before running this
+      create_deployments namespaces
       create_deployments mongo kafka orchestrator-service-account orchestrator flow-manager-e2e --sequential
 
       # Wait for kafka and mongo to be ready

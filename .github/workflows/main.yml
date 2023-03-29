@@ -50,7 +50,7 @@ jobs:
       - name: Deploy test containers
         run: devspace run-pipeline flow-manager-e2e-cicd-deploy -n stalker
 
-      - name: "2 min :coffee: break"
+      - name: "2 min ☕ break"
         run: sleep 120s
         shell: bash
 
