@@ -46,6 +46,10 @@ describe('Users Controller (e2e)', () => {
     testData = await initTesting(app);
   });
 
+  afterAll(async () => {
+    await app.close();
+  });
+
   it('Should get the users (GET /users)', async () => {
     const r = await getReq(app, testData.admin.token, '/users');
     expect(r.body.length).toBeGreaterThanOrEqual(3);

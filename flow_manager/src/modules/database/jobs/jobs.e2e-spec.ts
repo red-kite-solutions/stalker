@@ -32,6 +32,10 @@ describe('Job Controller (e2e)', () => {
     testData = await initTesting(app);
   });
 
+  afterAll(async () => {
+    await app.close();
+  });
+
   it('Should fail to create a new job since the company does not exist (POST /company/:id/job)', async () => {
     const r = await postReq(
       app,

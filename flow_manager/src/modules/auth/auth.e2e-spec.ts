@@ -53,6 +53,10 @@ describe('Auth Controller (e2e)', () => {
     }
   });
 
+  afterAll(async () => {
+    await app.close();
+  });
+
   it('Should fail to login with bad credentials (POST /auth/login)', async () => {
     const r = await login(app, 'email@example.com', 'password');
 

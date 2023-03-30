@@ -26,6 +26,10 @@ describe('Domain Controller (e2e)', () => {
     comment = Math.random().toString(36).substring(2, 12);
   });
 
+  afterAll(async () => {
+    await app.close();
+  });
+
   it('Should add a comment to the current report (POST /report/comment)', async () => {
     const r = await postReq(app, testData.admin.token, '/report/comment', {
       comment: comment,
