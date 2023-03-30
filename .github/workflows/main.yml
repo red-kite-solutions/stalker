@@ -71,10 +71,3 @@ jobs:
         if: always()
         run: |-
           kubectl logs -n stalker kafka-0
-
-      - name: Update the results in the pull request
-        uses: tanmen/jest-reporter@v1
-        if: always()
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          result-file: ./flow_manager/test/jest-output-e2e.json
