@@ -22,7 +22,7 @@
     "test:watch": "jest --watchAll --runInBand",
     "test:cov": "jest --coverage",
     "test:e2e": "jest --colors --config  ./test/jest-e2e.json",
-    "test:e2e:cicd": "jest --json --outputFile=./test/jest-output-e2e.json --testLocationInResults --config ./test/jest-e2e.json",
+    "test:e2e:cicd": "jest --config ./test/jest-e2e.ga.json",
     "test:e2e:watch": "jest --watchAll --colors --runInBand --config ./test/jest-e2e.json"
   },
   "dependencies": {
