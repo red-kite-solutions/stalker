@@ -44,30 +44,11 @@ jobs:
       - name: Create namespace
         run: kubectl create namespace stalker
 
-      - name: Build test containers
-        run: devspace run-pipeline build-e2e -n stalker
-
-      - name: Deploy test containers
-        run: devspace run-pipeline flow-manager-e2e-cicd-deploy -n stalker
-
-      - name: "2 min ☕ break"
-        run: sleep 120s
-        shell: bash
-
       - name: Run tests
-        run: devspace run-pipeline flow-manager-e2e-cicd-run -n stalker
+        run: devspace run-pipeline flow-manager-e2e -n stalker
 
       - name: Diagnosis
         if: always()
         run: |-
-          kubectl get all -n stalker
-
-      - name: Kafka describe
-        if: always()
-        run: |-
-          kubectl describe -n stalker pod kafka-0
-
-      - name: Kafka logs
-        if: always()
-        run: |-
-          kubectl logs -n stalker kafka-0
+          kubectl get all
+          kubectl -n stalker get all -o yaml

@@ -28,16 +28,16 @@ pipelines:
       start_dev mongo kafka
 
       # Wait for kafka and mongo to be ready
-      wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 300
-      wait_pod --label-selector app.kubernetes.io/component=kafka --timeout 300
-      wait_pod --label-selector app.kubernetes.io/component=zookeeper --timeout 300
+      wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 240
+      wait_pod --label-selector app.kubernetes.io/component=kafka --timeout 240
+      wait_pod --label-selector app.kubernetes.io/component=zookeeper --timeout 240
 
       create_deployments ui flow-manager orchestrator-service-account orchestrator --sequential
 
       # Wait for last services before applying network policies
-      wait_pod --label-selector app.kubernetes.io/component=ui --timeout 300
-      wait_pod --label-selector app.kubernetes.io/component=flow-manager --timeout 300
-      wait_pod --label-selector app.kubernetes.io/component=orchestrator --timeout 300
+      wait_pod --label-selector app.kubernetes.io/component=ui --timeout 240
+      wait_pod --label-selector app.kubernetes.io/component=flow-manager --timeout 240
+      wait_pod --label-selector app.kubernetes.io/component=orchestrator --timeout 240
 
       create_deployments network-policies
       create_deployments resource-quotas
@@ -56,11 +56,12 @@ pipelines:
       create_deployments mongo kafka orchestrator-service-account orchestrator flow-manager-e2e --sequential
 
       # Wait for kafka and mongo to be ready
-      wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 300
-      wait_pod --label-selector app.kubernetes.io/component=kafka --timeout 600
-      wait_pod --label-selector app.kubernetes.io/component=zookeeper --timeout 300
+      wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 360
+      wait_pod --label-selector app.kubernetes.io/component=kafka --timeout 360
+      wait_pod --label-selector app.kubernetes.io/component=zookeeper --timeout 360
 
       # Run tests
+
       if [ $(get_flag "watch") == "true" ]; 
       then
         echo "Running tests in watch mode."
@@ -71,31 +72,14 @@ pipelines:
         start_dev flow-manager-e2e
         exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'npm run test:e2e:cicd'
       fi
+
+      exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'echo "Sleeping while the test results are synced."'
+      exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'sleep 10'
       stop_dev --all
   purge:
     run: |-
       stop_dev --all
       purge_deployments mongo ui flow-manager flow-manager-e2e kafka orchestrator-service-account orchestrator --sequential
-
-  build-e2e:
-    run: build_images ui flow-manager-e2e orchestrator python-job-base
-
-  flow-manager-e2e-cicd-deploy:
-    run: |-
-      # Running the build pipeline is required before running this
-      create_deployments namespaces
-      create_deployments mongo kafka orchestrator-service-account orchestrator flow-manager-e2e --sequential
-
-      # Wait for kafka and mongo to be ready
-      wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 600
-      wait_pod --label-selector app.kubernetes.io/component=kafka --timeout 600
-      wait_pod --label-selector app.kubernetes.io/component=zookeeper --timeout 600
-
-  flow-manager-e2e-cicd-run:
-    run: |-
-      # Running flow-manager-e2e-cicd-deploy pipeline is required before running this
-      start_dev flow-manager-e2e
-      exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'npm run test:e2e:cicd'
 
 images:
   flow-manager:
@@ -204,8 +188,7 @@ deployments:
             - containerPort: 4200
               port: 4200
               protocol: TCP
-  # Deployed in primary-secondary-arbiter (PSA) mode. Additionnal details:
-  # https://www.mongodb.com/docs/manual/core/replica-set-architecture-three-members/
+
   mongo:
     helm:
       chart:
@@ -281,7 +264,7 @@ deployments:
 dev:
   mongo:
     labelSelector:
-      statefulset.kubernetes.io/pod-name: mongo-mongodb-0
+      app.kubernetes.io/component: mongodb
     ports:
       - port: "27017"
 
@@ -304,7 +287,6 @@ dev:
       inject: false
     ports:
       - port: "3000"
-      - port: "3001"
 
   flow-manager-e2e:
     labelSelector:
