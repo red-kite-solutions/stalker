@@ -1,5 +1,6 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { randomUUID } from 'crypto';
 import jwt_decode from 'jwt-decode';
 import request from 'supertest';
 import { admin, createUser, deleteReq, login, putReq } from 'test/e2e.utils';
@@ -12,7 +13,7 @@ describe('Auth Controller (e2e)', () => {
   let refresh: string;
 
   const testAdmin = {
-    email: 'testadmin@stalker.is',
+    email: `testadmin-${randomUUID()}@stalker.is`,
     password: 'testadmin@stalker.is',
     role: Role.Admin,
     firstName: 'testadminfirst',
@@ -22,7 +23,7 @@ describe('Auth Controller (e2e)', () => {
   };
 
   const inactiveUser = {
-    email: 'inactive@stalker.is',
+    email: `inactive-${randomUUID()}@stalker.is`,
     password: 'inactive@stalker.is',
     role: Role.Admin,
     firstName: 'InactiveFirst',
@@ -38,6 +39,7 @@ describe('Auth Controller (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     await app.init();
+
     let r = await login(app, admin.email, admin.password);
     let initToken = r.body.access_token;
     r = await createUser(app, initToken, inactiveUser);
@@ -49,6 +51,10 @@ describe('Auth Controller (e2e)', () => {
     if (r.statusCode === HttpStatus.CREATED) {
       testAdmin.id = r.body._id;
     }
+  });
+
+  afterAll(async () => {
+    await app.close();
   });
 
   it('Should fail to login with bad credentials (POST /auth/login)', async () => {
