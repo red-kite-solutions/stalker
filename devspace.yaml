@@ -73,8 +73,6 @@ pipelines:
         exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'npm run test:e2e:cicd'
       fi
 
-      exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'echo "Sleeping while the test results are synced."'
-      exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'sleep 10'
       stop_dev --all
   purge:
     run: |-
@@ -299,9 +297,6 @@ dev:
         disableDownload: true
       - path: ./flow_manager/test/:/app/test/
         disableDownload: true
-      - path: ./flow_manager/test/jest-output-e2e.json:/app/test/jest-output-e2e.json
-        disableUpload: true
-        file: true
     restartHelper:
       inject: false
     ports:
