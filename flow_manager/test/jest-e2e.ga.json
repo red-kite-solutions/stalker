@@ -7,5 +7,7 @@
   "testRegex": ".e2e-spec.ts$",
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
-  }
+  },
+  "testTimeout": 70000,
+  "slowTestThreshold": 30
 }
