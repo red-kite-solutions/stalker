@@ -1,0 +1,14 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": "..",
+  "reporters": [["github-actions", { "silent": false }], "summary"],
+  "moduleDirectories": ["<rootDir>", "<rootDir>/node_modules/"],
+  "testEnvironment": "node",
+  "testRegex": ".e2e-spec.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "testTimeout": 70000,
+  "slowTestThreshold": 30,
+  "transformIgnorePatterns": ["/node_modules/(?!(is-fullwidth-code-point))"]
+}

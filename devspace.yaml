@@ -149,6 +149,8 @@ deployments:
                 value: ${KAFKA_URI}
               - name: STALKER_URL
                 value: ${STALKER_URL}
+              - name: MONGO_REPLICA_SET_NAME
+                value: ${MONGO_REPLICA_SET_NAME}
 
             image: flow_manager
             name: flow-manager-container
@@ -183,6 +185,8 @@ deployments:
                 value: "true"
               - name: STALKER_URL
                 value: ${STALKER_URL}
+              - name: MONGO_REPLICA_SET_NAME
+                value: ${MONGO_REPLICA_SET_NAME}
 
         service:
           ports:
@@ -317,9 +321,6 @@ dev:
         disableDownload: true
       - path: ./flow_manager/test/:/app/test/
         disableDownload: true
-      - path: ./flow_manager/test/jest-output-e2e.json:/app/test/jest-output-e2e.json
-        disableUpload: true
-        file: true
     restartHelper:
       inject: false
     ports:
