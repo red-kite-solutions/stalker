@@ -96,6 +96,7 @@ pipelines:
       # Running flow-manager-e2e-cicd-deploy pipeline is required before running this
       start_dev flow-manager-e2e
       exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'npm run test:e2e:cicd'
+      stop_dev --all
 
 images:
   flow-manager:
