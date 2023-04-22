@@ -17,7 +17,7 @@ jobs:
     name: E2E Tests
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -49,10 +49,6 @@ jobs:
 
       - name: Deploy test containers
         run: devspace run-pipeline flow-manager-e2e-cicd-deploy -n stalker
-
-      - name: "2 min ☕ break"
-        run: sleep 120s
-        shell: bash
 
       - name: Run tests
         run: devspace run-pipeline flow-manager-e2e-cicd-run -n stalker
