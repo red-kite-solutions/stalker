@@ -6,6 +6,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { DeleteResult } from 'mongodb';
 import { HttpNotImplementedException } from '../../../../exceptions/http.exceptions';
 import { MongoIdDto } from '../../../../types/dto/MongoIdDto';
 import { Page } from '../../../../types/page.type';
@@ -53,7 +54,7 @@ export class HostController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
   @Delete(':id')
-  async deleteHost(@Param() dto: MongoIdDto) {
+  async deleteHost(@Param() dto: MongoIdDto): Promise<DeleteResult> {
     return await this.hostsService.delete(dto.id);
   }
 

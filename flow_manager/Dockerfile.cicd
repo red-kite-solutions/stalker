@@ -1,26 +1,17 @@
 FROM node:19.6.1-alpine
 
+WORKDIR /app
+
 RUN apk update
 RUN apk add bash
 RUN apk add keybase-client --allow-untrusted --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing/
 RUN apk add g++ make py3-pip
-RUN apk add git
 
-RUN mkdir /fm; mkdir /secrets; mkdir /fm/src; mkdir /fm/test;
-WORKDIR /fm/
+COPY package.json package.json
+COPY package-lock.json package-lock.json
 
-ADD package.json .
-ADD package-lock.json .
+RUN npm ci
 
-RUN npm install
-RUN npm install keybase-bot
+COPY . . 
 
-ADD nest-cli.json .
-ADD tsconfig.build.json .
-ADD tsconfig.json .
-
-ENV KEYBASE_ALLOW_ROOT=1
-RUN keybase ctl init
-
-CMD ["npm", "run-script", "test:e2e:cicd"]
-EXPOSE 3000
+CMD ["npm", "run", "start"]

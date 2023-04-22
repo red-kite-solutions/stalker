@@ -11,6 +11,7 @@ import {
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
+import { DeleteResult } from 'mongodb';
 import {
   HttpConflictException,
   HttpForbiddenException,
@@ -178,7 +179,7 @@ export class UsersController {
 
   @Roles(Role.Admin)
   @Delete(':id')
-  public async deleteUser(@Param() dto: MongoIdDto) {
+  public async deleteUser(@Param() dto: MongoIdDto): Promise<DeleteResult> {
     try {
       return await this.usersService.deleteUserById(dto.id);
     } catch (err) {

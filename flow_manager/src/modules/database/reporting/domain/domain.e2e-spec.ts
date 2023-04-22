@@ -39,6 +39,10 @@ describe('Domain Controller (e2e)', () => {
     domain = randomSub + '.stalker.is';
   });
 
+  afterAll(async () => {
+    await app.close();
+  });
+
   it('Should create a domain (POST /company/:id/domain)', async () => {
     // Arrange & Act
     const r = await postReq(

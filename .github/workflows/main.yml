@@ -17,7 +17,7 @@ jobs:
     name: E2E Tests
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -44,16 +44,26 @@ jobs:
       - name: Create namespace
         run: kubectl create namespace stalker
 
+      - name: Build test containers
+        run: devspace run-pipeline build-e2e -n stalker
+
+      - name: Deploy test containers
+        run: devspace run-pipeline flow-manager-e2e-cicd-deploy -n stalker
+
       - name: Run tests
-        run: devspace run-pipeline flow-manager-e2e -n stalker
+        run: devspace run-pipeline flow-manager-e2e-cicd-run -n stalker
 
       - name: Diagnosis
         if: always()
-        run: kubectl -n stalker get all -o yaml
+        run: |-
+          kubectl get all -n stalker
 
-      - name: Update the results in the pull request
-        uses: tanmen/jest-reporter@v1
+      - name: Kafka describe
         if: always()
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          result-file: ./flow_manager/test/jest-output-e2e.json
+        run: |-
+          kubectl describe -n stalker pod kafka-0
+
+      - name: Kafka logs
+        if: always()
+        run: |-
+          kubectl logs -n stalker kafka-0

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { DeleteResult, UpdateResult } from 'mongodb';
 import { Model, Types } from 'mongoose';
 import { HttpNotFoundException } from '../../../exceptions/http.exceptions';
 import { JobsService } from '../jobs/jobs.service';
@@ -67,7 +68,7 @@ export class CompanyService {
     await this.companyModel.updateOne({ _id: { $eq: id } }, company);
   }
 
-  public async delete(id: string) {
+  public async delete(id: string): Promise<DeleteResult> {
     const result = await this.companyModel.deleteOne({ _id: { $eq: id } });
     await this.hostsService.deleteAllForCompany(id);
     await this.domainsService.deleteAllForCompany(id);
@@ -125,7 +126,10 @@ export class CompanyService {
     return `data:image/${imageType};base64,${b64Content}`;
   }
 
-  public async editCompany(id: string, company: Partial<Company>) {
+  public async editCompany(
+    id: string,
+    company: Partial<Company>,
+  ): Promise<UpdateResult> {
     return await this.companyModel.updateOne(
       { _id: { $eq: id } },
       { ...company },

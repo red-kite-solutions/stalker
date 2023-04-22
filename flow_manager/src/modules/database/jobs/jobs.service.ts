@@ -1,10 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { ObjectId } from 'mongodb';
+import {
+  ChangeStream,
+  ChangeStreamDocument,
+  DeleteResult,
+  UpdateResult,
+  ObjectId,
+} from 'mongodb';
 import { Document, Model, Types } from 'mongoose';
 import { Page } from '../../../types/page.type';
 import { TimestampedString } from '../../../types/timestamped-string.type';
-import { CompanyUnassigned } from '../../../validators/isCompanyId.validator';
+import { CompanyUnassigned } from '../../../validators/is-company-id.validator';
 import { JobQueue } from '../../job-queue/job-queue';
 import { JobExecutionsDto } from './job-executions.dto';
 import { JobLog, JobLogLevel } from './models/job-log.model';
@@ -50,8 +56,8 @@ export class JobsService {
     await this.jobModel.deleteOne({ _id: { $eq: id } });
   }
 
-  public async deleteAllForCompany(companyId: string) {
-    await this.jobModel.deleteMany({
+  public async deleteAllForCompany(companyId: string): Promise<DeleteResult> {
+    return await this.jobModel.deleteMany({
       companyId: { $eq: companyId },
     });
 
@@ -118,18 +124,22 @@ export class JobsService {
     );
   }
 
-  public watchForJobOutput(jobId: string) {
+  public watchForJobOutput(
+    jobId: string,
+  ): ChangeStream<Document, ChangeStreamDocument<Document>> {
     const pipeline = [
       { $match: { 'documentKey._id': new Types.ObjectId(jobId) } },
     ];
-    return this.jobModel.collection.watch(pipeline);
+    return <ChangeStream<Document, ChangeStreamDocument<Document>>>(
+      this.jobModel.collection.watch(pipeline)
+    );
   }
 
   public async updateJobStatus(
     jobId: string,
     status: string,
     timestamp: number,
-  ) {
+  ): Promise<UpdateResult> {
     const select = { _id: { $eq: new Types.ObjectId(jobId) } };
     switch (status.toLowerCase()) {
       case 'started':

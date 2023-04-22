@@ -36,7 +36,7 @@ describe('Findings Handler Base', () => {
   beforeEach(async () => {
     const cjs = await customJobsService.getAll();
     for (const cj of cjs) {
-      await customJobsService.delete(cj._id);
+      await customJobsService.delete(cj._id.toString());
     }
   });
 

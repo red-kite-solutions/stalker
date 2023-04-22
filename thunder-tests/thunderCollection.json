@@ -59,7 +59,7 @@
         "name": "Admin",
         "containerId": "34373672-80cf-4076-949e-6d92934813cd",
         "created": "2022-07-24T22:31:09.440Z",
-        "sortNum": 5000
+        "sortNum": 3001
       },
       {
         "_id": "f73962d8-8be6-4eff-8047-92395cf58b21",
@@ -80,7 +80,7 @@
         "name": "Companies",
         "containerId": "34373672-80cf-4076-949e-6d92934813cd",
         "created": "2022-07-24T22:42:38.922Z",
-        "sortNum": 15000
+        "sortNum": 13001
       }
     ]
   }

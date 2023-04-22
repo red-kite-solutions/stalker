@@ -15,6 +15,10 @@ describe('AppController (e2e)', () => {
     await app.init();
   });
 
+  afterAll(async () => {
+    await app.close();
+  });
+
   it('Should get the root of the application to check if it is alive (GET /)', async () => {
     const r = await request(app.getHttpServer()).get('/');
     expect(r.statusCode).toBe(HttpStatus.OK);

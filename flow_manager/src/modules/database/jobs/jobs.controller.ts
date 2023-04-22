@@ -16,6 +16,7 @@ import {
 import { JobDocument } from '../../../modules/database/jobs/models/jobs.model';
 import { MongoIdDto } from '../../../types/dto/MongoIdDto';
 import { JobSummary } from '../../../types/job-summary.type';
+import { CompanyUnassigned } from '../../../validators/is-company-id.validator';
 import { Page } from '../../../types/page.type';
 import { CompanyUnassigned } from '../../../validators/isCompanyId.validator';
 import { Role } from '../../auth/constants';
@@ -31,6 +32,7 @@ import {
   JobDefinitions,
   JobSourceBuiltIn,
   JobSourceUserCreated,
+  JobSource
 } from './job-model.module';
 import { JobFactory } from './jobs.factory';
 import { JobsService } from './jobs.service';
@@ -58,7 +60,11 @@ export class JobsController {
   @Get('summaries')
   async getAllJobSummaries(): Promise<JobSummary[]> {
     const jd = JobDefinitions.map((jd): JobSummary => {
-      return { name: jd.name, parameters: jd.params, source: JobSourceBuiltIn };
+      return {
+        name: jd.name,
+        parameters: jd.params,
+        source: JobSources.builtIn,
+      };
     });
 
     jd.splice(
@@ -74,7 +80,7 @@ export class JobsController {
   @Roles(Role.User)
   @Post()
   async startJob(@Body() dto: StartJobDto) {
-    if (dto.source === JobSourceUserCreated) {
+    if (dto.source === JobSources.userCreated) {
       if (!isNotEmpty(dto.task) || !isString(dto.task))
         throw new HttpBadRequestException(
           'The task parameter is not a valid string',

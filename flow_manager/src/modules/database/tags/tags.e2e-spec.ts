@@ -27,6 +27,10 @@ describe('Tags Controller (e2e)', () => {
     testData = await initTesting(app);
   });
 
+  afterAll(async () => {
+    await app.close();
+  });
+
   it('Should create a tag (POST /tags/)', async () => {
     // Arrange & Act
     const r = await postReq(app, testData.user.token, `/tags/`, tag);

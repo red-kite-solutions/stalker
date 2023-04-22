@@ -4,7 +4,7 @@ import { Document } from 'mongoose';
 import { JobParameterValueException } from '../../../../exceptions/job-parameter.exception';
 import { JobParameterDefinition } from '../../../../types/job-parameter-definition.type';
 import { TimestampedString } from '../../../../types/timestamped-string.type';
-import { isCompanyId } from '../../../../validators/isCompanyId.validator';
+import { isCompanyId } from '../../../../validators/is-company-id.validator';
 import { JobParameter } from '../../subscriptions/subscriptions.model';
 import { JobFactoryUtils } from '../jobs.factory';
 

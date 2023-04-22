@@ -267,9 +267,11 @@ export async function cleanup() {
   }
 
   const uri = process.env.MONGO_ADDRESS;
-  const client = new MongoClient(uri);
+  const database = process.env.MONGO_DATABASE_NAME;
+  const client = new MongoClient(uri, {});
   await client.connect();
-  const db = client.db(process.env.MONGO_DATABASE_NAME);
+  const db = client.db(database);
+
   const collectionsToDelete = [
     'jobs',
     'domains',

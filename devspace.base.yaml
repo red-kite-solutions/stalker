@@ -7,7 +7,7 @@ vars:
   FM_API_KEY: "123456" # Flow Manager's API key for workers to report data
   FM_JWT_SECRET: "123456" # The secret used to sign JWT for users
   FM_REFRESH_SECRET: "123456" # The secret used to sign JWT refresh token for users
-  FM_MONGO_ADDRESS: mongodb://root:${MONGO_ROOT_PASSWORD}@mongo-mongodb-0.mongo-mongodb-headless.stalker.svc.cluster.local:27017,mongo-mongodb-1.mongo-mongodb-headless.stalker.svc.cluster.local:27017/?replicaSet=${MONGO_REPLICA_SET_NAME} # The address of the FM's mongo database
+  FM_MONGO_ADDRESS: mongodb://root:${MONGO_ROOT_PASSWORD}@mongo-mongodb-headless:27017/ # The address of the FM's mongo database
   FM_MONGO_DATABASE_NAME: stalker
 
   KAFKA_URI: "kafka:9092"

@@ -37,6 +37,10 @@ describe('Company Controller (e2e)', () => {
     }
   });
 
+  afterAll(async () => {
+    await app.close();
+  });
+
   it('Should create a company (POST /company)', async () => {
     const r = await postReq(app, testData.user.token, '/company', {
       name: companyNames[0],
