@@ -1,6 +1,7 @@
 {
   "moduleFileExtensions": ["js", "json", "ts"],
   "rootDir": "..",
+  "reporters": [["github-actions", { "silent": false }], "summary"],
   "moduleDirectories": ["<rootDir>", "<rootDir>/node_modules/"],
   "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",

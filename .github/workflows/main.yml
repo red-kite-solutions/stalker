@@ -52,10 +52,3 @@ jobs:
         run: |-
           kubectl get all
           kubectl -n stalker get all -o yaml
-
-      - name: Update the results in the pull request
-        uses: tanmen/jest-reporter@v1
-        if: always()
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          result-file: ./flow_manager/test/jest-output-e2e.json
