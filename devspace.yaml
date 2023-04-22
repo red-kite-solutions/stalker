@@ -107,7 +107,7 @@ images:
 
   flow-manager-e2e:
     image: flow_manager_e2e
-    dockerfile: flow_manager/Dockerfile.dev
+    dockerfile: flow_manager/Dockerfile.cicd
     context: flow_manager
     rebuildStrategy: always
 
