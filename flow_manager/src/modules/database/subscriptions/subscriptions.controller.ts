@@ -7,6 +7,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
+import { DeleteResult, UpdateResult } from 'mongodb';
 import { MongoIdDto } from '../../../types/dto/MongoIdDto';
 import { Role } from '../../auth/constants';
 import { Roles } from '../../auth/decorators/roles.decorator';
@@ -40,14 +41,14 @@ export class SubscriptionsController {
   async editSubscription(
     @Param() IdDto: MongoIdDto,
     @Body() dto: SubscriptionDto,
-  ) {
+  ): Promise<UpdateResult> {
     return await this.subscriptionsService.edit(IdDto.id, dto);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
   @Delete(':id')
-  async deleteSubscription(@Param() IdDto: MongoIdDto) {
+  async deleteSubscription(@Param() IdDto: MongoIdDto): Promise<DeleteResult> {
     return await this.subscriptionsService.delete(IdDto.id);
   }
 }

@@ -7,6 +7,7 @@ import {
   HttpNotFoundException,
 } from '../../exceptions/http.exceptions';
 import { Page } from '../../types/page.type';
+import { CompanyUnassigned } from '../../validators/is-company-id.validator';
 import { JobsService } from '../database/jobs/jobs.service';
 import { CompanyService } from '../database/reporting/company.service';
 import { CorrelationKeyUtils } from '../database/reporting/correlation.utils';
@@ -21,6 +22,7 @@ export type Finding =
   | HostnameIpFinding
   | HostnameFinding
   | PortFinding
+  | JobStatusFinding
   | CreateCustomFinding;
 
 export class FindingBase {
@@ -51,6 +53,12 @@ export class CreateCustomFinding extends FindingBase {
   name: string;
 }
 
+export class JobStatusFinding extends FindingBase {
+  type: 'JobStatusFinding';
+  key: 'JobStatusFinding';
+  status: string;
+}
+
 export class HostnameFinding extends FindingBase {
   type: 'HostnameFinding';
   key: 'HostnameFinding';
@@ -71,6 +79,7 @@ export interface Findings {
 
 export interface JobFindings extends Findings {
   jobId: string;
+  timestamp: number;
 }
 
 @Injectable()
@@ -121,11 +130,15 @@ export class FindingsService {
     jobId: string = null,
     dto: CreateCustomFinding,
   ) {
-    const company = await this.companyService.get(companyId);
-    if (company === null) {
-      throw new HttpNotFoundException(
-        `The company for the given job does not exist (jobId=${jobId}, companyId=${companyId})`,
-      );
+    if (companyId !== undefined) {
+      const company = await this.companyService.get(companyId);
+      if (company === null) {
+        throw new HttpNotFoundException(
+          `The company for the given job does not exist (jobId=${jobId}, companyId=${companyId})`,
+        );
+      }
+    } else {
+      companyId = CompanyUnassigned;
     }
 
     const job = await this.jobsService.getById(jobId);
@@ -205,23 +218,29 @@ export class FindingsService {
    */
   public handleJobFindings(findings: JobFindings) {
     for (const finding of findings.findings) {
-      this.handleFinding(finding, findings.jobId).catch((e) =>
-        this.logger.error(e),
+      this.handleFinding(finding, findings.timestamp, findings.jobId).catch(
+        (e) => this.logger.error(e),
       );
     }
   }
 
   /**
    * Handles findings that were NOT found by a job
+   * This function generates its own finding timestamp as the finding was created by
+   * the flow manager anyway
    * @param findings
    */
   public handleFindings(findings: Findings) {
     for (const finding of findings.findings) {
-      this.handleFinding(finding);
+      this.handleFinding(finding, Date.now());
     }
   }
 
-  private async handleFinding(finding: Finding, jobId: string = '') {
+  private async handleFinding(
+    finding: Finding,
+    timestamp: number,
+    jobId: string = '',
+  ) {
     let companyId = '';
     if (jobId) {
       const job = await this.jobsService.getById(jobId);
@@ -230,14 +249,36 @@ export class FindingsService {
         return;
       }
 
-      const company = await this.companyService.get(job.companyId);
-      if (company === null) {
-        this.logger.error(
-          `The company for the given job does not exist (jobId=${jobId}, companyId=${job.companyId})`,
+      if (job.companyId !== undefined) {
+        const company = await this.companyService.get(job.companyId);
+        if (company === null) {
+          this.logger.error(
+            `The company for the given job does not exist (jobId=${jobId}, companyId=${job.companyId})`,
+          );
+          return;
+        }
+        companyId = company._id.toString();
+      } else {
+        companyId = CompanyUnassigned;
+      }
+      if (finding.type !== 'JobStatusFinding') {
+        this.jobsService.addJobOutputLine(
+          jobId,
+          timestamp,
+          JSON.stringify(finding),
         );
+      } else {
+        // If it was only a status update, no need to do the whole findings' logic
+        this.jobsService.updateJobStatus(jobId, finding.status, timestamp);
         return;
       }
-      companyId = company._id.toString();
+    }
+
+    if (companyId === CompanyUnassigned) {
+      // Skipping the findings management if it was not assigned to any company,
+      // as the job was run as a one time thing. The output will be fetched by
+      // the front-end and will be shown to the user.
+      return;
     }
 
     switch (finding.type) {

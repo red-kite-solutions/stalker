@@ -12,5 +12,6 @@
     "baseUrl": "./",
     "incremental": true,
     "esModuleInterop": true,
+    "allowJs": true
   }
 }

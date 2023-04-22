@@ -3,6 +3,7 @@ using Orchestrator.Events;
 using Orchestrator.K8s;
 using Orchestrator.Queue;
 using Orchestrator.Queue.JobsConsumer;
+using System;
 
 namespace Orchestrator.Jobs;
 
@@ -66,11 +67,25 @@ public abstract class KubernetesCommand<T> : JobCommand where T : JobRequest
         Thread.Sleep(waitTime);
     }
 
+    private long CurrentTimeMs()
+    {
+        DateTimeOffset dto = new DateTimeOffset(DateTime.Now.ToUniversalTime());
+        return dto.ToUnixTimeMilliseconds();
+    }
+
     public override async Task Execute()
     {
         Logger.LogDebug(Request.JobId, "Creating job.");
 
         var job = await Kubernetes.CreateJob(JobTemplate);
+
+        // Publishing that the job started
+        await EventsProducer.Produce(new JobEventMessage
+        {
+            JobId = Request.JobId,
+            FindingsJson = "{ \"findings\": [{ \"type\": \"JobStatusFinding\", \"status\": \"Started\" }]}",
+            Timestamp = CurrentTimeMs(),
+        });
 
         Logger.LogDebug(Request.JobId, "Job created, listening for events.");
 
@@ -113,9 +128,18 @@ public abstract class KubernetesCommand<T> : JobCommand where T : JobRequest
                 {
                     JobId = Request.JobId,
                     FindingsJson = evt.data,
+                    Timestamp = CurrentTimeMs()
                 });
             }
         }
+
+        // When we are done publishing findings, we publish that the job is done
+        await EventsProducer.Produce(new JobEventMessage
+        {
+            JobId = Request.JobId,
+            FindingsJson = "{ \"findings\": [{ \"type\": \"JobStatusFinding\", \"status\": \"Success\" }]}",
+            Timestamp = CurrentTimeMs(),
+        });
 
         await Kubernetes.DeleteJob(job.Name, job.Namespace);
     }

@@ -1,8 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { isArray, isInt, isMongoId, isNumber } from 'class-validator';
+import { isArray, isInt, isNumber } from 'class-validator';
 import { Document } from 'mongoose';
 import { isIP } from 'net';
 import { JobParameterValueException } from '../../../../exceptions/job-parameter.exception';
+import { JobParameterDefinition } from '../../../../types/job-parameter-definition.type';
+import { TimestampedString } from '../../../../types/timestamped-string.type';
+import { isCompanyId } from '../../../../validators/is-company-id.validator';
 import { JobParameter } from '../../subscriptions/subscriptions.model';
 import { JobFactoryUtils } from '../jobs.factory';
 
@@ -13,6 +16,10 @@ export class TcpPortScanningJob {
   public task: string;
   public companyId!: string;
   public priority!: number;
+  public output: TimestampedString[];
+  public publishTime: number;
+  public startTime: number;
+  public endTime: number;
 
   @Prop()
   public targetIp!: string;
@@ -26,6 +33,15 @@ export class TcpPortScanningJob {
   public portMax!: number;
   @Prop()
   public ports!: number[];
+
+  public static parameterDefinitions: JobParameterDefinition[] = [
+    { name: 'targetIp', type: 'string', default: undefined },
+    { name: 'threads', type: 'number', default: 100 },
+    { name: 'socketTimeoutSeconds', type: 'number', default: 0.7 },
+    { name: 'portMin', type: 'number', default: 1 },
+    { name: 'portMax', type: 'number', default: 1000 },
+    { name: 'ports', type: 'number[]', default: [] },
+  ];
 
   private static createTcpPortScanJob(
     companyId: string,
@@ -47,7 +63,7 @@ export class TcpPortScanningJob {
     job.portMax = portMax;
     job.ports = ports;
 
-    if (!isMongoId(job.companyId)) {
+    if (!isCompanyId(job.companyId)) {
       throw new JobParameterValueException('companyId', job.companyId);
     }
 

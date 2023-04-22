@@ -43,7 +43,8 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
   public set language(val: string) {
     this._language = val;
     if (this.codeEditorService.loaded && this._editor) {
-      this._editor.setModelLanguage(val);
+      // This is a confusing design choice, setModelLanguage is a module function instead of a model function
+      monaco.editor.setModelLanguage(this._editor.getModel(), val);
     }
   }
 
@@ -104,7 +105,7 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
         enabled: this._minimapEnabled,
       },
       theme: this._theme,
-      readonly: this._readonly,
+      readOnly: this._readonly,
       tabSize: this._tabSize,
     };
 

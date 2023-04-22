@@ -4,6 +4,7 @@ import {
   IsArray,
   IsIn,
   IsInt,
+  IsMongoId,
   IsNotEmpty,
   IsOptional,
   Max,
@@ -51,6 +52,7 @@ export class HostsFilterDto {
   pageSize: number = 10;
 
   @IsOptional()
+  @IsMongoId({ each: true })
   @Type(() => Array)
   tags: string[];
 

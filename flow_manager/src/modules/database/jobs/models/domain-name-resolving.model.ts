@@ -1,7 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { isFQDN, isMongoId } from 'class-validator';
+import { isFQDN } from 'class-validator';
 import { Document } from 'mongoose';
 import { JobParameterValueException } from '../../../../exceptions/job-parameter.exception';
+import { JobParameterDefinition } from '../../../../types/job-parameter-definition.type';
+import { TimestampedString } from '../../../../types/timestamped-string.type';
+import { isCompanyId } from '../../../../validators/is-company-id.validator';
 import { JobParameter } from '../../subscriptions/subscriptions.model';
 import { JobFactoryUtils } from '../jobs.factory';
 
@@ -12,9 +15,17 @@ export class DomainNameResolvingJob {
   public task: string;
   public companyId!: string;
   public priority!: number;
+  public output: TimestampedString[];
+  public publishTime: number;
+  public startTime: number;
+  public endTime: number;
 
   @Prop()
   public domainName!: string;
+
+  public static parameterDefinitions: JobParameterDefinition[] = [
+    { name: 'domainName', type: 'string', default: undefined },
+  ];
 
   private static createDomainResolvingJob(
     companyId: string,
@@ -27,7 +38,7 @@ export class DomainNameResolvingJob {
     job.companyId = companyId;
     const jobName = DomainNameResolvingJob.name;
 
-    if (!isMongoId(companyId)) {
+    if (!isCompanyId(companyId)) {
       throw new JobParameterValueException('companyId', job.companyId);
     }
 

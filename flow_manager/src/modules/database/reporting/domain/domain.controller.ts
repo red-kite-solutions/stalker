@@ -8,7 +8,7 @@ import {
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
-import { ObjectId } from 'mongodb';
+import { ObjectId, UpdateResult } from 'mongodb';
 
 import { MongoIdDto } from '../../../../types/dto/MongoIdDto';
 import { Page } from '../../../../types/page.type';
@@ -93,7 +93,7 @@ export class DomainsController {
   async editDomain(
     @Param() idDto: MongoIdDto,
     @Body(new ValidationPipe()) dto: EditDomainDto,
-  ) {
+  ): Promise<UpdateResult> {
     return await this.domainsService.editDomain(idDto.id, dto);
   }
 }

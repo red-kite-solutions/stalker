@@ -1,6 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { DeleteResult, UpdateResult } from 'mongodb';
 import { Model, Types } from 'mongoose';
+import { JobSummary } from '../../../types/job-summary.type';
+import { JobSources } from '../jobs/job-model.module';
 import { CustomJobDto } from './custom-jobs.dto';
 import { CustomJobEntry } from './custom-jobs.model';
 
@@ -19,6 +22,8 @@ export class CustomJobsService {
       code: dto.code,
       type: dto.type,
       language: dto.language,
+      source: JobSources.userCreated,
+      parameters: [],
     };
     return await this.customJobModel.create(job);
   }
@@ -27,22 +32,34 @@ export class CustomJobsService {
     return await this.customJobModel.find({});
   }
 
-  public async edit(id: string, dto: CustomJobDto) {
+  public async getAllSummaries(): Promise<JobSummary[]> {
+    return await this.customJobModel
+      .find()
+      .select(['-_id', 'name', 'parameters', 'source']);
+  }
+
+  public async edit(id: string, dto: CustomJobDto): Promise<UpdateResult> {
     const job: CustomJobEntry = {
       name: dto.name,
       code: dto.code,
       type: dto.type,
       language: dto.language,
+      source: JobSources.userCreated,
+      parameters: [],
     };
     return await this.customJobModel.updateOne(
-      { _id: { $eq: new Types.ObjectId(id) } },
+      {
+        _id: { $eq: new Types.ObjectId(id) },
+        source: { $eq: JobSources.userCreated },
+      },
       job,
     );
   }
 
-  public async delete(id: string) {
+  public async delete(id: string): Promise<DeleteResult> {
     return await this.customJobModel.deleteOne({
       _id: { $eq: new Types.ObjectId(id) },
+      source: { $eq: JobSources.userCreated },
     });
   }
 

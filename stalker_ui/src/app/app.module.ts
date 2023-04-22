@@ -3,7 +3,9 @@ import { NgModule } from '@angular/core';
 import { MatPaginatorIntl } from '@angular/material/paginator';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { SocketIoConfig, SocketIoModule } from 'ngx-socket-io';
 import { ToastrModule } from 'ngx-toastr';
+import { environment } from '../environments/environment';
 import { AuthService } from './api/auth/auth.service';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -14,6 +16,8 @@ import { UnauthenticatedModule } from './layouts/unauthenticated/unauthenticated
 import { ErrorInterceptor } from './middlewares/error.interceptor';
 import { JwtInterceptor } from './middlewares/jwt.interceptor';
 import { SharedModule } from './shared/shared.module';
+
+const config: SocketIoConfig = { url: environment.fmWsUrl, options: {} };
 
 @NgModule({
   declarations: [AppComponent],
@@ -36,6 +40,7 @@ import { SharedModule } from './shared/shared.module';
         warning: 'toast-warning',
       },
     }),
+    SocketIoModule.forRoot(config),
     HttpClientModule,
   ],
   providers: [

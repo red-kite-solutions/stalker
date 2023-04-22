@@ -21,8 +21,6 @@ export class CustomFindingHandler extends JobFindingHandlerBase<CustomFindingCom
   }
 
   protected async executeCore(command: CustomFindingCommand) {
-    console.log(command);
-
     this.findingsService.save(
       command.companyId,
       command.jobId,

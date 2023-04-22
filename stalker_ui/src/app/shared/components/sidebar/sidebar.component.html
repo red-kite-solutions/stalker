@@ -5,12 +5,12 @@
     mat-list-item
     routerLinkActive="list-item-active"
     routerLink="/"
-    [matTooltip]="expanded ? '' : 'Dashboard'"
+    [matTooltip]="expanded ? '' : dashboard"
     [matTooltipShowDelay]="700"
     matTooltipPosition="right"
   >
     <mat-icon class="material-icons-outlined">dashboard</mat-icon>
-    <span *ngIf="expanded" i18n="Dashboard|The application's dashboard">Dashboard</span>
+    <span *ngIf="expanded">{{ dashboard }}</span>
   </a>
 
   <a
@@ -22,7 +22,7 @@
     matTooltipPosition="right"
   >
     <mat-icon class="material-icons-outlined">business</mat-icon>
-    <span *ngIf="expanded" i18n="Companies|Multiple businesses">Companies</span>
+    <span *ngIf="expanded">{{ companies }}</span>
   </a>
 
   <a
@@ -34,7 +34,7 @@
     matTooltipPosition="right"
   >
     <mat-icon class="material-icons-outlined">language</mat-icon>
-    <span *ngIf="expanded" i18n="Domains|Domain names">Domains</span>
+    <span *ngIf="expanded">{{ domains }}</span>
   </a>
 
   <a
@@ -46,7 +46,7 @@
     matTooltipPosition="right"
   >
     <mat-icon class="material-icons-outlined">dns</mat-icon>
-    <span *ngIf="expanded" i18n="Hosts|Hosts">Hosts</span>
+    <span *ngIf="expanded">{{ hosts }}</span>
   </a>
 
   <a
@@ -58,7 +58,7 @@
     matTooltipPosition="right"
   >
     <mat-icon class="material-icons-outlined">sell</mat-icon>
-    <span *ngIf="expanded" i18n="Tags|An item's tags">Tags</span>
+    <span *ngIf="expanded">{{ tags }}</span>
   </a>
 
   <!-- Jobs -->
@@ -75,9 +75,7 @@
     matTooltipPosition="right"
   >
     <mat-icon class="material-icons-outlined">precision_manufacturing</mat-icon>
-    <span *ngIf="expanded" i18n="Subscriptions|The jobs automation process to subscribe to finding events"
-      >Subscriptions</span
-    >
+    <span *ngIf="expanded">{{ subscriptions }}</span>
   </a>
 
   <a
@@ -89,7 +87,19 @@
     matTooltipPosition="right"
   >
     <mat-icon class="material-icons-outlined">engineering</mat-icon>
-    <span *ngIf="expanded" i18n="Custom Jobs|Custom Jobs">Custom Jobs</span>
+    <span *ngIf="expanded">{{ customJobs }}</span>
+  </a>
+
+  <a
+    mat-list-item
+    routerLinkActive="list-item-active"
+    routerLink="/jobs/launch"
+    [matTooltip]="expanded ? '' : launchJobs"
+    [matTooltipShowDelay]="700"
+    matTooltipPosition="right"
+  >
+    <mat-icon class="material-icons-outlined">rocket_launch</mat-icon>
+    <span *ngIf="expanded">{{ launchJobs }}</span>
   </a>
 
   <!-- Administration -->
@@ -107,19 +117,19 @@
       matTooltipPosition="right"
     >
       <mat-icon class="material-icons-outlined">manage_accounts</mat-icon>
-      <span *ngIf="expanded" i18n="Users|Users list page title">Users</span>
+      <span *ngIf="expanded">{{ users }}</span>
     </a>
 
     <a
       mat-list-item
       routerLinkActive="list-item-active"
       routerLink="/admin/settings"
-      [matTooltip]="expanded ? '' : 'Settings'"
+      [matTooltip]="expanded ? '' : settings"
       [matTooltipShowDelay]="700"
       matTooltipPosition="right"
     >
       <mat-icon class="material-icons-outlined">settings</mat-icon>
-      <span *ngIf="expanded" i18n="Settings|Settings page title to edit the application configuration">Settings</span>
+      <span *ngIf="expanded">{{ settings }}</span>
     </a>
   </div>
 </mat-nav-list>

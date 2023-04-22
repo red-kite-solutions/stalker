@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { TimestampedString } from '../../../../types/timestamped-string.type';
 import { CustomJob } from './custom-job.model';
 import { DomainNameResolvingJob } from './domain-name-resolving.model';
 import { HttpServerCheckJob } from './http-server-check.model';
@@ -26,6 +27,18 @@ export class Job {
 
   @Prop()
   public priority!: number;
+
+  @Prop()
+  public output: TimestampedString[];
+
+  @Prop()
+  public publishTime: number;
+
+  @Prop()
+  public startTime: number;
+
+  @Prop()
+  public endTime: number;
 }
 
 export const JobSchema = SchemaFactory.createForClass(Job);

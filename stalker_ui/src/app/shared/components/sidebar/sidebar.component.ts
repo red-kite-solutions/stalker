@@ -19,6 +19,7 @@ export class SidebarComponent {
   public subscriptions = $localize`:Subscriptions|The jobs automation process to subscribe to finding events:Subscriptions`;
   public hosts = $localize`:Hosts|Hosts:Hosts`;
   public customJobs = $localize`:Custom Jobs|Custom Jobs:Custom Jobs`;
+  public launchJobs = $localize`:Launch Jobs|Launch Jobs:Launch Jobs`;
 
   constructor(public authService: AuthService) {}
 }

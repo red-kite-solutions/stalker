@@ -8,7 +8,7 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
-import { IsTypeIn } from '../../../validators/isTypeIn.validator';
+import { IsTypeIn } from '../../../validators/is-type-in.validator';
 import { JobTypes } from '../jobs/job-model.module';
 
 export class SubscriptionDto {
@@ -42,7 +42,7 @@ export class SubscriptionDto {
   public conditions?: JobConditionDto[];
 }
 
-class JobParameterDto {
+export class JobParameterDto {
   @IsString()
   public name!: string;
 

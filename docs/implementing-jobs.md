@@ -194,7 +194,6 @@ The following files also need to be created :
 | File name                                                                     | Service      | Description                                                        |
 | ----------------------------------------------------------------------------- | ------------ | ------------------------------------------------------------------ |
 | /flow_manager/src/modules/database/jobs/models/my-new-job.model.ts            | Flow manager | Describes the job for the database. Implement the `create` method. |
-| /flow_manager/src/modules/database/jobs/dtos/my-new-job.dto.ts                | Flow manager | Validates the job content for the controller.                      |
 | /orchestrator/Orchestrator/Jobs/Commands/MyNewJobCommand.cs                   | Orchestrator | Create the job command.                                            |
 | /orchestrator/Orchestrator/Jobs/JobTemplates/MyNewJobTemplate.cs              | Orchestrator | Create the job template.                                           |
 | /orchestrator/Orchestrator/Queue/JobsConsummer/JobRequests/MyNewJobRequest.cs | Orchestrator | Create the job request.                                            |

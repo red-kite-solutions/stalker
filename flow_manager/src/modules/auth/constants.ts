@@ -1,3 +1,5 @@
+import { UnauthorizedException } from '@nestjs/common';
+
 export const jwtConstants = {
   secret: process.env['FM_JWT_SECRET'],
   expirationTime: '300s',
@@ -21,4 +23,17 @@ export enum Role {
   User = 'user',
   Admin = 'admin',
   ReadOnly = 'read-only',
+}
+
+export function roleIsAuthorized(role: string, requiredRole: string): boolean {
+  if (role === Role.Admin) return true;
+  if (
+    role === Role.User &&
+    (requiredRole === Role.ReadOnly || requiredRole === Role.User)
+  )
+    return true;
+
+  if (role !== requiredRole) throw new UnauthorizedException();
+
+  return true;
 }

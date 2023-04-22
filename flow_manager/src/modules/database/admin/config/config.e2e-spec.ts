@@ -33,6 +33,10 @@ describe('Config Controller (e2e)', () => {
     testData = await initTesting(app);
   });
 
+  afterAll(async () => {
+    await app.close();
+  });
+
   it('Should successfully get the default config (GET /admin/config)', async () => {
     const r = await getReq(app, testData.admin.token, '/admin/config');
 

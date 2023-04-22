@@ -20,21 +20,25 @@ export const JobDefinitions: JobDefinition[] = [
     name: DomainNameResolvingJob.name,
     schema: DomainNameResolvingJobSchema,
     create: DomainNameResolvingJob.create,
+    params: DomainNameResolvingJob.parameterDefinitions,
   },
   {
     name: TcpPortScanningJob.name,
     schema: TcpPortScanningJobSchema,
     create: TcpPortScanningJob.create,
+    params: TcpPortScanningJob.parameterDefinitions,
   },
   {
     name: CustomJob.name,
     schema: CustomJobSchema,
     create: CustomJob.create,
+    params: CustomJob.parameterDefinitions,
   },
   {
     name: HttpServerCheckJob.name,
     schema: HttpServerCheckJobShema,
     create: HttpServerCheckJob.create,
+    params: HttpServerCheckJob.parameterDefinitions,
   },
 ];
 
@@ -51,3 +55,9 @@ export const JobModelModule = MongooseModule.forFeature([
     discriminators: discriminators,
   },
 ]);
+
+export class JobSources {
+  public static readonly builtIn = 'Stalker';
+  public static readonly userCreated = 'Custom';
+  public static readonly all = [this.builtIn, this.userCreated];
+}

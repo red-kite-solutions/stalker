@@ -3,6 +3,8 @@ import { isArray, isInt, isMongoId } from 'class-validator';
 import { Document } from 'mongoose';
 import { isIP } from 'net';
 import { JobParameterValueException } from '../../../../exceptions/job-parameter.exception';
+import { JobParameterDefinition } from '../../../../types/job-parameter-definition.type';
+import { TimestampedString } from '../../../../types/timestamped-string.type';
 import { JobParameter } from '../../subscriptions/subscriptions.model';
 import { JobFactoryUtils } from '../jobs.factory';
 
@@ -13,12 +15,21 @@ export class HttpServerCheckJob {
   public task: string;
   public companyId!: string;
   public priority!: number;
+  public output: TimestampedString[];
+  public publishTime: number;
+  public startTime: number;
+  public endTime: number;
 
   @Prop()
   public targetIp!: string;
 
   @Prop()
   public ports!: number[];
+
+  public static parameterDefinitions: JobParameterDefinition[] = [
+    { name: 'targetIp', type: 'string', default: undefined },
+    { name: 'ports', type: 'number[]', default: [80, 443] },
+  ];
 
   private static createHttpServerCheckJob(
     companyId: string,

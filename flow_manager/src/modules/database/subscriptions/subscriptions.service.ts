@@ -1,6 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { DeleteResult, UpdateResult } from 'mongodb';
 import { Model, Types } from 'mongoose';
+import { CompanyUnassigned } from '../../../validators/is-company-id.validator';
 import { SubscriptionDto } from './subscriptions.dto';
 import { Subscription } from './subscriptions.model';
 
@@ -29,7 +31,7 @@ export class SubscriptionsService {
     return await this.subscriptionModel.find({});
   }
 
-  public async edit(id: string, dto: SubscriptionDto) {
+  public async edit(id: string, dto: SubscriptionDto): Promise<UpdateResult> {
     const sub: Subscription = {
       companyId: new Types.ObjectId(dto.companyId),
       name: dto.name,
@@ -44,20 +46,22 @@ export class SubscriptionsService {
     );
   }
 
-  public async delete(id: string) {
+  public async delete(id: string): Promise<DeleteResult> {
     return await this.subscriptionModel.deleteOne({
       _id: { $eq: new Types.ObjectId(id) },
     });
   }
 
   public async getAllForFinding(companyId: string, finding: string) {
+    if (companyId === CompanyUnassigned) return [];
+
     return await this.subscriptionModel.find({
       companyId: { $eq: new Types.ObjectId(companyId) },
       finding: { $eq: finding },
     });
   }
 
-  public async deleteAllForCompany(companyId: string) {
+  public async deleteAllForCompany(companyId: string): Promise<DeleteResult> {
     return await this.subscriptionModel.deleteMany({
       companyId: { $eq: new Types.ObjectId(companyId) },
     });

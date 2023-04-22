@@ -154,20 +154,20 @@ describe('Host Service', () => {
       const t2 = await tag('t2');
 
       const d1 = await domain('abc.example.org', c1);
-      await host(d1, c1, [t1._id], '1.1.1.1', '2.2.2.2');
+      await host(d1, c1, [t1._id.toString()], '1.1.1.1', '2.2.2.2');
 
       const d2 = await domain('abc.company.example.org', c1);
-      await host(d2, c1, [t1._id], '1.1.1.1', '3.3.3.3');
+      await host(d2, c1, [t1._id.toString()], '1.1.1.1', '3.3.3.3');
 
       const d3 = await domain('xyz.example.org', c2);
-      await host(d3, c2, [t2._id], '4.4.4.4', '5.5.5.5');
+      await host(d3, c2, [t2._id.toString()], '4.4.4.4', '5.5.5.5');
 
       const d4 = await domain('unrelated.example.org', c2);
       await host(d4, c2, [], '6.6.6.6');
 
       // Act
       const allHosts = await hostService.getAll(0, 10, {
-        tags: [t1._id],
+        tags: [t1._id.toString()],
       });
       const allHosts2 = await hostService.getAll(0, 10, {});
 

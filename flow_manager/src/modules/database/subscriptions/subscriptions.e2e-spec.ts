@@ -78,6 +78,10 @@ describe('Subscriptions Controller (e2e)', () => {
     companyId = r.body._id;
   });
 
+  afterAll(async () => {
+    await app.close();
+  });
+
   it('Should create a subscription (POST /subscriptions)', async () => {
     // arrange & act
     const r = await postReq(app, testData.user.token, '/subscriptions', {

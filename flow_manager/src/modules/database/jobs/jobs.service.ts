@@ -1,9 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import {
+  ChangeStream,
+  ChangeStreamDocument,
+  DeleteResult,
+  UpdateResult,
+} from 'mongodb';
+import { Document, Model, Types } from 'mongoose';
+import { TimestampedString } from '../../../types/timestamped-string.type';
+import { CompanyUnassigned } from '../../../validators/is-company-id.validator';
 import { JobQueue } from '../../job-queue/job-queue';
-import { CreateJobDto } from './dtos/create-job.dto';
-import { JobDto } from './dtos/job.dto';
 import { Job, JobDocument } from './models/jobs.model';
 
 @Injectable()
@@ -12,12 +18,6 @@ export class JobsService {
     private jobQueue: JobQueue,
     @InjectModel('job') private readonly jobModel: Model<Job & Document>,
   ) {}
-
-  public async create(dto: CreateJobDto): Promise<JobDto> {
-    const job = new this.jobModel(dto);
-    const savedJob = await job.save();
-    return { id: savedJob.id, ...dto };
-  }
 
   public async getAll(page = null, pageSize = null): Promise<JobDocument[]> {
     let query = this.jobModel.find();
@@ -32,7 +32,7 @@ export class JobsService {
     await this.jobModel.deleteOne({ _id: { $eq: id } });
   }
 
-  public async deleteAllForCompany(companyId: string) {
+  public async deleteAllForCompany(companyId: string): Promise<DeleteResult> {
     return await this.jobModel.deleteMany({
       companyId: { $eq: companyId },
     });
@@ -47,7 +47,17 @@ export class JobsService {
   }
 
   public async publish(job: Job) {
-    const createdJob = await this.jobModel.create(job);
+    let createdJob: JobDocument;
+    if (job.companyId === CompanyUnassigned) {
+      createdJob = await this.jobModel.create({
+        ...job,
+        companyId: undefined,
+        publishTime: Date.now(),
+      });
+      createdJob.companyId = job.companyId;
+    } else {
+      createdJob = await this.jobModel.create(job);
+    }
 
     if (!process.env.TESTS) {
       await this.jobQueue.publish({
@@ -63,7 +73,47 @@ export class JobsService {
 
     return {
       id: createdJob.id,
+      startTime: createdJob.startTime,
       ...job,
     };
+  }
+
+  public async addJobOutputLine(
+    jobId: string,
+    timestamp: number,
+    line: string,
+  ): Promise<UpdateResult> {
+    const str: TimestampedString = { timestamp: timestamp, value: line };
+    return await this.jobModel.updateOne(
+      { _id: { $eq: new Types.ObjectId(jobId) } },
+      { $push: { output: str } },
+    );
+  }
+
+  public watchForJobOutput(
+    jobId: string,
+  ): ChangeStream<Document, ChangeStreamDocument<Document>> {
+    const pipeline = [
+      { $match: { 'documentKey._id': new Types.ObjectId(jobId) } },
+    ];
+    return <ChangeStream<Document, ChangeStreamDocument<Document>>>(
+      this.jobModel.collection.watch(pipeline)
+    );
+  }
+
+  public async updateJobStatus(
+    jobId: string,
+    status: string,
+    timestamp: number,
+  ): Promise<UpdateResult> {
+    const select = { _id: { $eq: new Types.ObjectId(jobId) } };
+    switch (status.toLowerCase()) {
+      case 'started':
+        return await this.jobModel.updateOne(select, { startTime: timestamp });
+      case 'success':
+        return await this.jobModel.updateOne(select, { endTime: timestamp });
+      default:
+        return null;
+    }
   }
 }

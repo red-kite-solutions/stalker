@@ -39,6 +39,10 @@ describe('Custom Jobs Controller (e2e)', () => {
     testData = await initTesting(app);
   });
 
+  afterAll(async () => {
+    await app.close();
+  });
+
   it('Should create a custom job (POST /custom-jobs)', async () => {
     // arrange & act
     const r = await postReq(

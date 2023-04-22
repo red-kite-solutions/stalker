@@ -5,6 +5,7 @@
 export const environment = {
   production: false,
   fmUrl: 'http://localhost:3000',
+  fmWsUrl: 'http://localhost:3000',
 };
 
 /*

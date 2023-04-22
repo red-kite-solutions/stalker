@@ -1,11 +1,14 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { isArray, isEmpty, isIn, isMongoId, isString } from 'class-validator';
+import { isArray, isEmpty, isIn, isString } from 'class-validator';
 import { Document } from 'mongoose';
 import { JobParameterValueException } from '../../../../exceptions/job-parameter.exception';
+import { JobParameterDefinition } from '../../../../types/job-parameter-definition.type';
+import { TimestampedString } from '../../../../types/timestamped-string.type';
 import {
   environmentVariableConflict,
   environmentVariableRegex,
 } from '../../../../utils/linux-environment-variables.utils';
+import { isCompanyId } from '../../../../validators/is-company-id.validator';
 import { JobParameter } from '../../subscriptions/subscriptions.model';
 import { JobFactoryUtils } from '../jobs.factory';
 import { Job } from './jobs.model';
@@ -20,6 +23,10 @@ export class CustomJob {
   public task: string;
   public companyId!: string;
   public priority!: number;
+  public output: TimestampedString[];
+  public publishTime: number;
+  public startTime: number;
+  public endTime: number;
 
   @Prop()
   public name!: string;
@@ -37,6 +44,10 @@ export class CustomJob {
   public customJobParameters!: JobParameter[];
 
   constructor() {}
+
+  // No parameter definition for custom jobs since we cannot know
+  // the parameters in advance, at least not in that way
+  public static parameterDefinitions: JobParameterDefinition[] = [];
 
   public static create(args: JobParameter[]): Job {
     let params = {};
@@ -77,7 +88,7 @@ export class CustomJob {
     job.language = language;
     job.customJobParameters = customJobParameters;
 
-    if (!isMongoId(job.companyId)) {
+    if (!isCompanyId(job.companyId)) {
       throw new JobParameterValueException('companyId', job.companyId);
     }
 

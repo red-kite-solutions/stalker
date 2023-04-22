@@ -56,7 +56,7 @@ Create a file called `jobs_handler.config` in the same directory as `jobs_handle
 
 ```
 job_queue_handler_address=jqh
-job_queue_handler_port=5000
+job_queue_handler_port=3001
 flow_manager_address=fm
 flow_manager_port=3000
 env=DEV

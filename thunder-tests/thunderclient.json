@@ -100,7 +100,7 @@
     "name": "Submit Domain Name Resolution",
     "url": "{{FlowManagerAPI}}/report/hosts/{{jobId}}",
     "method": "POST",
-    "sortNum": 50000,
+    "sortNum": 30010,
     "created": "2022-07-24T22:31:09.440Z",
     "modified": "2022-07-24T22:31:09.440Z",
     "headers": [
@@ -310,7 +310,7 @@
     "name": "Hello, World",
     "url": "{{FlowManagerAPI}}/",
     "method": "GET",
-    "sortNum": 150000,
+    "sortNum": 130010,
     "created": "2022-07-24T22:31:09.451Z",
     "modified": "2022-07-24T22:31:09.451Z",
     "headers": []

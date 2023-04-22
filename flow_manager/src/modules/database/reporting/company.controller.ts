@@ -9,9 +9,12 @@ import {
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
+import { isNotEmpty, isString } from 'class-validator';
+import { DeleteResult, UpdateResult } from 'mongodb';
 import {
   HttpBadRequestException,
   HttpConflictException,
+  HttpNotFoundException,
   HttpServerErrorException,
 } from '../../../exceptions/http.exceptions';
 import { MongoIdDto } from '../../../types/dto/MongoIdDto';
@@ -19,12 +22,18 @@ import { Role } from '../../auth/constants';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/role.guard';
+import { CustomJobEntry } from '../custom-jobs/custom-jobs.model';
+import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
+import { JobSources } from '../jobs/job-model.module';
+import { JobFactory } from '../jobs/jobs.factory';
+import { CustomJob } from '../jobs/models/custom-job.model';
 import { Job } from '../jobs/models/jobs.model';
+import { JobParameter } from '../subscriptions/subscriptions.model';
 
 import {
   CreateCompanyDto,
-  CreateJobDto,
   EditCompanyDto,
+  StartJobDto,
   SubmitDomainsDto,
   SubmitHostsDto,
 } from './company.dto';
@@ -33,7 +42,10 @@ import { CompanyService } from './company.service';
 
 @Controller('company')
 export class CompanyController {
-  constructor(private readonly companyService: CompanyService) {}
+  constructor(
+    private readonly companyService: CompanyService,
+    private readonly customJobsService: CustomJobsService,
+  ) {}
 
   private isValidIpRange(ipRange: string) {
     if (!/^\d\d?\d?\.\d\d?\d?\.\d\d?\d?\.\d\d?\d?\/\d\d?$/.test(ipRange))
@@ -97,14 +109,50 @@ export class CompanyController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
   @Post(':id/job')
-  async createJob(
+  async startJobForCompany(
     @Param() idDto: MongoIdDto,
-    @Body(new ValidationPipe()) dto: CreateJobDto,
+    @Body(new ValidationPipe()) dto: StartJobDto,
   ): Promise<Job> {
-    return await this.companyService.publishJob({
-      ...dto,
-      companyId: idDto.id,
-    });
+    if (dto.source === JobSources.userCreated) {
+      if (!isNotEmpty(dto.task) || !isString(dto.task))
+        throw new HttpBadRequestException(
+          'The task parameter is not a valid string',
+        );
+
+      const customJob: CustomJobEntry = await this.customJobsService.getByName(
+        dto.task,
+      );
+      if (!customJob) throw new HttpNotFoundException();
+
+      const customJobParams = JSON.parse(JSON.stringify(dto.jobParameters));
+      const jobParameters = [];
+      jobParameters.push({ name: 'name', value: customJob.name });
+      jobParameters.push({ name: 'code', value: customJob.code });
+      jobParameters.push({ name: 'type', value: customJob.type });
+      jobParameters.push({
+        name: 'language',
+        value: customJob.language,
+      });
+      jobParameters.push({
+        name: 'customJobParameters',
+        value: customJobParams,
+      });
+      dto.jobParameters = jobParameters;
+      dto.task = CustomJob.name;
+    }
+
+    const companyIdParameter = new JobParameter();
+    companyIdParameter.name = 'companyId';
+    companyIdParameter.value = idDto.id;
+    dto.jobParameters.push(companyIdParameter);
+
+    // parameters are validated thoroughly in job creation
+    const job = JobFactory.createJob(dto.task, dto.jobParameters);
+
+    if (!job) throw new HttpBadRequestException();
+    job.priority = 1;
+
+    return await this.companyService.publishJob(job);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -130,7 +178,7 @@ export class CompanyController {
   async editCompany(
     @Param() id: MongoIdDto,
     @Body(new ValidationPipe()) dto: EditCompanyDto,
-  ) {
+  ): Promise<UpdateResult> {
     const data: Partial<Company> = {};
     if ((dto.imageType && !dto.logo) || (dto.logo && !dto.imageType)) {
       throw new HttpBadRequestException();
@@ -185,7 +233,7 @@ export class CompanyController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
   @Delete(':id')
-  async deleteCompany(@Param() id: MongoIdDto) {
+  async deleteCompany(@Param() id: MongoIdDto): Promise<DeleteResult> {
     return await this.companyService.delete(id.id);
   }
 }
