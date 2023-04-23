@@ -1,14 +1,5 @@
 <div class="container" *ngIf="host$ | async as host">
-  <h1>
-    <button type="button" mat-icon-button routerLinkActive="list-item-active" routerLink="/hosts">
-      <mat-icon class="material-icons-outlined">arrow_back</mat-icon>
-    </button>
-    <div *ngIf="host">
-      {{ (companies$ | async | whereId: [host?.companyId])?.name }} <span class="slash">/</span> Hosts
-      <span class="slash">/</span>
-      {{ host.ip }}
-    </div>
-  </h1>
+  <app-page-header [parts]="[(companies$ | async | whereId : [host?.companyId])?.name, host.ip]"> </app-page-header>
 
   <div class="content-wrapper">
     <div class="content">
@@ -23,8 +14,8 @@
           >No tags yet</panel-section-subtitle
         >
 
-        <app-pill-tag *ngFor="let tag of host?.tags" [color]="(tags | whereId: [tag])?.color">{{
-          (tags | whereId: [tag])?.text
+        <app-pill-tag *ngFor="let tag of host?.tags" [color]="(tags | whereId : [tag])?.color">{{
+          (tags | whereId : [tag])?.text
         }}</app-pill-tag>
       </panel-section>
 

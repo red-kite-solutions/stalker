@@ -12,6 +12,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTableModule } from '@angular/material/table';
 import { RouterModule } from '@angular/router';
+import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PanelSectionModule } from '../../../shared/components/panel-section/panel-section.module';
 import { SharedModule } from '../../../shared/shared.module';
 import { FindingsModule } from '../../findings/findings.module';
@@ -35,6 +36,7 @@ import { ViewPortComponent } from './view-port.component';
     FindingsModule,
     RouterModule,
     PanelSectionModule,
+    AppHeaderComponent,
   ],
   exports: [ViewPortComponent],
   declarations: [ViewPortComponent],
