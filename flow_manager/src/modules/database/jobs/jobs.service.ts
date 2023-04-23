@@ -4,8 +4,8 @@ import {
   ChangeStream,
   ChangeStreamDocument,
   DeleteResult,
-  UpdateResult,
   ObjectId,
+  UpdateResult,
 } from 'mongodb';
 import { Document, Model, Types } from 'mongoose';
 import { Page } from '../../../types/page.type';
@@ -112,13 +112,13 @@ export class JobsService {
     timestamp: number,
     line: string,
     level: JobLogLevel,
-  ) {
+  ): Promise<void> {
     const str: TimestampedString = {
       timestamp: timestamp,
       value: line,
       level: level,
     };
-    return await this.jobModel.updateOne(
+    await this.jobModel.updateOne(
       { _id: { $eq: new Types.ObjectId(jobId) } },
       { $push: { output: str } },
     );

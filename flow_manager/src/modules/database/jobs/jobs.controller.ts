@@ -16,9 +16,8 @@ import {
 import { JobDocument } from '../../../modules/database/jobs/models/jobs.model';
 import { MongoIdDto } from '../../../types/dto/MongoIdDto';
 import { JobSummary } from '../../../types/job-summary.type';
-import { CompanyUnassigned } from '../../../validators/is-company-id.validator';
 import { Page } from '../../../types/page.type';
-import { CompanyUnassigned } from '../../../validators/isCompanyId.validator';
+import { CompanyUnassigned } from '../../../validators/is-company-id.validator';
 import { Role } from '../../auth/constants';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
@@ -28,12 +27,7 @@ import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
 import { StartJobDto } from '../reporting/company.dto';
 import { JobParameter } from '../subscriptions/subscriptions.model';
 import { JobExecutionsDto } from './job-executions.dto';
-import {
-  JobDefinitions,
-  JobSourceBuiltIn,
-  JobSourceUserCreated,
-  JobSource
-} from './job-model.module';
+import { JobDefinitions, JobSources } from './job-model.module';
 import { JobFactory } from './jobs.factory';
 import { JobsService } from './jobs.service';
 import { CustomJob } from './models/custom-job.model';

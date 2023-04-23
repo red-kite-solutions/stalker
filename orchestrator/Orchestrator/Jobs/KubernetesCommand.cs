@@ -2,7 +2,6 @@ using Orchestrator.Events;
 using Orchestrator.K8s;
 using Orchestrator.Queue;
 using Orchestrator.Queue.JobsConsumer;
-using System;
 
 namespace Orchestrator.Jobs;
 

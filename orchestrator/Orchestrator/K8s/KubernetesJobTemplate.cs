@@ -1,7 +1,5 @@
 namespace Orchestrator.K8s;
 
-namespace Orchestrator.K8s;
-
 public class KubernetesJobTemplate
 {
     private readonly int MaxCpu = 2000;
@@ -69,22 +67,7 @@ public class KubernetesJobTemplate
     {
         get
         {
-            if (value <= 0) return;
-            _MemoryKiloBytesLimit = value <= MaxMemory ? value : MaxMemory;
-        }
-    }
-
-    private int? _Timeout;
-
-    /// <summary>
-    /// How long in seconds a job can run before it will be terminated by the system. A value of null
-    /// will last indefinetly.
-    /// </summary>
-    public int? Timeout
-    {
-        get
-        {
-            return _Timeout;
+            return _MemoryKiloBytesLimit != null ? _MemoryKiloBytesLimit : DefaultMemory;
         }
         init
         {

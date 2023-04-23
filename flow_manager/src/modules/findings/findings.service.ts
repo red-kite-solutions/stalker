@@ -262,7 +262,7 @@ export class FindingsService {
         companyId = CompanyUnassigned;
       }
       if (finding.type !== 'JobStatusFinding') {
-        this.jobsService.addJobOutputLine(
+        await this.jobsService.addJobOutputLine(
           jobId,
           timestamp,
           JSON.stringify(finding),

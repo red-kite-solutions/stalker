@@ -30,7 +30,12 @@ export class JobLogsConsumer extends KafkaConsumer {
     if (log.LogLevel == 2) level = 'warning';
     if (log.LogLevel == 3) level = 'error';
 
-    this.jobService.addJobOutputLine(log.JobId, log.Timestamp, log.Log, level);
+    await this.jobService.addJobOutputLine(
+      log.JobId,
+      log.Timestamp,
+      log.Log,
+      level,
+    );
   }
 
   public static async create(kafka: Kafka, jobService: JobsService) {
