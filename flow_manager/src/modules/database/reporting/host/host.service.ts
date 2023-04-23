@@ -335,7 +335,7 @@ export class HostService {
 
     await this.hostModel.updateOne(
       { ip: { $eq: ip }, companyId: { $eq: new Types.ObjectId(companyId) } },
-      { $addToSet: { ports } },
+      { $addToSet: { ports: { $each: ports } } },
     );
 
     const newPorts = host.ports
