@@ -1,14 +1,6 @@
 <div class="container" *ngIf="domain$ | async as domain">
-  <h1>
-    <button type="button" mat-icon-button routerLinkActive="list-item-active" routerLink="/domains">
-      <mat-icon class="material-icons-outlined">arrow_back</mat-icon>
-    </button>
-    <div *ngIf="domain">
-      {{ (companies$ | async | whereId: [domain?.companyId])?.name }} <span class="slash">/</span> Domains
-      <span class="slash">/</span>
-      {{ domain.name }}
-    </div>
-  </h1>
+  <app-page-header [parts]="[(companies$ | async | whereId : [domain?.companyId])?.name, domain.name]">
+  </app-page-header>
 
   <div class="content-wrapper">
     <div class="content">
@@ -23,8 +15,8 @@
           >No tags yet</panel-section-subtitle
         >
 
-        <app-pill-tag *ngFor="let tag of domain?.tags" [color]="(tags | whereId: [tag])?.color">{{
-          (tags | whereId: [tag])?.text
+        <app-pill-tag *ngFor="let tag of domain?.tags" [color]="(tags | whereId : [tag])?.color">{{
+          (tags | whereId : [tag])?.text
         }}</app-pill-tag>
       </panel-section>
 

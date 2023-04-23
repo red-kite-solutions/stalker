@@ -51,6 +51,7 @@ import { JobLogsSummaryComponent } from '../../modules/jobs/job-executions/job-e
 import { JobStateComponent } from '../../modules/jobs/job-executions/job-execution-state.component';
 import { JobExecutionsComponent } from '../../modules/jobs/job-executions/job-executions.component';
 import { LaunchJobsComponent } from '../../modules/jobs/launch-jobs/launch-jobs.component';
+import { AppHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { PanelSectionModule } from '../../shared/components/panel-section/panel-section.module';
 import { DefaultComponent } from './default.component';
 
@@ -109,6 +110,7 @@ import { DefaultComponent } from './default.component';
     FindingsModule,
     PanelSectionModule,
     MatProgressBarModule,
+    AppHeaderComponent,
   ],
   providers: [{ provide: MAT_COLOR_FORMATS, useValue: NGX_MAT_COLOR_FORMATS }],
 })
