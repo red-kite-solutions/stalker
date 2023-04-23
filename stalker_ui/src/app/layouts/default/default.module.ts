@@ -47,6 +47,7 @@ import { ViewHostModule } from '../../modules/hosts/view-host/view-host.module';
 import { ViewPortModule } from '../../modules/hosts/view-port/view-port.module';
 import { CustomJobsComponent } from '../../modules/jobs/custom-jobs/custom-jobs.component';
 import { LaunchJobsComponent } from '../../modules/jobs/launch-jobs/launch-jobs.component';
+import { AppHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { PanelSectionModule } from '../../shared/components/panel-section/panel-section.module';
 import { DefaultComponent } from './default.component';
 
@@ -101,6 +102,7 @@ import { DefaultComponent } from './default.component';
     FindingsModule,
     PanelSectionModule,
     MatProgressBarModule,
+    AppHeaderComponent,
   ],
   providers: [{ provide: MAT_COLOR_FORMATS, useValue: NGX_MAT_COLOR_FORMATS }],
 })
