@@ -1,0 +1,26 @@
+<a class="clickable-text" [matMenuTriggerFor]="menu">{{ buttonText }}</a>
+<mat-menu #menu="matMenu" class="app-text-select-menu-container">
+  <div
+    class="app-text-select-menu-search-container"
+    *ngIf="filterEnabled"
+    (click)="$event.stopPropagation()"
+    (keydown)="$event.stopPropagation()"
+  >
+    <mat-form-field class="search-item" appearance="outline">
+      <mat-label>{{ filterText }}</mat-label>
+      <input matInput [(ngModel)]="filter" />
+    </mat-form-field>
+  </div>
+  <button class="select-item" mat-menu-item *ngFor="let item of shownItems" (click)="selectItem($event, item)">
+    <span class="material-icons-outlined check-icon" [style.visibility]="item.isSelected ? 'visible' : 'hidden'"
+      >check</span
+    >
+    <span
+      *ngIf="colorEnabled && item['color']"
+      class="dot"
+      [style.background-color]="item['color']"
+      [style.opacity]="opacity"
+    ></span
+    >{{ item.text }}
+  </button>
+</mat-menu>

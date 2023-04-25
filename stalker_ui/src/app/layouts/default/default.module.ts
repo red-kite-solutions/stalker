@@ -10,6 +10,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatOptionModule } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -43,7 +44,7 @@ import { ManageTagsComponent } from 'src/app/modules/tags/manage-tags/manage-tag
 import { ProfileComponent } from 'src/app/modules/user/profile/profile.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { FindingsModule } from '../../modules/findings/findings.module';
-import { ViewHostModule } from '../../modules/hosts/view-host/view-host.module';
+import { ViewHostComponent } from '../../modules/hosts/view-host/view-host.component';
 import { ViewPortModule } from '../../modules/hosts/view-port/view-port.module';
 import { CustomJobsComponent } from '../../modules/jobs/custom-jobs/custom-jobs.component';
 import { LaunchJobsComponent } from '../../modules/jobs/launch-jobs/launch-jobs.component';
@@ -64,6 +65,7 @@ import { DefaultComponent } from './default.component';
     EditCompaniesComponent,
     ListDomainsComponent,
     ViewDomainComponent,
+    ViewHostComponent,
     ManageTagsComponent,
     SubscriptionComponent,
     CustomJobsComponent,
@@ -96,8 +98,8 @@ import { DefaultComponent } from './default.component';
     MatProgressSpinnerModule,
     MatExpansionModule,
     MatListModule,
+    MatOptionModule,
     NgxMatColorPickerModule,
-    ViewHostModule,
     ViewPortModule,
     FindingsModule,
     PanelSectionModule,

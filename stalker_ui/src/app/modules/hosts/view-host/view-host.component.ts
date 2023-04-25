@@ -10,6 +10,7 @@ import { Domain } from 'src/app/shared/types/domain/domain.interface';
 import { DomainSummary } from 'src/app/shared/types/domain/domain.summary';
 import { Port } from 'src/app/shared/types/host/host.interface';
 import { Tag } from 'src/app/shared/types/tag.type';
+import { SelectItem } from '../../../shared/widget/text-select-menu/text-select-menu.component';
 
 @Component({
   selector: 'app-view-host',
@@ -19,6 +20,8 @@ import { Tag } from 'src/app/shared/types/tag.type';
 })
 export class ViewHostComponent {
   displayedColumns: string[] = ['domainName'];
+  public manageTags: string = $localize`:Manage Tags|Manage Tags:Manage Tags`;
+  public filterTags: string = $localize`:Filter Tags|Filter Tags:Filter Tags`;
 
   // Drawer
   public currentDetailsId: string | null = null;
@@ -39,12 +42,12 @@ export class ViewHostComponent {
     })
   );
 
-  tags: Tag[] = [];
+  tags: (Tag & SelectItem)[] = [];
   tags$ = this.tagsService.getTags().pipe(
     map((next: any[]) => {
-      const tagsArr: Tag[] = [];
+      const tagsArr: (Tag & SelectItem)[] = [];
       for (const tag of next) {
-        tagsArr.push({ id: tag._id, text: tag.text, color: tag.color });
+        tagsArr.push({ id: tag._id, text: tag.text, color: tag.color, isSelected: false });
       }
       this.tags = tagsArr;
       return this.tags;
@@ -67,6 +70,10 @@ export class ViewHostComponent {
   public ports$ = combineLatest([this.host$, this.shownPortsCount$]).pipe(
     map(([host, size]) => host.ports.slice(0, size))
   );
+
+  public itemSelected(item: SelectItem) {
+    console.log(item);
+  }
 
   constructor(
     private route: ActivatedRoute,

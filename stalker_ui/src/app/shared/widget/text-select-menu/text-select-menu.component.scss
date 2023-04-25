@@ -1,0 +1,36 @@
+.clickable-text {
+  font-style: italic;
+  text-decoration: none;
+  font-weight: 415;
+  letter-spacing: normal;
+}
+
+.clickable-text:hover {
+  color: #2d5fe6;
+  cursor: pointer;
+}
+
+.check-icon {
+  font-size: 1.15em;
+  margin-left: -8px;
+}
+
+.select-item {
+  height: 36px;
+  margin: auto;
+}
+
+.search-item {
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
+.dot {
+  height: 15px;
+  width: 15px;
+  background-color: #bbb;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 6px;
+  margin-left: 6px;
+}

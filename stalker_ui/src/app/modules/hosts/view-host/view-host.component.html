@@ -11,8 +11,17 @@
         <panel-section-title i18n="Tags|The tags of an item">Tags</panel-section-title>
 
         <panel-section-subtitle *ngIf="!host?.tags?.length" i18n="No tags yet|There are no tags for this item"
-          >No tags yet</panel-section-subtitle
-        >
+          >No tags yet —
+          <app-text-select-menu
+            [items]="tags$ | async"
+            [buttonText]="manageTags"
+            [filterText]="filterTags"
+            [filterEnabled]="true"
+            [colorEnabled]="true"
+            [opacity]="0.8"
+            (itemSelection)="itemSelected($event)"
+          ></app-text-select-menu>
+        </panel-section-subtitle>
 
         <app-pill-tag *ngFor="let tag of host?.tags" [color]="(tags | whereId : [tag])?.color">{{
           (tags | whereId : [tag])?.text
