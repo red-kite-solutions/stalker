@@ -348,4 +348,24 @@ export class HostService {
       : ports;
     return newPorts;
   }
+
+  public async toggleTag(hostId: string, tagId: string): Promise<UpdateResult> {
+    const host = await this.hostModel.findById(hostId);
+    if (!host) throw new HttpNotFoundException();
+
+    if (host.tags && host.tags.some((tag) => tag.toString() === tagId)) {
+      return await this.hostModel.updateOne(
+        { _id: { $eq: new Types.ObjectId(hostId) } },
+        { $pull: { tags: new Types.ObjectId(tagId) } },
+      );
+    } else {
+      if (!(await this.tagsService.tagExists(tagId)))
+        throw new HttpNotFoundException();
+
+      return await this.hostModel.updateOne(
+        { _id: { $eq: new Types.ObjectId(hostId) } },
+        { $push: { tags: new Types.ObjectId(tagId) } },
+      );
+    }
+  }
 }

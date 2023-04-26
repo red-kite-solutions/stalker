@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, combineLatest, map, Observable, Subject, switchMap, tap } from 'rxjs';
 import { CompaniesService } from 'src/app/api/companies/companies.service';
 import { HostsService } from 'src/app/api/hosts/hosts.service';
@@ -55,9 +56,13 @@ export class ViewHostComponent {
   );
 
   public hostId$ = this.route.params.pipe(map((params) => params['id'] as string));
+  public hostId = '';
 
   public host$ = this.hostId$.pipe(
-    switchMap((hostId) => this.hostsService.get(hostId)),
+    switchMap((hostId) => {
+      this.hostId = hostId;
+      return this.hostsService.get(hostId);
+    }),
     tap((host) => this.titleService.setTitle($localize`:Hosts page title|:Hosts · ${host.ip}`))
   );
 
@@ -71,8 +76,26 @@ export class ViewHostComponent {
     map(([host, size]) => host.ports.slice(0, size))
   );
 
-  public itemSelected(item: SelectItem) {
-    console.log(item);
+  /**
+   *
+   * @param item A SelectItem, but contains all the attributes of a Tag.
+   */
+  public async itemSelected(item: SelectItem) {
+    try {
+      const tagId = <string>item['id'];
+      if (this.hostId) await this.hostsService.toggleHostTag(this.hostId, tagId);
+      const tagIndex = this.tags.findIndex((tag: Tag & SelectItem) => tag.id === tagId);
+
+      if (tagIndex === -1 && item.color !== undefined) {
+        // Tag not found, adding it
+        this.tags.push({ id: tagId, color: item?.color, text: item.text, isSelected: item.isSelected });
+      } else {
+        // Tag was found, removing it
+        this.tags.splice(tagIndex, 1);
+      }
+    } catch (err) {
+      this.toastr.error($localize`:Error while tagging|Error while tagging an item:Error while tagging`);
+    }
   }
 
   constructor(
@@ -80,6 +103,7 @@ export class ViewHostComponent {
     private companiesService: CompaniesService,
     private hostsService: HostsService,
     private tagsService: TagsService,
-    private titleService: Title
+    private titleService: Title,
+    private toastr: ToastrService
   ) {}
 }

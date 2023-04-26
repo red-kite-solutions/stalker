@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { ObjectId, UpdateResult } from 'mongodb';
 
-import { MongoIdDto } from '../../../../types/dto/MongoIdDto';
+import { MongoIdDto } from '../../../../types/dto/mongo-id.dto';
 import { Page } from '../../../../types/page.type';
 import escapeStringRegexp from '../../../../utils/escape-string-regexp';
 import { Role } from '../../../auth/constants';

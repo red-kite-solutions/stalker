@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { Host } from 'src/app/shared/types/host/host.interface';
 import { Page } from 'src/app/shared/types/page.type';
 import { environment } from 'src/environments/environment';
@@ -60,5 +60,9 @@ export class HostsService {
     return <Observable<Page<Host>>>(
       this.http.get(`${environment.fmUrl}/hosts?page=${page}&pageSize=${pageSize}${encodedFilters}`)
     );
+  }
+
+  public async toggleHostTag(hostId: string, tagId: string) {
+    return await firstValueFrom(this.http.put(`${environment.fmUrl}/hosts/${hostId}/tags`, { tagId: tagId }));
   }
 }

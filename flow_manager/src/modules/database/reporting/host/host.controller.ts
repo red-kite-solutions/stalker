@@ -1,14 +1,17 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
   Param,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
 import { DeleteResult } from 'mongodb';
 import { HttpNotImplementedException } from '../../../../exceptions/http.exceptions';
-import { MongoIdDto } from '../../../../types/dto/MongoIdDto';
+import { MongoIdDto } from '../../../../types/dto/mongo-id.dto';
+import { TagItemDto } from '../../../../types/dto/tag-item.dto';
 import { Page } from '../../../../types/page.type';
 import { Role } from '../../../auth/constants';
 import { Roles } from '../../../auth/decorators/roles.decorator';
@@ -42,6 +45,13 @@ export class HostController {
       );
 
     throw new HttpNotImplementedException();
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User)
+  @Put(':id/tags')
+  async toggleTagHost(@Param() idDto: MongoIdDto, @Body() tagDto: TagItemDto) {
+    return await this.hostsService.toggleTag(idDto.id, tagDto.tagId);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

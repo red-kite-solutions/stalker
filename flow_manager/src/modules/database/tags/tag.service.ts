@@ -27,4 +27,11 @@ export class TagsService {
       _id: { $eq: new Types.ObjectId(id) },
     });
   }
+
+  public async tagExists(id: string): Promise<boolean> {
+    return !!(await this.tagsModel.countDocuments(
+      { _id: { $eq: new Types.ObjectId(id) } },
+      { limit: 1 },
+    ));
+  }
 }

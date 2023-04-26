@@ -12,7 +12,7 @@ import {
   HttpBadRequestException,
   HttpNotFoundException,
 } from '../../../exceptions/http.exceptions';
-import { MongoIdDto } from '../../../types/dto/MongoIdDto';
+import { MongoIdDto } from '../../../types/dto/mongo-id.dto';
 import { JobSummary } from '../../../types/job-summary.type';
 import { CompanyUnassigned } from '../../../validators/is-company-id.validator';
 import { Role } from '../../auth/constants';
