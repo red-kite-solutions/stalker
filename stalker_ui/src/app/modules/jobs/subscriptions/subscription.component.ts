@@ -15,6 +15,7 @@ import {
 import { parse, stringify } from 'yaml';
 import { CompaniesService } from '../../../api/companies/companies.service';
 import { CompanySummary } from '../../../shared/types/company/company.summary';
+import { CodeEditorTheme } from '../../../shared/widget/code-editor/code-editor.component';
 
 @Component({
   selector: 'app-subscription',
@@ -26,7 +27,7 @@ export class SubscriptionComponent {
   public currentCodeBackup: string | undefined;
   public language = 'yaml';
   public minimapEnabled = false;
-  public theme: 'vs-dark' = 'vs-dark';
+  public theme: CodeEditorTheme = 'vs-dark';
   public readonly = false;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;

@@ -13,6 +13,7 @@ import {
 } from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
 import { CustomJobsService } from '../../../api/jobs/custom-jobs/custom-jobs.service';
 import { CustomJob, CustomJobData } from '../../../shared/types/jobs/custom-job.type';
+import { CodeEditorTheme } from '../../../shared/widget/code-editor/code-editor.component';
 
 @Component({
   selector: 'app-custom-jobs',
@@ -25,7 +26,7 @@ export class CustomJobsComponent {
   public currentCodeBackup: string | undefined;
   public language = 'python';
   public minimapEnabled = false;
-  public theme: 'vs-dark' = 'vs-dark';
+  public theme: CodeEditorTheme = 'vs-dark';
   public readonly = false;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;

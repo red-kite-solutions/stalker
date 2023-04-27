@@ -1,13 +1,17 @@
+import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy, Output, ViewChild } from '@angular/core';
 import { first, Subscription } from 'rxjs';
 import { CodeEditorService } from './code-editor.service';
 
 declare const monaco: any;
+export type CodeEditorTheme = 'vs' | 'vs-dark' | 'hc-black' | 'hc-light';
 
 // https://stackoverflow.com/questions/71072724/implement-monaco-editor-in-angular-13
 // https://github.com/atularen/ngx-monaco-editor
 // https://microsoft.github.io/monaco-editor/api/modules/monaco.editor.html
 @Component({
+  standalone: true,
+  imports: [CommonModule],
   selector: 'app-code-editor',
   templateUrl: './code-editor.component.html',
   styleUrls: ['./code-editor.component.scss'],
@@ -16,7 +20,7 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
   public _editor: any;
   @ViewChild('editorContainer', { static: true }) _editorContainer!: ElementRef;
 
-  private _code = '';
+  private _code: string | null = '';
   private _theme!: string;
   private _minimapEnabled = true;
   private _language!: string;
@@ -27,7 +31,7 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
   private loadSub: Subscription | undefined;
 
   @Input()
-  public set code(val: string) {
+  public set code(val: string | null) {
     if (val === this._code) return;
 
     this._code = val;
@@ -57,7 +61,7 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
   }
 
   @Input()
-  public set theme(val: 'vs' | 'vs-dark' | 'hc-black' | 'hc-light') {
+  public set theme(val: CodeEditorTheme) {
     this._theme = `${val}-stalker`;
     if (this.codeEditorService.loaded && this._editor) {
       this._editor._themeService.setTheme(this._theme);

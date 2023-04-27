@@ -6,6 +6,7 @@ import { JobParameter } from '../../../shared/types/finding-event-subscription';
 import { JobListEntry, StartedJob, StartedJobState, StartedJobViewModel } from '../../../shared/types/jobs/job.type';
 import { Page } from '../../../shared/types/page.type';
 import { filtersToParams } from '../../../utils/filters-to-params';
+import { JobOutputResponse } from './jobs.socketio-client';
 
 @Injectable({
   providedIn: 'root',
@@ -28,6 +29,10 @@ export class JobsService {
         items: page.items.map((i) => this.toStartedJobViewModel(i)),
       }))
     );
+  }
+
+  public getJobLogs(jobId: string): Observable<Page<JobOutputResponse>> {
+    return this.http.get<Page<JobOutputResponse>>(`${environment.fmUrl}/jobs/${jobId}/logs`);
   }
 
   private toStartedJobViewModel(job: StartedJob): StartedJobViewModel {

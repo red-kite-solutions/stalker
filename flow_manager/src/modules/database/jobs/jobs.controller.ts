@@ -31,6 +31,7 @@ import { JobDefinitions, JobSources } from './job-model.module';
 import { JobFactory } from './jobs.factory';
 import { JobsService } from './jobs.service';
 import { CustomJob } from './models/custom-job.model';
+import { JobLog } from './models/job-log.model';
 
 @Controller('jobs')
 export class JobsController {
@@ -47,6 +48,13 @@ export class JobsController {
     dto: JobExecutionsDto,
   ): Promise<Page<JobDocument>> {
     return await this.jobsService.getAll(dto);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ReadOnly)
+  @Get(':id/logs')
+  async getJobLogs(@Param() id: MongoIdDto): Promise<Page<JobLog>> {
+    return await this.jobsService.getLogs(id.id, 0, 10000);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

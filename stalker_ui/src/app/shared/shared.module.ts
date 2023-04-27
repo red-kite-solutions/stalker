@@ -51,7 +51,6 @@ import { SpinnerButtonComponent } from './widget/spinner-button/spinner-button.c
     PillTagComponent,
     TimeAgoPipe,
     HumanizePipe,
-    CodeEditorComponent,
   ],
   imports: [
     CommonModule,
@@ -76,6 +75,7 @@ import { SpinnerButtonComponent } from './widget/spinner-button/spinner-button.c
     MatChipsModule,
     MatAutocompleteModule,
     ReactiveFormsModule,
+    CodeEditorComponent,
   ],
   exports: [
     HeaderComponent,
@@ -91,7 +91,6 @@ import { SpinnerButtonComponent } from './widget/spinner-button/spinner-button.c
     PillTagComponent,
     TimeAgoPipe,
     HumanizePipe,
-    CodeEditorComponent,
   ],
 })
 export class SharedModule {}

@@ -12,6 +12,7 @@ import { JobsService } from '../../../api/jobs/jobs/jobs.service';
 import { JobOutputResponse, JobsSocketioClient, JobStatusUpdate } from '../../../api/jobs/jobs/jobs.socketio-client';
 import { CompanySummary } from '../../../shared/types/company/company.summary';
 import { JobListEntry, JobParameterDefinition, StartedJob } from '../../../shared/types/jobs/job.type';
+import { CodeEditorTheme } from '../../../shared/widget/code-editor/code-editor.component';
 import { getLogTimestamp } from '../../../utils/time.utils';
 
 @Component({
@@ -24,7 +25,7 @@ export class LaunchJobsComponent implements OnDestroy {
   public output = '';
   public language = 'yaml';
   public minimapEnabled = false;
-  public theme: 'vs-dark' = 'vs-dark';
+  public theme: CodeEditorTheme = 'vs-dark';
   public readonly = false;
   public currentStartedJob: StartedJob | undefined;
   public currentJobOutputSubscription: Subscription | undefined;
@@ -190,7 +191,7 @@ export class LaunchJobsComponent implements OnDestroy {
         }
       });
 
-      this.socketioClient.sendMessage({ jobId: this.currentStartedJob.id });
+      // this.socketioClient.sendMessage({ jobId: this.currentStartedJob.id });
     } catch {
       this.jobLoading = false;
       this.clearSubscriptionsAndSockets();

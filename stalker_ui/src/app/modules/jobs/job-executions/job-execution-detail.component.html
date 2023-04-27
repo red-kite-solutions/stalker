@@ -1,6 +1,11 @@
-<mat-card>
-  <app-job-logs-summary [job]="(execution$ | async) || undefined"></app-job-logs-summary>
+<app-page-header
+  [parts]="[(companies$ | async | whereId : [(execution$ | async)?.companyId])?.name, (execution$ | async)?.task]"
+>
+</app-page-header>
+
+<mat-card *ngIf="execution$ | async as execution">
+  <mat-card-title>{{ execution.task }}</mat-card-title>
+  <app-job-logs-summary [job]="execution"></app-job-logs-summary>
 </mat-card>
-<div *ngFor="let output of (execution$ | async)?.output">
-  {{ output.value }}
-</div>
+
+<app-job-logs [jobId]="executionId$ | async"></app-job-logs>
