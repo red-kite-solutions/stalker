@@ -7,6 +7,7 @@ import { HostnameFinding } from '../../../findings/findings.service';
 import { FindingsQueue } from '../../../job-queue/findings-queue';
 import { ConfigService } from '../../admin/config/config.service';
 import { JobsService } from '../../jobs/jobs.service';
+import { TagsService } from '../../tags/tag.service';
 import { Company } from '../company.model';
 import { CorrelationKeyUtils } from '../correlation.utils';
 import { HostService } from '../host/host.service';
@@ -27,6 +28,7 @@ export class DomainsService {
     @Inject(forwardRef(() => HostService))
     private hostService: HostService,
     private findingsQueue: FindingsQueue,
+    private tagsService: TagsService,
   ) {}
 
   public async addDomains(domains: string[], companyId: string) {
@@ -178,5 +180,28 @@ export class DomainsService {
       { _id: { $eq: new Types.ObjectId(domainId) } },
       { $pull: { hosts: { id: { $eq: new Types.ObjectId(hostId) } } } },
     );
+  }
+
+  public async toggleTag(
+    domainId: string,
+    tagId: string,
+  ): Promise<UpdateResult> {
+    const host = await this.domainModel.findById(domainId);
+    if (!host) throw new HttpNotFoundException();
+
+    if (host.tags && host.tags.some((tag) => tag.toString() === tagId)) {
+      return await this.domainModel.updateOne(
+        { _id: { $eq: new Types.ObjectId(domainId) } },
+        { $pull: { tags: new Types.ObjectId(tagId) } },
+      );
+    } else {
+      if (!(await this.tagsService.tagExists(tagId)))
+        throw new HttpNotFoundException();
+
+      return await this.domainModel.updateOne(
+        { _id: { $eq: new Types.ObjectId(domainId) } },
+        { $push: { tags: new Types.ObjectId(tagId) } },
+      );
+    }
   }
 }

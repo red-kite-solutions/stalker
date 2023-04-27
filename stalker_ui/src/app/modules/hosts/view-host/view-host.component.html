@@ -7,23 +7,28 @@
     </div>
 
     <div class="context">
-      <panel-section>
-        <panel-section-title i18n="Tags|The tags of an item">Tags</panel-section-title>
+      <panel-section *ngIf="(tagsSelectItems$ | async) && mergedTags$ | async as hostTags">
+        <panel-section-title i18n="Tags|The tags of an item"
+          >Tags
+          <span class="manage-tags-menu">
+            —
+            <app-text-select-menu
+              [items]="tagsSelectItems$ | async"
+              [buttonText]="manageTags"
+              [filterText]="filterTags"
+              [filterEnabled]="true"
+              [colorEnabled]="true"
+              [opacity]="0.8"
+              (itemSelection)="itemSelected($event)"
+            ></app-text-select-menu>
+          </span>
+        </panel-section-title>
 
-        <panel-section-subtitle *ngIf="!host?.tags?.length" i18n="No tags yet|There are no tags for this item"
-          >No tags yet —
-          <app-text-select-menu
-            [items]="tags$ | async"
-            [buttonText]="manageTags"
-            [filterText]="filterTags"
-            [filterEnabled]="true"
-            [colorEnabled]="true"
-            [opacity]="0.8"
-            (itemSelection)="itemSelected($event)"
-          ></app-text-select-menu>
+        <panel-section-subtitle *ngIf="!hostTags.length" i18n="No tags yet|There are no tags for this item"
+          >No tags yet
         </panel-section-subtitle>
 
-        <app-pill-tag *ngFor="let tag of host?.tags" [color]="(tags | whereId : [tag])?.color">{{
+        <app-pill-tag *ngFor="let tag of hostTags" [color]="(tags | whereId : [tag])?.color">{{
           (tags | whereId : [tag])?.text
         }}</app-pill-tag>
       </panel-section>

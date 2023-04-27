@@ -43,4 +43,8 @@ export class DomainsService {
   public get(domainId: string): Observable<Domain> {
     return <Observable<Domain>>this.http.get(`${environment.fmUrl}/domains/${domainId}`);
   }
+
+  public async toggleDomainTag(domainId: string, tagId: string) {
+    return await firstValueFrom(this.http.put(`${environment.fmUrl}/domains/${domainId}/tags`, { tagId: tagId }));
+  }
 }

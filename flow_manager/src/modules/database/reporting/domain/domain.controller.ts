@@ -11,6 +11,7 @@ import {
 import { ObjectId, UpdateResult } from 'mongodb';
 
 import { MongoIdDto } from '../../../../types/dto/mongo-id.dto';
+import { TagItemDto } from '../../../../types/dto/tag-item.dto';
 import { Page } from '../../../../types/page.type';
 import escapeStringRegexp from '../../../../utils/escape-string-regexp';
 import { Role } from '../../../auth/constants';
@@ -78,6 +79,13 @@ export class DomainsController {
         finalFilter,
       ),
     };
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User)
+  @Put(':id/tags')
+  async toggleTagHost(@Param() idDto: MongoIdDto, @Body() tagDto: TagItemDto) {
+    return await this.domainsService.toggleTag(idDto.id, tagDto.tagId);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
