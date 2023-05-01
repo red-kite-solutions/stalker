@@ -53,10 +53,10 @@
         </button>
       </panel-section>
 
-      <panel-section>
+      <panel-section *ngIf="ports$ | async as ports">
         <panel-section-title i18n="Ports|An IP's related ports">Ports</panel-section-title>
 
-        <panel-section-subtitle *ngIf="!host?.ports?.length" i18n="No ports yet|There are no ports for this item"
+        <panel-section-subtitle *ngIf="!ports.length" i18n="No ports yet|There are no ports for this item"
           >No ports yet</panel-section-subtitle
         >
 
@@ -66,10 +66,10 @@
 
         <button
           panel-load-more
-          *ngIf="((shownPortsCount$ | async) ?? 0) < (host?.ports?.length ?? 0)"
+          *ngIf="((shownPortsCount$ | async) ?? 0) < (ports.length ?? 0)"
           (click)="shownPortsCount$.next(1000)"
         >
-          Show more ({{ host?.ports?.length }})
+          Show more ({{ ports.length }})
         </button>
       </panel-section>
     </div>

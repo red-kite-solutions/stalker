@@ -24,7 +24,7 @@ with httpx.Client(verify=False, http2=True) as client:
             r = client.get(f"https://{TARGET_IP}:{port}", timeout=10.0)
             log_finding(
                 PortFinding(
-                    "HttpServerCheck", TARGET_IP, port, "This port runs an HTTPS server"
+                    "HttpServerCheck", TARGET_IP, port, "tcp", "This port runs an HTTPS server"
                 )
             )
 
@@ -38,7 +38,7 @@ with httpx.Client(verify=False, http2=True) as client:
             r = client.get(f"http://{TARGET_IP}:{port}", timeout=10.0)
             log_finding(
                 PortFinding(
-                    "HttpServerCheck", TARGET_IP, port, "This port runs an HTTP server"
+                    "HttpServerCheck", TARGET_IP, port, "tcp", "This port runs an HTTP server"
                 )
             )
             exit()

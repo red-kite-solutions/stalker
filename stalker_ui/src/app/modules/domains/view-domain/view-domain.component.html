@@ -47,8 +47,8 @@
           <a [routerLink]="['/hosts', ip.id]">{{ ip.ip }}</a>
 
           <ul class="ports" *ngIf="(showAllPorts[ip.ip] ? ip.ports$ : ip.portsSubset$) | async as ports">
-            <li *ngFor="let port of ports; let last = last" [routerLink]="['/hosts', ip.id, 'ports', port]">
-              <a>{{ port }}</a>
+            <li *ngFor="let port of ports; let last = last" [routerLink]="['/hosts', ip.id, 'ports', port.port]">
+              <a>{{ port.port }}</a>
             </li>
           </ul>
 

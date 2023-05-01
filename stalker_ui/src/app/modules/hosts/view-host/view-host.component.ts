@@ -9,8 +9,9 @@ import { TagsService } from 'src/app/api/tags/tags.service';
 import { CompanySummary } from 'src/app/shared/types/company/company.summary';
 import { Domain } from 'src/app/shared/types/domain/domain.interface';
 import { DomainSummary } from 'src/app/shared/types/domain/domain.summary';
-import { Port } from 'src/app/shared/types/host/host.interface';
+import { Port } from 'src/app/shared/types/ports/port.interface';
 import { Tag } from 'src/app/shared/types/tag.type';
+import { PortsService } from '../../../api/ports/ports.service';
 import { SelectItem } from '../../../shared/widget/text-select-menu/text-select-menu.component';
 
 @Component({
@@ -100,7 +101,7 @@ export class ViewHostComponent {
 
   public shownPortsCount$ = new BehaviorSubject(5);
   public ports$ = combineLatest([this.host$, this.shownPortsCount$]).pipe(
-    map(([host, size]) => host.ports.slice(0, size))
+    switchMap(([host, size]) => this.portsService.getPorts(host._id, 0, size, { sortType: 'popularity' }))
   );
 
   /**
@@ -133,6 +134,7 @@ export class ViewHostComponent {
     private hostsService: HostsService,
     private tagsService: TagsService,
     private titleService: Title,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private portsService: PortsService
   ) {}
 }

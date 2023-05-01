@@ -108,6 +108,7 @@ for port in open_ports_output:
             "PortFinding",
             TARGET_IP,
             port,
+            "tcp",
             "Port scanning finding",
             [TextField("protocol", "This is a TCP port", "tcp")],
             "PortFinding",

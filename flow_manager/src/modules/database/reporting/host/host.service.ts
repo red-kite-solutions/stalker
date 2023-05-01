@@ -4,7 +4,6 @@ import { DeleteResult, UpdateResult } from 'mongodb';
 import { Model, Types } from 'mongoose';
 import { HttpNotFoundException } from '../../../../exceptions/http.exceptions';
 import escapeStringRegexp from '../../../../utils/escape-string-regexp';
-import { getTopTcpPorts } from '../../../../utils/ports.utils';
 import { ConfigService } from '../../admin/config/config.service';
 import { TagsService } from '../../tags/tag.service';
 import { Company } from '../company.model';
@@ -13,7 +12,7 @@ import { DomainsService } from '../domain/domain.service';
 import { DomainSummary } from '../domain/domain.summary';
 import { ReportService } from '../report/report.service';
 import { HostFilterModel } from './host-filter.model';
-import { Host, HostDocument, Port } from './host.model';
+import { Host, HostDocument } from './host.model';
 import { HostSummary } from './host.summary';
 
 @Injectable()
@@ -228,25 +227,25 @@ export class HostService {
     return updatedHost;
   }
 
-  public async getHostTopTcpPorts(
-    id: string,
-    page: number,
-    pageSize: number,
-  ): Promise<number[]> {
-    const ports = (await this.hostModel.findById(id).select('ports'))?.ports;
+  // public async getHostTopTcpPorts(
+  //   id: string,
+  //   page: number,
+  //   pageSize: number,
+  // ): Promise<number[]> {
+  //   const ports = (await this.hostModel.findById(id).select('ports'))?.ports;
 
-    if (!ports) return [];
+  //   if (!ports) return [];
 
-    const firstPort = page * pageSize;
-    let lastPort = firstPort + pageSize;
+  //   const firstPort = page * pageSize;
+  //   let lastPort = firstPort + pageSize;
 
-    const topPorts = getTopTcpPorts(ports, lastPort);
+  //   const topPorts = getTopTcpPorts(ports, lastPort);
 
-    if (firstPort >= topPorts.length) return [];
+  //   if (firstPort >= topPorts.length) return [];
 
-    lastPort = lastPort >= topPorts.length ? topPorts.length : lastPort;
-    return topPorts.slice(firstPort, lastPort);
-  }
+  //   lastPort = lastPort >= topPorts.length ? topPorts.length : lastPort;
+  //   return topPorts.slice(firstPort, lastPort);
+  // }
 
   public async delete(hostId: string): Promise<DeleteResult> {
     const domains = (await this.hostModel.findById(hostId).select('domains'))
@@ -313,41 +312,42 @@ export class HostService {
     return finalFilter;
   }
 
-  public async addPortsByIp(
-    companyId: string,
-    ip: string,
-    portNumbers: number[],
-  ) {
-    const host = await this.hostModel.findOne({
-      ip: { $eq: ip },
-      companyId: { $eq: new Types.ObjectId(companyId) },
-    });
-    if (!host) throw new HttpNotFoundException();
+  // public async addPortsByIp(
+  //   companyId: string,
+  //   ip: string,
+  //   portNumbers: number[],
+  // ) {
+  //   const host = await this.hostModel.findOne({
+  //     ip: { $eq: ip },
+  //     companyId: { $eq: new Types.ObjectId(companyId) },
+  //   });
+  //   if (!host) throw new HttpNotFoundException();
 
-    const ports: Port[] = portNumbers.map((port) => ({
-      port: port,
-      correlationKey: CorrelationKeyUtils.portCorrelationKey(
-        companyId,
-        ip,
-        port,
-      ),
-    }));
+  //   const ports: Port[] = portNumbers.map((port) => ({
+  //     port: port,
+  //     correlationKey: CorrelationKeyUtils.portCorrelationKey(
+  //       companyId,
+  //       ip,
+  //       port,
+  //     ),
+  //   }));
 
-    await this.hostModel.updateOne(
-      { ip: { $eq: ip }, companyId: { $eq: new Types.ObjectId(companyId) } },
-      { $addToSet: { ports: { $each: ports } } },
-    );
+  //   // I don't think this will work as
+  //   await this.hostModel.updateOne(
+  //     { ip: { $eq: ip }, companyId: { $eq: new Types.ObjectId(companyId) } },
+  //     { $addToSet: { ports: { $each: ports } } },
+  //   );
 
-    const newPorts = host.ports
-      ? ports.filter(
-          (a) =>
-            !host.ports.some((b) => {
-              return a.port === b.port;
-            }),
-        )
-      : ports;
-    return newPorts;
-  }
+  //   const newPorts = host.ports
+  //     ? ports.filter(
+  //         (a) =>
+  //           !host.ports.some((b) => {
+  //             return a.port === b.port;
+  //           }),
+  //       )
+  //     : ports;
+  //   return newPorts;
+  // }
 
   public async toggleTag(hostId: string, tagId: string): Promise<UpdateResult> {
     const host = await this.hostModel.findById(hostId);

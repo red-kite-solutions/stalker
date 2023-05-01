@@ -44,7 +44,7 @@ import { ManageTagsComponent } from 'src/app/modules/tags/manage-tags/manage-tag
 import { ProfileComponent } from 'src/app/modules/user/profile/profile.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { FindingsModule } from '../../modules/findings/findings.module';
-import { ViewHostComponent } from '../../modules/hosts/view-host/view-host.component';
+import { ViewHostModule } from '../../modules/hosts/view-host/view-host.module';
 import { ViewPortModule } from '../../modules/hosts/view-port/view-port.module';
 import { CustomJobsComponent } from '../../modules/jobs/custom-jobs/custom-jobs.component';
 import { LaunchJobsComponent } from '../../modules/jobs/launch-jobs/launch-jobs.component';
@@ -65,7 +65,6 @@ import { DefaultComponent } from './default.component';
     EditCompaniesComponent,
     ListDomainsComponent,
     ViewDomainComponent,
-    ViewHostComponent,
     ManageTagsComponent,
     SubscriptionComponent,
     CustomJobsComponent,
@@ -101,6 +100,7 @@ import { DefaultComponent } from './default.component';
     MatOptionModule,
     NgxMatColorPickerModule,
     ViewPortModule,
+    ViewHostModule,
     FindingsModule,
     PanelSectionModule,
     MatProgressBarModule,

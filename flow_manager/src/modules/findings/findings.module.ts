@@ -7,6 +7,7 @@ import { DatalayerModule } from '../database/datalayer.module';
 import { JobsModule } from '../database/jobs/jobs.module';
 import { CompanyModule } from '../database/reporting/company.module';
 import { HostModule } from '../database/reporting/host/host.module';
+import { PortModule } from '../database/reporting/port/port.module';
 import { SubscriptionsModule } from '../database/subscriptions/subscriptions.module';
 import { FindingsHandlers } from './commands/findings-commands';
 import { FindingsController } from './findings.controller';
@@ -21,6 +22,7 @@ import { FindingsService } from './findings.service';
     DatalayerModule,
     SubscriptionsModule,
     CustomJobsModule,
+    PortModule,
   ],
   controllers: [FindingsController],
   providers: [FindingsService, ...FindingsHandlers],

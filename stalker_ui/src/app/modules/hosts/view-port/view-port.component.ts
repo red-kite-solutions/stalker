@@ -1,15 +1,16 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
-import { combineLatest, map, Observable, shareReplay, Subject, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, Observable, shareReplay, Subject, switchMap, tap } from 'rxjs';
 import { CompaniesService } from 'src/app/api/companies/companies.service';
 import { HostsService } from 'src/app/api/hosts/hosts.service';
 import { TagsService } from 'src/app/api/tags/tags.service';
 import { CompanySummary } from 'src/app/shared/types/company/company.summary';
 import { Domain } from 'src/app/shared/types/domain/domain.interface';
 import { DomainSummary } from 'src/app/shared/types/domain/domain.summary';
-import { Port } from 'src/app/shared/types/host/host.interface';
+import { Port } from 'src/app/shared/types/ports/port.interface';
 import { Tag } from 'src/app/shared/types/tag.type';
+import { PortsService } from '../../../api/ports/ports.service';
 
 @Component({
   selector: 'app-view-port',
@@ -59,11 +60,21 @@ export class ViewPortComponent {
     shareReplay(1)
   );
 
-  public port$ = combineLatest([this.host$, this.portNumber$]).pipe(
-    tap(([host, portNumber]) =>
+  public shownPortsCount$ = new BehaviorSubject(5);
+  public ports$ = combineLatest([this.host$, this.shownPortsCount$]).pipe(
+    switchMap(([host, size]) => this.portsService.getPorts(host._id, 0, size, { sortType: 'popularity' }))
+  );
+
+  public portTitle$ = combineLatest([this.portNumber$, this.host$]).pipe(
+    tap(([portNumber, host]) =>
       this.titleService.setTitle($localize`:Hosts port page title|:Hosts · ${host.ip}\:${portNumber}`)
     ),
-    map(([host, portNumber]) => host.ports.find((p) => p.port === +portNumber)),
+    map(([portNumber]) => portNumber),
+    shareReplay(1)
+  );
+
+  public port$ = combineLatest([this.ports$, this.portTitle$]).pipe(
+    map(([ports, portNumber]) => ports.find((p) => p.port === +portNumber)),
     shareReplay(1)
   );
 
@@ -72,6 +83,7 @@ export class ViewPortComponent {
     private companiesService: CompaniesService,
     private hostsService: HostsService,
     private tagsService: TagsService,
-    private titleService: Title
+    private titleService: Title,
+    private portsService: PortsService
   ) {}
 }

@@ -5,11 +5,12 @@ import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, combineLatest, map, merge, shareReplay, switchMap, tap } from 'rxjs';
 import { CompaniesService } from 'src/app/api/companies/companies.service';
 import { DomainsService } from 'src/app/api/domains/domains.service';
-import { HostsService } from 'src/app/api/hosts/hosts.service';
 import { TagsService } from 'src/app/api/tags/tags.service';
 import { CompanySummary } from 'src/app/shared/types/company/company.summary';
 import { Tag } from 'src/app/shared/types/tag.type';
+import { PortsService } from '../../../api/ports/ports.service';
 import { Domain } from '../../../shared/types/domain/domain.interface';
+import { PortNumber } from '../../../shared/types/ports/port.interface';
 import { SelectItem } from '../../../shared/widget/text-select-menu/text-select-menu.component';
 
 @Component({
@@ -104,16 +105,16 @@ export class ViewDomainComponent {
   constructor(
     private route: ActivatedRoute,
     private domainsService: DomainsService,
-    private hostsService: HostsService,
     private companiesService: CompaniesService,
     private tagsService: TagsService,
     private titleService: Title,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private portsService: PortsService
   ) {}
 
   private getTopPorts(hostId: string) {
-    return this.hostsService.getPorts(hostId, 0, 65535, { sortType: 'popularity' }).pipe(
-      map((ports: number[]) => ports.sort((a, b) => a - b)),
+    return this.portsService.getPorts(hostId, 0, 65535, { sortType: 'popularity' }).pipe(
+      map((ports: PortNumber[]) => ports.sort((a, b) => a.port - b.port)),
       shareReplay(1)
     );
   }

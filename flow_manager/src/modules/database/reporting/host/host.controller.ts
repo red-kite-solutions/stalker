@@ -9,7 +9,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { DeleteResult } from 'mongodb';
-import { HttpNotImplementedException } from '../../../../exceptions/http.exceptions';
 import { MongoIdDto } from '../../../../types/dto/mongo-id.dto';
 import { TagItemDto } from '../../../../types/dto/tag-item.dto';
 import { Page } from '../../../../types/page.type';
@@ -17,7 +16,7 @@ import { Role } from '../../../auth/constants';
 import { Roles } from '../../../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../auth/guards/role.guard';
-import { HostsFilterDto, PortsDto } from './host.dto';
+import { HostsFilterDto } from './host.dto';
 import { HostDocument } from './host.model';
 import { HostService } from './host.service';
 
@@ -25,27 +24,27 @@ import { HostService } from './host.service';
 export class HostController {
   constructor(private readonly hostsService: HostService) {}
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ReadOnly)
-  @Get(':id/ports')
-  async getHostTopTcpPorts(
-    @Param() idDto: MongoIdDto,
-    @Query() dto: PortsDto,
-  ): Promise<number[]> {
-    if (
-      dto.sortOrder === 'ascending' &&
-      dto.detailsLevel === 'number' &&
-      dto.protocol === 'tcp' &&
-      dto.sortType === 'popularity'
-    )
-      return await this.hostsService.getHostTopTcpPorts(
-        idDto.id,
-        dto.page,
-        dto.pageSize,
-      );
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @Roles(Role.ReadOnly)
+  // @Get(':id/ports')
+  // async getHostTopTcpPorts(
+  //   @Param() idDto: MongoIdDto,
+  //   @Query() dto: PortsDto,
+  // ): Promise<number[]> {
+  //   if (
+  //     dto.sortOrder === 'ascending' &&
+  //     dto.detailsLevel === 'number' &&
+  //     dto.protocol === 'tcp' &&
+  //     dto.sortType === 'popularity'
+  //   )
+  //     return await this.port.getHostTopTcpPorts(
+  //       idDto.id,
+  //       dto.page,
+  //       dto.pageSize,
+  //     );
 
-    throw new HttpNotImplementedException();
-  }
+  //   throw new HttpNotImplementedException();
+  // }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
