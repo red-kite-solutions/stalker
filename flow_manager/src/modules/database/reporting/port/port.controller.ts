@@ -32,7 +32,6 @@ export class PortController {
       dto.protocol === 'tcp' &&
       dto.sortType === 'popularity'
     ) {
-      console.log('Getting ports....');
       const ports = await this.portsService.getHostTopTcpPorts(
         dto.hostId,
         dto.page,
@@ -42,7 +41,6 @@ export class PortController {
 
       return ports.sort((a, b) => a.port - b.port); // ascending order
     }
-    console.log('Getting ports....Not implemented?');
     throw new HttpNotImplementedException();
   }
 

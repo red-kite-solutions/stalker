@@ -9,6 +9,7 @@ import {
   getReq,
   initTesting,
   postReq,
+  putReq,
   TestingData,
 } from 'test/e2e.utils';
 import { AppModule } from '../../../app.module';
@@ -69,6 +70,37 @@ describe('Port Controller (e2e)', () => {
       // Assert
       expect(r.statusCode).toBe(HttpStatus.OK);
       expect(r.body.length).toStrictEqual(0);
+    });
+
+    it('Should have proper authorizations (GET /ports/:id)', async () => {
+      const success = await checkAuthorizations(
+        testData,
+        Role.ReadOnly,
+        async (givenToken) => {
+          return await getReq(
+            app,
+            givenToken,
+            `/ports/6450827d0ae00198f250672d`,
+          );
+        },
+      );
+      expect(success).toBe(true);
+    });
+
+    it('Should have proper authorizations (PUT /ports/:id/tags)', async () => {
+      const success = await checkAuthorizations(
+        testData,
+        Role.User,
+        async (givenToken) => {
+          return await putReq(
+            app,
+            givenToken,
+            `/ports/6450827d0ae00198f250672d/tags`,
+            {},
+          );
+        },
+      );
+      expect(success).toBe(true);
     });
 
     it('Should have proper authorizations (GET /ports)', async () => {

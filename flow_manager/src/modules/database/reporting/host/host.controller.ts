@@ -24,28 +24,6 @@ import { HostService } from './host.service';
 export class HostController {
   constructor(private readonly hostsService: HostService) {}
 
-  // @UseGuards(JwtAuthGuard, RolesGuard)
-  // @Roles(Role.ReadOnly)
-  // @Get(':id/ports')
-  // async getHostTopTcpPorts(
-  //   @Param() idDto: MongoIdDto,
-  //   @Query() dto: PortsDto,
-  // ): Promise<number[]> {
-  //   if (
-  //     dto.sortOrder === 'ascending' &&
-  //     dto.detailsLevel === 'number' &&
-  //     dto.protocol === 'tcp' &&
-  //     dto.sortType === 'popularity'
-  //   )
-  //     return await this.port.getHostTopTcpPorts(
-  //       idDto.id,
-  //       dto.page,
-  //       dto.pageSize,
-  //     );
-
-  //   throw new HttpNotImplementedException();
-  // }
-
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
   @Put(':id/tags')
