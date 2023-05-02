@@ -227,26 +227,6 @@ export class HostService {
     return updatedHost;
   }
 
-  // public async getHostTopTcpPorts(
-  //   id: string,
-  //   page: number,
-  //   pageSize: number,
-  // ): Promise<number[]> {
-  //   const ports = (await this.hostModel.findById(id).select('ports'))?.ports;
-
-  //   if (!ports) return [];
-
-  //   const firstPort = page * pageSize;
-  //   let lastPort = firstPort + pageSize;
-
-  //   const topPorts = getTopTcpPorts(ports, lastPort);
-
-  //   if (firstPort >= topPorts.length) return [];
-
-  //   lastPort = lastPort >= topPorts.length ? topPorts.length : lastPort;
-  //   return topPorts.slice(firstPort, lastPort);
-  // }
-
   public async delete(hostId: string): Promise<DeleteResult> {
     const domains = (await this.hostModel.findById(hostId).select('domains'))
       ?.domains;
@@ -312,43 +292,6 @@ export class HostService {
     return finalFilter;
   }
 
-  // public async addPortsByIp(
-  //   companyId: string,
-  //   ip: string,
-  //   portNumbers: number[],
-  // ) {
-  //   const host = await this.hostModel.findOne({
-  //     ip: { $eq: ip },
-  //     companyId: { $eq: new Types.ObjectId(companyId) },
-  //   });
-  //   if (!host) throw new HttpNotFoundException();
-
-  //   const ports: Port[] = portNumbers.map((port) => ({
-  //     port: port,
-  //     correlationKey: CorrelationKeyUtils.portCorrelationKey(
-  //       companyId,
-  //       ip,
-  //       port,
-  //     ),
-  //   }));
-
-  //   // I don't think this will work as
-  //   await this.hostModel.updateOne(
-  //     { ip: { $eq: ip }, companyId: { $eq: new Types.ObjectId(companyId) } },
-  //     { $addToSet: { ports: { $each: ports } } },
-  //   );
-
-  //   const newPorts = host.ports
-  //     ? ports.filter(
-  //         (a) =>
-  //           !host.ports.some((b) => {
-  //             return a.port === b.port;
-  //           }),
-  //       )
-  //     : ports;
-  //   return newPorts;
-  // }
-
   public async toggleTag(hostId: string, tagId: string): Promise<UpdateResult> {
     const host = await this.hostModel.findById(hostId);
     if (!host) throw new HttpNotFoundException();
@@ -364,7 +307,7 @@ export class HostService {
 
       return await this.hostModel.updateOne(
         { _id: { $eq: new Types.ObjectId(hostId) } },
-        { $push: { tags: new Types.ObjectId(tagId) } },
+        { $addToSet: { tags: new Types.ObjectId(tagId) } },
       );
     }
   }

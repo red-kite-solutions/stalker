@@ -198,7 +198,7 @@ export class PortService {
 
       return await this.portsModel.updateOne(
         { _id: { $eq: new Types.ObjectId(portId) } },
-        { $push: { tags: new Types.ObjectId(tagId) } },
+        { $addToSet: { tags: new Types.ObjectId(tagId) } },
       );
     }
   }
