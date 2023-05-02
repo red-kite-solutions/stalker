@@ -23,6 +23,7 @@ export class ViewDomainComponent {
   displayedColumns: string[] = ['ipAddress', 'ports'];
   public manageTags: string = $localize`:Manage Tags|Manage Tags:Manage Tags`;
   public filterTags: string = $localize`:Filter Tags|Filter Tags:Filter Tags`;
+  public emptyTags: string = $localize`:No Tags|List of tags is empty:No Tags Available`;
 
   companies: CompanySummary[] = [];
   companies$ = this.companiesService.getAllSummaries().pipe(
@@ -127,7 +128,6 @@ export class ViewDomainComponent {
     try {
       const tagId = <string>item['id'];
       if (this.domainId) await this.domainsService.toggleDomainTag(this.domainId, tagId);
-      // this.host$ = this.hostsService.get(this.hostId);
       const tagIndex = this.domainTagsCache.findIndex((tag: string) => tag === tagId);
 
       if (tagIndex === -1 && item.color !== undefined) {

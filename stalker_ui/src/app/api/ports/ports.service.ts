@@ -1,8 +1,8 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { PortNumber } from '../../shared/types/ports/port.interface';
+import { Port, PortNumber } from '../../shared/types/ports/port.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -33,5 +33,13 @@ export class PortsService {
     params = params.set('pageSize', pageSize);
 
     return <Observable<PortNumber[]>>this.http.get(`${environment.fmUrl}/ports/?${params.toString()}`);
+  }
+
+  public async togglePortTag(portId: string, tagId: string) {
+    return await firstValueFrom(this.http.put(`${environment.fmUrl}/ports/${portId}/tags`, { tagId: tagId }));
+  }
+
+  public getPort(portId: string) {
+    return <Observable<Port>>this.http.get(`${environment.fmUrl}/ports/${portId}`);
   }
 }

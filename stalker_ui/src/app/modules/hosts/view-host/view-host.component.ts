@@ -24,6 +24,7 @@ export class ViewHostComponent {
   displayedColumns: string[] = ['domainName'];
   public manageTags: string = $localize`:Manage Tags|Manage Tags:Manage Tags`;
   public filterTags: string = $localize`:Filter Tags|Filter Tags:Filter Tags`;
+  public emptyTags: string = $localize`:No Tags|List of tags is empty:No Tags Available`;
 
   // Drawer
   public currentDetailsId: string | null = null;
@@ -112,7 +113,6 @@ export class ViewHostComponent {
     try {
       const tagId = <string>item['id'];
       if (this.hostId) await this.hostsService.toggleHostTag(this.hostId, tagId);
-      // this.host$ = this.hostsService.get(this.hostId);
       const tagIndex = this.hostTagsCache.findIndex((tag: string) => tag === tagId);
 
       if (tagIndex === -1 && item.color !== undefined) {

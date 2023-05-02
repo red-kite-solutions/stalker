@@ -1,16 +1,18 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, combineLatest, map, Observable, shareReplay, Subject, switchMap, tap } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
+import { BehaviorSubject, combineLatest, map, merge, Observable, shareReplay, Subject, switchMap, tap } from 'rxjs';
 import { CompaniesService } from 'src/app/api/companies/companies.service';
 import { HostsService } from 'src/app/api/hosts/hosts.service';
 import { TagsService } from 'src/app/api/tags/tags.service';
 import { CompanySummary } from 'src/app/shared/types/company/company.summary';
 import { Domain } from 'src/app/shared/types/domain/domain.interface';
 import { DomainSummary } from 'src/app/shared/types/domain/domain.summary';
-import { Port } from 'src/app/shared/types/ports/port.interface';
+import { Port, PortNumber } from 'src/app/shared/types/ports/port.interface';
 import { Tag } from 'src/app/shared/types/tag.type';
 import { PortsService } from '../../../api/ports/ports.service';
+import { SelectItem } from '../../../shared/widget/text-select-menu/text-select-menu.component';
 
 @Component({
   selector: 'app-view-port',
@@ -20,6 +22,9 @@ import { PortsService } from '../../../api/ports/ports.service';
 })
 export class ViewPortComponent {
   displayedColumns: string[] = ['domainName'];
+  public manageTags: string = $localize`:Manage Tags|Manage Tags:Manage Tags`;
+  public filterTags: string = $localize`:Filter Tags|Filter Tags:Filter Tags`;
+  public emptyTags: string = $localize`:No Tags|List of tags is empty:No Tags Available`;
 
   // Drawer
   public currentDetailsId: string | null = null;
@@ -40,25 +45,10 @@ export class ViewPortComponent {
     })
   );
 
-  tags: Tag[] = [];
-  tags$ = this.tagsService.getTags().pipe(
-    map((next: any[]) => {
-      const tagsArr: Tag[] = [];
-      for (const tag of next) {
-        tagsArr.push({ id: tag._id, text: tag.text, color: tag.color });
-      }
-      this.tags = tagsArr;
-      return this.tags;
-    })
-  );
-
   public hostId$ = this.route.params.pipe(map((params) => params['id'] as string));
   public portNumber$ = this.route.params.pipe(map((params) => params['port'] as string));
 
-  public host$ = this.hostId$.pipe(
-    switchMap((hostId) => this.hostsService.get(hostId)),
-    shareReplay(1)
-  );
+  public host$ = this.hostId$.pipe(switchMap((hostId) => this.hostsService.get(hostId)));
 
   public shownPortsCount$ = new BehaviorSubject(5);
   public ports$ = combineLatest([this.host$, this.shownPortsCount$]).pipe(
@@ -73,10 +63,78 @@ export class ViewPortComponent {
     shareReplay(1)
   );
 
+  public portId = '';
   public port$ = combineLatest([this.ports$, this.portTitle$]).pipe(
     map(([ports, portNumber]) => ports.find((p) => p.port === +portNumber)),
+    switchMap((port: PortNumber | undefined) => {
+      if (port) {
+        this.portId = port._id;
+        return this.portsService.getPort(port._id);
+      }
+      throw new Error('Error getting the port');
+    }),
     shareReplay(1)
   );
+
+  public portTagsCache: string[] = [];
+  public portTagsSubject$ = new BehaviorSubject<string[]>([]);
+  public portTags$ = this.port$.pipe(
+    map((port) => {
+      this.portTagsCache = port.tags ? port.tags : [];
+      return this.portTagsCache;
+    })
+  );
+
+  tags: (Tag & SelectItem)[] = [];
+  allTags$ = this.tagsService.getTags().pipe(
+    map((next: any[]) => {
+      const tagsArr: Tag[] = [];
+      for (const tag of next) {
+        tagsArr.push({ id: tag._id, text: tag.text, color: tag.color });
+      }
+      return tagsArr;
+    })
+  );
+
+  public tagsSelectItems$ = combineLatest([this.portTags$, this.allTags$]).pipe(
+    map(([portTags, allTags]) => {
+      const tagsArr: (Tag & SelectItem)[] = [];
+      for (const tag of allTags) {
+        if (portTags?.includes(tag.id)) {
+          tagsArr.push({ id: tag.id, text: tag.text, color: tag.color, isSelected: true });
+        } else {
+          tagsArr.push({ id: tag.id, text: tag.text, color: tag.color, isSelected: false });
+        }
+      }
+      this.tags = tagsArr;
+      return tagsArr;
+    })
+  );
+
+  public mergedTags$ = merge(this.portTagsSubject$, this.portTags$);
+
+  /**
+   *
+   * @param item A SelectItem, but contains all the attributes of a Tag.
+   */
+  public async itemSelected(item: SelectItem) {
+    try {
+      const tagId = <string>item['id'];
+      if (this.portId) await this.portsService.togglePortTag(this.portId, tagId);
+      const tagIndex = this.portTagsCache.findIndex((tag: string) => tag === tagId);
+
+      if (tagIndex === -1 && item.color !== undefined) {
+        // Tag not found, adding it
+        this.portTagsCache.push(tagId);
+      } else {
+        // Tag was found, removing it
+        this.portTagsCache.splice(tagIndex, 1);
+      }
+      this.portTagsSubject$.next(this.portTagsCache);
+    } catch (err) {
+      this.toastr.error($localize`:Error while tagging|Error while tagging an item:Error while tagging`);
+    }
+  }
 
   constructor(
     private route: ActivatedRoute,
@@ -84,6 +142,7 @@ export class ViewPortComponent {
     private hostsService: HostsService,
     private tagsService: TagsService,
     private titleService: Title,
-    private portsService: PortsService
+    private portsService: PortsService,
+    private toastr: ToastrService
   ) {}
 }

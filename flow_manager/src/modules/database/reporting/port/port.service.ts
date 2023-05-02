@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { DeleteResult } from 'mongodb';
+import { DeleteResult, UpdateResult } from 'mongodb';
 import { Model, Types } from 'mongoose';
 import {
   HttpBadRequestException,
@@ -181,5 +181,25 @@ export class PortService {
     return await this.portsModel.deleteMany({
       companyId: { $eq: new Types.ObjectId(companyId) },
     });
+  }
+
+  public async toggleTag(portId: string, tagId: string): Promise<UpdateResult> {
+    const port = await this.portsModel.findById(portId);
+    if (!port) throw new HttpNotFoundException();
+
+    if (port.tags && port.tags.some((tag) => tag.toString() === tagId)) {
+      return await this.portsModel.updateOne(
+        { _id: { $eq: new Types.ObjectId(portId) } },
+        { $pull: { tags: new Types.ObjectId(tagId) } },
+      );
+    } else {
+      if (!(await this.tagsService.tagExists(tagId)))
+        throw new HttpNotFoundException();
+
+      return await this.portsModel.updateOne(
+        { _id: { $eq: new Types.ObjectId(portId) } },
+        { $push: { tags: new Types.ObjectId(tagId) } },
+      );
+    }
   }
 }
