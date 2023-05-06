@@ -59,9 +59,9 @@ describe('Jobs Service', () => {
     // Assert
     expect(actual.totalRecords).toBe(3);
     expect(actual.items).toHaveLength(3);
-    expect(actual.items[0].data).toBe('A');
-    expect(actual.items[1].data).toBe('B');
-    expect(actual.items[2].data).toBe('C');
+    expect(actual.items[0].value).toBe('A');
+    expect(actual.items[1].value).toBe('B');
+    expect(actual.items[2].value).toBe('C');
   });
 
   it('Add and get logs - Existing job - Returns logs', async () => {
@@ -79,9 +79,9 @@ describe('Jobs Service', () => {
     // Assert
     expect(actual.totalRecords).toBe(3);
     expect(actual.items).toHaveLength(3);
-    expect(actual.items[0].data).toBe('A');
-    expect(actual.items[1].data).toBe('B');
-    expect(actual.items[2].data).toBe('C');
+    expect(actual.items[0].value).toBe('A');
+    expect(actual.items[1].value).toBe('B');
+    expect(actual.items[2].value).toBe('C');
   });
 
   async function company(name: string) {
