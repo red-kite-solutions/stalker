@@ -43,7 +43,7 @@ export class PortService {
       portNumber,
       protocol,
     );
-    this.addPortToValidCompanyHost(
+    return this.addPortToValidCompanyHost(
       host._id.toString(),
       companyId,
       portNumber,
@@ -69,7 +69,7 @@ export class PortService {
       portNumber,
       protocol,
     );
-    await this.addPortToValidCompanyHost(
+    return await this.addPortToValidCompanyHost(
       hostId,
       companyId,
       portNumber,
