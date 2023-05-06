@@ -20,8 +20,6 @@ export class JobsService {
   constructor(
     private jobQueue: JobQueue,
     @InjectModel('job') private readonly jobModel: Model<Job & Document>,
-    @InjectModel('jobLogs')
-    private readonly jobLogsModel: Model<JobLog & Document>,
   ) {}
 
   public async getAll(dto: JobExecutionsDto): Promise<Page<JobDocument>> {
@@ -59,15 +57,10 @@ export class JobsService {
     await this.jobModel.deleteMany({
       companyId: { $eq: companyId },
     });
-
-    await this.jobLogsModel.deleteMany({
-      companyId: { $eq: companyId },
-    });
   }
 
   public async deleteAll() {
     await this.jobModel.deleteMany({});
-    await this.jobLogsModel.deleteMany({});
   }
 
   public async getById(id: string): Promise<JobDocument> {
