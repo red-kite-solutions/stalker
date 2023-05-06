@@ -164,42 +164,20 @@ export class JobsService {
     }
   }
 
-  public async createLog(
-    jobId: string,
-    data: string,
-    level: JobLogLevel,
-    timestamp: number,
-  ) {
-    const job = await this.getById(jobId);
-    if (job == null) {
-      return;
-    }
-
-    this.jobLogsModel.create({
-      companyId: job.companyId,
-      jobId,
-      data,
-      level,
-      timestamp,
-    });
-  }
-
-  public async getLogs(
-    jobId: string,
-    page: number,
-    pageSize: number,
-  ): Promise<Page<JobLog>> {
+  public async getLogs(jobId: string): Promise<Page<JobLog>> {
     const job: Job = await this.jobModel.findById(jobId);
 
     return {
       items:
-        job.output?.map((log) => ({
-          companyId: job.companyId,
-          jobId: jobId,
-          level: log.level,
-          value: log.value,
-          timestamp: log.timestamp,
-        })) ?? [],
+        job.output
+          ?.map((log) => ({
+            companyId: job.companyId,
+            jobId: jobId,
+            level: log.level,
+            value: log.value,
+            timestamp: log.timestamp,
+          }))
+          .sort((a, b) => a.timestamp - b.timestamp) ?? [],
       totalRecords: job.output?.length ?? 0,
     };
   }

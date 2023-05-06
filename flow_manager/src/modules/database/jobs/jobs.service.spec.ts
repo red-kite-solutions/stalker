@@ -6,6 +6,7 @@ import { AppModule } from '../../app.module';
 import { CompanyDocument } from '../reporting/company.model';
 import { CompanyService } from '../reporting/company.service';
 import { JobsService } from './jobs.service';
+import { DomainNameResolvingJob } from './models/domain-name-resolving.model';
 import { Job } from './models/jobs.model';
 
 describe('Jobs Service', () => {
@@ -37,7 +38,9 @@ describe('Jobs Service', () => {
   it('Get logs - No logs - Returns empty list', async () => {
     // Arrange
     // Act
-    const actual = await jobsService.getLogs('507f1f77bcf86cd799439011', 0, 10);
+    const c = await company(randomUUID());
+    const j = await job(c);
+    const actual = await jobsService.getLogs(j.id);
 
     // Assert
     expect(actual.items).toHaveLength(0);
@@ -50,31 +53,11 @@ describe('Jobs Service', () => {
     const j = await job(c);
 
     // Act
-    jobsService.createLog(j.id, 'C', 'debug', 3);
-    jobsService.createLog(j.id, 'A', 'debug', 1);
-    jobsService.createLog(j.id, 'B', 'debug', 2);
+    await jobsService.addJobOutputLine(j.id, 3, 'C', 'debug');
+    await jobsService.addJobOutputLine(j.id, 1, 'A', 'debug');
+    await jobsService.addJobOutputLine(j.id, 2, 'B', 'debug');
 
-    const actual = await jobsService.getLogs('507f1f77bcf86cd799439011', 0, 10);
-
-    // Assert
-    expect(actual.totalRecords).toBe(3);
-    expect(actual.items).toHaveLength(3);
-    expect(actual.items[0].value).toBe('A');
-    expect(actual.items[1].value).toBe('B');
-    expect(actual.items[2].value).toBe('C');
-  });
-
-  it('Add and get logs - Existing job - Returns logs', async () => {
-    // Arrange
-    const c = await company(randomUUID());
-    const j = await job(c);
-
-    // Act
-    jobsService.createLog(j.id, 'C', 'debug', 3);
-    jobsService.createLog(j.id, 'A', 'debug', 1);
-    jobsService.createLog(j.id, 'B', 'debug', 2);
-
-    const actual = await jobsService.getLogs('507f1f77bcf86cd799439011', 0, 10);
+    const actual = await jobsService.getLogs(j.id);
 
     // Assert
     expect(actual.totalRecords).toBe(3);
@@ -95,6 +78,7 @@ describe('Jobs Service', () => {
   async function job(company: CompanyDocument) {
     return await jobsModel.create({
       companyId: company.id,
+      task: DomainNameResolvingJob.name,
     });
   }
 });

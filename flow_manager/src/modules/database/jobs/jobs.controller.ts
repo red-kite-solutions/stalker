@@ -54,7 +54,7 @@ export class JobsController {
   @Roles(Role.ReadOnly)
   @Get(':id/logs')
   async getJobLogs(@Param() id: MongoIdDto): Promise<Page<JobLog>> {
-    return await this.jobsService.getLogs(id.id, 0, 10000);
+    return await this.jobsService.getLogs(id.id);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
