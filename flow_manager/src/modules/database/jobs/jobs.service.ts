@@ -3,7 +3,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import {
   ChangeStream,
   ChangeStreamDocument,
-  DeleteResult,
   ObjectId,
   UpdateResult,
 } from 'mongodb';
@@ -56,8 +55,8 @@ export class JobsService {
     await this.jobModel.deleteOne({ _id: { $eq: id } });
   }
 
-  public async deleteAllForCompany(companyId: string): Promise<DeleteResult> {
-    return await this.jobModel.deleteMany({
+  public async deleteAllForCompany(companyId: string): Promise<void> {
+    await this.jobModel.deleteMany({
       companyId: { $eq: companyId },
     });
 
@@ -96,6 +95,13 @@ export class JobsService {
           ...job,
         }),
       });
+
+      await this.addJobOutputLine(
+        createdJob.id,
+        Date.now(),
+        'Job sent to orchestrator.',
+        'debug',
+      );
     } else {
       console.info('This feature is not available while testing');
     }
@@ -143,8 +149,15 @@ export class JobsService {
     const select = { _id: { $eq: new Types.ObjectId(jobId) } };
     switch (status.toLowerCase()) {
       case 'started':
+        await this.addJobOutputLine(jobId, timestamp, 'Job started.', 'debug');
         return await this.jobModel.updateOne(select, { startTime: timestamp });
       case 'success':
+        await this.addJobOutputLine(
+          jobId,
+          timestamp,
+          'Job ended successfully.',
+          'debug',
+        );
         return await this.jobModel.updateOne(select, { endTime: timestamp });
       default:
         return null;
@@ -176,18 +189,18 @@ export class JobsService {
     page: number,
     pageSize: number,
   ): Promise<Page<JobLog>> {
-    const filter = { jobId: { $eq: jobId } };
-
-    const items = await this.jobLogsModel.find(filter, null, {
-      skip: page * pageSize,
-      limit: pageSize,
-    });
-
-    const totalRecords = await this.jobLogsModel.count(filter);
+    const job: Job = await this.jobModel.findById(jobId);
 
     return {
-      items,
-      totalRecords,
+      items:
+        job.output?.map((log) => ({
+          companyId: job.companyId,
+          jobId: jobId,
+          level: log.level,
+          value: log.value,
+          timestamp: log.timestamp,
+        })) ?? [],
+      totalRecords: job.output?.length ?? 0,
     };
   }
 }

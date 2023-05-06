@@ -17,6 +17,7 @@ export type CodeEditorTheme = 'vs' | 'vs-dark' | 'hc-black' | 'hc-light';
   styleUrls: ['./code-editor.component.scss'],
 })
 export class CodeEditorComponent implements AfterViewInit, OnDestroy {
+  private readonly loggingEnabled = false;
   public _editor: any;
   @ViewChild('editorContainer', { static: true }) _editorContainer!: ElementRef;
 
@@ -103,19 +104,6 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
-    const options = {
-      value: this._code,
-      language: this._language,
-      minimap: {
-        enabled: this._minimapEnabled,
-      },
-      theme: this._theme,
-      readOnly: this._readonly,
-      tabSize: this._tabSize,
-    };
-
-    this._editor = monaco.editor.create(this._editorContainer.nativeElement, options);
-
     try {
       // Doc: https://microsoft.github.io/monaco-editor/monarch.html
       monaco.languages.register({ id: 'stalker-logs' });
@@ -133,10 +121,26 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
             [/\d+/, 'number'],
           ],
           level: [
-            [/\[(debug)\] .*/, { token: 'keyword.debug', next: '@pop', log: 'Found debug in "$0"' }],
-            [/\[(info)\]/, { token: 'keyword.info', next: '@pop', log: 'Found info in "$0"' }],
-            [/\[(warning)\]/, { token: 'keyword.warning', next: '@pop', log: 'Found warning in "$0"' }],
-            [/\[(error)\]/, { token: 'keyword.error', next: '@pop', log: 'Found error in "$0"' }],
+            [
+              /\[(debug)\] .*/,
+              { token: 'keyword.debug', next: '@pop', log: this.loggingEnabled ? 'Found debug in "$0"' : undefined },
+            ],
+            [
+              /\[(info)\]/,
+              { token: 'keyword.info', next: '@pop', log: this.loggingEnabled ? 'Found info in "$0"' : undefined },
+            ],
+            [
+              /\[(warning)\]/,
+              {
+                token: 'keyword.warning',
+                next: '@pop',
+                log: this.loggingEnabled ? 'Found warning in "$0"' : undefined,
+              },
+            ],
+            [
+              /\[(error)\]/,
+              { token: 'keyword.error', next: '@pop', log: this.loggingEnabled ? 'Found error in "$0"' : undefined },
+            ],
           ],
         },
       });
@@ -187,6 +191,19 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
     } catch (err) {
       console.log(err);
     }
+
+    const options = {
+      value: this._code,
+      language: this._language,
+      minimap: {
+        enabled: this._minimapEnabled,
+      },
+      theme: this._theme,
+      readOnly: this._readonly,
+      tabSize: this._tabSize,
+    };
+
+    this._editor = monaco.editor.create(this._editorContainer.nativeElement, options);
 
     this._editor.onDidChangeModelContent(() => {
       const code = this._editor.getValue();

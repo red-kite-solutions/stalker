@@ -74,19 +74,6 @@
         fxFlex
       ></app-code-editor>
       <h3 i18n="Output|Output of a job" class="output">Output</h3>
-      <mat-progress-bar
-        mode="indeterminate"
-        [ngStyle]="{ visibility: jobLoading ? 'visible' : 'hidden' }"
-      ></mat-progress-bar>
-      <!-- <app-code-editor
-        [(code)]="output"
-        [language]="'stalker-logs'"
-        [minimapEnabled]="minimapEnabled"
-        [theme]="theme"
-        [readonly]="true"
-        fxFlex
-      ></app-code-editor> -->
-
       <app-job-logs [jobId]="currentStartedJob?.id"></app-job-logs>
     </div>
   </div>

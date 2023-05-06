@@ -6,7 +6,6 @@ import { MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
 import { map } from 'rxjs';
-import { CodeEditorService } from 'src/app/shared/widget/code-editor/code-editor.service';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
@@ -41,13 +40,11 @@ export class CustomJobsComponent {
   public dataSource$ = this.refreshData();
 
   constructor(
-    private codeEditorService: CodeEditorService,
     private dialog: MatDialog,
     private customJobsService: CustomJobsService,
     private toastr: ToastrService,
     private titleService: Title
   ) {
-    this.codeEditorService.load();
     this.code = '';
     this.currentCodeBackup = this.code;
     this.titleService.setTitle($localize`:Custom Jobs|:Custom Jobs`);

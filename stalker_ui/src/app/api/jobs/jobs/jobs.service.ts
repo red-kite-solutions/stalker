@@ -56,6 +56,10 @@ export class JobsService {
       numberOfErrors: logsPerLevel.error,
       numberOfFindings: logsPerLevel.finding,
       state: this.toStartedJobState(job),
+      startTimestamp: job.startTime,
+      endTimestamp: job.endTime,
+      startTime: new Date(job.startTime),
+      endTime: new Date(job.endTime),
     };
   }
 

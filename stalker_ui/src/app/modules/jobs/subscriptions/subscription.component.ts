@@ -7,7 +7,6 @@ import { ToastrService } from 'ngx-toastr';
 import { map } from 'rxjs';
 import { SubscriptionsService } from 'src/app/api/jobs/subscriptions/subscriptions.service';
 import { FindingEventSubscription, SubscriptionData } from 'src/app/shared/types/finding-event-subscription';
-import { CodeEditorService } from 'src/app/shared/widget/code-editor/code-editor.service';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
@@ -58,14 +57,12 @@ export class SubscriptionComponent {
   );
 
   constructor(
-    private codeEditorService: CodeEditorService,
     private dialog: MatDialog,
     private subscriptionsService: SubscriptionsService,
     private toastr: ToastrService,
     private companiesService: CompaniesService,
     private titleService: Title
   ) {
-    this.codeEditorService.load();
     this.code = this.subscriptionTemplate;
     this.currentCodeBackup = this.code;
     this.titleService.setTitle($localize`:Subscriptions list page title|:Subscriptions`);

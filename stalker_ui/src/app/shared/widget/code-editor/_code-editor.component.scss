@@ -1,0 +1,8 @@
+@mixin app-code-editor() {
+  app-code-editor {
+    .monaco-editor .overflow-guard,
+    .monaco-editor .margin {
+      padding-top: 8px;
+    }
+  }
+}

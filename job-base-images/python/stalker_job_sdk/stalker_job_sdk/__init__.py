@@ -1,4 +1,5 @@
 import json
+import sys
 from abc import ABC
 
 
@@ -77,19 +78,24 @@ class DomainFinding(Finding):
 def log_finding(*findings: list[Finding]):
     data = {"findings": findings}
     print(f"@finding {json.dumps(data, default=vars)}")
+    sys.stdout.flush()
 
 
 def log_debug(message: str):
     print(f"@debug {message}")
+    sys.stdout.flush()
 
 
 def log_info(message: str):
     print(f"@info {message}")
+    sys.stdout.flush()
 
 
 def log_warning(message: str):
     print(f"@warning {message}")
+    sys.stdout.flush()
 
 
 def log_error(message: str):
     print(f"@error {message}")
+    sys.stdout.flush()

@@ -1,14 +1,11 @@
 import { Component, OnDestroy, ViewChild } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, map, switchMap, tap } from 'rxjs';
-import { AuthService } from '../../../api/auth/auth.service';
 import { CompaniesService } from '../../../api/companies/companies.service';
 import { JobsService } from '../../../api/jobs/jobs/jobs.service';
-import { JobsSocketioClient } from '../../../api/jobs/jobs/jobs.socketio-client';
 import { CompanySummary } from '../../../shared/types/company/company.summary';
 import { StartedJobViewModel } from '../../../shared/types/jobs/job.type';
 import { Page } from '../../../shared/types/page.type';
@@ -50,8 +47,6 @@ export class JobExecutionsComponent implements OnDestroy {
     })
   );
 
-  private socketioClient: JobsSocketioClient;
-
   companies: CompanySummary[] = [];
   companies$ = this.companiesService.getAllSummaries().pipe(
     map((next: any[]) => {
@@ -65,15 +60,12 @@ export class JobExecutionsComponent implements OnDestroy {
   );
 
   constructor(
-    private dialog: MatDialog,
     private jobsService: JobsService,
     private companiesService: CompaniesService,
     private titleService: Title,
-    private authService: AuthService,
     private toastrService: ToastrService
   ) {
     this.titleService.setTitle($localize`:Job executions|:Job executions`);
-    this.socketioClient = new JobsSocketioClient(this.authService);
   }
 
   private generateFirstPageEvent() {

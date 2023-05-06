@@ -17,7 +17,7 @@ export class JobLog {
   public level!: JobLogLevel;
 
   @Prop()
-  public data!: string;
+  public value!: string;
 
   @Prop()
   public timestamp!: number;

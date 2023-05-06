@@ -3,9 +3,21 @@
 >
 </app-page-header>
 
-<mat-card *ngIf="execution$ | async as execution">
-  <mat-card-title>{{ execution.task }}</mat-card-title>
-  <app-job-logs-summary [job]="execution"></app-job-logs-summary>
+<mat-card class="summary" *ngIf="execution$ | async as execution">
+  <mat-card-title i18n="Execution details|The details of a job execution">Execution details</mat-card-title>
+  <mat-card-content>
+    <app-job-logs-summary [job]="execution"></app-job-logs-summary>
+
+    <div class="timing">
+      <div *ngIf="execution.endTime; else started">
+        <div i18n="Started|Started x days ago">Started {{ execution.endTime | timeAgo }}</div>
+        <div i18n="Took|Took x seconds">Took {{ execution.endTimestamp - execution.startTimestamp | humanize }}</div>
+      </div>
+      <ng-template #started>
+        <div i18n="Started|Started x days ago">Started {{ execution.startTime | timeAgo }}</div>
+      </ng-template>
+    </div>
+  </mat-card-content>
 </mat-card>
 
 <app-job-logs [jobId]="executionId$ | async"></app-job-logs>

@@ -31,8 +31,10 @@ export type StartedJobState = 'in-progress' | 'done' | 'errored';
 export interface StartedJobViewModel {
   id: string;
   publishTime: number;
-  startTime: number;
-  endTime: number;
+  startTimestamp: number;
+  startTime: Date;
+  endTimestamp: number;
+  endTime: Date;
   task: string;
   companyId: string;
   priority: number;
