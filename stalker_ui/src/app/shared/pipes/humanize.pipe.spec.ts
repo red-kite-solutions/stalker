@@ -1,6 +1,6 @@
 import { HumanizePipe } from './humanize.pipe';
 
-fdescribe('Humanize duration pipe tests', () => {
+describe('Humanize duration pipe tests', () => {
   const cases: [number, string][] = [
     [1, '< 1 second'],
     [499, '< 1 second'],
