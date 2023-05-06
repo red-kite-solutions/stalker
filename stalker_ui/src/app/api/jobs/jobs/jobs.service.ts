@@ -31,6 +31,12 @@ export class JobsService {
     );
   }
 
+  public getJobExecution(jobId: string): Observable<StartedJobViewModel> {
+    return this.http
+      .get<StartedJob>(`${environment.fmUrl}/jobs/${jobId}`)
+      .pipe(map((model) => this.toStartedJobViewModel(model)));
+  }
+
   public getJobLogs(jobId: string): Observable<Page<JobOutputResponse>> {
     return this.http.get<Page<JobOutputResponse>>(`${environment.fmUrl}/jobs/${jobId}/logs`);
   }

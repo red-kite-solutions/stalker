@@ -14,9 +14,8 @@ export class JobExecutionDetailComponent {
   public executionId$ = this.route.paramMap.pipe(map((x) => x.get('id')));
   public theme: CodeEditorTheme = 'vs-dark';
 
-  // TODO: Get only the required job
   public execution$ = this.executionId$.pipe(
-    switchMap((_) => this.jobService.getJobExecutions(1, 100, {}).pipe(map((jobs) => jobs.items[0]))),
+    switchMap((jobId) => this.jobService.getJobExecution(`${jobId}`)),
     shareReplay(1)
   );
 
