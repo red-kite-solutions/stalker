@@ -11,12 +11,12 @@ import {
 import { isMongoId } from 'class-validator';
 import { ChangeStream, ChangeStreamDocument } from 'mongodb';
 import { Server, Socket } from 'socket.io';
+import { JobLogLevel } from '../../../types/timestamped-string.type';
 import { Role } from '../../auth/constants';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { JwtSocketioGuard } from '../../auth/guards/jwt-socketio.guard';
 import { RolesSocketioGuard } from '../../auth/guards/role-socketio.guard';
 import { JobsService } from './jobs.service';
-import { JobLogLevel } from './models/job-log.model';
 
 export class JobOutputResponse {
   constructor(

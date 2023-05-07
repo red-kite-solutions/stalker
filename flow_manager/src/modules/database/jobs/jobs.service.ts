@@ -7,12 +7,15 @@ import {
   UpdateResult,
 } from 'mongodb';
 import { Document, Model, Types } from 'mongoose';
+import { JobLog } from '../../../types/job-log.model';
 import { Page } from '../../../types/page.type';
-import { TimestampedString } from '../../../types/timestamped-string.type';
+import {
+  JobLogLevel,
+  TimestampedString,
+} from '../../../types/timestamped-string.type';
 import { CompanyUnassigned } from '../../../validators/is-company-id.validator';
 import { JobQueue } from '../../job-queue/job-queue';
 import { JobExecutionsDto } from './job-executions.dto';
-import { JobLog, JobLogLevel } from './models/job-log.model';
 import { Job, JobDocument } from './models/jobs.model';
 
 @Injectable()

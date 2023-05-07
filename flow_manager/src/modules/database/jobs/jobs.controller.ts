@@ -15,6 +15,7 @@ import {
 } from '../../../exceptions/http.exceptions';
 import { JobDocument } from '../../../modules/database/jobs/models/jobs.model';
 import { MongoIdDto } from '../../../types/dto/MongoIdDto';
+import { JobLog } from '../../../types/job-log.model';
 import { JobSummary } from '../../../types/job-summary.type';
 import { Page } from '../../../types/page.type';
 import { CompanyUnassigned } from '../../../validators/is-company-id.validator';
@@ -31,7 +32,6 @@ import { JobDefinitions, JobSources } from './job-model.module';
 import { JobFactory } from './jobs.factory';
 import { JobsService } from './jobs.service';
 import { CustomJob } from './models/custom-job.model';
-import { JobLog } from './models/job-log.model';
 
 @Controller('jobs')
 export class JobsController {

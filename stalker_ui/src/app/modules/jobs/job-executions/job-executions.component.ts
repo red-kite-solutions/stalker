@@ -1,4 +1,4 @@
-import { Component, OnDestroy, ViewChild } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
@@ -15,7 +15,7 @@ import { Page } from '../../../shared/types/page.type';
   templateUrl: './job-executions.component.html',
   styleUrls: ['./job-executions.component.scss'],
 })
-export class JobExecutionsComponent implements OnDestroy {
+export class JobExecutionsComponent {
   readonly displayColumns = ['name', 'company', 'time'];
   readonly filterOptions: string[] = ['company'];
 
@@ -115,9 +115,5 @@ export class JobExecutionsComponent implements OnDestroy {
       }
     }
     return filterObject;
-  }
-
-  ngOnDestroy(): void {
-    // Do nothing for now
   }
 }

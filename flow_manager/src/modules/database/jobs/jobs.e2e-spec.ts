@@ -147,8 +147,4 @@ describe('Job Controller (e2e)', () => {
 
   // The delete all jobs path cannot be called using this method
   // because it breaks the tests as they are run in parallel
-
-  afterAll(async () => {
-    await app.close();
-  });
 });
