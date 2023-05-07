@@ -1,6 +1,5 @@
 import os
 import socket
-import time
 
 from stalker_job_sdk import DomainFinding, log_finding
 
