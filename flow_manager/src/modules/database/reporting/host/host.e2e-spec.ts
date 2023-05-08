@@ -6,10 +6,13 @@ import {
   cleanup,
   createCompany,
   createDomain as createDomains,
+  createHosts,
+  createTag,
   deleteReq,
   getReq,
   initTesting,
   postReq,
+  putReq,
   TestingData,
 } from 'test/e2e.utils';
 import { AppModule } from '../../../app.module';
@@ -198,56 +201,60 @@ describe('Host Controller (e2e)', () => {
     expect(r.body._id).toStrictEqual(hostId);
   });
 
-  it('Should get a the top 10 TCP ports of a host without ports (GET /hosts/:id/top-tcp-ports/:top)', async () => {
+  it('Should tag a host (PUT /hosts/:id/tags)', async () => {
     // Arrange
     const company = await createCompany(app, testData, getName());
-    const domain = 'www.example.org';
-    await createDomains(app, testData, company._id, [domain]);
-    const rHost = await postReq(
-      app,
-      testData.admin.token,
-      `/company/${company._id}/host`,
-      { ips: ['192.168.2.1'] },
-    );
-
-    const hostId = rHost.body[0]._id;
-
-    const r = await getReq(
-      app,
-      testData.admin.token,
-      `/hosts/${hostId}/ports?sortType=popularity&page=0&pageSize=10`,
-    );
-
-    // Assert
-    expect(r.statusCode).toBe(HttpStatus.OK);
-    expect(r.body.length).toStrictEqual(0);
-  });
-
-  // Act
-  it('Should get the top 10 TCP ports of a host without ports (GET /hosts/:id/ports)', async () => {
-    // Arrange
-    const company = await createCompany(app, testData, getName());
-    const domain = 'www.example.org';
-    await createDomains(app, testData, company._id, [domain]);
-    const rHost = await postReq(
-      app,
-      testData.admin.token,
-      `/company/${company._id}/host`,
-      { ips: ['192.168.2.1'] },
-    );
-
-    const hostId = rHost.body[0]._id;
+    const tag = await createTag(app, testData, 'my-tag-1');
+    const hosts = await createHosts(app, testData, company._id, [
+      '192.168.1.1',
+    ]);
 
     // Act
-    const r = await getReq(
+    const r = await putReq(
       app,
       testData.admin.token,
-      `/hosts/${hostId}/ports?sortType=popularity&page=0&pageSize=10`,
+      `/hosts/${hosts[0]._id}/tags`,
+      { tagId: tag._id, isTagged: true },
     );
 
     // Assert
+    const r2 = await getReq(
+      app,
+      testData.admin.token,
+      `/hosts/${hosts[0]._id}`,
+    );
     expect(r.statusCode).toBe(HttpStatus.OK);
-    expect(r.body.length).toStrictEqual(0);
+    expect(r2.body.tags[0]).toStrictEqual(tag._id);
+  });
+
+  it('Should untag a host (PUT /hosts/:id/tags)', async () => {
+    // Arrange
+    const company = await createCompany(app, testData, getName());
+    const tag = await createTag(app, testData, 'my-tag-1');
+    const hosts = await createHosts(app, testData, company._id, [
+      '192.168.1.1',
+    ]);
+    let r = await putReq(
+      app,
+      testData.admin.token,
+      `/hosts/${hosts[0]._id}/tags`,
+      { tagId: tag._id, isTagged: true },
+    );
+
+    // Act
+    r = await putReq(app, testData.admin.token, `/hosts/${hosts[0]._id}/tags`, {
+      tagId: tag._id,
+      isTagged: false,
+    });
+
+    // Assert
+    const r2 = await getReq(
+      app,
+      testData.admin.token,
+      `/hosts/${hosts[0]._id}`,
+    );
+    expect(r.statusCode).toBe(HttpStatus.OK);
+    expect(r2.body.tags.length).toStrictEqual(0);
   });
 
   it('Should delete host by id (DELETE /hosts/:id)', async () => {
@@ -274,6 +281,25 @@ describe('Host Controller (e2e)', () => {
   // ####################################
   // ########## Authorizations ##########
   // ####################################
+
+  it('Should have proper authorizations (PUT /hosts/:id/tags)', async () => {
+    const success = await checkAuthorizations(
+      testData,
+      Role.User,
+      async (givenToken) => {
+        return await putReq(
+          app,
+          givenToken,
+          `/hosts/6450827d0ae00198f250672d/tags`,
+          {
+            hosts: [],
+            isTagged: true,
+          },
+        );
+      },
+    );
+    expect(success).toBe(true);
+  });
 
   it('Should have proper authorizations (POST /company/:id/host)', async () => {
     // Arrange
@@ -312,54 +338,6 @@ describe('Host Controller (e2e)', () => {
       Role.ReadOnly,
       async (givenToken) => {
         return await getReq(app, givenToken, `/hosts/${hostId}`);
-      },
-    );
-    expect(success).toBe(true);
-  });
-
-  it('Should have proper authorizations (GET /hosts/:id/top-tcp-ports/:top)', async () => {
-    // Arrange
-    const company = await createCompany(app, testData, getName());
-    const domain = 'www.example.org';
-    await createDomains(app, testData, company._id, [domain]);
-    const rHost = await postReq(
-      app,
-      testData.admin.token,
-      `/company/${company._id}/host`,
-      { ips: ['192.168.2.1'] },
-    );
-
-    const hostId = rHost.body[0]._id;
-
-    const success = await checkAuthorizations(
-      testData,
-      Role.ReadOnly,
-      async (givenToken) => {
-        return await getReq(app, givenToken, `/hosts/${hostId}/ports`);
-      },
-    );
-    expect(success).toBe(true);
-  });
-
-  it('Should have proper authorizations (GET /hosts/:id/ports)', async () => {
-    // Arrange
-    const company = await createCompany(app, testData, getName());
-    const domain = 'www.example.org';
-    await createDomains(app, testData, company._id, [domain]);
-    const rHost = await postReq(
-      app,
-      testData.admin.token,
-      `/company/${company._id}/host`,
-      { ips: ['192.168.2.1'] },
-    );
-
-    const hostId = rHost.body[0]._id;
-
-    const success = await checkAuthorizations(
-      testData,
-      Role.ReadOnly,
-      async (givenToken) => {
-        return await getReq(app, givenToken, `/hosts/${hostId}/ports`);
       },
     );
     expect(success).toBe(true);

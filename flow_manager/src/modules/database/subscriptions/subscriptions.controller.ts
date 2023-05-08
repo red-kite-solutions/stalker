@@ -8,7 +8,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { DeleteResult, UpdateResult } from 'mongodb';
-import { MongoIdDto } from '../../../types/dto/MongoIdDto';
+import { MongoIdDto } from '../../../types/dto/mongo-id.dto';
 import { Role } from '../../auth/constants';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';

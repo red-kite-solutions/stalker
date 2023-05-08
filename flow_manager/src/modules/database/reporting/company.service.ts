@@ -11,6 +11,7 @@ import { Company, CompanyDocument } from './company.model';
 import { DomainsService } from './domain/domain.service';
 import { CustomFinding } from './findings/finding.model';
 import { HostService } from './host/host.service';
+import { PortService } from './port/port.service';
 
 @Injectable()
 export class CompanyService {
@@ -22,6 +23,7 @@ export class CompanyService {
     private readonly subscriptionsService: SubscriptionsService,
     @InjectModel('finding')
     private readonly findingModel: Model<CustomFinding>,
+    private readonly portsService: PortService,
   ) {}
 
   public async getAll(
@@ -74,6 +76,7 @@ export class CompanyService {
     await this.domainsService.deleteAllForCompany(id);
     await this.jobsService.deleteAllForCompany(id);
     await this.subscriptionsService.deleteAllForCompany(id);
+    await this.portsService.deleteAllForCompany(id);
     await this.findingModel.deleteMany({
       companyId: { $eq: new Types.ObjectId(id) },
     });

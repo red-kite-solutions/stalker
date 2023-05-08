@@ -1,7 +1,7 @@
 <div class="container" *ngIf="host$ | async as host">
   <app-page-header
     [backRoute]="['..', '..']"
-    [parts]="[(companies$ | async | whereId : [host?.companyId])?.name, host.ip]"
+    [parts]="[(companies$ | async | whereId : [host?.companyId])?.name, host.ip, (port$ | async)?.port]"
   ></app-page-header>
 
   <div class="content-wrapper">
@@ -10,14 +10,29 @@
     </div>
 
     <div class="context">
-      <panel-section>
-        <panel-section-title i18n="Tags|The tags of an item">Tags</panel-section-title>
+      <panel-section *ngIf="(tagsSelectItems$ | async) && mergedTags$ | async as portTags">
+        <panel-section-title i18n="Tags|The tags of an item"
+          >Tags
+          <span class="manage-tags-menu">
+            —
+            <app-text-select-menu
+              [items]="tagsSelectItems$ | async"
+              [buttonText]="manageTags"
+              [filterText]="filterTags"
+              [filterEnabled]="true"
+              [colorEnabled]="true"
+              [opacity]="0.8"
+              [emptyText]="emptyTags"
+              (itemSelection)="itemSelected($event)"
+            ></app-text-select-menu>
+          </span>
+        </panel-section-title>
 
-        <panel-section-subtitle *ngIf="!host?.tags?.length" i18n="No tags yet|There are no tags for this item"
-          >No tags yet</panel-section-subtitle
-        >
+        <panel-section-subtitle *ngIf="!portTags.length" i18n="No tags yet|There are no tags for this item"
+          >No tags yet
+        </panel-section-subtitle>
 
-        <app-pill-tag *ngFor="let tag of host?.tags" [color]="(tags | whereId : [tag])?.color">{{
+        <app-pill-tag *ngFor="let tag of portTags" [color]="(tags | whereId : [tag])?.color">{{
           (tags | whereId : [tag])?.text
         }}</app-pill-tag>
       </panel-section>
@@ -25,6 +40,20 @@
       <panel-section>
         <panel-section-title i18n="Host|The ip related to a port">IP address</panel-section-title>
         <a [routerLink]="['/hosts', host._id]">{{ host.ip }}</a>
+      </panel-section>
+      <panel-section *ngIf="ports$ | async as ports">
+        <panel-section-title i18n="Ports|An IP's related ports">Host Ports</panel-section-title>
+        <div *ngFor="let port of ports$ | async">
+          <a [routerLink]="['../..', 'ports', port.port]">{{ port.port }}</a>
+        </div>
+
+        <button
+          panel-load-more
+          *ngIf="((shownPortsCount$ | async) ?? 0) < (ports.length ?? 0)"
+          (click)="shownPortsCount$.next(1000)"
+        >
+          Show more ({{ ports.length }})
+        </button>
       </panel-section>
     </div>
   </div>

@@ -50,6 +50,7 @@ export class CreateCustomFinding extends FindingBase {
   domainName?: string;
   ip?: string;
   port?: number;
+  protocol?: string;
   name: string;
 }
 
@@ -153,6 +154,7 @@ export class FindingsService {
       dto.domainName,
       dto.ip,
       dto.port,
+      dto.protocol,
     );
 
     const finding: CustomFinding = {
@@ -172,6 +174,7 @@ export class FindingsService {
     domainName?: string,
     ip?: string,
     port?: number,
+    protocol?: string,
   ) {
     if (!companyId) {
       throw new HttpBadRequestException(
@@ -180,25 +183,29 @@ export class FindingsService {
     }
 
     let correlationKey = null;
+    const ambiguousRequest =
+      'Ambiguous request; must provide a domainName, an ip or a combination of ip, port and protocol.';
     if (domainName) {
-      if (ip || port)
-        throw new HttpBadRequestException(
-          'Ambiguous request; must provide a domainName, an ip or a pair of ip and port.',
-        );
+      if (ip || port || protocol)
+        throw new HttpBadRequestException(ambiguousRequest);
 
       correlationKey = CorrelationKeyUtils.domainCorrelationKey(
         companyId,
         domainName,
       );
     } else if (ip) {
-      if (port) {
+      if (port && protocol) {
         correlationKey = CorrelationKeyUtils.portCorrelationKey(
           companyId,
           ip,
           port,
+          protocol,
         );
-      } else
+      } else {
+        if (port || protocol)
+          throw new HttpBadRequestException(ambiguousRequest);
         correlationKey = CorrelationKeyUtils.hostCorrelationKey(companyId, ip);
+      }
     } else if (port) {
       throw new HttpBadRequestException(
         'The ip must be specified with the port.',

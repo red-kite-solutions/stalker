@@ -4,7 +4,6 @@ import { DeleteResult, UpdateResult } from 'mongodb';
 import { Model, Types } from 'mongoose';
 import { HttpNotFoundException } from '../../../../exceptions/http.exceptions';
 import escapeStringRegexp from '../../../../utils/escape-string-regexp';
-import { getTopTcpPorts } from '../../../../utils/ports.utils';
 import { ConfigService } from '../../admin/config/config.service';
 import { TagsService } from '../../tags/tag.service';
 import { Company } from '../company.model';
@@ -13,7 +12,7 @@ import { DomainsService } from '../domain/domain.service';
 import { DomainSummary } from '../domain/domain.summary';
 import { ReportService } from '../report/report.service';
 import { HostFilterModel } from './host-filter.model';
-import { Host, HostDocument, Port } from './host.model';
+import { Host, HostDocument } from './host.model';
 import { HostSummary } from './host.summary';
 
 @Injectable()
@@ -206,48 +205,6 @@ export class HostService {
     return insertedHosts;
   }
 
-  public async tagHost(hostId: string, tagId: string) {
-    const host = await this.hostModel.findById(hostId);
-    if (host == null) {
-      this.logger.debug(`Could not find the host (hostId=${hostId})`);
-      throw new HttpNotFoundException(`hostId=${hostId})`);
-    }
-
-    const tag = await this.tagsService.getById(tagId);
-    if (tag == null) {
-      this.logger.debug(`Could not find the tag (tagId=${tagId})`);
-      throw new HttpNotFoundException(`tagId=${tagId})`);
-    }
-
-    const updatedHost = await this.hostModel.findByIdAndUpdate(hostId, {
-      $addToSet: {
-        tags: new Types.ObjectId(tagId),
-      },
-    });
-
-    return updatedHost;
-  }
-
-  public async getHostTopTcpPorts(
-    id: string,
-    page: number,
-    pageSize: number,
-  ): Promise<number[]> {
-    const ports = (await this.hostModel.findById(id).select('ports'))?.ports;
-
-    if (!ports) return [];
-
-    const firstPort = page * pageSize;
-    let lastPort = firstPort + pageSize;
-
-    const topPorts = getTopTcpPorts(ports, lastPort);
-
-    if (firstPort >= topPorts.length) return [];
-
-    lastPort = lastPort >= topPorts.length ? topPorts.length : lastPort;
-    return topPorts.slice(firstPort, lastPort);
-  }
-
   public async delete(hostId: string): Promise<DeleteResult> {
     const domains = (await this.hostModel.findById(hostId).select('domains'))
       ?.domains;
@@ -313,39 +270,27 @@ export class HostService {
     return finalFilter;
   }
 
-  public async addPortsByIp(
-    companyId: string,
-    ip: string,
-    portNumbers: number[],
-  ) {
-    const host = await this.hostModel.findOne({
-      ip: { $eq: ip },
-      companyId: { $eq: new Types.ObjectId(companyId) },
-    });
+  public async tagHost(
+    hostId: string,
+    tagId: string,
+    isTagged: boolean,
+  ): Promise<UpdateResult> {
+    const host = await this.hostModel.findById(hostId);
     if (!host) throw new HttpNotFoundException();
 
-    const ports: Port[] = portNumbers.map((port) => ({
-      port: port,
-      correlationKey: CorrelationKeyUtils.portCorrelationKey(
-        companyId,
-        ip,
-        port,
-      ),
-    }));
+    if (!isTagged) {
+      return await this.hostModel.updateOne(
+        { _id: { $eq: new Types.ObjectId(hostId) } },
+        { $pull: { tags: new Types.ObjectId(tagId) } },
+      );
+    } else {
+      if (!(await this.tagsService.tagExists(tagId)))
+        throw new HttpNotFoundException();
 
-    await this.hostModel.updateOne(
-      { ip: { $eq: ip }, companyId: { $eq: new Types.ObjectId(companyId) } },
-      { $addToSet: { ports: { $each: ports } } },
-    );
-
-    const newPorts = host.ports
-      ? ports.filter(
-          (a) =>
-            !host.ports.some((b) => {
-              return a.port === b.port;
-            }),
-        )
-      : ports;
-    return newPorts;
+      return await this.hostModel.updateOne(
+        { _id: { $eq: new Types.ObjectId(hostId) } },
+        { $addToSet: { tags: new Types.ObjectId(tagId) } },
+      );
+    }
   }
 }

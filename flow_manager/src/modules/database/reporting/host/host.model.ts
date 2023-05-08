@@ -4,19 +4,6 @@ import { DomainSummary } from '../domain/domain.summary';
 
 export type HostDocument = Host & Document;
 
-export class Port {
-  /**
-   * A pseudo-unique key identifying this entity. Used for findings.
-   * This key should not change if this entity were to be recreated.
-   */
-  @Prop()
-  public correlationKey!: string;
-
-  @Prop()
-  public port: number;
-}
-export const PortSchema = SchemaFactory.createForClass(Port);
-
 @Schema()
 export class Host {
   @Prop({ index: true })
@@ -43,9 +30,6 @@ export class Host {
 
   @Prop()
   public notes?: string;
-
-  @Prop()
-  public ports?: Port[];
 }
 
 export const HostSchema = SchemaFactory.createForClass(Host);

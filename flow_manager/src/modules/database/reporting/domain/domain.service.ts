@@ -2,11 +2,15 @@ import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DeleteResult, UpdateResult } from 'mongodb';
 import { Model, Types } from 'mongoose';
-import { HttpNotFoundException } from '../../../../exceptions/http.exceptions';
+import {
+  HttpNotFoundException,
+  HttpNotImplementedException,
+} from '../../../../exceptions/http.exceptions';
 import { HostnameFinding } from '../../../findings/findings.service';
 import { FindingsQueue } from '../../../job-queue/findings-queue';
 import { ConfigService } from '../../admin/config/config.service';
 import { JobsService } from '../../jobs/jobs.service';
+import { TagsService } from '../../tags/tag.service';
 import { Company } from '../company.model';
 import { CorrelationKeyUtils } from '../correlation.utils';
 import { HostService } from '../host/host.service';
@@ -27,6 +31,7 @@ export class DomainsService {
     @Inject(forwardRef(() => HostService))
     private hostService: HostService,
     private findingsQueue: FindingsQueue,
+    private tagsService: TagsService,
   ) {}
 
   public async addDomains(domains: string[], companyId: string) {
@@ -152,6 +157,16 @@ export class DomainsService {
     id: string,
     domain: Partial<DomainDocument>,
   ): Promise<UpdateResult> {
+    if (domain.tags)
+      domain.tags = domain.tags.map((t) => new Types.ObjectId(t));
+    if (domain.companyId) {
+      const c = await this.companyModel.findById(domain.companyId);
+      if (!c) throw new HttpNotFoundException();
+      domain.companyId = new Types.ObjectId(domain.companyId);
+    }
+    if (domain.hosts) throw new HttpNotImplementedException(); // has to validate hosts and unlink
+    if (domain.correlationKey) throw new HttpNotImplementedException(); // should not change correlation key
+
     return await this.domainModel.updateOne({ _id: { $eq: id } }, domain);
   }
 
@@ -178,5 +193,29 @@ export class DomainsService {
       { _id: { $eq: new Types.ObjectId(domainId) } },
       { $pull: { hosts: { id: { $eq: new Types.ObjectId(hostId) } } } },
     );
+  }
+
+  public async tagDomain(
+    domainId: string,
+    tagId: string,
+    isTagged: boolean,
+  ): Promise<UpdateResult> {
+    const domain = await this.domainModel.findById(domainId);
+    if (!domain) throw new HttpNotFoundException();
+
+    if (!isTagged) {
+      return await this.domainModel.updateOne(
+        { _id: { $eq: new Types.ObjectId(domainId) } },
+        { $pull: { tags: new Types.ObjectId(tagId) } },
+      );
+    } else {
+      if (!(await this.tagsService.tagExists(tagId)))
+        throw new HttpNotFoundException();
+
+      return await this.domainModel.updateOne(
+        { _id: { $eq: new Types.ObjectId(domainId) } },
+        { $addToSet: { tags: new Types.ObjectId(tagId) } },
+      );
+    }
   }
 }

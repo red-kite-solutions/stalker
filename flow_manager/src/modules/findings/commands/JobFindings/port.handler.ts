@@ -5,6 +5,7 @@ import { JobFactory } from '../../../database/jobs/jobs.factory';
 import { JobsService } from '../../../database/jobs/jobs.service';
 import { HttpServerCheckJob } from '../../../database/jobs/models/http-server-check.model';
 import { HostService } from '../../../database/reporting/host/host.service';
+import { PortService } from '../../../database/reporting/port/port.service';
 import { SubscriptionsService } from '../../../database/subscriptions/subscriptions.service';
 import { JobFindingHandlerBase } from '../job-findings-handler-base';
 import { PortCommand } from './port.command';
@@ -15,6 +16,7 @@ export class PortHandler extends JobFindingHandlerBase<PortCommand> {
 
   constructor(
     private hostService: HostService,
+    private portService: PortService,
     jobService: JobsService,
     subscriptionsService: SubscriptionsService,
     customJobsService: CustomJobsService,
@@ -23,15 +25,16 @@ export class PortHandler extends JobFindingHandlerBase<PortCommand> {
   }
 
   protected async executeCore(command: PortCommand) {
-    if (
-      command.finding.fields.find((x) => x?.key === 'protocol')?.data === 'tcp'
-    ) {
-      await this.hostService.addPortsByIp(
-        command.companyId,
-        command.finding.ip,
-        [command.finding.port],
-      );
-    }
+    const protocol = command.finding.fields.find(
+      (x) => x?.key === 'protocol',
+    )?.data;
+
+    await this.portService.addPortByIp(
+      command.finding.ip,
+      command.companyId,
+      command.finding.port,
+      protocol,
+    );
 
     const job = JobFactory.createJob(HttpServerCheckJob.name, [
       { name: 'companyId', value: command.companyId },

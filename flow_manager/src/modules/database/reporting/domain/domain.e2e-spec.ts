@@ -219,6 +219,36 @@ describe('Domain Controller (e2e)', () => {
     expect(r.body.name).toBe(domain);
   });
 
+  it('Should untag a domain (PUT /domains/:id/tags)', async () => {
+    // Arrange & Act
+    const r = await putReq(
+      app,
+      testData.admin.token,
+      `/domains/${domainId}/tags`,
+      { tagId: tagId, isTagged: false },
+    );
+
+    // Assert
+    const r2 = await getReq(app, testData.admin.token, `/domains/${domainId}`);
+    expect(r.statusCode).toBe(HttpStatus.OK);
+    expect(r2.body.tags.length).toStrictEqual(0);
+  });
+
+  it('Should tag a domain (PUT /domains/:id/tags)', async () => {
+    // Arrange & Act
+    const r = await putReq(
+      app,
+      testData.admin.token,
+      `/domains/${domainId}/tags`,
+      { tagId: tagId, isTagged: true },
+    );
+
+    // Assert
+    const r2 = await getReq(app, testData.admin.token, `/domains/${domainId}`);
+    expect(r.statusCode).toBe(HttpStatus.OK);
+    expect(r2.body.tags[0]).toStrictEqual(tagId);
+  });
+
   // ####################################
   // ########## Authorizations ##########
   // ####################################
@@ -251,6 +281,17 @@ describe('Domain Controller (e2e)', () => {
       Role.User,
       async (givenToken) => {
         return await putReq(app, givenToken, `/domains/${companyId}`, {});
+      },
+    );
+    expect(success).toBe(true);
+  });
+
+  it('Should have proper authorizations (PUT /domains/:id/tags)', async () => {
+    const success = await checkAuthorizations(
+      testData,
+      Role.User,
+      async (givenToken) => {
+        return await putReq(app, givenToken, `/domains/${companyId}/tags`, {});
       },
     );
     expect(success).toBe(true);

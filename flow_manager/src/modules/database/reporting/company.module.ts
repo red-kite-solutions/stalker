@@ -7,6 +7,7 @@ import { CompanyController } from './company.controller';
 import { CompanyService } from './company.service';
 import { DomainsModule } from './domain/domain.module';
 import { HostModule } from './host/host.module';
+import { PortModule } from './port/port.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { HostModule } from './host/host.module';
     JobsModule,
     SubscriptionsModule,
     CustomJobsModule,
+    PortModule,
   ],
   controllers: [CompanyController],
   providers: [CompanyService],
