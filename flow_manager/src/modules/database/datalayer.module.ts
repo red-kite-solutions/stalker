@@ -33,6 +33,7 @@ import { TagModelModule } from './tags/tag-model.module';
     CompanyModelModule,
     FindingModelModule,
     PortModelModule,
+    DomainModelModule,
   ],
 })
 export class DatalayerModule {}
