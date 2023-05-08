@@ -120,14 +120,16 @@ export class ViewPortComponent {
   public async itemSelected(item: SelectItem) {
     try {
       const tagId = <string>item['id'];
-      if (this.portId) await this.portsService.togglePortTag(this.portId, tagId);
+      if (this.portId) return;
       const tagIndex = this.portTagsCache.findIndex((tag: string) => tag === tagId);
 
       if (tagIndex === -1 && item.color !== undefined) {
         // Tag not found, adding it
+        await this.portsService.tagPort(this.portId, tagId, true);
         this.portTagsCache.push(tagId);
       } else {
         // Tag was found, removing it
+        await this.portsService.tagPort(this.portId, tagId, false);
         this.portTagsCache.splice(tagIndex, 1);
       }
       this.portTagsSubject$.next(this.portTagsCache);

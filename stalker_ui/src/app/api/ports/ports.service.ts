@@ -35,8 +35,10 @@ export class PortsService {
     return <Observable<PortNumber[]>>this.http.get(`${environment.fmUrl}/ports/?${params.toString()}`);
   }
 
-  public async togglePortTag(portId: string, tagId: string) {
-    return await firstValueFrom(this.http.put(`${environment.fmUrl}/ports/${portId}/tags`, { tagId: tagId }));
+  public async tagPort(portId: string, tagId: string, isTagged: boolean) {
+    return await firstValueFrom(
+      this.http.put(`${environment.fmUrl}/ports/${portId}/tags`, { tagId: tagId, isTagged: isTagged })
+    );
   }
 
   public getPort(portId: string) {

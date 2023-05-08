@@ -1,7 +1,7 @@
 export interface PortNumber {
   _id: string;
   port: number;
-  layer4Protocol: string; // tcp or udp
+  layer4Protocol: 'tcp' | 'udp';
   correlationKey: string;
 }
 

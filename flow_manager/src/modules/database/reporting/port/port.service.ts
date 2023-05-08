@@ -183,11 +183,15 @@ export class PortService {
     });
   }
 
-  public async toggleTag(portId: string, tagId: string): Promise<UpdateResult> {
+  public async tagPort(
+    portId: string,
+    tagId: string,
+    isTagged: boolean,
+  ): Promise<UpdateResult> {
     const port = await this.portsModel.findById(portId);
     if (!port) throw new HttpNotFoundException();
 
-    if (port.tags && port.tags.some((tag) => tag.toString() === tagId)) {
+    if (!isTagged) {
       return await this.portsModel.updateOne(
         { _id: { $eq: new Types.ObjectId(portId) } },
         { $pull: { tags: new Types.ObjectId(tagId) } },

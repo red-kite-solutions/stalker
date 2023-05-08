@@ -27,8 +27,12 @@ export class HostController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
   @Put(':id/tags')
-  async toggleTagHost(@Param() idDto: MongoIdDto, @Body() tagDto: TagItemDto) {
-    return await this.hostsService.toggleTag(idDto.id, tagDto.tagId);
+  async tagHost(@Param() idDto: MongoIdDto, @Body() tagDto: TagItemDto) {
+    return await this.hostsService.tagHost(
+      idDto.id,
+      tagDto.tagId,
+      tagDto.isTagged,
+    );
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

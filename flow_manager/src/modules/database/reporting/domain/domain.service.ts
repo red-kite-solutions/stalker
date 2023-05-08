@@ -195,14 +195,15 @@ export class DomainsService {
     );
   }
 
-  public async toggleTag(
+  public async tagDomain(
     domainId: string,
     tagId: string,
+    isTagged: boolean,
   ): Promise<UpdateResult> {
     const domain = await this.domainModel.findById(domainId);
     if (!domain) throw new HttpNotFoundException();
 
-    if (domain.tags && domain.tags.some((tag) => tag.toString() === tagId)) {
+    if (!isTagged) {
       return await this.domainModel.updateOne(
         { _id: { $eq: new Types.ObjectId(domainId) } },
         { $pull: { tags: new Types.ObjectId(tagId) } },

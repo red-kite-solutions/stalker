@@ -225,7 +225,7 @@ describe('Domain Controller (e2e)', () => {
       app,
       testData.admin.token,
       `/domains/${domainId}/tags`,
-      { tagId: tagId },
+      { tagId: tagId, isTagged: false },
     );
 
     // Assert
@@ -240,7 +240,7 @@ describe('Domain Controller (e2e)', () => {
       app,
       testData.admin.token,
       `/domains/${domainId}/tags`,
-      { tagId: tagId },
+      { tagId: tagId, isTagged: true },
     );
 
     // Assert
@@ -281,6 +281,17 @@ describe('Domain Controller (e2e)', () => {
       Role.User,
       async (givenToken) => {
         return await putReq(app, givenToken, `/domains/${companyId}`, {});
+      },
+    );
+    expect(success).toBe(true);
+  });
+
+  it('Should have proper authorizations (PUT /domains/:id/tags)', async () => {
+    const success = await checkAuthorizations(
+      testData,
+      Role.User,
+      async (givenToken) => {
+        return await putReq(app, givenToken, `/domains/${companyId}/tags`, {});
       },
     );
     expect(success).toBe(true);

@@ -38,7 +38,9 @@ export class HostsService {
     );
   }
 
-  public async toggleHostTag(hostId: string, tagId: string) {
-    return await firstValueFrom(this.http.put(`${environment.fmUrl}/hosts/${hostId}/tags`, { tagId: tagId }));
+  public async tagHost(hostId: string, tagId: string, isTagged: boolean) {
+    return await firstValueFrom(
+      this.http.put(`${environment.fmUrl}/hosts/${hostId}/tags`, { tagId: tagId, isTagged: isTagged })
+    );
   }
 }

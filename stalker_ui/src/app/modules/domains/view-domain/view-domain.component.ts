@@ -127,14 +127,16 @@ export class ViewDomainComponent {
   public async itemSelected(item: SelectItem) {
     try {
       const tagId = <string>item['id'];
-      if (this.domainId) await this.domainsService.toggleDomainTag(this.domainId, tagId);
+      if (!this.domainId) return;
       const tagIndex = this.domainTagsCache.findIndex((tag: string) => tag === tagId);
 
       if (tagIndex === -1 && item.color !== undefined) {
         // Tag not found, adding it
+        await this.domainsService.tagDomain(this.domainId, tagId, true);
         this.domainTagsCache.push(tagId);
       } else {
         // Tag was found, removing it
+        await this.domainsService.tagDomain(this.domainId, tagId, false);
         this.domainTagsCache.splice(tagIndex, 1);
       }
       this.domainTagsSubject$.next(this.domainTagsCache);

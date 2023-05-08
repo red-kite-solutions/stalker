@@ -47,8 +47,12 @@ export class PortController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
   @Put(':id/tags')
-  async toggleTagPort(@Param() idDto: MongoIdDto, @Body() tagDto: TagItemDto) {
-    return await this.portsService.toggleTag(idDto.id, tagDto.tagId);
+  async tagPort(@Param() idDto: MongoIdDto, @Body() tagDto: TagItemDto) {
+    return await this.portsService.tagPort(
+      idDto.id,
+      tagDto.tagId,
+      tagDto.isTagged,
+    );
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

@@ -85,11 +85,12 @@ export class DomainsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
   @Put(':id/tags')
-  async toggleTagDomain(
-    @Param() idDto: MongoIdDto,
-    @Body() tagDto: TagItemDto,
-  ) {
-    return await this.domainsService.toggleTag(idDto.id, tagDto.tagId);
+  async tagDomain(@Param() idDto: MongoIdDto, @Body() tagDto: TagItemDto) {
+    return await this.domainsService.tagDomain(
+      idDto.id,
+      tagDto.tagId,
+      tagDto.isTagged,
+    );
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

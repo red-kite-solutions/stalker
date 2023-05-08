@@ -205,28 +205,6 @@ export class HostService {
     return insertedHosts;
   }
 
-  public async tagHost(hostId: string, tagId: string) {
-    const host = await this.hostModel.findById(hostId);
-    if (host == null) {
-      this.logger.debug(`Could not find the host (hostId=${hostId})`);
-      throw new HttpNotFoundException(`hostId=${hostId})`);
-    }
-
-    const tag = await this.tagsService.getById(tagId);
-    if (tag == null) {
-      this.logger.debug(`Could not find the tag (tagId=${tagId})`);
-      throw new HttpNotFoundException(`tagId=${tagId})`);
-    }
-
-    const updatedHost = await this.hostModel.findByIdAndUpdate(hostId, {
-      $addToSet: {
-        tags: new Types.ObjectId(tagId),
-      },
-    });
-
-    return updatedHost;
-  }
-
   public async delete(hostId: string): Promise<DeleteResult> {
     const domains = (await this.hostModel.findById(hostId).select('domains'))
       ?.domains;
@@ -292,11 +270,15 @@ export class HostService {
     return finalFilter;
   }
 
-  public async toggleTag(hostId: string, tagId: string): Promise<UpdateResult> {
+  public async tagHost(
+    hostId: string,
+    tagId: string,
+    isTagged: boolean,
+  ): Promise<UpdateResult> {
     const host = await this.hostModel.findById(hostId);
     if (!host) throw new HttpNotFoundException();
 
-    if (host.tags && host.tags.some((tag) => tag.toString() === tagId)) {
+    if (!isTagged) {
       return await this.hostModel.updateOne(
         { _id: { $eq: new Types.ObjectId(hostId) } },
         { $pull: { tags: new Types.ObjectId(tagId) } },

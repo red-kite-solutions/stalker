@@ -183,11 +183,11 @@ export class FindingsService {
     }
 
     let correlationKey = null;
-    const anbiguousRequest =
+    const ambiguousRequest =
       'Ambiguous request; must provide a domainName, an ip or a combination of ip, port and protocol.';
     if (domainName) {
       if (ip || port || protocol)
-        throw new HttpBadRequestException(anbiguousRequest);
+        throw new HttpBadRequestException(ambiguousRequest);
 
       correlationKey = CorrelationKeyUtils.domainCorrelationKey(
         companyId,
@@ -203,7 +203,7 @@ export class FindingsService {
         );
       } else {
         if (port || protocol)
-          throw new HttpBadRequestException(anbiguousRequest);
+          throw new HttpBadRequestException(ambiguousRequest);
         correlationKey = CorrelationKeyUtils.hostCorrelationKey(companyId, ip);
       }
     } else if (port) {

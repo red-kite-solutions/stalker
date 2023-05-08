@@ -214,7 +214,7 @@ describe('Host Controller (e2e)', () => {
       app,
       testData.admin.token,
       `/hosts/${hosts[0]._id}/tags`,
-      { tagId: tag._id },
+      { tagId: tag._id, isTagged: true },
     );
 
     // Assert
@@ -238,12 +238,13 @@ describe('Host Controller (e2e)', () => {
       app,
       testData.admin.token,
       `/hosts/${hosts[0]._id}/tags`,
-      { tagId: tag._id },
+      { tagId: tag._id, isTagged: true },
     );
 
     // Act
     r = await putReq(app, testData.admin.token, `/hosts/${hosts[0]._id}/tags`, {
       tagId: tag._id,
+      isTagged: false,
     });
 
     // Assert
@@ -292,6 +293,7 @@ describe('Host Controller (e2e)', () => {
           `/hosts/6450827d0ae00198f250672d/tags`,
           {
             hosts: [],
+            isTagged: true,
           },
         );
       },

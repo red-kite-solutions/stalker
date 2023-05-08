@@ -112,14 +112,16 @@ export class ViewHostComponent {
   public async itemSelected(item: SelectItem) {
     try {
       const tagId = <string>item['id'];
-      if (this.hostId) await this.hostsService.toggleHostTag(this.hostId, tagId);
+      if (!this.hostId) return;
       const tagIndex = this.hostTagsCache.findIndex((tag: string) => tag === tagId);
 
       if (tagIndex === -1 && item.color !== undefined) {
         // Tag not found, adding it
+        await this.hostsService.tagHost(this.hostId, tagId, true);
         this.hostTagsCache.push(tagId);
       } else {
         // Tag was found, removing it
+        await this.hostsService.tagHost(this.hostId, tagId, false);
         this.hostTagsCache.splice(tagIndex, 1);
       }
       this.hostTagsSubject$.next(this.hostTagsCache);
