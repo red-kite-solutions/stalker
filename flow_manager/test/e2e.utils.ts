@@ -260,6 +260,34 @@ export async function createDomain(
   return r.body;
 }
 
+export async function createHosts(
+  app,
+  testData: TestingData,
+  companyId: string,
+  ips: string[],
+) {
+  const r = await postReq(
+    app,
+    testData.admin.token,
+    `/company/${companyId}/host`,
+    { ips: ips },
+  );
+  return r.body;
+}
+
+export async function createTag(
+  app,
+  testData: TestingData,
+  name: string,
+  color = '#123123',
+) {
+  const r = await postReq(app, testData.admin.token, `/tags/`, {
+    text: name,
+    color: color,
+  });
+  return r.body;
+}
+
 export async function cleanup() {
   if (!process.env.TESTS) {
     console.error('Cannot wipe data if not in TEST mode.');

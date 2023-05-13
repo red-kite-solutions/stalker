@@ -1,13 +1,17 @@
 import { Component } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, combineLatest, map, shareReplay, switchMap, tap } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
+import { BehaviorSubject, combineLatest, map, merge, shareReplay, switchMap, tap } from 'rxjs';
 import { CompaniesService } from 'src/app/api/companies/companies.service';
 import { DomainsService } from 'src/app/api/domains/domains.service';
-import { HostsService } from 'src/app/api/hosts/hosts.service';
 import { TagsService } from 'src/app/api/tags/tags.service';
 import { CompanySummary } from 'src/app/shared/types/company/company.summary';
 import { Tag } from 'src/app/shared/types/tag.type';
+import { PortsService } from '../../../api/ports/ports.service';
+import { Domain } from '../../../shared/types/domain/domain.interface';
+import { PortNumber } from '../../../shared/types/ports/port.interface';
+import { SelectItem } from '../../../shared/widget/text-select-menu/text-select-menu.component';
 
 @Component({
   selector: 'app-view-domain',
@@ -17,6 +21,9 @@ import { Tag } from 'src/app/shared/types/tag.type';
 export class ViewDomainComponent {
   public routeLoading = false;
   displayedColumns: string[] = ['ipAddress', 'ports'];
+  public manageTags: string = $localize`:Manage Tags|Manage Tags:Manage Tags`;
+  public filterTags: string = $localize`:Filter Tags|Filter Tags:Filter Tags`;
+  public emptyTags: string = $localize`:No Tags|List of tags is empty:No Tags Available`;
 
   companies: CompanySummary[] = [];
   companies$ = this.companiesService.getAllSummaries().pipe(
@@ -30,23 +37,53 @@ export class ViewDomainComponent {
     })
   );
 
-  tags: Tag[] = [];
-  tags$ = this.tagsService.getTags().pipe(
+  public domainId = '';
+  public domainTagsCache: string[] = [];
+  public domain$ = this.route.params.pipe(
+    switchMap((params) => {
+      this.domainId = params['id'];
+      return this.domainsService.get(params['id']);
+    }),
+    tap((domain: Domain) => {
+      this.titleService.setTitle($localize`:Domain page title|:Domains · ${domain.name}`);
+      this.domainTagsCache = domain.tags;
+    }),
+    shareReplay(1)
+  );
+  public domainTagsSubject$ = new BehaviorSubject<string[]>([]);
+  public domainTags$ = this.domain$.pipe(
+    map((domain) => {
+      return domain.tags;
+    })
+  );
+
+  tags: (Tag & SelectItem)[] = [];
+  allTags$ = this.tagsService.getTags().pipe(
     map((next: any[]) => {
       const tagsArr: Tag[] = [];
       for (const tag of next) {
         tagsArr.push({ id: tag._id, text: tag.text, color: tag.color });
       }
-      this.tags = tagsArr;
-      return this.tags;
+      return tagsArr;
     })
   );
 
-  public domain$ = this.route.params.pipe(
-    switchMap((params) => this.domainsService.get(params['id'])),
-    tap((domain) => this.titleService.setTitle($localize`:Domain page title|:Domains · ${domain.name}`)),
-    shareReplay(1)
+  public tagsSelectItems$ = combineLatest([this.domainTags$, this.allTags$]).pipe(
+    map(([hostTags, allTags]) => {
+      const tagsArr: (Tag & SelectItem)[] = [];
+      for (const tag of allTags) {
+        if (hostTags.includes(tag.id)) {
+          tagsArr.push({ id: tag.id, text: tag.text, color: tag.color, isSelected: true });
+        } else {
+          tagsArr.push({ id: tag.id, text: tag.text, color: tag.color, isSelected: false });
+        }
+      }
+      this.tags = tagsArr;
+      return tagsArr;
+    })
   );
+
+  public mergedTags$ = merge(this.domainTagsSubject$, this.domainTags$);
 
   public showAllPorts: { [ip: string]: boolean } = {};
 
@@ -69,16 +106,42 @@ export class ViewDomainComponent {
   constructor(
     private route: ActivatedRoute,
     private domainsService: DomainsService,
-    private hostsService: HostsService,
     private companiesService: CompaniesService,
     private tagsService: TagsService,
-    private titleService: Title
+    private titleService: Title,
+    private toastr: ToastrService,
+    private portsService: PortsService
   ) {}
 
   private getTopPorts(hostId: string) {
-    return this.hostsService.getPorts(hostId, 0, 65535, { sortType: 'popularity' }).pipe(
-      map((ports: number[]) => ports.sort((a, b) => a - b)),
+    return this.portsService.getPorts(hostId, 0, 65535, { sortType: 'popularity' }).pipe(
+      map((ports: PortNumber[]) => ports.sort((a, b) => a.port - b.port)),
       shareReplay(1)
     );
+  }
+
+  /**
+   *
+   * @param item A SelectItem, but contains all the attributes of a Tag.
+   */
+  public async itemSelected(item: SelectItem) {
+    try {
+      const tagId = <string>item['id'];
+      if (!this.domainId) return;
+      const tagIndex = this.domainTagsCache.findIndex((tag: string) => tag === tagId);
+
+      if (tagIndex === -1 && item.color !== undefined) {
+        // Tag not found, adding it
+        await this.domainsService.tagDomain(this.domainId, tagId, true);
+        this.domainTagsCache.push(tagId);
+      } else {
+        // Tag was found, removing it
+        await this.domainsService.tagDomain(this.domainId, tagId, false);
+        this.domainTagsCache.splice(tagIndex, 1);
+      }
+      this.domainTagsSubject$.next(this.domainTagsCache);
+    } catch (err) {
+      this.toastr.error($localize`:Error while tagging|Error while tagging an item:Error while tagging`);
+    }
   }
 }

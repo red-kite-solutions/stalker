@@ -23,12 +23,12 @@ export class CreateCompanyDto {
   @IsOptional()
   @IsString()
   @IsBase64()
-  public logo: string;
+  public logo?: string;
 
   @IsOptional()
   @IsString()
   @IsIn(['png', 'jpeg', 'jpg'])
-  public imageType: string;
+  public imageType?: string;
 }
 
 export class EditCompanyDto {

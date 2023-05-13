@@ -51,6 +51,7 @@ class PortFinding(Finding):
         key: str,
         ip: str,
         port: int,
+        protocol: str,
         name: str = None,
         fields: list[Field] = [],
         type: str = "CustomFinding",
@@ -58,6 +59,7 @@ class PortFinding(Finding):
         super().__init__(key, type, name, fields)
         self.ip = ip
         self.port = port
+        self.protocol = protocol
 
 
 class DomainFinding(Finding):

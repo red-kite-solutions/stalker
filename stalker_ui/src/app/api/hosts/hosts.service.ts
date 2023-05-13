@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { Host } from 'src/app/shared/types/host/host.interface';
 import { Page } from 'src/app/shared/types/page.type';
 import { environment } from 'src/environments/environment';
@@ -45,5 +45,11 @@ export class HostsService {
     params = params.append('page', page);
     params = params.append('pageSize', pageSize);
     return this.http.get<Page<Host>>(`${environment.fmUrl}/hosts`, { params });
+  }
+
+  public async tagHost(hostId: string, tagId: string, isTagged: boolean) {
+    return await firstValueFrom(
+      this.http.put(`${environment.fmUrl}/hosts/${hostId}/tags`, { tagId: tagId, isTagged: isTagged })
+    );
   }
 }

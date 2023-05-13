@@ -1,4 +1,4 @@
-import { Port } from '../modules/database/reporting/host/host.model';
+import { Port } from '../modules/database/reporting/port/port.model';
 
 // This data is according to nmap nmap-services ports data file
 export const top100TcpPorts = [
@@ -18,27 +18,27 @@ export const top100TcpPorts = [
  * @param top The desired amount of top ports, max 100.
  * @returns The list of the top port numbers, in order of popularity for the top 100 ones.
  */
-export function getTopTcpPorts(ports: Port[], top: number = 100): number[] {
+export function getTopTcpPorts(ports: Port[], top: number = 100): Port[] {
   if (!ports || top < 1) return [];
 
   top = Math.floor(top);
   if (top > 100) top = 100;
 
-  const top_ports: number[] = [];
+  const topPorts: Port[] = [];
 
-  for (let i = 0; top_ports.length < top && i < 100; ++i) {
-    if (ports.map((x) => x.port).includes(top100TcpPorts[i])) {
-      top_ports.push(top100TcpPorts[i]);
+  for (let i = 0; topPorts.length < top && i < 100; ++i) {
+    const index = ports.findIndex((port) => port.port === top100TcpPorts[i]);
+    if (index === -1) continue;
+    topPorts.push(ports[index]);
+  }
+
+  if (topPorts.length === top) return topPorts;
+
+  for (let i = 0; topPorts.length < top && i < ports.length; ++i) {
+    if (!topPorts.some((port) => port.port === ports[i].port)) {
+      topPorts.push(ports[i]);
     }
   }
 
-  if (top_ports.length == top) return top_ports;
-
-  for (let i = 0; top_ports.length < top && i < ports.length; ++i) {
-    if (!top_ports.includes(ports[i].port)) {
-      top_ports.push(ports[i].port);
-    }
-  }
-
-  return top_ports;
+  return topPorts;
 }

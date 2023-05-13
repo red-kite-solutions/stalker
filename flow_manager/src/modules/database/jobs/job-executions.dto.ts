@@ -6,7 +6,6 @@ import {
   IsOptional,
   Max,
   Min,
-  ValidateIf,
 } from 'class-validator';
 
 export class JobExecutionsDto {
@@ -19,7 +18,6 @@ export class JobExecutionsDto {
   @Type(() => Number)
   pageSize: string;
 
-  @ValidateIf((dto) => dto.company !== '')
   @IsMongoId()
   @IsOptional()
   company: string;

@@ -7,14 +7,29 @@
     </div>
 
     <div class="context">
-      <panel-section>
-        <panel-section-title i18n="Tags|The tags of an item">Tags</panel-section-title>
+      <panel-section *ngIf="(tagsSelectItems$ | async) && mergedTags$ | async as hostTags">
+        <panel-section-title i18n="Tags|The tags of an item"
+          >Tags
+          <span class="manage-tags-menu">
+            —
+            <app-text-select-menu
+              [items]="tagsSelectItems$ | async"
+              [buttonText]="manageTags"
+              [filterText]="filterTags"
+              [filterEnabled]="true"
+              [colorEnabled]="true"
+              [opacity]="0.8"
+              [emptyText]="emptyTags"
+              (itemSelection)="itemSelected($event)"
+            ></app-text-select-menu>
+          </span>
+        </panel-section-title>
 
-        <panel-section-subtitle *ngIf="!host?.tags?.length" i18n="No tags yet|There are no tags for this item"
-          >No tags yet</panel-section-subtitle
-        >
+        <panel-section-subtitle *ngIf="!hostTags.length" i18n="No tags yet|There are no tags for this item"
+          >No tags yet
+        </panel-section-subtitle>
 
-        <app-pill-tag *ngFor="let tag of host?.tags" [color]="(tags | whereId : [tag])?.color">{{
+        <app-pill-tag *ngFor="let tag of hostTags" [color]="(tags | whereId : [tag])?.color">{{
           (tags | whereId : [tag])?.text
         }}</app-pill-tag>
       </panel-section>
@@ -39,10 +54,10 @@
         </button>
       </panel-section>
 
-      <panel-section>
+      <panel-section *ngIf="ports$ | async as ports">
         <panel-section-title i18n="Ports|An IP's related ports">Ports</panel-section-title>
 
-        <panel-section-subtitle *ngIf="!host?.ports?.length" i18n="No ports yet|There are no ports for this item"
+        <panel-section-subtitle *ngIf="!ports.length" i18n="No ports yet|There are no ports for this item"
           >No ports yet</panel-section-subtitle
         >
 
@@ -52,10 +67,10 @@
 
         <button
           panel-load-more
-          *ngIf="((shownPortsCount$ | async) ?? 0) < (host?.ports?.length ?? 0)"
+          *ngIf="((shownPortsCount$ | async) ?? 0) < (ports.length ?? 0)"
           (click)="shownPortsCount$.next(1000)"
         >
-          Show more ({{ host?.ports?.length }})
+          Show more ({{ ports.length }})
         </button>
       </panel-section>
     </div>

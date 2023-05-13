@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Port } from '../../../shared/types/host/host.interface';
+import { Port } from '../../../shared/types/ports/port.interface';
 
 @Component({
   selector: 'port-details',

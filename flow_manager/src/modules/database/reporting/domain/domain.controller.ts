@@ -9,8 +9,10 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ObjectId, UpdateResult } from 'mongodb';
+import { Types } from 'mongoose';
 
-import { MongoIdDto } from '../../../../types/dto/MongoIdDto';
+import { MongoIdDto } from '../../../../types/dto/mongo-id.dto';
+import { TagItemDto } from '../../../../types/dto/tag-item.dto';
 import { Page } from '../../../../types/page.type';
 import escapeStringRegexp from '../../../../utils/escape-string-regexp';
 import { Role } from '../../../auth/constants';
@@ -53,7 +55,7 @@ export class DomainsController {
       const preppedTagsArray = [];
       for (const tag of dto.tags) {
         if (tag) {
-          preppedTagsArray.push(tag.toLowerCase());
+          preppedTagsArray.push(new Types.ObjectId(tag.toLowerCase()));
         }
       }
       if (preppedTagsArray.length > 0) {
@@ -78,6 +80,17 @@ export class DomainsController {
         finalFilter,
       ),
     };
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User)
+  @Put(':id/tags')
+  async tagDomain(@Param() idDto: MongoIdDto, @Body() tagDto: TagItemDto) {
+    return await this.domainsService.tagDomain(
+      idDto.id,
+      tagDto.tagId,
+      tagDto.isTagged,
+    );
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

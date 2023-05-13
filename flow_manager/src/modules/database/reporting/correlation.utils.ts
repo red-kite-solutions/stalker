@@ -25,10 +25,12 @@ export class CorrelationKeyUtils {
     companyId: string,
     ip: string,
     port: number,
+    layer4Protocol: string,
   ) {
     return CorrelationKeyUtils.buildCorrelationKey(
       CorrelationKeyUtils.hostCorrelationKey(companyId, ip),
       `port:${port}`,
+      `protocol:${layer4Protocol}`,
     );
   }
 }

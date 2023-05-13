@@ -14,7 +14,7 @@ import {
   HttpNotFoundException,
 } from '../../../exceptions/http.exceptions';
 import { JobDocument } from '../../../modules/database/jobs/models/jobs.model';
-import { MongoIdDto } from '../../../types/dto/MongoIdDto';
+import { MongoIdDto } from '../../../types/dto/mongo-id.dto';
 import { JobLog } from '../../../types/job-log.model';
 import { JobSummary } from '../../../types/job-summary.type';
 import { Page } from '../../../types/page.type';

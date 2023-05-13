@@ -22,11 +22,12 @@ describe('Finding utils', () => {
       '507f1f77bcf86cd799439011',
       '1.2.3.4',
       443,
+      'tcp',
     );
 
     // Assert
     expect(correlationId).toBe(
-      `company:507f1f77bcf86cd799439011;host:1.2.3.4;port:443`,
+      `company:507f1f77bcf86cd799439011;host:1.2.3.4;port:443;protocol:tcp`,
     );
   });
 
