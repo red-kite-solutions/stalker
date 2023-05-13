@@ -1,15 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import {
-  ChangeStream,
-  ChangeStreamDocument,
-  DeleteResult,
-  UpdateResult,
-} from 'mongodb';
+import { ChangeStream, ChangeStreamDocument, UpdateResult } from 'mongodb';
 import { Document, Model, Types } from 'mongoose';
-import { TimestampedString } from '../../../types/timestamped-string.type';
+import { JobLog } from '../../../types/job-log.model';
+import { Page } from '../../../types/page.type';
+import {
+  JobLogLevel,
+  TimestampedString,
+} from '../../../types/timestamped-string.type';
 import { CompanyUnassigned } from '../../../validators/is-company-id.validator';
 import { JobQueue } from '../../job-queue/job-queue';
+import { JobExecutionsDto } from './job-executions.dto';
 import { Job, JobDocument } from './models/jobs.model';
 
 @Injectable()
@@ -19,21 +20,39 @@ export class JobsService {
     @InjectModel('job') private readonly jobModel: Model<Job & Document>,
   ) {}
 
-  public async getAll(page = null, pageSize = null): Promise<JobDocument[]> {
-    let query = this.jobModel.find();
-    if (page != null && pageSize != null) {
-      query = query.skip(page).limit(pageSize);
+  public async getAll(dto: JobExecutionsDto): Promise<Page<JobDocument>> {
+    // Build filter
+    const filters = {};
+    if (dto.company) {
+      filters['companyId'] = {
+        $eq: new Types.ObjectId(dto.company),
+      };
     }
 
-    return await query;
+    let itemsQuery = this.jobModel.find(
+      filters,
+      {},
+      { sort: { startTime: -1 } },
+    );
+    if (dto.page != null && dto.pageSize != null) {
+      itemsQuery = itemsQuery.skip(+dto.page).limit(+dto.pageSize);
+    }
+
+    const items = await itemsQuery;
+    const totalRecords = await this.jobModel.countDocuments(filters);
+
+    return {
+      items,
+      totalRecords,
+    };
   }
 
   public async delete(id: string) {
     await this.jobModel.deleteOne({ _id: { $eq: id } });
   }
 
-  public async deleteAllForCompany(companyId: string): Promise<DeleteResult> {
-    return await this.jobModel.deleteMany({
+  public async deleteAllForCompany(companyId: string): Promise<void> {
+    await this.jobModel.deleteMany({
       companyId: { $eq: companyId },
     });
   }
@@ -67,6 +86,13 @@ export class JobsService {
           ...job,
         }),
       });
+
+      await this.addJobOutputLine(
+        createdJob.id,
+        Date.now(),
+        'Job sent to orchestrator.',
+        'debug',
+      );
     } else {
       console.info('This feature is not available while testing');
     }
@@ -82,9 +108,14 @@ export class JobsService {
     jobId: string,
     timestamp: number,
     line: string,
-  ): Promise<UpdateResult> {
-    const str: TimestampedString = { timestamp: timestamp, value: line };
-    return await this.jobModel.updateOne(
+    level: JobLogLevel,
+  ): Promise<void> {
+    const str: TimestampedString = {
+      timestamp: timestamp,
+      value: line,
+      level: level,
+    };
+    await this.jobModel.updateOne(
       { _id: { $eq: new Types.ObjectId(jobId) } },
       { $push: { output: str } },
     );
@@ -109,11 +140,36 @@ export class JobsService {
     const select = { _id: { $eq: new Types.ObjectId(jobId) } };
     switch (status.toLowerCase()) {
       case 'started':
+        await this.addJobOutputLine(jobId, timestamp, 'Job started.', 'debug');
         return await this.jobModel.updateOne(select, { startTime: timestamp });
       case 'success':
+        await this.addJobOutputLine(
+          jobId,
+          timestamp,
+          'Job ended successfully.',
+          'debug',
+        );
         return await this.jobModel.updateOne(select, { endTime: timestamp });
       default:
         return null;
     }
+  }
+
+  public async getLogs(jobId: string): Promise<Page<JobLog>> {
+    const job: Job = await this.jobModel.findById(jobId);
+
+    return {
+      items:
+        job.output
+          ?.map((log) => ({
+            companyId: job.companyId,
+            jobId: jobId,
+            level: log.level,
+            value: log.value,
+            timestamp: log.timestamp,
+          }))
+          .sort((a, b) => a.timestamp - b.timestamp) ?? [],
+      totalRecords: job.output?.length ?? 0,
+    };
   }
 }

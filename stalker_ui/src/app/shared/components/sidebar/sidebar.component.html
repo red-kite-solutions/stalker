@@ -102,6 +102,18 @@
     <span *ngIf="expanded">{{ launchJobs }}</span>
   </a>
 
+  <a
+    mat-list-item
+    routerLinkActive="list-item-active"
+    routerLink="/jobs/executions"
+    [matTooltip]="expanded ? '' : jobExecutions"
+    [matTooltipShowDelay]="700"
+    matTooltipPosition="right"
+  >
+    <mat-icon class="material-icons-outlined">play_circle</mat-icon>
+    <span *ngIf="expanded">{{ jobExecutions }}</span>
+  </a>
+
   <!-- Administration -->
 
   <div *ngIf="this.authService.role === 'admin'">

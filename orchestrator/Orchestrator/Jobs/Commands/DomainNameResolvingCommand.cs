@@ -10,7 +10,8 @@ public class DomainNameResolvingCommand : KubernetesCommand<DomainNameResolvingJ
 {
     protected override KubernetesJobTemplate JobTemplate { get; }
 
-    public DomainNameResolvingCommand(DomainNameResolvingJobRequest request, IKubernetesFacade kubernetes, IMessagesProducer<JobEventMessage> eventsProducer, IFindingsParser parser, ILogger<DomainNameResolvingCommand> logger, PythonJobTemplateProvider jobProvider, IConfiguration config) : base(request, kubernetes, eventsProducer, parser, logger)
+    public DomainNameResolvingCommand(DomainNameResolvingJobRequest request, IKubernetesFacade kubernetes, IMessagesProducer<JobEventMessage> eventsProducer, IMessagesProducer<JobLogMessage> jobLogsProducer, IFindingsParser parser, ILogger<DomainNameResolvingCommand> logger, PythonJobTemplateProvider jobProvider, IConfiguration config)
+        : base(request, kubernetes, eventsProducer, jobLogsProducer, parser, logger)
     {
         JobTemplate = new DomainNameResolvingJobTemplate(request.JobId, config, request.DomainName, jobProvider);
     }

@@ -17,7 +17,6 @@ export class CodeEditorService {
 
   public load() {
     // load the assets
-
     const baseUrl = './assets' + '/monaco-editor/min/vs';
 
     if (typeof (<any>window).monaco === 'object') {

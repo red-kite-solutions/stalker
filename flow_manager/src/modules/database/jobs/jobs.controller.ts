@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { isNotEmpty, isString } from 'class-validator';
@@ -12,8 +13,11 @@ import {
   HttpBadRequestException,
   HttpNotFoundException,
 } from '../../../exceptions/http.exceptions';
+import { JobDocument } from '../../../modules/database/jobs/models/jobs.model';
 import { MongoIdDto } from '../../../types/dto/mongo-id.dto';
+import { JobLog } from '../../../types/job-log.model';
 import { JobSummary } from '../../../types/job-summary.type';
+import { Page } from '../../../types/page.type';
 import { CompanyUnassigned } from '../../../validators/is-company-id.validator';
 import { Role } from '../../auth/constants';
 import { Roles } from '../../auth/decorators/roles.decorator';
@@ -23,6 +27,7 @@ import { CustomJobEntry } from '../custom-jobs/custom-jobs.model';
 import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
 import { StartJobDto } from '../reporting/company.dto';
 import { JobParameter } from '../subscriptions/subscriptions.model';
+import { JobExecutionsDto } from './job-executions.dto';
 import { JobDefinitions, JobSources } from './job-model.module';
 import { JobFactory } from './jobs.factory';
 import { JobsService } from './jobs.service';
@@ -38,8 +43,18 @@ export class JobsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ReadOnly)
   @Get()
-  async getAllJobs(): Promise<any> {
-    return await this.jobsService.getAll();
+  async getAllJobs(
+    @Query()
+    dto: JobExecutionsDto,
+  ): Promise<Page<JobDocument>> {
+    return await this.jobsService.getAll(dto);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ReadOnly)
+  @Get(':id/logs')
+  async getJobLogs(@Param() id: MongoIdDto): Promise<Page<JobLog>> {
+    return await this.jobsService.getLogs(id.id);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

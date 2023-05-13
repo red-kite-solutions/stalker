@@ -10,7 +10,8 @@ public class PythonCustomJobCommand : KubernetesCommand<CustomJobRequest>
 {
     protected override KubernetesJobTemplate JobTemplate { get; }
 
-    public PythonCustomJobCommand(CustomJobRequest request, IKubernetesFacade kubernetes, IMessagesProducer<JobEventMessage> eventsProducer, IFindingsParser parser, ILogger<PythonCustomJobCommand> logger, IConfiguration config) : base(request, kubernetes, eventsProducer, parser, logger)
+    public PythonCustomJobCommand(CustomJobRequest request, IKubernetesFacade kubernetes, IMessagesProducer<JobEventMessage> eventsProducer, IMessagesProducer<JobLogMessage> jobLogsProducer, IFindingsParser parser, ILogger<PythonCustomJobCommand> logger, IConfiguration config)
+        : base(request, kubernetes, eventsProducer, jobLogsProducer, parser, logger)
     {
         JobTemplate = new PythonCustomJobTemplate(request.JobId, config, request.CustomJobParameters, request.Code);
     }

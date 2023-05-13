@@ -1,5 +1,3 @@
-﻿using k8s.Models;
-
 namespace Orchestrator.K8s;
 
 public class KubernetesJobTemplate

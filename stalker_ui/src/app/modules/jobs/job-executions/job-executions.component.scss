@@ -1,0 +1,33 @@
+table {
+  width: 100%;
+}
+
+.mat-column-time {
+  text-align: right;
+
+  &.mat-cell {
+    font-size: 0.9em;
+    line-height: 1.2em;
+    color: rgba(0, 0, 0, 0.5);
+  }
+}
+
+.mat-column-name {
+  max-width: 72px;
+
+  .name-cell {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .execution-info {
+    font-size: 0.9em;
+    color: rgba(0, 0, 0, 0.5);
+  }
+
+  app-job-state {
+    font-size: 1.1em;
+    align-self: flex-start;
+  }
+}

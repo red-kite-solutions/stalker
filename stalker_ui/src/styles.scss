@@ -1,10 +1,12 @@
 /* You can add global styles to this file, and also import other style files */
 @import 'app/shared/widget/filtered-paginated-table/_filtered-paginated-table.component.scss';
 @import 'app/shared/components/panel-section/_panel-section.component.scss';
+@import 'app/shared/widget/code-editor/_code-editor.component.scss';
 @import 'app/shared/widget/text-select-menu/_text-select-menu.component.scss';
 
 @include app-filtered-paginated-table();
 @include panel-section();
+@include app-code-editor();
 @include app-text-select-menu();
 
 html,

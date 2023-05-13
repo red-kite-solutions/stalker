@@ -17,6 +17,8 @@ import { ViewDomainComponent } from './modules/domains/view-domain/view-domain.c
 import { ViewHostComponent } from './modules/hosts/view-host/view-host.component';
 import { ViewPortComponent } from './modules/hosts/view-port/view-port.component';
 import { CustomJobsComponent } from './modules/jobs/custom-jobs/custom-jobs.component';
+import { JobExecutionDetailComponent } from './modules/jobs/job-executions/job-execution-detail.component';
+import { JobExecutionsComponent } from './modules/jobs/job-executions/job-executions.component';
 import { LaunchJobsComponent } from './modules/jobs/launch-jobs/launch-jobs.component';
 import { SubscriptionComponent } from './modules/jobs/subscriptions/subscription.component';
 import { ManageTagsComponent } from './modules/tags/manage-tags/manage-tags.component';
@@ -94,6 +96,14 @@ const routes: Routes = [
       {
         path: 'jobs/launch',
         component: LaunchJobsComponent,
+      },
+      {
+        path: 'jobs/executions',
+        component: JobExecutionsComponent,
+      },
+      {
+        path: 'jobs/executions/:id',
+        component: JobExecutionDetailComponent,
       },
     ],
   },

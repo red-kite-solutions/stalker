@@ -4,6 +4,7 @@ import { firstValueFrom, Observable } from 'rxjs';
 import { Host } from 'src/app/shared/types/host/host.interface';
 import { Page } from 'src/app/shared/types/page.type';
 import { environment } from 'src/environments/environment';
+import { filtersToParams } from '../../utils/filters-to-params';
 
 @Injectable({
   providedIn: 'root',
@@ -15,27 +16,35 @@ export class HostsService {
     return <Observable<Host>>this.http.get(`${environment.fmUrl}/hosts/${hostId}`);
   }
 
-  private filtersToURL(filters: any) {
-    const keys = Object.keys(filters);
-    let encodedFilters = new HttpParams();
-    for (const key of keys) {
-      if (Array.isArray(filters[key])) {
-        for (const value of filters[key]) {
-          encodedFilters = encodedFilters.append(`${key}[]`, value);
-        }
-      } else {
-        encodedFilters = encodedFilters.set(key, filters[key]);
-      }
+  public getPorts(
+    hostId: string,
+    page: number,
+    pageSize: number,
+    options: {
+      protocol?: 'tcp' | 'udp' | null;
+      detailsLevel?: 'full' | 'summary' | 'number' | null;
+      sortType?: 'popularity' | 'port' | null;
+      sortOrder?: 'ascending' | 'descending' | null;
+    } | null = null
+  ): Observable<number[]> {
+    let params = new HttpParams();
+    if (options) {
+      if (options.protocol) params = params.set('protocol', options.protocol);
+      if (options.detailsLevel) params = params.set('detailsLevel', options.detailsLevel);
+      if (options.sortOrder) params = params.set('sortOrder', options.sortOrder);
+      if (options.sortType) params = params.set('sortType', options.sortType);
     }
-    return encodedFilters.toString();
+    params = params.set('page', page);
+    params = params.set('pageSize', pageSize);
+
+    return <Observable<number[]>>this.http.get(`${environment.fmUrl}/hosts/${hostId}/ports?${params.toString()}`);
   }
 
   public getPage(page: number, pageSize: number, filters: any): Observable<Page<Host>> {
-    let encodedFilters = this.filtersToURL(filters);
-    encodedFilters = encodedFilters ? `&${encodedFilters}` : encodedFilters;
-    return <Observable<Page<Host>>>(
-      this.http.get(`${environment.fmUrl}/hosts?page=${page}&pageSize=${pageSize}${encodedFilters}`)
-    );
+    let params = filtersToParams(filters);
+    params = params.append('page', page);
+    params = params.append('pageSize', pageSize);
+    return this.http.get<Page<Host>>(`${environment.fmUrl}/hosts`, { params });
   }
 
   public async tagHost(hostId: string, tagId: string, isTagged: boolean) {

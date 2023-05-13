@@ -7,7 +7,6 @@ import { ToastrService } from 'ngx-toastr';
 import { map } from 'rxjs';
 import { SubscriptionsService } from 'src/app/api/jobs/subscriptions/subscriptions.service';
 import { FindingEventSubscription, SubscriptionData } from 'src/app/shared/types/finding-event-subscription';
-import { CodeEditorService } from 'src/app/shared/widget/code-editor/code-editor.service';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
@@ -15,6 +14,7 @@ import {
 import { parse, stringify } from 'yaml';
 import { CompaniesService } from '../../../api/companies/companies.service';
 import { CompanySummary } from '../../../shared/types/company/company.summary';
+import { CodeEditorTheme } from '../../../shared/widget/code-editor/code-editor.component';
 
 @Component({
   selector: 'app-subscription',
@@ -26,7 +26,7 @@ export class SubscriptionComponent {
   public currentCodeBackup: string | undefined;
   public language = 'yaml';
   public minimapEnabled = false;
-  public theme: 'vs-dark' = 'vs-dark';
+  public theme: CodeEditorTheme = 'vs-dark';
   public readonly = false;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -57,14 +57,12 @@ export class SubscriptionComponent {
   );
 
   constructor(
-    private codeEditorService: CodeEditorService,
     private dialog: MatDialog,
     private subscriptionsService: SubscriptionsService,
     private toastr: ToastrService,
     private companiesService: CompaniesService,
     private titleService: Title
   ) {
-    this.codeEditorService.load();
     this.code = this.subscriptionTemplate;
     this.currentCodeBackup = this.code;
     this.titleService.setTitle($localize`:Subscriptions list page title|:Subscriptions`);

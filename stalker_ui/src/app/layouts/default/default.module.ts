@@ -47,9 +47,15 @@ import { FindingsModule } from '../../modules/findings/findings.module';
 import { ViewHostModule } from '../../modules/hosts/view-host/view-host.module';
 import { ViewPortModule } from '../../modules/hosts/view-port/view-port.module';
 import { CustomJobsComponent } from '../../modules/jobs/custom-jobs/custom-jobs.component';
+import { JobExecutionDetailComponent } from '../../modules/jobs/job-executions/job-execution-detail.component';
+import { JobLogsSummaryComponent } from '../../modules/jobs/job-executions/job-execution-logs-summary.component';
+import { JobStateComponent } from '../../modules/jobs/job-executions/job-execution-state.component';
+import { JobExecutionsComponent } from '../../modules/jobs/job-executions/job-executions.component';
 import { LaunchJobsComponent } from '../../modules/jobs/launch-jobs/launch-jobs.component';
+import { JobLogsComponent } from '../../shared/components/job-logs/job-logs.component';
 import { AppHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { PanelSectionModule } from '../../shared/components/panel-section/panel-section.module';
+import { CodeEditorComponent } from '../../shared/widget/code-editor/code-editor.component';
 import { DefaultComponent } from './default.component';
 
 @NgModule({
@@ -69,6 +75,10 @@ import { DefaultComponent } from './default.component';
     SubscriptionComponent,
     CustomJobsComponent,
     LaunchJobsComponent,
+    JobExecutionsComponent,
+    JobStateComponent,
+    JobExecutionDetailComponent,
+    JobLogsSummaryComponent,
   ],
   imports: [
     CommonModule,
@@ -105,6 +115,8 @@ import { DefaultComponent } from './default.component';
     PanelSectionModule,
     MatProgressBarModule,
     AppHeaderComponent,
+    JobLogsComponent,
+    CodeEditorComponent,
   ],
   providers: [{ provide: MAT_COLOR_FORMATS, useValue: NGX_MAT_COLOR_FORMATS }],
 })

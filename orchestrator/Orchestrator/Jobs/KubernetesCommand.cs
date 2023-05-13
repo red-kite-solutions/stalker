@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.Components.Web;
 using Orchestrator.Events;
 using Orchestrator.K8s;
 using Orchestrator.Queue;
 using Orchestrator.Queue.JobsConsumer;
-using System;
 
 namespace Orchestrator.Jobs;
 
@@ -11,17 +9,19 @@ public abstract class KubernetesCommand<T> : JobCommand where T : JobRequest
 {
     private IKubernetesFacade Kubernetes { get; }
     private IMessagesProducer<JobEventMessage> EventsProducer { get; }
+    private IMessagesProducer<JobLogMessage> LogsProducer { get; }
     private IFindingsParser Parser { get; }
     private ILogger Logger { get; }
     protected T Request { get; }
 
     protected abstract KubernetesJobTemplate JobTemplate { get; }
 
-    protected KubernetesCommand(T request, IKubernetesFacade kubernetes, IMessagesProducer<JobEventMessage> eventsProducer, IFindingsParser parser, ILogger logger)
+    protected KubernetesCommand(T request, IKubernetesFacade kubernetes, IMessagesProducer<JobEventMessage> eventsProducer, IMessagesProducer<JobLogMessage> jobLogsProducer, IFindingsParser parser, ILogger logger)
     {
         Request = request;
         Kubernetes = kubernetes;
         EventsProducer = eventsProducer;
+        LogsProducer = jobLogsProducer;
         Parser = parser;
         Logger = logger;
     }
@@ -78,8 +78,9 @@ public abstract class KubernetesCommand<T> : JobCommand where T : JobRequest
         Logger.LogDebug(Request.JobId, "Creating job.");
 
         var job = await Kubernetes.CreateJob(JobTemplate);
+        await LogDebug("Job picked up by orchestrator.");
+        Logger.LogDebug(Request.JobId, "Job created, listening for events.");
 
-        // Publishing that the job started
         await EventsProducer.Produce(new JobEventMessage
         {
             JobId = Request.JobId,
@@ -87,51 +88,18 @@ public abstract class KubernetesCommand<T> : JobCommand where T : JobRequest
             Timestamp = CurrentTimeMs(),
         });
 
-        Logger.LogDebug(Request.JobId, "Job created, listening for events.");
+        using var logs = await Kubernetes.GetJobLogs(job.Name, job.Namespace);
+        using var streamReader = new StreamReader(logs);
 
         int i = 0;
         do
         {
+            await ReadLogs();
             ScalingSleep(i);
             ++i;
 
         } while (!await Kubernetes.IsJobPodFinished(job.Name, job.Namespace));
-
-        var logs = await Kubernetes.GetJobLogs(job.Name, job.Namespace);
-
-        var streamReader = new StreamReader(logs);
-        while (!streamReader.EndOfStream)
-        {
-            var line = await streamReader.ReadLineAsync();
-
-            var evt = Parser.Parse(line);
-            if (evt == null) continue;
-
-            var evtType = evt.GetType().UnderlyingSystemType;
-
-            if (evtType == typeof(LogEventModel))
-            {
-                var logEvt = (LogEventModel)evt;
-                switch (logEvt.LogType)
-                {
-                    case LogType.Debug:
-                        Logger.LogDebug(logEvt.data);
-                        continue;
-                    default:
-                        continue;
-                }
-            }
-
-            if (evtType == typeof(FindingsEventModel))
-            {
-                await EventsProducer.Produce(new JobEventMessage
-                {
-                    JobId = Request.JobId,
-                    FindingsJson = evt.data,
-                    Timestamp = CurrentTimeMs()
-                });
-            }
-        }
+        await ReadLogs();
 
         // When we are done publishing findings, we publish that the job is done
         await EventsProducer.Produce(new JobEventMessage
@@ -142,5 +110,56 @@ public abstract class KubernetesCommand<T> : JobCommand where T : JobRequest
         });
 
         await Kubernetes.DeleteJob(job.Name, job.Namespace);
+        await LogDebug("Job cleaned up by orchestrator.");
+
+        // Local functions
+        async Task LogDebug(string message)
+        {
+            await LogsProducer.Produce(new JobLogMessage()
+            {
+                JobId = Request.JobId,
+                Log = message,
+                LogLevel = Events.LogLevel.Debug,
+                Timestamp = CurrentTimeMs()
+            });
+        }
+
+        async Task ReadLogs()
+        {
+            while (!streamReader.EndOfStream)
+            {
+                var line = await streamReader.ReadLineAsync();
+                if (line == null) continue;
+
+                var evt = Parser.Parse(line);
+
+                if (evt == null) continue;
+                await HandleEvent(evt);
+            }
+        }
+    }
+
+    private async Task HandleEvent(EventModel evt)
+    {
+        if (evt is JobLogModel jobLog)
+        {
+            await LogsProducer.Produce(new JobLogMessage()
+            {
+                JobId = Request.JobId,
+                Log = jobLog.data,
+                LogLevel = jobLog.LogType,
+                Timestamp = CurrentTimeMs()
+            });
+        }
+
+        if (evt is FindingsEventModel)
+        {
+            await EventsProducer.Produce(new JobEventMessage
+            {
+                JobId = Request.JobId,
+                FindingsJson = evt.data,
+                Timestamp = CurrentTimeMs()
+            });
+        }
     }
 }

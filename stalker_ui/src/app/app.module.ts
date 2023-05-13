@@ -1,5 +1,5 @@
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { NgModule } from '@angular/core';
+import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { MatPaginatorIntl } from '@angular/material/paginator';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -16,6 +16,7 @@ import { UnauthenticatedModule } from './layouts/unauthenticated/unauthenticated
 import { ErrorInterceptor } from './middlewares/error.interceptor';
 import { JwtInterceptor } from './middlewares/jwt.interceptor';
 import { SharedModule } from './shared/shared.module';
+import { CodeEditorService } from './shared/widget/code-editor/code-editor.service';
 
 const config: SocketIoConfig = { url: environment.fmWsUrl, options: {} };
 
@@ -48,6 +49,12 @@ const config: SocketIoConfig = { url: environment.fmWsUrl, options: {} };
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     { provide: MatPaginatorIntl, useValue: getPaginatorIntl() },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: (service: CodeEditorService) => () => service.load(),
+      multi: true,
+      deps: [CodeEditorService],
+    },
   ],
   bootstrap: [AppComponent],
 })

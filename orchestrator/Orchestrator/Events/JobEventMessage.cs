@@ -1,4 +1,4 @@
-﻿namespace Orchestrator.Events;
+namespace Orchestrator.Events;
 
 public class JobEventMessage
 {

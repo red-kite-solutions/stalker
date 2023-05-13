@@ -2,9 +2,16 @@
   height: 98%;
 }
 
-app-code-editor {
-  height: 100%;
+app-code-editor,
+app-job-logs {
+  height: 50%;
   width: 100%;
+}
+
+app-job-logs {
+  border-radius: 4px;
+  display: block;
+  overflow: hidden;
 }
 
 .left-action-button {

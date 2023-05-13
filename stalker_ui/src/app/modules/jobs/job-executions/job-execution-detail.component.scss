@@ -1,0 +1,28 @@
+.summary {
+  border-radius: 4px 4px 0 0;
+}
+
+.mat-card {
+  height: 40px;
+}
+
+app-job-logs {
+  width: 100%;
+  height: 100%;
+  border-radius: 0 0 4px 4px;
+  display: block;
+  overflow: hidden;
+}
+
+mat-card-content {
+  opacity: 0.65;
+
+  .timing {
+    position: absolute;
+    top: 16px;
+    right: 14px;
+    text-align: right;
+    font-size: 0.9em;
+    font-style: normal;
+  }
+}
