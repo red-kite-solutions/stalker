@@ -1,4 +1,5 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
+import { randomUUID } from 'crypto';
 import jwt_decode from 'jwt-decode';
 import { MongoClient } from 'mongodb';
 import request from 'supertest';
@@ -233,10 +234,10 @@ export async function checkAuthorizations(
 export async function createCompany(
   app,
   testData: TestingData,
-  companyName,
+  companyName = null,
 ): Promise<CompanyDocument> {
   const res = await postReq(app, testData.user.token, '/company', {
-    name: companyName,
+    name: companyName ?? 'e2e-tests-' + randomUUID(),
   });
 
   expect(res.statusCode).toBe(201);

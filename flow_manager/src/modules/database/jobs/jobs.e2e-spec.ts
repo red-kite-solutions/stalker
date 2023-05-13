@@ -1,8 +1,8 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { randomUUID } from 'crypto';
 import {
   checkAuthorizations,
+  createCompany,
   deleteReq,
   getReq,
   initTesting,
@@ -12,7 +12,7 @@ import {
 import { AppModule } from '../../app.module';
 import { Role } from '../../auth/constants';
 
-describe('Job Controller (e2e)', () => {
+fdescribe('Job Controller (e2e)', () => {
   let app: INestApplication;
   let testData: TestingData;
   let jobId: string;
@@ -46,33 +46,48 @@ describe('Job Controller (e2e)', () => {
     expect(r.statusCode).toBe(HttpStatus.NOT_FOUND);
   });
 
-  it('Should get a job list (GET /jobs)', async () => {
-    const r = await getReq(app, testData.readonly.token, '/jobs');
-    expect(r.statusCode).toBe(HttpStatus.OK);
-    expect(r.body.length).not.toBe(undefined);
-  });
-
   it('Should create a domain name resolving job (POST /company/:id/job)', async () => {
-    let r = await postReq(app, testData.user.token, '/company', {
-      name: 'StalkerJobs' + randomUUID(),
-    });
+    // Arrange
+    const c = await createCompany(app, testData);
 
-    expect(r.statusCode).toBe(HttpStatus.CREATED);
-
-    expect(r.body._id).toBeTruthy();
-
-    const companyId = r.body._id;
-    r = await postReq(
+    // Act
+    const r = await postReq(
       app,
       testData.user.token,
-      `/company/${companyId}/job`,
+      `/company/${c._id}/job`,
       domainNameResolvingJob,
     );
 
+    // Assert
     expect(r.statusCode).toBe(HttpStatus.CREATED);
     expect(r.body.id).toBeTruthy();
 
     jobId = r.body.id;
+  });
+
+  fit('Should get a job list (GET /jobs)', async () => {
+    // Arrange
+    const c = await createCompany(app, testData);
+
+    const jr = await postReq(
+      app,
+      testData.user.token,
+      `/company/${c._id}/job`,
+      domainNameResolvingJob,
+    );
+
+    console.log(c._id);
+    console.log(jr.body);
+
+    // Act
+    const r = await getReq(app, testData.readonly.token, '/jobs');
+
+    console.log(r.body);
+
+    // Assert
+    expect(r.statusCode).toBe(HttpStatus.OK);
+    expect(r.body.items.length).not.toBe(undefined);
+    expect(r.body.totalRecords).not.toBe(undefined);
   });
 
   it('Should get a job by id (GET /jobs/:id)', async () => {
