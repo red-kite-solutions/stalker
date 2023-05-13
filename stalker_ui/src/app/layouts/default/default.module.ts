@@ -37,15 +37,11 @@ import { SettingsComponent } from 'src/app/modules/admin/settings/settings.compo
 import { EditCompaniesComponent } from 'src/app/modules/companies/edit-companies/edit-companies.component';
 import { ListCompaniesComponent } from 'src/app/modules/companies/list-companies/list-companies.component';
 import { DashboardComponent } from 'src/app/modules/dashboard/dashboard.component';
-import { ListDomainsComponent } from 'src/app/modules/domains/list-domains/list-domains.component';
-import { ViewDomainComponent } from 'src/app/modules/domains/view-domain/view-domain.component';
 import { SubscriptionComponent } from 'src/app/modules/jobs/subscriptions/subscription.component';
 import { ManageTagsComponent } from 'src/app/modules/tags/manage-tags/manage-tags.component';
 import { ProfileComponent } from 'src/app/modules/user/profile/profile.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { FindingsModule } from '../../modules/findings/findings.module';
-import { ViewHostModule } from '../../modules/hosts/view-host/view-host.module';
-import { ViewPortModule } from '../../modules/hosts/view-port/view-port.module';
 import { CustomJobsComponent } from '../../modules/jobs/custom-jobs/custom-jobs.component';
 import { JobExecutionDetailComponent } from '../../modules/jobs/job-executions/job-execution-detail.component';
 import { JobLogsSummaryComponent } from '../../modules/jobs/job-executions/job-execution-logs-summary.component';
@@ -69,8 +65,6 @@ import { DefaultComponent } from './default.component';
     SettingsComponent,
     ListCompaniesComponent,
     EditCompaniesComponent,
-    ListDomainsComponent,
-    ViewDomainComponent,
     ManageTagsComponent,
     SubscriptionComponent,
     CustomJobsComponent,
@@ -109,8 +103,6 @@ import { DefaultComponent } from './default.component';
     MatListModule,
     MatOptionModule,
     NgxMatColorPickerModule,
-    ViewPortModule,
-    ViewHostModule,
     FindingsModule,
     PanelSectionModule,
     MatProgressBarModule,

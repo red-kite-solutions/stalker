@@ -1,6 +1,7 @@
+import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, combineLatest, map, merge, shareReplay, switchMap, tap } from 'rxjs';
 import { CompaniesService } from 'src/app/api/companies/companies.service';
@@ -9,11 +10,17 @@ import { TagsService } from 'src/app/api/tags/tags.service';
 import { CompanySummary } from 'src/app/shared/types/company/company.summary';
 import { Tag } from 'src/app/shared/types/tag.type';
 import { PortsService } from '../../../api/ports/ports.service';
+import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { PanelSectionModule } from '../../../shared/components/panel-section/panel-section.module';
+import { SharedModule } from '../../../shared/shared.module';
 import { Domain } from '../../../shared/types/domain/domain.interface';
 import { PortNumber } from '../../../shared/types/ports/port.interface';
 import { SelectItem } from '../../../shared/widget/text-select-menu/text-select-menu.component';
+import { FindingsModule } from '../../findings/findings.module';
 
 @Component({
+  standalone: true,
+  imports: [CommonModule, SharedModule, RouterModule, AppHeaderComponent, FindingsModule, PanelSectionModule],
   selector: 'app-view-domain',
   templateUrl: './view-domain.component.html',
   styleUrls: ['./view-domain.component.scss'],
