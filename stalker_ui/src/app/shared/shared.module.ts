@@ -54,7 +54,6 @@ import { TextSelectMenuComponent } from './widget/text-select-menu/text-select-m
     PillTagComponent,
     TimeAgoPipe,
     HumanizePipe,
-    CodeEditorComponent,
     TextSelectMenuComponent,
   ],
   imports: [

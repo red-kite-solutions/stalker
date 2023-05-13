@@ -1,11 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import {
-  ChangeStream,
-  ChangeStreamDocument,
-  ObjectId,
-  UpdateResult,
-} from 'mongodb';
+import { ChangeStream, ChangeStreamDocument, UpdateResult } from 'mongodb';
 import { Document, Model, Types } from 'mongoose';
 import { JobLog } from '../../../types/job-log.model';
 import { Page } from '../../../types/page.type';
@@ -30,7 +25,7 @@ export class JobsService {
     const filters = {};
     if (dto.company) {
       filters['companyId'] = {
-        $eq: new ObjectId(dto.company),
+        $eq: new Types.ObjectId(dto.company),
       };
     }
 
