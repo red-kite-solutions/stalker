@@ -1,8 +1,8 @@
 import { randomUUID } from 'crypto';
-import { MongoMemoryServer } from 'mongodb-memory-server';
+import { MongoMemoryReplSet } from 'mongodb-memory-server';
 
 module.exports = async function () {
-  const mongo = await MongoMemoryServer.create();
+  const mongo = await MongoMemoryReplSet.create({ replSet: { count: 3 } });
   const uri = mongo.getUri();
   process.env.MONGO_ADDRESS = uri;
   process.env.MONGO_DATABASE_NAME = randomUUID();
