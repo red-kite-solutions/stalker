@@ -52,4 +52,8 @@ export class HostsService {
       this.http.put(`${environment.fmUrl}/hosts/${hostId}/tags`, { tagId: tagId, isTagged: isTagged })
     );
   }
+
+  public async addHosts(companyId: string, ips: string[]): Promise<any[]> {
+    return await firstValueFrom(this.http.post<any[]>(`${environment.fmUrl}/company/${companyId}/host`, { ips }));
+  }
 }

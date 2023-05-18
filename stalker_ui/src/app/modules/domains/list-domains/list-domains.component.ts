@@ -1,8 +1,16 @@
+import { CommonModule } from '@angular/common';
 import { Component, TemplateRef } from '@angular/core';
 import { MediaChange, MediaObserver } from '@angular/flex-layout/core';
-import { MatDialog } from '@angular/material/dialog';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { PageEvent } from '@angular/material/paginator';
-import { MatTableDataSource } from '@angular/material/table';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, distinctUntilChanged, filter, map, switchMap, tap } from 'rxjs';
@@ -14,8 +22,26 @@ import { Domain } from 'src/app/shared/types/domain/domain.interface';
 import { HttpStatus } from 'src/app/shared/types/http-status.type';
 import { Page } from 'src/app/shared/types/page.type';
 import { Tag } from 'src/app/shared/types/tag.type';
+import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { SharedModule } from '../../../shared/shared.module';
 
 @Component({
+  standalone: true,
+  imports: [
+    CommonModule,
+    AppHeaderComponent,
+    SharedModule,
+    MatCardModule,
+    MatIconModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatTableModule,
+    MatButtonModule,
+    MatInputModule,
+    ReactiveFormsModule,
+    FormsModule,
+  ],
   selector: 'app-list-domains',
   templateUrl: './list-domains.component.html',
   styleUrls: ['./list-domains.component.scss'],
@@ -114,7 +140,7 @@ export class ListDomainsComponent {
     private mediaObserver: MediaObserver,
     private companiesService: CompaniesService,
     private domainsService: DomainsService,
-    private toastrService: ToastrService,
+    private toasts: ToastrService,
     private tagsService: TagsService,
     public dialog: MatDialog,
     private titleService: Title
@@ -151,7 +177,7 @@ export class ListDomainsComponent {
           const company = this.companies.find((c) => c.name.trim().toLowerCase() === value.trim().toLowerCase());
           if (company) filterObject['company'] = company.id;
           else
-            this.toastrService.warning(
+            this.toasts.warning(
               $localize`:Company does not exist|The given company name is not known to the application:Company name not recognized`
             );
           break;
@@ -159,7 +185,7 @@ export class ListDomainsComponent {
           const tag = this.tags.find((t) => t.text.trim().toLowerCase() === value.trim().toLowerCase());
           if (tag) tags.push(tag.id);
           else
-            this.toastrService.warning(
+            this.toasts.warning(
               $localize`:Tag does not exist|The given tag is not known to the application:Tag not recognized`
             );
           break;
@@ -181,55 +207,46 @@ export class ListDomainsComponent {
   }
 
   async addNewDomains() {
-    if (!this.selectedCompany || !this.selectedNewDomains) {
-      this.toastrService.warning(
-        $localize`:Missing company or domain|The data selected is missing the company id or the new domain names:Missing company or domain name`
+    if (!this.selectedCompany) {
+      this.toasts.warning($localize`:Missing company|The data selected is missing the company id:Missing company`);
+      return;
+    }
+
+    if (!this.selectedNewDomains) {
+      this.toasts.warning(
+        $localize`:Missing domain|The data selected is missing the new domain names:Missing domain name`
       );
       return;
     }
 
-    const potentialNewDomains: string[] = this.selectedNewDomains.split('\n');
-    const newDomains: string[] = [];
-    for (const domain of potentialNewDomains) {
-      if (domain) {
-        newDomains.push(domain.trim());
-      }
-    }
+    const newDomains: string[] = this.selectedNewDomains
+      .split('\n')
+      .filter((x) => x != null && x != '')
+      .map((x) => x.trim());
 
-    if (newDomains.length > 0) {
-      try {
-        const addedDomains = await this.domainsService.addDomains(this.selectedCompany, newDomains);
+    if (newDomains.length == 0) return;
 
-        this.toastrService.success(
-          $localize`:Changes saved|Changes to item saved successfully:Changes saved successfully`
+    try {
+      const addedDomains = await this.domainsService.addDomains(this.selectedCompany, newDomains);
+      this.toasts.success($localize`:Changes saved|Changes to item saved successfully:Changes saved successfully`);
+
+      if (addedDomains.length < newDomains.length) {
+        this.toasts.warning(
+          $localize`:Domains not added|Some domains were not added to the database:Some domains were not added`
         );
+      }
 
-        if (addedDomains.length < newDomains.length) {
-          const domainsNotAdded = [];
-          for (const domain of newDomains) {
-            if (!addedDomains.find((value) => value.name === domain)) {
-              domainsNotAdded.push(domain);
-            }
-          }
-          console.log('Domains not added: ');
-          console.log(domainsNotAdded);
-          this.toastrService.warning(
-            $localize`:Domains not added|Some domains were not added to the database:Some domains did not add properly`
-          );
-        }
-
-        this.dialog.closeAll();
-        this.currentPage$.next(this.currentPage);
-        this.selectedCompany = '';
-        this.selectedNewDomains = '';
-      } catch (err: any) {
-        if (err.status === HttpStatus.BadRequest) {
-          this.toastrService.error(
-            $localize`:Check domain format|Error while submitting the new domain names to the backend. Most likely a domain formatting error:Error submitting domains, check formats`
-          );
-        } else {
-          throw err;
-        }
+      this.dialog.closeAll();
+      this.currentPage$.next(this.currentPage);
+      this.selectedCompany = '';
+      this.selectedNewDomains = '';
+    } catch (err: any) {
+      if (err.status === HttpStatus.BadRequest) {
+        this.toasts.error(
+          $localize`:Check domain format|Error while submitting the new domain names to the backend. Most likely a domain formatting error:Error submitting domains, check formats`
+        );
+      } else {
+        throw err;
       }
     }
   }

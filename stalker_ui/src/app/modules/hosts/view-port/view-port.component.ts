@@ -1,6 +1,18 @@
+import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatListModule } from '@angular/material/list';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, combineLatest, map, merge, Observable, shareReplay, Subject, switchMap, tap } from 'rxjs';
 import { CompaniesService } from 'src/app/api/companies/companies.service';
@@ -12,9 +24,33 @@ import { DomainSummary } from 'src/app/shared/types/domain/domain.summary';
 import { Port, PortNumber } from 'src/app/shared/types/ports/port.interface';
 import { Tag } from 'src/app/shared/types/tag.type';
 import { PortsService } from '../../../api/ports/ports.service';
+import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { PanelSectionModule } from '../../../shared/components/panel-section/panel-section.module';
+import { SharedModule } from '../../../shared/shared.module';
 import { SelectItem } from '../../../shared/widget/text-select-menu/text-select-menu.component';
+import { FindingsModule } from '../../findings/findings.module';
 
 @Component({
+  standalone: true,
+  imports: [
+    CommonModule,
+    SharedModule,
+    MatCardModule,
+    MatIconModule,
+    MatListModule,
+    MatFormFieldModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatSidenavModule,
+    MatButtonModule,
+    MatInputModule,
+    MatProgressSpinnerModule,
+    FormsModule,
+    FindingsModule,
+    RouterModule,
+    PanelSectionModule,
+    AppHeaderComponent,
+  ],
   selector: 'app-view-port',
   templateUrl: './view-port.component.html',
   styleUrls: ['./view-port.component.scss'],

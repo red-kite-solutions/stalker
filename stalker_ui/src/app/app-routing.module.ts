@@ -12,10 +12,6 @@ import { LoginComponent } from './modules/auth/login/login.component';
 import { EditCompaniesComponent } from './modules/companies/edit-companies/edit-companies.component';
 import { ListCompaniesComponent } from './modules/companies/list-companies/list-companies.component';
 import { DashboardComponent } from './modules/dashboard/dashboard.component';
-import { ListDomainsComponent } from './modules/domains/list-domains/list-domains.component';
-import { ViewDomainComponent } from './modules/domains/view-domain/view-domain.component';
-import { ViewHostComponent } from './modules/hosts/view-host/view-host.component';
-import { ViewPortComponent } from './modules/hosts/view-port/view-port.component';
 import { CustomJobsComponent } from './modules/jobs/custom-jobs/custom-jobs.component';
 import { JobExecutionDetailComponent } from './modules/jobs/job-executions/job-execution-detail.component';
 import { JobExecutionsComponent } from './modules/jobs/job-executions/job-executions.component';
@@ -63,23 +59,11 @@ const routes: Routes = [
       },
       {
         path: 'domains',
-        component: ListDomainsComponent,
-      },
-      {
-        path: 'domains/:id',
-        component: ViewDomainComponent,
+        loadChildren: () => import('./modules/domains/domains.module').then((m) => m.DomainsListModule),
       },
       {
         path: 'hosts',
         loadChildren: () => import('./modules/hosts/hosts.module').then((m) => m.HostsListModule),
-      },
-      {
-        path: 'hosts/:id/ports/:port',
-        component: ViewPortComponent,
-      },
-      {
-        path: 'hosts/:id',
-        component: ViewHostComponent,
       },
       {
         path: 'tags',
