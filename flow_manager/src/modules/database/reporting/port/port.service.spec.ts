@@ -210,7 +210,7 @@ describe('Port Service', () => {
       // Assert
       expect(ports.length).toStrictEqual(5);
     });
-    it('Should get the TCP ports in an arbitrary order', async () => {
+    it('Should get the TCP ports in an arbitrary order with paging', async () => {
       // Arrange
       const ccDto: CreateCompanyDto = { name: `${getName(testPrefix)}` };
       const c = await companyService.addCompany(ccDto);

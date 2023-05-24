@@ -10,7 +10,7 @@ import { HttpStatus } from 'src/app/shared/types/http-status.type';
 import { User } from 'src/app/shared/types/user.interface';
 import {
   ConfirmDialogComponent,
-  ConfirmDialogData,
+  ConfirmDialogData
 } from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
 import { Role, roles, rolesInfoDialogText } from '../roles';
 
@@ -113,7 +113,13 @@ export class EditUserComponent {
     })
   );
 
-  private userId$ = this.route.params.pipe(map((params) => params['id']));
+  private userId$ = this.route.params.pipe(
+    map((params) => {
+      this.userId = params['id'];
+      return params['id'];
+    })
+  );
+    
   public routeSub$ = this.userId$.pipe(
     switchMap((id) => this.usersService.getUser(id)),
     tap((user) => this.setTitle(user.email)),
