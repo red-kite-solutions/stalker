@@ -44,7 +44,7 @@ export class SubscriptionsService {
       _id: newSub._id,
       name: newSub.name,
       finding: newSub.finding,
-      companyId: newSub.companyId,
+      companyId: newSub.companyId ? newSub.companyId : this.allCompanies,
       job: {
         name: newSub.jobName,
       },
