@@ -1,4 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
+import { FormBuilder, FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
@@ -43,7 +44,11 @@ export class SubscriptionComponent {
 
   public dataSource$ = this.refreshData();
 
-  selectedCompany: string | undefined = undefined;
+  public readonly allCompanies = 'all companies';
+  selectedCompanyForm = this.fb.group({
+    selectedCompany: new FormControl<string>(this.allCompanies),
+  });
+
   companies: CompanySummary[] = [];
   companies$ = this.companiesService.getAllSummaries().pipe(
     map((next: any[]) => {
@@ -61,7 +66,8 @@ export class SubscriptionComponent {
     private subscriptionsService: SubscriptionsService,
     private toastr: ToastrService,
     private companiesService: CompaniesService,
-    private titleService: Title
+    private titleService: Title,
+    private fb: FormBuilder
   ) {
     this.code = this.subscriptionTemplate;
     this.currentCodeBackup = this.code;
@@ -111,7 +117,7 @@ export class SubscriptionComponent {
   private newSubscriptionNext() {
     this.isInNewSubscriptionContext = true;
     this.selectedRow = undefined;
-    this.selectedCompany = undefined;
+    this.selectedCompanyForm.get('selectedCompany')?.setValue(this.allCompanies);
     this.code = this.subscriptionTemplate;
     this.currentCodeBackup = this.subscriptionTemplate;
   }
@@ -124,7 +130,9 @@ export class SubscriptionComponent {
   private selectFindingSubscriptionNext() {
     this.isInNewSubscriptionContext = false;
     this.selectedRow = this.tempSelectedRow;
-    this.selectedCompany = this.tempSelectedRow?.companyId;
+    this.tempSelectedRow?.companyId
+      ? this.selectedCompanyForm.get('selectedCompany')?.setValue(this.tempSelectedRow?.companyId)
+      : this.selectedCompanyForm.get('selectedCompany')?.setValue(this.allCompanies);
     const rowData = this.data.find((v) => v._id === this.tempSelectedRow?._id);
     if (rowData?._id) this.currentSubscriptionId = rowData._id;
     const rowCopy = JSON.parse(JSON.stringify(rowData));
@@ -151,14 +159,10 @@ export class SubscriptionComponent {
       return;
     }
 
-    if (!this.selectedCompany) {
-      this.toastr.error(
-        $localize`:Select company before submitting|Select company before submitting:Select company before submitting`
-      );
-      return;
+    if (this.selectedCompanyForm.get('selectedCompany')?.value) {
+      const cId = this.selectedCompanyForm.get('selectedCompany')?.value;
+      sub.companyId = cId ? cId : this.allCompanies;
     }
-
-    sub.companyId = this.selectedCompany;
 
     const invalidSubscription = $localize`:Invalid subscription|Subscription is not in a valid format:Invalid subscription`;
     // validate the content of the sub variable?
@@ -230,7 +234,7 @@ export class SubscriptionComponent {
         this.isInNewSubscriptionContext = true;
         this.selectedRow = undefined;
         this.tempSelectedRow = undefined;
-        this.selectedCompany = '';
+        this.selectedCompanyForm.get('selectedCompany')?.setValue(null);
       },
     };
 

@@ -5,7 +5,7 @@ export interface FindingEventSubscription extends SubscriptionData {
 export interface SubscriptionData {
   name: string;
   finding: string;
-  companyId: string;
+  companyId: string | null;
   job: {
     name: string;
     parameters?: JobParameter[] | undefined | null;
