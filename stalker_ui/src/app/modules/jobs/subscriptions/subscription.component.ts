@@ -234,7 +234,7 @@ export class SubscriptionComponent {
         this.isInNewSubscriptionContext = true;
         this.selectedRow = undefined;
         this.tempSelectedRow = undefined;
-        this.selectedCompanyForm.get('selectedCompany')?.setValue(null);
+        this.selectedCompanyForm.get('selectedCompany')?.setValue(this.allCompanies);
       },
     };
 
