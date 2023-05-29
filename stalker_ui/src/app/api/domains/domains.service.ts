@@ -35,4 +35,8 @@ export class DomainsService {
       this.http.put(`${environment.fmUrl}/domains/${domainId}/tags`, { tagId: tagId, isTagged: isTagged })
     );
   }
+
+  public async deleteMany(domainIds: string[]) {
+    return await firstValueFrom(this.http.delete(`${environment.fmUrl}/domains/`, { body: { domainIds: domainIds } }));
+  }
 }

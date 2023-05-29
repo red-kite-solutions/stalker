@@ -56,4 +56,8 @@ export class HostsService {
   public async addHosts(companyId: string, ips: string[]): Promise<any[]> {
     return await firstValueFrom(this.http.post<any[]>(`${environment.fmUrl}/company/${companyId}/host`, { ips }));
   }
+
+  public async deleteMany(hostIds: string[]) {
+    return await firstValueFrom(this.http.delete(`${environment.fmUrl}/hosts/`, { body: { hostIds: hostIds } }));
+  }
 }

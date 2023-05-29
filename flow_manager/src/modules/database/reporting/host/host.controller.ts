@@ -16,7 +16,7 @@ import { Role } from '../../../auth/constants';
 import { Roles } from '../../../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../auth/guards/role.guard';
-import { HostsFilterDto } from './host.dto';
+import { DeleteHostsDto, HostsFilterDto } from './host.dto';
 import { HostDocument } from './host.model';
 import { HostService } from './host.service';
 
@@ -60,5 +60,13 @@ export class HostController {
       items,
       totalRecords,
     };
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User)
+  @Delete()
+  async deleteHosts(@Body() dto: DeleteHostsDto): Promise<DeleteResult> {
+    const ids = dto.hostIds.map((id) => id.toString());
+    return await this.hostsService.deleteMany(ids);
   }
 }

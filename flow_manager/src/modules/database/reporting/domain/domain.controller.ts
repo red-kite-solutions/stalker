@@ -1,12 +1,12 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Put,
   Query,
   UseGuards,
-  ValidationPipe,
 } from '@nestjs/common';
 import { ObjectId, UpdateResult } from 'mongodb';
 import { Types } from 'mongoose';
@@ -19,7 +19,11 @@ import { Role } from '../../../auth/constants';
 import { Roles } from '../../../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../auth/guards/role.guard';
-import { DomainsPagingDto, EditDomainDto } from './domain.dto';
+import {
+  DeleteDomainsDto,
+  DomainsPagingDto,
+  EditDomainDto,
+} from './domain.dto';
 import { DomainDocument } from './domain.model';
 import { DomainsService } from './domain.service';
 
@@ -105,8 +109,23 @@ export class DomainsController {
   @Put(':id')
   async editDomain(
     @Param() idDto: MongoIdDto,
-    @Body(new ValidationPipe()) dto: EditDomainDto,
+    @Body() dto: EditDomainDto,
   ): Promise<UpdateResult> {
     return await this.domainsService.editDomain(idDto.id, dto);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User)
+  @Delete(':id')
+  async deleteDomain(@Param() idDto: MongoIdDto) {
+    return await this.domainsService.delete(idDto.id);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User)
+  @Delete()
+  async deleteDomains(@Body() dto: DeleteDomainsDto) {
+    const ids = dto.domainIds.map((id) => id.toString());
+    return await this.domainsService.deleteMany(ids);
   }
 }

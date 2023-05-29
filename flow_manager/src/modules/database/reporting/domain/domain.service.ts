@@ -179,7 +179,22 @@ export class DomainsService {
       }
     }
 
-    return await this.domainModel.deleteOne({ _id: { $eq: domainId } });
+    return await this.domainModel.deleteOne({
+      _id: { $eq: new Types.ObjectId(domainId) },
+    });
+  }
+
+  public async deleteMany(domainIds: string[]): Promise<DeleteResult> {
+    let deleteResults: DeleteResult;
+    for (const id of domainIds) {
+      const result = await this.delete(id);
+      if (!deleteResults) {
+        deleteResults = result;
+      } else {
+        deleteResults.deletedCount += result.deletedCount;
+      }
+    }
+    return deleteResults;
   }
 
   public async unlinkHost(

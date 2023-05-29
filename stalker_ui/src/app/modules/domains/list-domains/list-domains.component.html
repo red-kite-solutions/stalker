@@ -6,6 +6,11 @@
     <label i18n="Add domains|Add a new domain to a company">Add Domains</label>
   </button>
 
+  <button mat-raised-button color="warn" class="left-action-button" (click)="deleteDomains()">
+    <mat-icon class="material-icons-outlined"> delete_outline </mat-icon>
+    <label i18n="Delete|Delete an item">Delete</label>
+  </button>
+
   <app-filtered-paginated-table
     *ngIf="((dataSource$ | async) && (companies$ | async) && (tags$ | async)) || true"
     [dataSource]="dataSource"
@@ -16,6 +21,7 @@
     [filterOptions]="filterOptions"
     [routerLinkPrefix]="'/domains/'"
     (filtersChange)="filtersChange($event)"
+    (selectionChange)="selection = $event"
   >
     <!-- Domain Column -->
     <ng-container matColumnDef="domain">
