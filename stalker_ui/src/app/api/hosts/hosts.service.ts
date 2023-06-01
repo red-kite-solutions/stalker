@@ -57,6 +57,10 @@ export class HostsService {
     return await firstValueFrom(this.http.post<any[]>(`${environment.fmUrl}/company/${companyId}/host`, { ips }));
   }
 
+  public async delete(hostId: string) {
+    return await firstValueFrom(this.http.delete(`${environment.fmUrl}/hosts/${hostId}`));
+  }
+
   public async deleteMany(hostIds: string[]) {
     return await firstValueFrom(this.http.delete(`${environment.fmUrl}/hosts/`, { body: { hostIds: hostIds } }));
   }

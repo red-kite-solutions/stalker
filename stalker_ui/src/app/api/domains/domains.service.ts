@@ -36,6 +36,10 @@ export class DomainsService {
     );
   }
 
+  public async delete(domainId: string) {
+    return await firstValueFrom(this.http.delete(`${environment.fmUrl}/domains/${domainId}`));
+  }
+
   public async deleteMany(domainIds: string[]) {
     return await firstValueFrom(this.http.delete(`${environment.fmUrl}/domains/`, { body: { domainIds: domainIds } }));
   }

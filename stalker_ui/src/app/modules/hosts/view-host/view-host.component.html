@@ -7,6 +7,14 @@
     </div>
 
     <div class="context">
+      <panel-section>
+        <button mat-flat-button color="warn" class="full-width" (click)="deleteHost()">
+          <label i18n="Delete|Delete an item">Delete</label>
+        </button>
+      </panel-section>
+
+      <mat-divider></mat-divider>
+
       <panel-section *ngIf="(tagsSelectItems$ | async) && mergedTags$ | async as hostTags">
         <panel-section-title i18n="Tags|The tags of an item"
           >Tags
