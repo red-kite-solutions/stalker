@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -12,7 +13,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, combineLatest, map, merge, Observable, shareReplay, Subject, switchMap, tap } from 'rxjs';
 import { CompaniesService } from 'src/app/api/companies/companies.service';
@@ -27,6 +28,10 @@ import { PortsService } from '../../../api/ports/ports.service';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PanelSectionModule } from '../../../shared/components/panel-section/panel-section.module';
 import { SharedModule } from '../../../shared/shared.module';
+import {
+  ConfirmDialogComponent,
+  ConfirmDialogData,
+} from '../../../shared/widget/confirm-dialog/confirm-dialog.component';
 import { SelectItem } from '../../../shared/widget/text-select-menu/text-select-menu.component';
 import { FindingsModule } from '../../findings/findings.module';
 
@@ -81,7 +86,13 @@ export class ViewPortComponent {
     })
   );
 
-  public hostId$ = this.route.params.pipe(map((params) => params['id'] as string));
+  public hostId = '';
+  public hostId$ = this.route.params.pipe(
+    map((params) => {
+      this.hostId = params['id'] as string;
+      return this.hostId;
+    })
+  );
   public portNumber$ = this.route.params.pipe(map((params) => params['port'] as string));
 
   public host$ = this.hostId$.pipe(switchMap((hostId) => this.hostsService.get(hostId)));
@@ -174,6 +185,40 @@ export class ViewPortComponent {
     }
   }
 
+  public async deletePort() {
+    const errorDeleting = $localize`:Error while deleting|Error while deleting an item:Error while deleting`;
+    if (!this.portId) {
+      this.toastr.error(errorDeleting);
+    }
+
+    const data: ConfirmDialogData = {
+      text: $localize`:Confirm port deletion|Confirmation message asking if the user really wants to delete the port:Do you really wish to delete this port permanently ?`,
+      title: $localize`:Deleting port|Title of a page to delete a port:Deleting port`,
+      primaryButtonText: $localize`:Cancel|Cancel current action:Cancel`,
+      dangerButtonText: $localize`:Delete permanently|Confirm that the user wants to delete the item permanently:Delete permanently`,
+      onPrimaryButtonClick: () => {
+        this.dialog.closeAll();
+      },
+      onDangerButtonClick: async () => {
+        try {
+          await this.portsService.delete(this.portId);
+          this.toastr.success(
+            $localize`:Port deleted|The port has been successfully deleted:Port successfully deleted`
+          );
+          this.router.navigate([`/hosts/${this.hostId}`]);
+          this.dialog.closeAll();
+        } catch (err) {
+          this.toastr.error(errorDeleting);
+        }
+      },
+    };
+
+    this.dialog.open(ConfirmDialogComponent, {
+      data,
+      restoreFocus: false,
+    });
+  }
+
   constructor(
     private route: ActivatedRoute,
     private companiesService: CompaniesService,
@@ -181,6 +226,8 @@ export class ViewPortComponent {
     private tagsService: TagsService,
     private titleService: Title,
     private portsService: PortsService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private router: Router,
+    public dialog: MatDialog
   ) {}
 }

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Put,
@@ -60,5 +61,12 @@ export class PortController {
   @Get(':id')
   async getPort(@Param() idDto: MongoIdDto) {
     return await this.portsService.getPort(idDto.id);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User)
+  @Delete(':id')
+  async deletePort(@Param() idDto: MongoIdDto) {
+    return await this.portsService.delete(idDto.id);
   }
 }
