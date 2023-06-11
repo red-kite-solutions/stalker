@@ -156,7 +156,7 @@ export class ViewPortComponent {
   public async itemSelected(item: SelectItem) {
     try {
       const tagId = <string>item['id'];
-      if (this.portId) return;
+      if (!this.portId) return;
       const tagIndex = this.portTagsCache.findIndex((tag: string) => tag === tagId);
 
       if (tagIndex === -1 && item.color !== undefined) {
