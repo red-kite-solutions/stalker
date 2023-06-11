@@ -4,12 +4,13 @@ import { AppModule } from '../../../app.module';
 import { TagsService } from '../../tags/tag.service';
 import { CompanyDocument } from '../company.model';
 import { CompanyService } from '../company.service';
+import { HostService } from '../host/host.service';
 import { DomainDocument } from './domain.model';
 import { DomainsService } from './domain.service';
 
 describe('Domain Service', () => {
   let moduleFixture: TestingModule;
-  let hostService: DomainsService;
+  let hostService: HostService;
   let domainService: DomainsService;
   let companyService: CompanyService;
   let tagsService: TagsService;
@@ -18,6 +19,7 @@ describe('Domain Service', () => {
     moduleFixture = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
+    hostService = moduleFixture.get(HostService);
     domainService = moduleFixture.get(DomainsService);
     companyService = moduleFixture.get(CompanyService);
     tagsService = moduleFixture.get(TagsService);
@@ -71,6 +73,7 @@ describe('Domain Service', () => {
       const filter = domainService.buildFilters({
         domain: null,
         tags: null,
+        host: null,
         company: c1._id.toString(),
         page: '0',
         pageSize: '10',
@@ -118,6 +121,49 @@ describe('Domain Service', () => {
           domain: domains,
           tags: null,
           company: null,
+          host: null,
+          page: '0',
+          pageSize: '10',
+        });
+
+        // Act
+        const allDomains = await domainService.getAll(0, 10, filter);
+
+        // Assert
+        expect(allDomains.map((x) => x.name).sort()).toStrictEqual(
+          expectedDomains.sort(),
+        );
+      },
+    );
+
+    it.each([
+      [['1.1.1.1'], 'foo.example.org', 'bar.example.org'],
+      [['  1.1.1.1  '], 'foo.example.org', 'bar.example.org'],
+      [['2.2.2.2', '6.6.6.6']],
+    ])(
+      'Filter by host',
+      async (hosts: string[], ...expectedDomains: string[]) => {
+        // Arrange
+        const c1 = await company('c1');
+        const c2 = await company('c2');
+
+        await domain('foo.example.org', c1);
+        await host('1.1.1.1', 'foo.example.org', c1);
+        await host('2.2.2.2', 'foo.example.org', c1);
+
+        await domain('bar.example.org', c1);
+        await host('1.1.1.1', 'bar.example.org', c1);
+
+        await domain('bar.foo.company.example.org', c2);
+        await host('6.6.6.6', 'bar.foo.company.example.org', c2);
+
+        await domain('unrelated.example.org', c2);
+
+        const filter = domainService.buildFilters({
+          domain: null,
+          tags: null,
+          company: null,
+          host: hosts,
           page: '0',
           pageSize: '10',
         });
@@ -152,6 +198,7 @@ describe('Domain Service', () => {
         domain: null,
         tags: [t1._id.toString()],
         company: null,
+        host: null,
         page: '0',
         pageSize: '10',
       });
@@ -216,5 +263,13 @@ describe('Domain Service', () => {
     return (
       await domainService.addDomains([domain], company._id)
     )[0] as DomainDocument;
+  }
+
+  async function host(
+    ip: string,
+    domainName: string,
+    company: CompanyDocument,
+  ) {
+    return await hostService.addHostsWithDomain([ip], domainName, company._id);
   }
 });
