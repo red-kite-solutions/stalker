@@ -147,6 +147,7 @@ describe('Host Service', () => {
 
     it.each([
       [['1.1.1.1'], '1.1.1.1'],
+      [['  1.1.1.1  '], '1.1.1.1'],
       [['2.2.2.2', '6.6.6.6'], '2.2.2.2', '6.6.6.6'],
     ])('Filter by host', async (hosts: string[], ...expectedIps: string[]) => {
       // Arrange

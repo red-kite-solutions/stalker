@@ -259,7 +259,9 @@ export class HostService {
 
     // Filter by host
     if (dto.host) {
-      const hosts = dto.host.filter((x) => x).map((x) => x.toLowerCase());
+      const hosts = dto.host
+        .filter((x) => x)
+        .map((x) => x.toLowerCase().trim());
 
       if (hosts.length > 0) {
         finalFilter['ip'] = { $in: hosts };
