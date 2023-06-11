@@ -6,6 +6,7 @@ import {
   HttpNotFoundException,
   HttpNotImplementedException,
 } from '../../../../exceptions/http.exceptions';
+import escapeStringRegexp from '../../../../utils/escape-string-regexp';
 import { HostnameFinding } from '../../../findings/findings.service';
 import { FindingsQueue } from '../../../job-queue/findings-queue';
 import { ConfigService } from '../../admin/config/config.service';
@@ -16,6 +17,7 @@ import { CorrelationKeyUtils } from '../correlation.utils';
 import { HostService } from '../host/host.service';
 import { HostSummary } from '../host/host.summary';
 import { ReportService } from '../report/report.service';
+import { DomainsPagingDto } from './domain.dto';
 import { Domain, DomainDocument } from './domain.model';
 
 @Injectable()
@@ -179,7 +181,22 @@ export class DomainsService {
       }
     }
 
-    return await this.domainModel.deleteOne({ _id: { $eq: domainId } });
+    return await this.domainModel.deleteOne({
+      _id: { $eq: new Types.ObjectId(domainId) },
+    });
+  }
+
+  public async deleteMany(domainIds: string[]): Promise<DeleteResult> {
+    let deleteResults: DeleteResult;
+    for (const id of domainIds) {
+      const result = await this.delete(id);
+      if (!deleteResults) {
+        deleteResults = result;
+      } else {
+        deleteResults.deletedCount += result.deletedCount;
+      }
+    }
+    return deleteResults;
   }
 
   public async unlinkHost(
@@ -217,5 +234,43 @@ export class DomainsService {
         { $addToSet: { tags: new Types.ObjectId(tagId) } },
       );
     }
+  }
+
+  public buildFilters(dto: DomainsPagingDto) {
+    const finalFilter = {};
+    // Filter by domain
+    if (dto.domain) {
+      const preppedDomainArray = [];
+      for (const domain of dto.domain) {
+        if (domain) {
+          let domainRegex = escapeStringRegexp(domain.toLowerCase());
+          preppedDomainArray.push(new RegExp(domainRegex, 'i'));
+        }
+      }
+      if (preppedDomainArray.length > 0) {
+        finalFilter['name'] = { $all: preppedDomainArray };
+      }
+    }
+
+    // Filter by company
+    if (dto.company) {
+      finalFilter['companyId'] = {
+        $eq: new Types.ObjectId(dto.company),
+      };
+    }
+
+    // Filter by tag
+    if (dto.tags) {
+      const preppedTagsArray = [];
+      for (const tag of dto.tags) {
+        if (tag) {
+          preppedTagsArray.push(new Types.ObjectId(tag.toLowerCase()));
+        }
+      }
+      if (preppedTagsArray.length > 0) {
+        finalFilter['tags'] = { $all: preppedTagsArray };
+      }
+    }
+    return finalFilter;
   }
 }

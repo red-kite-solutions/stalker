@@ -8,6 +8,11 @@
     </button>
   </div>
 
+  <button mat-raised-button color="warn" class="left-action-button" (click)="deleteHosts()">
+    <mat-icon class="material-icons-outlined"> delete_outline </mat-icon>
+    <label i18n="Delete|Delete an item">Delete</label>
+  </button>
+
   <app-filtered-paginated-table
     *ngIf="((dataSource$ | async) && (companies$ | async) && (tags$ | async)) || true"
     [dataSource]="dataSource"
@@ -18,6 +23,7 @@
     [filterOptions]="filterOptions"
     [routerLinkPrefix]="'/hosts/'"
     (filtersChange)="filtersChange($event)"
+    (selectionChange)="selection = $event"
   >
     <!-- Ip Column -->
     <ng-container matColumnDef="ip">

@@ -39,3 +39,9 @@ export class EditDomainDto {
   @IsArray()
   tags: Types.ObjectId[];
 }
+
+export class DeleteDomainsDto {
+  @IsMongoId({ each: true })
+  @IsArray()
+  domainIds: Types.ObjectId[];
+}

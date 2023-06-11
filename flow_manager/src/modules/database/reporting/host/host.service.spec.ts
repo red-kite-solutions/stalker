@@ -36,7 +36,7 @@ describe('Host Service', () => {
     await moduleFixture.close();
   });
 
-  describe('Add domains', () => {
+  describe('Add hosts', () => {
     it('Should only return new hosts', async () => {
       // Arrange
       const c = await companyService.addCompany({
@@ -208,6 +208,40 @@ describe('Host Service', () => {
         '2.2.2.2',
         '3.3.3.3',
       ]);
+    });
+  });
+
+  describe('Delete hosts', () => {
+    it('Delete host by id', async () => {
+      // Arrange
+      const c1 = await company('my first company');
+      const d2 = await domain('company6.example.org', c1);
+
+      const h = await host(d2, c1, [], '2.3.4.5');
+
+      // Act
+      const res = await hostService.delete(h[0]._id.toString());
+
+      // Assert
+      expect(res.deletedCount).toStrictEqual(1);
+    });
+
+    it('Delete multiple hosts by id', async () => {
+      // Arrange
+      const c1 = await company('my first company');
+      const d2 = await domain('company6.example.org', c1);
+
+      const h = await host(d2, c1, [], '2.3.4.5', '1.1.1.1', '3.3.3.3');
+
+      // Act
+      const res = await hostService.deleteMany([
+        h[0]._id.toString(),
+        h[1]._id.toString(),
+        h[2]._id.toString(),
+      ]);
+
+      // Assert
+      expect(res.deletedCount).toStrictEqual(3);
     });
   });
 

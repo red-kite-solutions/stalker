@@ -10,6 +10,7 @@ import {
   Max,
   Min,
 } from 'class-validator';
+import { Types } from 'mongoose';
 
 export class PortsDto {
   @IsNotEmpty()
@@ -67,4 +68,10 @@ export class HostsFilterDto {
   @IsArray()
   @IsOptional()
   host: string[];
+}
+
+export class DeleteHostsDto {
+  @IsArray()
+  @IsMongoId({ each: true })
+  hostIds: Types.ObjectId[];
 }

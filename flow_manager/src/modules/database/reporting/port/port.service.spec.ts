@@ -38,13 +38,8 @@ describe('Port Service', () => {
   describe('Add ports', () => {
     it('Should add ports to a host', async () => {
       // Arrange
-      const ccDto: CreateCompanyDto = { name: `${getName(testPrefix)}` };
-      const c = await companyService.addCompany(ccDto);
-      const h = await hostService.addHosts(
-        ['1.1.1.1'],
-        c._id.toString(),
-        c.name,
-      );
+      const c = await company();
+      const h = await host('1.1.1.1', c._id.toString(), c.name);
 
       // Act
       const p1 = await portService.addPort(
@@ -73,9 +68,8 @@ describe('Port Service', () => {
     it('Should add ports to a host IP', async () => {
       // Arrange
       const hostIp = '1.1.1.1';
-      const ccDto: CreateCompanyDto = { name: `${getName(testPrefix)}` };
-      const c = await companyService.addCompany(ccDto);
-      const h = await hostService.addHosts([hostIp], c._id.toString(), c.name);
+      const c = await company();
+      const h = await host(hostIp, c._id.toString(), c.name);
 
       // Act
       const p1 = await portService.addPortByIp(
@@ -105,13 +99,8 @@ describe('Port Service', () => {
   describe('Get ports', () => {
     it('Should return the ports in order of popularity', async () => {
       // Arrange
-      const ccDto: CreateCompanyDto = { name: `${getName(testPrefix)}` };
-      const c = await companyService.addCompany(ccDto);
-      const h = await hostService.addHosts(
-        ['1.1.1.1'],
-        c._id.toString(),
-        c.name,
-      );
+      const c = await company();
+      const h = await host('1.1.1.1', c._id.toString(), c.name);
       const portNumbers = [22, 8080, 21, 443, 80];
       const portsAdded = [];
       for (let portNumber of portNumbers) {
@@ -143,13 +132,8 @@ describe('Port Service', () => {
     });
     it('Should return the ports in order of popularity with paging', async () => {
       // Arrange
-      const ccDto: CreateCompanyDto = { name: `${getName(testPrefix)}` };
-      const c = await companyService.addCompany(ccDto);
-      const h = await hostService.addHosts(
-        ['1.1.1.1'],
-        c._id.toString(),
-        c.name,
-      );
+      const c = await company();
+      const h = await host('1.1.1.1', c._id.toString(), c.name);
       const portNumbers = [22, 8080, 21, 443, 80];
       const portsAdded = [];
       for (let portNumber of portNumbers) {
@@ -179,13 +163,8 @@ describe('Port Service', () => {
     });
     it('Should get the TCP ports in an arbitrary order', async () => {
       // Arrange
-      const ccDto: CreateCompanyDto = { name: `${getName(testPrefix)}` };
-      const c = await companyService.addCompany(ccDto);
-      const h = await hostService.addHosts(
-        ['1.1.1.1'],
-        c._id.toString(),
-        c.name,
-      );
+      const c = await company();
+      const h = await host('1.1.1.1', c._id.toString(), c.name);
       const portNumbers = [22, 8080, 21, 443, 80];
       const portsAdded = [];
       for (let portNumber of portNumbers) {
@@ -210,15 +189,11 @@ describe('Port Service', () => {
       // Assert
       expect(ports.length).toStrictEqual(5);
     });
+
     it('Should get the TCP ports in an arbitrary order with paging', async () => {
       // Arrange
-      const ccDto: CreateCompanyDto = { name: `${getName(testPrefix)}` };
-      const c = await companyService.addCompany(ccDto);
-      const h = await hostService.addHosts(
-        ['1.1.1.1'],
-        c._id.toString(),
-        c.name,
-      );
+      const c = await company();
+      const h = await host('1.1.1.1', c._id.toString(), c.name);
       const portNumbers = [22, 8080, 21, 443, 80];
       const portsAdded = [];
       for (let portNumber of portNumbers) {
@@ -244,6 +219,64 @@ describe('Port Service', () => {
       expect(ports.length).toStrictEqual(3);
     });
   });
+
+  describe('Delete ports', () => {
+    it('Should delete a port by id', async () => {
+      // Arrange
+      const c = await company();
+      const h = await host('1.1.1.1', c._id.toString(), c.name);
+      const p1 = await portService.addPort(
+        h[0]._id.toString(),
+        c._id.toString(),
+        22,
+        'tcp',
+      );
+
+      // Act
+      const res = await portService.delete(p1._id.toString());
+
+      // Assert
+      expect(res.deletedCount).toStrictEqual(1);
+    });
+
+    it('Should delete all ports for a host', async () => {
+      // Arrange
+      const c = await company();
+      const h = await host('1.1.1.1', c._id.toString(), c.name);
+      const p1 = await portService.addPort(
+        h[0]._id.toString(),
+        c._id.toString(),
+        22,
+        'tcp',
+      );
+
+      const p2 = await portService.addPort(
+        h[0]._id.toString(),
+        c._id.toString(),
+        80,
+        'tcp',
+      );
+
+      // Act
+      const res = await portService.deleteAllForHost(h[0]._id.toString());
+
+      // Assert
+      expect(res.deletedCount).toStrictEqual(2);
+    });
+  });
+
+  async function company(name: string = '') {
+    const ccDto: CreateCompanyDto = { name: `${getName(testPrefix)}` };
+    return await companyService.addCompany(ccDto);
+  }
+
+  async function host(ip: string, companyId: string, companyName: string) {
+    return await await hostService.addHosts(
+      ['1.1.1.1'],
+      companyId,
+      companyName,
+    );
+  }
 
   afterAll(async () => {
     await moduleFixture.close();

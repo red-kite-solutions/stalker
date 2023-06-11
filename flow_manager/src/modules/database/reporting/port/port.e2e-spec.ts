@@ -6,6 +6,7 @@ import {
   cleanup,
   createCompany,
   createDomain as createDomains,
+  deleteReq,
   getReq,
   initTesting,
   postReq,
@@ -126,6 +127,22 @@ describe('Port Controller (e2e)', () => {
       );
       expect(success).toBe(true);
     });
+  });
+
+  it('Should have proper authorizations (DELETE /ports/:id)', async () => {
+    const success = await checkAuthorizations(
+      testData,
+      Role.User,
+      async (givenToken) => {
+        return await deleteReq(
+          app,
+          givenToken,
+          `/ports/6450827d0ae00198f250672d`,
+          {},
+        );
+      },
+    );
+    expect(success).toBe(true);
   });
 
   afterAll(async () => {

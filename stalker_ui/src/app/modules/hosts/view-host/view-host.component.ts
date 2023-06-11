@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -12,7 +13,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, combineLatest, map, merge, Observable, Subject, switchMap, tap } from 'rxjs';
 import { CompaniesService } from 'src/app/api/companies/companies.service';
@@ -27,6 +28,10 @@ import { PortsService } from '../../../api/ports/ports.service';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PanelSectionModule } from '../../../shared/components/panel-section/panel-section.module';
 import { SharedModule } from '../../../shared/shared.module';
+import {
+  ConfirmDialogComponent,
+  ConfirmDialogData,
+} from '../../../shared/widget/confirm-dialog/confirm-dialog.component';
 import { SelectItem } from '../../../shared/widget/text-select-menu/text-select-menu.component';
 import { FindingsModule } from '../../findings/findings.module';
 
@@ -166,6 +171,40 @@ export class ViewHostComponent {
     }
   }
 
+  public async deleteHost() {
+    const errorDeleting = $localize`:Error while deleting|Error while deleting an item:Error while deleting`;
+    if (!this.hostId) {
+      this.toastr.error(errorDeleting);
+    }
+
+    const data: ConfirmDialogData = {
+      text: $localize`:Confirm host deletion|Confirmation message asking if the user really wants to delete the host:Do you really wish to delete this host permanently ?`,
+      title: $localize`:Deleting host|Title of a page to delete a host:Deleting host`,
+      primaryButtonText: $localize`:Cancel|Cancel current action:Cancel`,
+      dangerButtonText: $localize`:Delete permanently|Confirm that the user wants to delete the item permanently:Delete permanently`,
+      onPrimaryButtonClick: () => {
+        this.dialog.closeAll();
+      },
+      onDangerButtonClick: async () => {
+        try {
+          await this.hostsService.delete(this.hostId);
+          this.toastr.success(
+            $localize`:Host deleted|The host has been successfully deleted:Host successfully deleted`
+          );
+          this.router.navigate(['/hosts/']);
+          this.dialog.closeAll();
+        } catch (err) {
+          this.toastr.error(errorDeleting);
+        }
+      },
+    };
+
+    this.dialog.open(ConfirmDialogComponent, {
+      data,
+      restoreFocus: false,
+    });
+  }
+
   constructor(
     private route: ActivatedRoute,
     private companiesService: CompaniesService,
@@ -173,6 +212,8 @@ export class ViewHostComponent {
     private tagsService: TagsService,
     private titleService: Title,
     private toastr: ToastrService,
-    private portsService: PortsService
+    private portsService: PortsService,
+    private router: Router,
+    public dialog: MatDialog
   ) {}
 }
