@@ -145,6 +145,37 @@ describe('Host Service', () => {
       },
     );
 
+    it.each([
+      [['1.1.1.1'], '1.1.1.1'],
+      [['2.2.2.2', '6.6.6.6'], '2.2.2.2', '6.6.6.6'],
+    ])('Filter by host', async (hosts: string[], ...expectedIps: string[]) => {
+      // Arrange
+      const c1 = await company('c1');
+      const c2 = await company('c2');
+
+      const d1 = await domain('foo.example.org', c1);
+      await host(d1, c1, [], '1.1.1.1', '2.2.2.2');
+
+      const d2 = await domain('bar.foo.company.example.org', c1);
+      await host(d2, c1, [], '1.1.1.1', '3.3.3.3');
+
+      const d3 = await domain('foo.bar.somethingelse.example.org', c2);
+      await host(d3, c2, [], '4.4.4.4', '5.5.5.5');
+
+      const d4 = await domain('unrelated.example.org', c2);
+      await host(d4, c2, [], '6.6.6.6');
+
+      // Act
+      const allHosts = await hostService.getAll(0, 10, {
+        host: hosts,
+      });
+
+      // Assert
+      expect(allHosts.map((x) => x.ip).sort()).toStrictEqual(
+        expectedIps.sort(),
+      );
+    });
+
     it('Filter by tag', async () => {
       // Arrange
       const c1 = await company('c1');

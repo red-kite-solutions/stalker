@@ -47,7 +47,7 @@ import { HttpStatus } from '../../../shared/types/http-status.type';
 export class ListHostsComponent {
   dataLoading = true;
   displayedColumns: string[] = ['select', 'ip', 'domains', 'company', 'tags'];
-  filterOptions: string[] = ['domain', 'company', 'tags'];
+  filterOptions: string[] = ['host', 'domain', 'company', 'tags'];
 
   dataSource = new MatTableDataSource<Host>();
   currentPage: PageEvent = this.generateFirstPageEvent();
@@ -157,6 +157,7 @@ export class ListHostsComponent {
     const filterObject: any = {};
     const tags = [];
     const domains = [];
+    const hosts = [];
 
     for (const filter of stringFilters) {
       if (filter.indexOf(SEPARATOR) === -1) continue;
@@ -179,6 +180,9 @@ export class ListHostsComponent {
               $localize`:Company does not exist|The given company name is not known to the application:Company name not recognized`
             );
           break;
+        case 'host':
+          if (value) hosts.push(value.trim().toLowerCase());
+          break;
         case 'tags':
           const tag = this.tags.find((t) => t.text.trim().toLowerCase() === value.trim().toLowerCase());
           if (tag) tags.push(tag.id);
@@ -192,8 +196,9 @@ export class ListHostsComponent {
           break;
       }
     }
-    if (tags) filterObject['tags'] = tags;
-    if (domains) filterObject['domain'] = domains;
+    if (tags?.length) filterObject['tags'] = tags;
+    if (domains?.length) filterObject['domain'] = domains;
+    if (hosts?.length) filterObject['host'] = hosts;
     return filterObject;
   }
 

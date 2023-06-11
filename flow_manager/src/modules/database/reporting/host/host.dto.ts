@@ -63,4 +63,8 @@ export class HostsFilterDto {
   @IsArray()
   @IsOptional()
   domain: string[];
+
+  @IsArray()
+  @IsOptional()
+  host: string[];
 }
