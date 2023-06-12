@@ -7,4 +7,5 @@ export interface CustomJobData {
   code: string;
   type: string;
   language: string;
+  jobPodConfigId: string;
 }

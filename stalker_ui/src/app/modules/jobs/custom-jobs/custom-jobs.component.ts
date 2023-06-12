@@ -39,7 +39,6 @@ export class CustomJobsComponent {
   public isInNewCustomJobContext = true;
   public currentCustomJobId = '';
   public data = new Array<CustomJob>();
-  public selectedJobPodSettings: JobPodSettings | undefined;
   public jobPodSettings$: Observable<JobPodSettings[]> = this.settingsService.getJobPodSettings();
 
   public dataSource$ = this.refreshData();
@@ -101,6 +100,7 @@ export class CustomJobsComponent {
     this.selectedRow = undefined;
     this.customJobNameFormControl.setValue('');
     this.code = '';
+    this.selectedConfigId = '';
     this.currentCodeBackup = this.code;
   }
 
@@ -118,6 +118,7 @@ export class CustomJobsComponent {
     this.customJobNameFormControl.setValue(rowData?.name ? rowData.name : '');
     this.code = rowData?.code ? rowData.code : '';
     this.currentCodeBackup = this.code;
+    this.selectedConfigId = rowData?.jobPodConfigId ? rowData.jobPodConfigId : '';
   }
 
   public async saveCustomJobEdits() {
@@ -127,6 +128,11 @@ export class CustomJobsComponent {
       return;
     }
     const name = this.customJobNameFormControl.value;
+
+    if (!this.selectedConfigId) {
+      this.toastr.error($localize`:Empty Config|Select a configuration before submitting:Missing pod configurations`);
+      return;
+    }
 
     if (!this.code) {
       this.toastr.error(
@@ -141,6 +147,7 @@ export class CustomJobsComponent {
       type: 'code',
       name: name,
       code: code,
+      jobPodConfigId: this.selectedConfigId,
     };
 
     const invalidCustomJob = $localize`:Invalid custom job|Custom job is not in a valid format:Invalid custom job`;
@@ -151,13 +158,13 @@ export class CustomJobsComponent {
         // create a new subscription
         newCustomJob = await this.customJobsService.create(job);
         this.toastr.success(
-          $localize`:Successfully created subscription|Successfully created subscription:Successfully created subscription`
+          $localize`:Successfully created custom job|Successfully created custom job:Successfully created custom job`
         );
       } else {
         // edit an existing subscription
         await this.customJobsService.edit(this.currentCustomJobId, job);
         this.toastr.success(
-          $localize`:Successfully edited subscription|Successfully edited subscription:Successfully edited subscription`
+          $localize`:Successfully edited custom job|Successfully edited custom job:Successfully edited custom job`
         );
       }
 
