@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { isArray, isEmpty, isIn, isString } from 'class-validator';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import { JobParameterValueException } from '../../../../exceptions/job-parameter.exception';
 import { JobParameterDefinition } from '../../../../types/job-parameter-definition.type';
 import { TimestampedString } from '../../../../types/timestamped-string.type';
@@ -42,6 +42,9 @@ export class CustomJob {
 
   @Prop()
   public customJobParameters!: JobParameter[];
+
+  @Prop()
+  public jobPodConfigId!: Types.ObjectId;
 
   constructor() {}
 

@@ -16,6 +16,8 @@ export class KafkaJobQueue implements JobQueue {
       }: ${JSON.stringify(jobs)}.`,
     );
 
+    // TODO: Before sending a custom job with a jobPodId, validate that it exists
+
     await this.producer.send({
       topic: orchestratorConstants.topics.jobRequests,
       messages: jobs,

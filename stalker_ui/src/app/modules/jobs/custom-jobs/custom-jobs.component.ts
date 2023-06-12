@@ -5,13 +5,15 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
-import { map } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
 import { CustomJobsService } from '../../../api/jobs/custom-jobs/custom-jobs.service';
+import { SettingsService } from '../../../api/settings/settings.service';
 import { CustomJob, CustomJobData } from '../../../shared/types/jobs/custom-job.type';
+import { JobPodSettings } from '../../../shared/types/settings/job-pod-settings.type';
 import { CodeEditorTheme } from '../../../shared/widget/code-editor/code-editor.component';
 
 @Component({
@@ -27,6 +29,7 @@ export class CustomJobsComponent {
   public minimapEnabled = false;
   public theme: CodeEditorTheme = 'vs-dark';
   public readonly = false;
+  public selectedConfigId = '';
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   dataSource = new MatTableDataSource<CustomJobData>();
@@ -36,6 +39,8 @@ export class CustomJobsComponent {
   public isInNewCustomJobContext = true;
   public currentCustomJobId = '';
   public data = new Array<CustomJob>();
+  public selectedJobPodSettings: JobPodSettings | undefined;
+  public jobPodSettings$: Observable<JobPodSettings[]> = this.settingsService.getJobPodSettings();
 
   public dataSource$ = this.refreshData();
 
@@ -43,7 +48,8 @@ export class CustomJobsComponent {
     private dialog: MatDialog,
     private customJobsService: CustomJobsService,
     private toastr: ToastrService,
-    private titleService: Title
+    private titleService: Title,
+    private settingsService: SettingsService
   ) {
     this.code = '';
     this.currentCodeBackup = this.code;

@@ -16,8 +16,8 @@ import { RolesGuard } from '../../../auth/guards/role.guard';
 import { SubmitConfigDto } from './config.dto';
 import { Config } from './config.model';
 import { ConfigService } from './config.service';
+import { JobPodConfiguration } from './job-pod-config/job-pod-config.model';
 
-@Roles(Role.Admin)
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('admin/config')
 export class ConfigController {
@@ -25,6 +25,7 @@ export class ConfigController {
 
   constructor(private readonly configService: ConfigService) {}
 
+  @Roles(Role.Admin)
   @Put()
   async submitConfig(
     @Body(new ValidationPipe()) dto: SubmitConfigDto,
@@ -39,6 +40,7 @@ export class ConfigController {
     }
   }
 
+  @Roles(Role.Admin)
   @Get()
   async getConfig(): Promise<Config> {
     try {
@@ -49,5 +51,11 @@ export class ConfigController {
       this.logger.error(err);
       throw new HttpException(msg, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  @Roles(Role.ReadOnly)
+  @Get('job-pods')
+  async getJobPodConfigs(): Promise<JobPodConfiguration[]> {
+    return await this.configService.getAllJobPodConfigs();
   }
 }
