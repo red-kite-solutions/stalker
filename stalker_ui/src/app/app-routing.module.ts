@@ -3,10 +3,6 @@ import { RouterModule, Routes } from '@angular/router';
 import { NotFoundComponent } from './error-pages/not-found/not-found.component';
 import { DefaultComponent } from './layouts/default/default.component';
 import { UnauthenticatedComponent } from './layouts/unauthenticated/unauthenticated.component';
-import { CreateUserComponent } from './modules/admin/create-user/create-user.component';
-import { EditUserComponent } from './modules/admin/edit-user/edit-user.component';
-import { ManageUsersComponent } from './modules/admin/manage-users/manage-users.component';
-import { SettingsComponent } from './modules/admin/settings/settings.component';
 import { AuthComponent } from './modules/auth/auth.component';
 import { LoginComponent } from './modules/auth/login/login.component';
 import { EditCompaniesComponent } from './modules/companies/edit-companies/edit-companies.component';
@@ -17,7 +13,6 @@ import { JobExecutionDetailComponent } from './modules/jobs/job-executions/job-e
 import { JobExecutionsComponent } from './modules/jobs/job-executions/job-executions.component';
 import { LaunchJobsComponent } from './modules/jobs/launch-jobs/launch-jobs.component';
 import { SubscriptionComponent } from './modules/jobs/subscriptions/subscription.component';
-import { ManageTagsComponent } from './modules/tags/manage-tags/manage-tags.component';
 import { ProfileComponent } from './modules/user/profile/profile.component';
 
 const routes: Routes = [
@@ -34,20 +29,8 @@ const routes: Routes = [
         component: ProfileComponent,
       },
       {
-        path: 'admin/users',
-        component: ManageUsersComponent,
-      },
-      {
-        path: 'admin/users/create',
-        component: CreateUserComponent,
-      },
-      {
-        path: 'admin/users/:id',
-        component: EditUserComponent,
-      },
-      {
-        path: 'admin/settings',
-        component: SettingsComponent,
+        path: 'admin',
+        loadChildren: () => import('./modules/admin/admin.module').then((m) => m.AdminModule),
       },
       {
         path: 'companies',
@@ -67,7 +50,7 @@ const routes: Routes = [
       },
       {
         path: 'tags',
-        component: ManageTagsComponent,
+        loadChildren: () => import('./modules/tags/tags.module').then((m) => m.TagsModule),
       },
       {
         path: 'jobs/subscriptions',
