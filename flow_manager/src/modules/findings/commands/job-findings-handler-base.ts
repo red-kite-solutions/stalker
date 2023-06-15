@@ -1,4 +1,5 @@
 import { ICommandHandler } from '@nestjs/cqrs';
+import { ConfigService } from '../../database/admin/config/config.service';
 import { CustomJobsService } from '../../database/custom-jobs/custom-jobs.service';
 import { JobsService } from '../../database/jobs/jobs.service';
 import { SubscriptionsService } from '../../database/subscriptions/subscriptions.service';
@@ -13,7 +14,8 @@ export abstract class JobFindingHandlerBase<T extends JobFindingCommand>
     jobService: JobsService,
     subscriptionService: SubscriptionsService,
     customJobsService: CustomJobsService,
+    configService: ConfigService,
   ) {
-    super(subscriptionService, jobService, customJobsService);
+    super(subscriptionService, jobService, customJobsService, configService);
   }
 }

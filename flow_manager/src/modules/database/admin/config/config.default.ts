@@ -41,3 +41,9 @@ export const DEFAULT_JOB_POD_CONFIG: JobPodConfiguration[] = [
     milliCpuLimit: 500,
   },
 ];
+
+export const DEFAULT_JOB_POD_FALLBACK_CONFIG: JobPodConfiguration = {
+  name: 'Stalker Default Fallback Job Pod Config',
+  memoryKbytesLimit: baseMemory * 100,
+  milliCpuLimit: 100,
+};

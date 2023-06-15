@@ -109,7 +109,7 @@ public abstract class KubernetesCommand<T> : JobCommand where T : JobRequest
             Timestamp = CurrentTimeMs(),
         });
 
-        await Kubernetes.DeleteJob(job.Name, job.Namespace);
+        // await Kubernetes.DeleteJob(job.Name, job.Namespace);
         await LogDebug("Job cleaned up by orchestrator.");
 
         // Local functions

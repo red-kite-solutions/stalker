@@ -5,7 +5,10 @@ import { Model } from 'mongoose';
 import { SubmitConfigDto } from './config.dto';
 import { Config } from './config.model';
 import { DATABASE_INIT } from './config.provider';
-import { JobPodConfiguration } from './job-pod-config/job-pod-config.model';
+import {
+  JobPodConfiguration,
+  JobPodConfigurationDocument,
+} from './job-pod-config/job-pod-config.model';
 
 @Injectable()
 export class ConfigService {
@@ -82,7 +85,9 @@ export class ConfigService {
     return await this.jobPodConfigModel.find();
   }
 
-  public async getJobPodConfig(id: string): Promise<JobPodConfiguration> {
+  public async getJobPodConfig(
+    id: string,
+  ): Promise<JobPodConfigurationDocument> {
     return await this.jobPodConfigModel.findById(id);
   }
 

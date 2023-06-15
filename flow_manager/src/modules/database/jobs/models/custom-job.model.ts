@@ -1,5 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { isArray, isEmpty, isIn, isString } from 'class-validator';
+import {
+  isArray,
+  isEmpty,
+  isIn,
+  isNumber,
+  isPositive,
+  isString,
+} from 'class-validator';
 import { Document, Types } from 'mongoose';
 import { JobParameterValueException } from '../../../../exceptions/job-parameter.exception';
 import { JobParameterDefinition } from '../../../../types/job-parameter-definition.type';
@@ -46,6 +53,12 @@ export class CustomJob {
   @Prop()
   public jobPodConfigId!: Types.ObjectId;
 
+  @Prop()
+  public jobPodMilliCpuLimit: number;
+
+  @Prop()
+  public jobPodMemoryKbLimit: number;
+
   constructor() {}
 
   // No parameter definition for custom jobs since we cannot know
@@ -59,6 +72,8 @@ export class CustomJob {
     params['type'] = undefined;
     params['code'] = undefined;
     params['language'] = undefined;
+    params['jobpodmillicpulimit'] = undefined;
+    params['jobpodmemorykblimit'] = undefined;
     params['customjobparameters'] = undefined;
 
     params = JobFactoryUtils.bindFunctionArguments(params, args);
@@ -69,6 +84,8 @@ export class CustomJob {
       params['type'],
       params['code'],
       params['language'],
+      params['jobpodmillicpulimit'],
+      params['jobpodmemorykblimit'],
       params['customjobparameters'],
     );
   }
@@ -79,6 +96,8 @@ export class CustomJob {
     type: string,
     code: string,
     language: string,
+    jobPodMilliCpuLimit: number,
+    jobPodMemoryKbLimit: number,
     customJobParameters: JobParameter[],
   ) {
     const job = new CustomJob();
@@ -89,6 +108,8 @@ export class CustomJob {
     job.code = code;
     job.type = type;
     job.language = language;
+    job.jobPodMilliCpuLimit = jobPodMilliCpuLimit;
+    job.jobPodMemoryKbLimit = jobPodMemoryKbLimit;
     job.customJobParameters = customJobParameters;
 
     if (!isCompanyId(job.companyId)) {
@@ -133,6 +154,26 @@ export class CustomJob {
       throw new JobParameterValueException(
         'customJobParameters',
         job.customJobParameters,
+      );
+    }
+
+    if (
+      !isNumber(job.jobPodMilliCpuLimit) ||
+      !isPositive(job.jobPodMilliCpuLimit)
+    ) {
+      throw new JobParameterValueException(
+        'jobPodMilliCpuLimit',
+        job.jobPodMilliCpuLimit,
+      );
+    }
+
+    if (
+      !isNumber(job.jobPodMemoryKbLimit) ||
+      !isPositive(job.jobPodMemoryKbLimit)
+    ) {
+      throw new JobParameterValueException(
+        'jobPodMemoryKbLimit',
+        job.jobPodMemoryKbLimit,
       );
     }
 

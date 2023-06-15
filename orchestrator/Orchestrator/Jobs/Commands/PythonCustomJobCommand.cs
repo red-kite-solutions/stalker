@@ -13,6 +13,6 @@ public class PythonCustomJobCommand : KubernetesCommand<CustomJobRequest>
     public PythonCustomJobCommand(CustomJobRequest request, IKubernetesFacade kubernetes, IMessagesProducer<JobEventMessage> eventsProducer, IMessagesProducer<JobLogMessage> jobLogsProducer, IFindingsParser parser, ILogger<PythonCustomJobCommand> logger, IConfiguration config)
         : base(request, kubernetes, eventsProducer, jobLogsProducer, parser, logger)
     {
-        JobTemplate = new PythonCustomJobTemplate(request.JobId, config, request.CustomJobParameters, request.Code);
+        JobTemplate = new PythonCustomJobTemplate(request.JobId, config, request.CustomJobParameters, request.Code, request.JobPodMilliCpuLimit, request.JobPodMemoryKbLimit);
     }
 }
