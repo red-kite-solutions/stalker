@@ -92,6 +92,10 @@ describe('Config Controller (e2e)', () => {
     expect(r.statusCode).toBe(HttpStatus.OK);
   });
 
+  // ####################################
+  // ########## Authorizations ##########
+  // ####################################
+
   it('Should have proper authorizations (GET /admin/config)', async () => {
     const result: boolean = await checkAuthorizations(
       testData,
@@ -114,6 +118,17 @@ describe('Config Controller (e2e)', () => {
           '/admin/config',
           defaultConfigSubmit,
         );
+      },
+    );
+    expect(result).toBe(true);
+  });
+
+  it('Should have proper authorizations (GET /admin/config/job-pods)', async () => {
+    const result: boolean = await checkAuthorizations(
+      testData,
+      Role.ReadOnly,
+      async (givenToken: string) => {
+        return await getReq(app, givenToken, '/admin/config/job-pods');
       },
     );
     expect(result).toBe(true);

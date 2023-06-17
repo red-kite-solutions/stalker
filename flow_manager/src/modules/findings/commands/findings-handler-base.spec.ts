@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Types } from 'mongoose';
 import { AppModule } from '../../app.module';
+import { ConfigService } from '../../database/admin/config/config.service';
 import { CustomJobsService } from '../../database/custom-jobs/custom-jobs.service';
 import { CompanyService } from '../../database/reporting/company.service';
 import {
@@ -23,6 +24,7 @@ describe('Findings Handler Base', () => {
   let moduleFixture: TestingModule;
   let companyService: CompanyService;
   let customJobsService: CustomJobsService;
+  let configService: ConfigService;
 
   beforeAll(async () => {
     moduleFixture = await Test.createTestingModule({
@@ -31,12 +33,17 @@ describe('Findings Handler Base', () => {
 
     companyService = moduleFixture.get(CompanyService);
     customJobsService = moduleFixture.get(CustomJobsService);
+    configService = moduleFixture.get(ConfigService);
   });
 
   beforeEach(async () => {
     const cjs = await customJobsService.getAll();
     for (const cj of cjs) {
       await customJobsService.delete(cj._id.toString());
+    }
+    const jpcs = await configService.getAllJobPodConfigs();
+    for (const jpc of jpcs) {
+      await configService.deleteJobPodConfig(jpc._id.toString());
     }
   });
 
@@ -158,7 +165,7 @@ describe('Findings Handler Base', () => {
       (conditions: JobCondition[]) => {
         // Arrange
         const hnHandler: FindingHandlerBase<HostnameCommand> =
-          new HostnameHandler(null, null, null);
+          new HostnameHandler(null, null, null, null);
         const hnFinding = new HostnameFinding();
         hnFinding.domainName = 'stalker.is';
         const hnCommand = new HostnameCommand(
@@ -184,7 +191,7 @@ describe('Findings Handler Base', () => {
       (conditions: JobCondition[]) => {
         // Arrange
         const customFindingHandler: FindingHandlerBase<CustomFindingCommand> =
-          new CustomFindingHandler(null, null, null, null);
+          new CustomFindingHandler(null, null, null, null, null);
         const customFinding = new CreateCustomFinding();
 
         customFinding.fields = [
@@ -334,7 +341,7 @@ describe('Findings Handler Base', () => {
       (conditions: JobCondition[]) => {
         // Arrange
         const hnHandler: FindingHandlerBase<HostnameCommand> =
-          new HostnameHandler(null, null, null);
+          new HostnameHandler(null, null, null, null);
         const hnFinding = new HostnameFinding();
         const hnCommand = new HostnameCommand(
           '',
@@ -373,7 +380,7 @@ describe('Findings Handler Base', () => {
       (paramValue: string) => {
         // Arrange
         const hnHandler: FindingHandlerBase<HostnameCommand> =
-          new HostnameHandler(null, null, null);
+          new HostnameHandler(null, null, null, null);
         const hnFinding = new HostnameFinding();
         hnFinding.domainName = 'stalker.is';
         let valueCopy = paramValue;
@@ -415,7 +422,7 @@ describe('Findings Handler Base', () => {
       (paramValue: string) => {
         // Arrange
         const hnHandler: FindingHandlerBase<HostnameCommand> =
-          new HostnameHandler(null, null, null);
+          new HostnameHandler(null, null, null, null);
         const hnFinding = new HostnameFinding();
         hnFinding.domainName = 'stalker.is';
         let valueCopy = paramValue;
@@ -452,19 +459,27 @@ describe('Findings Handler Base', () => {
     it('Should give the proper custom job parameters with the adequate structure and values', async () => {
       // Arrange
       const hnHandler: FindingHandlerBase<HostnameCommand> =
-        new HostnameHandler(null, null, customJobsService);
+        new HostnameHandler(null, null, customJobsService, configService);
+      const jpc = await configService.createJobPodConfig({
+        name: 'jpc test findings handler',
+        memoryKbytesLimit: 1024 * 10,
+        milliCpuLimit: 10,
+      });
+
       const cjName = 'fhb custom job';
       const cj = await customJobsService.create({
         name: cjName,
         code: 'print("hello")',
         type: 'code',
         language: 'python',
+        jobPodConfigId: jpc._id.toString(),
       });
       const cj2 = await customJobsService.create({
         name: cjName + ' 2',
         code: 'print("hello")',
         type: 'code',
         language: 'python',
+        jobPodConfigId: jpc._id.toString(),
       });
 
       const sub = new Subscription();
@@ -496,6 +511,19 @@ describe('Findings Handler Base', () => {
       ).toStrictEqual(true);
       expect(
         jobParams.some((p) => p.name === 'language' && p.value == cj.language),
+      ).toStrictEqual(true);
+      expect(
+        jobParams.some(
+          (p) =>
+            p.name === 'jobpodmillicpulimit' && p.value == jpc.milliCpuLimit,
+        ),
+      ).toStrictEqual(true);
+      expect(
+        jobParams.some(
+          (p) =>
+            p.name === 'jobpodmemorykblimit' &&
+            p.value == jpc.memoryKbytesLimit,
+        ),
       ).toStrictEqual(true);
       const param = jobParams.find((p) => p.name === 'customJobParameters');
 

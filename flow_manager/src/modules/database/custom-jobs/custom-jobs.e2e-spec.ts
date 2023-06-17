@@ -10,17 +10,20 @@ import {
 } from 'test/e2e.utils';
 import { AppModule } from '../../app.module';
 import { Role } from '../../auth/constants';
+import { JobPodConfigurationDocument } from '../admin/config/job-pod-config/job-pod-config.model';
 
 describe('Custom Jobs Controller (e2e)', () => {
   let app: INestApplication;
   let testData: TestingData;
   let customJobId: string;
+  let jobPodConfigs: JobPodConfigurationDocument[];
 
   const customJob = {
     name: 'My custom job',
     type: 'code',
     code: 'print("custom job controller e2e")',
     language: 'python',
+    jobPodConfigId: '',
   };
 
   beforeAll(async () => {
@@ -37,6 +40,13 @@ describe('Custom Jobs Controller (e2e)', () => {
     );
     await app.init();
     testData = await initTesting(app);
+    const res = await getReq(
+      app,
+      testData.admin.token,
+      '/admin/config/job-pods',
+    );
+    jobPodConfigs = res.body;
+    customJob.jobPodConfigId = jobPodConfigs[0]._id.toString();
   });
 
   afterAll(async () => {
