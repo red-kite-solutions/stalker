@@ -1,3 +1,8 @@
+.mat-card {
+  padding-bottom: 0;
+  overflow: hidden;
+}
+
 .table-container {
   margin: 0 -16px -16px -16px;
 }
@@ -14,26 +19,33 @@ table {
   cursor: default;
 }
 
-.left-action-button {
-  margin: 10px 20px 20px 0px;
+.actions {
+  display: flex;
+  gap: 16px;
 }
 
-.right-action-button {
-  margin: 10px 0px 20px 10px;
-}
-
-.button-container {
-  width: 100%;
-}
-
-.left-form-field {
-  margin-right: 10px;
-}
-
-.right-form-field {
-  margin-left: 10px;
+.mat-column-select {
+  width: 42px;
+  max-width: 42px;
 }
 
 .nodata {
   text-align: center;
+}
+
+.create-tag-color-picker-class {
+  display: flex;
+
+  h1 {
+    flex: auto;
+  }
+}
+
+.create-tag-form-row {
+  display: flex;
+  gap: 16px;
+
+  mat-form-field {
+    flex: auto;
+  }
 }

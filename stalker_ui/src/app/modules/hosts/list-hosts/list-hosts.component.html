@@ -1,10 +1,12 @@
 <mat-card>
   <h1 i18n="Hosts|Hosts">Hosts</h1>
 
-  <button mat-raised-button color="primary" class="left-action-button" (click)="openNewHostsDialog(addHostsDialog)">
-    <mat-icon class="material-icons-outlined">add</mat-icon>
-    <label i18n="Add hosts|Add a new hosts to a company">Add Hosts</label>
-  </button>
+  <div class="actions">
+    <button mat-raised-button color="primary" (click)="openNewHostsDialog(addHostsDialog)">
+      <mat-icon class="material-icons-outlined">add</mat-icon>
+      <label i18n="Add hosts|Add a new hosts to a company">Add Hosts</label>
+    </button>
+  </div>
 
   <app-filtered-paginated-table
     *ngIf="((dataSource$ | async) && (companies$ | async) && (tags$ | async)) || true"

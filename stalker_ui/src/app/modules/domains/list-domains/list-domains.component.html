@@ -1,10 +1,12 @@
 <mat-card>
   <h1 i18n="Domains|Domain names">Domains</h1>
 
-  <button mat-raised-button color="primary" class="left-action-button" (click)="openNewDomainsDialog(addDomainDialog)">
-    <mat-icon class="material-icons-outlined">add</mat-icon>
-    <label i18n="Add domains|Add a new domain to a company">Add Domains</label>
-  </button>
+  <div class="actions">
+    <button mat-raised-button color="primary" (click)="openNewDomainsDialog(addDomainDialog)">
+      <mat-icon class="material-icons-outlined">add</mat-icon>
+      <label i18n="Add domains|Add a new domain to a company">Add Domains</label>
+    </button>
+  </div>
 
   <app-filtered-paginated-table
     *ngIf="((dataSource$ | async) && (companies$ | async) && (tags$ | async)) || true"

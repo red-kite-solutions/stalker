@@ -152,11 +152,11 @@ export class PortService {
 
     let protocolFilter = {};
     if (protocol === 'tcp' || protocol === 'udp')
-      protocolFilter = { layer4Protocol: { $eq: protocol } };
+      protocolFilter = { $eq: protocol };
 
     let query = this.portsModel.find({
       hostId: { $eq: new Types.ObjectId(hostId) },
-      protocolFilter,
+      layer4Protocol: protocolFilter,
     });
     if (page != null && pageSize != null) {
       query = query.skip(page * pageSize).limit(pageSize);

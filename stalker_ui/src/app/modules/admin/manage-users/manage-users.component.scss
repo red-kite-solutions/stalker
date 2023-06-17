@@ -1,5 +1,12 @@
 mat-card {
   overflow: hidden;
+  padding-bottom: 0;
+}
+
+.actions {
+  display: flex;
+  gap: 16px;
+  padding-bottom: 8px;
 }
 
 .table-container {
@@ -10,14 +17,6 @@ table {
   width: 100%;
 }
 
-.container {
-  margin-bottom: 40px;
-}
-
-.center-column-content {
-  text-align: center;
-}
-
 .rows {
   cursor: pointer;
 }
@@ -26,18 +25,12 @@ table {
   background-color: rgb(243, 243, 243);
 }
 
-.check-box-cell {
+.mat-column-select {
+  width: 42px;
+  max-width: 42px;
   cursor: default;
 }
 
-.left-action-button {
-  margin: 10px 20px 20px 0px;
-}
-
-.right-action-button {
-  margin: 10px 0px 20px 10px;
-}
-
-.button-container {
-  width: 100%;
+.mat-column-active {
+  text-align: center;
 }
