@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { firstValueFrom, map, Observable } from 'rxjs';
 import { FindingEventSubscription, SubscriptionData } from 'src/app/shared/types/finding-event-subscription';
 import { environment } from 'src/environments/environment';
+import { allCompaniesSubscriptions } from '../../constants';
 
 @Injectable({
   providedIn: 'root',
@@ -19,7 +20,7 @@ export class SubscriptionsService {
             _id: item._id,
             name: item.name,
             finding: item.finding,
-            companyId: item.companyId,
+            companyId: item.companyId ? item.companyId : allCompaniesSubscriptions,
             job: { name: item.jobName },
           };
           if (item.jobParameters) {
@@ -37,7 +38,20 @@ export class SubscriptionsService {
 
   public async create(subscription: SubscriptionData): Promise<FindingEventSubscription> {
     const data: any = this.parseSubscription(subscription);
-    return <FindingEventSubscription>await firstValueFrom(this.http.post(`${environment.fmUrl}/subscriptions/`, data));
+    const newSub: any = await firstValueFrom(this.http.post(`${environment.fmUrl}/subscriptions/`, data));
+    if (newSub.__v) delete newSub.__v;
+    const parsedSub: FindingEventSubscription = {
+      _id: newSub._id,
+      name: newSub.name,
+      finding: newSub.finding,
+      companyId: newSub.companyId ? newSub.companyId : allCompaniesSubscriptions,
+      job: {
+        name: newSub.jobName,
+      },
+    };
+    if (newSub.jobParameters && Array.isArray(newSub.jobParameters)) parsedSub.job.parameters = newSub.jobParameters;
+    if (newSub.conditions && Array.isArray(newSub.conditions)) parsedSub.conditions = newSub.conditions;
+    return parsedSub;
   }
 
   public async edit(id: string, subscription: SubscriptionData) {
@@ -54,7 +68,7 @@ export class SubscriptionsService {
       name: subscription.name,
       finding: subscription.finding,
       jobName: subscription.job.name,
-      companyId: subscription.companyId,
+      companyId: subscription.companyId === allCompaniesSubscriptions ? undefined : subscription.companyId,
     };
 
     if (subscription.job.parameters) {

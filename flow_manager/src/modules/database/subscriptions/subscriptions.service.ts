@@ -17,7 +17,7 @@ export class SubscriptionsService {
 
   public async create(dto: SubscriptionDto) {
     const sub: Subscription = {
-      companyId: new Types.ObjectId(dto.companyId),
+      companyId: dto.companyId ? new Types.ObjectId(dto.companyId) : null,
       name: dto.name,
       finding: dto.finding,
       jobName: dto.jobName,
@@ -33,7 +33,7 @@ export class SubscriptionsService {
 
   public async edit(id: string, dto: SubscriptionDto): Promise<UpdateResult> {
     const sub: Subscription = {
-      companyId: new Types.ObjectId(dto.companyId),
+      companyId: dto.companyId ? new Types.ObjectId(dto.companyId) : null,
       name: dto.name,
       finding: dto.finding,
       jobName: dto.jobName,
@@ -56,7 +56,10 @@ export class SubscriptionsService {
     if (companyId === CompanyUnassigned) return [];
 
     return await this.subscriptionModel.find({
-      companyId: { $eq: new Types.ObjectId(companyId) },
+      $or: [
+        { companyId: { $eq: new Types.ObjectId(companyId) } },
+        { companyId: null },
+      ],
       finding: { $eq: finding },
     });
   }

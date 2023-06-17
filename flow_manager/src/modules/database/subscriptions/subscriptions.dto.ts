@@ -17,8 +17,8 @@ export class SubscriptionDto {
   public name!: string;
 
   @IsMongoId()
-  @IsNotEmpty()
-  public companyId!: string;
+  @IsOptional()
+  public companyId?: string; // if companyId is not set, the subscription is for all companies
 
   @IsString()
   @IsNotEmpty()
