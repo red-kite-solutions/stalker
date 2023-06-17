@@ -14,6 +14,7 @@ import {
 } from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
 import { parse, stringify } from 'yaml';
 import { CompaniesService } from '../../../api/companies/companies.service';
+import { allCompaniesSubscriptions } from '../../../api/constants';
 import { CompanySummary } from '../../../shared/types/company/company.summary';
 import { CodeEditorTheme } from '../../../shared/widget/code-editor/code-editor.component';
 
@@ -44,9 +45,8 @@ export class SubscriptionComponent {
 
   public dataSource$ = this.refreshData();
 
-  public readonly allCompanies = 'all companies';
   selectedCompanyForm = this.fb.group({
-    selectedCompany: new FormControl<string>(this.allCompanies),
+    selectedCompany: new FormControl<string>(allCompaniesSubscriptions),
   });
 
   companies: CompanySummary[] = [];
@@ -117,7 +117,7 @@ export class SubscriptionComponent {
   private newSubscriptionNext() {
     this.isInNewSubscriptionContext = true;
     this.selectedRow = undefined;
-    this.selectedCompanyForm.get('selectedCompany')?.setValue(this.allCompanies);
+    this.selectedCompanyForm.get('selectedCompany')?.setValue(allCompaniesSubscriptions);
     this.code = this.subscriptionTemplate;
     this.currentCodeBackup = this.subscriptionTemplate;
   }
@@ -132,7 +132,7 @@ export class SubscriptionComponent {
     this.selectedRow = this.tempSelectedRow;
     this.tempSelectedRow?.companyId
       ? this.selectedCompanyForm.get('selectedCompany')?.setValue(this.tempSelectedRow?.companyId)
-      : this.selectedCompanyForm.get('selectedCompany')?.setValue(this.allCompanies);
+      : this.selectedCompanyForm.get('selectedCompany')?.setValue(allCompaniesSubscriptions);
     const rowData = this.data.find((v) => v._id === this.tempSelectedRow?._id);
     if (rowData?._id) this.currentSubscriptionId = rowData._id;
     const rowCopy = JSON.parse(JSON.stringify(rowData));
@@ -161,7 +161,7 @@ export class SubscriptionComponent {
 
     if (this.selectedCompanyForm.get('selectedCompany')?.value) {
       const cId = this.selectedCompanyForm.get('selectedCompany')?.value;
-      sub.companyId = cId ? cId : this.allCompanies;
+      sub.companyId = cId ? cId : allCompaniesSubscriptions;
     }
 
     const invalidSubscription = $localize`:Invalid subscription|Subscription is not in a valid format:Invalid subscription`;
@@ -234,7 +234,7 @@ export class SubscriptionComponent {
         this.isInNewSubscriptionContext = true;
         this.selectedRow = undefined;
         this.tempSelectedRow = undefined;
-        this.selectedCompanyForm.get('selectedCompany')?.setValue(this.allCompanies);
+        this.selectedCompanyForm.get('selectedCompany')?.setValue(allCompaniesSubscriptions);
       },
     };
 

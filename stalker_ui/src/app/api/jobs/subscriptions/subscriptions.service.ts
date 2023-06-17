@@ -3,13 +3,13 @@ import { Injectable } from '@angular/core';
 import { firstValueFrom, map, Observable } from 'rxjs';
 import { FindingEventSubscription, SubscriptionData } from 'src/app/shared/types/finding-event-subscription';
 import { environment } from 'src/environments/environment';
+import { allCompaniesSubscriptions } from '../../constants';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SubscriptionsService {
   constructor(private http: HttpClient) {}
-  private readonly allCompanies = 'all companies';
 
   public getSubscriptions(): Observable<FindingEventSubscription[]> {
     return <Observable<Array<FindingEventSubscription>>>this.http.get(`${environment.fmUrl}/subscriptions/`).pipe(
@@ -20,7 +20,7 @@ export class SubscriptionsService {
             _id: item._id,
             name: item.name,
             finding: item.finding,
-            companyId: item.companyId ? item.companyId : this.allCompanies,
+            companyId: item.companyId ? item.companyId : allCompaniesSubscriptions,
             job: { name: item.jobName },
           };
           if (item.jobParameters) {
@@ -44,7 +44,7 @@ export class SubscriptionsService {
       _id: newSub._id,
       name: newSub.name,
       finding: newSub.finding,
-      companyId: newSub.companyId ? newSub.companyId : this.allCompanies,
+      companyId: newSub.companyId ? newSub.companyId : allCompaniesSubscriptions,
       job: {
         name: newSub.jobName,
       },
@@ -68,7 +68,7 @@ export class SubscriptionsService {
       name: subscription.name,
       finding: subscription.finding,
       jobName: subscription.job.name,
-      companyId: subscription.companyId === this.allCompanies ? undefined : subscription.companyId,
+      companyId: subscription.companyId === allCompaniesSubscriptions ? undefined : subscription.companyId,
     };
 
     if (subscription.job.parameters) {
