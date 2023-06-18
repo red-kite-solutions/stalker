@@ -57,8 +57,19 @@
   }
 }
 
-.manage-tags-menu {
-  font-size: 0.9em;
+panel-section-title {
+  width: 100%;
+  display: flex;
+  .manage-tags-menu {
+    font-size: 0.9em;
+    font-style: italic;
+    display: inline-flex;
+    width: 100%;
+    app-text-select-menu {
+      margin-left: 3px;
+      width: 100%;
+    }
+  }
 }
 
 app-pill-tag {
@@ -67,4 +78,16 @@ app-pill-tag {
 
 .full-width {
   width: 100%;
+}
+
+.management {
+  opacity: 0.6;
+}
+
+.management-content {
+  margin: 0;
+  padding: 0 8px 0 8px;
+  button {
+    margin: 0;
+  }
 }

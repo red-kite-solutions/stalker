@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatIconModule } from '@angular/material/icon';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -36,17 +37,35 @@ import { FindingsModule } from '../../findings/findings.module';
     PanelSectionModule,
     MatDividerModule,
     MatButtonModule,
+    MatIconModule,
   ],
   selector: 'app-view-domain',
   templateUrl: './view-domain.component.html',
   styleUrls: ['./view-domain.component.scss'],
 })
-export class ViewDomainComponent {
+export class ViewDomainComponent implements OnDestroy {
+  public menuTargetWidth = 100;
+  public menuResizeObserver$?: ResizeObserver;
+
+  @ViewChild('managementPanelSection', { read: ElementRef, static: false })
+  set managementPanelSection(managementPanelSection: ElementRef) {
+    if (managementPanelSection && !this._managementPanelSection) {
+      this._managementPanelSection = managementPanelSection;
+      this.menuResizeObserver$ = new ResizeObserver((resize) => {
+        this.menuTargetWidth = resize[0].contentRect.width;
+      });
+      this.menuResizeObserver$.observe(this._managementPanelSection.nativeElement);
+    }
+  }
+
+  _managementPanelSection!: ElementRef;
+
   public routeLoading = false;
   displayedColumns: string[] = ['ipAddress', 'ports'];
   public manageTags: string = $localize`:Manage Tags|Manage Tags:Manage Tags`;
   public filterTags: string = $localize`:Filter Tags|Filter Tags:Filter Tags`;
   public emptyTags: string = $localize`:No Tags|List of tags is empty:No Tags Available`;
+  public manageDomainText: string = $localize`:Manage domain|Manage the domain name element:Manage domain`;
 
   companies: CompanySummary[] = [];
   companies$ = this.companiesService.getAllSummaries().pipe(
@@ -132,6 +151,12 @@ export class ViewDomainComponent {
       map((ports: PortNumber[]) => ports.sort((a, b) => a.port - b.port)),
       shareReplay(1)
     );
+  }
+
+  ngOnDestroy(): void {
+    if (this.menuResizeObserver$) {
+      this.menuResizeObserver$.unobserve(this._managementPanelSection.nativeElement);
+    }
   }
 
   /**
