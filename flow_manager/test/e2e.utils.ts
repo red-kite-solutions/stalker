@@ -187,7 +187,7 @@ export async function deleteReq(
  * @param data The test data that includes valid user tokens.
  * @param role The role that the controller endpoint is supposed to respect. null for no authentication required
  * @param call The function to call. Takes a bearer token as parameter. Returns a supertest Response
- * @returns true if authorization reflect the given role, false otherwise
+ * @returns true if authorization reflects the given role, false otherwise
  */
 export async function checkAuthorizations(
   data: TestingData,

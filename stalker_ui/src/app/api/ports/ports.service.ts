@@ -44,4 +44,8 @@ export class PortsService {
   public getPort(portId: string) {
     return <Observable<Port>>this.http.get(`${environment.fmUrl}/ports/${portId}`);
   }
+
+  public async delete(portId: string) {
+    return await firstValueFrom(this.http.delete(`${environment.fmUrl}/ports/${portId}`));
+  }
 }

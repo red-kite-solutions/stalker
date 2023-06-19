@@ -367,4 +367,16 @@ describe('Host Controller (e2e)', () => {
     );
     expect(success).toBe(true);
   });
+
+  it('Should have proper authorizations (DELETE /hosts/)', async () => {
+    // Arrange & Act
+    const success = await checkAuthorizations(
+      testData,
+      Role.User,
+      async (givenToken) => {
+        return await deleteReq(app, givenToken, `/hosts/`, []);
+      },
+    );
+    expect(success).toBe(true);
+  });
 });

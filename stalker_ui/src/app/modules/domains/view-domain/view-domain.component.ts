@@ -1,7 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatIconModule } from '@angular/material/icon';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, combineLatest, map, merge, shareReplay, switchMap, tap } from 'rxjs';
 import { CompaniesService } from 'src/app/api/companies/companies.service';
@@ -15,22 +19,53 @@ import { PanelSectionModule } from '../../../shared/components/panel-section/pan
 import { SharedModule } from '../../../shared/shared.module';
 import { Domain } from '../../../shared/types/domain/domain.interface';
 import { PortNumber } from '../../../shared/types/ports/port.interface';
+import {
+  ConfirmDialogComponent,
+  ConfirmDialogData,
+} from '../../../shared/widget/confirm-dialog/confirm-dialog.component';
 import { SelectItem } from '../../../shared/widget/text-select-menu/text-select-menu.component';
 import { FindingsModule } from '../../findings/findings.module';
 
 @Component({
   standalone: true,
-  imports: [CommonModule, SharedModule, RouterModule, AppHeaderComponent, FindingsModule, PanelSectionModule],
+  imports: [
+    CommonModule,
+    SharedModule,
+    RouterModule,
+    AppHeaderComponent,
+    FindingsModule,
+    PanelSectionModule,
+    MatDividerModule,
+    MatButtonModule,
+    MatIconModule,
+  ],
   selector: 'app-view-domain',
   templateUrl: './view-domain.component.html',
   styleUrls: ['./view-domain.component.scss'],
 })
-export class ViewDomainComponent {
+export class ViewDomainComponent implements OnDestroy {
+  public menuTargetWidth = 100;
+  public menuResizeObserver$?: ResizeObserver;
+
+  @ViewChild('managementPanelSection', { read: ElementRef, static: false })
+  set managementPanelSection(managementPanelSection: ElementRef) {
+    if (managementPanelSection && !this._managementPanelSection) {
+      this._managementPanelSection = managementPanelSection;
+      this.menuResizeObserver$ = new ResizeObserver((resize) => {
+        this.menuTargetWidth = resize[0].contentRect.width;
+      });
+      this.menuResizeObserver$.observe(this._managementPanelSection.nativeElement);
+    }
+  }
+
+  _managementPanelSection!: ElementRef;
+
   public routeLoading = false;
   displayedColumns: string[] = ['ipAddress', 'ports'];
   public manageTags: string = $localize`:Manage Tags|Manage Tags:Manage Tags`;
   public filterTags: string = $localize`:Filter Tags|Filter Tags:Filter Tags`;
   public emptyTags: string = $localize`:No Tags|List of tags is empty:No Tags Available`;
+  public manageDomainText: string = $localize`:Manage domain|Manage the domain name element:Manage domain`;
 
   companies: CompanySummary[] = [];
   companies$ = this.companiesService.getAllSummaries().pipe(
@@ -110,21 +145,18 @@ export class ViewDomainComponent {
         .slice(0, size)
     )
   );
-  constructor(
-    private route: ActivatedRoute,
-    private domainsService: DomainsService,
-    private companiesService: CompaniesService,
-    private tagsService: TagsService,
-    private titleService: Title,
-    private toastr: ToastrService,
-    private portsService: PortsService
-  ) {}
 
   private getTopPorts(hostId: string) {
     return this.portsService.getPorts(hostId, 0, 65535, { sortType: 'popularity' }).pipe(
       map((ports: PortNumber[]) => ports.sort((a, b) => a.port - b.port)),
       shareReplay(1)
     );
+  }
+
+  ngOnDestroy(): void {
+    if (this.menuResizeObserver$) {
+      this.menuResizeObserver$.unobserve(this._managementPanelSection.nativeElement);
+    }
   }
 
   /**
@@ -151,4 +183,50 @@ export class ViewDomainComponent {
       this.toastr.error($localize`:Error while tagging|Error while tagging an item:Error while tagging`);
     }
   }
+
+  public async deleteDomain() {
+    const errorDeleting = $localize`:Error while deleting|Error while deleting an item:Error while deleting`;
+    if (!this.domainId) {
+      this.toastr.error(errorDeleting);
+    }
+
+    const data: ConfirmDialogData = {
+      text: $localize`:Confirm domain deletion|Confirmation message asking if the user really wants to delete the domain:Do you really wish to delete this domain permanently ?`,
+      title: $localize`:Deleting domain|Title of a page to delete a domain:Deleting domain`,
+      primaryButtonText: $localize`:Cancel|Cancel current action:Cancel`,
+      dangerButtonText: $localize`:Delete permanently|Confirm that the user wants to delete the item permanently:Delete permanently`,
+      onPrimaryButtonClick: () => {
+        this.dialog.closeAll();
+      },
+      onDangerButtonClick: async () => {
+        try {
+          await this.domainsService.delete(this.domainId);
+          this.toastr.success(
+            $localize`:Domain deleted|The domain has been successfully deleted:Domain successfully deleted`
+          );
+          this.router.navigate(['/hosts/']);
+          this.dialog.closeAll();
+        } catch (err) {
+          this.toastr.error(errorDeleting);
+        }
+      },
+    };
+
+    this.dialog.open(ConfirmDialogComponent, {
+      data,
+      restoreFocus: false,
+    });
+  }
+
+  constructor(
+    private route: ActivatedRoute,
+    private domainsService: DomainsService,
+    private companiesService: CompaniesService,
+    private tagsService: TagsService,
+    private titleService: Title,
+    private toastr: ToastrService,
+    private portsService: PortsService,
+    private router: Router,
+    public dialog: MatDialog
+  ) {}
 }

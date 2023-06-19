@@ -183,6 +183,18 @@ export class PortService {
     });
   }
 
+  public async deleteAllForHost(hostId: string): Promise<DeleteResult> {
+    return await this.portsModel.deleteMany({
+      hostId: { $eq: new Types.ObjectId(hostId) },
+    });
+  }
+
+  public async delete(portId: string): Promise<DeleteResult> {
+    return await this.portsModel.deleteOne({
+      _id: { $eq: new Types.ObjectId(portId) },
+    });
+  }
+
   public async tagPort(
     portId: string,
     tagId: string,

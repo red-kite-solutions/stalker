@@ -10,6 +10,7 @@ import { Company } from '../company.model';
 import { CorrelationKeyUtils } from '../correlation.utils';
 import { DomainsService } from '../domain/domain.service';
 import { DomainSummary } from '../domain/domain.summary';
+import { PortService } from '../port/port.service';
 import { ReportService } from '../report/report.service';
 import { HostFilterModel } from './host-filter.model';
 import { Host, HostDocument } from './host.model';
@@ -27,6 +28,7 @@ export class HostService {
     private tagsService: TagsService,
     @Inject(forwardRef(() => DomainsService))
     private domainService: DomainsService,
+    private portsService: PortService,
   ) {}
 
   public async getAll(
@@ -214,7 +216,19 @@ export class HostService {
       }
     }
 
+    await this.portsService.deleteAllForHost(hostId);
+
     return await this.hostModel.deleteOne({ _id: { $eq: hostId } });
+  }
+
+  public async deleteMany(hostIds: string[]) {
+    let deleteResults: DeleteResult;
+    for (const host of hostIds) {
+      const r = await this.delete(host);
+      if (!deleteResults) deleteResults = r;
+      else deleteResults.deletedCount += r.deletedCount;
+    }
+    return deleteResults;
   }
 
   public async unlinkDomain(

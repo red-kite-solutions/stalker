@@ -39,6 +39,7 @@ export class TextSelectMenuComponent {
   @Input() filterText = $localize`:Filter Items|Filter the items of a list:Filter Items`;
   @Input() emptyText = $localize`:No Items|The list is empty:No items available`;
   @Input() opacity = 1;
+  @Input() menuMaxSize?: number;
   @Output() itemSelection = new EventEmitter<SelectItem>();
 
   selectItem(event: Event, item: SelectItem) {
