@@ -1,4 +1,4 @@
-import { RequireAtLeastOne } from './requireAtLeastOne.type';
+import { RequireAtLeastOne } from './require-at-least-one.type';
 
 interface IdElement {
   _id?: string;

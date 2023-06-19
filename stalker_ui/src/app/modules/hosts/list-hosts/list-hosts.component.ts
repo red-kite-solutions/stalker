@@ -70,10 +70,7 @@ export class ListHostsComponent {
       return this.hostsService.getPage(currentPage.pageIndex, currentPage.pageSize, filters);
     }),
     map((data: Page<Host>) => {
-      if (!this.dataSource) {
-        this.dataSource = new MatTableDataSource<Host>();
-      }
-      this.dataSource.data = data.items;
+      this.dataSource = new MatTableDataSource<Host>(data.items);
       this.count = data.totalRecords;
       this.dataLoading = false;
       return data;
@@ -217,9 +214,7 @@ export class ListHostsComponent {
     }
 
     if (!this.selectedNewHosts) {
-      this.toastr.warning(
-        $localize`:Missing domain|The data selected is missing the new domain names:Missing domain name`
-      );
+      this.toastr.warning($localize`:Missing host|The data selected is missing the new hosts:Missing host IPs`);
       return;
     }
 
@@ -232,12 +227,11 @@ export class ListHostsComponent {
 
     try {
       const addedHosts = await this.hostsService.addHosts(this.selectedCompany, newHosts);
-
       this.toastr.success($localize`:Changes saved|Changes to item saved successfully:Changes saved successfully`);
 
       if (addedHosts.length < newHosts.length) {
         this.toastr.warning(
-          $localize`:Hosts  not added|Some hosts were not added to the database:Some hosts were not added`
+          $localize`:Hosts not added|Some hosts were not added to the database:Some hosts were not added`
         );
       }
 
