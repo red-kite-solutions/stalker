@@ -219,7 +219,7 @@ deployments:
         version: "13.9.1"
       values:
         architecture: replicaset
-        replicaCount: 4
+        replicaCount: 2
         externalAccess.enabled: true
         externalAccess.service.type: LoadBalancer
         externalAccess.service.port: 27017
