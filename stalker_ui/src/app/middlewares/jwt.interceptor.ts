@@ -49,7 +49,8 @@ export class JwtInterceptor implements HttpInterceptor {
   private shouldBeAuthenticated(request: HttpRequest<any>) {
     return !(
       request.url.startsWith(`${environment.fmUrl}/auth/login`) ||
-      request.url.startsWith(`${environment.fmUrl}/auth/refresh`)
+      request.url.startsWith(`${environment.fmUrl}/auth/refresh`) ||
+      request.url.startsWith(`${environment.fmUrl}/users/first`)
     );
   }
 }

@@ -11,6 +11,10 @@ export interface AuthTokenProvider {
   token: string;
 }
 
+export interface IsServerSetup {
+  isSetup: boolean;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -69,6 +73,14 @@ export class AuthService implements AuthTokenProvider {
           returnUrl: getReturnUrl(this.router),
         },
       });
+    }
+  }
+
+  public async checkServerSetup() {
+    const isSetup = <IsServerSetup>await firstValueFrom(this.http.get(`${environment.fmUrl}/auth/setup`));
+
+    if (!isSetup.isSetup) {
+      this.router.navigate(['/auth/first']);
     }
   }
 

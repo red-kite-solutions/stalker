@@ -22,6 +22,7 @@ export class LoginComponent {
     private titleService: Title
   ) {
     this.titleService.setTitle($localize`:Sign in page title|:Sign in to Stalker`);
+    this.authService.checkServerSetup();
   }
 
   async onSubmit() {

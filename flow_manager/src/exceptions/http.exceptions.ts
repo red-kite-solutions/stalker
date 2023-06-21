@@ -13,8 +13,8 @@ export class HttpConflictException extends HttpException {
 }
 
 export class HttpForbiddenException extends HttpException {
-  constructor() {
-    super('Invalid credentials', HttpStatus.FORBIDDEN);
+  constructor(message: string | null = null) {
+    super(message ?? 'Invalid credentials', HttpStatus.FORBIDDEN);
   }
 }
 

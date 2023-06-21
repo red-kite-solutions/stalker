@@ -22,17 +22,22 @@ import { Role } from '../../auth/constants';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/role.guard';
-import { ChangePasswordDto, CreateUserDto, EditUserDto } from './users.dto';
+import {
+  ChangePasswordDto,
+  CreateFirstUserDto,
+  CreateUserDto,
+  EditUserDto,
+} from './users.dto';
 import { User, UserDocument } from './users.model';
 import { UsersService } from './users.service';
 
-@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('/users')
 export class UsersController {
   private logger = new Logger(UsersController.name);
 
   constructor(private readonly usersService: UsersService) {}
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.Admin)
   @Get()
   public async getUsers(): Promise<User[]> {
@@ -44,6 +49,7 @@ export class UsersController {
     }
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.Admin)
   @Post()
   public async createUser(
@@ -81,6 +87,18 @@ export class UsersController {
     }
   }
 
+  /**
+   * This method is intentionnally without authentication and authorization guards
+   * because it can only create the first user, and will return an error otherwise
+   * @param dto
+   */
+  @Post('first')
+  public async createFirstUser(@Body() dto: CreateFirstUserDto) {
+    await this.usersService.createFirstUser(dto);
+    return;
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ReadOnly)
   @Get(':id')
   public async getUser(
@@ -98,6 +116,7 @@ export class UsersController {
     }
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ReadOnly)
   @Put(':id')
   public async editUser(
@@ -145,12 +164,13 @@ export class UsersController {
     }
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ReadOnly)
   @Put(':id/password')
   public async editUserPassword(
     @Request() req,
     @Param() idDto: MongoIdDto,
-    @Body(new ValidationPipe()) dto: ChangePasswordDto,
+    @Body() dto: ChangePasswordDto,
   ): Promise<void> {
     if (req.user.role !== Role.Admin && req.user.id !== idDto.id) {
       throw new HttpForbiddenException();
@@ -177,6 +197,7 @@ export class UsersController {
     }
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.Admin)
   @Delete(':id')
   public async deleteUser(@Param() dto: MongoIdDto): Promise<DeleteResult> {

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { Kafka } from 'kafkajs';
+import { FM_ENVIRONMENTS } from '../app.constants';
 import { orchestratorConstants } from '../auth/constants';
 import { FindingsQueue } from './findings-queue';
 import { JobQueue } from './job-queue';
@@ -15,7 +16,8 @@ import { NullJobQueue } from './null-job-queue';
     {
       provide: JobQueue,
       useFactory: async () => {
-        if (process.env.TESTS) return new NullJobQueue();
+        if (process.env.FM_ENVIRONMENT === FM_ENVIRONMENTS.tests)
+          return new NullJobQueue();
 
         const kafka = new Kafka({
           clientId: orchestratorConstants.clientId,
@@ -31,7 +33,8 @@ import { NullJobQueue } from './null-job-queue';
     {
       provide: FindingsQueue,
       useFactory: async () => {
-        if (process.env.TESTS) return new NullFindingsQueue();
+        if (process.env.FM_ENVIRONMENT === FM_ENVIRONMENTS.tests)
+          return new NullFindingsQueue();
 
         const kafka = new Kafka({
           clientId: orchestratorConstants.clientId,

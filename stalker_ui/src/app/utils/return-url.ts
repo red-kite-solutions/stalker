@@ -6,6 +6,7 @@ export function getReturnUrl(router: Router) {
   const url = router.url;
   if (!url) return undefined;
   if (url.startsWith('/auth/login')) return undefined;
+  if (url.startsWith('/auth/first')) return undefined;
 
   return url;
 }
