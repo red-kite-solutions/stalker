@@ -60,8 +60,11 @@ export class AuthController {
     }
   }
 
-  // This function is left without authorizations on purpose
-  // It is used to anonymously know if the platform was proerply initialized
+  /**
+   * This function is left without authorizations on purpose
+   * It is used to anonymously know if the platform was properly initialized
+   * @returns
+   */
   @Get('setup')
   async getIsSetup(): Promise<any> {
     return { isSetup: await this.authService.isAuthenticationSetup() };

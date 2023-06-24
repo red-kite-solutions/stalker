@@ -25,11 +25,20 @@ export class UsersService {
     @Inject(USER_INIT) userProvider,
   ) {}
 
+  /**
+   * Tells if the first user of the application has been created
+   * @returns True if created, false otherwise
+   */
   public async isFirstUserCreated() {
     const u = await this.userModel.findOne({});
     return !!u;
   }
 
+  /**
+   * Creates the first user of the application. The call to this method will
+   * fail by throwing a HttpForbiddenException if there is already a user in the database
+   * @param user
+   */
   public async createFirstUser(user: CreateFirstUserDto) {
     const err = 'Application already initialized';
     // This first check looks for a user without locking the DB
@@ -48,7 +57,7 @@ export class UsersService {
     };
 
     // This second check looks for a user while locking the DB
-    // It prevents a race condition on the first setup allowing
+    // It prevents a potential race condition on the first setup allowing
     // the creation of multiple first users.
     const session = await this.userModel.startSession();
     try {
