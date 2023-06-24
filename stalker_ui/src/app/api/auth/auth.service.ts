@@ -76,11 +76,13 @@ export class AuthService implements AuthTokenProvider {
     }
   }
 
-  public async checkServerSetup() {
+  public async checkServerSetup(isOnLogin = false) {
     const isSetup = <IsServerSetup>await firstValueFrom(this.http.get(`${environment.fmUrl}/auth/setup`));
 
     if (!isSetup.isSetup) {
       this.router.navigate(['/auth/first']);
+    } else {
+      if (!isOnLogin) this.router.navigate(['/auth/login']);
     }
   }
 

@@ -3,6 +3,7 @@ import { UntypedFormBuilder, UntypedFormControl, ValidationErrors, Validators } 
 import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { AuthService } from '../../../api/auth/auth.service';
 import { UsersService } from '../../../api/users/users.service';
 
 @Component({
@@ -61,9 +62,11 @@ export class FirstComponent {
     private router: Router,
     private titleService: Title,
     private toastr: ToastrService,
-    private usersService: UsersService
+    private usersService: UsersService,
+    private authService: AuthService
   ) {
     this.titleService.setTitle($localize`Initial setup:Create first user page title|:Initial Setup`);
+    this.authService.checkServerSetup();
   }
 
   async onSubmit() {

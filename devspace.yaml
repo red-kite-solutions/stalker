@@ -153,7 +153,7 @@ deployments:
               - name: MONGO_REPLICA_SET_NAME
                 value: ${MONGO_REPLICA_SET_NAME}
               - name: FM_ENVIRONMENT
-                value: "dev" # dev, tests, prod
+                value: ${FM_ENVIRONMENT}
 
             image: flow_manager
             name: flow-manager-container

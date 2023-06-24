@@ -11,13 +11,10 @@ export const userInitProvider = [
     inject: [getModelToken('users')],
     useFactory: async (userModel: Model<User>) => {
       const user = await userModel.findOne({});
-
       if (
         user ||
-        !(
-          process.env.FM_ENVIRONMENT === FM_ENVIRONMENTS.dev ||
-          process.env.FM_ENVIRONMENT === FM_ENVIRONMENTS.tests
-        )
+        (process.env.FM_ENVIRONMENT !== FM_ENVIRONMENTS.dev &&
+          process.env.FM_ENVIRONMENT !== FM_ENVIRONMENTS.tests)
       )
         return;
 
