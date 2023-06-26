@@ -24,6 +24,7 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/role.guard';
 import { CustomJobEntry } from '../custom-jobs/custom-jobs.model';
 import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
+import { MONGO_DUPLICATE_ERROR } from '../database.constants';
 import { JobSources } from '../jobs/job-model.module';
 import { JobFactory } from '../jobs/jobs.factory';
 import { CustomJob } from '../jobs/models/custom-job.model';
@@ -88,7 +89,7 @@ export class CompanyController {
     try {
       return await this.companyService.addCompany(dto);
     } catch (err) {
-      if (err.code === 11000) {
+      if (err.code === MONGO_DUPLICATE_ERROR) {
         // Duplicate key error
         throw new HttpConflictException();
       }
@@ -222,7 +223,7 @@ export class CompanyController {
     try {
       return await this.companyService.editCompany(id.id, data);
     } catch (err) {
-      if (err.code === 11000) {
+      if (err.code === MONGO_DUPLICATE_ERROR) {
         // Duplicate key error
         throw new HttpConflictException();
       }

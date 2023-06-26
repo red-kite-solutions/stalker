@@ -1,5 +1,6 @@
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { MONGO_DUPLICATE_ERROR } from '../database.constants';
 import { User } from './users.model';
 
 export const USER_INIT = 'USER_INIT';
@@ -24,7 +25,7 @@ export const userInitProvider = [
           role: 'admin',
         });
       } catch (err) {
-        if (err.code !== 11000) throw err;
+        if (err.code !== MONGO_DUPLICATE_ERROR) throw err;
       }
     },
   },

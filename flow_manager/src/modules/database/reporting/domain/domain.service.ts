@@ -203,9 +203,6 @@ export class DomainsService {
     domainId: string,
     hostId: string,
   ): Promise<UpdateResult> {
-    console.log('domain Id: ' + domainId);
-    console.log('host Id: ' + hostId);
-
     return await this.domainModel.updateOne(
       { _id: { $eq: new Types.ObjectId(domainId) } },
       { $pull: { hosts: { id: { $eq: new Types.ObjectId(hostId) } } } },
