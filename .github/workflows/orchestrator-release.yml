@@ -7,12 +7,13 @@ on:
 
 jobs:
   docker:
+    name: Build and push docker image
     runs-on: ubuntu-latest
     steps:
       - uses: actions/github-script@v6
         id: image-tag
         with:
-          script: return context.ref
+          script: return context.ref.substr('refs/tags/orchestrator/'.length)
           result-encoding: string
 
       - name: Get result
