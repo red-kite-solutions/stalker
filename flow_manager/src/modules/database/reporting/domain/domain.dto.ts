@@ -27,6 +27,10 @@ export class DomainsPagingDto {
 
   @IsArray()
   @IsOptional()
+  host: Array<string>;
+
+  @IsArray()
+  @IsOptional()
   tags: Array<string>;
 
   @ValidateIf((dto) => dto.company !== '')

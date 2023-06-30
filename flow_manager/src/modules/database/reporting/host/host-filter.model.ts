@@ -7,4 +7,5 @@ export class HostFilterModel {
   domain?: Array<string>;
   tags?: Array<string>;
   company?: Array<string>;
+  host?: Array<string>;
 }
