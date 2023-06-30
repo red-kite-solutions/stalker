@@ -261,7 +261,9 @@ export class HostService {
     if (dto.host) {
       const hosts = dto.host
         .filter((x) => x)
-        .map((x) => x.toLowerCase().trim());
+        .map((x) => x.toLowerCase().trim())
+        .map((x) => escapeStringRegexp(x))
+        .map((x) => new RegExp(`.*${x}.*`));
 
       if (hosts.length > 0) {
         finalFilter['ip'] = { $in: hosts };
@@ -270,13 +272,12 @@ export class HostService {
 
     // Filter by company
     if (dto.company) {
-      const companiesRegexes = dto.company
+      const companyIds = dto.company
         .filter((x) => x)
-        .map((x) => x.toLowerCase())
-        .map((x) => escapeStringRegexp(x));
+        .map((x) => new Types.ObjectId(x));
 
-      if (companiesRegexes.length > 0) {
-        finalFilter['companyName'] = { $all: companiesRegexes };
+      if (companyIds.length > 0) {
+        finalFilter['companyId'] = { $in: companyIds };
       }
     }
 

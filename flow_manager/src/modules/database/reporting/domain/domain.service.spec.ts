@@ -137,25 +137,30 @@ describe('Domain Service', () => {
     );
 
     it.each([
-      [['1.1.1.1'], 'foo.example.org', 'bar.example.org'],
-      [['  1.1.1.1  '], 'foo.example.org', 'bar.example.org'],
-      [['2.2.2.2', '6.6.6.6']],
+      [
+        ['159'],
+        'foo.example.org',
+        'bar.example.org',
+        'bar.foo.company.example.org',
+      ],
+      [['1.1.159.1'], 'foo.example.org', 'bar.example.org'],
+      [['  1.1.159.1  '], 'foo.example.org', 'bar.example.org'],
     ])(
-      'Filter by host',
+      'Filter by host %s',
       async (hosts: string[], ...expectedDomains: string[]) => {
         // Arrange
         const c1 = await company('c1');
         const c2 = await company('c2');
 
         await domain('foo.example.org', c1);
-        await host('1.1.1.1', 'foo.example.org', c1);
+        await host('1.1.159.1', 'foo.example.org', c1);
         await host('2.2.2.2', 'foo.example.org', c1);
 
         await domain('bar.example.org', c1);
-        await host('1.1.1.1', 'bar.example.org', c1);
+        await host('1.1.159.1', 'bar.example.org', c1);
 
         await domain('bar.foo.company.example.org', c2);
-        await host('6.6.6.6', 'bar.foo.company.example.org', c2);
+        await host('6.6.159.6', 'bar.foo.company.example.org', c2);
 
         await domain('unrelated.example.org', c2);
 

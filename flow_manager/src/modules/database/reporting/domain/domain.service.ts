@@ -251,14 +251,16 @@ export class DomainsService {
       }
     }
 
-    // Filter by hosts
+    // Filter by host
     if (dto.host) {
       const hosts = dto.host
         .filter((x) => x)
-        .map((x) => x.toLowerCase().trim());
+        .map((x) => x.toLowerCase().trim())
+        .map((x) => escapeStringRegexp(x))
+        .map((x) => new RegExp(`.*${x}.*`));
 
       if (hosts.length > 0) {
-        finalFilter['hosts.ip'] = { $all: hosts };
+        finalFilter['hosts.ip'] = { $in: hosts };
       }
     }
 
