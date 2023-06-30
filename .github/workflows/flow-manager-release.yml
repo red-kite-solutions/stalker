@@ -1,9 +1,9 @@
-name: Orchestrator / Release
+name: Flow Manager / Release
 
 on:
   push:
     tags:
-      - orchestrator/v*
+      - flow-manager/v*
 
 jobs:
   docker:
@@ -30,7 +30,7 @@ jobs:
         uses: actions/github-script@v6
         id: version
         with:
-          script: return context.ref.substr('refs/tags/orchestrator/'.length)
+          script: return context.ref.substr('refs/tags/flow-manager/'.length)
           result-encoding: string
 
       - name: Docker meta
@@ -38,7 +38,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ghcr.io/red-kite-solutions/orchestrator
+            ghcr.io/red-kite-solutions/flow-manager
           tags: |
             type=semver,pattern={{version}},value=${{steps.version.outputs.result}}
             type=semver,pattern={{major}}.{{minor}},value=${{steps.version.outputs.result}}
@@ -49,7 +49,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          context: ./orchestrator
+          context: ./flow_manager
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
