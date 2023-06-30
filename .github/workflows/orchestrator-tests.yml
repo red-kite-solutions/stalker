@@ -1,4 +1,4 @@
-name: Orchestrator
+name: Orchestrator / Tests
 
 on:
   pull_request:

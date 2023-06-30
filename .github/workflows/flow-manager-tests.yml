@@ -1,4 +1,4 @@
-name: Flow Manager
+name: Flow Manager / Tests
 
 on:
   pull_request:

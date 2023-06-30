@@ -1,0 +1,19 @@
+name: Orchestrator / Release
+
+on:
+  push:
+    tags:
+      - orchestrator/v*
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v6
+        id: image-tag
+        with:
+          script: return context.ref
+          result-encoding: string
+
+      - name: Get result
+        run: echo "${{steps.image-tag.outputs.result}}"
