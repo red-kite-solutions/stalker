@@ -37,16 +37,16 @@ jobs:
           images: |
             ghcr.io/red-kite-solutions/orchestrator
           tags: |
-            type=semver,pattern={{version}},value={{steps.version.outputs.result}}
-            type=semver,pattern={{major}}.{{minor}},value={{steps.version.outputs.result}}
-            type=semver,pattern={{major}},value={{steps.version.outputs.result}}
+            type=semver,pattern={{version}},value=${{steps.version.outputs.result}}
+            type=semver,pattern={{major}}.{{minor}},value=${{steps.version.outputs.result}}
+            type=semver,pattern={{major}},value=${{steps.version.outputs.result}}
             type=sha
 
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
           push: false # TODO: true
-          context: orchestrator
+          context: ./orchestrator
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
