@@ -5,6 +5,9 @@ on:
     tags:
       - flow-manager/v*
 
+permissions:
+  packages: write
+
 jobs:
   docker:
     name: Build and push docker image
