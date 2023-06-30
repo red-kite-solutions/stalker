@@ -16,5 +16,34 @@ jobs:
           script: return context.ref.substr('refs/tags/orchestrator/'.length)
           result-encoding: string
 
-      - name: Get result
-        run: echo "${{steps.image-tag.outputs.result}}"
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            ghcr.io/red-kite-solutions/orchestrator
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha
+
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          push: false # TODO: true
+          context: orchestrator
+          tags: red-kite-solutions/orchestrator:${{steps.image-tag.outputs.result}}
