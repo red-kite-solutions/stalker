@@ -37,6 +37,7 @@ import { FilteredPaginatedTableComponent } from './widget/filtered-paginated-tab
 import { ImageUploadComponent } from './widget/image-upload/image-upload.component';
 import { PillTagComponent } from './widget/pill-tag/pill-tag.component';
 import { SpinnerButtonComponent } from './widget/spinner-button/spinner-button.component';
+import { TextMenuComponent } from './widget/text-menu/text-menu.component';
 import { TextSelectMenuComponent } from './widget/text-select-menu/text-select-menu.component';
 
 @NgModule({
@@ -55,6 +56,7 @@ import { TextSelectMenuComponent } from './widget/text-select-menu/text-select-m
     TimeAgoPipe,
     HumanizePipe,
     TextSelectMenuComponent,
+    TextMenuComponent,
   ],
   imports: [
     CommonModule,
@@ -100,6 +102,7 @@ import { TextSelectMenuComponent } from './widget/text-select-menu/text-select-m
     HumanizePipe,
     CodeEditorComponent,
     TextSelectMenuComponent,
+    TextMenuComponent,
   ],
 })
 export class SharedModule {}

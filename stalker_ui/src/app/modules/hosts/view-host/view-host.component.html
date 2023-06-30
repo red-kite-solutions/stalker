@@ -7,20 +7,13 @@
     </div>
 
     <div class="context">
-      <panel-section>
-        <button mat-flat-button color="warn" class="full-width" (click)="deleteHost()">
-          <label i18n="Delete|Delete an item">Delete</label>
-        </button>
-      </panel-section>
-
-      <mat-divider></mat-divider>
-
       <panel-section *ngIf="(tagsSelectItems$ | async) && mergedTags$ | async as hostTags">
         <panel-section-title i18n="Tags|The tags of an item"
           >Tags
           <span class="manage-tags-menu">
             —
             <app-text-select-menu
+              [menuMaxSize]="menuTargetWidth"
               [items]="tagsSelectItems$ | async"
               [buttonText]="manageTags"
               [filterText]="filterTags"
@@ -80,6 +73,18 @@
         >
           Show more ({{ ports.length }})
         </button>
+      </panel-section>
+
+      <mat-divider></mat-divider>
+
+      <panel-section class="management" #managementPanelSection>
+        <app-text-menu [buttonText]="manageHostText" [iconName]="'settings'" [xPosition]="'before'">
+          <div [style.width.px]="menuTargetWidth - 16" class="management-content">
+            <button mat-flat-button color="warn" class="full-width" (click)="deleteHost()">
+              <label i18n="Delete|Delete an item">Delete</label>
+            </button>
+          </div>
+        </app-text-menu>
       </panel-section>
     </div>
   </div>

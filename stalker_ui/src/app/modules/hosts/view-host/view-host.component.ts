@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -61,11 +61,28 @@ import { FindingsModule } from '../../findings/findings.module';
   styleUrls: ['./view-host.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ViewHostComponent {
+export class ViewHostComponent implements OnDestroy {
+  public menuTargetWidth = 100;
+  public menuResizeObserver$?: ResizeObserver;
+
+  @ViewChild('managementPanelSection', { read: ElementRef, static: false })
+  set managementPanelSection(managementPanelSection: ElementRef) {
+    if (managementPanelSection && !this._managementPanelSection) {
+      this._managementPanelSection = managementPanelSection;
+      this.menuResizeObserver$ = new ResizeObserver((resize) => {
+        this.menuTargetWidth = resize[0].contentRect.width;
+      });
+      this.menuResizeObserver$.observe(this._managementPanelSection.nativeElement);
+    }
+  }
+
+  _managementPanelSection!: ElementRef;
+
   displayedColumns: string[] = ['domainName'];
   public manageTags: string = $localize`:Manage Tags|Manage Tags:Manage Tags`;
   public filterTags: string = $localize`:Filter Tags|Filter Tags:Filter Tags`;
   public emptyTags: string = $localize`:No Tags|List of tags is empty:No Tags Available`;
+  public manageHostText: string = $localize`:Manage host|Manage the host element:Manage host`;
 
   // Drawer
   public currentDetailsId: string | null = null;
@@ -168,6 +185,12 @@ export class ViewHostComponent {
       this.hostTagsSubject$.next(this.hostTagsCache);
     } catch (err) {
       this.toastr.error($localize`:Error while tagging|Error while tagging an item:Error while tagging`);
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.menuResizeObserver$) {
+      this.menuResizeObserver$.unobserve(this._managementPanelSection.nativeElement);
     }
   }
 

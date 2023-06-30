@@ -24,7 +24,7 @@ import {
   MatTableDataSource,
 } from '@angular/material/table';
 import { map, Observable, startWith } from 'rxjs';
-import { IdentifiedElement } from '../../types/identifiedElement.type';
+import { IdentifiedElement } from '../../types/identified-element.type';
 
 @Component({
   selector: 'app-filtered-paginated-table',

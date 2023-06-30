@@ -1,0 +1,11 @@
+@mixin app-text-menu() {
+  .app-text-menu-container {
+    // Preventing the menu from taking the whole page
+    // !important is required
+    max-height: calc(60vh - 48px) !important;
+    overflow: scroll;
+    &.mat-menu-panel {
+      min-height: fit-content;
+    }
+  }
+}
