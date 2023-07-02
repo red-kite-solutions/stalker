@@ -152,6 +152,8 @@ deployments:
                 value: ${STALKER_URL}
               - name: MONGO_REPLICA_SET_NAME
                 value: ${MONGO_REPLICA_SET_NAME}
+              - name: FM_ENVIRONMENT
+                value: ${FM_ENVIRONMENT}
 
             image: flow_manager
             name: flow-manager-container
@@ -169,8 +171,6 @@ deployments:
           - image: flow_manager_e2e
             name: flow-manager-container-e2e
             env:
-              - name: TESTS
-                value: "true"
               - name: MONGO_ADDRESS
                 value: ${FM_MONGO_ADDRESS}
               - name: MONGO_DATABASE_NAME
@@ -188,6 +188,8 @@ deployments:
                 value: ${STALKER_URL}
               - name: MONGO_REPLICA_SET_NAME
                 value: ${MONGO_REPLICA_SET_NAME}
+              - name: FM_ENVIRONMENT
+                value: "tests"
 
         service:
           ports:

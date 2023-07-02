@@ -40,6 +40,25 @@ export class CreateUserDto {
   public currentPassword: string;
 }
 
+export class CreateFirstUserDto {
+  @IsNotEmpty()
+  @IsEmail()
+  public email: string;
+
+  @IsNotEmpty()
+  @IsString()
+  public firstName: string;
+
+  @IsNotEmpty()
+  @IsString()
+  public lastName: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @Length(12)
+  public password: string;
+}
+
 export class ChangePasswordDto {
   @IsNotEmpty()
   @IsString()

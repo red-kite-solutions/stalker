@@ -11,6 +11,7 @@ vars:
   FM_REFRESH_SECRET: "123456" # The secret used to sign JWT refresh token for users
   FM_MONGO_ADDRESS: mongodb://root:${MONGO_ROOT_PASSWORD}@mongo-mongodb-headless:27017/ # The address of the FM's mongo database
   FM_MONGO_DATABASE_NAME: stalker
+  FM_ENVIRONMENT: "dev" # dev, tests, prod
 
   KAFKA_URI: "kafka:9092"
 

@@ -9,6 +9,7 @@ import {
   TimestampedString,
 } from '../../../types/timestamped-string.type';
 import { CompanyUnassigned } from '../../../validators/is-company-id.validator';
+import { FM_ENVIRONMENTS } from '../../app.constants';
 import { JobQueue } from '../../job-queue/job-queue';
 import { JobExecutionsDto } from './job-executions.dto';
 import { Job, JobDocument } from './models/jobs.model';
@@ -78,7 +79,7 @@ export class JobsService {
       createdJob = await this.jobModel.create(job);
     }
 
-    if (!process.env.TESTS) {
+    if (process.env.FM_ENVIRONMENT !== FM_ENVIRONMENTS.tests) {
       await this.jobQueue.publish({
         key: createdJob.id,
         value: JSON.stringify({
