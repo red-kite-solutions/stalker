@@ -14,6 +14,7 @@
           <span class="manage-tags-menu">
             —
             <app-text-select-menu
+              [menuMaxSize]="menuTargetWidth"
               [items]="tagsSelectItems$ | async"
               [buttonText]="manageTags"
               [filterText]="filterTags"
@@ -70,6 +71,18 @@
         >
           Show more ({{ domain?.hosts?.length }})
         </button>
+      </panel-section>
+
+      <mat-divider></mat-divider>
+
+      <panel-section class="management" #managementPanelSection>
+        <app-text-menu [buttonText]="manageDomainText" [iconName]="'settings'" [xPosition]="'before'">
+          <div [style.width.px]="menuTargetWidth - 16" class="management-content">
+            <button mat-flat-button color="warn" class="full-width" (click)="deleteDomain()">
+              <label i18n="Delete|Delete an item">Delete</label>
+            </button>
+          </div>
+        </app-text-menu>
       </panel-section>
     </div>
   </div>

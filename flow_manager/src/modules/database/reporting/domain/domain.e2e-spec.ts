@@ -297,6 +297,36 @@ describe('Domain Controller (e2e)', () => {
     expect(success).toBe(true);
   });
 
+  it('Should have proper authorizations (DELETE /domains/:id)', async () => {
+    // Arrange & Act
+    const success = await checkAuthorizations(
+      testData,
+      Role.User,
+      async (givenToken) => {
+        return await deleteReq(
+          app,
+          givenToken,
+          `/domains/62780ca0156f3d3fda24c4e2`,
+        );
+      },
+    );
+    // Assert
+    expect(success).toBe(true);
+  });
+
+  it('Should have proper authorizations (DELETE /domains/)', async () => {
+    // Arrange & Act
+    const success = await checkAuthorizations(
+      testData,
+      Role.User,
+      async (givenToken) => {
+        return await deleteReq(app, givenToken, `/domains/`, []);
+      },
+    );
+    // Assert
+    expect(success).toBe(true);
+  });
+
   afterAll(async () => {
     await deleteReq(app, testData.admin.token, `/company/${companyId}`);
     await deleteReq(app, testData.admin.token, `/tags/${tagId}`);

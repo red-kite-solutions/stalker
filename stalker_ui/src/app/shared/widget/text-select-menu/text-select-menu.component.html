@@ -1,12 +1,16 @@
-<a class="clickable-text" [matMenuTriggerFor]="menu">{{ buttonText }}</a>
-<mat-menu #menu="matMenu" class="app-text-select-menu-container">
+<app-text-menu [buttonText]="buttonText" [xPosition]="'before'" [style.max-width.px]="menuMaxSize">
   <div
     class="app-text-select-menu-search-container"
     *ngIf="filterEnabled"
     (click)="$event.stopPropagation()"
     (keydown)="$event.stopPropagation()"
+    [style.max-width.px]="menuMaxSize"
   >
-    <mat-form-field class="search-item" appearance="outline">
+    <mat-form-field
+      class="search-item"
+      appearance="outline"
+      [style.width.px]="menuMaxSize ? menuMaxSize - 16 : menuMaxSize"
+    >
       <mat-label>{{ filterText }}</mat-label>
       <input matInput [(ngModel)]="filter" />
     </mat-form-field>
@@ -24,4 +28,10 @@
     ></span
     >{{ item.text }}
   </button>
-</mat-menu>
+  <ng-content></ng-content>
+</app-text-menu>
+
+<!-- <a class="clickable-text" [matMenuTriggerFor]="menu">{{ buttonText }}</a>
+<mat-menu #menu="matMenu" class="app-text-select-menu-container" xPosition="before">
+  
+</mat-menu> -->

@@ -36,7 +36,7 @@ describe('Host Service', () => {
     await moduleFixture.close();
   });
 
-  describe('Add domains', () => {
+  describe('Add hosts', () => {
     it('Should only return new hosts', async () => {
       // Arrange
       const c = await companyService.addCompany({
@@ -96,7 +96,7 @@ describe('Host Service', () => {
 
       // Act
       const allHosts = await hostService.getAll(0, 10, {
-        company: [c1.name],
+        company: [c1.id],
       });
 
       // Assert
@@ -145,6 +145,39 @@ describe('Host Service', () => {
       },
     );
 
+    it.each([
+      [['159'], '1.1.159.1', '6.6.159.6'],
+      [['1.1.159.1'], '1.1.159.1'],
+      [['  1.1.159.1  '], '1.1.159.1'],
+      [['2.2.2.2', '6.6.159.6'], '2.2.2.2', '6.6.159.6'],
+    ])('Filter by host', async (hosts: string[], ...expectedIps: string[]) => {
+      // Arrange
+      const c1 = await company('c1');
+      const c2 = await company('c2');
+
+      const d1 = await domain('foo.example.org', c1);
+      await host(d1, c1, [], '1.1.159.1', '2.2.2.2');
+
+      const d2 = await domain('bar.foo.company.example.org', c1);
+      await host(d2, c1, [], '1.1.159.1', '3.3.3.3');
+
+      const d3 = await domain('foo.bar.somethingelse.example.org', c2);
+      await host(d3, c2, [], '4.4.4.4', '5.5.5.5');
+
+      const d4 = await domain('unrelated.example.org', c2);
+      await host(d4, c2, [], '6.6.159.6');
+
+      // Act
+      const allHosts = await hostService.getAll(0, 10, {
+        host: hosts,
+      });
+
+      // Assert
+      expect(allHosts.map((x) => x.ip).sort()).toStrictEqual(
+        expectedIps.sort(),
+      );
+    });
+
     it('Filter by tag', async () => {
       // Arrange
       const c1 = await company('c1');
@@ -177,6 +210,40 @@ describe('Host Service', () => {
         '2.2.2.2',
         '3.3.3.3',
       ]);
+    });
+  });
+
+  describe('Delete hosts', () => {
+    it('Delete host by id', async () => {
+      // Arrange
+      const c1 = await company('my first company');
+      const d2 = await domain('company6.example.org', c1);
+
+      const h = await host(d2, c1, [], '2.3.4.5');
+
+      // Act
+      const res = await hostService.delete(h[0]._id.toString());
+
+      // Assert
+      expect(res.deletedCount).toStrictEqual(1);
+    });
+
+    it('Delete multiple hosts by id', async () => {
+      // Arrange
+      const c1 = await company('my first company');
+      const d2 = await domain('company6.example.org', c1);
+
+      const h = await host(d2, c1, [], '2.3.4.5', '1.1.1.1', '3.3.3.3');
+
+      // Act
+      const res = await hostService.deleteMany([
+        h[0]._id.toString(),
+        h[1]._id.toString(),
+        h[2]._id.toString(),
+      ]);
+
+      // Assert
+      expect(res.deletedCount).toStrictEqual(3);
     });
   });
 

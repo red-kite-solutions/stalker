@@ -4,6 +4,7 @@ import { DatalayerModule } from '../../datalayer.module';
 import { JobsModule } from '../../jobs/jobs.module';
 import { TagsModule } from '../../tags/tag.module';
 import { DomainsModule } from '../domain/domain.module';
+import { PortModule } from '../port/port.module';
 import { ReportModule } from '../report/report.module';
 import { HostController } from './host.controller';
 import { HostService } from './host.service';
@@ -16,6 +17,7 @@ import { HostService } from './host.service';
     ConfigModule,
     TagsModule,
     forwardRef(() => DomainsModule),
+    PortModule,
   ],
   controllers: [HostController],
   providers: [HostService],

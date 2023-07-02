@@ -2,6 +2,7 @@ import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { randomUUID } from 'crypto';
 import {
+  TestingData,
   checkAuthorizations,
   cleanup,
   createCompany,
@@ -13,7 +14,6 @@ import {
   initTesting,
   postReq,
   putReq,
-  TestingData,
 } from 'test/e2e.utils';
 import { AppModule } from '../../../app.module';
 import { Role } from '../../../auth/constants';
@@ -147,11 +147,11 @@ describe('Host Controller (e2e)', () => {
         [],
       );
 
-      // Act & Assert
+      // Act & Assert test
       const filtered = await getReq(
         app,
         testData.user.token,
-        `/hosts?page=0&pageSize=2&company[]=${company2.name}`,
+        `/hosts?page=0&pageSize=2&company[]=${company2._id}`,
       );
 
       expect(filtered.body.totalRecords).toBe(4);
@@ -363,6 +363,18 @@ describe('Host Controller (e2e)', () => {
       Role.User,
       async (givenToken) => {
         return await deleteReq(app, givenToken, `/hosts/${hostId}`);
+      },
+    );
+    expect(success).toBe(true);
+  });
+
+  it('Should have proper authorizations (DELETE /hosts/)', async () => {
+    // Arrange & Act
+    const success = await checkAuthorizations(
+      testData,
+      Role.User,
+      async (givenToken) => {
+        return await deleteReq(app, givenToken, `/hosts/`, []);
       },
     );
     expect(success).toBe(true);

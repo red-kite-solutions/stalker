@@ -10,6 +10,7 @@ import { Company } from '../company.model';
 import { CorrelationKeyUtils } from '../correlation.utils';
 import { DomainsService } from '../domain/domain.service';
 import { DomainSummary } from '../domain/domain.summary';
+import { PortService } from '../port/port.service';
 import { ReportService } from '../report/report.service';
 import { HostFilterModel } from './host-filter.model';
 import { Host, HostDocument } from './host.model';
@@ -27,6 +28,7 @@ export class HostService {
     private tagsService: TagsService,
     @Inject(forwardRef(() => DomainsService))
     private domainService: DomainsService,
+    private portsService: PortService,
   ) {}
 
   public async getAll(
@@ -214,7 +216,19 @@ export class HostService {
       }
     }
 
+    await this.portsService.deleteAllForHost(hostId);
+
     return await this.hostModel.deleteOne({ _id: { $eq: hostId } });
+  }
+
+  public async deleteMany(hostIds: string[]) {
+    let deleteResults: DeleteResult;
+    for (const host of hostIds) {
+      const r = await this.delete(host);
+      if (!deleteResults) deleteResults = r;
+      else deleteResults.deletedCount += r.deletedCount;
+    }
+    return deleteResults;
   }
 
   public async unlinkDomain(
@@ -232,41 +246,47 @@ export class HostService {
 
     // Filter by domain
     if (dto.domain) {
-      const domainRegexes = [];
-      for (const domain of dto.domain) {
-        if (domain) {
-          let domainRegex = escapeStringRegexp(domain.toLowerCase());
-          domainRegexes.push(new RegExp(domainRegex, 'i'));
-        }
-      }
+      const domainRegexes = dto.domain
+        .filter((x) => x)
+        .map((x) => x.toLowerCase())
+        .map((x) => escapeStringRegexp(x))
+        .map((x) => new RegExp(x, 'i'));
+
       if (domainRegexes.length > 0) {
         finalFilter['domains.name'] = { $all: domainRegexes };
       }
     }
 
+    // Filter by host
+    if (dto.host) {
+      const hosts = dto.host
+        .filter((x) => x)
+        .map((x) => x.toLowerCase().trim())
+        .map((x) => escapeStringRegexp(x))
+        .map((x) => new RegExp(`.*${x}.*`));
+
+      if (hosts.length > 0) {
+        finalFilter['ip'] = { $in: hosts };
+      }
+    }
+
     // Filter by company
     if (dto.company) {
-      const companiesRegexes = [];
-      for (const company of dto.company) {
-        if (company) {
-          let companyRegex = escapeStringRegexp(company.toLowerCase());
-          companiesRegexes.push(new RegExp(companyRegex, 'i'));
-        }
-      }
-      if (companiesRegexes.length > 0) {
-        finalFilter['companyName'] = { $all: companiesRegexes };
+      const companyIds = dto.company
+        .filter((x) => x)
+        .map((x) => new Types.ObjectId(x));
+
+      if (companyIds.length > 0) {
+        finalFilter['companyId'] = { $in: companyIds };
       }
     }
 
     // Filter by tag
     if (dto.tags) {
-      const preppedTagsArray = [];
-      for (const tag of dto.tags) {
-        preppedTagsArray.push(new Types.ObjectId(tag));
-      }
-
+      const preppedTagsArray = dto.tags.map((x) => new Types.ObjectId(x));
       finalFilter['tags'] = { $all: preppedTagsArray };
     }
+
     return finalFilter;
   }
 

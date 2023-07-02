@@ -24,13 +24,14 @@ import {
   MatTableDataSource,
 } from '@angular/material/table';
 import { map, Observable, startWith } from 'rxjs';
+import { IdentifiedElement } from '../../types/identified-element.type';
 
 @Component({
   selector: 'app-filtered-paginated-table',
   templateUrl: './filtered-paginated-table.component.html',
   styleUrls: ['./filtered-paginated-table.component.scss'],
 })
-export class FilteredPaginatedTableComponent<T> {
+export class FilteredPaginatedTableComponent<T extends IdentifiedElement> {
   @ContentChildren(MatHeaderRowDef) headerRowDefs!: QueryList<MatHeaderRowDef>;
   @ContentChildren(MatRowDef) rowDefs!: QueryList<MatRowDef<T>>;
   @ContentChildren(MatColumnDef) columnDefs!: QueryList<MatColumnDef>;
@@ -42,7 +43,21 @@ export class FilteredPaginatedTableComponent<T> {
   @ViewChild('filterInput') filterInput!: ElementRef<HTMLInputElement>;
   @ViewChild('chipList') chipList!: MatChipList;
 
-  @Input() dataSource!: MatTableDataSource<T>;
+  _dataSource!: MatTableDataSource<T>;
+  @Input() set dataSource(data: MatTableDataSource<T>) {
+    this._dataSource = data;
+    this.selection.setSelection(
+      ...data.data.filter((newRow: T) => {
+        return this.selection.selected.some((selectedRow: T) => {
+          const newRowId = selectedRow._id ? selectedRow._id : selectedRow.id;
+          const selectedRowId = newRow._id ? newRow._id : newRow.id;
+          return newRowId === selectedRowId;
+        });
+      })
+    );
+    this.selectionChange.emit(this.selection);
+  }
+
   @Input() columns!: string[] | null;
   @Input() filterOptions!: string[] | null;
   @Input() isLoading = false;
@@ -52,7 +67,8 @@ export class FilteredPaginatedTableComponent<T> {
   @Output() pageChange = new EventEmitter<PageEvent>();
   @Output() filtersChange = new EventEmitter<string[]>();
 
-  selection = new SelectionModel<T>(true, []);
+  @Output() selectionChange = new EventEmitter<SelectionModel<T>>();
+  @Input() selection = new SelectionModel<T>(true, []);
 
   filters: string[] = [];
   pageSize = 10;
@@ -61,6 +77,7 @@ export class FilteredPaginatedTableComponent<T> {
   separatorKeysCodes: number[] = [TAB, ENTER];
   filterForm = new UntypedFormControl('');
   filteredColumns$: Observable<string[] | null | undefined>;
+  masterToggleState = false;
 
   constructor() {
     this.filteredColumns$ = this.filterForm.valueChanges.pipe(
@@ -83,17 +100,19 @@ export class FilteredPaginatedTableComponent<T> {
 
   isAllSelected() {
     const numSelected = this.selection.selected.length;
-    const numRows = this.dataSource?.data.length;
+    const numRows = this._dataSource?.data.length;
     return numSelected === numRows;
   }
 
   masterToggle() {
     if (this.isAllSelected()) {
       this.selection.clear();
-      return;
+      this.masterToggleState = false;
+    } else {
+      this.selection.select(...this._dataSource.data);
+      this.masterToggleState = true;
     }
-
-    this.selection.select(...this.dataSource.data);
+    this.selectionChange.emit(this.selection);
   }
 
   ngAfterContentInit() {
@@ -109,6 +128,11 @@ export class FilteredPaginatedTableComponent<T> {
       this.filters.splice(index, 1);
       this.filtersChange.emit(this.filters);
     }
+  }
+
+  toggleSelectedRow(row: T) {
+    this.selection.toggle(row);
+    this.selectionChange.emit(this.selection);
   }
 
   addFilter(event: MatChipInputEvent) {

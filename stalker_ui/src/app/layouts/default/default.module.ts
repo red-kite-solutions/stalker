@@ -1,8 +1,4 @@
-import {
-  MAT_COLOR_FORMATS,
-  NgxMatColorPickerModule,
-  NGX_MAT_COLOR_FORMATS,
-} from '@angular-material-components/color-picker';
+import { MAT_COLOR_FORMATS, NGX_MAT_COLOR_FORMATS } from '@angular-material-components/color-picker';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FlexLayoutModule } from '@angular/flex-layout';
@@ -32,13 +28,11 @@ import { RouterModule } from '@angular/router';
 import { NgxFileDropModule } from 'ngx-file-drop';
 import { CreateUserComponent } from 'src/app/modules/admin/create-user/create-user.component';
 import { EditUserComponent } from 'src/app/modules/admin/edit-user/edit-user.component';
-import { ManageUsersComponent } from 'src/app/modules/admin/manage-users/manage-users.component';
 import { SettingsComponent } from 'src/app/modules/admin/settings/settings.component';
 import { EditCompaniesComponent } from 'src/app/modules/companies/edit-companies/edit-companies.component';
 import { ListCompaniesComponent } from 'src/app/modules/companies/list-companies/list-companies.component';
 import { DashboardComponent } from 'src/app/modules/dashboard/dashboard.component';
 import { SubscriptionComponent } from 'src/app/modules/jobs/subscriptions/subscription.component';
-import { ManageTagsComponent } from 'src/app/modules/tags/manage-tags/manage-tags.component';
 import { ProfileComponent } from 'src/app/modules/user/profile/profile.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { FindingsModule } from '../../modules/findings/findings.module';
@@ -59,13 +53,11 @@ import { DefaultComponent } from './default.component';
     DefaultComponent,
     DashboardComponent,
     ProfileComponent,
-    ManageUsersComponent,
     CreateUserComponent,
     EditUserComponent,
     SettingsComponent,
     ListCompaniesComponent,
     EditCompaniesComponent,
-    ManageTagsComponent,
     SubscriptionComponent,
     CustomJobsComponent,
     LaunchJobsComponent,
@@ -102,7 +94,6 @@ import { DefaultComponent } from './default.component';
     MatExpansionModule,
     MatListModule,
     MatOptionModule,
-    NgxMatColorPickerModule,
     FindingsModule,
     PanelSectionModule,
     MatProgressBarModule,

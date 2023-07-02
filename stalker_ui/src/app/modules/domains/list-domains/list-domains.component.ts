@@ -1,3 +1,4 @@
+import { SelectionModel } from '@angular/cdk/collections';
 import { CommonModule } from '@angular/common';
 import { Component, TemplateRef } from '@angular/core';
 import { MediaChange, MediaObserver } from '@angular/flex-layout/core';
@@ -24,6 +25,10 @@ import { Page } from 'src/app/shared/types/page.type';
 import { Tag } from 'src/app/shared/types/tag.type';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { SharedModule } from '../../../shared/shared.module';
+import {
+  ConfirmDialogComponent,
+  ConfirmDialogData,
+} from '../../../shared/widget/confirm-dialog/confirm-dialog.component';
 
 @Component({
   standalone: true,
@@ -49,13 +54,14 @@ import { SharedModule } from '../../../shared/shared.module';
 export class ListDomainsComponent {
   dataLoading = true;
   displayedColumns: string[] = ['select', 'domain', 'hosts', 'company', 'tags'];
-  filterOptions: string[] = ['domain', 'company', 'tags'];
+  filterOptions: string[] = ['host', 'domain', 'company', 'tags'];
 
   dataSource = new MatTableDataSource<Domain>();
   currentPage: PageEvent = this.generateFirstPageEvent();
   currentFilters: string[] = [];
   currentPage$ = new BehaviorSubject<PageEvent>(this.currentPage);
   count = 0;
+  selection = new SelectionModel<Domain>(true, []);
 
   dataSource$ = this.currentPage$.pipe(
     tap((currentPage) => {
@@ -66,10 +72,7 @@ export class ListDomainsComponent {
       return this.domainsService.getPage(currentPage.pageIndex, currentPage.pageSize, filters);
     }),
     map((data: Page<Domain>) => {
-      if (!this.dataSource) {
-        this.dataSource = new MatTableDataSource<Domain>();
-      }
-      this.dataSource.data = data.items;
+      this.dataSource = new MatTableDataSource<Domain>(data.items);
       this.count = data.totalRecords;
       this.dataLoading = false;
       return data;
@@ -140,7 +143,7 @@ export class ListDomainsComponent {
     private mediaObserver: MediaObserver,
     private companiesService: CompaniesService,
     private domainsService: DomainsService,
-    private toasts: ToastrService,
+    private toastr: ToastrService,
     private tagsService: TagsService,
     public dialog: MatDialog,
     private titleService: Title
@@ -159,6 +162,7 @@ export class ListDomainsComponent {
     const filterObject: any = {};
     const tags = [];
     const domains = [];
+    const hosts = [];
 
     for (const filter of stringFilters) {
       if (filter.indexOf(SEPARATOR) === -1) continue;
@@ -177,15 +181,18 @@ export class ListDomainsComponent {
           const company = this.companies.find((c) => c.name.trim().toLowerCase() === value.trim().toLowerCase());
           if (company) filterObject['company'] = company.id;
           else
-            this.toasts.warning(
+            this.toastr.warning(
               $localize`:Company does not exist|The given company name is not known to the application:Company name not recognized`
             );
           break;
-        case 'tags':
+        case 'host':
+          if (value) hosts.push(value.trim().toLowerCase());
+          break;
+        case 'host':
           const tag = this.tags.find((t) => t.text.trim().toLowerCase() === value.trim().toLowerCase());
           if (tag) tags.push(tag.id);
           else
-            this.toasts.warning(
+            this.toastr.warning(
               $localize`:Tag does not exist|The given tag is not known to the application:Tag not recognized`
             );
           break;
@@ -196,6 +203,7 @@ export class ListDomainsComponent {
     }
     if (tags) filterObject['tags'] = tags;
     if (domains) filterObject['domain'] = domains;
+    if (hosts) filterObject['host'] = hosts;
     return filterObject;
   }
 
@@ -208,12 +216,12 @@ export class ListDomainsComponent {
 
   async addNewDomains() {
     if (!this.selectedCompany) {
-      this.toasts.warning($localize`:Missing company|The data selected is missing the company id:Missing company`);
+      this.toastr.warning($localize`:Missing company|The data selected is missing the company id:Missing company`);
       return;
     }
 
     if (!this.selectedNewDomains) {
-      this.toasts.warning(
+      this.toastr.warning(
         $localize`:Missing domain|The data selected is missing the new domain names:Missing domain name`
       );
       return;
@@ -228,10 +236,10 @@ export class ListDomainsComponent {
 
     try {
       const addedDomains = await this.domainsService.addDomains(this.selectedCompany, newDomains);
-      this.toasts.success($localize`:Changes saved|Changes to item saved successfully:Changes saved successfully`);
+      this.toastr.success($localize`:Changes saved|Changes to item saved successfully:Changes saved successfully`);
 
       if (addedDomains.length < newDomains.length) {
-        this.toasts.warning(
+        this.toastr.warning(
           $localize`:Domains not added|Some domains were not added to the database:Some domains were not added`
         );
       }
@@ -242,12 +250,59 @@ export class ListDomainsComponent {
       this.selectedNewDomains = '';
     } catch (err: any) {
       if (err.status === HttpStatus.BadRequest) {
-        this.toasts.error(
+        this.toastr.error(
           $localize`:Check domain format|Error while submitting the new domain names to the backend. Most likely a domain formatting error:Error submitting domains, check formats`
         );
       } else {
         throw err;
       }
     }
+  }
+
+  public deleteDomains() {
+    const bulletPoints: string[] = Array<string>();
+    this.selection.selected.forEach((domain: Domain) => {
+      const companyName = this.companies.find((d) => d.id === domain.companyId)?.name;
+      const bp = companyName ? `${domain.name} (${companyName})` : `${domain.name}`;
+      bulletPoints.push(bp);
+    });
+    let data: ConfirmDialogData;
+    if (bulletPoints.length > 0) {
+      data = {
+        text: $localize`:Confirm delete domains|Confirmation message asking if the user really wants to delete the selected domains:Do you really wish to delete these domains permanently ?`,
+        title: $localize`:Deleting domains|Title of a page to delete selected domains:Deleting domains`,
+        primaryButtonText: $localize`:Cancel|Cancel current action:Cancel`,
+        dangerButtonText: $localize`:Delete permanently|Confirm that the user wants to delete the item permanently:Delete permanently`,
+        listElements: bulletPoints,
+        onPrimaryButtonClick: () => {
+          this.dialog.closeAll();
+        },
+        onDangerButtonClick: async () => {
+          const ids = this.selection.selected.map((d: Domain) => {
+            return d._id;
+          });
+          await this.domainsService.deleteMany(ids);
+          this.selection.clear();
+          this.toastr.success(
+            $localize`:Domains deleted|Confirm the successful deletion of a Domain:Domains deleted successfully`
+          );
+          this.currentPage$.next(this.currentPage);
+          this.dialog.closeAll();
+        },
+      };
+    } else {
+      data = {
+        text: $localize`:Select domains again|No domains were selected so there is nothing to delete:Select the domains to delete and try again.`,
+        title: $localize`:Nothing to delete|Tried to delete something, but there was nothing to delete:Nothing to delete`,
+        primaryButtonText: $localize`:Ok|Accept or confirm:Ok`,
+        onPrimaryButtonClick: () => {
+          this.dialog.closeAll();
+        },
+      };
+    }
+    this.dialog.open(ConfirmDialogComponent, {
+      data,
+      restoreFocus: false,
+    });
   }
 }

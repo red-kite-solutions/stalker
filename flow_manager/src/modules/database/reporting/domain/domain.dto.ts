@@ -27,6 +27,10 @@ export class DomainsPagingDto {
 
   @IsArray()
   @IsOptional()
+  host: Array<string>;
+
+  @IsArray()
+  @IsOptional()
   tags: Array<string>;
 
   @ValidateIf((dto) => dto.company !== '')
@@ -38,4 +42,10 @@ export class DomainsPagingDto {
 export class EditDomainDto {
   @IsArray()
   tags: Types.ObjectId[];
+}
+
+export class DeleteDomainsDto {
+  @IsMongoId({ each: true })
+  @IsArray()
+  domainIds: Types.ObjectId[];
 }
