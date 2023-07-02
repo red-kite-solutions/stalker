@@ -26,6 +26,7 @@ import { ConfigService } from '../admin/config/config.service';
 import { JobPodConfiguration } from '../admin/config/job-pod-config/job-pod-config.model';
 import { CustomJobEntry } from '../custom-jobs/custom-jobs.model';
 import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
+import { MONGO_DUPLICATE_ERROR } from '../database.constants';
 import { JobSources } from '../jobs/job-model.module';
 import { JobFactory, JobFactoryUtils } from '../jobs/jobs.factory';
 import { CustomJob } from '../jobs/models/custom-job.model';
@@ -91,7 +92,7 @@ export class CompanyController {
     try {
       return await this.companyService.addCompany(dto);
     } catch (err) {
-      if (err.code === 11000) {
+      if (err.code === MONGO_DUPLICATE_ERROR) {
         // Duplicate key error
         throw new HttpConflictException();
       }
@@ -231,7 +232,7 @@ export class CompanyController {
     try {
       return await this.companyService.editCompany(id.id, data);
     } catch (err) {
-      if (err.code === 11000) {
+      if (err.code === MONGO_DUPLICATE_ERROR) {
         // Duplicate key error
         throw new HttpConflictException();
       }
