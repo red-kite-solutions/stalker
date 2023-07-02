@@ -1,8 +1,12 @@
 import { Logger } from '@nestjs/common';
+import { Types } from 'mongoose';
 import { JobParameterCountException } from '../../../exceptions/job-parameter.exception';
 import { DEFAULT_JOB_POD_FALLBACK_CONFIG } from '../admin/config/config.default';
 import { ConfigService } from '../admin/config/config.service';
-import { JobPodConfiguration } from '../admin/config/job-pod-config/job-pod-config.model';
+import {
+  JobPodConfiguration,
+  JobPodConfigurationDocument,
+} from '../admin/config/job-pod-config/job-pod-config.model';
 import { CustomJobEntry } from '../custom-jobs/custom-jobs.model';
 import { JobParameter } from '../subscriptions/subscriptions.model';
 import { JobDefinitions } from './job-model.module';
@@ -71,44 +75,48 @@ export class JobFactoryUtils {
   }
 
   /**
-   * Finds and returns the proper job cpod configuration according to the given customJob. In case
+   * Finds and returns the proper job pod configuration according to the given customJob. If none are found, the default one is returned.
    * @param customJob The custom job containing a jobPodConfigId
    * @param configService The config service from which to get the job pod configurations
    * @returns The JobPodConfiguration identified by the jobPodConfigId if found, the default fallback config otherwise
    */
   public static async getCustomJobPodConfig(
-    customJob: CustomJobEntry,
+    customJob: CustomJobEntry | { jobPodConfigId: Types.ObjectId },
     configService: ConfigService,
   ) {
-    let jpConfig: JobPodConfiguration;
-    if (customJob.jobPodConfigId) {
-      try {
-        const conf = await configService.getJobPodConfig(
-          customJob.jobPodConfigId.toString(),
-        );
-        if (conf) {
-          jpConfig = conf;
-        } else {
-          JobFactoryUtils.logger.debug(
-            `Did not find job pod configuration id ${customJob.jobPodConfigId}, using the fallback config`,
-          );
-          jpConfig = JSON.parse(
-            JSON.stringify(DEFAULT_JOB_POD_FALLBACK_CONFIG),
-          );
-        }
-      } catch (err) {
-        JobFactoryUtils.logger.debug(
-          `Error while getting the job pod configuration id ${customJob.jobPodConfigId}`,
-        );
-        JobFactoryUtils.logger.debug(err);
-        jpConfig = JSON.parse(JSON.stringify(DEFAULT_JOB_POD_FALLBACK_CONFIG));
-      }
-    } else {
+    if (!customJob.jobPodConfigId) {
       JobFactoryUtils.logger.debug(
         'No job pod configuration id given, using the fallback config',
       );
-      jpConfig = JSON.parse(JSON.stringify(DEFAULT_JOB_POD_FALLBACK_CONFIG));
+      return JobFactoryUtils.getDefaultConfig();
     }
+
+    let jpConfig: JobPodConfigurationDocument;
+    try {
+      jpConfig = await configService.getJobPodConfig(
+        customJob.jobPodConfigId.toString(),
+      );
+
+      if (!jpConfig) {
+        JobFactoryUtils.logger.debug(
+          `Did not find job pod configuration id ${customJob.jobPodConfigId}, using the fallback config`,
+        );
+        return JobFactoryUtils.getDefaultConfig();
+      }
+    } catch (err) {
+      JobFactoryUtils.logger.debug(
+        `Error while getting the job pod configuration id ${customJob.jobPodConfigId}`,
+      );
+      JobFactoryUtils.logger.debug(err);
+      return JobFactoryUtils.getDefaultConfig();
+    }
+
     return jpConfig;
+  }
+
+  private static getDefaultConfig() {
+    return <JobPodConfiguration>(
+      JSON.parse(JSON.stringify(DEFAULT_JOB_POD_FALLBACK_CONFIG))
+    );
   }
 }
