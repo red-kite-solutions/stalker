@@ -22,6 +22,7 @@ export class CustomJobsService {
       code: dto.code,
       type: dto.type,
       language: dto.language,
+      jobPodConfigId: new Types.ObjectId(dto.jobPodConfigId),
       source: JobSources.userCreated,
       parameters: [],
     };
@@ -44,6 +45,7 @@ export class CustomJobsService {
       code: dto.code,
       type: dto.type,
       language: dto.language,
+      jobPodConfigId: new Types.ObjectId(dto.jobPodConfigId),
       source: JobSources.userCreated,
       parameters: [],
     };

@@ -66,21 +66,46 @@
     </mat-card>
   </div>
   <div fxFlex="55">
-    <div fxLayout="column" class="code-editor-container">
-      <mat-form-field appearance="outline">
-        <mat-label i18n="Name|Name">Name</mat-label>
-        <input matInput [formControl]="customJobNameFormControl" required />
-        <mat-error i18n="Name required|The name input is required">Name is required</mat-error>
-      </mat-form-field>
-      <app-code-editor
-        [(code)]="code"
-        [language]="language"
-        [minimapEnabled]="minimapEnabled"
-        [theme]="theme"
-        [readonly]="readonly"
-        (saveEvent)="saveCustomJobEdits()"
-        fxFlex
-      ></app-code-editor>
-    </div>
+    <mat-tab-group>
+      <mat-tab label-i18n="Configurations|Settings for an item" label="Configurations">
+        <div>
+          <mat-form-field appearance="outline" class="job-name-form">
+            <mat-label i18n="Name|Name">Name</mat-label>
+            <input matInput [formControl]="customJobNameFormControl" required />
+            <mat-error i18n="Name required|The name input is required">Name is required</mat-error>
+          </mat-form-field>
+          <mat-card class="job-pod-config-selection">
+            <mat-card-header>Job Pod Configuration</mat-card-header>
+            <mat-card-content>
+              <div>
+                <mat-card
+                  *ngFor="let jps of jobPodSettings$ | async"
+                  [class.selected-config]="selectedConfigId === jps._id"
+                  (click)="selectedConfigId = jps._id"
+                >
+                  <div>
+                    <label class="job-pod-config-title">{{ jps.name }}</label>
+                    <label>{{ jps.milliCpuLimit / 1000 }} CPU</label>
+                    <label>{{ jps.memoryKbytesLimit | memoryUnits }}</label>
+                  </div>
+                </mat-card>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+      <mat-tab label-i18n="Code|Programming language code" label="Code" class="code-editor-container">
+        <div class="code-editor-container">
+          <app-code-editor
+            [(code)]="code"
+            [language]="language"
+            [minimapEnabled]="minimapEnabled"
+            [theme]="theme"
+            [readonly]="readonly"
+            (saveEvent)="saveCustomJobEdits()"
+          ></app-code-editor>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
   </div>
 </div>

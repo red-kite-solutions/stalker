@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModelModule } from './admin/config/config-model.module';
 import { databaseConfigInitProvider } from './admin/config/config.provider';
+import { JobPodConfigModelModule } from './admin/config/job-pod-config/job-pod-config-model.module';
 import { JobModelModule } from './jobs/job-model.module';
 import { CompanyModelModule } from './reporting/company-model.module';
 import { DomainModelModule } from './reporting/domain/domain-model.module';
@@ -21,6 +22,7 @@ import { TagModelModule } from './tags/tag-model.module';
     DomainModelModule,
     FindingModelModule,
     PortModelModule,
+    JobPodConfigModelModule,
   ],
   providers: [...databaseConfigInitProvider],
   exports: [
@@ -33,6 +35,7 @@ import { TagModelModule } from './tags/tag-model.module';
     CompanyModelModule,
     FindingModelModule,
     PortModelModule,
+    JobPodConfigModelModule,
   ],
 })
 export class DatalayerModule {}

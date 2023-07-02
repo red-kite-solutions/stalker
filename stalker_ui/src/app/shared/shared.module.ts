@@ -27,6 +27,7 @@ import { FooterComponent } from './components/footer/footer.component';
 import { HeaderComponent } from './components/header/header.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { HumanizePipe } from './pipes/humanize.pipe';
+import { MemoryUnitsPipe } from './pipes/memory-units.pipe';
 import { TimeAgoPipe } from './pipes/time-ago.pipe';
 import { WhereIdPipe } from './pipes/where-id.pipe';
 import { AreaComponent } from './widget/area/area.component';
@@ -55,6 +56,7 @@ import { TextSelectMenuComponent } from './widget/text-select-menu/text-select-m
     PillTagComponent,
     TimeAgoPipe,
     HumanizePipe,
+    MemoryUnitsPipe,
     TextSelectMenuComponent,
     TextMenuComponent,
   ],
@@ -100,6 +102,7 @@ import { TextSelectMenuComponent } from './widget/text-select-menu/text-select-m
     PillTagComponent,
     TimeAgoPipe,
     HumanizePipe,
+    MemoryUnitsPipe,
     CodeEditorComponent,
     TextSelectMenuComponent,
     TextMenuComponent,
