@@ -1,5 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { CommandHandler } from '@nestjs/cqrs';
+import { ConfigService } from '../../../database/admin/config/config.service';
 import { CustomJobsService } from '../../../database/custom-jobs/custom-jobs.service';
 import { JobFactory } from '../../../database/jobs/jobs.factory';
 import { JobsService } from '../../../database/jobs/jobs.service';
@@ -16,8 +17,9 @@ export class HostnameHandler extends UserFindingHandlerBase<HostnameCommand> {
     jobService: JobsService,
     subscriptionsService: SubscriptionsService,
     customJobsService: CustomJobsService,
+    configService: ConfigService,
   ) {
-    super(subscriptionsService, jobService, customJobsService);
+    super(subscriptionsService, jobService, customJobsService, configService);
   }
 
   protected async executeCore(command: HostnameCommand) {

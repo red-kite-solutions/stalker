@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '../admin/config/config.module';
 import { CustomJobsModule } from '../custom-jobs/custom-jobs.module';
 import { DatalayerModule } from '../datalayer.module';
 import { JobsModule } from '../jobs/jobs.module';
@@ -18,6 +19,7 @@ import { PortModule } from './port/port.module';
     SubscriptionsModule,
     CustomJobsModule,
     PortModule,
+    ConfigModule,
   ],
   controllers: [CompanyController],
   providers: [CompanyService],

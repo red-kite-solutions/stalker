@@ -1,4 +1,4 @@
-import { IsIn, IsNotEmpty, IsString } from 'class-validator';
+import { IsIn, IsMongoId, IsNotEmpty, IsString } from 'class-validator';
 import {
   CustomJobLanguages,
   CustomJobTypes,
@@ -22,4 +22,8 @@ export class CustomJobDto {
   @IsNotEmpty()
   @IsIn(CustomJobLanguages)
   public language!: string;
+
+  @IsMongoId()
+  @IsNotEmpty()
+  public jobPodConfigId: string;
 }

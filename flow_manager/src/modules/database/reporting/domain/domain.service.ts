@@ -240,15 +240,27 @@ export class DomainsService {
     const finalFilter = {};
     // Filter by domain
     if (dto.domain) {
-      const preppedDomainArray = [];
-      for (const domain of dto.domain) {
-        if (domain) {
-          let domainRegex = escapeStringRegexp(domain.toLowerCase());
-          preppedDomainArray.push(new RegExp(domainRegex, 'i'));
-        }
-      }
+      const preppedDomainArray = dto.domain
+        .filter((x) => x)
+        .map((x) => x.toLowerCase())
+        .map((x) => escapeStringRegexp(x))
+        .map((x) => new RegExp(x, 'i'));
+
       if (preppedDomainArray.length > 0) {
         finalFilter['name'] = { $all: preppedDomainArray };
+      }
+    }
+
+    // Filter by host
+    if (dto.host) {
+      const hosts = dto.host
+        .filter((x) => x)
+        .map((x) => x.toLowerCase().trim())
+        .map((x) => escapeStringRegexp(x))
+        .map((x) => new RegExp(`.*${x}.*`));
+
+      if (hosts.length > 0) {
+        finalFilter['hosts.ip'] = { $in: hosts };
       }
     }
 
@@ -261,12 +273,11 @@ export class DomainsService {
 
     // Filter by tag
     if (dto.tags) {
-      const preppedTagsArray = [];
-      for (const tag of dto.tags) {
-        if (tag) {
-          preppedTagsArray.push(new Types.ObjectId(tag.toLowerCase()));
-        }
-      }
+      const preppedTagsArray = dto.tags
+        .filter((x) => x)
+        .map((x) => x.toLowerCase())
+        .map((x) => new Types.ObjectId(x));
+
       if (preppedTagsArray.length > 0) {
         finalFilter['tags'] = { $all: preppedTagsArray };
       }

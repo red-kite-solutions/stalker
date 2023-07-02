@@ -77,5 +77,5 @@ export class HttpServerCheckJob {
   }
 }
 
-export const HttpServerCheckJobShema =
+export const HttpServerCheckJobSchema =
   SchemaFactory.createForClass(HttpServerCheckJob);

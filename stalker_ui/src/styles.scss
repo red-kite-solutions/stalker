@@ -3,6 +3,7 @@
 @import 'app/shared/components/panel-section/_panel-section.component.scss';
 @import 'app/shared/widget/code-editor/_code-editor.component.scss';
 @import 'app/shared/widget/text-select-menu/_text-select-menu.component.scss';
+@import 'app/modules/jobs/custom-jobs/_custom-jobs.component';
 @import 'app/shared/widget/text-menu/_text-menu.component.scss';
 
 @include app-filtered-paginated-table();
@@ -10,6 +11,7 @@
 @include app-code-editor();
 @include app-text-menu();
 @include app-text-select-menu();
+@include app-custom-jobs();
 
 html,
 body {

@@ -1,7 +1,8 @@
 import { Logger } from '@nestjs/common';
 import { ICommandHandler } from '@nestjs/cqrs';
+import { ConfigService } from '../../database/admin/config/config.service';
 import { CustomJobsService } from '../../database/custom-jobs/custom-jobs.service';
-import { JobFactory } from '../../database/jobs/jobs.factory';
+import { JobFactory, JobFactoryUtils } from '../../database/jobs/jobs.factory';
 import { JobsService } from '../../database/jobs/jobs.service';
 import { CustomJob } from '../../database/jobs/models/custom-job.model';
 import { Job } from '../../database/jobs/models/jobs.model';
@@ -24,6 +25,7 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
     private subscriptionService: SubscriptionsService,
     protected jobsService: JobsService,
     private customJobsService: CustomJobsService,
+    private configService: ConfigService,
   ) {}
 
   /**
@@ -162,6 +164,18 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
     jobParameters.push({
       name: 'customJobParameters',
       value: customJobParams,
+    });
+    const jpConf = await JobFactoryUtils.getCustomJobPodConfig(
+      customJobEntry,
+      this.configService,
+    );
+    jobParameters.push({
+      name: 'jobpodmillicpulimit',
+      value: jpConf.milliCpuLimit,
+    });
+    jobParameters.push({
+      name: 'jobpodmemorykblimit',
+      value: jpConf.memoryKbytesLimit,
     });
     return jobParameters;
   }

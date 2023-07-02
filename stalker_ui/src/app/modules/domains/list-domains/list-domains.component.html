@@ -6,12 +6,12 @@
       <mat-icon class="material-icons-outlined">add</mat-icon>
       <label i18n="Add domains|Add a new domain to a company">Add Domains</label>
     </button>
-  </div>
 
-  <button mat-raised-button color="warn" class="left-action-button" (click)="deleteDomains()">
-    <mat-icon class="material-icons-outlined"> delete_outline </mat-icon>
-    <label i18n="Delete|Delete an item">Delete</label>
-  </button>
+    <button mat-raised-button color="warn" class="left-action-button" (click)="deleteDomains()">
+      <mat-icon class="material-icons-outlined"> delete_outline </mat-icon>
+      <label i18n="Delete|Delete an item">Delete</label>
+    </button>
+  </div>
 
   <app-filtered-paginated-table
     *ngIf="((dataSource$ | async) && (companies$ | async) && (tags$ | async)) || true"

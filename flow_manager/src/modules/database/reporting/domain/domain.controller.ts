@@ -85,6 +85,8 @@ export class DomainsController {
   @Roles(Role.User)
   @Delete()
   async deleteDomains(@Body() dto: DeleteDomainsDto) {
+    if (!dto.domainIds) return;
+
     const ids = dto.domainIds.map((id) => id.toString());
     return await this.domainsService.deleteMany(ids);
   }
