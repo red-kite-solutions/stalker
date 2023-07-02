@@ -18,15 +18,7 @@ namespace Orchestrator.Queue
                 AutoOffsetReset = AutoOffsetReset.Earliest
             };
 
-            Consumer = new ConsumerBuilder<Ignore, T>(ConsumerConfig)
-                .SetValueDeserializer(deserializer)
-                .Build();
-
-            Logger.LogDebug($"Starting consumer. Subscribing to topics {string.Join(",", Topics)}");
-            Consumer.Subscribe(Topics);
-
-            TokenSource = new CancellationTokenSource();
-            CancellationToken ct = TokenSource.Token;
+            CancellationToken ct = SetupConsumer(ConsumerConfig, deserializer);
 
             Logger.LogDebug("Starting consumer.");
 
@@ -58,6 +50,15 @@ namespace Orchestrator.Queue
                             Logger.LogDebug("Nothing on the queue for now...");
                         }
                     }
+                    catch(BadImageFormatException ex)
+                    {
+                        Logger.LogError(ex, "An error occurred while deserializing the message.");
+                        Logger.LogDebug("Time between Consume() calls is likely too high. Recreating Consumer.");
+                        Consumer.Dispose();
+                        ct = SetupConsumer(ConsumerConfig, deserializer);
+                        Logger.LogDebug("Consumer recreated, continuing with new consumer.");
+
+                    }
                     catch (Exception ex)
                     {
                         Logger.LogError(ex, "An error occurred while deserializing the message.");
@@ -65,6 +66,21 @@ namespace Orchestrator.Queue
                     await Task.Delay(5);
                 }
             }, TokenSource.Token);
+        }
+
+        private CancellationToken SetupConsumer(ConsumerConfig consumerConfig, IDeserializer<T> deserializer)
+        {
+            Consumer = new ConsumerBuilder<Ignore, T>(ConsumerConfig)
+                            .SetValueDeserializer(deserializer)
+                            .Build();
+
+            Logger.LogDebug($"Starting consumer. Subscribing to topics {string.Join(",", Topics)}");
+            Consumer.Subscribe(Topics);
+
+            TokenSource = new CancellationTokenSource();
+            CancellationToken ct = TokenSource.Token;
+
+            return ct;
         }
 
         protected abstract string GroupId { get; }
@@ -75,7 +91,7 @@ namespace Orchestrator.Queue
 
         private ConsumerConfig ConsumerConfig { get; }
 
-        private IConsumer<Ignore, T> Consumer { get; }
+        private IConsumer<Ignore, T> Consumer { get; set;  }
 
         protected abstract Task Consume(T message);
 

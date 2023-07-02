@@ -54,7 +54,7 @@ import {
 export class ListDomainsComponent {
   dataLoading = true;
   displayedColumns: string[] = ['select', 'domain', 'hosts', 'company', 'tags'];
-  filterOptions: string[] = ['domain', 'company', 'tags'];
+  filterOptions: string[] = ['host', 'domain', 'company', 'tags'];
 
   dataSource = new MatTableDataSource<Domain>();
   currentPage: PageEvent = this.generateFirstPageEvent();
@@ -162,6 +162,7 @@ export class ListDomainsComponent {
     const filterObject: any = {};
     const tags = [];
     const domains = [];
+    const hosts = [];
 
     for (const filter of stringFilters) {
       if (filter.indexOf(SEPARATOR) === -1) continue;
@@ -184,7 +185,10 @@ export class ListDomainsComponent {
               $localize`:Company does not exist|The given company name is not known to the application:Company name not recognized`
             );
           break;
-        case 'tags':
+        case 'host':
+          if (value) hosts.push(value.trim().toLowerCase());
+          break;
+        case 'host':
           const tag = this.tags.find((t) => t.text.trim().toLowerCase() === value.trim().toLowerCase());
           if (tag) tags.push(tag.id);
           else
@@ -199,6 +203,7 @@ export class ListDomainsComponent {
     }
     if (tags) filterObject['tags'] = tags;
     if (domains) filterObject['domain'] = domains;
+    if (hosts) filterObject['host'] = hosts;
     return filterObject;
   }
 

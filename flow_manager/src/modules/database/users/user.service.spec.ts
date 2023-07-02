@@ -1,9 +1,11 @@
+import { HttpStatus } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
 import { getName } from '../../../../test/test.utils';
 import { AppModule } from '../../app.module';
 import { Role } from '../../auth/constants';
+import { CreateFirstUserDto } from './users.dto';
 import { User, UserDocument } from './users.model';
 import { UsersService } from './users.service';
 
@@ -30,6 +32,73 @@ describe('Users Service', () => {
   });
 
   describe('Create users', () => {
+    it('Should validate that the first user is not created', async () => {
+      // Arrange && Act
+      const uc = await userService.isFirstUserCreated();
+
+      // Assert
+      expect(uc).toStrictEqual(false);
+    });
+
+    it('Should create the first user', async () => {
+      // Arrange
+      const u: CreateFirstUserDto = {
+        email: `${getName(prefix)}@stalker.is`,
+        firstName: getName(prefix),
+        lastName: getName(prefix),
+        password: getName(prefix),
+      };
+
+      // Act
+      await userService.createFirstUser(u);
+
+      const uc = await userService.isFirstUserCreated();
+      // Assert
+      expect(uc).toStrictEqual(true);
+    });
+
+    it('Should create the first user with proper values', async () => {
+      // Arrange
+      const u: CreateFirstUserDto = {
+        email: `${getName(prefix)}@stalker.is`,
+        firstName: getName(prefix),
+        lastName: getName(prefix),
+        password: getName(prefix),
+      };
+
+      // Act
+      await userService.createFirstUser(u);
+
+      // Assert
+      const cu = await userModel.findOne({});
+      expect(cu.email).toStrictEqual(u.email);
+      expect(cu.firstName).toStrictEqual(u.firstName);
+      expect(cu.lastName).toStrictEqual(u.lastName);
+      expect(cu.role).toStrictEqual(Role.Admin);
+      expect(cu.active).toStrictEqual(true);
+    });
+
+    it('Should prevent the creation of a second first user', async () => {
+      // Arrange
+      expect.assertions(1);
+      const u: CreateFirstUserDto = {
+        email: `${getName(prefix)}@stalker.is`,
+        firstName: getName(prefix),
+        lastName: getName(prefix),
+        password: getName(prefix),
+      };
+
+      await userService.createFirstUser(u);
+
+      try {
+        // Act
+        await userService.createFirstUser(u);
+      } catch (err) {
+        // Assert
+        expect(err.status).toStrictEqual(HttpStatus.FORBIDDEN);
+      }
+    });
+
     it('Should create a user', async () => {
       // Arrange
       const email = `${getName(prefix)}@stalker.is`;

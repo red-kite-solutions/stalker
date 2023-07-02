@@ -4,6 +4,7 @@ import { NotFoundComponent } from './error-pages/not-found/not-found.component';
 import { DefaultComponent } from './layouts/default/default.component';
 import { UnauthenticatedComponent } from './layouts/unauthenticated/unauthenticated.component';
 import { AuthComponent } from './modules/auth/auth.component';
+import { FirstComponent } from './modules/auth/first/first.component';
 import { LoginComponent } from './modules/auth/login/login.component';
 import { EditCompaniesComponent } from './modules/companies/edit-companies/edit-companies.component';
 import { ListCompaniesComponent } from './modules/companies/list-companies/list-companies.component';
@@ -85,6 +86,10 @@ const routes: Routes = [
           {
             path: 'login',
             component: LoginComponent,
+          },
+          {
+            path: 'first',
+            component: FirstComponent,
           },
         ],
       },

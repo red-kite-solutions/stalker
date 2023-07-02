@@ -1,5 +1,6 @@
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { FM_ENVIRONMENTS } from '../../app.constants';
 import { MONGO_DUPLICATE_ERROR } from '../database.constants';
 import { User } from './users.model';
 
@@ -11,9 +12,15 @@ export const userInitProvider = [
     inject: [getModelToken('users')],
     useFactory: async (userModel: Model<User>) => {
       const user = await userModel.findOne({});
+      if (
+        user ||
+        (process.env.FM_ENVIRONMENT !== FM_ENVIRONMENTS.dev &&
+          process.env.FM_ENVIRONMENT !== FM_ENVIRONMENTS.tests)
+      )
+        return;
 
-      if (user) return;
-
+      // Setting the default user in tests and dev environments for dev QoL
+      // In other environments, the user has to be set at startup
       try {
         await userModel.create({
           email: 'admin@stalker.is',

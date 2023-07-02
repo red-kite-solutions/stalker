@@ -1,7 +1,7 @@
 // This is from https://www.npmjs.com/package/escape-string-regexp
 // The actual package was breaking parsing for some reason
 
-export default function escapeStringRegexp(string) {
+export default function escapeStringRegexp(string): string {
   if (typeof string !== 'string') {
     throw new TypeError('Expected a string');
   }

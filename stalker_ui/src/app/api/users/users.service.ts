@@ -57,4 +57,15 @@ export class UsersService {
       })
     );
   }
+
+  public async createFirstUser(email: string, password: string, firstName: string, lastName: string) {
+    await firstValueFrom(
+      this.http.post(`${environment.fmUrl}/firstUser`, {
+        email: email,
+        password: password,
+        firstName: firstName,
+        lastName: lastName,
+      })
+    );
+  }
 }

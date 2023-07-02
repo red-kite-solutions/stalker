@@ -7,7 +7,7 @@ import {
 } from './models/domain-name-resolving.model';
 import {
   HttpServerCheckJob,
-  HttpServerCheckJobShema,
+  HttpServerCheckJobSchema,
 } from './models/http-server-check.model';
 import { JobSchema } from './models/jobs.model';
 import {
@@ -36,7 +36,7 @@ export const JobDefinitions: JobDefinition[] = [
   },
   {
     name: HttpServerCheckJob.name,
-    schema: HttpServerCheckJobShema,
+    schema: HttpServerCheckJobSchema,
     create: HttpServerCheckJob.create,
     params: HttpServerCheckJob.parameterDefinitions,
   },

@@ -151,7 +151,7 @@ export class UsersController {
   public async editUserPassword(
     @Request() req,
     @Param() idDto: MongoIdDto,
-    @Body(new ValidationPipe()) dto: ChangePasswordDto,
+    @Body() dto: ChangePasswordDto,
   ): Promise<void> {
     if (req.user.role !== Role.Admin && req.user.id !== idDto.id) {
       throw new HttpForbiddenException();

@@ -3,6 +3,7 @@ import { randomUUID } from 'crypto';
 import jwt_decode from 'jwt-decode';
 import { MongoClient } from 'mongodb';
 import request from 'supertest';
+import { FM_ENVIRONMENTS } from '../src/modules/app.constants';
 import { Role } from '../src/modules/auth/constants';
 import { CompanyDocument } from '../src/modules/database/reporting/company.model';
 
@@ -290,7 +291,7 @@ export async function createTag(
 }
 
 export async function cleanup() {
-  if (!process.env.TESTS) {
+  if (process.env.FM_ENVIRONMENT !== FM_ENVIRONMENTS.tests) {
     console.error('Cannot wipe data if not in TEST mode.');
     return;
   }
