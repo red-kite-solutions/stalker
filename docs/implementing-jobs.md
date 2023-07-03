@@ -10,9 +10,21 @@ job communicates its _findings_ and more to Stalker.
 
 > This article is a work in progress, it is currently incomplete.
 
-- [Output and findings](#making-contact-with-the-outside-world)
-- [Built-in jobs](#built-in-jobs)
-- [Custom jobs](#custom-jobs)
+* [Python](#python)
+  * [Setup](#setup)
+* [Making contact with the outside world](#making-contact-with-the-outside-world)
+  * [Producing findings](#producing-findings)
+    * [HostnameIpFinding](#hostnameipfinding)
+    * [PortFinding](#portfinding)
+    * [CustomFinding](#customfinding)
+      * [Dynamic fields](#dynamic-fields)
+        * [Text field](#text-field)
+        * [Image field](#image-field)
+  * [Producing logs](#producing-logs)
+* [Built-in Jobs](#built-in-jobs)
+* [Custom Jobs](#custom-jobs)
+  * [Custom Job Input](#custom-job-input)
+  * [Custom Job Output](#custom-job-output)
 
 ## Python
 
