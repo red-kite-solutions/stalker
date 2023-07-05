@@ -8,6 +8,7 @@ import {
   HttpNotImplementedException,
 } from '../../../../exceptions/http.exceptions';
 import { getTopTcpPorts } from '../../../../utils/ports.utils';
+import { MONGO_DUPLICATE_ERROR } from '../../database.constants';
 import { TagsService } from '../../tags/tag.service';
 import { CorrelationKeyUtils } from '../correlation.utils';
 import { Host } from '../host/host.model';
@@ -26,11 +27,19 @@ export class PortService {
   private readonly hostNotFoundError = 'Invalid host and company combination.';
   private readonly badProtocolError = 'Protocol must be either "tcp" or "udp"';
 
+  /**
+   *
+   * @param ip
+   * @param companyId
+   * @param portNumber
+   * @param protocol
+   * @returns The added port if added, null if the port was a duplicate
+   */
   public async addPortByIp(
     ip: string,
     companyId: string,
     portNumber: number,
-    protocol: string,
+    protocol: 'tcp' | 'udp',
   ) {
     const host = await this.hostModel.findOne({
       ip: { $eq: ip },
@@ -52,11 +61,19 @@ export class PortService {
     );
   }
 
+  /**
+   *
+   * @param hostId
+   * @param companyId
+   * @param portNumber
+   * @param protocol
+   * @returns The added port if added, null if the port was a duplicate
+   */
   public async addPort(
     hostId: string,
     companyId: string,
     portNumber: number,
-    protocol: string,
+    protocol: 'tcp' | 'udp',
   ) {
     const host = await this.hostModel.findOne({
       _id: { $eq: hostId },
@@ -99,7 +116,15 @@ export class PortService {
     port.correlationKey = correlationKey;
     port.tags = [];
 
-    return await this.portsModel.create(port);
+    let res = null;
+    try {
+      res = await this.portsModel.create(port);
+    } catch (err) {
+      if (err.code !== MONGO_DUPLICATE_ERROR) {
+        throw err;
+      }
+    }
+    return res;
   }
 
   /**

@@ -4,10 +4,12 @@ import { DeleteResult } from 'mongodb';
 import { FilterQuery, Model, Types, UpdateWriteOpResult } from 'mongoose';
 import {
   HttpBadRequestException,
+  HttpForbiddenException,
   HttpNotFoundException,
 } from '../../../exceptions/http.exceptions';
 import { Role } from '../../auth/constants';
 import { hashPassword, passwordEquals } from '../../auth/utils/auth.utils';
+import { CreateFirstUserDto } from './users.dto';
 
 import { User } from './users.model';
 import { USER_INIT } from './users.provider';
@@ -22,6 +24,52 @@ export class UsersService {
     @InjectModel('users') private readonly userModel: Model<User>,
     @Inject(USER_INIT) userProvider,
   ) {}
+
+  /**
+   * Tells if the first user of the application has been created
+   * @returns True if created, false otherwise
+   */
+  public async isFirstUserCreated() {
+    const u = await this.userModel.findOne({});
+    return !!u;
+  }
+
+  /**
+   * Creates the first user of the application. The call to this method will
+   * fail by throwing a HttpForbiddenException if there is already a user in the database
+   * @param user
+   */
+  public async createFirstUser(user: CreateFirstUserDto) {
+    const err = 'Application already initialized';
+    // This first check looks for a user without locking the DB
+    // It works 99% of the time and it prevents an external user
+    // from having the power to lock the user collection at will.
+    if (await this.isFirstUserCreated()) throw new HttpForbiddenException(err);
+
+    const userToCreate: User = {
+      active: true,
+      refreshTokens: [],
+      role: Role.Admin,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      password: await hashPassword(user.password),
+    };
+
+    // This second check looks for a user while locking the DB
+    // It prevents a potential race condition on the first setup allowing
+    // the creation of multiple first users.
+    const session = await this.userModel.startSession();
+    try {
+      await session.withTransaction(async () => {
+        const u = await this.userModel.findOne({});
+        if (u) throw new HttpForbiddenException(err);
+        await this.userModel.create(userToCreate);
+      });
+    } finally {
+      await session.endSession();
+    }
+  }
 
   public async createUser(dto: Partial<User>): Promise<any> {
     const pass: string = await hashPassword(dto.password);

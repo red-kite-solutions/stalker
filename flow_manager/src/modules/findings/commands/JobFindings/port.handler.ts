@@ -1,5 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { CommandHandler } from '@nestjs/cqrs';
+import { ConfigService } from '../../../database/admin/config/config.service';
 import { CustomJobsService } from '../../../database/custom-jobs/custom-jobs.service';
 import { JobFactory } from '../../../database/jobs/jobs.factory';
 import { JobsService } from '../../../database/jobs/jobs.service';
@@ -20,8 +21,9 @@ export class PortHandler extends JobFindingHandlerBase<PortCommand> {
     jobService: JobsService,
     subscriptionsService: SubscriptionsService,
     customJobsService: CustomJobsService,
+    configService: ConfigService,
   ) {
-    super(jobService, subscriptionsService, customJobsService);
+    super(jobService, subscriptionsService, customJobsService, configService);
   }
 
   protected async executeCore(command: PortCommand) {

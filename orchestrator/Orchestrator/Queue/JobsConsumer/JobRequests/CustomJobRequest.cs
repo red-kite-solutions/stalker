@@ -8,6 +8,9 @@ public class CustomJobRequest : JobRequest
     public string? Code { get; init; }
     public string? Type { get; init; }
     public string? Language { get; init; }
+    public int? JobPodMilliCpuLimit { get; init; }
+    public int? JobPodMemoryKbLimit { get; init; }
+
     public JobParameter[]? CustomJobParameters { get; init; }
 
     public override string Task => Discriminator;

@@ -94,6 +94,55 @@ describe('Port Service', () => {
       expect(p2.port).toStrictEqual(21);
       expect(p2.hostId.toString()).toStrictEqual(h[0]._id.toString());
     });
+
+    it('Should fail adding the same port to the same host', async () => {
+      // Arrange
+      const c = await company();
+      const h = await host('1.1.1.1', c._id.toString(), c.name);
+      const portNumber = 80;
+      const samePort = async () => {
+        return await portService.addPort(
+          h[0]._id.toString(),
+          c._id.toString(),
+          portNumber,
+          'tcp',
+        );
+      };
+
+      // Act
+      const p1 = await samePort();
+      const p2 = await samePort();
+
+      // Assert
+      expect(p1).toBeTruthy();
+      expect(p2).toStrictEqual(null);
+    });
+
+    it('Should add the same port to a different host', async () => {
+      // Arrange
+      const c = await company();
+      const h1 = await host('1.1.1.1', c._id.toString(), c.name);
+      const h2 = await host('1.1.1.2', c._id.toString(), c.name);
+      const portNumber = 80;
+
+      // Act
+      const p1 = await portService.addPort(
+        h1[0]._id.toString(),
+        c._id.toString(),
+        portNumber,
+        'tcp',
+      );
+      const p2 = await portService.addPort(
+        h2[0]._id.toString(),
+        c._id.toString(),
+        portNumber,
+        'tcp',
+      );
+
+      // Assert
+      expect(p1.port).toStrictEqual(80);
+      expect(p2.port).toStrictEqual(80);
+    });
   });
 
   describe('Get ports', () => {
@@ -271,11 +320,7 @@ describe('Port Service', () => {
   }
 
   async function host(ip: string, companyId: string, companyName: string) {
-    return await await hostService.addHosts(
-      ['1.1.1.1'],
-      companyId,
-      companyName,
-    );
+    return await await hostService.addHosts([ip], companyId, companyName);
   }
 
   afterAll(async () => {

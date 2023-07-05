@@ -22,6 +22,7 @@ import { Role } from '../../auth/constants';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/role.guard';
+import { MONGO_DUPLICATE_ERROR } from '../database.constants';
 import { ChangePasswordDto, CreateUserDto, EditUserDto } from './users.dto';
 import { User, UserDocument } from './users.model';
 import { UsersService } from './users.service';
@@ -72,7 +73,7 @@ export class UsersController {
         active: dto.active,
       });
     } catch (err) {
-      if (err.code === 11000) {
+      if (err.code === MONGO_DUPLICATE_ERROR) {
         // Duplicate key error
         throw new HttpConflictException();
       }
@@ -136,7 +137,7 @@ export class UsersController {
     try {
       await this.usersService.editUserById(idDto.id, update);
     } catch (err) {
-      if (err.code === 11000) {
+      if (err.code === MONGO_DUPLICATE_ERROR) {
         // Duplicate key error
         throw new HttpConflictException();
       }
@@ -150,7 +151,7 @@ export class UsersController {
   public async editUserPassword(
     @Request() req,
     @Param() idDto: MongoIdDto,
-    @Body(new ValidationPipe()) dto: ChangePasswordDto,
+    @Body() dto: ChangePasswordDto,
   ): Promise<void> {
     if (req.user.role !== Role.Admin && req.user.id !== idDto.id) {
       throw new HttpForbiddenException();

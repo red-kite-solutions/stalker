@@ -23,13 +23,15 @@ import { Role } from '../../auth/constants';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/role.guard';
+import { ConfigService } from '../admin/config/config.service';
+import { JobPodConfiguration } from '../admin/config/job-pod-config/job-pod-config.model';
 import { CustomJobEntry } from '../custom-jobs/custom-jobs.model';
 import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
 import { StartJobDto } from '../reporting/company.dto';
 import { JobParameter } from '../subscriptions/subscriptions.model';
 import { JobExecutionsDto } from './job-executions.dto';
 import { JobDefinitions, JobSources } from './job-model.module';
-import { JobFactory } from './jobs.factory';
+import { JobFactory, JobFactoryUtils } from './jobs.factory';
 import { JobsService } from './jobs.service';
 import { CustomJob } from './models/custom-job.model';
 
@@ -38,6 +40,7 @@ export class JobsController {
   constructor(
     private readonly jobsService: JobsService,
     private readonly customJobsService: CustomJobsService,
+    private readonly configService: ConfigService,
   ) {}
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -82,6 +85,7 @@ export class JobsController {
   @Roles(Role.User)
   @Post()
   async startJob(@Body() dto: StartJobDto) {
+    let jpConfig: JobPodConfiguration = null;
     if (dto.source === JobSources.userCreated) {
       if (!isNotEmpty(dto.task) || !isString(dto.task))
         throw new HttpBadRequestException(
@@ -92,6 +96,11 @@ export class JobsController {
         dto.task,
       );
       if (!customJob) throw new HttpNotFoundException();
+
+      jpConfig = await JobFactoryUtils.getCustomJobPodConfig(
+        customJob,
+        this.configService,
+      );
 
       const customJobParams = JSON.parse(JSON.stringify(dto.jobParameters));
       const jobParameters = [];
@@ -116,7 +125,7 @@ export class JobsController {
     dto.jobParameters.push(companyIdParameter);
 
     // parameters are validated thoroughly in job creation
-    const job = JobFactory.createJob(dto.task, dto.jobParameters);
+    const job = JobFactory.createJob(dto.task, dto.jobParameters, jpConfig);
 
     if (!job) throw new HttpBadRequestException();
     job.priority = 1;

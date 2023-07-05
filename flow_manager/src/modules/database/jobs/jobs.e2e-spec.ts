@@ -76,13 +76,8 @@ fdescribe('Job Controller (e2e)', () => {
       domainNameResolvingJob,
     );
 
-    console.log(c._id);
-    console.log(jr.body);
-
     // Act
     const r = await getReq(app, testData.readonly.token, '/jobs');
-
-    console.log(r.body);
 
     // Assert
     expect(r.statusCode).toBe(HttpStatus.OK);

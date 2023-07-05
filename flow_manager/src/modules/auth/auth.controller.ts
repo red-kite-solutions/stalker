@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Post,
   Put,
   Request,
@@ -57,5 +58,15 @@ export class AuthController {
     } else {
       await this.authService.removeRefreshToken(request.user.id);
     }
+  }
+
+  /**
+   * This function is left without authorizations on purpose
+   * It is used to anonymously know if the platform was properly initialized
+   * @returns
+   */
+  @Get('setup')
+  async getIsSetup(): Promise<any> {
+    return { isSetup: await this.authService.isAuthenticationSetup() };
   }
 }

@@ -1,6 +1,8 @@
 import { Logger, Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { Kafka } from 'kafkajs';
+import { FM_ENVIRONMENTS } from '../app.constants';
+import { ConfigModule } from '../database/admin/config/config.module';
 import { CustomJobsModule } from '../database/custom-jobs/custom-jobs.module';
 import { DatalayerModule } from '../database/datalayer.module';
 import { JobsModule } from '../database/jobs/jobs.module';
@@ -25,6 +27,7 @@ import { JobLogsConsumer } from './job-logs.consumer';
     SubscriptionsModule,
     CustomJobsModule,
     PortModule,
+    ConfigModule,
   ],
   controllers: [FindingsController],
   providers: [FindingsService, ...FindingsHandlers],
@@ -39,7 +42,7 @@ export class FindingsModule {
   ) {}
 
   public async onApplicationBootstrap() {
-    if (!process.env.TESTS) {
+    if (process.env.FM_ENVIRONMENT !== FM_ENVIRONMENTS.tests) {
       const kafka = new Kafka({
         clientId: 'flow-manager',
         brokers: [process.env['KAFKA_URI']],

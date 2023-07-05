@@ -201,6 +201,7 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
       theme: this._theme,
       readOnly: this._readonly,
       tabSize: this._tabSize,
+      automaticLayout: true,
     };
 
     this._editor = monaco.editor.create(this._editorContainer.nativeElement, options);

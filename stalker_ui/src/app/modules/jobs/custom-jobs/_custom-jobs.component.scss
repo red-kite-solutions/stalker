@@ -1,0 +1,7 @@
+@mixin app-custom-jobs() {
+  app-custom-jobs {
+    .mat-tab-body-wrapper {
+      flex: 1 1 100%;
+    }
+  }
+}
