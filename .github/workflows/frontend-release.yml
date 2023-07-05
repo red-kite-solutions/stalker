@@ -42,7 +42,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ghcr.io/red-kite-solutions/frontend
+            ghcr.io/red-kite-solutions/stalker-frontend
           tags: |
             type=semver,pattern={{version}},value=${{steps.version.outputs.result}}
             type=semver,pattern={{major}}.{{minor}},value=${{steps.version.outputs.result}}
