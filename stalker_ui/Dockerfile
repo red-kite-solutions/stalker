@@ -7,6 +7,8 @@ COPY package-lock.json package-lock.json
 RUN npm ci
 
 COPY . . 
+RUN npm run build --prod
 
-# TODO: Implement production Dockerfile
-CMD ["npm", "run", "start"]
+
+FROM nginx:alpine
+COPY --from=node /app/dist/stalker_ui /usr/share/nginx/html
