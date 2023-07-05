@@ -12,7 +12,7 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:debug:remote": "nest start --debug --watch -d 0.0.0.0:3001",
-    "start:prod": "node dist/main",
+    "start:prod": "node dist/src/main",
     "format:write": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "lint:write": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "lint-staged:run": "npm run lint:write && npm run format:write",
