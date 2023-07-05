@@ -1,4 +1,4 @@
-name: Flow Manager / Tests
+name: Flow Manager
 
 on:
   pull_request:
@@ -30,3 +30,21 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           result-file: ./flow_manager/test/jest-output.json
+
+  build:
+    name: Production Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - run: npm ci
+        working-directory: flow_manager
+
+      - run: npm run build
+        working-directory: flow_manager
