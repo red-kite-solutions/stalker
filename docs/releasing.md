@@ -12,8 +12,8 @@ convention: <component>/<version>.
 
 Here are examples for every component.
 
-| Component    | Examples                                          |
-| ------------ | ------------------------------------------------- |
-| frontend     | frontend/v1.2.0, frontend/v1.2.0-alpha.7,         |
-| flow-manager | flow-manager/1.2.0, flow-manager/1.2.0-alpha.7,   |
-| orchestrator | orchestrator/v1.2.0, orchestrator/v1.2.0-alpha.7, |
+| Component                                                                                         | Examples              |                               |
+| ------------------------------------------------------------------------------------------------- | --------------------- | ----------------------------- |
+| [frontend ](https://github.com/red-kite-solutions/stalker/pkgs/container/stalker-frontend)        | `frontend/v1.2.0`     | `frontend/v1.2.0-alpha.7`     |
+| [flow-manager](https://github.com/red-kite-solutions/stalker/pkgs/container/stalker-flow-manager) | `flow-manager/1.2.0`  | `flow-manager/1.2.0-alpha.7`  |
+| [orchestrator](https://github.com/red-kite-solutions/stalker/pkgs/container/stalker-orchestrator) | `orchestrator/v1.2.0` | `orchestrator/v1.2.0-alpha.7` |
