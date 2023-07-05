@@ -7,7 +7,7 @@ COPY package-lock.json package-lock.json
 RUN npm ci
 
 COPY . . 
-RUN npm run build --prod
+RUN npm run build --omit=dev
 
 
 FROM nginx:alpine
