@@ -10,7 +10,7 @@
         "locales": {
           "fr": {
             "translation": "src/locale/messages.fr.xlf",
-            "baseHref": ""
+            "baseHref": "fr/"
           }
         }
       },
@@ -53,6 +53,7 @@
           },
           "configurations": {
             "production": {
+              "localize": true,
               "budgets": [
                 {
                   "type": "initial",
