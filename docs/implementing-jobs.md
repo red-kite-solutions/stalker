@@ -1,70 +1,77 @@
 # Implementing jobs
 
-This article describes how to implement a job in Stalker. This process involves a few steps, but it is usually quite easy!
-There is currently one type of job: a _python job_.
+This article describes how to implement a job in Stalker. Although this process involves a few steps, it is usually quite easy! Currently,
+the only type of job available is a _Python job_.
 
-There are a few ways a job can be started: manually (through user input), or automatically (through configured subscriptions or built-in Stalker automations).
-In any case, when a job needs to be run, the Flow Manager (FM) drops a message on the _Job Requests Queue_. The Orchestrator consumes requests and runs jobs inside
-[Kubernetes Jobs](https://kubernetes.io/docs/concepts/workloads/controllers/job/). The Orchestrator monitors the container standard output; this is how the
-job communicates its _findings_ and more to Stalker.
+A job can be started in two ways: manually, through user input, or automatically, through configured subscriptions or built-in Stalker
+automation. In any case, when a job needs to be run, the Flow Manager (FM) drops a message on the _Job Requests Queue_. The Orchestrator
+consumes requests and executes jobs inside [Kubernetes Jobs](https://kubernetes.io/docs/concepts/workloads/controllers/job/). The
+Orchestrator monitors the container standard output; this is how the job communicates its _findings_ and more to Stalker.
 
 > This article is a work in progress, it is currently incomplete.
 
-* [Python](#python)
-  * [Setup](#setup)
-* [Making contact with the outside world](#making-contact-with-the-outside-world)
-  * [Producing findings](#producing-findings)
-    * [HostnameIpFinding](#hostnameipfinding)
-    * [PortFinding](#portfinding)
-    * [CustomFinding](#customfinding)
-      * [Dynamic fields](#dynamic-fields)
-        * [Text field](#text-field)
-        * [Image field](#image-field)
-  * [Producing logs](#producing-logs)
-* [Built-in Jobs](#built-in-jobs)
-* [Custom Jobs](#custom-jobs)
-  * [Custom Job Input](#custom-job-input)
-  * [Custom Job Output](#custom-job-output)
+- [Python](#python)
+  - [Setup](#setup)
+- [Making contact with the outside world](#making-contact-with-the-outside-world)
+  - [Producing findings](#producing-findings)
+    - [HostnameIpFinding](#hostnameipfinding)
+    - [PortFinding](#portfinding)
+    - [CustomFinding](#customfinding)
+      - [Dynamic fields](#dynamic-fields)
+        - [Text field](#text-field)
+        - [Image field](#image-field)
+  - [Producing logs](#producing-logs)
+- [Built-in Jobs](#built-in-jobs)
+- [Custom Jobs](#custom-jobs)
+  - [Custom Job Input](#custom-job-input)
+  - [Custom Job Output](#custom-job-output)
 
 ## Python
 
-The `stalker_job_sdk` provides utilitary functions and classes to help you implement jobs.
+The `stalker_job_sdk` provides utility functions and classes to help you implement jobs.
 
 ### Setup
 
-In order for intellisense to help you, you need to create a virtual environmnet. Vscode's [python](https://marketplace.visualstudio.com/items?itemName=ms-python.python) extension can help you with that: use the "Python: Create environment" command. Then, install the requirements:
+In order for Intellisense to help you, you need to create a virtual environment. Vscode's
+[python](https://marketplace.visualstudio.com/items?itemName=ms-python.python) extension can help you with that: use the "Python: Create
+environment" command. Then, install the requirements:
 
 ```
 pip install -r requirements.txt
 ```
 
-## Making contact with the outside world
+## The Stalker Jobs Protocol
 
-The goal of jobs is to produce _findings_. A job may also produce logs to inform the outside world whether things are going well or not. Jobs communicate with Stalker through their standard output (STDOUT).
-To differentiate common logs from logs that are pertinent to Stalker, jobs must tag logs with a prefix. Here's a list of supported prefixes.
+The purpose of jobs is to generate _findings_. A job may also produce logs to inform the outside world whether things are going well or not.
+Jobs communicate with Stalker through their standard output (STDOUT) using the Stalker Jobs Protocol. To differentiate common logs from logs
+that are pertinent to Stalker, jobs must tag logs with a prefix. Here's a list of supported prefixes. The _stalker_job_sdk_ abstracts this
+protocol; you should never have to format findings or logs yourself.
 
-| Syntax                                     | Description           |
-| ------------------------------------------ | --------------------- |
-| @finding \<[finding](#producing-findings)> | Produces a finding.   |
-| @debug \<[message](#producing-logs)>       | Logs a debug message. |
+| Syntax                                     | Description             |
+| ------------------------------------------ | ----------------------- |
+| @finding \<[finding](#producing-findings)> | Produces a finding.     |
+| @debug \<[message](#producing-logs)>       | Logs a debug message.   |
+| @info \<[message](#producing-logs)>        | Logs a info message.    |
+| @warning \<[message](#producing-logs)>     | Logs a warning message. |
+| @error \<[message](#producing-logs)>       | Logs a error message.   |
 
 ### Producing findings
 
-Findings are pieces of information attached to a company and a core entity like a domain, a host or a port.
-Findings come in different shapes and forms. Some findings will create new core entities, others may simply add data to existing ones.
-To produce a finding, the job must create an object containing the necessary information and serialize it as JSON.
+Findings are pieces of information attached to a company and a core entity such as a domain, a host or a port. Findings come in different
+shapes and forms. Some findings will create new core entities, others may simply add data to existing ones. To produce a finding, the job
+must create an object containing the necessary information and serialize it as JSON.
 
 The finding object must contain the `type` field. Here is a list of available types.
 
-| Type                                    | Description                                        |
-| --------------------------------------- | -------------------------------------------------- |
-| [HostnameIpFinding](#hostnameipfinding) | Creates a new host, attaches it to a given domain. |
-| [PortFinding](#portfinding)             | Creates a new port, attaches it to the given host. |
-| [CustomFinding](#customfinding)         | Attaches custom finding data to a given entity.    |
+| Type                                    | Description                                           |
+| --------------------------------------- | ----------------------------------------------------- |
+| [HostnameIpFinding](#hostnameipfinding) | Creates a new host and attaches it to a given domain. |
+| [PortFinding](#portfinding)             | Creates a new port and attaches it to the given host. |
+| [CustomFinding](#customfinding)         | Attaches custom finding data to a given entity.       |
 
 #### HostnameIpFinding
 
-A hostname ip finding creates a new host and attaches it to a given domain.
+A hostname IP finding creates a new host and attaches it to a given domain.
 
 | Field    | Description                                |
 | -------- | ------------------------------------------ |
@@ -83,7 +90,7 @@ Example:
 
 #### PortFinding
 
-A port finding creates a new port attaches it to the given host.
+A port finding creates a new port and attaches it to the given host.
 
 | Field      | Description                         |
 | ---------- | ----------------------------------- |
@@ -104,7 +111,7 @@ Example:
 
 #### CustomFinding
 
-Dynamic findings allow jobs to attach custom data to core entities.
+Dynamic findings allow jobs to attach custom data to core entities. The data may be some text or an image.
 
 | Field    | Description                                                     |
 | -------- | --------------------------------------------------------------- |
@@ -145,7 +152,7 @@ Examples:
 
 ##### Dynamic fields
 
-Dynamic fields give flexiblity to jobs so they can output complex data. Here is the list of supported dynamic fields.
+Dynamic fields give flexibility to jobs so they can output complex data. Here is the list of supported dynamic fields.
 
 | Field | Description            |
 | ----- | ---------------------- |
@@ -159,7 +166,7 @@ Example:
 ```json
 {
   "type": "text",
-  "label": "Top 3 keywords found in web page"
+  "label": "Top 3 keywords found on the web page"
   "content": "Potato, celery, transformers"
 }
 ```
@@ -177,9 +184,10 @@ Example:
 
 ### Producing logs
 
-Logs let jobs communicate miscellaneous information to the outside world. It could be a progress report, an error log, an inspirational quote, anything works.
+Logs let jobs communicate miscellaneous information to the outside world. It could be a progress report, an error log, an inspirational
+quote; anything works.
 
-To output a log, simply write a string prefixed with `@debug` to the standard output.
+To output a log, simply write a string prefixed with `@debug`, `@info`, `@warning` or `@error` to the standard output.
 
 Example:
 
@@ -189,7 +197,7 @@ Example:
 
 ## Built-in Jobs
 
-Built-in jobs, often just called jobs, are implemented within Stalker's source code.
+Stalker's source code contains a set of built-in jobs, also known as jobs.
 
 To implement a built-in job, the following files need to be edited :
 
@@ -213,21 +221,24 @@ The following files also need to be created :
 
 > The name of the python file must match exactly the name of the job's task. The task `MyNewJob` requires a file named `MyNewJob.py`.
 
-Now that this new job has been implemented, it could be called through `subscriptions` or manually. However, for it to be added into the built-in automation process, it needs to be called within a `finding`'s handler.
+Now that this new job has been implemented, it could be called through `subscriptions` or manually. However, for it to be added into the
+built-in automation process, it needs to be called within a `finding`'s handler.
 
 ## Custom Jobs
 
 Custom jobs are implemented by a Stalker user or administrator. They are a type of built-in job, but are much more flexible.
 
-Custom jobs can be run manually as a one time thing, or they can be run within the automation process through [subscriptions](./subscriptions.md#custom-job-example).
+Custom jobs can be run manually as a one-time thing, or they can be run within the automation process through
+[subscriptions](./subscriptions.md#custom-job-example).
 
-Implementing a `CustomJob` is easy. Simply name your new custom job, write your code, and make sure to [output your findings properly](#making-contact-with-the-outside-world).
+Implementing a `CustomJob` is easy. Simply name your new custom job, write your code, and make sure to
+[output your findings properly](#the-stalker-jobs-protocol).
 
 ### Custom Job Input
 
 A custom job's input is provided as environment variables.
 
-Here is a python example of how to get a value from an environment variable.
+Here is a Python example of how to get a value from an environment variable.
 
 ```python
 import os
@@ -235,13 +246,16 @@ import os
 var_content = os.environ['myCustomParameter']
 ```
 
-All the parameters given to a job are provided as environment variables. Therefore, parameter names must respect a fixed character set. The following regular expression is used to validate the characters of the parameter names before the creation of the job. Not respecting this regex will result in the job not being created.
+All the parameters given to a job are provided as environment variables. Therefore, parameter names must respect a fixed character set. The
+following regular expression is used to validate the characters of the parameter names before the creation of the job. Not respecting this
+regex will result in the job not being created.
 
 ```javascript
 /^[A-Za-z][A-Za-z0-9_]*$/;
 ```
 
-Also, to avoid conflicts with common os variable names, the following varibles must not be set. Naming a parameter with one of these names will result in the job not being created.
+Also, to avoid conflicts with common os variable names, the following names may not be used. If you happen to name a parameter with any of
+these specific names, the job won't be created.
 
 |             |             |           |            |            |
 | ----------- | ----------- | --------- | ---------- | ---------- |
@@ -264,4 +278,5 @@ Also, to avoid conflicts with common os variable names, the following varibles m
 
 ### Custom Job Output
 
-Custom jobs communicate in the exact same way as regular jobs. They print to stdout, [respecting the syntax for a @finding or a @debug](#making-contact-with-the-outside-world).
+Custom jobs communicate in the exact same way as regular jobs. They print to stdout,
+[respecting the syntax for a @finding or a @debug](#the-stalker-jobs-protocol).
