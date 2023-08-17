@@ -21,7 +21,7 @@ pipelines:
   dev:
     run: |-
       create_deployments namespaces
-      build_images ui flow-manager orchestrator python-job-base
+      build_images ui flow-manager orchestrator python-job-base cron-service
       create_deployments mongo kafka --sequential
 
       # Start mongo and kafka
@@ -32,18 +32,19 @@ pipelines:
       wait_pod --label-selector app.kubernetes.io/component=kafka --timeout 300
       wait_pod --label-selector app.kubernetes.io/component=zookeeper --timeout 300
 
-      create_deployments ui flow-manager orchestrator-service-account orchestrator --sequential
+      create_deployments ui flow-manager orchestrator-service-account orchestrator cron-service --sequential
 
       # Wait for last services before applying network policies
       wait_pod --label-selector app.kubernetes.io/component=ui --timeout 300
       wait_pod --label-selector app.kubernetes.io/component=flow-manager --timeout 300
       wait_pod --label-selector app.kubernetes.io/component=orchestrator --timeout 300
+      wait_pod --label-selector app.kubernetes.io/component=cron-service --timeout 300
 
       create_deployments network-policies
       create_deployments resource-quotas
 
       # Start microservices + ui
-      start_dev orchestrator flow-manager ui
+      start_dev orchestrator flow-manager ui cron-service
 
   flow-manager-e2e:
     flags:
@@ -110,6 +111,12 @@ images:
     dockerfile: flow_manager/Dockerfile.cicd
     context: flow_manager
     rebuildStrategy: always
+
+  cron-service:
+    image: cron_service
+    dockerfile: cron_service/Dockerfile.dev
+    context: cron_service
+    rebuildStrategy: default
 
   ui:
     image: ui
@@ -197,6 +204,29 @@ deployments:
               port: 3000
               protocol: TCP
 
+  cron-service:
+    helm:
+      values:
+        containers:
+          - env:
+              - name: MONGO_ADDRESS
+                value: ${FM_MONGO_ADDRESS}
+              - name: MONGO_DATABASE_NAME
+                value: ${FM_MONGO_DATABASE_NAME}
+              - name: MONGO_REPLICA_SET_NAME
+                value: ${MONGO_REPLICA_SET_NAME}
+              - name: CRON_SERVICE_ENVIRONMENT
+                value: ${FM_ENVIRONMENT} # Follows the same environment as FM since they work together
+
+            image: cron_service
+            name: cron-service-container
+
+        service:
+          ports:
+            - containerPort: 3000
+              port: 3001
+              protocol: TCP
+
   ui:
     helm:
       values:
@@ -281,6 +311,7 @@ deployments:
         - stalker_ui/${NETWORK_POLICY}
         - database/${NETWORK_POLICY}
         - flow_manager/${NETWORK_POLICY}
+        - cron_service/${NETWORK_POLICY}
         - queue/${NETWORK_POLICY}
         - orchestrator/${NETWORK_POLICY}
         - jobs/${NETWORK_POLICY}
@@ -311,7 +342,6 @@ dev:
       inject: false
     ports:
       - port: "3000"
-      - port: "3001"
 
   flow-manager-e2e:
     labelSelector:
@@ -328,6 +358,20 @@ dev:
       inject: false
     ports:
       - port: "9229"
+
+  cron-service:
+    labelSelector:
+      app.kubernetes.io/component: cron-service
+    container: cron-service-container
+    logs:
+      enabled: true
+    sync:
+      - path: ./cron_service/src/:/app/src/
+        disableDownload: true
+    restartHelper:
+      inject: false
+    ports:
+      - port: "3001:3000"
 
   ui:
     labelSelector:
@@ -373,6 +417,16 @@ hooks:
       labelSelector:
         app.kubernetes.io/component: flow-manager
       containerName: flow-manager-container
+
+  - events:
+      - after:deploy:cron-service
+    wait:
+      running: true
+      terminatedWithCode: 0
+    container:
+      labelSelector:
+        app.kubernetes.io/component: cron-service
+      containerName: cron-service-container
 
   - events:
       - after:deploy:ui

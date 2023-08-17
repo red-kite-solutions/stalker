@@ -1,0 +1,14 @@
+FROM node:19.6.1-alpine3.16
+WORKDIR /app
+
+RUN apk update
+RUN apk add bash
+
+COPY package.json package.json
+COPY package-lock.json package-lock.json
+
+RUN npm ci
+
+COPY . . 
+
+CMD ["npm", "run", "start:debug"]
