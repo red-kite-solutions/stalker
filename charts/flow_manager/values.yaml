@@ -16,7 +16,7 @@ serviceAccount:
   create: true
   # Annotations to add to the service account
   annotations: {}
-  name: "frontend-service-account"
+  name: "flow-manager-service-account"
 
 podAnnotations: {}
 
@@ -79,3 +79,17 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+env:
+  mongo:
+    address:
+    databaseName:
+    replicaSetName:
+  security:
+    jwtSecret:
+    refreshSecret:
+  kafka:
+    uri:
+  stalker:
+    url:
+    environment:
