@@ -16,7 +16,7 @@ serviceAccount:
   create: true
   # Annotations to add to the service account
   annotations: {}
-  name: "frontend-service-account"
+  name: "orchestrator-service-account"
 
 podAnnotations: {}
 
