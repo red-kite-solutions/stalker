@@ -33,6 +33,23 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: MONGO_ADDRESS
+              value: {{.Values.mongo.address}}
+            - name: MONGO_DATABASE_NAME
+              value: {{.Values.mongo.databaseName}}
+            - name: FM_JWT_SECRET
+              value: {{.Values.security.jwtSecret}}
+            - name: FM_REFRESH_SECRET
+              value: {{.Values.security.refreshSecret}}
+            - name: KAFKA_URI
+              value: {{.Values.kafka.uri}}
+            - name: STALKER_URL
+              value: {{.Values.stalker.url}}
+            - name: MONGO_REPLICA_SET_NAME
+              value: {{.Values.mongo.replicaSetName}}
+            - name: FM_ENVIRONMENT
+              value: {{.Values.stalker.environment}}
           ports:
             - name: http
               containerPort: 80
