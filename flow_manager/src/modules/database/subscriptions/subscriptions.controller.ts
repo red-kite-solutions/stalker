@@ -17,7 +17,7 @@ import { SubscriptionDto } from './subscriptions.dto';
 import { SubscriptionsDocument } from './subscriptions.model';
 import { SubscriptionsService } from './subscriptions.service';
 
-@Controller('subscriptions')
+@Controller('event-subscriptions')
 export class SubscriptionsController {
   constructor(private subscriptionsService: SubscriptionsService) {}
 

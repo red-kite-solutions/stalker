@@ -2,6 +2,16 @@
   <div fxFlex="45">
     <mat-card class="container">
       <h1 i18n="Subscriptions|Findings Event Subscriptions">Subscriptions</h1>
+      <form [formGroup]="subscriptionTypeForm" class="full-width configurations-form">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label i18n="Subscription type|The type of subscriptions">Subscription type</mat-label>
+          <mat-select formControlName="subscriptionType">
+            <mat-option *ngFor="let subType of subscriptionTypes" value="{{ subType.value }}">{{
+              subType.text
+            }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </form>
       <div fxLayout="row">
         <button mat-raised-button color="primary" class="left-action-button" (click)="newSubscriptionClick()">
           <label i18n="New subscription|Button to create a new subscription">New subscription</label>
@@ -25,9 +35,15 @@
           </ng-container>
 
           <!-- Finding Event Column -->
-          <ng-container matColumnDef="finding">
+          <ng-container matColumnDef="finding" *ngIf="subscriptionTypeContext === subscriptionTypes[0].value">
             <th mat-header-cell *matHeaderCellDef i18n="Finding Event|Finding Event">Finding Event</th>
             <td mat-cell *matCellDef="let element">{{ element.finding }}</td>
+          </ng-container>
+
+          <!-- Cron Expression Column -->
+          <ng-container matColumnDef="cronExpression" *ngIf="subscriptionTypeContext === subscriptionTypes[1].value">
+            <th mat-header-cell *matHeaderCellDef i18n="Cron Expression|Cron Expression">Cron Expression</th>
+            <td mat-cell *matCellDef="let element">{{ element.cronExpression }}</td>
           </ng-container>
 
           <!-- Job Column -->
@@ -38,12 +54,24 @@
             </td>
           </ng-container>
 
-          <tr mat-header-row *matHeaderRowDef="['name', 'finding', 'job']"></tr>
+          <tr
+            mat-header-row
+            *matHeaderRowDef="
+              subscriptionTypeContext === subscriptionTypes[0].value
+                ? ['name', 'finding', 'job']
+                : ['name', 'cronExpression', 'job']
+            "
+          ></tr>
           <tr
             mat-row
-            *matRowDef="let row; columns: ['name', 'finding', 'job']"
+            *matRowDef="
+              let row;
+              columns: subscriptionTypeContext === subscriptionTypes[0].value
+                ? ['name', 'finding', 'job']
+                : ['name', 'cronExpression', 'job']
+            "
             class="rows"
-            (click)="selectFindingSubscription(row)"
+            (click)="selectSubscription(row)"
             [class.selected-subscription]="selectedRow?._id === row._id"
           ></tr>
 
@@ -67,27 +95,33 @@
   </div>
   <div fxFlex="55" *ngIf="companies$ | async">
     <div fxLayout="column" class="code-editor-container">
-      <form [formGroup]="selectedCompanyForm" class="full-width">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label i18n="Company|Company or business">Company</mat-label>
-          <mat-select formControlName="selectedCompany">
-            <mat-option i18n="All Companies|Select all companies" value="all companies">All Companies</mat-option>
-            <mat-option *ngFor="let company of companies$ | async" value="{{ company.id }}">{{
-              company.name
-            }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </form>
-
-      <app-code-editor
-        [(code)]="code"
-        [language]="language"
-        [minimapEnabled]="minimapEnabled"
-        [theme]="theme"
-        [readonly]="readonly"
-        (saveEvent)="saveSubscriptionEdits()"
-        fxFlex
-      ></app-code-editor>
+      <mat-tab-group>
+        <mat-tab label-i18n="Configurations|Settings for an item" label="Configurations">
+          <form [formGroup]="subscriptionConfigForm" class="full-width configurations-form">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label i18n="Company|Company or business">Company</mat-label>
+              <mat-select formControlName="selectedCompany">
+                <mat-option i18n="All Companies|Select all companies" value="all companies">All Companies</mat-option>
+                <mat-option *ngFor="let company of companies$ | async" value="{{ company.id }}">{{
+                  company.name
+                }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </form>
+        </mat-tab>
+        <mat-tab label-i18n="Code|Programming language code" label="Code" class="code-editor-container">
+          <div class="code-editor-container">
+            <app-code-editor
+              [(code)]="code"
+              [language]="language"
+              [minimapEnabled]="minimapEnabled"
+              [theme]="theme"
+              [readonly]="readonly"
+              (saveEvent)="saveSubscriptionEdits()"
+            ></app-code-editor>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
     </div>
   </div>
 </div>

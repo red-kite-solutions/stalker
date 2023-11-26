@@ -1,12 +1,12 @@
 import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import {
+  TestingData,
   checkAuthorizations,
   deleteReq,
   getReq,
   initTesting,
   postReq,
-  TestingData,
 } from 'test/e2e.utils';
 import { AppModule } from '../../app.module';
 import { Role } from '../../auth/constants';
@@ -82,9 +82,9 @@ describe('Subscriptions Controller (e2e)', () => {
     await app.close();
   });
 
-  it('Should create a subscription (POST /subscriptions)', async () => {
+  it('Should create an event subscription (POST /event-subscriptions)', async () => {
     // arrange & act
-    const r = await postReq(app, testData.user.token, '/subscriptions', {
+    const r = await postReq(app, testData.user.token, '/event-subscriptions', {
       companyId: companyId,
       ...subscription,
     });
@@ -94,16 +94,16 @@ describe('Subscriptions Controller (e2e)', () => {
     subscriptionId = r.body._id;
   });
 
-  it('Should get the list of subscriptions (GET /subscriptions)', async () => {
+  it('Should get the list of event subscriptions (GET /event-subscriptions)', async () => {
     // arrange & act
-    const r = await getReq(app, testData.user.token, '/subscriptions');
+    const r = await getReq(app, testData.user.token, '/event-subscriptions');
     // assert
     expect(r.statusCode).toBe(HttpStatus.OK);
     expect(r.body[0]._id).toBe(subscriptionId);
     expect(r.body[0].name).toBe(subscription.name);
   });
 
-  it('Should edit a subscription (POST /subscriptions/{id})', async () => {
+  it('Should edit an event subscription (POST /event-subscriptions/{id})', async () => {
     // arrange
     const changedName = 'My changed name';
     // act
@@ -120,18 +120,18 @@ describe('Subscriptions Controller (e2e)', () => {
     // assert
     expect(r.statusCode).toBe(HttpStatus.CREATED);
 
-    r = await getReq(app, testData.user.token, '/subscriptions');
+    r = await getReq(app, testData.user.token, '/event-subscriptions');
     expect(r.statusCode).toBe(HttpStatus.OK);
     expect(r.body[0]._id).toBe(subscriptionId);
     expect(r.body[0].name).toBe(changedName);
   });
 
-  it('Should delete a subscription by id (DELETE /subscriptions/{id})', async () => {
+  it('Should delete a subscription by id (DELETE /event-subscriptions/{id})', async () => {
     // arrange & act
     const r = await deleteReq(
       app,
       testData.user.token,
-      `/subscriptions/${subscriptionId}`,
+      `/event-subscriptions/${subscriptionId}`,
     );
     // assert
     expect(r.statusCode).toBe(HttpStatus.OK);
@@ -141,29 +141,29 @@ describe('Subscriptions Controller (e2e)', () => {
   // ########## Authorizations ##########
   // ####################################
 
-  it('Should have proper authorizations (GET /subscriptions)', async () => {
+  it('Should have proper authorizations (GET /event-subscriptions)', async () => {
     const success = await checkAuthorizations(
       testData,
       Role.ReadOnly,
       async (givenToken: string) => {
-        return await getReq(app, givenToken, `/subscriptions`);
+        return await getReq(app, givenToken, `/event-subscriptions`);
       },
     );
     expect(success).toBe(true);
   });
 
-  it('Should have proper authorizations (POST /subscriptions)', async () => {
+  it('Should have proper authorizations (POST /event-subscriptions)', async () => {
     const success = await checkAuthorizations(
       testData,
       Role.User,
       async (givenToken: string) => {
-        return await postReq(app, givenToken, `/subscriptions`, {});
+        return await postReq(app, givenToken, `/event-subscriptions`, {});
       },
     );
     expect(success).toBe(true);
   });
 
-  it('Should have proper authorizations (POST /subscriptions/{id})', async () => {
+  it('Should have proper authorizations (POST /event-subscriptions/{id})', async () => {
     const success = await checkAuthorizations(
       testData,
       Role.User,
@@ -171,7 +171,7 @@ describe('Subscriptions Controller (e2e)', () => {
         return await postReq(
           app,
           givenToken,
-          `/subscriptions/${subscriptionId}`,
+          `/event-subscriptions/${subscriptionId}`,
           {},
         );
       },
@@ -179,7 +179,7 @@ describe('Subscriptions Controller (e2e)', () => {
     expect(success).toBe(true);
   });
 
-  it('Should have proper authorizations (DELETE /subscriptions)', async () => {
+  it('Should have proper authorizations (DELETE /event-subscriptions)', async () => {
     const success = await checkAuthorizations(
       testData,
       Role.User,
@@ -187,7 +187,7 @@ describe('Subscriptions Controller (e2e)', () => {
         return await deleteReq(
           app,
           givenToken,
-          `/subscriptions/${subscriptionId}`,
+          `/event-subscriptions/${subscriptionId}`,
         );
       },
     );

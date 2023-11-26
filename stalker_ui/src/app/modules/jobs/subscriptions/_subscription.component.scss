@@ -1,0 +1,7 @@
+@mixin app-subscriptions() {
+  app-subscription {
+    .mat-tab-body-wrapper {
+      flex: 1 1 100%;
+    }
+  }
+}
