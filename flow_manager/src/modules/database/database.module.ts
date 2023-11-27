@@ -5,6 +5,7 @@ import { CustomJobsModule } from './custom-jobs/custom-jobs.module';
 import { JobsModule } from './jobs/jobs.module';
 import { CompanyModule } from './reporting/company.module';
 import { ReportModule } from './reporting/report/report.module';
+import { CronSubscriptionsModule } from './subscriptions/cron-subscriptions/cron-subscriptions.module';
 import { EventSubscriptionsModule } from './subscriptions/event-subscriptions/event-subscriptions.module';
 import { TagsModule } from './tags/tag.module';
 
@@ -22,6 +23,7 @@ import { TagsModule } from './tags/tag.module';
     ConfigModule,
     TagsModule,
     EventSubscriptionsModule,
+    CronSubscriptionsModule,
     CustomJobsModule,
   ],
   exports: [JobsModule],
