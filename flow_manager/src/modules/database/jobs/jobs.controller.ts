@@ -28,7 +28,7 @@ import { JobPodConfiguration } from '../admin/config/job-pod-config/job-pod-conf
 import { CustomJobEntry } from '../custom-jobs/custom-jobs.model';
 import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
 import { StartJobDto } from '../reporting/company.dto';
-import { JobParameter } from '../subscriptions/subscriptions.model';
+import { JobParameter } from '../subscriptions/event-subscriptions/event-subscriptions.model';
 import { JobExecutionsDto } from './job-executions.dto';
 import { JobDefinitions, JobSources } from './job-model.module';
 import { JobFactory, JobFactoryUtils } from './jobs.factory';

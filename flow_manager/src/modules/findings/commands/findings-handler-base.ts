@@ -7,11 +7,11 @@ import { JobsService } from '../../database/jobs/jobs.service';
 import { CustomJob } from '../../database/jobs/models/custom-job.model';
 import { Job } from '../../database/jobs/models/jobs.model';
 import {
+  EventSubscription,
   JobCondition,
   JobParameter,
-  Subscription,
-} from '../../database/subscriptions/subscriptions.model';
-import { SubscriptionsService } from '../../database/subscriptions/subscriptions.service';
+} from '../../database/subscriptions/event-subscriptions/event-subscriptions.model';
+import { EventSubscriptionsService } from '../../database/subscriptions/event-subscriptions/event-subscriptions.service';
 import { Finding } from '../findings.service';
 import { executeDsl, prepareContext } from './automation-dsl-interpreter';
 import { FindingCommand } from './findings.command';
@@ -22,7 +22,7 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
   protected abstract logger: Logger;
 
   constructor(
-    private subscriptionService: SubscriptionsService,
+    private subscriptionService: EventSubscriptionsService,
     protected jobsService: JobsService,
     private customJobsService: CustomJobsService,
     private configService: ConfigService,
@@ -122,7 +122,7 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
   }
 
   private async getParametersForCustomJobSubscription(
-    sub: Subscription,
+    sub: EventSubscription,
   ): Promise<JobParameter[] | undefined> {
     const customJobNameParam = sub.jobParameters.find(
       (param) => param.name.toLowerCase() === 'customjobname',

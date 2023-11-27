@@ -2,21 +2,21 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DeleteResult, UpdateResult } from 'mongodb';
 import { Model, Types } from 'mongoose';
-import { CompanyUnassigned } from '../../../validators/is-company-id.validator';
-import { SubscriptionDto } from './subscriptions.dto';
-import { Subscription } from './subscriptions.model';
+import { CompanyUnassigned } from '../../../../validators/is-company-id.validator';
+import { EventSubscriptionDto } from './event-subscriptions.dto';
+import { EventSubscription } from './event-subscriptions.model';
 
 @Injectable()
-export class SubscriptionsService {
-  private logger = new Logger(SubscriptionsService.name);
+export class EventSubscriptionsService {
+  private logger = new Logger(EventSubscriptionsService.name);
 
   constructor(
-    @InjectModel('subscriptions')
-    private readonly subscriptionModel: Model<Subscription>,
+    @InjectModel('eventSubscriptions')
+    private readonly subscriptionModel: Model<EventSubscription>,
   ) {}
 
-  public async create(dto: SubscriptionDto) {
-    const sub: Subscription = {
+  public async create(dto: EventSubscriptionDto) {
+    const sub: EventSubscription = {
       companyId: dto.companyId ? new Types.ObjectId(dto.companyId) : null,
       name: dto.name,
       finding: dto.finding,
@@ -31,8 +31,11 @@ export class SubscriptionsService {
     return await this.subscriptionModel.find({});
   }
 
-  public async edit(id: string, dto: SubscriptionDto): Promise<UpdateResult> {
-    const sub: Subscription = {
+  public async edit(
+    id: string,
+    dto: EventSubscriptionDto,
+  ): Promise<UpdateResult> {
+    const sub: EventSubscription = {
       companyId: dto.companyId ? new Types.ObjectId(dto.companyId) : null,
       name: dto.name,
       finding: dto.finding,

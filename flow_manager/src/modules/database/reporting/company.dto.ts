@@ -12,8 +12,8 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { JobSources, JobTypes } from '../jobs/job-model.module';
-import { JobParameterDto } from '../subscriptions/subscriptions.dto';
-import { JobParameter } from '../subscriptions/subscriptions.model';
+import { JobParameterDto } from '../subscriptions/event-subscriptions/event-subscriptions.dto';
+import { JobParameter } from '../subscriptions/event-subscriptions/event-subscriptions.model';
 
 export class CreateCompanyDto {
   @IsNotEmpty()

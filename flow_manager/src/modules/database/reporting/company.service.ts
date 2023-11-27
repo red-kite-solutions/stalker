@@ -5,7 +5,7 @@ import { Model, Types } from 'mongoose';
 import { HttpNotFoundException } from '../../../exceptions/http.exceptions';
 import { JobsService } from '../jobs/jobs.service';
 import { Job } from '../jobs/models/jobs.model';
-import { SubscriptionsService } from '../subscriptions/subscriptions.service';
+import { EventSubscriptionsService } from '../subscriptions/event-subscriptions/event-subscriptions.service';
 import { CreateCompanyDto } from './company.dto';
 import { Company, CompanyDocument } from './company.model';
 import { DomainsService } from './domain/domain.service';
@@ -20,7 +20,7 @@ export class CompanyService {
     private readonly domainsService: DomainsService,
     private readonly hostsService: HostService,
     private readonly jobsService: JobsService,
-    private readonly subscriptionsService: SubscriptionsService,
+    private readonly subscriptionsService: EventSubscriptionsService,
     @InjectModel('finding')
     private readonly findingModel: Model<CustomFinding>,
     private readonly portsService: PortService,

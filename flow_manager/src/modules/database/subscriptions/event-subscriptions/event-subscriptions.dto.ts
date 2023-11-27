@@ -8,10 +8,10 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
-import { IsTypeIn } from '../../../validators/is-type-in.validator';
-import { JobTypes } from '../jobs/job-model.module';
+import { IsTypeIn } from '../../../../validators/is-type-in.validator';
+import { JobTypes } from '../../jobs/job-model.module';
 
-export class SubscriptionDto {
+export class EventSubscriptionDto {
   @IsString()
   @IsNotEmpty()
   public name!: string;

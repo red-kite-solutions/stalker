@@ -8,10 +8,10 @@ import {
   initTesting,
   postReq,
 } from 'test/e2e.utils';
-import { AppModule } from '../../app.module';
-import { Role } from '../../auth/constants';
+import { AppModule } from '../../../app.module';
+import { Role } from '../../../auth/constants';
 
-describe('Subscriptions Controller (e2e)', () => {
+describe('Event Subscriptions Controller (e2e)', () => {
   let app: INestApplication;
   let testData: TestingData;
   let companyName = 'subscriptionCompany';

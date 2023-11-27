@@ -5,20 +5,20 @@ import { ConfigService } from '../../database/admin/config/config.service';
 import { CustomJobsService } from '../../database/custom-jobs/custom-jobs.service';
 import { CompanyService } from '../../database/reporting/company.service';
 import {
+  EventSubscription,
   JobCondition,
   JobParameter,
-  Subscription,
-} from '../../database/subscriptions/subscriptions.model';
+} from '../../database/subscriptions/event-subscriptions/event-subscriptions.model';
 import {
   CreateCustomFinding,
   HostnameFinding,
   HostnameIpFinding,
 } from '../findings.service';
-import { FindingHandlerBase } from './findings-handler-base';
 import { HostnameCommand } from './Findings/hostname.command';
 import { HostnameHandler } from './Findings/hostname.handler';
 import { CustomFindingCommand } from './JobFindings/custom.command';
 import { CustomFindingHandler } from './JobFindings/custom.handler';
+import { FindingHandlerBase } from './findings-handler-base';
 
 describe('Findings Handler Base', () => {
   let moduleFixture: TestingModule;
@@ -482,7 +482,7 @@ describe('Findings Handler Base', () => {
         jobPodConfigId: jpc._id.toString(),
       });
 
-      const sub = new Subscription();
+      const sub = new EventSubscription();
       sub.companyId = new Types.ObjectId('507f1f77bcf86cd799439011');
       sub.conditions = [];
       sub.finding = 'HostnameFinding';

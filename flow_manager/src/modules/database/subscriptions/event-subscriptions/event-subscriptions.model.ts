@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 
-export type SubscriptionsDocument = Subscription & Document;
+export type EventSubscriptionsDocument = EventSubscription & Document;
 
 export class JobParameter {
   public name!: string;
@@ -15,7 +15,7 @@ export class JobCondition {
 }
 
 @Schema()
-export class Subscription {
+export class EventSubscription {
   @Prop()
   public name!: string;
 
@@ -35,4 +35,5 @@ export class Subscription {
   public conditions: JobCondition[];
 }
 
-export const SubscriptionsSchema = SchemaFactory.createForClass(Subscription);
+export const EventSubscriptionsSchema =
+  SchemaFactory.createForClass(EventSubscription);
