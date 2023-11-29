@@ -24,7 +24,12 @@
     "@nestjs/core": "^10.0.0",
     "@nestjs/mongoose": "^10.0.0",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/schedule": "^4.0.0",
+    "@types/node-fetch": "^2.6.9",
+    "async-mutex": "^0.4.0",
+    "cron-parser": "^4.9.0",
     "mongoose": "^7.3.2",
+    "node-fetch": "^2.7.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1"
   },

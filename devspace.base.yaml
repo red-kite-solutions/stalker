@@ -12,6 +12,7 @@ vars:
   FM_MONGO_ADDRESS: mongodb://root:${MONGO_ROOT_PASSWORD}@mongo-mongodb-headless:27017/ # The address of the FM's mongo database
   FM_MONGO_DATABASE_NAME: stalker
   FM_ENVIRONMENT: "prod" # dev, tests, prod
+  FM_URL: "http://flow-manager:3000"
 
   KAFKA_URI: "kafka:9092"
 

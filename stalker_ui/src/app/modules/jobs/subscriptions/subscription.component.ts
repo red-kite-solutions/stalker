@@ -44,7 +44,7 @@ export class SubscriptionComponent implements OnDestroy {
   public subscriptionTemplate =
     'name: my subscription\nfinding: FindingTypeName\njob:\n  name: JobName\n  parameters:\n    - name: ParamName\n      value: param value\nconditions:\n  - lhs: string\n    operator: contains\n    rhs: ring\n';
   public cronSubscriptionTemplate =
-    'name: my cron subscription\ncronExpression: 0 0 12 * * ?\njob:\n  name: JobName\n    parameters:\n    - name: ParamName\n      value: param value\n';
+    'name: my cron subscription\ncronExpression: 0 0 12 * * ?\njob:\n  name: JobName\n  parameters:\n  - name: ParamName\n    value: param value\n';
 
   public selectedRow: Subscription | undefined;
   public tempSelectedRow: Subscription | undefined;
@@ -86,6 +86,7 @@ export class SubscriptionComponent implements OnDestroy {
         } else if (currSubscription === this.subscriptionTypes[1].value) {
           this.code = this.cronSubscriptionTemplate;
         } else this.code = '';
+        this.currentCodeBackup = this.code;
         this.dataSource$ = this.refreshData();
       })
     )

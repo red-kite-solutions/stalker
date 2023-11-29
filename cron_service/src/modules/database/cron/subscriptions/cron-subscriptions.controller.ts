@@ -1,8 +1,8 @@
-import { Controller, Get, Logger } from '@nestjs/common';
+import { Controller, Get, Logger, Put } from '@nestjs/common';
 import { HttpRouteNotAvailableException } from '../../../../exceptions/http.exceptions';
 import { CronSubscriptionsService } from './cron-subscriptions.service';
 
-@Controller('cron/subscriptions')
+@Controller('cron-subscriptions')
 export class CronSubscriptionsController {
   private logger = new Logger(CronSubscriptionsController.name);
 
@@ -23,5 +23,20 @@ export class CronSubscriptionsController {
     }
 
     return await this.cronSubscriptionsService.getCronSubscriptions();
+  }
+
+  @Put('update-cache')
+  async updateCache(): Promise<any> {
+    /////////////////////////////////////////////
+    // TODO: Make a guard out of this, or rework
+    /////////////////////////////////////////////
+    if (
+      process.env.CRON_SERVICE_ENVIRONMENT !== 'tests' &&
+      process.env.CRON_SERVICE_ENVIRONMENT !== 'dev'
+    ) {
+      throw new HttpRouteNotAvailableException();
+    }
+
+    return await this.cronSubscriptionsService.updateSubscriptionCache();
   }
 }

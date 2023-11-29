@@ -1,15 +1,18 @@
-import { Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
 export type CronSubscriptionsDocument = CronSubscription & Document;
 
 @Schema()
 export class CronSubscription {
+  @Prop()
   public name!: string;
 
-  public lastRun!: number;
-
+  @Prop()
   public cronExpression!: string;
+
+  @Prop()
+  public lastRun?: number;
 }
 
 export const CronSubscriptionsSchema =

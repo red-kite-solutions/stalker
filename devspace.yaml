@@ -217,6 +217,8 @@ deployments:
                 value: ${MONGO_REPLICA_SET_NAME}
               - name: CRON_SERVICE_ENVIRONMENT
                 value: ${FM_ENVIRONMENT} # Follows the same environment as FM since they work together
+              - name: FM_URL
+                value: ${FM_URL}
 
             image: cron_service
             name: cron-service-container

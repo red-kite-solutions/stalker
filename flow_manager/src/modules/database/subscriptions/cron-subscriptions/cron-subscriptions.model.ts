@@ -24,6 +24,9 @@ export class CronSubscription {
 
   @Prop()
   public jobParameters: JobParameter[];
+
+  @Prop()
+  public lastRun?: number;
 }
 
 export const CronSubscriptionsSchema =
