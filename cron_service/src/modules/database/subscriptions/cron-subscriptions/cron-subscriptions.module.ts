@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModule } from '@nestjs/schedule';
-import { ConnectorModule } from '../../connectors/connector.module';
-import { CronSubscriptionsController } from './subscriptions/cron-subscriptions.controller';
-import { CronSubscriptionsSchema } from './subscriptions/cron-subscriptions.model';
-import { CronSubscriptionsService } from './subscriptions/cron-subscriptions.service';
+import { ConnectorModule } from '../../../connectors/connector.module';
+import { CronSubscriptionsController } from './cron-subscriptions.controller';
+import { CronSubscriptionsSchema } from './cron-subscriptions.model';
+import { CronSubscriptionsService } from './cron-subscriptions.service';
 
 @Module({
   imports: [
@@ -20,4 +20,4 @@ import { CronSubscriptionsService } from './subscriptions/cron-subscriptions.ser
   controllers: [CronSubscriptionsController],
   providers: [CronSubscriptionsService],
 })
-export class CronModule {}
+export class CronSubscriptionsModule {}

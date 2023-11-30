@@ -10,9 +10,6 @@ export class CronSubscription {
 
   @Prop()
   public cronExpression!: string;
-
-  @Prop()
-  public lastRun?: number;
 }
 
 export const CronSubscriptionsSchema =

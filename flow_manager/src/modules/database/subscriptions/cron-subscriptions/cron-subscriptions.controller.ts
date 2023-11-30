@@ -11,6 +11,7 @@ import { DeleteResult, UpdateResult } from 'mongodb';
 import { MongoIdDto } from '../../../../types/dto/mongo-id.dto';
 import { Role } from '../../../auth/constants';
 import { Roles } from '../../../auth/decorators/roles.decorator';
+import { CronApiTokenGuard } from '../../../auth/guards/cron-api-token.guard';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../auth/guards/role.guard';
 import { CronSubscriptionDto } from './cron-subscriptions.dto';
@@ -33,6 +34,12 @@ export class CronSubscriptionsController {
   @Get()
   async getAllSubscriptions(): Promise<CronSubscriptionsDocument[]> {
     return await this.subscriptionsService.getAll();
+  }
+
+  @UseGuards(CronApiTokenGuard)
+  @Post(':id/notify')
+  async notifySubscription(@Param() IdDto: MongoIdDto): Promise<void> {
+    await this.subscriptionsService.launchCronSubscriptionJob(IdDto.id);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

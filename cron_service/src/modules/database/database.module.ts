@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { CronModule } from './cron/cron.module';
+import { CronSubscriptionsModule } from './subscriptions/cron-subscriptions/cron-subscriptions.module';
 
 @Module({
   imports: [
@@ -8,7 +8,7 @@ import { CronModule } from './cron/cron.module';
       dbName: process.env.MONGO_DATABASE_NAME,
       replicaSet: process.env.MONGO_REPLICA_SET_NAME,
     }),
-    CronModule,
+    CronSubscriptionsModule,
   ],
   exports: [],
 })

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Mutex } from 'async-mutex';
@@ -12,11 +12,12 @@ import {
 
 @Injectable()
 export class CronSubscriptionsService {
+  private logger = new Logger(CronSubscriptionsService.name);
   private cronSubscriptionsCache: CronSubscriptionsDocument[] = [];
   private cacheMutex = new Mutex();
   private cacheUpdateRunning = false;
   private jobLaunchRunning = false;
-  private lastJobLaunchStart = Math.floor(Date.now() / 1000);
+  private lastJobLaunchStart = Date.now();
 
   constructor(
     @InjectModel('cronSubscriptions')
@@ -29,31 +30,44 @@ export class CronSubscriptionsService {
   public async getCronSubscriptions() {
     return await this.cronSubscriptionsModel
       .find({})
-      .select('_id name cronExpression lastRun');
+      .select('_id name cronExpression');
   }
 
   // @Cron(CronExpression.EVERY_5_MINUTES)
   @Cron(CronExpression.EVERY_MINUTE)
   public async updateSubscriptionCache() {
     if (this.cacheUpdateRunning) {
-      console.log('Cache update is already running, cancelling this update');
+      this.logger.warn(
+        'Cache update is already running, cancelling this update',
+      );
       return;
     }
     this.cacheUpdateRunning = true;
     try {
       await this.cacheMutex.runExclusive(async () => {
         this.cronSubscriptionsCache = await this.getCronSubscriptions();
-        console.log('delete me: Cache update done'); // TODO: delete, maybe better logs
       });
     } finally {
       this.cacheUpdateRunning = false;
     }
   }
 
+  public cronShouldRun(
+    cronExpression: string,
+    lastRunStart: number,
+    currentRunStart: number,
+  ): boolean {
+    const parsedCron = parseExpression(cronExpression, {
+      currentDate: new Date(currentRunStart),
+    });
+    const prevCronTime = parsedCron.prev().getTime();
+    return lastRunStart <= prevCronTime && prevCronTime < currentRunStart;
+  }
+
   @Cron(CronExpression.EVERY_10_SECONDS)
   public async launchRelevantJobs() {
     if (this.jobLaunchRunning) {
-      console.log('Job launch is already running, cancelling this run');
+      this.logger.warn('Job launch is already running, cancelling this run');
       return;
     }
     this.jobLaunchRunning = true;
@@ -63,28 +77,36 @@ export class CronSubscriptionsService {
         const currentRunStart = Date.now();
         for (const subscription of this.cronSubscriptionsCache) {
           try {
-            const parsedCron = parseExpression(subscription.cronExpression, {
-              currentDate: new Date(currentRunStart),
-            });
-            const lastRunTime = parsedCron.prev().toDate().getTime();
             console.log('Will it run?'); // TODO: delete
             if (
-              this.lastJobLaunchStart < lastRunTime &&
-              lastRunTime <= currentRunStart
+              this.cronShouldRun(
+                subscription.cronExpression,
+                this.lastJobLaunchStart,
+                currentRunStart,
+              )
             ) {
               console.log('Running the job!!'); // TODO: delete
 
               // Fire and forget
-              this.cronConnector.notify(subscription._id.toString());
+              this.cronConnector
+                .notify(subscription._id.toString())
+                .catch((reason) => {
+                  this.logger.error(reason);
+                  this.logger.error(
+                    'Error while notifying the flow manager. Continuing...',
+                  );
+                });
             }
           } catch (e) {
+            this.logger.error(e);
             if (subscription)
-              console.log(
+              this.logger.error(
                 `Failed to run cron subscription with id '${subscription.id}', cron expression '${subscription.cronExpression}'`,
               );
-            else console.log('Failed to run cron subscription and is it falsy');
-
-            console.log(e);
+            else
+              this.logger.error(
+                'Failed to run cron subscription and is it falsy',
+              );
           }
         }
 

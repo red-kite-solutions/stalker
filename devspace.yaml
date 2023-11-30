@@ -161,6 +161,8 @@ deployments:
                 value: ${MONGO_REPLICA_SET_NAME}
               - name: FM_ENVIRONMENT
                 value: ${FM_ENVIRONMENT}
+              - name: STALKER_CRON_API_TOKEN
+                value: ${STALKER_CRON_API_TOKEN}
 
             image: flow_manager
             name: flow-manager-container
@@ -197,6 +199,8 @@ deployments:
                 value: ${MONGO_REPLICA_SET_NAME}
               - name: FM_ENVIRONMENT
                 value: "tests"
+              - name: STALKER_CRON_API_TOKEN
+                value: ${STALKER_CRON_API_TOKEN}
 
         service:
           ports:
@@ -219,6 +223,8 @@ deployments:
                 value: ${FM_ENVIRONMENT} # Follows the same environment as FM since they work together
               - name: FM_URL
                 value: ${FM_URL}
+              - name: STALKER_CRON_API_TOKEN
+                value: ${STALKER_CRON_API_TOKEN}
 
             image: cron_service
             name: cron-service-container

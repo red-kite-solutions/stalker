@@ -50,6 +50,21 @@ export class CompanyService {
     return await query;
   }
 
+  public async getAllIds(
+    page: number = null,
+    pageSize: number = null,
+  ): Promise<string[]> {
+    let query = this.companyModel.find().select('_id');
+    if (page != null && pageSize != null) {
+      query = query.skip(page).limit(pageSize);
+    }
+    const idObjs = await query;
+    const ids = [];
+    for (const idObj of idObjs) ids.push(idObj._id.toString());
+
+    return ids;
+  }
+
   /**
    * This method returns the company with the id provided
    * @param id
