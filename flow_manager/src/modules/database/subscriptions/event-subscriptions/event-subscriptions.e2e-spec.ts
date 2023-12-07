@@ -110,7 +110,7 @@ describe('Event Subscriptions Controller (e2e)', () => {
     let r = await postReq(
       app,
       testData.user.token,
-      `/subscriptions/${subscriptionId}`,
+      `/event-subscriptions/${subscriptionId}`,
       {
         companyId: companyId,
         ...subscription,

@@ -8,6 +8,7 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
+import { IsCronExpression } from '../../../../validators/is-cron-expression.validator';
 import { IsTypeIn } from '../../../../validators/is-type-in.validator';
 import { JobTypes } from '../../jobs/job-model.module';
 
@@ -22,8 +23,7 @@ export class CronSubscriptionDto {
 
   @IsString()
   @IsNotEmpty()
-  // TODO : Add cron expression validation
-  // https://www.npmjs.com/package/cron-validator
+  @IsCronExpression()
   public cronExpression!: string;
 
   @IsString()

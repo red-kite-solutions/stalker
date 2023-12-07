@@ -77,7 +77,6 @@ export class CronSubscriptionsService {
         const currentRunStart = Date.now();
         for (const subscription of this.cronSubscriptionsCache) {
           try {
-            console.log('Will it run?'); // TODO: delete
             if (
               this.cronShouldRun(
                 subscription.cronExpression,
@@ -85,8 +84,6 @@ export class CronSubscriptionsService {
                 currentRunStart,
               )
             ) {
-              console.log('Running the job!!'); // TODO: delete
-
               // Fire and forget
               this.cronConnector
                 .notify(subscription._id.toString())

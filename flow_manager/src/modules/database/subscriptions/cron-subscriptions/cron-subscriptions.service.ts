@@ -72,6 +72,15 @@ export class CronSubscriptionsService {
     });
   }
 
+  /**
+   * Launches the job specified in a cron subscription.
+   *
+   * If no `companyId` is specified in the cron subscription, the job
+   * is launched for every company.
+   *
+   * @param id The cron subscription mongo id
+   * @returns
+   */
   public async launchCronSubscriptionJob(id: string) {
     const sub: CronSubscriptionsDocument =
       await this.subscriptionModel.findById(id);

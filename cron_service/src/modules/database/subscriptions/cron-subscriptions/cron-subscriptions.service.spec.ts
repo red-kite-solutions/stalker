@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../../../app.module';
 import { CronSubscriptionsService } from './cron-subscriptions.service';
 
-describe('SubscriptionsService', () => {
+describe('CronSubscriptionsService', () => {
   let subscriptionService: CronSubscriptionsService;
   let moduleFixture: TestingModule;
 
@@ -11,13 +11,6 @@ describe('SubscriptionsService', () => {
       imports: [AppModule],
     }).compile();
     subscriptionService = moduleFixture.get(CronSubscriptionsService);
-    // const module: TestingModule = await Test.createTestingModule({
-    //   providers: [CronSubscriptionsService],
-    // }).compile();
-
-    // subscriptionService = module.get<CronSubscriptionsService>(
-    //   CronSubscriptionsService,
-    // );
   });
 
   // Here are timestamp (ms) examples of a check every 10 seconds

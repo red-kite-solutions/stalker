@@ -5,6 +5,7 @@ import { Model, Types } from 'mongoose';
 import { HttpNotFoundException } from '../../../exceptions/http.exceptions';
 import { JobsService } from '../jobs/jobs.service';
 import { Job } from '../jobs/models/jobs.model';
+import { CronSubscription } from '../subscriptions/cron-subscriptions/cron-subscriptions.model';
 import { EventSubscriptionsService } from '../subscriptions/event-subscriptions/event-subscriptions.service';
 import { CreateCompanyDto } from './company.dto';
 import { Company, CompanyDocument } from './company.model';
@@ -21,6 +22,8 @@ export class CompanyService {
     private readonly hostsService: HostService,
     private readonly jobsService: JobsService,
     private readonly subscriptionsService: EventSubscriptionsService,
+    @InjectModel('cronSubscriptions')
+    private readonly cronSubscriptionModel: Model<CronSubscription>,
     @InjectModel('finding')
     private readonly findingModel: Model<CustomFinding>,
     private readonly portsService: PortService,
@@ -93,6 +96,9 @@ export class CompanyService {
     await this.subscriptionsService.deleteAllForCompany(id);
     await this.portsService.deleteAllForCompany(id);
     await this.findingModel.deleteMany({
+      companyId: { $eq: new Types.ObjectId(id) },
+    });
+    await this.cronSubscriptionModel.deleteMany({
       companyId: { $eq: new Types.ObjectId(id) },
     });
     return result;

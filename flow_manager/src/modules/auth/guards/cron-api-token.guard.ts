@@ -8,13 +8,10 @@ export class CronApiTokenGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const headers = request.headers;
 
-    if (
-      !headers ||
-      !headers['x-stalker-cron'] ||
-      headers['x-stalker-cron'] !== process.env.STALKER_CRON_API_TOKEN
-    )
-      return false;
-
-    return true;
+    return (
+      headers &&
+      headers['x-stalker-cron'] &&
+      headers['x-stalker-cron'] === process.env.STALKER_CRON_API_TOKEN
+    );
   }
 }

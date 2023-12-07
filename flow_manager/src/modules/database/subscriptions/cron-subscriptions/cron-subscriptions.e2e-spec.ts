@@ -1,8 +1,10 @@
 import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import request from 'supertest';
 import {
   TestingData,
   checkAuthorizations,
+  cleanup,
   deleteReq,
   getReq,
   initTesting,
@@ -10,49 +12,23 @@ import {
 } from 'test/e2e.utils';
 import { AppModule } from '../../../app.module';
 import { Role } from '../../../auth/constants';
+import { CronSubscription } from './cron-subscriptions.model';
 
-describe('Event Subscriptions Controller (e2e)', () => {
+describe('Cron Subscriptions Controller (e2e)', () => {
   let app: INestApplication;
   let testData: TestingData;
-  let companyName = 'subscriptionCompany';
+  let companyName = 'CronSubscriptionCompany';
   let companyId: string;
   let subscriptionId: string;
 
-  const subscription = {
+  const subscription: CronSubscription = {
     name: 'My test subscription',
-    finding: 'HostnameIpFinding',
-    jobName: 'TcpPortScanningJob',
+    cronExpression: '*/5 * * * *',
+    jobName: 'DomainNameResolvingJob',
     jobParameters: [
       {
-        name: 'targetIp',
-        value: '${ip}',
-      },
-      {
-        name: 'socketTimeoutSeconds',
-        value: 1,
-      },
-      {
-        name: 'thread',
-        value: 10,
-      },
-      {
-        name: 'portMin',
-        value: 1,
-      },
-      {
-        name: 'portMax',
-        value: 1000,
-      },
-      {
-        name: 'ports',
-        value: '[1234, 3389, 8080]',
-      },
-    ],
-    conditions: [
-      {
-        lhs: 'asdf',
-        operator: 'contains',
-        rhs: 'qwerty',
+        name: 'domainName',
+        value: 'example.com',
       },
     ],
   };
@@ -79,12 +55,13 @@ describe('Event Subscriptions Controller (e2e)', () => {
   });
 
   afterAll(async () => {
+    await cleanup();
     await app.close();
   });
 
-  it('Should create an event subscription (POST /event-subscriptions)', async () => {
+  it('Should create a cron subscription (POST /cron-subscriptions)', async () => {
     // arrange & act
-    const r = await postReq(app, testData.user.token, '/event-subscriptions', {
+    const r = await postReq(app, testData.user.token, '/cron-subscriptions', {
       companyId: companyId,
       ...subscription,
     });
@@ -94,23 +71,23 @@ describe('Event Subscriptions Controller (e2e)', () => {
     subscriptionId = r.body._id;
   });
 
-  it('Should get the list of event subscriptions (GET /event-subscriptions)', async () => {
+  it('Should get the list of cron subscriptions (GET /cron-subscriptions)', async () => {
     // arrange & act
-    const r = await getReq(app, testData.user.token, '/event-subscriptions');
+    const r = await getReq(app, testData.user.token, '/cron-subscriptions');
     // assert
     expect(r.statusCode).toBe(HttpStatus.OK);
     expect(r.body[0]._id).toBe(subscriptionId);
     expect(r.body[0].name).toBe(subscription.name);
   });
 
-  it('Should edit an event subscription (POST /event-subscriptions/{id})', async () => {
+  it('Should edit a cron subscription (POST /cron-subscriptions/{id})', async () => {
     // arrange
     const changedName = 'My changed name';
     // act
     let r = await postReq(
       app,
       testData.user.token,
-      `/subscriptions/${subscriptionId}`,
+      `/cron-subscriptions/${subscriptionId}`,
       {
         companyId: companyId,
         ...subscription,
@@ -120,18 +97,18 @@ describe('Event Subscriptions Controller (e2e)', () => {
     // assert
     expect(r.statusCode).toBe(HttpStatus.CREATED);
 
-    r = await getReq(app, testData.user.token, '/event-subscriptions');
+    r = await getReq(app, testData.user.token, '/cron-subscriptions');
     expect(r.statusCode).toBe(HttpStatus.OK);
     expect(r.body[0]._id).toBe(subscriptionId);
     expect(r.body[0].name).toBe(changedName);
   });
 
-  it('Should delete a subscription by id (DELETE /event-subscriptions/{id})', async () => {
+  it('Should delete a subscription by id (DELETE /cron-subscriptions/{id})', async () => {
     // arrange & act
     const r = await deleteReq(
       app,
       testData.user.token,
-      `/event-subscriptions/${subscriptionId}`,
+      `/cron-subscriptions/${subscriptionId}`,
     );
     // assert
     expect(r.statusCode).toBe(HttpStatus.OK);
@@ -141,29 +118,29 @@ describe('Event Subscriptions Controller (e2e)', () => {
   // ########## Authorizations ##########
   // ####################################
 
-  it('Should have proper authorizations (GET /event-subscriptions)', async () => {
+  it('Should have proper authorizations (GET /cron-subscriptions)', async () => {
     const success = await checkAuthorizations(
       testData,
       Role.ReadOnly,
       async (givenToken: string) => {
-        return await getReq(app, givenToken, `/event-subscriptions`);
+        return await getReq(app, givenToken, `/cron-subscriptions`);
       },
     );
     expect(success).toBe(true);
   });
 
-  it('Should have proper authorizations (POST /event-subscriptions)', async () => {
+  it('Should have proper authorizations (POST /cron-subscriptions)', async () => {
     const success = await checkAuthorizations(
       testData,
       Role.User,
       async (givenToken: string) => {
-        return await postReq(app, givenToken, `/event-subscriptions`, {});
+        return await postReq(app, givenToken, `/cron-subscriptions`, {});
       },
     );
     expect(success).toBe(true);
   });
 
-  it('Should have proper authorizations (POST /event-subscriptions/{id})', async () => {
+  it('Should have proper authorizations (POST /cron-subscriptions/{id})', async () => {
     const success = await checkAuthorizations(
       testData,
       Role.User,
@@ -171,7 +148,7 @@ describe('Event Subscriptions Controller (e2e)', () => {
         return await postReq(
           app,
           givenToken,
-          `/event-subscriptions/${subscriptionId}`,
+          `/cron-subscriptions/${subscriptionId}`,
           {},
         );
       },
@@ -179,7 +156,7 @@ describe('Event Subscriptions Controller (e2e)', () => {
     expect(success).toBe(true);
   });
 
-  it('Should have proper authorizations (DELETE /event-subscriptions)', async () => {
+  it('Should have proper authorizations (DELETE /cron-subscriptions)', async () => {
     const success = await checkAuthorizations(
       testData,
       Role.User,
@@ -187,11 +164,47 @@ describe('Event Subscriptions Controller (e2e)', () => {
         return await deleteReq(
           app,
           givenToken,
-          `/event-subscriptions/${subscriptionId}`,
+          `/cron-subscriptions/${subscriptionId}`,
         );
       },
     );
     expect(success).toBe(true);
+  });
+
+  it('Should have proper authorizations (POST /cron-subscriptions/{id}/notify)', async () => {
+    // Arrange
+    const path = `/cron-subscriptions/${subscriptionId}/notify`;
+
+    // Act & Assert
+    const call = async (givenToken: string) => {
+      return await postReq(app, givenToken, path);
+    };
+
+    let r = await call(testData.admin.token);
+    expect(r.statusCode).toStrictEqual(HttpStatus.FORBIDDEN);
+
+    r = await call(testData.user.token);
+    expect(r.statusCode).toStrictEqual(HttpStatus.FORBIDDEN);
+
+    r = await call(testData.readonly.token);
+    expect(r.statusCode).toStrictEqual(HttpStatus.FORBIDDEN);
+
+    r = await call('');
+    expect(r.statusCode).toStrictEqual(HttpStatus.FORBIDDEN);
+
+    r = await request(app.getHttpServer())
+      .post(path)
+      .set('Content-Type', 'application/json')
+      .set('x-stalker-cron', `asdf`)
+      .send({});
+    expect(r.statusCode).toStrictEqual(HttpStatus.FORBIDDEN);
+
+    r = await request(app.getHttpServer())
+      .post(path)
+      .set('Content-Type', 'application/json')
+      .set('x-stalker-cron', process.env.STALKER_CRON_API_TOKEN)
+      .send({});
+    expect(r.statusCode !== HttpStatus.FORBIDDEN).toStrictEqual(true);
   });
 
   afterAll(async () => {
