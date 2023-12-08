@@ -24,7 +24,7 @@ export class CronSubscriptionsService {
     private readonly cronSubscriptionsModel: Model<CronSubscription>,
     private readonly cronConnector: CronConnector,
   ) {
-    // this.updateSubscriptionCache();
+    this.updateSubscriptionCache();
   }
 
   public async getCronSubscriptions() {

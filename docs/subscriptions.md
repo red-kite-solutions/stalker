@@ -31,7 +31,7 @@ A subscription is written in `yaml` format in the front-end. The company for whi
 
 Cron subscriptions are started based on a cron expression. They are the most simple subscriptions and only require the necessary information to start a job.
 
-Cron subscriptions can be reliably triggered as often as every twenty (20) seconds.
+Cron subscriptions can be reliably triggered as often as every twenty (20) seconds. The cron service, who is in charge of notifying the flow manager when a cron subscription triggers, checks its local cache of cron subscriptions every 10 seconds. The local cache is updated every minute to the cron subscriptions in the database. A new cron subscription added from the UI will therefore be up and running at the latest one 1 minute 20 seconds after the save.
 
 Even though cron subscriptions do not require a company to be set, they require at least one company to exist at the moment it is triggered to properly start at least one job.
 
