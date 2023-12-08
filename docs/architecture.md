@@ -24,4 +24,4 @@ The following table goes over the main aspects of the graph :
 | Orchestrator      | 5135             | 53 (DNS), 443 (K8s API), 9092 (Kafka)                                       |
 | Jobs              | Deny All         | 0.0.0.0/0 except 169.254.169.254, 172.16.0.0/12, 192.168.0.0/16, 10.0.0.0/8 |
 
-> The database is accessible from outside the cluster for debugging and development purposes. A production deployment **should not** allow connectivity.
+> The database is accessible from outside the cluster for debugging and development purposes. A production deployment **should not** allow connectivity. The same goes for the cron service on ingress 3000.
