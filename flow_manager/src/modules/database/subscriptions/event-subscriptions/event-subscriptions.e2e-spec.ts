@@ -79,6 +79,7 @@ describe('Event Subscriptions Controller (e2e)', () => {
   });
 
   afterAll(async () => {
+    await deleteReq(app, testData.user.token, `/company/${companyId}`);
     await app.close();
   });
 
@@ -192,10 +193,5 @@ describe('Event Subscriptions Controller (e2e)', () => {
       },
     );
     expect(success).toBe(true);
-  });
-
-  afterAll(async () => {
-    await deleteReq(app, testData.user.token, `/company/${companyId}`);
-    await app.close();
   });
 });

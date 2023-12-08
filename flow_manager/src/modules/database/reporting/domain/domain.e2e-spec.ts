@@ -1,13 +1,13 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import {
+  TestingData,
   checkAuthorizations,
   deleteReq,
   getReq,
   initTesting,
   postReq,
   putReq,
-  TestingData,
 } from 'test/e2e.utils';
 import { AppModule } from '../../../app.module';
 import { Role } from '../../../auth/constants';
@@ -40,6 +40,8 @@ describe('Domain Controller (e2e)', () => {
   });
 
   afterAll(async () => {
+    await deleteReq(app, testData.admin.token, `/company/${companyId}`);
+    await deleteReq(app, testData.admin.token, `/tags/${tagId}`);
     await app.close();
   });
 
@@ -325,11 +327,5 @@ describe('Domain Controller (e2e)', () => {
     );
     // Assert
     expect(success).toBe(true);
-  });
-
-  afterAll(async () => {
-    await deleteReq(app, testData.admin.token, `/company/${companyId}`);
-    await deleteReq(app, testData.admin.token, `/tags/${tagId}`);
-    await app.close();
   });
 });

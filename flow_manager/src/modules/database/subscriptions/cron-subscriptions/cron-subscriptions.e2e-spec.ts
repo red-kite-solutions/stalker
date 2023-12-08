@@ -206,9 +206,4 @@ describe('Cron Subscriptions Controller (e2e)', () => {
       .send({});
     expect(r.statusCode !== HttpStatus.FORBIDDEN).toStrictEqual(true);
   });
-
-  afterAll(async () => {
-    await deleteReq(app, testData.user.token, `/company/${companyId}`);
-    await app.close();
-  });
 });

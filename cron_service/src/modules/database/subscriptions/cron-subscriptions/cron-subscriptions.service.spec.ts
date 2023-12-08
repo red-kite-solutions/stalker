@@ -1,18 +1,6 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { AppModule } from '../../../app.module';
 import { CronSubscriptionsService } from './cron-subscriptions.service';
 
 describe('CronSubscriptionsService', () => {
-  let subscriptionService: CronSubscriptionsService;
-  let moduleFixture: TestingModule;
-
-  beforeEach(async () => {
-    moduleFixture = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-    subscriptionService = moduleFixture.get(CronSubscriptionsService);
-  });
-
   // Here are timestamp (ms) examples of a check every 10 seconds
   // for a cron that should start every 30 seconds
   //          */30 * * * * ?
@@ -34,7 +22,7 @@ describe('CronSubscriptionsService', () => {
     const startTime = 1701305999999;
 
     //Act
-    const result = subscriptionService.cronShouldRun(
+    const result = CronSubscriptionsService.cronShouldRun(
       cronExpression,
       lastRunTime,
       startTime,
@@ -51,7 +39,7 @@ describe('CronSubscriptionsService', () => {
     let startTime = 1701306000000;
 
     //Act
-    let result = subscriptionService.cronShouldRun(
+    let result = CronSubscriptionsService.cronShouldRun(
       cronExpression,
       lastRunTime,
       startTime,
@@ -65,7 +53,7 @@ describe('CronSubscriptionsService', () => {
     startTime = 1701306010000;
 
     //Act
-    result = subscriptionService.cronShouldRun(
+    result = CronSubscriptionsService.cronShouldRun(
       cronExpression,
       lastRunTime,
       startTime,
@@ -82,7 +70,7 @@ describe('CronSubscriptionsService', () => {
     const startTime = 1701306000001;
 
     //Act
-    const result = subscriptionService.cronShouldRun(
+    const result = CronSubscriptionsService.cronShouldRun(
       cronExpression,
       lastRunTime,
       startTime,

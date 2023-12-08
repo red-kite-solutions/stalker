@@ -1,14 +1,85 @@
 # Subscriptions
 
+Subscriptions are used in Stalker to start jobs based on either a cron expression (cron subscriptions) or a finding (event subscription). They are used to expand Stalker's automation workflow.
+
+A subscription can belong to a company, in which case, they will only take effect on the mentionned company. If a company is not specified for a subscription, it will take effect on all the companies.
+
+A subscription is written in `yaml` format in the front-end. The company for which to apply the subscription can also be chosen using the dropdown menu.
+
+> A subscription belongning to a company will be deleted automatically if the company is deleted.
+
+**Table of content**
+
+* [Cron Subscriptions](#cron-subscriptions)
+  * [Cron Subscription Syntax](#cron-subscription-syntax)
+    * [Cron Subscription Simple Example](#cron-subscription-simple-example)
+* [Event Subscriptions](#event-subscriptions)
+  * [Event Subscription Syntax](#event-subscription-syntax)
+    * [Event Subscription Simple Example](#event-subscription-simple-example)
+    * [Event Subscription Complex Example](#event-subscription-complex-example)
+    * [Event Subscription Custom Job Example](#event-subscription-custom-job-example)
+  * [Findings](#findings)
+    * [HostnameFinding](#hostnamefinding)
+    * [HostnameIpFinding](#hostnameipfinding)
+    * [PortFinding](#portfinding)
+  * [Conditions](#conditions)
+* [Jobs](#jobs)
+  * [DomainNameResolvingJob](#domainnameresolvingjob)
+  * [TcpPortScanningJob](#tcpportscanningjob)
+
+## Cron Subscriptions
+
+Cron subscriptions are started based on a cron expression. They are the most simple subscriptions and only require the necessary information to start a job.
+
+Cron subscriptions can be reliably triggered as often as every twenty (20) seconds.
+
+Even though cron subscriptions do not require a company to be set, they require at least one company to exist at the moment it is triggered to properly start at least one job.
+
+### Cron Subscription Syntax
+
+A cron subscription can contain four main elements :
+
+| Element        | Description                                              | Mandatory |
+| -------------- | -------------------------------------------------------- | --------- |
+| name           | The name of the subscription, for future reference       | Yes       |
+| cronExpression | The cron expression that specifies when to start the job | Yes       |
+| job            | The job to launch when the cron expression is triggered  | Yes       |
+
+> N.B. Additonnal details on these elements are given in the following sections
+
+* The `name` element can be anything and is only used to distinguish the subscription from the others.
+* The `cronExpression` element has to be a valid cron expression. It is used to trigger the job launch.
+* The `job` element contains multiple values:
+  * `name` : mandatory, must be an existing Job's type. See the Jobs section for the list of valid values.
+  * `parameters` : optionnal, but almost always needed. It describes the input values of the job by the parameter `name` and its `value` in a list.
+
+#### Cron Subscription Simple Example
+
+Here is one of the shortest subscription possible. It triggers every day at noon to launch a `DomainNameResolvingJob`, using `example.com` as the `domainName` parameter value.
+
+Therefore, it will resolve the domain name to an IP address by launching a `DomainNameResolvingJob`. It will emit a `HostnameIpFinding` if it properly resolves the domain name.
+
+It will start again the next day at noon.
+
+```yaml
+name: my cron subscription
+cronExpression: 0 0 12 * * ?
+job:
+  name: DomainNameResolvingJob
+  parameters:
+    - name: domainName
+      value: example.com
+```
+
+## Event Subscriptions
+
 When Stalker finds some information, either through the output of a Job, or through user input, a Finding is emitted. This Finding contains the output information given by the Job or the user. From this information, new Jobs are started that will output more Findings. This is roughly how Stalker's automation workflow works.
 
-A Subscription allows for the customization of Stalker's automation workflow by starting any Job on any Finding. These jobs can be started on specified conditions. Also, the output of the finding can be used as a job input, as well as a condition parameter.
+An event subscription allows for the customization of Stalker's automation workflow by starting any Job on any Finding. These jobs can be started on specified conditions. Also, the output of the finding can be used as a job input, as well as a condition parameter.
 
-## Syntax
+### Event Subscription Syntax
 
-A Subscription is written in a yaml format in the front-end. The company for which to apply the subscription also has to be chosen using the dropdown menu.
-
-A Subscription can contain four main elements :
+An event subscription can contain four main elements :
 
 | Element    | Description                                               | Mandatory |
 | ---------- | --------------------------------------------------------- | --------- |
@@ -31,9 +102,9 @@ A Subscription can contain four main elements :
 
 > You can reference a Finding's output variable by name in a Job parameter's value or in a condition's operand using the following syntax: `${parameterName}`. The variable name is case insensitive.
 
-### Simple Example
+#### Event Subscription Simple Example
 
-Here is one of the shortest Subscription possible. It reacts to a `HostnameFinding` to launch a `DomainNameResolvingJob`, using the output of the Finding as the `domainName` parameter value.
+Here is one of the shortest event subscription possible. It reacts to a `HostnameFinding` to launch a `DomainNameResolvingJob`, using the output of the Finding as the `domainName` parameter value.
 
 Therefore, it will resolve the domain name found in the `HostnameFinding` to an IP address by launching a `DomainNameResolvingJob`. It will emit a `HostnameIpFinding` if it properly resolves the domain name.
 
@@ -50,7 +121,7 @@ job:
 
 ```
 
-### Complex Example
+#### Event Subscription Complex Example
 
 Here is an example of how to start a `TcpPortScanningJob` when a `HostnameIpFinding` is emitted. This job will however only start if all the conditions are met. The Finding's found `ip` must contain the case insensitive string "13.37", and 5 must be greater than or equal to 3.
 
@@ -87,9 +158,9 @@ conditions:
     rhs: 3
 ```
 
-### Custom Job Example
+#### Event Subscription Custom Job Example
 
-Launching a custom job from a Subscription is really similar to launching a built-in job. The syntax and the logic are the same. However, a custom job requires a `CustomJobName` parameter. Without it, Stalker has no way of knowing which `CustomJob` to start. The value of the `CustomJobName` parameter must match [the name of the job](./implementing-jobs.md#custom-jobs) to start.
+Launching a custom job from an event subscription is really similar to launching a built-in job. The syntax and the logic are the same. However, a custom job requires a `CustomJobName` parameter. Without it, Stalker has no way of knowing which `CustomJob` to start. The value of the `CustomJobName` parameter must match [the name of the job](./implementing-jobs.md#custom-jobs) to start.
 
 The other parameters will be provided as environment variables to the job. Therefore, they must respect some [naming rules](./implementing-jobs.md#custom-job-input).
 
@@ -111,7 +182,7 @@ job:
       value: ${port}
 ```
 
-## Findings
+### Findings
 
 A finding event is propagated by Stalker whenever an information comes into play. Every finding type contains information that is specific to it.
 
@@ -123,7 +194,7 @@ A finding event is propagated by Stalker whenever an information comes into play
 
 It is possible to reference a finding outputted by a job as an input of a new job, as well as a condition operand. All references to a finding's output variable are case insensitive.
 
-### HostnameFinding
+#### HostnameFinding
 
 A `HostnameFinding` is the result of a new hostname being found for a company. A hostname is here used as a short for *fully qualified domain name*, or *FQDN*. It represents a Domain for Stalker.
 
@@ -131,7 +202,7 @@ A `HostnameFinding` is the result of a new hostname being found for a company. A
 | ------------- | ------ | ----------------------------------------- |
 | domainName    | string | A newly found FQDN, like `www.stalker.is` |
 
-### HostnameIpFinding
+#### HostnameIpFinding
 
 The `HostnameIpFinding` is usually the result of resolving a hostname to an ip address. The hostname, `domainName`, must resolve to the IP address, and it has to be already known to Stalker as a valid Domain.
 
@@ -142,7 +213,7 @@ The `HostnameIpFinding` is usually the result of resolving a hostname to an ip a
 | domainName    | string | The FQDN resolving to the `ip`, like `www.stalker.is`  |
 | ip            | string | The ipv4 address to which the `domainName` resolves to |
 
-### PortFinding
+#### PortFinding
 
 The `PortFinding` is usually the result of a port scanning job. It signals that an open port, either `tcp` or `udp`, has been found on the host specified through the `ip` value. The `ip` must already be known to Stalker as a valid Host.
 
@@ -153,6 +224,29 @@ The `PortFinding` is usually the result of a port scanning job. It signals that 
 | protocol      | string | `tcp` or `udp`                              |
 | ip            | string | The ipv4 of the host where a port was found |
 | port          | number | The open port number                        |
+
+### Conditions
+
+By default, an event subscription's Job will always start when the specified Finding is found. However, it is not always the desired behavior. Sometimes, the Job should only start if the Finding's output respect some established Conditions.
+
+A Condition is made of three elements: a left-hand side parameter (`lhs`), an `operator`, and a right-hand side parameter (`rhs`). The `lhs` parameter is compared to the `rhs` parameter using the `operator`. A Finding's output variable can be used as a Condition's `lhs` or `rhs` parameter when referenced using the syntax `${paramName}`.
+
+The primitive type of the parameters must match together and must match with the operator for the condition to return `true`. The allowed types of an operand are `string`, `number` or `boolean`. If all the condtions return true, then the specified job will be started.
+
+| Operator     | Accepted Operand Types  | Description                                                                   |
+| ------------ | ----------------------- | ----------------------------------------------------------------------------- |
+| gte          | number                  | `lhs >= rhs`                                                                  |
+| gt           | number                  | `lhs > rhs`                                                                   |
+| lte          | number                  | `lhs <= rhs`                                                                  |
+| lt           | number                  | `lhs < rhs`                                                                   |
+| equals       | string, number, boolean | `lhs == rhs`                                                                  |
+| equals_i     | string                  | Case insensitive, `lhs == rhs`                                                |
+| contains     | string                  | Validates if the `lhs` string contains the `rhs` string.                      |
+| contains_i   | string                  | Validates if the `lhs` string contains the `rhs` string. Case insensitive.    |
+| startsWith   | string                  | Validates if the `lhs` string starts with the `rhs` string.                   |
+| startsWith_i | string                  | Validates if the `lhs` string starts with the `rhs` string. Case insensitive. |
+| endsWith     | string                  | Validates if the `lhs` string ends with the `rhs` string.                     |
+| endsWith_i   | string                  | Validates if the `lhs` string ends with the `rhs` string. Case insensitive.   |
 
 ## Jobs
 
@@ -197,26 +291,3 @@ A `DomainNameResolvingJob` takes a domain name and resolves it to one or more ip
 **Possible Findings generated :**
 
 * PortFinding
-
-## Conditions
-
-By default, a Subscription's Job will always start when the specified Finding is found. However, it is not always the desired behavior. Sometimes, the Job should only start if the Finding's output respect some established Conditions.
-
-A Condition is made of three elements: a left-hand side parameter (`lhs`), an `operator`, and a right-hand side parameter (`rhs`). The `lhs` parameter is compared to the `rhs` parameter using the `operator`. A Finding's output variable can be used as a Condition's `lhs` or `rhs` parameter when referenced using the syntax `${paramName}`.
-
-The primitive type of the parameters must match together and must match with the operator for the condition to return `true`. The allowed types of an operand are `string`, `number` or `boolean`. If all the condtions return true, then the specified job will be started.
-
-| Operator     | Accepted Operand Types  | Description                                                                   |
-| ------------ | ----------------------- | ----------------------------------------------------------------------------- |
-| gte          | number                  | `lhs >= rhs`                                                                  |
-| gt           | number                  | `lhs > rhs`                                                                   |
-| lte          | number                  | `lhs <= rhs`                                                                  |
-| lt           | number                  | `lhs < rhs`                                                                   |
-| equals       | string, number, boolean | `lhs == rhs`                                                                  |
-| equals_i     | string                  | Case insensitive, `lhs == rhs`                                                |
-| contains     | string                  | Validates if the `lhs` string contains the `rhs` string.                      |
-| contains_i   | string                  | Validates if the `lhs` string contains the `rhs` string. Case insensitive.    |
-| startsWith   | string                  | Validates if the `lhs` string starts with the `rhs` string.                   |
-| startsWith_i | string                  | Validates if the `lhs` string starts with the `rhs` string. Case insensitive. |
-| endsWith     | string                  | Validates if the `lhs` string ends with the `rhs` string.                     |
-| endsWith_i   | string                  | Validates if the `lhs` string ends with the `rhs` string. Case insensitive.   |

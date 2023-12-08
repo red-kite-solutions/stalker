@@ -1,11 +1,11 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import {
+  TestingData,
   checkAuthorizations,
   getReq,
   initTesting,
   postReq,
-  TestingData,
 } from 'test/e2e.utils';
 import { AppModule } from '../../../app.module';
 import { Role } from '../../../auth/constants';
@@ -65,9 +65,5 @@ describe('Domain Controller (e2e)', () => {
       },
     );
     expect(success).toBe(true);
-  });
-
-  afterAll(async () => {
-    await app.close();
   });
 });

@@ -24,7 +24,7 @@ export class CronSubscriptionsService {
     private readonly cronSubscriptionsModel: Model<CronSubscription>,
     private readonly cronConnector: CronConnector,
   ) {
-    this.updateSubscriptionCache();
+    // this.updateSubscriptionCache();
   }
 
   public async getCronSubscriptions() {
@@ -33,8 +33,9 @@ export class CronSubscriptionsService {
       .select('_id name cronExpression');
   }
 
-  // @Cron(CronExpression.EVERY_5_MINUTES)
-  @Cron(CronExpression.EVERY_MINUTE)
+  @Cron(CronExpression.EVERY_MINUTE, {
+    name: 'Update cron cache',
+  })
   public async updateSubscriptionCache() {
     if (this.cacheUpdateRunning) {
       this.logger.warn(
@@ -52,7 +53,7 @@ export class CronSubscriptionsService {
     }
   }
 
-  public cronShouldRun(
+  public static cronShouldRun(
     cronExpression: string,
     lastRunStart: number,
     currentRunStart: number,
@@ -64,10 +65,12 @@ export class CronSubscriptionsService {
     return lastRunStart <= prevCronTime && prevCronTime < currentRunStart;
   }
 
-  @Cron(CronExpression.EVERY_10_SECONDS)
-  public async launchRelevantJobs() {
+  @Cron(CronExpression.EVERY_10_SECONDS, {
+    name: 'Notify cron jobs',
+  })
+  public async notifyCronJobs() {
     if (this.jobLaunchRunning) {
-      this.logger.warn('Job launch is already running, cancelling this run');
+      this.logger.warn('Cron notify is already running, cancelling this run');
       return;
     }
     this.jobLaunchRunning = true;
@@ -78,7 +81,7 @@ export class CronSubscriptionsService {
         for (const subscription of this.cronSubscriptionsCache) {
           try {
             if (
-              this.cronShouldRun(
+              CronSubscriptionsService.cronShouldRun(
                 subscription.cronExpression,
                 this.lastJobLaunchStart,
                 currentRunStart,

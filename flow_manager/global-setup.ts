@@ -4,6 +4,7 @@ import { FM_ENVIRONMENTS } from './src/modules/app.constants';
 
 module.exports = async function () {
   const mongo = await MongoMemoryReplSet.create({ replSet: { count: 3 } });
+  await mongo.waitUntilRunning();
   const uri = mongo.getUri();
   process.env.MONGO_ADDRESS = uri;
   process.env.MONGO_DATABASE_NAME = randomUUID();

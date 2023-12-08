@@ -4,9 +4,10 @@ import { AppService } from './app.service';
 
 describe('AppController', () => {
   let appController: AppController;
+  let app: TestingModule;
 
-  beforeEach(async () => {
-    const app: TestingModule = await Test.createTestingModule({
+  beforeAll(async () => {
+    app = await Test.createTestingModule({
       controllers: [AppController],
       providers: [AppService],
     }).compile();
@@ -18,5 +19,9 @@ describe('AppController', () => {
     it('should return "Hello World!"', () => {
       expect(appController.getHello()).toBe('Hello World!');
     });
+  });
+
+  afterAll(async () => {
+    await app.close();
   });
 });
