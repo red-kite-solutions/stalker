@@ -8,4 +8,7 @@ export interface PortNumber {
 export interface Port extends PortNumber {
   companyId: string;
   tags?: string[];
+  lastSeen: number;
+  createdAt: number;
+  updatedAt: number;
 }

@@ -1,9 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
+import { MONGO_TIMESTAMP_SCHEMA_CONFIG } from '../../database.constants';
 
 export type PortDocument = Port & Document;
 
-@Schema()
+@Schema(MONGO_TIMESTAMP_SCHEMA_CONFIG)
 export class Port {
   @Prop({ index: true })
   public hostId?: Types.ObjectId;
@@ -31,6 +32,15 @@ export class Port {
    */
   @Prop({ enum: ['tcp', 'udp'] })
   public layer4Protocol!: string;
+
+  @Prop()
+  public updatedAt: number;
+
+  @Prop()
+  public createdAt: number;
+
+  @Prop()
+  public lastSeen: number;
 }
 
 export const PortSchema = SchemaFactory.createForClass(Port);

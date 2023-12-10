@@ -46,7 +46,8 @@ export class DomainsService {
     // for each domain, create a mongo id
     const domainDocuments: DomainDocument[] = [];
     const companyIdObject = new Types.ObjectId(companyId);
-    domains.forEach((domain) => {
+
+    for (const domain of domains) {
       const model = new this.domainModel({
         _id: new Types.ObjectId(),
         name: domain,
@@ -55,11 +56,12 @@ export class DomainsService {
           domain,
         ),
         companyId: companyIdObject,
+        lastSeen: Date.now(),
       });
       domainDocuments.push(model);
-    });
+    }
 
-    let insertedDomains: any = [];
+    let insertedDomains: DomainDocument[] = [];
 
     // insertmany with ordered false to continue on fail and use the exception
     try {
@@ -74,9 +76,9 @@ export class DomainsService {
     }
 
     const newDomains: string[] = [];
-    insertedDomains.forEach((domain: DomainDocument) => {
+    for (const domain of insertedDomains) {
       newDomains.push(domain.name);
-    });
+    }
 
     const config = await this.configService.getConfig();
 
@@ -168,6 +170,7 @@ export class DomainsService {
     }
     if (domain.hosts) throw new HttpNotImplementedException(); // has to validate hosts and unlink
     if (domain.correlationKey) throw new HttpNotImplementedException(); // should not change correlation key
+    domain.lastSeen = Date.now();
 
     return await this.domainModel.updateOne({ _id: { $eq: id } }, domain);
   }

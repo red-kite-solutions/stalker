@@ -1,10 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
+import { MONGO_TIMESTAMP_SCHEMA_CONFIG } from '../../database.constants';
 import { DomainSummary } from '../domain/domain.summary';
 
 export type HostDocument = Host & Document;
 
-@Schema()
+@Schema(MONGO_TIMESTAMP_SCHEMA_CONFIG)
 export class Host {
   @Prop({ index: true })
   public ip!: string;
@@ -30,6 +31,15 @@ export class Host {
 
   @Prop()
   public notes?: string;
+
+  @Prop()
+  public updatedAt: number;
+
+  @Prop()
+  public createdAt: number;
+
+  @Prop()
+  public lastSeen: number;
 }
 
 export const HostSchema = SchemaFactory.createForClass(Host);

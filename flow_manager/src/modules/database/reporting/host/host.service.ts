@@ -116,6 +116,7 @@ export class HostService {
               ),
             },
             $addToSet: { domains: ds, tags: { $each: existingTags } },
+            lastSeen: Date.now(),
           },
           { upsert: true, useFindAndModify: false },
         )
@@ -173,6 +174,7 @@ export class HostService {
         ip: ip,
         companyId: new Types.ObjectId(companyId),
         correlationKey: CorrelationKeyUtils.hostCorrelationKey(companyId, ip),
+        lastSeen: Date.now(),
       });
 
       hostDocuments.push(model);

@@ -8,6 +8,12 @@
     </div>
 
     <div class="context">
+      <panel-section *ngIf="domain">
+        <panel-section-title i18n="Last seen|Last seen"> Last seen </panel-section-title>
+        <panel-section-subtitle [matTooltip]="domain.lastSeen | humanizeDate : 'precise'" matTooltipPosition="before">
+          {{ domain.lastSeen | timeAgo }}
+        </panel-section-subtitle>
+      </panel-section>
       <panel-section *ngIf="(tagsSelectItems$ | async) && mergedTags$ | async as domainTags">
         <panel-section-title i18n="Tags|The tags of an item"
           >Tags
