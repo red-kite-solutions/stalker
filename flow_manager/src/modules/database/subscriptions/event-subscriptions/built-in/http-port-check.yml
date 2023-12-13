@@ -1,6 +1,6 @@
 name: Http(s) server port check
 finding: PortFinding
-triggerInterval: 86400
+triggerInterval: 82800
 job:
   name: HttpServerCheckJob
   parameters:

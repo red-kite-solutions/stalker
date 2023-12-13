@@ -4,6 +4,8 @@ import { DeleteResult, UpdateResult } from 'mongodb';
 import { Model, Types } from 'mongoose';
 import { HttpNotFoundException } from '../../../../exceptions/http.exceptions';
 import escapeStringRegexp from '../../../../utils/escape-string-regexp';
+import { IpFinding } from '../../../findings/findings.service';
+import { FindingsQueue } from '../../../job-queue/findings-queue';
 import { ConfigService } from '../../admin/config/config.service';
 import { TagsService } from '../../tags/tag.service';
 import { Company } from '../company.model';
@@ -29,6 +31,7 @@ export class HostService {
     @Inject(forwardRef(() => DomainsService))
     private domainService: DomainsService,
     private portsService: PortService,
+    private findingsQueue: FindingsQueue,
   ) {}
 
   public async getAll(
@@ -205,6 +208,18 @@ export class HostService {
     if (config.isNewContentReported) {
       this.reportService.addHosts(companyName, newIps);
     }
+
+    const findings: IpFinding[] = [];
+    // For each new domain name found, a finding is created
+    newIps.forEach((ip) => {
+      findings.push({
+        type: 'IpFinding',
+        key: 'IpFinding',
+        ip: ip,
+        companyId: companyId,
+      });
+    });
+    this.findingsQueue.publish(...findings);
 
     return insertedHosts;
   }

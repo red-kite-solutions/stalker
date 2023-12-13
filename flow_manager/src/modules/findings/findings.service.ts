@@ -13,6 +13,7 @@ import { CompanyService } from '../database/reporting/company.service';
 import { CorrelationKeyUtils } from '../database/reporting/correlation.utils';
 import { CustomFinding } from '../database/reporting/findings/finding.model';
 import { HostnameCommand } from './commands/Findings/hostname.command';
+import { IpCommand } from './commands/Findings/ip.command';
 import { CustomFindingCommand } from './commands/JobFindings/custom.command';
 import { HostnameIpCommand } from './commands/JobFindings/hostname-ip.command';
 import { PortCommand } from './commands/JobFindings/port.command';
@@ -21,6 +22,7 @@ import { CustomFindingFieldDto } from './finding.dto';
 export type Finding =
   | HostnameIpFinding
   | HostnameFinding
+  | IpFinding
   | PortFinding
   | JobStatusFinding
   | CreateCustomFinding;
@@ -66,6 +68,13 @@ export class HostnameFinding extends FindingBase {
   key: 'HostnameFinding';
   companyId: string;
   domainName: string;
+}
+
+export class IpFinding extends FindingBase {
+  type: 'IpFinding';
+  key: 'IpFinding';
+  companyId: string;
+  ip: string;
 }
 
 export class HostnameIpFinding extends FindingBase {
@@ -206,7 +215,7 @@ export class FindingsService {
         this.logger.error(`The given job does not exist (jobId=${jobId})`);
         return;
       }
-
+      console.log(job.companyId);
       if (job.companyId !== undefined) {
         const company = await this.companyService.get(job.companyId);
         if (company === null) {
@@ -258,11 +267,24 @@ export class FindingsService {
         break;
       case 'HostnameFinding':
         finding.correlationKey = CorrelationKeyUtils.generateCorrelationKey(
-          companyId,
+          finding.companyId,
           finding.domainName,
         );
         this.commandBus.execute(
           new HostnameCommand(finding.companyId, HostnameCommand.name, finding),
+        );
+        break;
+
+      case 'IpFinding':
+        console.log('before');
+        finding.correlationKey = CorrelationKeyUtils.generateCorrelationKey(
+          finding.companyId,
+          null,
+          finding.ip,
+        );
+        console.log('after');
+        this.commandBus.execute(
+          new IpCommand(finding.companyId, IpCommand.name, finding),
         );
         break;
 
