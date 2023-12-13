@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Put,
   UseGuards,
 } from '@nestjs/common';
 import { DeleteResult, UpdateResult } from 'mongodb';
@@ -33,6 +34,13 @@ export class EventSubscriptionsController {
   @Get()
   async getAllSubscriptions(): Promise<EventSubscriptionsDocument[]> {
     return await this.subscriptionsService.getAll();
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User)
+  @Put(':id/revert')
+  async revertSubscription(@Param() IdDto: MongoIdDto): Promise<UpdateResult> {
+    return await this.subscriptionsService.revertToDefaults(IdDto.id);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

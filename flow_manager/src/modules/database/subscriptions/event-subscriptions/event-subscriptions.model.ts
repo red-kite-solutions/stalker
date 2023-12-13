@@ -33,6 +33,16 @@ export class EventSubscription {
 
   @Prop()
   public conditions: JobCondition[];
+
+  @Prop()
+  public triggerInterval: number;
+
+  // true for a built-in subsctiption, false otherwise
+  @Prop()
+  public builtIn: boolean;
+
+  @Prop()
+  public file?: string;
 }
 
 export const EventSubscriptionsSchema =

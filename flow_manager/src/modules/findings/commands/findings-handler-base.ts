@@ -10,6 +10,7 @@ import { JobParameter } from '../../database/subscriptions/event-subscriptions/e
 import { EventSubscriptionsService } from '../../database/subscriptions/event-subscriptions/event-subscriptions.service';
 import { SubscriptionsUtils } from '../../database/subscriptions/subscriptions.utils';
 
+import { SubscriptionTriggersService } from '../../database/subscriptions/subscription-triggers/subscription-triggers.service';
 import { FindingCommand } from './findings.command';
 
 export abstract class FindingHandlerBase<T extends FindingCommand>
@@ -22,6 +23,7 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
     protected jobsService: JobsService,
     private customJobsService: CustomJobsService,
     private configService: ConfigService,
+    private subscriptionTriggersService: SubscriptionTriggersService,
   ) {}
 
   public async execute(command: T) {
@@ -41,10 +43,11 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
       // (ex: ${ip} for refering to an ip parameter of a finding) is replaced with the
       // proper value. The check for the variable name is case insensitive.
       for (const param of sub.jobParameters) {
-        param.value = SubscriptionsUtils.replaceValueIfReferingToFinding(
-          param.value,
-          command.finding,
-        );
+        param.value =
+          SubscriptionsUtils.replaceValueIfReferingToFinding<unknown>(
+            param.value,
+            command.finding,
+          );
       }
 
       if (sub.jobName === CustomJob.name) {
@@ -72,7 +75,16 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
 
       // Launching the generic function that creates the appropriate job and publishing it
       const job: Job = JobFactory.createJob(sub.jobName, sub.jobParameters);
-      if (job != null) this.jobsService.publish(job);
+
+      if (
+        job != null &&
+        (await this.subscriptionTriggersService.attemptTrigger(
+          sub._id.toString(),
+          command.finding.correlationKey,
+          sub.triggerInterval,
+        ))
+      )
+        this.jobsService.publish(job);
     }
 
     try {

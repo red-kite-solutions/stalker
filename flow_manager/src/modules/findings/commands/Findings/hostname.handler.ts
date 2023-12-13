@@ -6,6 +6,7 @@ import { JobFactory } from '../../../database/jobs/jobs.factory';
 import { JobsService } from '../../../database/jobs/jobs.service';
 import { DomainNameResolvingJob } from '../../../database/jobs/models/domain-name-resolving.model';
 import { EventSubscriptionsService } from '../../../database/subscriptions/event-subscriptions/event-subscriptions.service';
+import { SubscriptionTriggersService } from '../../../database/subscriptions/subscription-triggers/subscription-triggers.service';
 import { UserFindingHandlerBase } from '../user-findings-handler-base';
 import { HostnameCommand } from './hostname.command';
 
@@ -18,8 +19,15 @@ export class HostnameHandler extends UserFindingHandlerBase<HostnameCommand> {
     subscriptionsService: EventSubscriptionsService,
     customJobsService: CustomJobsService,
     configService: ConfigService,
+    subscriptionTriggersService: SubscriptionTriggersService,
   ) {
-    super(subscriptionsService, jobService, customJobsService, configService);
+    super(
+      subscriptionsService,
+      jobService,
+      customJobsService,
+      configService,
+      subscriptionTriggersService,
+    );
   }
 
   protected async executeCore(command: HostnameCommand) {

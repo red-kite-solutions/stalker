@@ -10,6 +10,7 @@ import {
 } from 'test/e2e.utils';
 import { AppModule } from '../../../app.module';
 import { Role } from '../../../auth/constants';
+import { EventSubscriptionDto } from './event-subscriptions.dto';
 
 describe('Event Subscriptions Controller (e2e)', () => {
   let app: INestApplication;
@@ -18,7 +19,7 @@ describe('Event Subscriptions Controller (e2e)', () => {
   let companyId: string;
   let subscriptionId: string;
 
-  const subscription = {
+  const subscription: EventSubscriptionDto = {
     name: 'My test subscription',
     finding: 'HostnameIpFinding',
     jobName: 'TcpPortScanningJob',
@@ -55,6 +56,7 @@ describe('Event Subscriptions Controller (e2e)', () => {
         rhs: 'qwerty',
       },
     ],
+    triggerInterval: 3600,
   };
 
   beforeAll(async () => {

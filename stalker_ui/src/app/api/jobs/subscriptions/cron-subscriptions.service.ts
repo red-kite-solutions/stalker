@@ -22,6 +22,7 @@ export class CronSubscriptionsService {
             cronExpression: item.cronExpression,
             companyId: item.companyId ? item.companyId : allCompaniesSubscriptions,
             job: { name: item.jobName },
+            builtIn: item.builtIn,
           };
           if (item.jobParameters) {
             sub.job.parameters = item.jobParameters;
@@ -45,6 +46,7 @@ export class CronSubscriptionsService {
       job: {
         name: newSub.jobName,
       },
+      builtIn: false,
     };
     if (newSub.jobParameters && Array.isArray(newSub.jobParameters)) parsedSub.job.parameters = newSub.jobParameters;
     return parsedSub;

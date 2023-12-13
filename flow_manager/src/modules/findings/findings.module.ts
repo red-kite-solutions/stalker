@@ -11,6 +11,7 @@ import { CompanyModule } from '../database/reporting/company.module';
 import { HostModule } from '../database/reporting/host/host.module';
 import { PortModule } from '../database/reporting/port/port.module';
 import { EventSubscriptionsModule } from '../database/subscriptions/event-subscriptions/event-subscriptions.module';
+import { SubscriptionTriggersModule } from '../database/subscriptions/subscription-triggers/subscription-triggers.module';
 import { FindingsHandlers } from './commands/findings-commands';
 import { FindingsConsumer } from './findings.consumer';
 import { FindingsController } from './findings.controller';
@@ -28,6 +29,7 @@ import { JobLogsConsumer } from './job-logs.consumer';
     CustomJobsModule,
     PortModule,
     ConfigModule,
+    SubscriptionTriggersModule,
   ],
   controllers: [FindingsController],
   providers: [FindingsService, ...FindingsHandlers],

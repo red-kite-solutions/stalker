@@ -1,3 +1,5 @@
+import { HttpBadRequestException } from '../../../exceptions/http.exceptions';
+
 export class CorrelationKeyUtils {
   private static buildCorrelationKey(...parts: string[]) {
     return parts.join(';');
@@ -32,5 +34,55 @@ export class CorrelationKeyUtils {
       `port:${port}`,
       `protocol:${layer4Protocol}`,
     );
+  }
+
+  public static generateCorrelationKey(
+    companyId: string,
+    domainName?: string,
+    ip?: string,
+    port?: number,
+    protocol?: string,
+  ): string {
+    if (!companyId) {
+      throw new HttpBadRequestException(
+        'CompanyId is required in order to create a correlation key.',
+      );
+    }
+
+    let correlationKey = null;
+    const ambiguousRequest =
+      'Ambiguous request; must provide a domainName, an ip or a combination of ip, port and protocol.';
+    if (domainName) {
+      if (ip || port || protocol)
+        throw new HttpBadRequestException(ambiguousRequest);
+
+      correlationKey = CorrelationKeyUtils.domainCorrelationKey(
+        companyId,
+        domainName,
+      );
+    } else if (ip) {
+      if (port && protocol) {
+        correlationKey = CorrelationKeyUtils.portCorrelationKey(
+          companyId,
+          ip,
+          port,
+          protocol,
+        );
+      } else {
+        if (port || protocol)
+          throw new HttpBadRequestException(ambiguousRequest);
+        correlationKey = CorrelationKeyUtils.hostCorrelationKey(companyId, ip);
+      }
+    } else if (port) {
+      throw new HttpBadRequestException(
+        'The ip must be specified with the port.',
+      );
+    } else {
+      throw new HttpBadRequestException(
+        'Correlation key must contain at least a domain or a host.',
+      );
+    }
+
+    return correlationKey;
   }
 }
