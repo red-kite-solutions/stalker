@@ -11,6 +11,7 @@ import { Finding } from '../../findings/findings.service';
 import { ConfigService } from '../admin/config/config.service';
 import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
 import { JobFactoryUtils } from '../jobs/jobs.factory';
+import { CronSubscription } from './cron-subscriptions/cron-subscriptions.model';
 import {
   EventSubscription,
   JobCondition,
@@ -223,18 +224,35 @@ export class SubscriptionsUtils {
     return allConditionsMatch;
   }
 
+  /**
+   * Validates that the path + file name exists and is valid
+   * @param path a folder path ending with a '/'
+   * @param fileName must be `basename(fileName)` to make sure that it is a proper file name without path
+   * @returns
+   */
+  private static validateSubscriptionFileFullPath(
+    path: string,
+    fileName: string,
+  ): boolean {
+    // TODO: test this function
+    const fileSplit = fileName.split('.');
+    if (fileSplit.length <= 1) return false;
+
+    const ext = fileSplit[fileSplit.length - 1].toLowerCase();
+    if (ext !== 'yml' && ext !== 'yaml') return false;
+
+    if (!existsSync(path + fileName)) return false;
+
+    return true;
+  }
+
   public static readEventSubscriptionFile(
     path: string,
     fileName: string,
   ): EventSubscription | null {
     const baseName = basename(fileName);
-    const fileSplit = baseName.split('.');
-    if (fileSplit.length <= 1) return null;
-
-    const ext = fileSplit[fileSplit.length - 1].toLowerCase();
-    if (ext !== 'yml' && ext !== 'yaml') return null;
-
-    if (!existsSync(path + baseName)) return null;
+    if (!SubscriptionsUtils.validateSubscriptionFileFullPath(path, baseName))
+      return null;
 
     const file_content = readFileSync(path + baseName).toString();
     let sub: EventSubscription | null = null;
@@ -244,6 +262,50 @@ export class SubscriptionsUtils {
     } catch (err) {
       console.log(err);
     }
+    return sub;
+  }
+
+  public static readCronSubscriptionFile(
+    path: string,
+    fileName: string,
+  ): CronSubscription | null {
+    const baseName = basename(fileName);
+    if (!SubscriptionsUtils.validateSubscriptionFileFullPath(path, baseName))
+      return null;
+
+    const file_content = readFileSync(path + baseName).toString();
+    let sub: CronSubscription | null = null;
+    try {
+      sub = SubscriptionsUtils.parseCronSubscriptionYaml(file_content);
+      sub.file = baseName;
+    } catch (err) {
+      console.log(err);
+    }
+    return sub;
+  }
+
+  // TODO: tester cette fonction
+  public static parseCronSubscriptionYaml(
+    subscriptionYaml: string,
+  ): CronSubscription {
+    const subYamlJson = parse(subscriptionYaml);
+
+    const params = [];
+    if (subYamlJson.job && subYamlJson.job.parameters) {
+      for (const param of subYamlJson.job.parameters) {
+        params.push(param);
+      }
+    }
+
+    const sub: CronSubscription = {
+      name: subYamlJson.name,
+      cronExpression: subYamlJson.cronExpression,
+      builtIn: true,
+      jobName: subYamlJson.job.name,
+      companyId: null,
+      jobParameters: params,
+    };
+
     return sub;
   }
 

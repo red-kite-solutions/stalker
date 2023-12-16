@@ -64,7 +64,7 @@
           </ng-container>
 
           <!-- Source Column -->
-          <ng-container matColumnDef="source" *ngIf="subscriptionTypeContext === subscriptionTypes[0].value">
+          <ng-container matColumnDef="source">
             <th mat-header-cell *matHeaderCellDef i18n="Source|Source of the content" class="centered">Source</th>
             <td mat-cell *matCellDef="let element" class="centered">
               <mat-icon
@@ -89,7 +89,7 @@
             *matHeaderRowDef="
               subscriptionTypeContext === subscriptionTypes[0].value
                 ? ['name', 'finding', 'job', 'source']
-                : ['name', 'cronExpression', 'job']
+                : ['name', 'cronExpression', 'job', 'source']
             "
           ></tr>
           <tr
@@ -98,7 +98,7 @@
               let row;
               columns: subscriptionTypeContext === subscriptionTypes[0].value
                 ? ['name', 'finding', 'job', 'source']
-                : ['name', 'cronExpression', 'job']
+                : ['name', 'cronExpression', 'job', 'source']
             "
             class="rows"
             (click)="selectSubscription(row)"

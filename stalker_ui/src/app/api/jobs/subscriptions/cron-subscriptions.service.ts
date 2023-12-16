@@ -75,4 +75,8 @@ export class CronSubscriptionsService {
 
     return data;
   }
+
+  public async revert(id: string) {
+    return await firstValueFrom(this.http.put(`${environment.fmUrl}/cron-subscriptions/${id}/revert`, {}));
+  }
 }

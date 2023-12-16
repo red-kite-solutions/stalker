@@ -1,4 +1,4 @@
-name: Domain name resolution (user)
+name: Domain name resolution
 finding: HostnameFinding
 triggerInterval: 82800
 job:

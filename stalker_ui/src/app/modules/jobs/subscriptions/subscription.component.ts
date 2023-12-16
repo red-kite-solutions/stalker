@@ -332,7 +332,7 @@ export class SubscriptionComponent implements OnDestroy {
       if (this.subscriptionTypeContext === this.subscriptionTypes[0].value) {
         await this.eventSubscriptionsService.revert(this.selectedRow._id);
       } else if (this.subscriptionTypeContext === this.subscriptionTypes[1].value) {
-        return;
+        await this.cronSubscriptionsService.revert(this.selectedRow._id);
       } else {
         this.toastr.warning($localize`:Nothing to revert|Nothing to revert:Nothing to revert`);
         return;
