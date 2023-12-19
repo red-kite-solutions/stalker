@@ -60,7 +60,7 @@ export class EventSubscriptionsService {
 
   public async edit(id: string, subscription: EventSubscriptionData) {
     const data: any = this.parseSubscription(subscription);
-    return await firstValueFrom(this.http.post(`${environment.fmUrl}/event-subscriptions/${id}`, data));
+    return await firstValueFrom(this.http.put(`${environment.fmUrl}/event-subscriptions/${id}`, data));
   }
 
   public async delete(id: string) {

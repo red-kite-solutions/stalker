@@ -4,6 +4,8 @@ Subscriptions are used in Stalker to start jobs based on either a cron expressio
 
 A subscription can belong to a company, in which case, they will only take effect on the mentionned company. If a company is not specified for a subscription, it will take effect on all the companies.
 
+Some subscriptions come built-in Stalker. These subscriptions are marked as such, but they can still be modified by the users. When a built-in subscription is altered, it can be reverted back to its original state. Built-in subscriptions can even be deleted, but be sure to know what you are doing.
+
 A subscription is written in `yaml` format in the front-end. The company for which to apply the subscription can also be chosen using the dropdown menu.
 
 > A subscription belongning to a company will be deleted automatically if the company is deleted.
@@ -77,21 +79,25 @@ When Stalker finds some information, either through the output of a Job, or thro
 
 An event subscription allows for the customization of Stalker's automation workflow by starting any Job on any Finding. These jobs can be started on specified conditions. Also, the output of the finding can be used as a job input, as well as a condition parameter.
 
+Event subscriptions also have a trigger interval in seconds. This value ensures that a subscription is not triggered too often for the same ressource. It prevents infinite loops and rescanning the same host right away, for instance.
+
 ### Event Subscription Syntax
 
 An event subscription can contain four main elements :
 
-| Element    | Description                                               | Mandatory |
-| ---------- | --------------------------------------------------------- | --------- |
-| name       | The name of the subscription, for future reference        | Yes       |
-| finding    | The finding to react to.                                  | Yes       |
-| job        | The job to launch when the finding and conditions are met | Yes       |
-| conditions | The preconditions to launching the job                    | No        |
+| Element         | Description                                                                                             | Mandatory |
+| --------------- | ------------------------------------------------------------------------------------------------------- | --------- |
+| name            | The name of the subscription, for future reference                                                      | Yes       |
+| finding         | The finding to react to.                                                                                | Yes       |
+| triggerInterval | The minimum amount of time, in seconds, before a subscription can be retriggered for the same ressource | Yes       |
+| job             | The job to launch when the finding and conditions are met                                               | Yes       |
+| conditions      | The preconditions to launching the job                                                                  | No        |
 
 > N.B. Additonnal details on these elements are given in the following sections
 
 * The `name` element can be anything and is only used to distinguish the Subscription from the others.
 * The `finding` element must be a existing Finding's type. See the Findings section for the list.
+* The `triggerInterval` is a number in seconds for which to wait before relaunching the job for the same ressource.
 * The `job` element contains multiple values:
   * `name` : mandatory, must be an existing Job's type. See the Jobs section for the list of valid values.
   * `parameters` : optionnal, but almost always needed. It describes the input values of the job by the parameter `name` and its `value` in a list.
@@ -108,11 +114,14 @@ Here is one of the shortest event subscription possible. It reacts to a `Hostnam
 
 Therefore, it will resolve the domain name found in the `HostnameFinding` to an IP address by launching a `DomainNameResolvingJob`. It will emit a `HostnameIpFinding` if it properly resolves the domain name.
 
-> Something similar in behavior is already built in Stalker.
+The `triggerInterval` here represents 23 hours. Therefore, the same hostname can only be resolved as often as every 23 hours through this subscription.
+
+> This subscription is already built in Stalker
 
 ```yaml
-name: My simple subscription
+name: Domain name resolution
 finding: HostnameFinding
+triggerInterval: 82800
 job:
   name: DomainNameResolvingJob
   parameters:
@@ -134,6 +143,7 @@ The Job, in this case, will scan the `${ip}`'s 1000 first ports ([1-1000]) as we
 ```yaml
 name: My complex subscription
 finding: HostnameIpFinding
+triggerInterval: 82800
 job:
   name: TcpPortScanningJob
   parameters:
@@ -169,6 +179,7 @@ The following example will start a custom job named `"My custom job"` when a `Po
 ```yaml
 name: My custom job subscription
 finding: PortFinding
+triggerInterval: 82800
 job:
   name: CustomJob
   parameters:

@@ -1,7 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { DeleteResult } from 'mongodb';
 import { Model, Types } from 'mongoose';
-import { SubscriptionTrigger } from './subscription-triggers.model';
+import {
+  SubscriptionTrigger,
+  SubscriptionTriggerDocument,
+} from './subscription-triggers.model';
 
 @Injectable()
 export class SubscriptionTriggersService {
@@ -23,7 +27,6 @@ export class SubscriptionTriggersService {
    * @returns true if the trigger attempt worked, false otherwise. If true is returned, a job can be started.
    */
   public async attemptTrigger(
-    // TODO: test this function <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     subscriptionId: string,
     correlationKey: string,
     subscriptionTriggerInterval: number,
@@ -63,5 +66,15 @@ export class SubscriptionTriggersService {
       await session.endSession();
     }
     return triggerSuccess;
+  }
+
+  public async delete(id: string): Promise<DeleteResult> {
+    return await this.subscriptionTriggerModel.deleteOne({
+      _id: { $eq: new Types.ObjectId(id) },
+    });
+  }
+
+  public async getAll(): Promise<SubscriptionTriggerDocument[]> {
+    return await this.subscriptionTriggerModel.find({});
   }
 }

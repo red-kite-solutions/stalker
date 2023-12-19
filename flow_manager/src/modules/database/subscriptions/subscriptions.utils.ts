@@ -107,7 +107,6 @@ export class SubscriptionsUtils {
       return value;
     }
 
-    // TODO: tester le remplacement de valeurs dans un array
     let output: T;
 
     if (Array.isArray(value)) {
@@ -234,7 +233,6 @@ export class SubscriptionsUtils {
     path: string,
     fileName: string,
   ): boolean {
-    // TODO: test this function
     const fileSplit = fileName.split('.');
     if (fileSplit.length <= 1) return false;
 
@@ -284,7 +282,6 @@ export class SubscriptionsUtils {
     return sub;
   }
 
-  // TODO: tester cette fonction
   public static parseCronSubscriptionYaml(
     subscriptionYaml: string,
   ): CronSubscription {
@@ -309,7 +306,6 @@ export class SubscriptionsUtils {
     return sub;
   }
 
-  // TODO: tester cette fonction
   public static parseEventSubscriptionYaml(
     subscriptionYaml: string,
   ): EventSubscription {

@@ -54,7 +54,7 @@ export class CronSubscriptionsService {
 
   public async edit(id: string, subscription: CronSubscriptionData) {
     const data: any = this.parseSubscription(subscription);
-    return await firstValueFrom(this.http.post(`${environment.fmUrl}/cron-subscriptions/${id}`, data));
+    return await firstValueFrom(this.http.put(`${environment.fmUrl}/cron-subscriptions/${id}`, data));
   }
 
   public async delete(id: string) {

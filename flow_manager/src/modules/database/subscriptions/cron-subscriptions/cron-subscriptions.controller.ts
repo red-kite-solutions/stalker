@@ -52,7 +52,7 @@ export class CronSubscriptionsController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
-  @Post(':id')
+  @Put(':id')
   async editSubscription(
     @Param() IdDto: MongoIdDto,
     @Body() dto: CronSubscriptionDto,
