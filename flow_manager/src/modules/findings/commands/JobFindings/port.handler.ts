@@ -7,7 +7,7 @@ import { JobsService } from '../../../database/jobs/jobs.service';
 import { HttpServerCheckJob } from '../../../database/jobs/models/http-server-check.model';
 import { HostService } from '../../../database/reporting/host/host.service';
 import { PortService } from '../../../database/reporting/port/port.service';
-import { SubscriptionsService } from '../../../database/subscriptions/subscriptions.service';
+import { EventSubscriptionsService } from '../../../database/subscriptions/event-subscriptions/event-subscriptions.service';
 import { JobFindingHandlerBase } from '../job-findings-handler-base';
 import { PortCommand } from './port.command';
 
@@ -19,7 +19,7 @@ export class PortHandler extends JobFindingHandlerBase<PortCommand> {
     private hostService: HostService,
     private portService: PortService,
     jobService: JobsService,
-    subscriptionsService: SubscriptionsService,
+    subscriptionsService: EventSubscriptionsService,
     customJobsService: CustomJobsService,
     configService: ConfigService,
   ) {

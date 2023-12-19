@@ -5,7 +5,7 @@ import { CustomJobsService } from '../../../database/custom-jobs/custom-jobs.ser
 import { JobFactory } from '../../../database/jobs/jobs.factory';
 import { JobsService } from '../../../database/jobs/jobs.service';
 import { DomainNameResolvingJob } from '../../../database/jobs/models/domain-name-resolving.model';
-import { SubscriptionsService } from '../../../database/subscriptions/subscriptions.service';
+import { EventSubscriptionsService } from '../../../database/subscriptions/event-subscriptions/event-subscriptions.service';
 import { UserFindingHandlerBase } from '../user-findings-handler-base';
 import { HostnameCommand } from './hostname.command';
 
@@ -15,7 +15,7 @@ export class HostnameHandler extends UserFindingHandlerBase<HostnameCommand> {
 
   constructor(
     jobService: JobsService,
-    subscriptionsService: SubscriptionsService,
+    subscriptionsService: EventSubscriptionsService,
     customJobsService: CustomJobsService,
     configService: ConfigService,
   ) {

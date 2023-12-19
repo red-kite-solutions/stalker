@@ -1,13 +1,13 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import {
+  TestingData,
   checkAuthorizations,
   deleteReq,
   getReq,
   initTesting,
   postReq,
   putReq,
-  TestingData,
 } from 'test/e2e.utils';
 import { AppModule } from '../../app.module';
 import { Role } from '../../auth/constants';
@@ -38,6 +38,8 @@ describe('Company Controller (e2e)', () => {
   });
 
   afterAll(async () => {
+    for (let c of companies)
+      await deleteReq(app, testData.user.token, `/company/${c}`);
     await app.close();
   });
 
@@ -278,11 +280,5 @@ describe('Company Controller (e2e)', () => {
       },
     );
     expect(success).toBe(true);
-  });
-
-  afterAll(async () => {
-    for (let c of companies)
-      await deleteReq(app, testData.user.token, `/company/${c}`);
-    await app.close();
   });
 });

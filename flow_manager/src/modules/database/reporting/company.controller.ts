@@ -31,7 +31,7 @@ import { JobSources } from '../jobs/job-model.module';
 import { JobFactory, JobFactoryUtils } from '../jobs/jobs.factory';
 import { CustomJob } from '../jobs/models/custom-job.model';
 import { Job } from '../jobs/models/jobs.model';
-import { JobParameter } from '../subscriptions/subscriptions.model';
+import { JobParameter } from '../subscriptions/event-subscriptions/event-subscriptions.model';
 
 import {
   CreateCompanyDto,

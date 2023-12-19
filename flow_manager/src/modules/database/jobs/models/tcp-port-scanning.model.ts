@@ -6,7 +6,7 @@ import { JobParameterValueException } from '../../../../exceptions/job-parameter
 import { JobParameterDefinition } from '../../../../types/job-parameter-definition.type';
 import { TimestampedString } from '../../../../types/timestamped-string.type';
 import { isCompanyId } from '../../../../validators/is-company-id.validator';
-import { JobParameter } from '../../subscriptions/subscriptions.model';
+import { JobParameter } from '../../subscriptions/event-subscriptions/event-subscriptions.model';
 import { JobFactoryUtils } from '../jobs.factory';
 
 export type JobDocument = TcpPortScanningJob & Document;

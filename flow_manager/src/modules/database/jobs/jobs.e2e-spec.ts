@@ -1,18 +1,18 @@
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import {
+  TestingData,
   checkAuthorizations,
   createCompany,
   deleteReq,
   getReq,
   initTesting,
   postReq,
-  TestingData,
 } from 'test/e2e.utils';
 import { AppModule } from '../../app.module';
 import { Role } from '../../auth/constants';
 
-fdescribe('Job Controller (e2e)', () => {
+describe('Job Controller (e2e)', () => {
   let app: INestApplication;
   let testData: TestingData;
   let jobId: string;
@@ -28,6 +28,12 @@ fdescribe('Job Controller (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+      }),
+    );
     await app.init();
     testData = await initTesting(app);
   });
@@ -65,7 +71,7 @@ fdescribe('Job Controller (e2e)', () => {
     jobId = r.body.id;
   });
 
-  fit('Should get a job list (GET /jobs)', async () => {
+  it('Should get a job list (GET /jobs?page=&pageSize=)', async () => {
     // Arrange
     const c = await createCompany(app, testData);
 
@@ -77,7 +83,11 @@ fdescribe('Job Controller (e2e)', () => {
     );
 
     // Act
-    const r = await getReq(app, testData.readonly.token, '/jobs');
+    const r = await getReq(
+      app,
+      testData.readonly.token,
+      '/jobs?page=0&pageSize=10',
+    );
 
     // Assert
     expect(r.statusCode).toBe(HttpStatus.OK);
