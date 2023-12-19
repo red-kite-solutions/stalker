@@ -29,15 +29,15 @@ A subscription is written in `yaml` format in the front-end. The company for whi
 
 ## Cron Subscriptions
 
-Cron subscriptions are started based on a cron expression. They are the most simple subscriptions and only require the necessary information to start a job.
+Cron subscriptions are started based on a cron expression. They are the most simple subscriptions and only require the information necessary to start a job.
 
-Cron subscriptions can be reliably triggered as often as every twenty (20) seconds. The cron service, who is in charge of notifying the flow manager when a cron subscription triggers, checks its local cache of cron subscriptions every 10 seconds. The local cache is updated every minute to the cron subscriptions in the database. A new cron subscription added from the UI will therefore be up and running at the latest one 1 minute 20 seconds after the save.
+Cron subscriptions can be reliably triggered as often as every twenty (20) seconds. The cron service, who is in charge of notifying the flow manager when a cron subscription triggers, checks its local cache of cron subscriptions every 10 seconds. The local cache is synchronized with the subscriptions database every 60 seconds. A new cron subscription added from the UI will therefore be up and running at the latest one 1 minute 20 seconds after the save.
 
 Even though cron subscriptions do not require a company to be set, they require at least one company to exist at the moment it is triggered to properly start at least one job.
 
 ### Cron Subscription Syntax
 
-A cron subscription can contain four main elements :
+A cron subscription contains three main elements :
 
 | Element        | Description                                              | Mandatory |
 | -------------- | -------------------------------------------------------- | --------- |
@@ -73,7 +73,7 @@ job:
 
 ## Event Subscriptions
 
-When Stalker finds some information, either through the output of a Job, or through user input, a Finding is emitted. This Finding contains the output information given by the Job or the user. From this information, new Jobs are started that will output more Findings. This is roughly how Stalker's automation workflow works.
+When Stalker finds some information, either through the output of a Job or through user input, a Finding is emitted. This Finding contains the output information given by the Job or the user. From this information, new Jobs are started that will output more Findings. This is roughly how Stalker's automation workflow works.
 
 An event subscription allows for the customization of Stalker's automation workflow by starting any Job on any Finding. These jobs can be started on specified conditions. Also, the output of the finding can be used as a job input, as well as a condition parameter.
 
