@@ -21,9 +21,6 @@ A subscription is written in `yaml` format in the front-end. The company for whi
     * [Event Subscription Complex Example](#event-subscription-complex-example)
     * [Event Subscription Custom Job Example](#event-subscription-custom-job-example)
   * [Findings](#findings)
-    * [HostnameFinding](#hostnamefinding)
-    * [HostnameIpFinding](#hostnameipfinding)
-    * [PortFinding](#portfinding)
   * [Conditions](#conditions)
 * [Jobs](#jobs)
   * [DomainNameResolvingJob](#domainnameresolvingjob)
@@ -197,44 +194,9 @@ job:
 
 A finding event is propagated by Stalker whenever an information comes into play. Every finding type contains information that is specific to it.
 
-**Findings :**
-
-* HostnameFinding
-* HostnameIpFinding
-* PortFinding
-
 It is possible to reference a finding outputted by a job as an input of a new job, as well as a condition operand. All references to a finding's output variable are case insensitive.
 
-#### HostnameFinding
-
-A `HostnameFinding` is the result of a new hostname being found for a company. A hostname is here used as a short for *fully qualified domain name*, or *FQDN*. It represents a Domain for Stalker.
-
-| Variable Name | Type   | Value Description                         |
-| ------------- | ------ | ----------------------------------------- |
-| domainName    | string | A newly found FQDN, like `www.stalker.is` |
-
-#### HostnameIpFinding
-
-The `HostnameIpFinding` is usually the result of resolving a hostname to an ip address. The hostname, `domainName`, must resolve to the IP address, and it has to be already known to Stalker as a valid Domain.
-
-**output variables :**
-
-| Variable Name | Type   | Value Description                                      |
-| ------------- | ------ | ------------------------------------------------------ |
-| domainName    | string | The FQDN resolving to the `ip`, like `www.stalker.is`  |
-| ip            | string | The ipv4 address to which the `domainName` resolves to |
-
-#### PortFinding
-
-The `PortFinding` is usually the result of a port scanning job. It signals that an open port, either `tcp` or `udp`, has been found on the host specified through the `ip` value. The `ip` must already be known to Stalker as a valid Host.
-
-**output variables :**
-
-| Variable Name | Type   | Value Description                           |
-| ------------- | ------ | ------------------------------------------- |
-| protocol      | string | `tcp` or `udp`                              |
-| ip            | string | The ipv4 of the host where a port was found |
-| port          | number | The open port number                        |
+To learn more about findings, [click here](./findings.md).
 
 ### Conditions
 

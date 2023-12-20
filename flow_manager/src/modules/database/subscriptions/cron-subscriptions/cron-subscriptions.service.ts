@@ -20,6 +20,7 @@ import {
   CronSubscriptionsDocument,
   JobParameter,
 } from './cron-subscriptions.model';
+import { JobsService } from '../../jobs/jobs.service';
 
 @Injectable()
 export class CronSubscriptionsService {
@@ -31,6 +32,7 @@ export class CronSubscriptionsService {
     private readonly companyService: CompanyService,
     private readonly configService: ConfigService,
     private readonly customJobsService: CustomJobsService,
+    private readonly jobsService: JobsService,
   ) {}
 
   public async create(dto: CronSubscriptionDto) {
@@ -122,7 +124,7 @@ export class CronSubscriptionsService {
       sub.jobParameters.push(companyIdParameter);
 
       const job: Job = JobFactory.createJob(sub.jobName, sub.jobParameters);
-      if (job != null) this.companyService.publishJob(job);
+      if (job != null) this.jobsService.publish(job);
     }
   }
 

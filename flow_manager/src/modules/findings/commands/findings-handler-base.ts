@@ -75,7 +75,6 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
 
       // Launching the generic function that creates the appropriate job and publishing it
       const job: Job = JobFactory.createJob(sub.jobName, sub.jobParameters);
-
       if (
         job != null &&
         (await this.subscriptionTriggersService.attemptTrigger(

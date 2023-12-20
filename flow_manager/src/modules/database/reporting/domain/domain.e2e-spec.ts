@@ -45,20 +45,18 @@ describe('Domain Controller (e2e)', () => {
     await app.close();
   });
 
-  it('Should create a domain (POST /company/:id/domain)', async () => {
+  it('Should create a domain (POST /domains)', async () => {
     // Arrange & Act
-    const r = await postReq(
-      app,
-      testData.admin.token,
-      `/company/${companyId}/domain`,
-      { domains: [domain] },
-    );
+    const r = await postReq(app, testData.admin.token, `/domains`, {
+      domains: [domain],
+      companyId: companyId,
+    });
 
     // Assert
     expect(r.statusCode).toBe(HttpStatus.CREATED);
   });
 
-  it('Should create multiple domains (POST /company/:id/domain)', async () => {
+  it('Should create multiple domains (POST /domains)', async () => {
     // Arrange
     const domains = [
       'first.domain.addedasbatch.stalker.is',
@@ -66,12 +64,10 @@ describe('Domain Controller (e2e)', () => {
     ];
 
     // Act
-    const r = await postReq(
-      app,
-      testData.admin.token,
-      `/company/${companyId}/domain`,
-      { domains: domains },
-    );
+    const r = await postReq(app, testData.admin.token, `/domains`, {
+      domains: domains,
+      companyId: companyId,
+    });
 
     // Assert
     expect(r.statusCode).toBe(HttpStatus.CREATED);
@@ -294,6 +290,17 @@ describe('Domain Controller (e2e)', () => {
       Role.User,
       async (givenToken) => {
         return await putReq(app, givenToken, `/domains/${companyId}/tags`, {});
+      },
+    );
+    expect(success).toBe(true);
+  });
+
+  it('Should have proper authorizations (POST /domains)', async () => {
+    const success = await checkAuthorizations(
+      testData,
+      Role.User,
+      async (givenToken) => {
+        return await postReq(app, givenToken, `/domains`, {});
       },
     );
     expect(success).toBe(true);

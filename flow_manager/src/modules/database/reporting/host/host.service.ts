@@ -165,11 +165,11 @@ export class HostService {
     return this.hostModel.findById(id);
   }
 
-  public async addHosts(
-    hosts: string[],
-    companyId: string,
-    companyName: string,
-  ) {
+  public async addHosts(hosts: string[], companyId: string) {
+    const company = await this.companyModel.findById(companyId);
+    if (!company)
+      throw new HttpNotFoundException(`Company ${companyId} not found`);
+
     const hostDocuments: HostDocument[] = [];
     for (let ip of hosts) {
       const model = new this.hostModel({
@@ -194,7 +194,6 @@ export class HostService {
       if (!err.writeErrors) {
         throw err;
       }
-      console.log(err);
       insertedHosts = err.insertedDocs;
     }
 
@@ -206,7 +205,7 @@ export class HostService {
     const config = await this.configService.getConfig();
 
     if (config.isNewContentReported) {
-      this.reportService.addHosts(companyName, newIps);
+      this.reportService.addHosts(company.name, newIps);
     }
 
     const findings: IpFinding[] = [];
@@ -222,6 +221,38 @@ export class HostService {
     this.findingsQueue.publish(...findings);
 
     return insertedHosts;
+  }
+
+  /**
+   * This function adds a host to the database if it did not exist. If it existed,
+   * the lastSeen value is updated.
+   * @param host The ip address to add
+   * @param companyId The domain's company
+   */
+  public async addHost(host: string, companyId: string) {
+    const company = await this.companyModel.findById(companyId);
+    if (!company) {
+      this.logger.debug(`Could not find the company (companyId=${companyId})`);
+      throw new HttpNotFoundException(`companyId=${companyId}`);
+    }
+
+    const companyIdObject = new Types.ObjectId(companyId);
+
+    return await this.hostModel.findOneAndUpdate(
+      { ip: { $eq: host }, companyId: { $eq: companyIdObject } },
+      {
+        lastSeen: Date.now(),
+        $setOnInsert: {
+          ip: host,
+          correlationKey: CorrelationKeyUtils.domainCorrelationKey(
+            companyId,
+            host,
+          ),
+          companyId: companyIdObject,
+        },
+      },
+      { upsert: true },
+    );
   }
 
   public async delete(hostId: string): Promise<DeleteResult> {

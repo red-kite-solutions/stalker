@@ -8,6 +8,7 @@ import { DatalayerModule } from '../database/datalayer.module';
 import { JobsModule } from '../database/jobs/jobs.module';
 import { JobsService } from '../database/jobs/jobs.service';
 import { CompanyModule } from '../database/reporting/company.module';
+import { DomainsModule } from '../database/reporting/domain/domain.module';
 import { HostModule } from '../database/reporting/host/host.module';
 import { PortModule } from '../database/reporting/port/port.module';
 import { EventSubscriptionsModule } from '../database/subscriptions/event-subscriptions/event-subscriptions.module';
@@ -24,6 +25,7 @@ import { JobLogsConsumer } from './job-logs.consumer';
     JobsModule,
     CompanyModule,
     HostModule,
+    DomainsModule,
     DatalayerModule,
     EventSubscriptionsModule,
     CustomJobsModule,

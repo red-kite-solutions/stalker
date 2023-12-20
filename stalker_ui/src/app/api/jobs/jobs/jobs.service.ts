@@ -81,16 +81,19 @@ export class JobsService {
     return 'done';
   }
 
-  public async startJob(jobName: string, source: string, jobParameters: JobParameter[], companyId = '') {
+  public async startJob(
+    jobName: string,
+    source: string,
+    jobParameters: JobParameter[],
+    companyId: string | null = null
+  ) {
     const data = {
       task: jobName,
       source: source,
       jobParameters: jobParameters,
+      companyId: companyId,
     };
-    if (companyId) {
-      return <StartedJob>await firstValueFrom(this.http.post(`${environment.fmUrl}/company/${companyId}/job`, data));
-    } else {
-      return <StartedJob>await firstValueFrom(this.http.post(`${environment.fmUrl}/jobs/`, data));
-    }
+
+    return <StartedJob>await firstValueFrom(this.http.post(`${environment.fmUrl}/jobs/`, data));
   }
 }

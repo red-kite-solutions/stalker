@@ -6,9 +6,16 @@ import { CompanyModule } from '../../reporting/company.module';
 import { CronSubscriptionsController } from './cron-subscriptions.controller';
 import { cronSubscriptionsInitProvider } from './cron-subscriptions.provider';
 import { CronSubscriptionsService } from './cron-subscriptions.service';
+import { JobsModule } from '../../jobs/jobs.module';
 
 @Module({
-  imports: [DatalayerModule, CustomJobsModule, ConfigModule, CompanyModule],
+  imports: [
+    DatalayerModule,
+    CustomJobsModule,
+    ConfigModule,
+    CompanyModule,
+    JobsModule,
+  ],
   controllers: [CronSubscriptionsController],
   providers: [CronSubscriptionsService, ...cronSubscriptionsInitProvider],
   exports: [CronSubscriptionsService, ...cronSubscriptionsInitProvider],

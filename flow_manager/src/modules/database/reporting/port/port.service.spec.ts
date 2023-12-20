@@ -39,7 +39,7 @@ describe('Port Service', () => {
     it('Should add ports to a host', async () => {
       // Arrange
       const c = await company();
-      const h = await host('1.1.1.1', c._id.toString(), c.name);
+      const h = await host('1.1.1.1', c._id.toString());
 
       // Act
       const p1 = await portService.addPort(
@@ -69,7 +69,7 @@ describe('Port Service', () => {
       // Arrange
       const hostIp = '1.1.1.1';
       const c = await company();
-      const h = await host(hostIp, c._id.toString(), c.name);
+      const h = await host(hostIp, c._id.toString());
 
       // Act
       const p1 = await portService.addPortByIp(
@@ -98,7 +98,7 @@ describe('Port Service', () => {
     it('Should fail adding the same port to the same host', async () => {
       // Arrange
       const c = await company();
-      const h = await host('1.1.1.1', c._id.toString(), c.name);
+      const h = await host('1.1.1.1', c._id.toString());
       const portNumber = 80;
       const samePort = async () => {
         return await portService.addPort(
@@ -121,8 +121,8 @@ describe('Port Service', () => {
     it('Should add the same port to a different host', async () => {
       // Arrange
       const c = await company();
-      const h1 = await host('1.1.1.1', c._id.toString(), c.name);
-      const h2 = await host('1.1.1.2', c._id.toString(), c.name);
+      const h1 = await host('1.1.1.1', c._id.toString());
+      const h2 = await host('1.1.1.2', c._id.toString());
       const portNumber = 80;
 
       // Act
@@ -149,7 +149,7 @@ describe('Port Service', () => {
     it('Should return the ports in order of popularity', async () => {
       // Arrange
       const c = await company();
-      const h = await host('1.1.1.1', c._id.toString(), c.name);
+      const h = await host('1.1.1.1', c._id.toString());
       const portNumbers = [22, 8080, 21, 443, 80];
       const portsAdded = [];
       for (let portNumber of portNumbers) {
@@ -182,7 +182,7 @@ describe('Port Service', () => {
     it('Should return the ports in order of popularity with paging', async () => {
       // Arrange
       const c = await company();
-      const h = await host('1.1.1.1', c._id.toString(), c.name);
+      const h = await host('1.1.1.1', c._id.toString());
       const portNumbers = [22, 8080, 21, 443, 80];
       const portsAdded = [];
       for (let portNumber of portNumbers) {
@@ -213,7 +213,7 @@ describe('Port Service', () => {
     it('Should get the TCP ports in an arbitrary order', async () => {
       // Arrange
       const c = await company();
-      const h = await host('1.1.1.1', c._id.toString(), c.name);
+      const h = await host('1.1.1.1', c._id.toString());
       const portNumbers = [22, 8080, 21, 443, 80];
       const portsAdded = [];
       for (let portNumber of portNumbers) {
@@ -242,7 +242,7 @@ describe('Port Service', () => {
     it('Should get the TCP ports in an arbitrary order with paging', async () => {
       // Arrange
       const c = await company();
-      const h = await host('1.1.1.1', c._id.toString(), c.name);
+      const h = await host('1.1.1.1', c._id.toString());
       const portNumbers = [22, 8080, 21, 443, 80];
       const portsAdded = [];
       for (let portNumber of portNumbers) {
@@ -273,7 +273,7 @@ describe('Port Service', () => {
     it('Should delete a port by id', async () => {
       // Arrange
       const c = await company();
-      const h = await host('1.1.1.1', c._id.toString(), c.name);
+      const h = await host('1.1.1.1', c._id.toString());
       const p1 = await portService.addPort(
         h[0]._id.toString(),
         c._id.toString(),
@@ -291,7 +291,7 @@ describe('Port Service', () => {
     it('Should delete all ports for a host', async () => {
       // Arrange
       const c = await company();
-      const h = await host('1.1.1.1', c._id.toString(), c.name);
+      const h = await host('1.1.1.1', c._id.toString());
       const p1 = await portService.addPort(
         h[0]._id.toString(),
         c._id.toString(),
@@ -319,8 +319,8 @@ describe('Port Service', () => {
     return await companyService.addCompany(ccDto);
   }
 
-  async function host(ip: string, companyId: string, companyName: string) {
-    return await await hostService.addHosts([ip], companyId, companyName);
+  async function host(ip: string, companyId: string) {
+    return await await hostService.addHosts([ip], companyId);
   }
 
   afterAll(async () => {
