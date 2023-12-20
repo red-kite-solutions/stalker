@@ -55,7 +55,7 @@ log_finding(
 )
 ```
 
-Which is roughly the equivalent to the following python code, but with more metadata:
+Which is roughly equivalent to the following python code, but with more metadata:
 
 ```python
 print('@finding { "findings": [{ "key": "HostnameFinding", "type": "HostnameFinding","domainName": "example.com"}]}')
@@ -91,7 +91,7 @@ log_finding(
 )
 ```
 
-Which is roughly the equivalent to the following python code, but with more metadata:
+Which is roughly equivalent to the following python code, but with more metadata:
 
 ```python
 print('@finding { "findings": [{ "key": "IpFinding", "type": "IpFinding","ip": "0.0.0.0"}]}')
@@ -130,7 +130,7 @@ log_finding(
 )
 ```
 
-Which is roughly the equivalent to the following python code, but with more metadata:
+Which is roughly equivalent to the following python code, but with more metadata:
 
 ```python
 print('@finding { "findings": [{ "key": "HostnameIpFinding", "type": "HostnameIpFinding","ip": "0.0.0.0", "domainName": "example.com"}]}')
@@ -177,7 +177,7 @@ log_finding(
 )
 ```
 
-Which is roughly the equivalent to the following python code:
+Which is roughly equivalent to the following python code:
 
 ```python
 print('@finding { "findings": [{"key":"PortFinding","type":"PortFinding","name":"New port","fields":[{"key":"protocol","type":"text","label":"This is a TCP port","data":"tcp"}],"ip":"0.0.0.0","port":80,"protocol":"tcp"}]}')

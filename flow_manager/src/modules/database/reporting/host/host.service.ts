@@ -227,7 +227,7 @@ export class HostService {
    * This function adds a host to the database if it did not exist. If it existed,
    * the lastSeen value is updated.
    * @param host The ip address to add
-   * @param companyId The domain's company
+   * @param companyId The host's company
    */
   public async addHost(host: string, companyId: string) {
     const company = await this.companyModel.findById(companyId);
