@@ -215,7 +215,7 @@ export class FindingsService {
         this.logger.error(`The given job does not exist (jobId=${jobId})`);
         return;
       }
-      console.log(job.companyId);
+
       if (job.companyId !== undefined) {
         const company = await this.companyService.get(job.companyId);
         if (company === null) {
@@ -276,13 +276,11 @@ export class FindingsService {
         break;
 
       case 'IpFinding':
-        console.log('before');
         finding.correlationKey = CorrelationKeyUtils.generateCorrelationKey(
           finding.companyId,
           null,
           finding.ip,
         );
-        console.log('after');
         this.commandBus.execute(
           new IpCommand(finding.companyId, IpCommand.name, finding),
         );
