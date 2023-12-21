@@ -260,7 +260,7 @@ export class HostService {
       ?.domains;
     if (domains) {
       for (const domain of domains) {
-        this.domainService.unlinkHost(domain.id.toString(), hostId);
+        await this.domainService.unlinkHost(domain.id.toString(), hostId);
       }
     }
 

@@ -76,7 +76,7 @@ export class PortService {
     protocol: 'tcp' | 'udp',
   ) {
     const host = await this.hostModel.findOne({
-      _id: { $eq: hostId },
+      _id: { $eq: new Types.ObjectId(hostId) },
       companyId: { $eq: new Types.ObjectId(companyId) },
     });
     if (!host) throw new HttpNotFoundException(this.hostNotFoundError);
