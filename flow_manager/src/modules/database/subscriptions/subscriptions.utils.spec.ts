@@ -413,9 +413,7 @@ describe('Findings Handler Base', () => {
         // Arrange
         const hnFinding = new PortFinding();
         hnFinding.port = 1234;
-        let valueCopy = [
-          paramValue
-        ];
+        let valueCopy = [paramValue];
 
         // Act
         valueCopy = SubscriptionsUtils.replaceValueIfReferingToFinding(
@@ -433,7 +431,7 @@ describe('Findings Handler Base', () => {
       '{domainName}',
       '    $   { domainName  }',
       'domainName',
-      '${}'
+      '${}',
     ])(
       'Should not be replaced by the content of the finding',
       (paramValue: string) => {
@@ -564,6 +562,7 @@ describe('Findings Handler Base', () => {
         cronExpression: '*/30 * * * * *',
         jobName: 'HostnameResolvingJob',
         jobParameters: [{ name: 'domainName', value: 'example.com' }],
+        conditions: [],
       };
       let yaml = [
         `name: ${cs.name}`,
@@ -619,7 +618,7 @@ describe('Findings Handler Base', () => {
         `  - lhs: ${es.conditions[0].lhs}`,
         `    operator: ${es.conditions[0].operator}`,
         `    rhs: ${es.conditions[0].rhs}`,
-    ].join('\n');
+      ].join('\n');
 
       // Act
       const sub = SubscriptionsUtils.parseEventSubscriptionYaml(yaml);

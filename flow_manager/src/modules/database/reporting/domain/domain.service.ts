@@ -140,6 +140,32 @@ export class DomainsService {
     );
   }
 
+  /**
+   * Returns only the domains' name for a domain object
+   * @param page
+   * @param pageSize
+   * @param filter
+   * @returns
+   */
+  public async getDomainNames(
+    page: number = null,
+    pageSize: number = null,
+    filter: any = null,
+  ): Promise<Pick<DomainDocument, 'name'>[]> {
+    let query;
+    const projection = 'name';
+    if (filter) {
+      query = this.domainModel.find(filter, projection);
+    } else {
+      query = this.domainModel.find({}, projection);
+    }
+
+    if (page != null && pageSize != null) {
+      query = query.skip(page * pageSize).limit(pageSize);
+    }
+    return await query;
+  }
+
   public async getDomain(id: string): Promise<DomainDocument> {
     return this.domainModel.findById(id);
   }

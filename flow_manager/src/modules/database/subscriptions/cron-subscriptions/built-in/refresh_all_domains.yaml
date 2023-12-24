@@ -1,0 +1,8 @@
+name: Refreshing all domain names resolutions
+input: ALL_DOMAINS
+cronExpression: '*/30 * * * * *'
+job:
+  name: DomainNameResolvingJob
+  parameters:
+    - name: domainName
+      value: ${domainName}
