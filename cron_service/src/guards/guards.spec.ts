@@ -25,9 +25,7 @@ describe('Route guards', () => {
 
     it('Should not be a valid environment for the dev feature guard (random string)', () => {
       // Arrange
-      process.env.CRON_SERVICE_ENVIRONMENT = (Math.random() + 1)
-        .toString(36)
-        .substring(7);
+      process.env.CRON_SERVICE_ENVIRONMENT = 'asdfqwerty';
 
       //Act
       const ca = devFeatureGuard.canActivate(null);

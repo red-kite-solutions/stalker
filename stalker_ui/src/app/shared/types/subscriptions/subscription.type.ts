@@ -10,7 +10,7 @@ export interface CronSubscription extends CronSubscriptionData {
 }
 
 export interface EventSubscriptionData extends SubscriptionData {
-  triggerInterval: number;
+  cooldown: number;
   builtIn: boolean;
   finding: string;
   conditions?: Condition[] | undefined | null;

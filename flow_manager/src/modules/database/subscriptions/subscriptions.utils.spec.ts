@@ -413,9 +413,7 @@ describe('Findings Handler Base', () => {
         // Arrange
         const hnFinding = new PortFinding();
         hnFinding.port = 1234;
-        let valueCopy = [
-          paramValue
-        ];
+        let valueCopy = [paramValue];
 
         // Act
         valueCopy = SubscriptionsUtils.replaceValueIfReferingToFinding(
@@ -433,7 +431,7 @@ describe('Findings Handler Base', () => {
       '{domainName}',
       '    $   { domainName  }',
       'domainName',
-      '${}'
+      '${}',
     ])(
       'Should not be replaced by the content of the finding',
       (paramValue: string) => {
@@ -593,7 +591,7 @@ describe('Findings Handler Base', () => {
       const es: EventSubscription = {
         name: 'Http(s) server port check',
         file: 'not a file.yaml',
-        triggerInterval: 82800,
+        cooldown: 82800,
         builtIn: true,
         finding: 'PortFinding',
         jobName: 'HttpServerCheckJob',
@@ -606,7 +604,7 @@ describe('Findings Handler Base', () => {
       let yaml = [
         `name: ${es.name}`,
         `finding: ${es.finding}`,
-        `triggerInterval: ${es.triggerInterval}`,
+        `triggerInterval: ${es.cooldown}`,
         `job:`,
         `  name: ${es.jobName}`,
         `  parameters:`,
@@ -619,7 +617,7 @@ describe('Findings Handler Base', () => {
         `  - lhs: ${es.conditions[0].lhs}`,
         `    operator: ${es.conditions[0].operator}`,
         `    rhs: ${es.conditions[0].rhs}`,
-    ].join('\n');
+      ].join('\n');
 
       // Act
       const sub = SubscriptionsUtils.parseEventSubscriptionYaml(yaml);

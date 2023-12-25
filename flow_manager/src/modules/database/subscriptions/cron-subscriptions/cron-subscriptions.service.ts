@@ -40,7 +40,6 @@ export class CronSubscriptionsService {
       cronExpression: dto.cronExpression,
       jobName: dto.jobName,
       jobParameters: dto.jobParameters,
-      builtIn: false,
     };
     return await this.subscriptionModel.create(sub);
   }

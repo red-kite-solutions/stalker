@@ -81,7 +81,7 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
         (await this.subscriptionTriggersService.attemptTrigger(
           sub._id.toString(),
           command.finding.correlationKey,
-          sub.triggerInterval,
+          sub.cooldown,
         ))
       )
         this.jobsService.publish(job);

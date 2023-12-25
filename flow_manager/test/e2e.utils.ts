@@ -162,6 +162,19 @@ export async function putReq(
     .send(data);
 }
 
+export async function patchReq(
+  app: INestApplication,
+  token: string,
+  path: string,
+  data: any,
+) {
+  return await request(app.getHttpServer())
+    .patch(path)
+    .set('Content-Type', 'application/json')
+    .set('Authorization', `Bearer ${token}`)
+    .send(data);
+}
+
 export async function deleteReq(
   app: INestApplication,
   token: string,
