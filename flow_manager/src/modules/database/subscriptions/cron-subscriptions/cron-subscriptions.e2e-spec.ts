@@ -182,7 +182,7 @@ describe('Cron Subscriptions Controller (e2e)', () => {
         return await patchReq(
           app,
           givenToken,
-          `/cron-subscriptions/${subscriptionId}/revert?revert=true`,
+          `/cron-subscriptions/${subscriptionId}?revert=true`,
           {},
         );
       },
