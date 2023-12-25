@@ -33,7 +33,7 @@ describe('Subscriptions Triggers Service', () => {
     const subId = '6574f560570cfc954ccf0b42';
     const companyId = '657e1b45342eb1549b05e4bf';
     const domain = 'example.com';
-    const subInterval = 100;
+    const subCooldown = 100;
     const correlationKey = CorrelationKeyUtils.generateCorrelationKey(
       companyId,
       domain,
@@ -43,7 +43,7 @@ describe('Subscriptions Triggers Service', () => {
     const triggerSuccess = await triggersService.attemptTrigger(
       subId,
       correlationKey,
-      subInterval,
+      subCooldown,
     );
 
     // Assert
@@ -55,14 +55,14 @@ describe('Subscriptions Triggers Service', () => {
     const subId = '6574f560570cfc954ccf0b42';
     const companyId = '657e1b45342eb1549b05e4bf';
     const domain = 'example.com';
-    const subInterval = 100;
+    const subCooldown = 100;
     const correlationKey = CorrelationKeyUtils.generateCorrelationKey(
       companyId,
       domain,
     );
 
     // Act
-    await triggersService.attemptTrigger(subId, correlationKey, subInterval);
+    await triggersService.attemptTrigger(subId, correlationKey, subCooldown);
 
     // Assert
     const triggers = await triggersService.getAll();
@@ -75,19 +75,19 @@ describe('Subscriptions Triggers Service', () => {
     const subId = '6574f560570cfc954ccf0b42';
     const companyId = '657e1b45342eb1549b05e4bf';
     const domain = 'example.com';
-    const subInterval = 100;
+    const subCooldown = 100;
     const correlationKey = CorrelationKeyUtils.generateCorrelationKey(
       companyId,
       domain,
     );
-    await triggersService.attemptTrigger(subId, correlationKey, subInterval);
-    jest.setSystemTime(Date.now() + subInterval * 1000 * 2);
+    await triggersService.attemptTrigger(subId, correlationKey, subCooldown);
+    jest.setSystemTime(Date.now() + subCooldown * 1000 * 2);
 
     // Act
     const triggerSuccess = await triggersService.attemptTrigger(
       subId,
       correlationKey,
-      subInterval,
+      subCooldown,
     );
 
     // Assert
@@ -99,19 +99,19 @@ describe('Subscriptions Triggers Service', () => {
     const subId = '6574f560570cfc954ccf0b42';
     const companyId = '657e1b45342eb1549b05e4bf';
     const domain = 'example.com';
-    const subInterval = 100;
+    const subCooldown = 100;
     const correlationKey = CorrelationKeyUtils.generateCorrelationKey(
       companyId,
       domain,
     );
-    await triggersService.attemptTrigger(subId, correlationKey, subInterval);
-    jest.setSystemTime(Date.now() + subInterval * 1000);
+    await triggersService.attemptTrigger(subId, correlationKey, subCooldown);
+    jest.setSystemTime(Date.now() + subCooldown * 1000);
 
     // Act
     const triggerSuccess = await triggersService.attemptTrigger(
       subId,
       correlationKey,
-      subInterval,
+      subCooldown,
     );
 
     // Assert
@@ -123,19 +123,19 @@ describe('Subscriptions Triggers Service', () => {
     const subId = '6574f560570cfc954ccf0b42';
     const companyId = '657e1b45342eb1549b05e4bf';
     const domain = 'example.com';
-    const subInterval = 100;
+    const subCooldown = 100;
     const correlationKey = CorrelationKeyUtils.generateCorrelationKey(
       companyId,
       domain,
     );
-    await triggersService.attemptTrigger(subId, correlationKey, subInterval);
-    jest.setSystemTime(Date.now() + subInterval * 1000 + 1);
+    await triggersService.attemptTrigger(subId, correlationKey, subCooldown);
+    jest.setSystemTime(Date.now() + subCooldown * 1000 + 1);
 
     // Act
     const triggerSuccess = await triggersService.attemptTrigger(
       subId,
       correlationKey,
-      subInterval,
+      subCooldown,
     );
 
     // Assert
@@ -147,43 +147,43 @@ describe('Subscriptions Triggers Service', () => {
     const subId = '6574f560570cfc954ccf0b42';
     const companyId = '657e1b45342eb1549b05e4bf';
     const domain = 'example.com';
-    const subInterval = 100;
+    const subCooldown = 100;
     const correlationKey = CorrelationKeyUtils.generateCorrelationKey(
       companyId,
       domain,
     );
-    await triggersService.attemptTrigger(subId, correlationKey, subInterval);
-    jest.setSystemTime(Date.now() + subInterval * 1000 - 1);
+    await triggersService.attemptTrigger(subId, correlationKey, subCooldown);
+    jest.setSystemTime(Date.now() + subCooldown * 1000 - 1);
 
     // Act
     const triggerSuccess = await triggersService.attemptTrigger(
       subId,
       correlationKey,
-      subInterval,
+      subCooldown,
     );
 
     // Assert
     expect(triggerSuccess).toStrictEqual(false);
   });
 
-  it('Ensures that subscription trigger intervals are evaluated as seconds', async () => {
+  it('Ensures that subscription trigger cooldowns are evaluated as seconds', async () => {
     // Arrange
     const subId = '6574f560570cfc954ccf0b42';
     const companyId = '657e1b45342eb1549b05e4bf';
     const domain = 'example.com';
-    const subInterval = 100;
+    const subCooldown = 100;
     const correlationKey = CorrelationKeyUtils.generateCorrelationKey(
       companyId,
       domain,
     );
-    await triggersService.attemptTrigger(subId, correlationKey, subInterval);
-    jest.setSystemTime(Date.now() + subInterval * 10 * 2);
+    await triggersService.attemptTrigger(subId, correlationKey, subCooldown);
+    jest.setSystemTime(Date.now() + subCooldown * 10 * 2);
 
     // Act
     const triggerSuccess = await triggersService.attemptTrigger(
       subId,
       correlationKey,
-      subInterval,
+      subCooldown,
     );
 
     // Assert

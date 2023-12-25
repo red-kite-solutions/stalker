@@ -45,7 +45,7 @@ describe('Event Subscriptions Service', () => {
         name: 'my sub',
         jobName: 'DomainNameResolvingJob',
         finding: finding,
-        triggerInterval: 3600,
+        cooldown: 3600,
       };
 
       const s1 = await subscription({
@@ -82,7 +82,7 @@ describe('Event Subscriptions Service', () => {
         name: 'my sub',
         jobName: 'DomainNameResolvingJob',
         finding: finding,
-        triggerInterval: 3600,
+        cooldown: 3600,
       };
 
       const s1 = await subscription({

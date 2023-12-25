@@ -29,8 +29,7 @@ export class EventSubscriptionsService {
       jobName: dto.jobName,
       jobParameters: dto.jobParameters,
       conditions: dto.conditions,
-      triggerInterval: dto.triggerInterval,
-      builtIn: false,
+      cooldown: dto.cooldown,
     };
     return await this.subscriptionModel.create(sub);
   }
@@ -50,7 +49,7 @@ export class EventSubscriptionsService {
       jobName: dto.jobName,
       jobParameters: dto.jobParameters,
       conditions: dto.conditions,
-      triggerInterval: dto.triggerInterval,
+      cooldown: dto.cooldown,
     };
     return await this.subscriptionModel.updateOne(
       { _id: { $eq: new Types.ObjectId(id) } },
@@ -76,7 +75,7 @@ export class EventSubscriptionsService {
     const subUpdate: Partial<EventSubscription> = {
       name: defaultSub.name,
       finding: defaultSub.finding,
-      triggerInterval: defaultSub.triggerInterval,
+      cooldown: defaultSub.cooldown,
       jobName: defaultSub.jobName,
       jobParameters: defaultSub.jobParameters,
       conditions: defaultSub.conditions,

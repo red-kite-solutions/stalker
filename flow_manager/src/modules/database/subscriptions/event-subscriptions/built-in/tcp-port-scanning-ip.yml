@@ -1,6 +1,6 @@
 name: Tcp port scan all ports (ip)
 finding: IpFinding
-triggerInterval: 82800
+cooldown: 82800
 job:
   name: TcpPortScanningJob
   parameters:

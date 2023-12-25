@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
-  <file datatype="plaintext" original="ng2.template" source-language="en" target-language="fr-CA">
+  <file datatype="plaintext" original="ng2.template" source-language="en" target-language="fr">
     <body>
       <trans-unit id="6815247123494849365" datatype="html">
         <source>Page not found !</source>
