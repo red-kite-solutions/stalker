@@ -28,6 +28,7 @@ export type Finding =
   | CreateCustomFinding;
 
 export class FindingBase {
+  jobId?: string;
   correlationKey?: string;
   fields?: CustomFindingFieldDto[];
 }
@@ -215,6 +216,7 @@ export class FindingsService {
         this.logger.error(`The given job does not exist (jobId=${jobId})`);
         return;
       }
+      finding.jobId = jobId;
 
       if (job.companyId !== undefined) {
         const company = await this.companyService.get(job.companyId);
@@ -266,6 +268,7 @@ export class FindingsService {
         );
         break;
       case 'HostnameFinding':
+        finding.companyId = finding.companyId ? finding.companyId : companyId;
         finding.correlationKey = CorrelationKeyUtils.generateCorrelationKey(
           finding.companyId,
           finding.domainName,
@@ -276,6 +279,7 @@ export class FindingsService {
         break;
 
       case 'IpFinding':
+        finding.companyId = finding.companyId ? finding.companyId : companyId;
         finding.correlationKey = CorrelationKeyUtils.generateCorrelationKey(
           finding.companyId,
           null,
@@ -318,7 +322,7 @@ export class FindingsService {
         break;
 
       default:
-        console.log(`Unknown finding type ${finding['type']}`);
+        this.logger.error(`Unknown finding type ${finding['type']}`);
     }
   }
 }

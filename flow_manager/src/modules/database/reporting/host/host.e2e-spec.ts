@@ -159,19 +159,17 @@ describe('Host Controller (e2e)', () => {
     });
   });
 
-  it('Should create a host (POST /company/:id/host)', async () => {
+  it('Should create a host (POST /hosts)', async () => {
     // Arrange
     const company = await createCompany(app, testData, getName());
     const domain = 'www.example.org';
     await createDomains(app, testData, company._id, [domain]);
 
     // Act
-    const r = await postReq(
-      app,
-      testData.admin.token,
-      `/company/${company._id}/host`,
-      { ips: ['192.168.2.1', '192.168.2.2'] },
-    );
+    const r = await postReq(app, testData.admin.token, `/hosts`, {
+      ips: ['192.168.2.1', '192.168.2.2'],
+      companyId: company._id.toString(),
+    });
 
     // Assert
     expect(r.statusCode).toBe(HttpStatus.CREATED);
@@ -183,12 +181,10 @@ describe('Host Controller (e2e)', () => {
     const company = await createCompany(app, testData, getName());
     const domain = 'www.example.org';
     await createDomains(app, testData, company._id, [domain]);
-    const rHost = await postReq(
-      app,
-      testData.admin.token,
-      `/company/${company._id}/host`,
-      { ips: ['192.168.2.1'] },
-    );
+    const rHost = await postReq(app, testData.admin.token, `/hosts`, {
+      ips: ['192.168.2.1'],
+      companyId: company._id.toString(),
+    });
 
     const hostId = rHost.body[0]._id;
 
@@ -262,12 +258,10 @@ describe('Host Controller (e2e)', () => {
     const company = await createCompany(app, testData, getName());
     const domain = 'www.example.org';
     await createDomains(app, testData, company._id, [domain]);
-    const rHost = await postReq(
-      app,
-      testData.admin.token,
-      `/company/${company._id}/host`,
-      { ips: ['192.168.2.1'] },
-    );
+    const rHost = await postReq(app, testData.admin.token, `/hosts`, {
+      ips: ['192.168.2.1'],
+      companyId: company._id.toString(),
+    });
 
     const hostId = rHost.body[0]._id;
 
@@ -301,7 +295,7 @@ describe('Host Controller (e2e)', () => {
     expect(success).toBe(true);
   });
 
-  it('Should have proper authorizations (POST /company/:id/host)', async () => {
+  it('Should have proper authorizations (POST /hosts)', async () => {
     // Arrange
     const company = await createCompany(app, testData, getName());
 
@@ -310,7 +304,7 @@ describe('Host Controller (e2e)', () => {
       testData,
       Role.User,
       async (givenToken) => {
-        return await postReq(app, givenToken, `/company/${company._id}/host`, {
+        return await postReq(app, givenToken, `/hosts`, {
           hosts: [],
         });
       },
@@ -323,12 +317,10 @@ describe('Host Controller (e2e)', () => {
     const company = await createCompany(app, testData, getName());
     const domain = 'www.example.org';
     await createDomains(app, testData, company._id, [domain]);
-    const rHost = await postReq(
-      app,
-      testData.admin.token,
-      `/company/${company._id}/host`,
-      { ips: ['192.168.2.1'] },
-    );
+    const rHost = await postReq(app, testData.admin.token, `/hosts`, {
+      ips: ['192.168.2.1'],
+      companyId: company._id.toString(),
+    });
 
     const hostId = rHost.body[0]._id;
 
@@ -348,12 +340,10 @@ describe('Host Controller (e2e)', () => {
     const company = await createCompany(app, testData, getName());
     const domain = 'www.example.org';
     await createDomains(app, testData, company._id, [domain]);
-    const rHost = await postReq(
-      app,
-      testData.admin.token,
-      `/company/${company._id}/host`,
-      { ips: ['192.168.2.1'] },
-    );
+    const rHost = await postReq(app, testData.admin.token, `/hosts`, {
+      ips: ['192.168.2.1'],
+      companyId: company._id.toString(),
+    });
 
     const hostId = rHost.body[0]._id;
 

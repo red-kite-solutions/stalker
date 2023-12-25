@@ -2,6 +2,7 @@
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsIP,
   IsIn,
   IsInt,
   IsMongoId,
@@ -74,4 +75,14 @@ export class DeleteHostsDto {
   @IsArray()
   @IsMongoId({ each: true })
   hostIds: Types.ObjectId[];
+}
+
+export class SubmitHostsDto {
+  @IsNotEmpty()
+  @IsArray()
+  @IsIP('4', { each: true })
+  ips: string[];
+
+  @IsMongoId()
+  companyId: string;
 }

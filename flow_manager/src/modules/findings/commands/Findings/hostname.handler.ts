@@ -3,6 +3,7 @@ import { CommandHandler } from '@nestjs/cqrs';
 import { ConfigService } from '../../../database/admin/config/config.service';
 import { CustomJobsService } from '../../../database/custom-jobs/custom-jobs.service';
 import { JobsService } from '../../../database/jobs/jobs.service';
+import { DomainsService } from '../../../database/reporting/domain/domain.service';
 import { EventSubscriptionsService } from '../../../database/subscriptions/event-subscriptions/event-subscriptions.service';
 import { SubscriptionTriggersService } from '../../../database/subscriptions/subscription-triggers/subscription-triggers.service';
 import { UserFindingHandlerBase } from '../user-findings-handler-base';
@@ -13,6 +14,7 @@ export class HostnameHandler extends UserFindingHandlerBase<HostnameCommand> {
   protected logger: Logger = new Logger('HostnameHandler');
 
   constructor(
+    private domainsService: DomainsService,
     jobService: JobsService,
     subscriptionsService: EventSubscriptionsService,
     customJobsService: CustomJobsService,
@@ -28,5 +30,12 @@ export class HostnameHandler extends UserFindingHandlerBase<HostnameCommand> {
     );
   }
 
-  protected async executeCore(command: HostnameCommand) {}
+  protected async executeCore(command: HostnameCommand) {
+    if (command.finding.jobId) {
+      await this.domainsService.addDomain(
+        command.finding.domainName,
+        command.companyId,
+      );
+    }
+  }
 }

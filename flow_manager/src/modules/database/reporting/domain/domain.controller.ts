@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Post,
   Put,
   Query,
   UseGuards,
@@ -21,6 +22,7 @@ import {
   DeleteDomainsDto,
   DomainsPagingDto,
   EditDomainDto,
+  SubmitDomainsDto,
 } from './domain.dto';
 import { DomainDocument } from './domain.model';
 import { DomainsService } from './domain.service';
@@ -44,6 +46,13 @@ export class DomainsController {
         finalFilter,
       ),
     };
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User)
+  @Post()
+  async submitDomains(@Body() dto: SubmitDomainsDto) {
+    return await this.domainsService.addDomains(dto.domains, dto.companyId);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

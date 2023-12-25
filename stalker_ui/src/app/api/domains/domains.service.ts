@@ -22,7 +22,7 @@ export class DomainsService {
 
   public async addDomains(companyId: string, newDomains: string[]): Promise<any[]> {
     return await firstValueFrom(
-      this.http.post<any[]>(`${environment.fmUrl}/company/${companyId}/domain`, { domains: newDomains })
+      this.http.post<any[]>(`${environment.fmUrl}/domains`, { domains: newDomains, companyId: companyId })
     );
   }
 

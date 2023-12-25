@@ -52,12 +52,10 @@ describe('Port Controller (e2e)', () => {
       const company = await createCompany(app, testData, getName());
       const domain = 'www.example.org';
       await createDomains(app, testData, company._id, [domain]);
-      const rHost = await postReq(
-        app,
-        testData.admin.token,
-        `/company/${company._id}/host`,
-        { ips: ['192.168.2.1'] },
-      );
+      const rHost = await postReq(app, testData.admin.token, `/hosts`, {
+        ips: ['192.168.2.1'],
+        companyId: company._id.toString(),
+      });
 
       const hostId = rHost.body[0]._id;
 
@@ -109,12 +107,10 @@ describe('Port Controller (e2e)', () => {
       const company = await createCompany(app, testData, getName());
       const domain = 'www.example.org';
       await createDomains(app, testData, company._id, [domain]);
-      const rHost = await postReq(
-        app,
-        testData.admin.token,
-        `/company/${company._id}/host`,
-        { ips: ['192.168.2.1'] },
-      );
+      const rHost = await postReq(app, testData.admin.token, `/hosts`, {
+        ips: ['192.168.2.1'],
+        companyId: company._id.toString(),
+      });
 
       const hostId = rHost.body[0]._id;
 
