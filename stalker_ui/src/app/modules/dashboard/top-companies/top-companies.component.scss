@@ -1,0 +1,10 @@
+.company {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  width: 100%;
+
+  avatar {
+    flex: 0 0 24px;
+  }
+}

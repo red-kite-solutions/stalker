@@ -30,8 +30,6 @@ import { HumanizePipe } from './pipes/humanize.pipe';
 import { MemoryUnitsPipe } from './pipes/memory-units.pipe';
 import { TimeAgoPipe } from './pipes/time-ago.pipe';
 import { WhereIdPipe } from './pipes/where-id.pipe';
-import { AreaComponent } from './widget/area/area.component';
-import { CardComponent } from './widget/card/card.component';
 import { CodeEditorComponent } from './widget/code-editor/code-editor.component';
 import { ConfirmDialogComponent } from './widget/confirm-dialog/confirm-dialog.component';
 import { FilteredPaginatedTableComponent } from './widget/filtered-paginated-table/filtered-paginated-table.component';
@@ -46,8 +44,6 @@ import { TextSelectMenuComponent } from './widget/text-select-menu/text-select-m
     HeaderComponent,
     FooterComponent,
     SidebarComponent,
-    AreaComponent,
-    CardComponent,
     ConfirmDialogComponent,
     SpinnerButtonComponent,
     ImageUploadComponent,
@@ -92,8 +88,6 @@ import { TextSelectMenuComponent } from './widget/text-select-menu/text-select-m
     HeaderComponent,
     FooterComponent,
     SidebarComponent,
-    AreaComponent,
-    CardComponent,
     ConfirmDialogComponent,
     SpinnerButtonComponent,
     ImageUploadComponent,

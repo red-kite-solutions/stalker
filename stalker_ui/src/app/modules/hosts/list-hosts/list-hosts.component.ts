@@ -17,6 +17,7 @@ import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, distinctUntilChanged, filter, map, switchMap, tap } from 'rxjs';
 import { CompaniesService } from 'src/app/api/companies/companies.service';
 import { TagsService } from 'src/app/api/tags/tags.service';
+import { CompanyCellComponent } from 'src/app/shared/components/company-cell/company-cell.component';
 import { CompanySummary } from 'src/app/shared/types/company/company.summary';
 import { Page } from 'src/app/shared/types/page.type';
 import { Tag } from 'src/app/shared/types/tag.type';
@@ -44,6 +45,7 @@ import {
     MatTableModule,
     ReactiveFormsModule,
     MatInputModule,
+    CompanyCellComponent,
   ],
   selector: 'app-list-hosts',
   templateUrl: './list-hosts.component.html',

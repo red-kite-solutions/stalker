@@ -1,32 +1,39 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnDestroy } from '@angular/core';
-import { MediaChange, MediaObserver } from '@angular/flex-layout';
-import { UntypedFormControl, Validators } from '@angular/forms';
+import { FlexModule, MediaChange, MediaObserver } from '@angular/flex-layout';
+import { FormsModule, ReactiveFormsModule, UntypedFormControl, Validators } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { MatIconModule } from '@angular/material/icon';
 import { Title } from '@angular/platform-browser';
+import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { distinctUntilChanged, filter, map } from 'rxjs';
 import { CompaniesService } from 'src/app/api/companies/companies.service';
+import { CompanyAvatarComponent } from 'src/app/shared/components/company-avatar/company-avatar.component';
+import { SharedModule } from 'src/app/shared/shared.module';
 import { Company } from 'src/app/shared/types/company/company.interface';
 import { HttpStatus } from 'src/app/shared/types/http-status.type';
 
 @Component({
+  standalone: true,
   selector: 'app-list-companies',
   templateUrl: './list-companies.component.html',
   styleUrls: ['./list-companies.component.scss'],
+  imports: [
+    CommonModule,
+    MatGridListModule,
+    MatFormFieldModule,
+    MatIconModule,
+    SharedModule,
+    ReactiveFormsModule,
+    FormsModule,
+    RouterModule,
+    FlexModule,
+    CompanyAvatarComponent,
+  ],
 })
 export class ListCompaniesComponent implements OnDestroy {
-  public defaultLogos = [
-    'account_balance',
-    'domain',
-    'precision_manufacturing',
-    'location_city',
-    'science',
-    'corporate_fare',
-    'insert_chart',
-    'biotech',
-    'golf_course',
-    'public',
-  ];
-
   public createLabel = $localize`:Create|Create item:Create`;
 
   public companies: any[] | undefined;

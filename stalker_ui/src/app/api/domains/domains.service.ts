@@ -12,7 +12,7 @@ import { filtersToParams } from '../../utils/filters-to-params';
 export class DomainsService {
   constructor(private http: HttpClient) {}
 
-  public getPage(page: number, pageSize: number, filters: any): Observable<Page<Domain>> {
+  public getPage(page: number, pageSize: number, filters: any = undefined): Observable<Page<Domain>> {
     let params = filtersToParams(filters);
     params = params.append('page', page);
     params = params.append('pageSize', pageSize);

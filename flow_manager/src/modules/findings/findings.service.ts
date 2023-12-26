@@ -102,11 +102,14 @@ export class FindingsService {
   ): Promise<Page<CustomFinding>> {
     if (page < 1) throw new HttpBadRequestException('Page starts at 1.');
 
-    const filters: FilterQuery<CustomFinding> = {
-      correlationKey: {
+    const filters: FilterQuery<CustomFinding> = {};
+
+    if (target) {
+      filters.correlationKey = {
         $eq: target,
-      },
-    };
+      };
+    }
+
     const items = await this.findingModel
       .find(filters)
       .sort({

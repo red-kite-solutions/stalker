@@ -1,8 +1,11 @@
+import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
 import { StartedJobViewModel } from '../../../shared/types/jobs/job.type';
 
 @Component({
-  selector: 'app-job-logs-summary',
+  standalone: true,
+  selector: 'job-logs-summary',
   styleUrls: ['./job-execution-logs-summary.component.scss'],
   template: `
     <span class="summary" *ngIf="job?.numberOfErrors"
@@ -15,6 +18,7 @@ import { StartedJobViewModel } from '../../../shared/types/jobs/job.type';
       ><mat-icon class="finding" [inline]="true">lightbulb_circle</mat-icon> {{ job?.numberOfFindings }}</span
     >
   `,
+  imports: [CommonModule, MatIconModule],
 })
 export class JobLogsSummaryComponent {
   @Input() job: StartedJobViewModel | undefined;

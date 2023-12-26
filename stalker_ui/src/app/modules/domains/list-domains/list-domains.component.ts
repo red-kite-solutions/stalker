@@ -18,6 +18,7 @@ import { BehaviorSubject, distinctUntilChanged, filter, map, switchMap, tap } fr
 import { CompaniesService } from 'src/app/api/companies/companies.service';
 import { DomainsService } from 'src/app/api/domains/domains.service';
 import { TagsService } from 'src/app/api/tags/tags.service';
+import { CompanyCellComponent } from 'src/app/shared/components/company-cell/company-cell.component';
 import { CompanySummary } from 'src/app/shared/types/company/company.summary';
 import { Domain } from 'src/app/shared/types/domain/domain.interface';
 import { HttpStatus } from 'src/app/shared/types/http-status.type';
@@ -46,6 +47,7 @@ import {
     MatInputModule,
     ReactiveFormsModule,
     FormsModule,
+    CompanyCellComponent,
   ],
   selector: 'app-list-domains',
   templateUrl: './list-domains.component.html',
