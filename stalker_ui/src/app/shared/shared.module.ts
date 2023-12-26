@@ -21,7 +21,6 @@ import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
-import { HighchartsChartModule } from 'highcharts-angular';
 import { NgxFileDropModule } from 'ngx-file-drop';
 import { FooterComponent } from './components/footer/footer.component';
 import { HeaderComponent } from './components/header/header.component';
@@ -66,7 +65,6 @@ import { TextSelectMenuComponent } from './widget/text-select-menu/text-select-m
     MatMenuModule,
     MatListModule,
     RouterModule,
-    HighchartsChartModule,
     MatInputModule,
     MatDialogModule,
     MatTooltipModule,

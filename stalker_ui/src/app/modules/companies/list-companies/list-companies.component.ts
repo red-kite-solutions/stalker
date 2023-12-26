@@ -5,6 +5,7 @@ import { FormsModule, ReactiveFormsModule, UntypedFormControl, Validators } from
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -25,6 +26,7 @@ import { HttpStatus } from 'src/app/shared/types/http-status.type';
     MatGridListModule,
     MatFormFieldModule,
     MatIconModule,
+    MatInputModule,
     SharedModule,
     ReactiveFormsModule,
     FormsModule,
