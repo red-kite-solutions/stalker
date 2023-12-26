@@ -18,7 +18,7 @@ import { BehaviorSubject, distinctUntilChanged, filter, map, switchMap, tap } fr
 import { CompaniesService } from 'src/app/api/companies/companies.service';
 import { TagsService } from 'src/app/api/tags/tags.service';
 import { CompanyCellComponent } from 'src/app/shared/components/company-cell/company-cell.component';
-import { CompanySummary } from 'src/app/shared/types/company/company.summary';
+import { Company } from 'src/app/shared/types/company/company.interface';
 import { Page } from 'src/app/shared/types/page.type';
 import { Tag } from 'src/app/shared/types/tag.type';
 import { HostsService } from '../../../api/hosts/hosts.service';
@@ -79,17 +79,8 @@ export class ListHostsComponent {
     })
   );
 
-  companies: CompanySummary[] = [];
-  companies$ = this.companiesService.getAllSummaries().pipe(
-    map((next: any[]) => {
-      const comp: CompanySummary[] = [];
-      for (const company of next) {
-        comp.push({ id: company._id, name: company.name });
-      }
-      this.companies = comp;
-      return this.companies;
-    })
-  );
+  companies: Company[] = [];
+  companies$ = this.companiesService.getAll().pipe(tap((x) => (this.companies = x)));
 
   tags: Tag[] = [];
   tags$ = this.tagsService.getTags().pipe(
@@ -180,7 +171,7 @@ export class ListHostsComponent {
       switch (key) {
         case 'company':
           const company = this.companies.find((c) => c.name.trim().toLowerCase() === value.trim().toLowerCase());
-          if (company) companies.push(company.id);
+          if (company) companies.push(company._id);
           else
             this.toastr.warning(
               $localize`:Company does not exist|The given company name is not known to the application:Company name not recognized`
@@ -262,7 +253,7 @@ export class ListHostsComponent {
   public deleteHosts() {
     const bulletPoints: string[] = Array<string>();
     this.selection.selected.forEach((host: Host) => {
-      const companyName = this.companies.find((d) => d.id === host.companyId)?.name;
+      const companyName = this.companies.find((d) => d._id === host.companyId)?.name;
       const bp = companyName ? `${host.ip} (${companyName})` : `${host.ip}`;
       bulletPoints.push(bp);
     });

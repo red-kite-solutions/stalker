@@ -74,7 +74,7 @@
       <mat-label i18n="Company|Company or business">Company</mat-label>
       <mat-select [(value)]="selectedCompany">
         <mat-option>None</mat-option>
-        <mat-option *ngFor="let company of companies$ | async" value="{{ company.id }}">{{ company.name }}</mat-option>
+        <mat-option *ngFor="let company of companies$ | async" value="{{ company._id }}">{{ company.name }}</mat-option>
       </mat-select>
     </mat-form-field>
 

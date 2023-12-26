@@ -6,7 +6,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
   standalone: true,
   selector: 'avatar',
   template: `
-    <svg width="100%" height="100%" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid meet">
+    <svg class="mat-elevation-z1" width="100%" height="100%" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid meet">
       <style>
         .avatar-initials-{{ hash }}  {
             font-family: Roboto, 'Helvetica Neue', sans-serif;
