@@ -1,11 +1,11 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import {
+  TestingData,
   checkAuthorizations,
   getReq,
   initTesting,
   putReq,
-  TestingData,
 } from 'test/e2e.utils';
 import { AppModule } from '../../../app.module';
 import { Role } from '../../../auth/constants';
@@ -132,9 +132,5 @@ describe('Config Controller (e2e)', () => {
       },
     );
     expect(result).toBe(true);
-  });
-
-  afterAll(async () => {
-    await app.close();
   });
 });

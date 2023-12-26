@@ -1,24 +1,22 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Types } from 'mongoose';
 import { AppModule } from '../../app.module';
-import { ConfigService } from '../../database/admin/config/config.service';
-import { CustomJobsService } from '../../database/custom-jobs/custom-jobs.service';
-import { CompanyService } from '../../database/reporting/company.service';
-import {
-  JobCondition,
-  JobParameter,
-  Subscription,
-} from '../../database/subscriptions/subscriptions.model';
+import { HostnameCommand } from '../../findings/commands/Findings/hostname.command';
+import { CustomFindingCommand } from '../../findings/commands/JobFindings/custom.command';
 import {
   CreateCustomFinding,
   HostnameFinding,
   HostnameIpFinding,
-} from '../findings.service';
-import { FindingHandlerBase } from './findings-handler-base';
-import { HostnameCommand } from './Findings/hostname.command';
-import { HostnameHandler } from './Findings/hostname.handler';
-import { CustomFindingCommand } from './JobFindings/custom.command';
-import { CustomFindingHandler } from './JobFindings/custom.handler';
+} from '../../findings/findings.service';
+import { ConfigService } from '../admin/config/config.service';
+import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
+import { CompanyService } from '../reporting/company.service';
+import {
+  EventSubscription,
+  JobCondition,
+  JobParameter,
+} from './event-subscriptions/event-subscriptions.model';
+import { SubscriptionsUtils } from './subscriptions.utils';
 
 describe('Findings Handler Base', () => {
   let moduleFixture: TestingModule;
@@ -164,8 +162,6 @@ describe('Findings Handler Base', () => {
       'Hostname finding - Should be valid for execution',
       (conditions: JobCondition[]) => {
         // Arrange
-        const hnHandler: FindingHandlerBase<HostnameCommand> =
-          new HostnameHandler(null, null, null, null);
         const hnFinding = new HostnameFinding();
         hnFinding.domainName = 'stalker.is';
         const hnCommand = new HostnameCommand(
@@ -175,8 +171,10 @@ describe('Findings Handler Base', () => {
         );
 
         // Act
-        // @ts-expect-error
-        const shouldExecute = hnHandler.shouldExecute(conditions, hnCommand);
+        const shouldExecute = SubscriptionsUtils.shouldExecute(
+          conditions,
+          hnCommand,
+        );
 
         // Assert
         expect(shouldExecute).toBe(true);
@@ -190,8 +188,6 @@ describe('Findings Handler Base', () => {
       'Custom finding - Should be valid for execution',
       (conditions: JobCondition[]) => {
         // Arrange
-        const customFindingHandler: FindingHandlerBase<CustomFindingCommand> =
-          new CustomFindingHandler(null, null, null, null, null);
         const customFinding = new CreateCustomFinding();
 
         customFinding.fields = [
@@ -217,8 +213,7 @@ describe('Findings Handler Base', () => {
         );
 
         // Act
-        // @ts-expect-error
-        const shouldExecute = customFindingHandler.shouldExecute(
+        const shouldExecute = SubscriptionsUtils.shouldExecute(
           conditions,
           customFindingCommand,
         );
@@ -340,8 +335,6 @@ describe('Findings Handler Base', () => {
       'Hostname finding - Should be invalid for execution',
       (conditions: JobCondition[]) => {
         // Arrange
-        const hnHandler: FindingHandlerBase<HostnameCommand> =
-          new HostnameHandler(null, null, null, null);
         const hnFinding = new HostnameFinding();
         const hnCommand = new HostnameCommand(
           '',
@@ -353,8 +346,7 @@ describe('Findings Handler Base', () => {
 
         // Act
         for (const c of conditions) {
-          // @ts-expect-error
-          shouldExecute = hnHandler.shouldExecute([c], hnCommand);
+          shouldExecute = SubscriptionsUtils.shouldExecute([c], hnCommand);
           if (shouldExecute) {
             atLeastOneError = true;
             console.log(
@@ -379,15 +371,12 @@ describe('Findings Handler Base', () => {
       'Should be replaced by the content of the finding',
       (paramValue: string) => {
         // Arrange
-        const hnHandler: FindingHandlerBase<HostnameCommand> =
-          new HostnameHandler(null, null, null, null);
         const hnFinding = new HostnameFinding();
         hnFinding.domainName = 'stalker.is';
         let valueCopy = paramValue;
 
         // Act
-        // @ts-expect-error
-        valueCopy = hnHandler.replaceValueIfReferingToFinding(
+        valueCopy = SubscriptionsUtils.replaceValueIfReferingToFinding(
           valueCopy,
           hnFinding,
         );
@@ -401,8 +390,7 @@ describe('Findings Handler Base', () => {
         valueCopy = paramValue;
 
         // Act
-        // @ts-expect-error
-        valueCopy = hnHandler.replaceValueIfReferingToFinding(
+        valueCopy = SubscriptionsUtils.replaceValueIfReferingToFinding(
           valueCopy,
           hnipFinding,
         );
@@ -421,15 +409,12 @@ describe('Findings Handler Base', () => {
       'Should not be replaced by the content of the finding',
       (paramValue: string) => {
         // Arrange
-        const hnHandler: FindingHandlerBase<HostnameCommand> =
-          new HostnameHandler(null, null, null, null);
         const hnFinding = new HostnameFinding();
         hnFinding.domainName = 'stalker.is';
         let valueCopy = paramValue;
 
         // Act
-        // @ts-expect-error
-        valueCopy = hnHandler.replaceValueIfReferingToFinding(
+        valueCopy = SubscriptionsUtils.replaceValueIfReferingToFinding(
           valueCopy,
           hnFinding,
         );
@@ -443,8 +428,7 @@ describe('Findings Handler Base', () => {
         valueCopy = paramValue;
 
         // Act
-        // @ts-expect-error
-        valueCopy = hnHandler.replaceValueIfReferingToFinding(
+        valueCopy = SubscriptionsUtils.replaceValueIfReferingToFinding(
           valueCopy,
           hnipFinding,
         );
@@ -458,8 +442,6 @@ describe('Findings Handler Base', () => {
   describe('Get the proper job parameters for a custom job', () => {
     it('Should give the proper custom job parameters with the adequate structure and values', async () => {
       // Arrange
-      const hnHandler: FindingHandlerBase<HostnameCommand> =
-        new HostnameHandler(null, null, customJobsService, configService);
       const jpc = await configService.createJobPodConfig({
         name: 'jpc test findings handler',
         memoryKbytesLimit: 1024 * 10,
@@ -482,7 +464,7 @@ describe('Findings Handler Base', () => {
         jobPodConfigId: jpc._id.toString(),
       });
 
-      const sub = new Subscription();
+      const sub = new EventSubscription();
       sub.companyId = new Types.ObjectId('507f1f77bcf86cd799439011');
       sub.conditions = [];
       sub.finding = 'HostnameFinding';
@@ -494,10 +476,13 @@ describe('Findings Handler Base', () => {
       ];
 
       // Act
-      // @ts-expect-error
-      const jobParams = await hnHandler.getParametersForCustomJobSubscription(
-        sub,
-      );
+      const jobParams =
+        await SubscriptionsUtils.getParametersForCustomJobSubscription(
+          sub,
+          null,
+          customJobsService,
+          configService,
+        );
 
       // Assert
       expect(

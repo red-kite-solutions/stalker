@@ -2,9 +2,9 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom, map, Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { JobParameter } from '../../../shared/types/finding-event-subscription';
 import { JobListEntry, StartedJob, StartedJobState, StartedJobViewModel } from '../../../shared/types/jobs/job.type';
 import { Page } from '../../../shared/types/page.type';
+import { JobParameter } from '../../../shared/types/subscriptions/subscription.type';
 import { filtersToParams } from '../../../utils/filters-to-params';
 import { JobOutputResponse } from './jobs.socketio-client';
 

@@ -140,7 +140,7 @@ export async function postReq(
   app: INestApplication,
   token: string,
   path: string,
-  data: any,
+  data?: any,
 ) {
   return await request(app.getHttpServer())
     .post(path)
@@ -195,7 +195,6 @@ export async function checkAuthorizations(
   role: Role,
   call: (token: string, password: string) => Promise<request.Response>,
 ): Promise<boolean> {
-  const keys = Object.keys(data);
   let r = await call(data.admin.token, data.admin.password);
 
   if (r.statusCode === HttpStatus.UNAUTHORIZED) {
@@ -309,6 +308,10 @@ export async function cleanup() {
     'companies',
     'tags',
     'reports',
+    'cronsubscriptions',
+    'eventsubscriptions',
+    'customjobs',
+    'jobs',
   ];
 
   const promises = collectionsToDelete.map(async (c) => {

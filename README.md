@@ -19,7 +19,7 @@ Stalker's API can be used by third-party tools for automated consumption.
     * [Domains](#domains)
     * [Hosts](#hosts)
     * [Ports](#ports)
-  * [Extend workflow](#extend-workflow)
+  * [Extensibility](#extensibility)
     * [Jobs](#jobs)
     * [Findings](#findings)
     * [Subscriptions](#subscriptions)
@@ -76,8 +76,12 @@ For more in-depth information about findings, [read here](./docs/implementing-jo
 
 #### Subscriptions
 
-Subscriptions listen to [findings](#findings) to start new [jobs](#jobs). 
+There are two types of subscriptions.
 
-When a finding is found, the subscriptions are queried. If a subscription exists for the given finding, and the conditions specified in the subscription are met, the detailed job is started. That job can then find new Findings, which may, in turn, trigger other subscriptions, in a tree-like manner.
+The first type is the cron subscription. The cron subscription starts a [jobs](#jobs) based on a cron expression. When the cron expression is triggered, a [jobs](#jobs) is started.
+
+The second type is the event subscription. The event subscriptions listen to [findings](#findings) to start new [jobs](#jobs).
+
+When a finding is found, the event subscriptions are queried. If an event subscription exists for the given finding, and the conditions specified in the event subscription are met, the detailed job is started. That job can then find new Findings, which may, in turn, trigger other event subscriptions, in a tree-like manner.
 
 For additional information on subscriptions, [read here](./docs/subscriptions.md).

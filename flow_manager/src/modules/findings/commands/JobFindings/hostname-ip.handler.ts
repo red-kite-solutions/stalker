@@ -6,7 +6,7 @@ import { JobFactory } from '../../../database/jobs/jobs.factory';
 import { JobsService } from '../../../database/jobs/jobs.service';
 import { TcpPortScanningJob } from '../../../database/jobs/models/tcp-port-scanning.model';
 import { HostService } from '../../../database/reporting/host/host.service';
-import { SubscriptionsService } from '../../../database/subscriptions/subscriptions.service';
+import { EventSubscriptionsService } from '../../../database/subscriptions/event-subscriptions/event-subscriptions.service';
 import { JobFindingHandlerBase } from '../job-findings-handler-base';
 import { HostnameIpCommand } from './hostname-ip.command';
 
@@ -17,7 +17,7 @@ export class HostnameIpHandler extends JobFindingHandlerBase<HostnameIpCommand> 
   constructor(
     private hostService: HostService,
     jobService: JobsService,
-    subscriptionsService: SubscriptionsService,
+    subscriptionsService: EventSubscriptionsService,
     customJobsService: CustomJobsService,
     configService: ConfigService,
   ) {

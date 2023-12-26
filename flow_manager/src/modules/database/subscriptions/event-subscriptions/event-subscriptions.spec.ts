@@ -1,20 +1,20 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppModule } from '../../app.module';
-import { CompanyService } from '../reporting/company.service';
-import { SubscriptionDto } from './subscriptions.dto';
-import { SubscriptionsService } from './subscriptions.service';
+import { AppModule } from '../../../app.module';
+import { CompanyService } from '../../reporting/company.service';
+import { EventSubscriptionDto } from './event-subscriptions.dto';
+import { EventSubscriptionsService } from './event-subscriptions.service';
 
-describe('Subscriptions Service', () => {
+describe('Event Subscriptions Service', () => {
   let moduleFixture: TestingModule;
   let companyService: CompanyService;
-  let subscriptionsService: SubscriptionsService;
+  let subscriptionsService: EventSubscriptionsService;
 
   beforeAll(async () => {
     moduleFixture = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
     companyService = moduleFixture.get(CompanyService);
-    subscriptionsService = moduleFixture.get(SubscriptionsService);
+    subscriptionsService = moduleFixture.get(EventSubscriptionsService);
   });
 
   beforeEach(async () => {
@@ -32,15 +32,15 @@ describe('Subscriptions Service', () => {
     await moduleFixture.close();
   });
 
-  describe('Get subscriptions', () => {
-    it('Should get only the subscriptions for the company', async () => {
+  describe('Get event subscriptions', () => {
+    it('Should get only the event subscriptions for the company', async () => {
       // Arrange
       const c1 = await company('sub-c1');
       const c2 = await company('sub-c2');
       const finding = 'HostnameFinding';
       const name = 'my special name';
 
-      const subData: SubscriptionDto = {
+      const subData: EventSubscriptionDto = {
         companyId: '',
         name: 'my sub',
         jobName: 'DomainNameResolvingJob',
@@ -69,14 +69,14 @@ describe('Subscriptions Service', () => {
       expect(subs[0].name).toStrictEqual(name);
     });
 
-    it('Should get only the subscriptions for the finding', async () => {
+    it('Should get only the event subscriptions for the finding', async () => {
       // Arrange
       const c1 = await company('sub-c12');
       const c2 = await company('sub-c22');
       const finding = 'HostnameFinding';
       const finding2 = 'HostnameIpFinding';
 
-      const subData: SubscriptionDto = {
+      const subData: EventSubscriptionDto = {
         companyId: '',
         name: 'my sub',
         jobName: 'DomainNameResolvingJob',
@@ -113,7 +113,7 @@ describe('Subscriptions Service', () => {
       logo: null,
     });
   }
-  async function subscription(subscription: SubscriptionDto) {
+  async function subscription(subscription: EventSubscriptionDto) {
     return await subscriptionsService.create(subscription);
   }
 });
