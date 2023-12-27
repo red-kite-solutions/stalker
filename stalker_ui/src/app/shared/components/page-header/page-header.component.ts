@@ -12,12 +12,12 @@ import { BreadcrumbComponent } from '../breadcrumb/breadcrumb.component';
   imports: [CommonModule, MatIconModule, BreadcrumbComponent, RouterModule, MatButtonModule],
   styles: [
     `
-          h1 {
-            padding-top: 16px;
-            display: flex;
-            align-items: center;
-          }
-        `,
+              h1 {
+                padding-top: 16px;
+                display: flex;
+                align-items: center;
+              }
+            `,
   ],
   template: `<h1>
     <button type="button" mat-icon-button [routerLink]="backRoute">

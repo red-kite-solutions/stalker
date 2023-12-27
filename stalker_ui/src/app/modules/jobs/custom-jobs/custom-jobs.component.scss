@@ -67,6 +67,7 @@ table {
 }
 
 /* TODO(mdc-migration): The following rule targets internal classes of tabs that may no longer apply for the MDC version. */
+/* TODO(mdc-migration): The following rule targets internal classes of tabs that may no longer apply for the MDC version. */
 mat-tab-group {
   height: 100%;
 }
@@ -78,11 +79,14 @@ mat-tab-group {
   border-color: rgba(0, 0, 0, 0.12);
   padding: 10px;
   /* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
+  /* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
   mat-card-header {
     font-weight: 400;
     color: rgba(0, 0, 0, 0.65);
     margin-bottom: 10px;
   }
+  /* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
+  /* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
   /* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
   /* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
   mat-card-content {
@@ -93,6 +97,7 @@ mat-tab-group {
       display: flex;
       min-height: fit-content;
       padding-bottom: 7px;
+      /* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
       /* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
       mat-card {
         float: left;
