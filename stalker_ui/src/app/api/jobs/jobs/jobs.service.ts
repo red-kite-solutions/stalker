@@ -18,7 +18,11 @@ export class JobsService {
     return <Observable<Array<JobListEntry>>>this.http.get(`${environment.fmUrl}/jobs/summaries`);
   }
 
-  public getJobExecutions(page: number, pageSize: number, filters: any): Observable<Page<StartedJobViewModel>> {
+  public getJobExecutions(
+    page: number,
+    pageSize: number,
+    filters: any = undefined
+  ): Observable<Page<StartedJobViewModel>> {
     let params = filtersToParams(filters);
     params = params.append('page', page);
     params = params.append('pageSize', pageSize);
@@ -58,6 +62,7 @@ export class JobsService {
 
     return {
       ...job,
+      id: job._id,
       numberOfWarnings: logsPerLevel.warning,
       numberOfErrors: logsPerLevel.error,
       numberOfFindings: logsPerLevel.finding,

@@ -1,19 +1,35 @@
+import { CommonModule } from '@angular/common';
 import { Component, ViewChild } from '@angular/core';
+import { MatCardModule } from '@angular/material/card';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
-import { MatTableDataSource } from '@angular/material/table';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, map, switchMap, tap } from 'rxjs';
+import { CompanyCellComponent } from 'src/app/shared/components/company-cell/company-cell.component';
+import { SharedModule } from 'src/app/shared/shared.module';
+import { Company } from 'src/app/shared/types/company/company.interface';
 import { CompaniesService } from '../../../api/companies/companies.service';
 import { JobsService } from '../../../api/jobs/jobs/jobs.service';
-import { CompanySummary } from '../../../shared/types/company/company.summary';
 import { StartedJobViewModel } from '../../../shared/types/jobs/job.type';
 import { Page } from '../../../shared/types/page.type';
+import { JobLogsSummaryComponent } from './job-execution-logs-summary.component';
+import { JobStateComponent } from './job-execution-state.component';
 
 @Component({
+  standalone: true,
   selector: 'app-job-executions',
   templateUrl: './job-executions.component.html',
   styleUrls: ['./job-executions.component.scss'],
+  imports: [
+    CommonModule,
+    SharedModule,
+    JobStateComponent,
+    JobLogsSummaryComponent,
+    MatCardModule,
+    MatTableModule,
+    CompanyCellComponent,
+  ],
 })
 export class JobExecutionsComponent {
   readonly displayColumns = ['name', 'company', 'time'];
@@ -47,17 +63,8 @@ export class JobExecutionsComponent {
     })
   );
 
-  companies: CompanySummary[] = [];
-  companies$ = this.companiesService.getAllSummaries().pipe(
-    map((next: any[]) => {
-      const comp: CompanySummary[] = [];
-      for (const company of next) {
-        comp.push({ id: company._id, name: company.name });
-      }
-      this.companies = comp;
-      return this.companies;
-    })
-  );
+  companies: Company[] = [];
+  companies$ = this.companiesService.getAll().pipe(tap((x) => (this.companies = x)));
 
   constructor(
     private jobsService: JobsService,
@@ -106,7 +113,7 @@ export class JobExecutionsComponent {
       switch (key) {
         case 'company':
           const company = this.companies.find((c) => c.name.trim().toLowerCase() === value.trim().toLowerCase());
-          if (company) filterObject['company'] = company.id;
+          if (company) filterObject['company'] = company._id;
           else
             this.toastrService.warning(
               $localize`:Company does not exist|The given company name is not known to the application:Company name not recognized`

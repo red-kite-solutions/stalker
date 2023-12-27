@@ -7,11 +7,8 @@ import { AuthComponent } from './modules/auth/auth.component';
 import { FirstComponent } from './modules/auth/first/first.component';
 import { LoginComponent } from './modules/auth/login/login.component';
 import { EditCompaniesComponent } from './modules/companies/edit-companies/edit-companies.component';
-import { ListCompaniesComponent } from './modules/companies/list-companies/list-companies.component';
-import { DashboardComponent } from './modules/dashboard/dashboard.component';
 import { CustomJobsComponent } from './modules/jobs/custom-jobs/custom-jobs.component';
 import { JobExecutionDetailComponent } from './modules/jobs/job-executions/job-execution-detail.component';
-import { JobExecutionsComponent } from './modules/jobs/job-executions/job-executions.component';
 import { LaunchJobsComponent } from './modules/jobs/launch-jobs/launch-jobs.component';
 import { SubscriptionComponent } from './modules/jobs/subscriptions/subscription.component';
 import { ProfileComponent } from './modules/user/profile/profile.component';
@@ -23,7 +20,7 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        component: DashboardComponent,
+        loadComponent: () => import('./modules/dashboard/dashboard.component').then((c) => c.DashboardComponent),
       },
       {
         path: 'profile',
@@ -35,7 +32,8 @@ const routes: Routes = [
       },
       {
         path: 'companies',
-        component: ListCompaniesComponent,
+        loadComponent: () =>
+          import('./modules/companies/list-companies/list-companies.component').then((c) => c.ListCompaniesComponent),
       },
       {
         path: 'companies/:id',
@@ -67,7 +65,8 @@ const routes: Routes = [
       },
       {
         path: 'jobs/executions',
-        component: JobExecutionsComponent,
+        loadComponent: () =>
+          import('./modules/jobs/job-executions/job-executions.component').then((c) => c.JobExecutionsComponent),
       },
       {
         path: 'jobs/executions/:id',

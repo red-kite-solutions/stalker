@@ -592,7 +592,7 @@ describe('Findings Handler Base', () => {
       const es: EventSubscription = {
         name: 'Http(s) server port check',
         file: 'not a file.yaml',
-        triggerInterval: 82800,
+        cooldown: 82800,
         builtIn: true,
         finding: 'PortFinding',
         jobName: 'HttpServerCheckJob',
@@ -605,7 +605,7 @@ describe('Findings Handler Base', () => {
       let yaml = [
         `name: ${es.name}`,
         `finding: ${es.finding}`,
-        `triggerInterval: ${es.triggerInterval}`,
+        `triggerInterval: ${es.cooldown}`,
         `job:`,
         `  name: ${es.jobName}`,
         `  parameters:`,

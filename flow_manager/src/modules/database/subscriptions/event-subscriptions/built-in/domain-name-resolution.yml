@@ -1,6 +1,6 @@
 name: Domain name resolution
 finding: HostnameFinding
-triggerInterval: 82800
+cooldown: 82800
 job:
   name: DomainNameResolvingJob
   parameters:

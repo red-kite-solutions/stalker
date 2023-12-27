@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { firstValueFrom, Observable } from 'rxjs';
+import { firstValueFrom, map, Observable } from 'rxjs';
 import { Company } from 'src/app/shared/types/company/company.interface';
+import { CompanySummary } from 'src/app/shared/types/company/company.summary';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -10,12 +11,14 @@ import { environment } from 'src/environments/environment';
 export class CompaniesService {
   constructor(private http: HttpClient) {}
 
-  public getAll(): Observable<Array<any>> {
-    return this.http.get(`${environment.fmUrl}/company`) as Observable<Array<any>>;
+  public getAll(): Observable<Company[]> {
+    return this.http.get(`${environment.fmUrl}/company`) as Observable<Company[]>;
   }
 
-  public getAllSummaries(): Observable<Array<any>> {
-    return this.http.get(`${environment.fmUrl}/company/summary`) as Observable<Array<any>>;
+  public getAllSummaries(): Observable<CompanySummary[]> {
+    return this.http
+      .get(`${environment.fmUrl}/company/summary`)
+      .pipe(map((companies: any) => companies.map((x: any) => ({ ...x, id: x._id })))) as Observable<CompanySummary[]>;
   }
 
   public get(id: string) {

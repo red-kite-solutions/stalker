@@ -21,7 +21,7 @@ export class EventSubscriptionsService {
             name: item.name,
             finding: item.finding,
             companyId: item.companyId ? item.companyId : allCompaniesSubscriptions,
-            triggerInterval: item.triggerInterval,
+            cooldown: item.cooldown,
             builtIn: item.builtIn,
             job: { name: item.jobName },
           };
@@ -46,7 +46,7 @@ export class EventSubscriptionsService {
       _id: newSub._id,
       name: newSub.name,
       finding: newSub.finding,
-      triggerInterval: newSub.triggerInterval,
+      cooldown: newSub.cooldown,
       companyId: newSub.companyId ? newSub.companyId : allCompaniesSubscriptions,
       job: {
         name: newSub.jobName,
@@ -71,7 +71,7 @@ export class EventSubscriptionsService {
     const data: any = {
       name: subscription.name,
       finding: subscription.finding,
-      triggerInterval: subscription.triggerInterval,
+      cooldown: subscription.cooldown,
       jobName: subscription.job.name,
       companyId: subscription.companyId === allCompaniesSubscriptions ? undefined : subscription.companyId,
     };
@@ -87,6 +87,6 @@ export class EventSubscriptionsService {
   }
 
   public async revert(id: string) {
-    return await firstValueFrom(this.http.put(`${environment.fmUrl}/event-subscriptions/${id}/revert`, {}));
+    return await firstValueFrom(this.http.patch(`${environment.fmUrl}/event-subscriptions/${id}?revert=true`, {}));
   }
 }

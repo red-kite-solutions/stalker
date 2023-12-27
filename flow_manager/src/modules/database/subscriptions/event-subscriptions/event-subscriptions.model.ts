@@ -35,11 +35,11 @@ export class EventSubscription {
   public conditions: JobCondition[];
 
   @Prop()
-  public triggerInterval: number;
+  public cooldown: number;
 
   // true for a built-in subsctiption, false otherwise
   @Prop()
-  public builtIn: boolean;
+  public builtIn?: boolean;
 
   @Prop()
   public file?: string;

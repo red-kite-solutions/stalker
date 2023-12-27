@@ -351,7 +351,7 @@ export class SubscriptionsUtils {
       name: subYamlJson.name,
       finding: subYamlJson.finding,
       jobName: subYamlJson.job.name,
-      triggerInterval: subYamlJson.triggerInterval,
+      cooldown: subYamlJson.cooldown,
       companyId: null,
       jobParameters: params,
       conditions: conditions,

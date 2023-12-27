@@ -18,25 +18,24 @@ export class SubscriptionTriggersService {
 
   /**
    * The function attempts to trigger a `SubscriptionTrigger`. It will succeed if the interval since the last trigger is
-   * greater than the `subscriptionTriggerInterval`, or if it was never triggered. This method is thread safe.
+   * greater than the `subscriptionCooldown`, or if it was never triggered. This method is thread safe.
    *
    * The success of the trigger should dictate if a job is started.
    * @param subscriptionId The subscription to trigger
    * @param correlationKey The correlation key for which to trigger
-   * @param subscriptionTriggerInterval The time to wait between triggers for the subscription (seconds)
+   * @param subscriptionCooldown The time to wait between triggers for the subscription (seconds)
    * @returns true if the trigger attempt worked, false otherwise. If true is returned, a job can be started.
    */
   public async attemptTrigger(
     subscriptionId: string,
     correlationKey: string,
-    subscriptionTriggerInterval: number,
+    subscriptionCooldown: number,
   ): Promise<boolean> {
     const subId = new Types.ObjectId(subscriptionId);
 
     let triggerSuccess = false;
     const now = Date.now();
-    const subscriptionTriggerIntervalSeconds =
-      subscriptionTriggerInterval * 1000;
+    const subscriptionCooldownMilliseconds = subscriptionCooldown * 1000;
     const session = await this.subscriptionTriggerModel.startSession();
 
     try {
@@ -46,7 +45,7 @@ export class SubscriptionTriggersService {
           correlationKey: correlationKey,
         });
         if (s) {
-          if (now - s.lastTrigger >= subscriptionTriggerIntervalSeconds) {
+          if (now - s.lastTrigger >= subscriptionCooldownMilliseconds) {
             await this.subscriptionTriggerModel.findOneAndUpdate(
               { _id: { $eq: s._id } },
               { lastTrigger: now },
