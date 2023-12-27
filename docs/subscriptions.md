@@ -15,7 +15,7 @@ A subscription is written in `yaml` format in the front-end. The company for whi
 * [Cron Subscriptions](#cron-subscriptions)
   * [Cron Subscription Syntax](#cron-subscription-syntax)
     * [Cron Subscription Simple Example](#cron-subscription-simple-example)
-    * [Input Examples](#input-examples)
+    * [Input variable](#input-variable)
 * [Event Subscriptions](#event-subscriptions)
   * [Event Subscription Syntax](#event-subscription-syntax)
     * [Event Subscription Simple Example](#event-subscription-simple-example)
@@ -73,7 +73,19 @@ job:
       value: example.com
 ```
 
-#### Input Examples
+#### Input variable
+
+The `input` variable specifies an input source. There are multiple input sources described in the following table. The `input` variable is optionnal. The variables can be injected in the job parameters as well as in the conditions.
+
+If a company is specified, only the ressources of the targeted company will be used.
+
+| Input source  | Variables                   |
+| ------------- | --------------------------- |
+| ALL_DOMAINS   | ${domainName}               |
+| ALL_HOSTS     | ${ip}                       |
+| ALL_TCP_PORTS | ${ip}, ${port}, ${protocol} |
+
+When you specify the `ALL_DOMAINS` input, you have access to the `${domainName}` injectable variable. Stalker will apply the subscription for all the domains, and the domain's value will be injected where specified.
 
 ```yaml
 name: Refreshing all domain names
@@ -85,6 +97,8 @@ job:
     - name: domainName
       value: ${domainName}
 ```
+
+When you specify the `ALL_HOSTS` input, you have access to the `${ip}` injectable variable. Stalker will apply the subscription for all the hosts, and the hosts's ip value will be injected where specified.
 
 ```yaml
 name: Rescanning all hosts
@@ -107,21 +121,25 @@ job:
       value: []
 ```
 
+When you specify the `ALL_TCP_PORTS` input, you have access to the `${ip}`, `${port}` and `${protocol}` injectable variables. Stalker will apply the subscription for all the ports, and the ip, port and protocol values can be injected where specified. Protocol is either tcp or udp.
+
+> Only TCP ports are sent with this input, so the protocol variable will always equal 'tcp'
+
 ```yaml
-name: All tcp ports example
+name: All tcp ports with condition
 input: ALL_TCP_PORTS
 cronExpression: '0 0 * * *'
 job:
-  name: TcpPortScanningJob
+  name: HttpServerCheckJob
   parameters:
     - name: targetIp
       value: ${ip}
     - name: ports
       value:  ['${port}']
 conditions:
-  lhs: '${protocol}'
-  operator: 'equals'
-  rhs: 'tcp'
+  - lhs: '${protocol}'
+    operator: 'equals'
+    rhs: 'tcp'
 ```
 
 ## Event Subscriptions
