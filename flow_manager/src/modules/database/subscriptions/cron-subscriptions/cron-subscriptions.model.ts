@@ -36,7 +36,7 @@ export class CronSubscription {
 
   // true for a built-in subsctiption, false otherwise
   @Prop()
-  public builtIn: boolean;
+  public builtIn?: boolean;
 
   @Prop()
   public file?: string;

@@ -11,7 +11,7 @@ import { Page } from '../../shared/types/page.type';
 export class FindingsService {
   constructor(private http: HttpClient) {}
 
-  public getFindings(target: string, page = 1, pageSize = 25): Observable<Page<CustomFinding>> {
+  public getFindings(target: string | undefined = undefined, page = 1, pageSize = 25): Observable<Page<CustomFinding>> {
     return this.http
       .get<Page<CustomFinding>>(`${environment.fmUrl}/findings?target=${target}&page=${page}&pageSize=${pageSize}`)
       .pipe(tap((x) => (x.items = x.items.map((i) => ({ ...i, created: new Date(i.created) })))));

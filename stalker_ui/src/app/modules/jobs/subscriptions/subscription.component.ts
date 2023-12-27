@@ -42,7 +42,7 @@ export class SubscriptionComponent implements OnDestroy {
   dataSource = new MatTableDataSource<Subscription>();
 
   public subscriptionTemplate =
-    'name: my subscription\nfinding: FindingTypeName\ntriggerInterval: 86400\njob:\n  name: JobName\n  parameters:\n    - name: ParamName\n      value: param value\nconditions:\n  - lhs: string\n    operator: contains\n    rhs: ring\n';
+    'name: my subscription\nfinding: FindingTypeName\ncooldown: 86400\njob:\n  name: JobName\n  parameters:\n    - name: ParamName\n      value: param value\nconditions:\n  - lhs: string\n    operator: contains\n    rhs: ring\n';
   public cronSubscriptionTemplate =
     'name: my cron subscription\ncronExpression: 0 0 12 * * ?\njob:\n  name: JobName\n  parameters:\n  - name: ParamName\n    value: param value\n';
 
@@ -54,14 +54,16 @@ export class SubscriptionComponent implements OnDestroy {
   public data = new Array<Subscription>();
 
   public dataSource$!: Observable<void> | undefined;
+  public readonly eventSubscriptionContext = 'event subscription';
+  public readonly cronSubscriptionContext = 'cron susbcription';
 
   public subscriptionTypes: LocalizedOption[] = [
     {
-      value: 'event subscription',
+      value: this.eventSubscriptionContext,
       text: $localize`:Event subscription|Subscription based on an event:Event Subscription`,
     },
     {
-      value: 'cron subscription',
+      value: this.cronSubscriptionContext,
       text: $localize`:Cron subscription|Subscription based on time:Cron Subscription`,
     },
   ];
@@ -81,9 +83,9 @@ export class SubscriptionComponent implements OnDestroy {
         this.code = '';
         this.currentCodeBackup = '';
         this.subscriptionTypeContext = currSubscription ? currSubscription : undefined;
-        if (currSubscription === this.subscriptionTypes[0].value) {
+        if (currSubscription === this.eventSubscriptionContext) {
           this.code = this.subscriptionTemplate;
-        } else if (currSubscription === this.subscriptionTypes[1].value) {
+        } else if (currSubscription === this.cronSubscriptionContext) {
           this.code = this.cronSubscriptionTemplate;
         } else this.code = '';
         this.selectedRow = undefined;
@@ -123,7 +125,7 @@ export class SubscriptionComponent implements OnDestroy {
 
   private refreshData() {
     if (this.subscriptionTypeContext === undefined) return;
-    if (this.subscriptionTypeContext === this.subscriptionTypes[0].value) {
+    if (this.subscriptionTypeContext === this.eventSubscriptionContext) {
       return this.eventSubscriptionsService.getSubscriptions().pipe(
         map((data) => {
           this.data = data;
@@ -237,7 +239,7 @@ export class SubscriptionComponent implements OnDestroy {
       if (this.isInNewSubscriptionContext) {
         // create a new subscription
 
-        if (this.subscriptionTypeContext === this.subscriptionTypes[0].value) {
+        if (this.subscriptionTypeContext === this.eventSubscriptionContext) {
           sub = sub as EventSubscription;
           newSub = await this.eventSubscriptionsService.create(sub);
         } else {
@@ -250,7 +252,7 @@ export class SubscriptionComponent implements OnDestroy {
         );
       } else {
         // edit an existing subscription
-        if (this.subscriptionTypeContext === this.subscriptionTypes[0].value) {
+        if (this.subscriptionTypeContext === this.eventSubscriptionContext) {
           sub = sub as EventSubscription;
           await this.eventSubscriptionsService.edit(this.currentSubscriptionId, sub);
         } else {
@@ -293,7 +295,7 @@ export class SubscriptionComponent implements OnDestroy {
       },
       onDangerButtonClick: async () => {
         try {
-          if (this.subscriptionTypeContext === this.subscriptionTypes[0].value)
+          if (this.subscriptionTypeContext === this.eventSubscriptionContext)
             await this.eventSubscriptionsService.delete(this.currentSubscriptionId);
           else await this.cronSubscriptionsService.delete(this.currentSubscriptionId);
 

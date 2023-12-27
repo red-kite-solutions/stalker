@@ -8,6 +8,7 @@ import {
   deleteReq,
   getReq,
   initTesting,
+  patchReq,
   postReq,
   putReq,
 } from 'test/e2e.utils';
@@ -78,8 +79,8 @@ describe('Cron Subscriptions Controller (e2e)', () => {
     // assert
     expect(r.statusCode).toBe(HttpStatus.OK);
     let foundSubscription = false;
-    for(const sub of r.body) {
-      if(sub._id === subscriptionId) {
+    for (const sub of r.body) {
+      if (sub._id === subscriptionId) {
         foundSubscription = true;
         expect(sub.name).toBe(subscription.name);
       }
@@ -107,8 +108,8 @@ describe('Cron Subscriptions Controller (e2e)', () => {
     r = await getReq(app, testData.user.token, '/cron-subscriptions');
     expect(r.statusCode).toBe(HttpStatus.OK);
     let foundSubscription = false;
-    for(const sub of r.body) {
-      if(sub._id === subscriptionId) {
+    for (const sub of r.body) {
+      if (sub._id === subscriptionId) {
         foundSubscription = true;
         expect(sub.name).toBe(changedName);
       }
@@ -173,15 +174,15 @@ describe('Cron Subscriptions Controller (e2e)', () => {
     expect(success).toBe(true);
   });
 
-  it('Should have proper authorizations (PUT /cron-subscriptions/{id}/revert)', async () => {
+  it('Should have proper authorizations (PATCH /cron-subscriptions/{id}?revert=true)', async () => {
     const success = await checkAuthorizations(
       testData,
       Role.User,
       async (givenToken: string) => {
-        return await putReq(
+        return await patchReq(
           app,
           givenToken,
-          `/cron-subscriptions/${subscriptionId}/revert`,
+          `/cron-subscriptions/${subscriptionId}?revert=true`,
           {},
         );
       },

@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { combineLatest, debounceTime, filter, map, merge, Subscription, switchMap, tap } from 'rxjs';
+import { Subscription, combineLatest, debounceTime, filter, map, merge, switchMap, tap } from 'rxjs';
 import { CompaniesService } from 'src/app/api/companies/companies.service';
 import { Company } from 'src/app/shared/types/company/company.interface';
 import { HttpStatus } from 'src/app/shared/types/http-status.type';

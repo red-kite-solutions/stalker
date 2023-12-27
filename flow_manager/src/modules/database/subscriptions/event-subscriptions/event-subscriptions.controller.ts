@@ -4,16 +4,20 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { DeleteResult, UpdateResult } from 'mongodb';
+import { HttpBadRequestException } from '../../../../exceptions/http.exceptions';
 import { MongoIdDto } from '../../../../types/dto/mongo-id.dto';
 import { Role } from '../../../auth/constants';
 import { Roles } from '../../../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../auth/guards/role.guard';
+import { PatchSubscriptionDto } from '../subscriptions.dto';
 import { EventSubscriptionDto } from './event-subscriptions.dto';
 import { EventSubscriptionsDocument } from './event-subscriptions.model';
 import { EventSubscriptionsService } from './event-subscriptions.service';
@@ -38,9 +42,14 @@ export class EventSubscriptionsController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
-  @Put(':id/revert')
-  async revertSubscription(@Param() IdDto: MongoIdDto): Promise<UpdateResult> {
-    return await this.subscriptionsService.revertToDefaults(IdDto.id);
+  @Patch(':id')
+  async revertSubscription(
+    @Param() IdDto: MongoIdDto,
+    @Query() queryParams: PatchSubscriptionDto,
+  ): Promise<UpdateResult> {
+    if (queryParams.revert)
+      return await this.subscriptionsService.revertToDefaults(IdDto.id);
+    else throw new HttpBadRequestException();
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

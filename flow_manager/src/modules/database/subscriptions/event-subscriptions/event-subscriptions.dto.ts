@@ -46,5 +46,5 @@ export class EventSubscriptionDto {
   @IsNotEmpty()
   @IsInt()
   @Min(0)
-  public triggerInterval: number;
+  public cooldown: number;
 }
