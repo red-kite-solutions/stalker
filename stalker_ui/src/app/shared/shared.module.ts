@@ -21,7 +21,6 @@ import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
-import { HighchartsChartModule } from 'highcharts-angular';
 import { NgxFileDropModule } from 'ngx-file-drop';
 import { FooterComponent } from './components/footer/footer.component';
 import { HeaderComponent } from './components/header/header.component';
@@ -30,8 +29,6 @@ import { HumanizePipe } from './pipes/humanize.pipe';
 import { MemoryUnitsPipe } from './pipes/memory-units.pipe';
 import { TimeAgoPipe } from './pipes/time-ago.pipe';
 import { WhereIdPipe } from './pipes/where-id.pipe';
-import { AreaComponent } from './widget/area/area.component';
-import { CardComponent } from './widget/card/card.component';
 import { CodeEditorComponent } from './widget/code-editor/code-editor.component';
 import { ConfirmDialogComponent } from './widget/confirm-dialog/confirm-dialog.component';
 import { FilteredPaginatedTableComponent } from './widget/filtered-paginated-table/filtered-paginated-table.component';
@@ -46,8 +43,6 @@ import { TextSelectMenuComponent } from './widget/text-select-menu/text-select-m
     HeaderComponent,
     FooterComponent,
     SidebarComponent,
-    AreaComponent,
-    CardComponent,
     ConfirmDialogComponent,
     SpinnerButtonComponent,
     ImageUploadComponent,
@@ -70,7 +65,6 @@ import { TextSelectMenuComponent } from './widget/text-select-menu/text-select-m
     MatMenuModule,
     MatListModule,
     RouterModule,
-    HighchartsChartModule,
     MatInputModule,
     MatDialogModule,
     MatTooltipModule,
@@ -92,8 +86,6 @@ import { TextSelectMenuComponent } from './widget/text-select-menu/text-select-m
     HeaderComponent,
     FooterComponent,
     SidebarComponent,
-    AreaComponent,
-    CardComponent,
     ConfirmDialogComponent,
     SpinnerButtonComponent,
     ImageUploadComponent,

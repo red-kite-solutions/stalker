@@ -70,3 +70,13 @@ mat-card-header {
     margin: 0;
   }
 }
+
+a {
+  color: rgb(0, 0, 175);
+  text-decoration: none;
+
+  &:hover {
+    color: rgb(0, 0, 200);
+    text-decoration: underline;
+  }
+}

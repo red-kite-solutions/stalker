@@ -62,10 +62,7 @@
     [routerLink]="['/companies/', company._id]"
   >
     <div class="imgContainer" fxFlex="40" fxLayoutAlign="center center">
-      <img *ngIf="company.logo" class="companyLogo" src="{{ company.logo }}" />
-      <mat-icon *ngIf="!company.logo" class="companyLogo material-icons-outlined">{{
-        defaultLogos[company.name.charCodeAt(0) % defaultLogos.length]
-      }}</mat-icon>
+      <company-avatar [company]="company"></company-avatar>
     </div>
     <div fxFlex="60" class="textContainer" fxLayout="column">
       <div class="text" id="titleDiv" fxFlex="{{ company?.notes ? (titleFlex$ | async) : 100 }}">

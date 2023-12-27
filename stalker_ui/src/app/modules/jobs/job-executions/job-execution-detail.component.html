@@ -6,7 +6,7 @@
 <mat-card class="summary" *ngIf="execution$ | async as execution">
   <mat-card-title i18n="Execution details|The details of a job execution">Execution details</mat-card-title>
   <mat-card-content>
-    <app-job-logs-summary [job]="execution"></app-job-logs-summary>
+    <job-logs-summary [job]="execution"></job-logs-summary>
 
     <div class="timing">
       <div *ngIf="execution.endTime; else started">
