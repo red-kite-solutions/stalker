@@ -50,9 +50,11 @@
               >Role</mat-label
             >
             <mat-select formControlName="role" required>
-              <mat-option *ngFor="let role of roles" [value]="role">
-                {{ role.displayName }}
-              </mat-option>
+              @for (role of roles; track $index) {
+                <mat-option [value]="role">
+                  {{ role.displayName }}
+                </mat-option>
+              }
             </mat-select>
             <mat-hint>{{ form.controls['role'].value.shortDescription }}</mat-hint>
             <mat-error i18n="Role required|A user must have a role, otherwise the form is invalid"

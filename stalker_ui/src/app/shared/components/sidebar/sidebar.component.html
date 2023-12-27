@@ -1,4 +1,4 @@
-<mat-nav-list [fxHide.lt-sm]="!expanded">
+<mat-nav-list *ngIf="!(isSmallScreen$ | async) || expanded">
   <h2 *ngIf="expanded" matSubheader i18n="Pages|The different pages of the application">Pages</h2>
 
   <a

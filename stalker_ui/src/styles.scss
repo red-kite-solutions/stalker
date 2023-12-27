@@ -90,3 +90,8 @@ a {
     text-decoration: underline;
   }
 }
+
+// Tailwind conflicts with Angular Material's style
+.mdc-notched-outline__notch {
+  border-right: none;
+}

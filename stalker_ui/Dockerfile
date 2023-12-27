@@ -3,7 +3,7 @@ WORKDIR /app
 
 COPY package.json package.json
 COPY package-lock.json package-lock.json
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 
 COPY angular.json angular.json
 COPY tsconfig.app.json tsconfig.app.json
