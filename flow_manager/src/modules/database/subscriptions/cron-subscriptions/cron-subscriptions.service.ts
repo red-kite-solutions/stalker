@@ -194,8 +194,8 @@ export class CronSubscriptionsService {
         } while (hosts.length >= pageSize);
         break;
       case 'ALL_TCP_PORTS':
-        let ports: Pick<Port, 'port' | 'layer4Protocol'>[];
         do {
+          let ports: Pick<Port, 'port' | 'layer4Protocol'>[];
           hosts = await this.hostsService.getIps(page, pageSize, filter);
           for (const host of hosts) {
             let portPage = 0;
@@ -210,7 +210,6 @@ export class CronSubscriptionsService {
               portPage++;
             } while (ports.length >= pageSize);
           }
-          this.publishJobsFromHostsPage(sub, hosts);
           page++;
         } while (hosts.length >= pageSize);
         break;

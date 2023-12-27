@@ -123,7 +123,7 @@ describe('Cron Subscriptions Service', () => {
 
   describe('Cron subscriptions ALL_* input values', () => {
     beforeEach(() => {
-      jest.clearAllMocks();
+      jest.resetAllMocks();
     });
 
     // ALL_DOMAINS
@@ -1246,7 +1246,7 @@ describe('Cron Subscriptions Service', () => {
 
       const spy = jest //@ts-expect-error
         .spyOn(subscriptionsService, 'publishJob') //@ts-expect-error
-        .mockImplementation(() => {});
+        .mockImplementation((x, y) => {});
 
       // Act
       //@ts-expect-error
