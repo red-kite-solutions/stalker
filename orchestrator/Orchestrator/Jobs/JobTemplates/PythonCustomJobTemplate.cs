@@ -30,7 +30,7 @@ public class PythonCustomJobTemplate : PythonJobTemplate
         {
             this.MemoryKiloBytesLimit = jobPodMemoryKbLimit;
         }
-        
+
         int? timeout = config.GetSection("Jobs").GetSection("CustomJobs").GetValue<int>("Timeout");
         if (timeout == null) throw new NullReferenceException("Setting Timeout is missing.");
 

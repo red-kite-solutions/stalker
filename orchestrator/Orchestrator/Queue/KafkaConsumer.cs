@@ -50,7 +50,7 @@ namespace Orchestrator.Queue
                             Logger.LogDebug("Nothing on the queue for now...");
                         }
                     }
-                    catch(BadImageFormatException ex)
+                    catch (BadImageFormatException ex)
                     {
                         Logger.LogError(ex, "An error occurred while deserializing the message.");
                         Logger.LogDebug("Time between Consume() calls is likely too high. Recreating Consumer.");
@@ -91,7 +91,7 @@ namespace Orchestrator.Queue
 
         private ConsumerConfig ConsumerConfig { get; }
 
-        private IConsumer<Ignore, T> Consumer { get; set;  }
+        private IConsumer<Ignore, T> Consumer { get; set; }
 
         protected abstract Task Consume(T message);
 
