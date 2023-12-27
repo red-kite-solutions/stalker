@@ -1,6 +1,6 @@
-name: Refreshing all domain names resolutions
+name: Refreshing all domain names
 input: ALL_DOMAINS
-cronExpression: '*/30 * * * * *'
+cronExpression: '0 0 * * *'
 job:
   name: DomainNameResolvingJob
   parameters:

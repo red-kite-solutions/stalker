@@ -15,6 +15,7 @@ A subscription is written in `yaml` format in the front-end. The company for whi
 * [Cron Subscriptions](#cron-subscriptions)
   * [Cron Subscription Syntax](#cron-subscription-syntax)
     * [Cron Subscription Simple Example](#cron-subscription-simple-example)
+    * [Input Examples](#input-examples)
 * [Event Subscriptions](#event-subscriptions)
   * [Event Subscription Syntax](#event-subscription-syntax)
     * [Event Subscription Simple Example](#event-subscription-simple-example)
@@ -36,18 +37,20 @@ Even though cron subscriptions do not require a company to be set, they require 
 
 ### Cron Subscription Syntax
 
-A cron subscription contains three main elements :
+A cron subscription contains the following main elements :
 
 | Element        | Description                                              | Mandatory |
 | -------------- | -------------------------------------------------------- | --------- |
 | name           | The name of the subscription, for future reference       | Yes       |
 | cronExpression | The cron expression that specifies when to start the job | Yes       |
+| input          | A value representing all the ressources of a type        | No        |
 | job            | The job to launch when the cron expression is triggered  | Yes       |
 
 > N.B. Additonnal details on these elements are given in the following sections
 
 * The `name` element can be anything and is only used to distinguish the subscription from the others.
 * The `cronExpression` element has to be a valid cron expression. It is used to trigger the job launch.
+* The `input` element is either `ALL_DOMAINS`, `ALL_HOSTS` or `ALL_TCP_PORTS`. These values represent all the ressources of the corresponding type.
 * The `job` element contains multiple values:
   * `name` : mandatory, must be an existing Job's type. See the Jobs section for the list of valid values.
   * `parameters` : optionnal, but almost always needed. It describes the input values of the job by the parameter `name` and its `value` in a list.
@@ -68,6 +71,57 @@ job:
   parameters:
     - name: domainName
       value: example.com
+```
+
+#### Input Examples
+
+```yaml
+name: Refreshing all domain names
+input: ALL_DOMAINS
+cronExpression: '0 0 * * *'
+job:
+  name: DomainNameResolvingJob
+  parameters:
+    - name: domainName
+      value: ${domainName}
+```
+
+```yaml
+name: Rescanning all hosts
+input: ALL_HOSTS
+cronExpression: '0 0 * * *'
+job:
+  name: TcpPortScanningJob
+  parameters:
+    - name: targetIp
+      value: ${ip}
+    - name: threads
+      value: 1000
+    - name: socketTimeoutSeconds
+      value: 0.7
+    - name: portMin
+      value: 1
+    - name: portMax
+      value: 65535
+    - name: ports
+      value: []
+```
+
+```yaml
+name: All tcp ports example
+input: ALL_TCP_PORTS
+cronExpression: '0 0 * * *'
+job:
+  name: TcpPortScanningJob
+  parameters:
+    - name: targetIp
+      value: ${ip}
+    - name: ports
+      value:  ['${port}']
+conditions:
+  lhs: '${protocol}'
+  operator: 'equals'
+  rhs: 'tcp'
 ```
 
 ## Event Subscriptions
