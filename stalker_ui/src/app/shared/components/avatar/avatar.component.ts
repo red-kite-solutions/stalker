@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
 @Component({
@@ -9,34 +9,39 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
     <svg class="mat-elevation-z1" width="100%" height="100%" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid meet">
       <style>
         .avatar-initials-{{ hash }}  {
-            font-family: Roboto, 'Helvetica Neue', sans-serif;
-            font-weight: 600;
-            font-size: 105px;
-            fill: {{color}}
-          }
-
-          .avatar-background-{{ hash }}  {
-            fill: {{backgroundColor}}
-          }
-      </style>
-
-      <rect *ngIf="!src" class="avatar-background-{{ hash }}" width="200" height="200" x="0" y="0" />
+        font-family: Roboto, 'Helvetica Neue', sans-serif;
+        font-weight: 600;
+        font-size: 105px;
+        fill: {{color}}
+      }
+    
+      .avatar-background-{{ hash }}  {
+      fill: {{backgroundColor}}
+    }
+    </style>
+    
+    @if (!src) {
+      <rect class="avatar-background-{{ hash }}" width="200" height="200" x="0" y="0" />
+    }
+    @if (!src) {
       <text
-        *ngIf="!src"
         class="avatar-initials-{{ hash }}"
         x="50%"
         y="55%"
         dominant-baseline="middle"
         text-anchor="middle"
-      >
+        >
         {{ initials }}
       </text>
-
-      <image *ngIf="src" attr.xlink:href="{{ src }}" width="200" height="200" />
+    }
+    
+    @if (src) {
+      <image attr.xlink:href="{{ src }}" width="200" height="200" />
+    }
     </svg>
-  `,
+    `,
   styleUrls: ['./avatar.component.scss'],
-  imports: [CommonModule],
+  imports: [],
 })
 export class AvatarComponent {
   private readonly colors = [

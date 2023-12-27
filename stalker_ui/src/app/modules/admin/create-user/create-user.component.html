@@ -143,11 +143,12 @@
           </mat-error>
         </mat-form-field>
 
-        <mat-error
-          *ngIf="!this.newUserValid"
-          i18n="Correct information|Asking the user to correct any invalid information before resubmitting the form"
-          >Please correct the invalid information before submitting</mat-error
-        >
+        @if (!this.newUserValid) {
+          <mat-error
+            i18n="Correct information|Asking the user to correct any invalid information before resubmitting the form"
+            >Please correct the invalid information before submitting</mat-error
+          >
+        }
 
         <div class="center">
           <button

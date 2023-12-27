@@ -1,278 +1,285 @@
 <div fxLayout="row" fxLayoutAlign="center">
-  <mat-card appearance="outlined" fxFlex.lt-md="95" fxFlex.gt-sm="80" *ngIf="(routeSub$ | async) || true">
-    <mat-card-content>
-      <h1 fxLayoutAlign="flex-start center">
-        <button type="button" mat-icon-button routerLinkActive="list-item-active" routerLink="/companies">
-          <mat-icon class="material-icons-outlined">arrow_back</mat-icon>
-        </button>
-        <div i18n="Edit company|Title to the page to edit a company">Edit Company</div>
-      </h1>
-
-      <form [formGroup]="form">
-        <div fxLayout.gt-md="row" fxLayout.lt-lg="column" fxLayoutAlign.gt-md="left" fxLayoutAlign.lt-lg="center">
-          <div fxFlex.gt-md="26" fxFlex.lt-md="100" class="padding-20">
-            <div fxLayout="column">
-              <mat-form-field class="full-width" appearance="outline" fxFlex>
-                <mat-label i18n="Company name|Name of the company">Company name</mat-label>
-                <input formControlName="name" matInput />
-                <mat-error i18n="Company name required|Company name is required to create a company">
+  @if ((routeSub$ | async) || true) {
+    <mat-card appearance="outlined" fxFlex.lt-md="95" fxFlex.gt-sm="80">
+      <mat-card-content>
+        <h1 fxLayoutAlign="flex-start center">
+          <button type="button" mat-icon-button routerLinkActive="list-item-active" routerLink="/companies">
+            <mat-icon class="material-icons-outlined">arrow_back</mat-icon>
+          </button>
+          <div i18n="Edit company|Title to the page to edit a company">Edit Company</div>
+        </h1>
+        <form [formGroup]="form">
+          <div fxLayout.gt-md="row" fxLayout.lt-lg="column" fxLayoutAlign.gt-md="left" fxLayoutAlign.lt-lg="center">
+            <div fxFlex.gt-md="26" fxFlex.lt-md="100" class="padding-20">
+              <div fxLayout="column">
+                <mat-form-field class="full-width" appearance="outline" fxFlex>
+                  <mat-label i18n="Company name|Name of the company">Company name</mat-label>
+                  <input formControlName="name" matInput />
+                  <mat-error i18n="Company name required|Company name is required to create a company">
                   Company name is required
                 </mat-error>
-              </mat-form-field>
-              <div fxFlex="100">
-                <div fxLayoutAlign="center">
-                  <app-image-upload
-                    [(previewSource)]="previewSource"
-                    [(fileSelected)]="fileSelected"
-                    [(fileLoading)]="fileLoading"
-                    fxFlex
-                    class="max-w300"
-                  ></app-image-upload>
+                </mat-form-field>
+                <div fxFlex="100">
+                  <div fxLayoutAlign="center">
+                    <app-image-upload
+                      [(previewSource)]="previewSource"
+                      [(fileSelected)]="fileSelected"
+                      [(fileLoading)]="fileLoading"
+                      fxFlex
+                      class="max-w300"
+                    ></app-image-upload>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div fxFlex.gt-md="74" fxFlex.lt-md="100" class="padding-20">
-            <mat-accordion formArrayName="ipRanges">
-              <mat-expansion-panel [formGroupName]="0" hideToggle>
-                <mat-expansion-panel-header>
-                  <mat-panel-title
-                    ><mat-icon class="material-icons-outlined">add_circle_outline</mat-icon
-                    ><label id="title-text" i18n="Add proprietary subnet|"
+            <div fxFlex.gt-md="74" fxFlex.lt-md="100" class="padding-20">
+              <mat-accordion formArrayName="ipRanges">
+                <mat-expansion-panel [formGroupName]="0" hideToggle>
+                  <mat-expansion-panel-header>
+                    <mat-panel-title
+                      ><mat-icon class="material-icons-outlined">add_circle_outline</mat-icon
+                      ><label id="title-text" i18n="Add proprietary subnet|"
                       >Add a proprietary subnet</label
-                    ></mat-panel-title
-                  >
-                </mat-expansion-panel-header>
-                <div fxLayout="row">
-                  <div fxFlex="33">
-                    <div fxLayout="column" class="full-width pad-10">
-                      <div class="form-field" fxFlex>
-                        <mat-form-field class="full-width">
-                          <mat-label i18n="Ip address|An IP address">IP Address</mat-label>
-                          <input
-                            matInput
-                            formControlName="ip"
-                            i18n-placeholder="IP placeholder|Gives an example of how to fill th IP input field"
-                            placeholder="Ex. 192.168.0.1"
-                          />
-                          <mat-error i18n="Ip address invalid|IP address is in an invalid format">
+                      ></mat-panel-title
+                      >
+                    </mat-expansion-panel-header>
+                    <div fxLayout="row">
+                      <div fxFlex="33">
+                        <div fxLayout="column" class="full-width pad-10">
+                          <div class="form-field" fxFlex>
+                            <mat-form-field class="full-width">
+                              <mat-label i18n="Ip address|An IP address">IP Address</mat-label>
+                              <input
+                                matInput
+                                formControlName="ip"
+                                i18n-placeholder="IP placeholder|Gives an example of how to fill th IP input field"
+                                placeholder="Ex. 192.168.0.1"
+                                />
+                              <mat-error i18n="Ip address invalid|IP address is in an invalid format">
                             IP Address is invalid
                           </mat-error>
-                        </mat-form-field>
+                            </mat-form-field>
+                          </div>
+                          <div class="form-field" fxFlex>
+                            <mat-form-field class="full-width">
+                              <mat-label i18n="First IP|The first IP address of a subnet">First IP</mat-label>
+                              <input matInput formControlName="minIp" />
+                            </mat-form-field>
+                          </div>
+                        </div>
                       </div>
-                      <div class="form-field" fxFlex>
-                        <mat-form-field class="full-width">
-                          <mat-label i18n="First IP|The first IP address of a subnet">First IP</mat-label>
-                          <input matInput formControlName="minIp" />
-                        </mat-form-field>
-                      </div>
-                    </div>
-                  </div>
-                  <div fxFlex="33">
-                    <div fxLayout="column" class="full-width pad-10">
-                      <div class="form-field" fxFlex>
-                        <mat-form-field class="full-width">
-                          <mat-label i18n="Short Mask|The short version of an IP mask (ex: /24)">Short Mask</mat-label>
-                          <input
-                            matInput
-                            formControlName="shortMask"
+                      <div fxFlex="33">
+                        <div fxLayout="column" class="full-width pad-10">
+                          <div class="form-field" fxFlex>
+                            <mat-form-field class="full-width">
+                              <mat-label i18n="Short Mask|The short version of an IP mask (ex: /24)">Short Mask</mat-label>
+                              <input
+                                matInput
+                                formControlName="shortMask"
                             i18n-placeholder="
                               Short mask placeholder|Gives an example of how to fill the short mask input field
                             "
-                            placeholder="Ex. /24"
-                          />
-                          <mat-error i18n="Mask invalid|The IP mask format is invalid">The mask is invalid</mat-error>
-                        </mat-form-field>
+                                placeholder="Ex. /24"
+                                />
+                              <mat-error i18n="Mask invalid|The IP mask format is invalid">The mask is invalid</mat-error>
+                            </mat-form-field>
+                          </div>
+                          <div class="form-field" fxFlex>
+                            <mat-form-field class="full-width">
+                              <mat-label i18n="Last IP|The last IP address of a subnet">Last IP</mat-label>
+                              <input matInput formControlName="maxIp" />
+                            </mat-form-field>
+                          </div>
+                        </div>
                       </div>
-                      <div class="form-field" fxFlex>
-                        <mat-form-field class="full-width">
-                          <mat-label i18n="Last IP|The last IP address of a subnet">Last IP</mat-label>
-                          <input matInput formControlName="maxIp" />
-                        </mat-form-field>
-                      </div>
-                    </div>
-                  </div>
-                  <div fxFlex="33">
-                    <div fxLayout="column" class="full-width pad-10">
-                      <div class="form-field" fxFlex>
-                        <mat-form-field class="full-width">
-                          <mat-label i18n="Long Mask|The long version of an IP mask (ex: 255.255.255.0)"
-                            >Long Mask</mat-label
-                          >
-                          <input
-                            matInput
-                            formControlName="longMask"
+                      <div fxFlex="33">
+                        <div fxLayout="column" class="full-width pad-10">
+                          <div class="form-field" fxFlex>
+                            <mat-form-field class="full-width">
+                              <mat-label i18n="Long Mask|The long version of an IP mask (ex: 255.255.255.0)"
+                                >Long Mask</mat-label
+                                >
+                                <input
+                                  matInput
+                                  formControlName="longMask"
                             i18n-placeholder="
                               Long mask placeholder|Gives an example of how to fill the long mask input field
                             "
-                            placeholder="Ex. 255.255.255.0"
-                          />
-                          <mat-error i18n="Mask invalid|The IP mask format is invalid">The mask is invalid</mat-error>
-                        </mat-form-field>
+                                  placeholder="Ex. 255.255.255.0"
+                                  />
+                                <mat-error i18n="Mask invalid|The IP mask format is invalid">The mask is invalid</mat-error>
+                              </mat-form-field>
+                            </div>
+                            <div class="form-field" fxFlex>
+                              <mat-form-field class="full-width">
+                                <mat-label i18n="Total ip count|The amount of IPs in a subnet">IP address count</mat-label>
+                                <input matInput formControlName="ipCount" />
+                              </mat-form-field>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div class="form-field" fxFlex>
-                        <mat-form-field class="full-width">
-                          <mat-label i18n="Total ip count|The amount of IPs in a subnet">IP address count</mat-label>
-                          <input matInput formControlName="ipCount" />
-                        </mat-form-field>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div fxLayout="row">
-                  <div fxFlex fxFlexAlign="flex-start">
-                    <button
-                      type="button"
-                      mat-raised-button
-                      color="primary"
-                      i18n="Add Subnet|Add a subnet to the list"
-                      (click)="addSubnet()"
-                    >
+                      <div fxLayout="row">
+                        <div fxFlex fxFlexAlign="flex-start">
+                          <button
+                            type="button"
+                            mat-raised-button
+                            color="primary"
+                            i18n="Add Subnet|Add a subnet to the list"
+                            (click)="addSubnet()"
+                            >
                       Add Subnet
                     </button>
-                  </div>
-                </div>
-              </mat-expansion-panel>
-              <mat-expansion-panel
-                *ngFor="let range of ipRanges.controls; let i = index"
-                [formGroupName]="i"
-                hideToggle
-              >
-                <mat-expansion-panel-header *ngIf="i !== 0">
-                  <mat-panel-title
-                    ><mat-icon
-                      *ngIf="!range.valid && triedSubmitFailed"
-                      class="material-icons-outlined error-bang"
-                      color="warn"
-                      >error_outline</mat-icon
-                    ><label>{{ range.get('ip')?.value + range.get('shortMask')?.value }}</label></mat-panel-title
-                  >
-                  <mat-panel-description
-                    ><div fxLayout="row" fxLayoutAlign="flex-start center" class="full-width">
-                      <div fxFlex>{{ range.get('minIp')?.value }} – {{ range.get('maxIp')?.value }}</div>
-                      <div fxLayoutAlign="flex-end">
-                        <button mat-icon-button type="button" (click)="deleteSubnet($event, i)">
-                          <mat-icon class="material-icons-outlined">clear</mat-icon>
-                        </button>
+                        </div>
                       </div>
-                    </div>
-                  </mat-panel-description>
-                </mat-expansion-panel-header>
-                <div fxLayout="row" *ngIf="i !== 0">
-                  <div fxFlex="33">
-                    <div fxLayout="column" class="full-width pad-10">
-                      <div class="form-field" fxFlex>
-                        <mat-form-field class="full-width">
-                          <mat-label i18n="Ip address|An IP address">IP Address</mat-label>
-                          <input
-                            matInput
-                            formControlName="ip"
-                            i18n-placeholder="IP placeholder|Gives an example of how to fill th IP input field"
-                            placeholder="Ex. 192.168.0.1"
-                          />
-                          <mat-error i18n="Ip address invalid|IP address is in an invalid format">
+                    </mat-expansion-panel>
+                    @for (range of ipRanges.controls; track range; let i = $index) {
+                      <mat-expansion-panel
+                        [formGroupName]="i"
+                        hideToggle
+                        >
+                        @if (i !== 0) {
+                          <mat-expansion-panel-header>
+                            <mat-panel-title
+                              >@if (!range.valid && triedSubmitFailed) {
+                              <mat-icon
+                                class="material-icons-outlined error-bang"
+                                color="warn"
+                                >error_outline</mat-icon
+                                >
+                                }<label>{{ range.get('ip')?.value + range.get('shortMask')?.value }}</label></mat-panel-title
+                                >
+                                <mat-panel-description
+                                  ><div fxLayout="row" fxLayoutAlign="flex-start center" class="full-width">
+                                  <div fxFlex>{{ range.get('minIp')?.value }} – {{ range.get('maxIp')?.value }}</div>
+                                  <div fxLayoutAlign="flex-end">
+                                    <button mat-icon-button type="button" (click)="deleteSubnet($event, i)">
+                                      <mat-icon class="material-icons-outlined">clear</mat-icon>
+                                    </button>
+                                  </div>
+                                </div>
+                              </mat-panel-description>
+                            </mat-expansion-panel-header>
+                          }
+                          @if (i !== 0) {
+                            <div fxLayout="row">
+                              <div fxFlex="33">
+                                <div fxLayout="column" class="full-width pad-10">
+                                  <div class="form-field" fxFlex>
+                                    <mat-form-field class="full-width">
+                                      <mat-label i18n="Ip address|An IP address">IP Address</mat-label>
+                                      <input
+                                        matInput
+                                        formControlName="ip"
+                                        i18n-placeholder="IP placeholder|Gives an example of how to fill th IP input field"
+                                        placeholder="Ex. 192.168.0.1"
+                                        />
+                                      <mat-error i18n="Ip address invalid|IP address is in an invalid format">
                             IP Address is invalid
                           </mat-error>
-                        </mat-form-field>
-                      </div>
-                      <div class="form-field" fxFlex>
-                        <mat-form-field class="full-width">
-                          <mat-label i18n="First IP|The first IP address of a subnet">First IP</mat-label>
-                          <input matInput formControlName="minIp" />
-                        </mat-form-field>
-                      </div>
-                    </div>
-                  </div>
-                  <div fxFlex="33">
-                    <div fxLayout="column" class="full-width pad-10">
-                      <div class="form-field" fxFlex>
-                        <mat-form-field class="full-width">
-                          <mat-label i18n="Short Mask|The short version of an IP mask (ex: /24)">Short Mask</mat-label>
-                          <input
-                            matInput
-                            formControlName="shortMask"
+                                    </mat-form-field>
+                                  </div>
+                                  <div class="form-field" fxFlex>
+                                    <mat-form-field class="full-width">
+                                      <mat-label i18n="First IP|The first IP address of a subnet">First IP</mat-label>
+                                      <input matInput formControlName="minIp" />
+                                    </mat-form-field>
+                                  </div>
+                                </div>
+                              </div>
+                              <div fxFlex="33">
+                                <div fxLayout="column" class="full-width pad-10">
+                                  <div class="form-field" fxFlex>
+                                    <mat-form-field class="full-width">
+                                      <mat-label i18n="Short Mask|The short version of an IP mask (ex: /24)">Short Mask</mat-label>
+                                      <input
+                                        matInput
+                                        formControlName="shortMask"
                             i18n-placeholder="
                               Short mask placeholder|Gives an example of how to fill the short mask input field
                             "
-                            placeholder="Ex. /24"
-                          />
-                          <mat-error i18n="Mask invalid|The IP mask format is invalid">The mask is invalid</mat-error>
-                        </mat-form-field>
-                      </div>
-                      <div class="form-field" fxFlex>
-                        <mat-form-field class="full-width">
-                          <mat-label i18n="Last IP|The last IP address of a subnet">Last IP</mat-label>
-                          <input matInput formControlName="maxIp" />
-                        </mat-form-field>
-                      </div>
-                    </div>
-                  </div>
-                  <div fxFlex="33">
-                    <div fxLayout="column" class="full-width pad-10">
-                      <div class="form-field" fxFlex>
-                        <mat-form-field class="full-width">
-                          <mat-label i18n="Long Mask|The long version of an IP mask (ex: 255.255.255.0)"
-                            >Long Mask</mat-label
-                          >
-                          <input
-                            matInput
-                            formControlName="longMask"
+                                        placeholder="Ex. /24"
+                                        />
+                                      <mat-error i18n="Mask invalid|The IP mask format is invalid">The mask is invalid</mat-error>
+                                    </mat-form-field>
+                                  </div>
+                                  <div class="form-field" fxFlex>
+                                    <mat-form-field class="full-width">
+                                      <mat-label i18n="Last IP|The last IP address of a subnet">Last IP</mat-label>
+                                      <input matInput formControlName="maxIp" />
+                                    </mat-form-field>
+                                  </div>
+                                </div>
+                              </div>
+                              <div fxFlex="33">
+                                <div fxLayout="column" class="full-width pad-10">
+                                  <div class="form-field" fxFlex>
+                                    <mat-form-field class="full-width">
+                                      <mat-label i18n="Long Mask|The long version of an IP mask (ex: 255.255.255.0)"
+                                        >Long Mask</mat-label
+                                        >
+                                        <input
+                                          matInput
+                                          formControlName="longMask"
                             i18n-placeholder="
                               Long mask placeholder|Gives an example of how to fill the long mask input field
                             "
-                            placeholder="Ex. 255.255.255.0"
-                          />
-                          <mat-error i18n="Mask invalid|The IP mask format is invalid">The mask is invalid</mat-error>
-                        </mat-form-field>
-                      </div>
-                      <div class="form-field" fxFlex>
-                        <mat-form-field class="full-width">
-                          <mat-label i18n="Total ip count|The amount of IPs in a subnet">IP address count</mat-label>
-                          <input matInput formControlName="ipCount" />
-                        </mat-form-field>
-                      </div>
+                                          placeholder="Ex. 255.255.255.0"
+                                          />
+                                        <mat-error i18n="Mask invalid|The IP mask format is invalid">The mask is invalid</mat-error>
+                                      </mat-form-field>
+                                    </div>
+                                    <div class="form-field" fxFlex>
+                                      <mat-form-field class="full-width">
+                                        <mat-label i18n="Total ip count|The amount of IPs in a subnet">IP address count</mat-label>
+                                        <input matInput formControlName="ipCount" />
+                                      </mat-form-field>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            }
+                          </mat-expansion-panel>
+                        }
+                      </mat-accordion>
                     </div>
                   </div>
-                </div>
-              </mat-expansion-panel>
-            </mat-accordion>
-          </div>
-        </div>
-        <mat-divider></mat-divider>
-        <div fxLayout="row" fxLayoutAlign="left">
-          <div fxFlex class="notes-padding">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label i18n="Notes|Notes about an item">Notes</mat-label>
-              <textarea
-                matInput
-                cdkTextareaAutosize
-                cdkAutosizeMinRows="8"
-                cdkAutosizeMaxRows="20"
-                formControlName="notes"
-              ></textarea>
-            </mat-form-field>
-          </div>
-        </div>
-      </form>
-      <div class="full-width" fxLayout="row" fxLayoutAlign="center">
-        <app-spinner-button
-          (click)="saveChanges()"
-          buttonColor="primary"
-          [loadingState]="editLoading"
-          class="button"
-          [label]="spinnerButtonText"
-        ></app-spinner-button>
-        <button
-          i18n="Delete company|Delete a company"
-          type="button"
-          class="button"
-          mat-raised-button
-          color="warn"
-          (click)="deleteCompany()"
-        >
+                  <mat-divider></mat-divider>
+                  <div fxLayout="row" fxLayoutAlign="left">
+                    <div fxFlex class="notes-padding">
+                      <mat-form-field appearance="outline" class="full-width">
+                        <mat-label i18n="Notes|Notes about an item">Notes</mat-label>
+                        <textarea
+                          matInput
+                          cdkTextareaAutosize
+                          cdkAutosizeMinRows="8"
+                          cdkAutosizeMaxRows="20"
+                          formControlName="notes"
+                        ></textarea>
+                      </mat-form-field>
+                    </div>
+                  </div>
+                </form>
+                <div class="full-width" fxLayout="row" fxLayoutAlign="center">
+                  <app-spinner-button
+                    (click)="saveChanges()"
+                    buttonColor="primary"
+                    [loadingState]="editLoading"
+                    class="button"
+                    [label]="spinnerButtonText"
+                  ></app-spinner-button>
+                  <button
+                    i18n="Delete company|Delete a company"
+                    type="button"
+                    class="button"
+                    mat-raised-button
+                    color="warn"
+                    (click)="deleteCompany()"
+                    >
           Delete company
         </button>
-      </div>
-    </mat-card-content>
-  </mat-card>
-</div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>

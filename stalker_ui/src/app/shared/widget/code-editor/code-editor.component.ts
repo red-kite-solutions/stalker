@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy, Output, ViewChild } from '@angular/core';
 import { first, Subscription } from 'rxjs';
 import { CodeEditorService } from './code-editor.service';
@@ -11,7 +11,7 @@ export type CodeEditorTheme = 'vs' | 'vs-dark' | 'hc-black' | 'hc-light';
 // https://microsoft.github.io/monaco-editor/api/modules/monaco.editor.html
 @Component({
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   selector: 'app-code-editor',
   templateUrl: './code-editor.component.html',
   styleUrls: ['./code-editor.component.scss'],

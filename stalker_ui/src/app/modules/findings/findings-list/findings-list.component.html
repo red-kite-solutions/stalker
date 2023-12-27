@@ -1,30 +1,37 @@
-<div class="findings-list" *ngIf="findings$ | async as findings">
-  <div class="finding-wrapper" *ngFor="let finding of findings.items">
-    <mat-card appearance="outlined">
-      <finding [finding]="finding"></finding>
-    </mat-card>
+@if (findings$ | async; as findings) {
+  <div class="findings-list">
+    @for (finding of findings.items; track finding) {
+      <div class="finding-wrapper">
+        <mat-card appearance="outlined">
+          <finding [finding]="finding"></finding>
+        </mat-card>
+      </div>
+    }
+    <div class="findings-paginator">
+      @if (findings.items.length < findings.totalRecords) {
+        <button
+          mat-button
+          color="primary"
+          (click)="loadMoreFindings()"
+          [disabled]="isLoadingMoreFindings$ | async"
+          >
+          <span class="load-more-findings">
+            @if (isLoadingMoreFindings$ | async) {
+              <mat-progress-spinner
+                [mode]="'indeterminate'"
+                [diameter]="16"
+              ></mat-progress-spinner>
+            }
+            <span>Load more</span>
+          </span>
+        </button>
+      }
+    </div>
   </div>
+}
 
-  <div class="findings-paginator">
-    <button
-      *ngIf="findings.items.length < findings.totalRecords"
-      mat-button
-      color="primary"
-      (click)="loadMoreFindings()"
-      [disabled]="isLoadingMoreFindings$ | async"
-    >
-      <span class="load-more-findings">
-        <mat-progress-spinner
-          *ngIf="isLoadingMoreFindings$ | async"
-          [mode]="'indeterminate'"
-          [diameter]="16"
-        ></mat-progress-spinner>
-        <span>Load more</span>
-      </span>
-    </button>
-  </div>
-</div>
-
-<mat-card appearance="outlined" *ngIf="!(findings$ | async)?.totalRecords" i18n="There are no finding yet|There are no finding yet">
+@if (!(findings$ | async)?.totalRecords) {
+  <mat-card appearance="outlined" i18n="There are no finding yet|There are no finding yet">
   <span class="no-findings"> There are no finding yet </span>
 </mat-card>
+}

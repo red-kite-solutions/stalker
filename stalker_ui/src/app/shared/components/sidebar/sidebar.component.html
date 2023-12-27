@@ -1,147 +1,164 @@
-<mat-nav-list *ngIf="!(isSmallScreen$ | async) || expanded">
-  <h2 *ngIf="expanded" matSubheader i18n="Pages|The different pages of the application">Pages</h2>
-
-  <a
-    mat-list-item
-    routerLinkActive="list-item-active"
-    routerLink="/"
-    [matTooltip]="expanded ? '' : dashboard"
-    [matTooltipShowDelay]="700"
-    matTooltipPosition="right"
-  >
-    <mat-icon class="material-icons-outlined">dashboard</mat-icon>
-    <span *ngIf="expanded">{{ dashboard }}</span>
-  </a>
-
-  <a
-    mat-list-item
-    routerLinkActive="list-item-active"
-    routerLink="/companies"
-    [matTooltip]="expanded ? '' : companies"
-    [matTooltipShowDelay]="700"
-    matTooltipPosition="right"
-  >
-    <mat-icon class="material-icons-outlined">business</mat-icon>
-    <span *ngIf="expanded">{{ companies }}</span>
-  </a>
-
-  <a
-    mat-list-item
-    routerLinkActive="list-item-active"
-    routerLink="/domains"
-    [matTooltip]="expanded ? '' : domains"
-    [matTooltipShowDelay]="700"
-    matTooltipPosition="right"
-  >
-    <mat-icon class="material-icons-outlined">language</mat-icon>
-    <span *ngIf="expanded">{{ domains }}</span>
-  </a>
-
-  <a
-    mat-list-item
-    routerLinkActive="list-item-active"
-    routerLink="/hosts"
-    [matTooltip]="expanded ? '' : hosts"
-    [matTooltipShowDelay]="700"
-    matTooltipPosition="right"
-  >
-    <mat-icon class="material-icons-outlined">dns</mat-icon>
-    <span *ngIf="expanded">{{ hosts }}</span>
-  </a>
-
-  <a
-    mat-list-item
-    routerLinkActive="list-item-active"
-    routerLink="/tags"
-    [matTooltip]="expanded ? '' : tags"
-    [matTooltipShowDelay]="700"
-    matTooltipPosition="right"
-  >
-    <mat-icon class="material-icons-outlined">sell</mat-icon>
-    <span *ngIf="expanded">{{ tags }}</span>
-  </a>
-
-  <!-- Jobs -->
-
-  <mat-divider></mat-divider>
-
-  <h2 matSubheader *ngIf="expanded" i18n="Jobs|Jobs done by the backend">Jobs</h2>
-  <a
-    mat-list-item
-    routerLinkActive="list-item-active"
-    routerLink="/jobs/subscriptions"
-    [matTooltip]="expanded ? '' : subscriptions"
-    [matTooltipShowDelay]="700"
-    matTooltipPosition="right"
-  >
-    <mat-icon class="material-icons-outlined">precision_manufacturing</mat-icon>
-    <span *ngIf="expanded">{{ subscriptions }}</span>
-  </a>
-
-  <a
-    mat-list-item
-    routerLinkActive="list-item-active"
-    routerLink="/jobs/custom"
-    [matTooltip]="expanded ? '' : customJobs"
-    [matTooltipShowDelay]="700"
-    matTooltipPosition="right"
-  >
-    <mat-icon class="material-icons-outlined">engineering</mat-icon>
-    <span *ngIf="expanded">{{ customJobs }}</span>
-  </a>
-
-  <a
-    mat-list-item
-    routerLinkActive="list-item-active"
-    routerLink="/jobs/launch"
-    [matTooltip]="expanded ? '' : launchJobs"
-    [matTooltipShowDelay]="700"
-    matTooltipPosition="right"
-  >
-    <mat-icon class="material-icons-outlined">rocket_launch</mat-icon>
-    <span *ngIf="expanded">{{ launchJobs }}</span>
-  </a>
-
-  <a
-    mat-list-item
-    routerLinkActive="list-item-active"
-    routerLink="/jobs/executions"
-    [matTooltip]="expanded ? '' : jobExecutions"
-    [matTooltipShowDelay]="700"
-    matTooltipPosition="right"
-  >
-    <mat-icon class="material-icons-outlined">play_circle</mat-icon>
-    <span *ngIf="expanded">{{ jobExecutions }}</span>
-  </a>
-
-  <!-- Administration -->
-
-  <div *ngIf="this.authService.role === 'admin'">
+@if (!(isSmallScreen$ | async) || expanded) {
+  <mat-nav-list>
+    @if (expanded) {
+      <h2 matSubheader i18n="Pages|The different pages of the application">Pages</h2>
+    }
+    <a
+      mat-list-item
+      routerLinkActive="list-item-active"
+      routerLink="/"
+      [matTooltip]="expanded ? '' : dashboard"
+      [matTooltipShowDelay]="700"
+      matTooltipPosition="right"
+      >
+      <mat-icon class="material-icons-outlined">dashboard</mat-icon>
+      @if (expanded) {
+        <span>{{ dashboard }}</span>
+      }
+    </a>
+    <a
+      mat-list-item
+      routerLinkActive="list-item-active"
+      routerLink="/companies"
+      [matTooltip]="expanded ? '' : companies"
+      [matTooltipShowDelay]="700"
+      matTooltipPosition="right"
+      >
+      <mat-icon class="material-icons-outlined">business</mat-icon>
+      @if (expanded) {
+        <span>{{ companies }}</span>
+      }
+    </a>
+    <a
+      mat-list-item
+      routerLinkActive="list-item-active"
+      routerLink="/domains"
+      [matTooltip]="expanded ? '' : domains"
+      [matTooltipShowDelay]="700"
+      matTooltipPosition="right"
+      >
+      <mat-icon class="material-icons-outlined">language</mat-icon>
+      @if (expanded) {
+        <span>{{ domains }}</span>
+      }
+    </a>
+    <a
+      mat-list-item
+      routerLinkActive="list-item-active"
+      routerLink="/hosts"
+      [matTooltip]="expanded ? '' : hosts"
+      [matTooltipShowDelay]="700"
+      matTooltipPosition="right"
+      >
+      <mat-icon class="material-icons-outlined">dns</mat-icon>
+      @if (expanded) {
+        <span>{{ hosts }}</span>
+      }
+    </a>
+    <a
+      mat-list-item
+      routerLinkActive="list-item-active"
+      routerLink="/tags"
+      [matTooltip]="expanded ? '' : tags"
+      [matTooltipShowDelay]="700"
+      matTooltipPosition="right"
+      >
+      <mat-icon class="material-icons-outlined">sell</mat-icon>
+      @if (expanded) {
+        <span>{{ tags }}</span>
+      }
+    </a>
+    <!-- Jobs -->
     <mat-divider></mat-divider>
-
-    <h2 matSubheader *ngIf="expanded" i18n="Administration|Administration subsection of the menu">Administration</h2>
+    @if (expanded) {
+      <h2 matSubheader i18n="Jobs|Jobs done by the backend">Jobs</h2>
+    }
     <a
       mat-list-item
       routerLinkActive="list-item-active"
-      routerLink="/admin/users"
-      [matTooltip]="expanded ? '' : users"
+      routerLink="/jobs/subscriptions"
+      [matTooltip]="expanded ? '' : subscriptions"
       [matTooltipShowDelay]="700"
       matTooltipPosition="right"
-    >
-      <mat-icon class="material-icons-outlined">manage_accounts</mat-icon>
-      <span *ngIf="expanded">{{ users }}</span>
+      >
+      <mat-icon class="material-icons-outlined">precision_manufacturing</mat-icon>
+      @if (expanded) {
+        <span>{{ subscriptions }}</span>
+      }
     </a>
-
     <a
       mat-list-item
       routerLinkActive="list-item-active"
-      routerLink="/admin/settings"
-      [matTooltip]="expanded ? '' : settings"
+      routerLink="/jobs/custom"
+      [matTooltip]="expanded ? '' : customJobs"
       [matTooltipShowDelay]="700"
       matTooltipPosition="right"
-    >
-      <mat-icon class="material-icons-outlined">settings</mat-icon>
-      <span *ngIf="expanded">{{ settings }}</span>
+      >
+      <mat-icon class="material-icons-outlined">engineering</mat-icon>
+      @if (expanded) {
+        <span>{{ customJobs }}</span>
+      }
     </a>
-  </div>
-</mat-nav-list>
+    <a
+      mat-list-item
+      routerLinkActive="list-item-active"
+      routerLink="/jobs/launch"
+      [matTooltip]="expanded ? '' : launchJobs"
+      [matTooltipShowDelay]="700"
+      matTooltipPosition="right"
+      >
+      <mat-icon class="material-icons-outlined">rocket_launch</mat-icon>
+      @if (expanded) {
+        <span>{{ launchJobs }}</span>
+      }
+    </a>
+    <a
+      mat-list-item
+      routerLinkActive="list-item-active"
+      routerLink="/jobs/executions"
+      [matTooltip]="expanded ? '' : jobExecutions"
+      [matTooltipShowDelay]="700"
+      matTooltipPosition="right"
+      >
+      <mat-icon class="material-icons-outlined">play_circle</mat-icon>
+      @if (expanded) {
+        <span>{{ jobExecutions }}</span>
+      }
+    </a>
+    <!-- Administration -->
+    @if (this.authService.role === 'admin') {
+      <div>
+        <mat-divider></mat-divider>
+        @if (expanded) {
+          <h2 matSubheader i18n="Administration|Administration subsection of the menu">Administration</h2>
+        }
+        <a
+          mat-list-item
+          routerLinkActive="list-item-active"
+          routerLink="/admin/users"
+          [matTooltip]="expanded ? '' : users"
+          [matTooltipShowDelay]="700"
+          matTooltipPosition="right"
+          >
+          <mat-icon class="material-icons-outlined">manage_accounts</mat-icon>
+          @if (expanded) {
+            <span>{{ users }}</span>
+          }
+        </a>
+        <a
+          mat-list-item
+          routerLinkActive="list-item-active"
+          routerLink="/admin/settings"
+          [matTooltip]="expanded ? '' : settings"
+          [matTooltipShowDelay]="700"
+          matTooltipPosition="right"
+          >
+          <mat-icon class="material-icons-outlined">settings</mat-icon>
+          @if (expanded) {
+            <span>{{ settings }}</span>
+          }
+        </a>
+      </div>
+    }
+  </mat-nav-list>
+}

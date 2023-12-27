@@ -1,12 +1,18 @@
 <h3>{{ finding?.name }}</h3>
 
 <div>
-  <div class="field" *ngFor="let field of finding?.fields">
-    <ng-container [ngSwitch]="field.type">
-      <image-finding-field *ngSwitchCase="'image'" [data]="field"></image-finding-field>
-      <text-finding-field *ngSwitchCase="'text'" [data]="field"></text-finding-field>
-    </ng-container>
-  </div>
+  @for (field of finding?.fields; track field) {
+    <div class="field">
+      @switch (field.type) {
+        @case ('image') {
+          <image-finding-field [data]="field"></image-finding-field>
+        }
+        @case ('text') {
+          <text-finding-field [data]="field"></text-finding-field>
+        }
+      }
+    </div>
+  }
 </div>
 
 <span class="date" [matTooltip]="(finding?.created | date: 'medium') || ''">{{ finding?.created | timeAgo }}</span>

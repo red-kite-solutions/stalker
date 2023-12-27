@@ -1,37 +1,43 @@
 <app-text-menu [buttonText]="buttonText" [xPosition]="'before'" [style.max-width.px]="menuMaxSize">
-  <div
-    class="app-text-select-menu-search-container"
-    *ngIf="filterEnabled"
-    (click)="$event.stopPropagation()"
-    (keydown)="$event.stopPropagation()"
-    [style.max-width.px]="menuMaxSize"
-  >
-    <mat-form-field
-      class="search-item"
-      appearance="outline"
-      [style.width.px]="menuMaxSize ? menuMaxSize - 16 : menuMaxSize"
-    >
-      <mat-label>{{ filterText }}</mat-label>
-      <input matInput [(ngModel)]="filter" />
-    </mat-form-field>
-  </div>
-  <span class="empty-text" *ngIf="!shownItems?.length">{{ emptyText }}</span>
-  <button class="select-item" mat-menu-item *ngFor="let item of shownItems" (click)="selectItem($event, item)">
-    <span class="material-icons-outlined check-icon" [style.visibility]="item.isSelected ? 'visible' : 'hidden'"
-      >check</span
-    >
-    <span
-      *ngIf="colorEnabled && item['color']"
-      class="dot"
-      [style.background-color]="item['color']"
-      [style.opacity]="opacity"
-    ></span
-    >{{ item.text }}
-  </button>
-  <ng-content></ng-content>
-</app-text-menu>
+  @if (filterEnabled) {
+    <div
+      class="app-text-select-menu-search-container"
+      (click)="$event.stopPropagation()"
+      (keydown)="$event.stopPropagation()"
+      [style.max-width.px]="menuMaxSize"
+      >
+      <mat-form-field
+        class="search-item"
+        appearance="outline"
+        [style.width.px]="menuMaxSize ? menuMaxSize - 16 : menuMaxSize"
+        >
+        <mat-label>{{ filterText }}</mat-label>
+        <input matInput [(ngModel)]="filter" />
+      </mat-form-field>
+    </div>
+  }
+  @if (!shownItems?.length) {
+    <span class="empty-text">{{ emptyText }}</span>
+  }
+  @for (item of shownItems; track item) {
+    <button class="select-item" mat-menu-item (click)="selectItem($event, item)">
+      <span class="material-icons-outlined check-icon" [style.visibility]="item.isSelected ? 'visible' : 'hidden'"
+        >check</span
+        >
+        @if (colorEnabled && item['color']) {
+          <span
+            class="dot"
+            [style.background-color]="item['color']"
+            [style.opacity]="opacity"
+            ></span
+            >
+            }{{ item.text }}
+          </button>
+        }
+        <ng-content></ng-content>
+      </app-text-menu>
 
-<!-- <a class="clickable-text" [matMenuTriggerFor]="menu">{{ buttonText }}</a>
-<mat-menu #menu="matMenu" class="app-text-select-menu-container" xPosition="before">
-  
-</mat-menu> -->
+      <!-- <a class="clickable-text" [matMenuTriggerFor]="menu">{{ buttonText }}</a>
+      <mat-menu #menu="matMenu" class="app-text-select-menu-container" xPosition="before">
+
+      </mat-menu> -->

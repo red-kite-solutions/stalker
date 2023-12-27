@@ -3,12 +3,14 @@
   <mat-form-field class="filter-chip-list" appearance="fill" fxFlex>
     <mat-label i18n="Search filter|Filter your search to get more precise results">Search filter</mat-label>
     <mat-chip-grid #chipList>
-      <mat-chip-row *ngFor="let filter of filters" (click)="editFilter($event, filter)" (removed)="removeFilter(filter)">
-        {{ filter }}
-        <button matChipRemove>
-          <mat-icon>cancel</mat-icon>
-        </button>
-      </mat-chip-row>
+      @for (filter of filters; track filter) {
+        <mat-chip-row (click)="editFilter($event, filter)" (removed)="removeFilter(filter)">
+          {{ filter }}
+          <button matChipRemove>
+            <mat-icon>cancel</mat-icon>
+          </button>
+        </mat-chip-row>
+      }
       <input
         tab-directive
         i18n-placeholder="New filter|Creating a new filter"
@@ -20,12 +22,14 @@
         [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
         (matChipInputTokenEnd)="addFilter($event)"
         (click)="filterForm.setValue(filterForm.value ? filterForm.value : '')"
-      />
+        />
     </mat-chip-grid>
     <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)" [autoActiveFirstOption]="true">
-      <mat-option *ngFor="let filter of filteredColumns$ | async" [value]="filter">
-        {{ filter }}
-      </mat-option>
+      @for (filter of filteredColumns$ | async; track filter) {
+        <mat-option [value]="filter">
+          {{ filter }}
+        </mat-option>
+      }
     </mat-autocomplete>
   </mat-form-field>
 
@@ -37,7 +41,7 @@
           (change)="$event ? masterToggle() : null"
           [checked]="selection.hasValue() && isAllSelected()"
           [indeterminate]="selection.hasValue() && !isAllSelected()"
-        >
+          >
         </mat-checkbox>
       </th>
       <td mat-cell *matCellDef="let row" (click)="$event.stopPropagation()" class="check-box-cell">
@@ -45,7 +49,7 @@
           (click)="$event.stopPropagation()"
           (change)="$event ? toggleSelectedRow(row) : null"
           [checked]="selection.isSelected(row)"
-        >
+          >
         </mat-checkbox>
       </td>
     </ng-container>
@@ -66,7 +70,9 @@
       </td>
     </tr>
   </table>
-  <mat-progress-bar mode="indeterminate" *ngIf="isLoading" fxFlex></mat-progress-bar>
+  @if (isLoading) {
+    <mat-progress-bar mode="indeterminate" fxFlex></mat-progress-bar>
+  }
 
   <mat-paginator
     fxFlex
@@ -77,6 +83,6 @@
     showFirstLastButtons
     aria-label="Select page"
     (page)="pageChanged($event)"
-  >
+    >
   </mat-paginator>
 </div>

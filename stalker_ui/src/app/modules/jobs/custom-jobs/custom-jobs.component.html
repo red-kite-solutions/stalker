@@ -8,7 +8,7 @@
             mat-icon-button
             i18n-matTooltip="Link to Job Implementaiton documentation|Link to Job Implementaiton documentation"
             matTooltip="Link to job implementaiton documentation"
-          >
+            >
             <mat-icon fontIcon="help_outline"></mat-icon>
           </button>
         </a>
@@ -28,42 +28,40 @@
       </div>
 
       <div class="table-container">
-        <table mat-table [dataSource]="dataSource" *ngIf="(dataSource$ | async) || true">
-          <!-- Name Column -->
-          <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef i18n="Name|Name of an item">Name</th>
-            <td mat-cell *matCellDef="let element">{{ element.name }}</td>
-          </ng-container>
-
-          <!-- Type Column -->
-          <ng-container matColumnDef="type">
-            <th mat-header-cell *matHeaderCellDef i18n="Type|Type of job">Type</th>
-            <td mat-cell *matCellDef="let element">{{ element.type }}</td>
-          </ng-container>
-
-          <!-- Language Column -->
-          <ng-container matColumnDef="language">
-            <th mat-header-cell *matHeaderCellDef i18n="Language|Programming language">Language</th>
-            <td mat-cell *matCellDef="let element">
-              {{ element.language }}
-            </td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="['name', 'type', 'language']"></tr>
-          <tr
-            mat-row
-            *matRowDef="let row; columns: ['name', 'type', 'language']"
-            class="rows"
-            (click)="selectCustomJob(row)"
-            [class.selected-job]="selectedRow?._id === row._id"
-          ></tr>
-
-          <tr class="mat-row nodata" *matNoDataRow>
-            <td class="mat-cell" colspan="100%" i18n="No custom job found|No custom job were found">
+        @if ((dataSource$ | async) || true) {
+          <table mat-table [dataSource]="dataSource">
+            <!-- Name Column -->
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef i18n="Name|Name of an item">Name</th>
+              <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+            </ng-container>
+            <!-- Type Column -->
+            <ng-container matColumnDef="type">
+              <th mat-header-cell *matHeaderCellDef i18n="Type|Type of job">Type</th>
+              <td mat-cell *matCellDef="let element">{{ element.type }}</td>
+            </ng-container>
+            <!-- Language Column -->
+            <ng-container matColumnDef="language">
+              <th mat-header-cell *matHeaderCellDef i18n="Language|Programming language">Language</th>
+              <td mat-cell *matCellDef="let element">
+                {{ element.language }}
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="['name', 'type', 'language']"></tr>
+            <tr
+              mat-row
+              *matRowDef="let row; columns: ['name', 'type', 'language']"
+              class="rows"
+              (click)="selectCustomJob(row)"
+              [class.selected-job]="selectedRow?._id === row._id"
+            ></tr>
+            <tr class="mat-row nodata" *matNoDataRow>
+              <td class="mat-cell" colspan="100%" i18n="No custom job found|No custom job were found">
               No custom job found
             </td>
-          </tr>
-        </table>
+            </tr>
+          </table>
+        }
 
         <mat-paginator
           [length]="100"
@@ -71,7 +69,7 @@
           [pageSizeOptions]="[10, 25, 50, 100]"
           showFirstLastButtons
           aria-label="Select page"
-        >
+          >
         </mat-paginator>
       </div>
     </mat-card>
@@ -89,18 +87,19 @@
             <mat-card-header>Job Pod Configuration</mat-card-header>
             <mat-card-content>
               <div>
-                <mat-card
-                  appearance="outlined"
-                  *ngFor="let jps of jobPodSettings$ | async"
-                  [class.selected-config]="selectedConfigId === jps._id"
-                  (click)="selectedConfigId = jps._id"
-                >
-                  <div>
-                    <label class="job-pod-config-title">{{ jps.name }}</label>
-                    <label>{{ jps.milliCpuLimit / 1000 }} CPU</label>
-                    <label>{{ jps.memoryKbytesLimit | memoryUnits }}</label>
-                  </div>
-                </mat-card>
+                @for (jps of jobPodSettings$ | async; track jps) {
+                  <mat-card
+                    appearance="outlined"
+                    [class.selected-config]="selectedConfigId === jps._id"
+                    (click)="selectedConfigId = jps._id"
+                    >
+                    <div>
+                      <label class="job-pod-config-title">{{ jps.name }}</label>
+                      <label>{{ jps.milliCpuLimit / 1000 }} CPU</label>
+                      <label>{{ jps.memoryKbytesLimit | memoryUnits }}</label>
+                    </div>
+                  </mat-card>
+                }
               </div>
             </mat-card-content>
           </mat-card>
