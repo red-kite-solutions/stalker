@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormControl, ValidationErrors, Validators } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';

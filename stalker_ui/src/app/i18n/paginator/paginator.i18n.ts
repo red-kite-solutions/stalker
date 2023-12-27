@@ -1,4 +1,4 @@
-import { MatPaginatorIntl } from '@angular/material/paginator';
+import { MatLegacyPaginatorIntl as MatPaginatorIntl } from '@angular/material/legacy-paginator';
 
 const rangeLabel = (page: number, pageSize: number, length: number) => {
   const low = page * pageSize + 1;
