@@ -1,0 +1,18 @@
+name: Tcp port scanning all ports
+finding: HostnameIpFinding
+cooldown: 82800
+job:
+  name: TcpPortScanningJob
+  parameters:
+    - name: targetIp
+      value: ${ip}
+    - name: threads
+      value: 1000
+    - name: socketTimeoutSeconds
+      value: 0.7
+    - name: portMin
+      value: 1
+    - name: portMax
+      value: 65535
+    - name: ports
+      value: []

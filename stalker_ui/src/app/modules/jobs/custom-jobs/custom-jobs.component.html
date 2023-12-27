@@ -1,7 +1,18 @@
 <div fxLayout="row" class="code-editor-container">
   <div fxFlex="45">
     <mat-card class="container">
-      <h1 i18n="Custom Jobs|Custom Jobs">Custom Jobs</h1>
+      <span class="title">
+        <h1 i18n="Custom Jobs|Custom Jobs">Custom Jobs</h1>
+        <a href="https://github.com/red-kite-solutions/stalker/blob/main/docs/implementing-jobs.md" target="_blank">
+          <button
+            mat-icon-button
+            i18n-matTooltip="Link to Job Implementaiton documentation|Link to Job Implementaiton documentation"
+            matTooltip="Link to job implementaiton documentation"
+          >
+            <mat-icon fontIcon="help_outline"></mat-icon>
+          </button>
+        </a>
+      </span>
       <div fxLayout="row">
         <button mat-raised-button color="primary" class="left-action-button" (click)="newCustomJobClick()">
           <label i18n="New custom job|Button to create a new custom job">New custom job</label>

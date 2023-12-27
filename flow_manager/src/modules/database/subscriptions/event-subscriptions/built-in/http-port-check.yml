@@ -1,0 +1,15 @@
+name: Http(s) server port check
+finding: PortFinding
+cooldown: 82800
+job:
+  name: HttpServerCheckJob
+  parameters:
+    - name: targetIp
+      value: ${ip}
+    - name: ports
+      value:
+        - ${port}
+conditions:
+  - lhs: ${protocol}
+    operator: equals
+    rhs: tcp

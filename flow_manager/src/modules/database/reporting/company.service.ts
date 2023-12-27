@@ -2,10 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DeleteResult, UpdateResult } from 'mongodb';
 import { Model, Types } from 'mongoose';
-import { HttpNotFoundException } from '../../../exceptions/http.exceptions';
 import { JobsService } from '../jobs/jobs.service';
-import { Job } from '../jobs/models/jobs.model';
-import { SubscriptionsService } from '../subscriptions/subscriptions.service';
+import { CronSubscription } from '../subscriptions/cron-subscriptions/cron-subscriptions.model';
+import { EventSubscriptionsService } from '../subscriptions/event-subscriptions/event-subscriptions.service';
 import { CreateCompanyDto } from './company.dto';
 import { Company, CompanyDocument } from './company.model';
 import { DomainsService } from './domain/domain.service';
@@ -20,7 +19,9 @@ export class CompanyService {
     private readonly domainsService: DomainsService,
     private readonly hostsService: HostService,
     private readonly jobsService: JobsService,
-    private readonly subscriptionsService: SubscriptionsService,
+    private readonly subscriptionsService: EventSubscriptionsService,
+    @InjectModel('cronSubscriptions')
+    private readonly cronSubscriptionModel: Model<CronSubscription>,
     @InjectModel('finding')
     private readonly findingModel: Model<CustomFinding>,
     private readonly portsService: PortService,
@@ -48,6 +49,21 @@ export class CompanyService {
     }
 
     return await query;
+  }
+
+  public async getAllIds(
+    page: number = null,
+    pageSize: number = null,
+  ): Promise<string[]> {
+    let query = this.companyModel.find().select('_id');
+    if (page != null && pageSize != null) {
+      query = query.skip(page).limit(pageSize);
+    }
+    const idObjs = await query;
+    const ids = [];
+    for (const idObj of idObjs) ids.push(idObj._id.toString());
+
+    return ids;
   }
 
   /**
@@ -80,49 +96,10 @@ export class CompanyService {
     await this.findingModel.deleteMany({
       companyId: { $eq: new Types.ObjectId(id) },
     });
-    return result;
-  }
-
-  public async addDomains(domains: string[], companyId: string) {
-    const company = await this.companyModel.findOne({
-      _id: { $eq: companyId },
+    await this.cronSubscriptionModel.deleteMany({
+      companyId: { $eq: new Types.ObjectId(id) },
     });
-    if (!company) {
-      throw new HttpNotFoundException();
-    }
-
-    return await this.domainsService.addDomains(domains, companyId);
-  }
-
-  public async addHosts(hosts: string[], companyId: string) {
-    const company = await this.companyModel.findById(companyId);
-    if (!company) {
-      throw new HttpNotFoundException();
-    }
-
-    return await this.hostsService.addHosts(hosts, companyId, company.name);
-  }
-
-  public async addHostsWithDomain(
-    ips: string[],
-    domainName: string,
-    companyId: string,
-  ) {
-    const company = await this.companyModel.findById(companyId);
-    if (!company) {
-      throw new HttpNotFoundException();
-    }
-
-    await this.hostsService.addHostsWithDomain(ips, domainName, companyId, []);
-  }
-
-  public async publishJob(job: Job) {
-    const company = await this.companyModel.findById(job.companyId);
-    if (!company) {
-      throw new HttpNotFoundException();
-    }
-
-    return await this.jobsService.publish(job);
+    return result;
   }
 
   public generateFullImage(b64Content: string, imageType: string) {

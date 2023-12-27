@@ -1,18 +1,18 @@
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import {
+  TestingData,
   checkAuthorizations,
   createCompany,
   deleteReq,
   getReq,
   initTesting,
   postReq,
-  TestingData,
 } from 'test/e2e.utils';
 import { AppModule } from '../../app.module';
 import { Role } from '../../auth/constants';
 
-fdescribe('Job Controller (e2e)', () => {
+describe('Job Controller (e2e)', () => {
   let app: INestApplication;
   let testData: TestingData;
   let jobId: string;
@@ -28,6 +28,12 @@ fdescribe('Job Controller (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+      }),
+    );
     await app.init();
     testData = await initTesting(app);
   });
@@ -36,27 +42,23 @@ fdescribe('Job Controller (e2e)', () => {
     await app.close();
   });
 
-  it('Should fail to create a new job since the company does not exist (POST /company/:id/job)', async () => {
-    const r = await postReq(
-      app,
-      testData.user.token,
-      '/company/6271641f2c0920007820b5f2/job',
-      domainNameResolvingJob,
-    );
+  it('Should fail to create a new job since the company does not exist (POST /jobs)', async () => {
+    const r = await postReq(app, testData.user.token, '/jobs', {
+      ...domainNameResolvingJob,
+      companyId: '6271641f2c0920007820b5f2',
+    });
     expect(r.statusCode).toBe(HttpStatus.NOT_FOUND);
   });
 
-  it('Should create a domain name resolving job (POST /company/:id/job)', async () => {
+  it('Should create a domain name resolving job (POST /jobs)', async () => {
     // Arrange
     const c = await createCompany(app, testData);
 
     // Act
-    const r = await postReq(
-      app,
-      testData.user.token,
-      `/company/${c._id}/job`,
-      domainNameResolvingJob,
-    );
+    const r = await postReq(app, testData.user.token, `/jobs`, {
+      ...domainNameResolvingJob,
+      companyId: c._id.toString(),
+    });
 
     // Assert
     expect(r.statusCode).toBe(HttpStatus.CREATED);
@@ -65,19 +67,21 @@ fdescribe('Job Controller (e2e)', () => {
     jobId = r.body.id;
   });
 
-  fit('Should get a job list (GET /jobs)', async () => {
+  it('Should get a job list (GET /jobs?page=&pageSize=)', async () => {
     // Arrange
     const c = await createCompany(app, testData);
 
-    const jr = await postReq(
-      app,
-      testData.user.token,
-      `/company/${c._id}/job`,
-      domainNameResolvingJob,
-    );
+    const jr = await postReq(app, testData.user.token, `/jobs`, {
+      ...domainNameResolvingJob,
+      companyId: c._id.toString(),
+    });
 
     // Act
-    const r = await getReq(app, testData.readonly.token, '/jobs');
+    const r = await getReq(
+      app,
+      testData.readonly.token,
+      '/jobs?page=0&pageSize=10',
+    );
 
     // Assert
     expect(r.statusCode).toBe(HttpStatus.OK);
@@ -124,17 +128,15 @@ fdescribe('Job Controller (e2e)', () => {
     expect(success).toBe(true);
   });
 
-  it('Should have proper authorizations (POST /company/:id/job)', async () => {
+  it('Should have proper authorizations (POST /jobs)', async () => {
     const success = await checkAuthorizations(
       testData,
       Role.User,
       async (givenToken: string) => {
-        return await postReq(
-          app,
-          givenToken,
-          '/company/6271641f2c0920007820b5f2/job',
-          domainNameResolvingJob,
-        );
+        return await postReq(app, givenToken, '/jobs', {
+          ...domainNameResolvingJob,
+          companyId: '6271641f2c0920007820b5f2',
+        });
       },
     );
     expect(success).toBe(true);

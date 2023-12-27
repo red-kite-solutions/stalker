@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { firstValueFrom, Observable } from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
 import { Host } from 'src/app/shared/types/host/host.interface';
 import { Page } from 'src/app/shared/types/page.type';
 import { environment } from 'src/environments/environment';
@@ -40,7 +40,7 @@ export class HostsService {
     return <Observable<number[]>>this.http.get(`${environment.fmUrl}/hosts/${hostId}/ports?${params.toString()}`);
   }
 
-  public getPage(page: number, pageSize: number, filters: any): Observable<Page<Host>> {
+  public getPage(page: number, pageSize: number, filters: any = undefined): Observable<Page<Host>> {
     let params = filtersToParams(filters);
     params = params.append('page', page);
     params = params.append('pageSize', pageSize);
@@ -54,7 +54,7 @@ export class HostsService {
   }
 
   public async addHosts(companyId: string, ips: string[]): Promise<any[]> {
-    return await firstValueFrom(this.http.post<any[]>(`${environment.fmUrl}/company/${companyId}/host`, { ips }));
+    return await firstValueFrom(this.http.post<any[]>(`${environment.fmUrl}/hosts`, { ips, companyId: companyId }));
   }
 
   public async delete(hostId: string) {

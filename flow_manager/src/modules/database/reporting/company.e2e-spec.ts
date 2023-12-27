@@ -1,13 +1,13 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import {
+  TestingData,
   checkAuthorizations,
   deleteReq,
   getReq,
   initTesting,
   postReq,
   putReq,
-  TestingData,
 } from 'test/e2e.utils';
 import { AppModule } from '../../app.module';
 import { Role } from '../../auth/constants';
@@ -38,6 +38,8 @@ describe('Company Controller (e2e)', () => {
   });
 
   afterAll(async () => {
+    for (let c of companies)
+      await deleteReq(app, testData.user.token, `/company/${c}`);
     await app.close();
   });
 
@@ -230,59 +232,5 @@ describe('Company Controller (e2e)', () => {
       },
     );
     expect(success).toBe(true);
-  });
-
-  it('Should have proper authorizations (POST /company/:id/host)', async () => {
-    const success = await checkAuthorizations(
-      testData,
-      Role.User,
-      async (givenToken: string) => {
-        return await postReq(
-          app,
-          givenToken,
-          `/company/62780ca0156f3d3fda24c4e2/host`,
-          {},
-        );
-      },
-    );
-    expect(success).toBe(true);
-  });
-
-  it('Should have proper authorizations (POST /company/:id/domain)', async () => {
-    const success = await checkAuthorizations(
-      testData,
-      Role.User,
-      async (givenToken: string) => {
-        return await postReq(
-          app,
-          givenToken,
-          `/company/62780ca0156f3d3fda24c4e2/domain`,
-          {},
-        );
-      },
-    );
-    expect(success).toBe(true);
-  });
-
-  it('Should have proper authorizations (POST /company/:id/job)', async () => {
-    const success = await checkAuthorizations(
-      testData,
-      Role.User,
-      async (givenToken: string) => {
-        return await postReq(
-          app,
-          givenToken,
-          `/company/62780ca0156f3d3fda24c4e2/job`,
-          {},
-        );
-      },
-    );
-    expect(success).toBe(true);
-  });
-
-  afterAll(async () => {
-    for (let c of companies)
-      await deleteReq(app, testData.user.token, `/company/${c}`);
-    await app.close();
   });
 });

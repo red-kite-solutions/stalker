@@ -9,12 +9,10 @@ import {
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
-import { isNotEmpty, isString } from 'class-validator';
 import { DeleteResult, UpdateResult } from 'mongodb';
 import {
   HttpBadRequestException,
   HttpConflictException,
-  HttpNotFoundException,
   HttpServerErrorException,
 } from '../../../exceptions/http.exceptions';
 import { MongoIdDto } from '../../../types/dto/mongo-id.dto';
@@ -23,23 +21,10 @@ import { Roles } from '../../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/role.guard';
 import { ConfigService } from '../admin/config/config.service';
-import { JobPodConfiguration } from '../admin/config/job-pod-config/job-pod-config.model';
-import { CustomJobEntry } from '../custom-jobs/custom-jobs.model';
 import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
 import { MONGO_DUPLICATE_ERROR } from '../database.constants';
-import { JobSources } from '../jobs/job-model.module';
-import { JobFactory, JobFactoryUtils } from '../jobs/jobs.factory';
-import { CustomJob } from '../jobs/models/custom-job.model';
-import { Job } from '../jobs/models/jobs.model';
-import { JobParameter } from '../subscriptions/subscriptions.model';
 
-import {
-  CreateCompanyDto,
-  EditCompanyDto,
-  StartJobDto,
-  SubmitDomainsDto,
-  SubmitHostsDto,
-} from './company.dto';
+import { CreateCompanyDto, EditCompanyDto } from './company.dto';
 import { Company } from './company.model';
 import { CompanyService } from './company.service';
 
@@ -98,81 +83,6 @@ export class CompanyController {
       }
       throw new HttpServerErrorException();
     }
-  }
-
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.User)
-  @Post(':id/host')
-  async submitHosts(
-    @Body(new ValidationPipe()) dto: SubmitHostsDto,
-    @Param() idDto: MongoIdDto,
-  ) {
-    return await this.companyService.addHosts(dto.ips, idDto.id);
-  }
-
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.User)
-  @Post(':id/job')
-  async startJobForCompany(
-    @Param() idDto: MongoIdDto,
-    @Body(new ValidationPipe()) dto: StartJobDto,
-  ): Promise<Job> {
-    let jpConfig: JobPodConfiguration = null;
-    if (dto.source === JobSources.userCreated) {
-      if (!isNotEmpty(dto.task) || !isString(dto.task))
-        throw new HttpBadRequestException(
-          'The task parameter is not a valid string',
-        );
-
-      const customJob: CustomJobEntry = await this.customJobsService.getByName(
-        dto.task,
-      );
-      if (!customJob) throw new HttpNotFoundException();
-
-      jpConfig = await JobFactoryUtils.getCustomJobPodConfig(
-        customJob,
-        this.configService,
-      );
-
-      const customJobParams = JSON.parse(JSON.stringify(dto.jobParameters));
-      const jobParameters = [];
-      jobParameters.push({ name: 'name', value: customJob.name });
-      jobParameters.push({ name: 'code', value: customJob.code });
-      jobParameters.push({ name: 'type', value: customJob.type });
-      jobParameters.push({
-        name: 'language',
-        value: customJob.language,
-      });
-      jobParameters.push({
-        name: 'customJobParameters',
-        value: customJobParams,
-      });
-      dto.jobParameters = jobParameters;
-      dto.task = CustomJob.name;
-    }
-
-    const companyIdParameter = new JobParameter();
-    companyIdParameter.name = 'companyId';
-    companyIdParameter.value = idDto.id;
-    dto.jobParameters.push(companyIdParameter);
-
-    // parameters are validated thoroughly in job creation
-    const job = JobFactory.createJob(dto.task, dto.jobParameters, jpConfig);
-
-    if (!job) throw new HttpBadRequestException();
-    job.priority = 1;
-
-    return await this.companyService.publishJob(job);
-  }
-
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.User)
-  @Post(':id/domain')
-  async submitDomains(
-    @Body(new ValidationPipe()) dto: SubmitDomainsDto,
-    @Param() idDto: MongoIdDto,
-  ) {
-    return await this.companyService.addDomains(dto.domains, idDto.id);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

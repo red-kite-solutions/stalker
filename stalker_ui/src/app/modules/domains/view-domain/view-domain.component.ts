@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -38,6 +39,7 @@ import { FindingsModule } from '../../findings/findings.module';
     MatDividerModule,
     MatButtonModule,
     MatIconModule,
+    MatTooltipModule,
   ],
   selector: 'app-view-domain',
   templateUrl: './view-domain.component.html',

@@ -1,13 +1,13 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import {
+  TestingData,
   checkAuthorizations,
   deleteReq,
   getReq,
   initTesting,
   postReq,
   putReq,
-  TestingData,
 } from 'test/e2e.utils';
 import { AppModule } from '../../../app.module';
 import { Role } from '../../../auth/constants';
@@ -40,23 +40,23 @@ describe('Domain Controller (e2e)', () => {
   });
 
   afterAll(async () => {
+    await deleteReq(app, testData.admin.token, `/company/${companyId}`);
+    await deleteReq(app, testData.admin.token, `/tags/${tagId}`);
     await app.close();
   });
 
-  it('Should create a domain (POST /company/:id/domain)', async () => {
+  it('Should create a domain (POST /domains)', async () => {
     // Arrange & Act
-    const r = await postReq(
-      app,
-      testData.admin.token,
-      `/company/${companyId}/domain`,
-      { domains: [domain] },
-    );
+    const r = await postReq(app, testData.admin.token, `/domains`, {
+      domains: [domain],
+      companyId: companyId,
+    });
 
     // Assert
     expect(r.statusCode).toBe(HttpStatus.CREATED);
   });
 
-  it('Should create multiple domains (POST /company/:id/domain)', async () => {
+  it('Should create multiple domains (POST /domains)', async () => {
     // Arrange
     const domains = [
       'first.domain.addedasbatch.stalker.is',
@@ -64,12 +64,10 @@ describe('Domain Controller (e2e)', () => {
     ];
 
     // Act
-    const r = await postReq(
-      app,
-      testData.admin.token,
-      `/company/${companyId}/domain`,
-      { domains: domains },
-    );
+    const r = await postReq(app, testData.admin.token, `/domains`, {
+      domains: domains,
+      companyId: companyId,
+    });
 
     // Assert
     expect(r.statusCode).toBe(HttpStatus.CREATED);
@@ -297,6 +295,17 @@ describe('Domain Controller (e2e)', () => {
     expect(success).toBe(true);
   });
 
+  it('Should have proper authorizations (POST /domains)', async () => {
+    const success = await checkAuthorizations(
+      testData,
+      Role.User,
+      async (givenToken) => {
+        return await postReq(app, givenToken, `/domains`, {});
+      },
+    );
+    expect(success).toBe(true);
+  });
+
   it('Should have proper authorizations (DELETE /domains/:id)', async () => {
     // Arrange & Act
     const success = await checkAuthorizations(
@@ -325,11 +334,5 @@ describe('Domain Controller (e2e)', () => {
     );
     // Assert
     expect(success).toBe(true);
-  });
-
-  afterAll(async () => {
-    await deleteReq(app, testData.admin.token, `/company/${companyId}`);
-    await deleteReq(app, testData.admin.token, `/tags/${tagId}`);
-    await app.close();
   });
 });

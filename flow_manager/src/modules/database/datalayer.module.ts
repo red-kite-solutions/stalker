@@ -9,6 +9,7 @@ import { FindingModelModule } from './reporting/findings/findings-model.module';
 import { HostModelModule } from './reporting/host/host-model.module';
 import { PortModelModule } from './reporting/port/port-model.module';
 import { ReportModelModule } from './reporting/report/report-model.module';
+import { CronSubscriptionModelModule } from './subscriptions/cron-subscriptions/cron-subscription-model.module';
 import { TagModelModule } from './tags/tag-model.module';
 
 @Module({
@@ -23,6 +24,7 @@ import { TagModelModule } from './tags/tag-model.module';
     FindingModelModule,
     PortModelModule,
     JobPodConfigModelModule,
+    CronSubscriptionModelModule,
   ],
   providers: [...databaseConfigInitProvider],
   exports: [
@@ -36,6 +38,7 @@ import { TagModelModule } from './tags/tag-model.module';
     FindingModelModule,
     PortModelModule,
     JobPodConfigModelModule,
+    CronSubscriptionModelModule,
   ],
 })
 export class DatalayerModule {}

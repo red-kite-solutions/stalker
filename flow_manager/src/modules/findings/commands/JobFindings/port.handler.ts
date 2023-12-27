@@ -2,12 +2,11 @@ import { Logger } from '@nestjs/common';
 import { CommandHandler } from '@nestjs/cqrs';
 import { ConfigService } from '../../../database/admin/config/config.service';
 import { CustomJobsService } from '../../../database/custom-jobs/custom-jobs.service';
-import { JobFactory } from '../../../database/jobs/jobs.factory';
 import { JobsService } from '../../../database/jobs/jobs.service';
-import { HttpServerCheckJob } from '../../../database/jobs/models/http-server-check.model';
 import { HostService } from '../../../database/reporting/host/host.service';
 import { PortService } from '../../../database/reporting/port/port.service';
-import { SubscriptionsService } from '../../../database/subscriptions/subscriptions.service';
+import { EventSubscriptionsService } from '../../../database/subscriptions/event-subscriptions/event-subscriptions.service';
+import { SubscriptionTriggersService } from '../../../database/subscriptions/subscription-triggers/subscription-triggers.service';
 import { JobFindingHandlerBase } from '../job-findings-handler-base';
 import { PortCommand } from './port.command';
 
@@ -19,11 +18,18 @@ export class PortHandler extends JobFindingHandlerBase<PortCommand> {
     private hostService: HostService,
     private portService: PortService,
     jobService: JobsService,
-    subscriptionsService: SubscriptionsService,
+    subscriptionsService: EventSubscriptionsService,
     customJobsService: CustomJobsService,
     configService: ConfigService,
+    subscriptionTriggersService: SubscriptionTriggersService,
   ) {
-    super(jobService, subscriptionsService, customJobsService, configService);
+    super(
+      jobService,
+      subscriptionsService,
+      customJobsService,
+      configService,
+      subscriptionTriggersService,
+    );
   }
 
   protected async executeCore(command: PortCommand) {
@@ -37,12 +43,5 @@ export class PortHandler extends JobFindingHandlerBase<PortCommand> {
       command.finding.port,
       protocol,
     );
-
-    const job = JobFactory.createJob(HttpServerCheckJob.name, [
-      { name: 'companyId', value: command.companyId },
-      { name: 'targetIp', value: command.finding.ip },
-      { name: 'ports', value: [command.finding.port] },
-    ]);
-    this.jobsService.publish(job);
   }
 }

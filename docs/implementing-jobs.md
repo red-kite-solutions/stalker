@@ -14,12 +14,6 @@ job communicates its _findings_ and more to Stalker.
   * [Setup](#setup)
 * [Making contact with the outside world](#making-contact-with-the-outside-world)
   * [Producing findings](#producing-findings)
-    * [HostnameIpFinding](#hostnameipfinding)
-    * [PortFinding](#portfinding)
-    * [CustomFinding](#customfinding)
-      * [Dynamic fields](#dynamic-fields)
-        * [Text field](#text-field)
-        * [Image field](#image-field)
   * [Producing logs](#producing-logs)
 * [Built-in Jobs](#built-in-jobs)
 * [Custom Jobs](#custom-jobs)
@@ -50,130 +44,9 @@ To differentiate common logs from logs that are pertinent to Stalker, jobs must 
 
 ### Producing findings
 
-Findings are pieces of information attached to a company and a core entity like a domain, a host or a port.
-Findings come in different shapes and forms. Some findings will create new core entities, others may simply add data to existing ones.
-To produce a finding, the job must create an object containing the necessary information and serialize it as JSON.
+To give Stalker information about what was found in the job, you need to output findings in the proper format.
 
-The finding object must contain the `type` field. Here is a list of available types.
-
-| Type                                    | Description                                        |
-| --------------------------------------- | -------------------------------------------------- |
-| [HostnameIpFinding](#hostnameipfinding) | Creates a new host, attaches it to a given domain. |
-| [PortFinding](#portfinding)             | Creates a new port, attaches it to the given host. |
-| [CustomFinding](#customfinding)         | Attaches custom finding data to a given entity.    |
-
-#### HostnameIpFinding
-
-A hostname ip finding creates a new host and attaches it to a given domain.
-
-| Field    | Description                                |
-| -------- | ------------------------------------------ |
-| `domain` | The domain to which to attach the new host |
-| `ip`     | The ip                                     |
-
-Example:
-
-```json
-{
-  "type": "HostnameIpFinding",
-  "domain": "stalker.is",
-  "ip": "0.0.0.0"
-}
-```
-
-#### PortFinding
-
-A port finding creates a new port attaches it to the given host.
-
-| Field      | Description                         |
-| ---------- | ----------------------------------- |
-| `protocol` | The protocol, either 'tcp' or 'udp' |
-| `ip`       | The ip                              |
-| `port`     | The port number                     |
-
-Example:
-
-```json
-{
-  "type": "PortFinding",
-  "protocol": "tcp",
-  "ip": "1.2.3.4",
-  "port": 80
-}
-```
-
-#### CustomFinding
-
-Dynamic findings allow jobs to attach custom data to core entities.
-
-| Field    | Description                                                     |
-| -------- | --------------------------------------------------------------- |
-| `domain` | The domain to which to attach the custom finding                |
-| `host`   | The host to which to attach the custom finding                  |
-| `port`   | The port to which to attach the custom finding                  |
-| `fields` | A list of [fields](#dynamic-fields) containing the finding data |
-
-Examples:
-
-```json
-{
-  "type": "CustomFinding",
-  "host": "1.2.3.4",
-  "port": "80",
-  "fields": [
-    {
-      "type": "image",
-      "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII"
-    }
-  ]
-}
-```
-
-```json
-{
-  "type": "CustomFinding",
-  "domain": "stalker.is",
-  "fields": [
-    {
-      "type": "text",
-      "label": "Domain greatness level",
-      "content": "This domain is great, would recommend"
-    }
-  ]
-}
-```
-
-##### Dynamic fields
-
-Dynamic fields give flexiblity to jobs so they can output complex data. Here is the list of supported dynamic fields.
-
-| Field | Description            |
-| ----- | ---------------------- |
-| Text  | A label with some text |
-| Image | An image               |
-
-###### Text field
-
-Example:
-
-```json
-{
-  "type": "text",
-  "label": "Top 3 keywords found in web page"
-  "content": "Potato, celery, transformers"
-}
-```
-
-###### Image field
-
-Example:
-
-```json
-{
-  "type": "image",
-  "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII"
-}
-```
+To learn more about how to produce findings, [click here](./findings.md).
 
 ### Producing logs
 
@@ -183,9 +56,18 @@ To output a log, simply write a string prefixed with `@debug` to the standard ou
 
 Example:
 
+```python
+print("@debug Hello world!")
 ```
-@debug Hello world!
-```
+
+There are different log levels available:
+
+| Level         | Prefix   |
+| ------------- | -------- |
+| Debugging     | @debug   |
+| Informational | @info    |
+| Warning       | @warning |
+| Error         | @error   |
 
 ## Built-in Jobs
 

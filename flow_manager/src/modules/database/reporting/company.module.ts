@@ -3,7 +3,7 @@ import { ConfigModule } from '../admin/config/config.module';
 import { CustomJobsModule } from '../custom-jobs/custom-jobs.module';
 import { DatalayerModule } from '../datalayer.module';
 import { JobsModule } from '../jobs/jobs.module';
-import { SubscriptionsModule } from '../subscriptions/subscriptions.module';
+import { EventSubscriptionsModule } from '../subscriptions/event-subscriptions/event-subscriptions.module';
 import { CompanyController } from './company.controller';
 import { CompanyService } from './company.service';
 import { DomainsModule } from './domain/domain.module';
@@ -16,7 +16,7 @@ import { PortModule } from './port/port.module';
     DomainsModule,
     HostModule,
     JobsModule,
-    SubscriptionsModule,
+    EventSubscriptionsModule,
     CustomJobsModule,
     PortModule,
     ConfigModule,

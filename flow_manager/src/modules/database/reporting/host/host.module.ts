@@ -1,4 +1,5 @@
 import { forwardRef, Module } from '@nestjs/common';
+import { QueueModule } from '../../../job-queue/queue.module';
 import { ConfigModule } from '../../admin/config/config.module';
 import { DatalayerModule } from '../../datalayer.module';
 import { JobsModule } from '../../jobs/jobs.module';
@@ -16,6 +17,7 @@ import { HostService } from './host.service';
     ReportModule,
     ConfigModule,
     TagsModule,
+    QueueModule,
     forwardRef(() => DomainsModule),
     PortModule,
   ],

@@ -1,0 +1,32 @@
+name: Cron Service
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/cron_service.yml
+      - "cron_service/**"
+
+jobs:
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - run: npm ci
+        working-directory: cron_service
+
+      - run: npm run test:cicd
+        working-directory: cron_service
+
+      - uses: tanmen/jest-reporter@v1
+        if: always()
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          result-file: ./cron_service/test/jest-output.json

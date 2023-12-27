@@ -8,7 +8,7 @@ import {
   JobPodConfigurationDocument,
 } from '../admin/config/job-pod-config/job-pod-config.model';
 import { CustomJobEntry } from '../custom-jobs/custom-jobs.model';
-import { JobParameter } from '../subscriptions/subscriptions.model';
+import { JobParameter } from '../subscriptions/event-subscriptions/event-subscriptions.model';
 import { JobDefinitions } from './job-model.module';
 import { Job } from './models/jobs.model';
 

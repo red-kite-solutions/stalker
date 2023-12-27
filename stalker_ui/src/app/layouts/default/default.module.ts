@@ -30,17 +30,13 @@ import { CreateUserComponent } from 'src/app/modules/admin/create-user/create-us
 import { EditUserComponent } from 'src/app/modules/admin/edit-user/edit-user.component';
 import { SettingsComponent } from 'src/app/modules/admin/settings/settings.component';
 import { EditCompaniesComponent } from 'src/app/modules/companies/edit-companies/edit-companies.component';
-import { ListCompaniesComponent } from 'src/app/modules/companies/list-companies/list-companies.component';
-import { DashboardComponent } from 'src/app/modules/dashboard/dashboard.component';
+import { JobLogsSummaryComponent } from 'src/app/modules/jobs/job-executions/job-execution-logs-summary.component';
 import { SubscriptionComponent } from 'src/app/modules/jobs/subscriptions/subscription.component';
 import { ProfileComponent } from 'src/app/modules/user/profile/profile.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { FindingsModule } from '../../modules/findings/findings.module';
 import { CustomJobsComponent } from '../../modules/jobs/custom-jobs/custom-jobs.component';
 import { JobExecutionDetailComponent } from '../../modules/jobs/job-executions/job-execution-detail.component';
-import { JobLogsSummaryComponent } from '../../modules/jobs/job-executions/job-execution-logs-summary.component';
-import { JobStateComponent } from '../../modules/jobs/job-executions/job-execution-state.component';
-import { JobExecutionsComponent } from '../../modules/jobs/job-executions/job-executions.component';
 import { LaunchJobsComponent } from '../../modules/jobs/launch-jobs/launch-jobs.component';
 import { JobLogsComponent } from '../../shared/components/job-logs/job-logs.component';
 import { AppHeaderComponent } from '../../shared/components/page-header/page-header.component';
@@ -51,20 +47,15 @@ import { DefaultComponent } from './default.component';
 @NgModule({
   declarations: [
     DefaultComponent,
-    DashboardComponent,
     ProfileComponent,
     CreateUserComponent,
     EditUserComponent,
     SettingsComponent,
-    ListCompaniesComponent,
     EditCompaniesComponent,
     SubscriptionComponent,
     CustomJobsComponent,
     LaunchJobsComponent,
-    JobExecutionsComponent,
-    JobStateComponent,
     JobExecutionDetailComponent,
-    JobLogsSummaryComponent,
   ],
   imports: [
     CommonModule,
@@ -100,6 +91,7 @@ import { DefaultComponent } from './default.component';
     AppHeaderComponent,
     JobLogsComponent,
     CodeEditorComponent,
+    JobLogsSummaryComponent,
   ],
   providers: [{ provide: MAT_COLOR_FORMATS, useValue: NGX_MAT_COLOR_FORMATS }],
 })

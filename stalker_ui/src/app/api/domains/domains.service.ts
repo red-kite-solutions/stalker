@@ -12,7 +12,7 @@ import { filtersToParams } from '../../utils/filters-to-params';
 export class DomainsService {
   constructor(private http: HttpClient) {}
 
-  public getPage(page: number, pageSize: number, filters: any): Observable<Page<Domain>> {
+  public getPage(page: number, pageSize: number, filters: any = undefined): Observable<Page<Domain>> {
     let params = filtersToParams(filters);
     params = params.append('page', page);
     params = params.append('pageSize', pageSize);
@@ -22,7 +22,7 @@ export class DomainsService {
 
   public async addDomains(companyId: string, newDomains: string[]): Promise<any[]> {
     return await firstValueFrom(
-      this.http.post<any[]>(`${environment.fmUrl}/company/${companyId}/domain`, { domains: newDomains })
+      this.http.post<any[]>(`${environment.fmUrl}/domains`, { domains: newDomains, companyId: companyId })
     );
   }
 

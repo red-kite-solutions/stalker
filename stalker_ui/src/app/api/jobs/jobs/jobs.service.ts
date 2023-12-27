@@ -2,9 +2,9 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom, map, Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { JobParameter } from '../../../shared/types/finding-event-subscription';
 import { JobListEntry, StartedJob, StartedJobState, StartedJobViewModel } from '../../../shared/types/jobs/job.type';
 import { Page } from '../../../shared/types/page.type';
+import { JobParameter } from '../../../shared/types/subscriptions/subscription.type';
 import { filtersToParams } from '../../../utils/filters-to-params';
 import { JobOutputResponse } from './jobs.socketio-client';
 
@@ -18,7 +18,11 @@ export class JobsService {
     return <Observable<Array<JobListEntry>>>this.http.get(`${environment.fmUrl}/jobs/summaries`);
   }
 
-  public getJobExecutions(page: number, pageSize: number, filters: any): Observable<Page<StartedJobViewModel>> {
+  public getJobExecutions(
+    page: number,
+    pageSize: number,
+    filters: any = undefined
+  ): Observable<Page<StartedJobViewModel>> {
     let params = filtersToParams(filters);
     params = params.append('page', page);
     params = params.append('pageSize', pageSize);
@@ -58,6 +62,7 @@ export class JobsService {
 
     return {
       ...job,
+      id: job._id,
       numberOfWarnings: logsPerLevel.warning,
       numberOfErrors: logsPerLevel.error,
       numberOfFindings: logsPerLevel.finding,
@@ -81,16 +86,19 @@ export class JobsService {
     return 'done';
   }
 
-  public async startJob(jobName: string, source: string, jobParameters: JobParameter[], companyId = '') {
+  public async startJob(
+    jobName: string,
+    source: string,
+    jobParameters: JobParameter[],
+    companyId: string | null = null
+  ) {
     const data = {
       task: jobName,
       source: source,
       jobParameters: jobParameters,
+      companyId: companyId,
     };
-    if (companyId) {
-      return <StartedJob>await firstValueFrom(this.http.post(`${environment.fmUrl}/company/${companyId}/job`, data));
-    } else {
-      return <StartedJob>await firstValueFrom(this.http.post(`${environment.fmUrl}/jobs/`, data));
-    }
+
+    return <StartedJob>await firstValueFrom(this.http.post(`${environment.fmUrl}/jobs/`, data));
   }
 }

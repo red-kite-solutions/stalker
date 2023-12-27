@@ -1,7 +1,9 @@
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsFQDN,
   IsMongoId,
+  IsNotEmpty,
   IsNumber,
   IsNumberString,
   IsOptional,
@@ -48,4 +50,14 @@ export class DeleteDomainsDto {
   @IsMongoId({ each: true })
   @IsArray()
   domainIds: Types.ObjectId[];
+}
+
+export class SubmitDomainsDto {
+  @IsNotEmpty()
+  @IsArray()
+  @IsFQDN({}, { each: true })
+  domains: string[];
+
+  @IsMongoId()
+  companyId: string;
 }

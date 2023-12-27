@@ -1,0 +1,37 @@
+.container {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(1, 100%);
+
+  .span-col-2 {
+    grid-column: unset;
+  }
+
+  .span-row-auto {
+    grid-row: span 2;
+  }
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+
+    .span-col-2 {
+      grid-column: span 2;
+    }
+  }
+
+  @media (min-width: 992px) {
+    grid-template-columns: repeat(4, 1fr);
+
+    .span-col-2 {
+      grid-column: span 2;
+    }
+  }
+
+  @media (min-width: 1200px) {
+    grid-template-columns: repeat(4, 1fr);
+
+    .span-col-2 {
+      grid-column: span 2;
+    }
+  }
+}

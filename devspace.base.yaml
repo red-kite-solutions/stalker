@@ -6,12 +6,13 @@ vars:
   MONGO_REPLICA_SET_NAME: "rs0"
   MONGO_REPLICA_SET_COUNT:
     value: 2
-  FM_API_KEY: "123456" # Flow Manager's API key for workers to report data
+  STALKER_CRON_API_TOKEN: "123456" # Flow Manager's cron subscriptions notification API token for the cron service
   FM_JWT_SECRET: "123456" # The secret used to sign JWT for users
   FM_REFRESH_SECRET: "123456" # The secret used to sign JWT refresh token for users
   FM_MONGO_ADDRESS: mongodb://root:${MONGO_ROOT_PASSWORD}@mongo-mongodb-headless:27017/ # The address of the FM's mongo database
   FM_MONGO_DATABASE_NAME: stalker
   FM_ENVIRONMENT: "prod" # dev, tests, prod
+  FM_URL: "http://flow-manager:3000"
 
   KAFKA_URI: "kafka:9092"
 

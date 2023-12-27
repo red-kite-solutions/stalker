@@ -29,8 +29,6 @@
     "@angular/platform-browser-dynamic": "^14.2.11",
     "@angular/router": "^14.2.11",
     "@types/angular-material": "^1.1.73",
-    "highcharts": "^9.3.3",
-    "highcharts-angular": "^3.0.0",
     "ip-address": "^8.1.0",
     "jwt-decode": "^3.1.2",
     "monaco-editor": "^0.34.1",

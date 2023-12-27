@@ -9,6 +9,13 @@
       <findings-list [correlationKey]="(port$ | async)?.correlationKey"></findings-list>
     </div>
     <div class="context">
+      <panel-section *ngIf="port$ | async as port">
+        <panel-section-title i18n="Last seen|Last seen">Last seen</panel-section-title>
+        <panel-section-subtitle [matTooltip]="port.lastSeen | humanizeDate : 'precise'" matTooltipPosition="before">
+          {{ port.lastSeen | timeAgo }}
+        </panel-section-subtitle>
+      </panel-section>
+
       <panel-section *ngIf="(tagsSelectItems$ | async) && mergedTags$ | async as portTags">
         <panel-section-title i18n="Tags|The tags of an item"
           >Tags

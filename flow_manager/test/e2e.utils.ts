@@ -140,7 +140,7 @@ export async function postReq(
   app: INestApplication,
   token: string,
   path: string,
-  data: any,
+  data?: any,
 ) {
   return await request(app.getHttpServer())
     .post(path)
@@ -157,6 +157,19 @@ export async function putReq(
 ) {
   return await request(app.getHttpServer())
     .put(path)
+    .set('Content-Type', 'application/json')
+    .set('Authorization', `Bearer ${token}`)
+    .send(data);
+}
+
+export async function patchReq(
+  app: INestApplication,
+  token: string,
+  path: string,
+  data: any,
+) {
+  return await request(app.getHttpServer())
+    .patch(path)
     .set('Content-Type', 'application/json')
     .set('Authorization', `Bearer ${token}`)
     .send(data);
@@ -195,7 +208,6 @@ export async function checkAuthorizations(
   role: Role,
   call: (token: string, password: string) => Promise<request.Response>,
 ): Promise<boolean> {
-  const keys = Object.keys(data);
   let r = await call(data.admin.token, data.admin.password);
 
   if (r.statusCode === HttpStatus.UNAUTHORIZED) {
@@ -252,12 +264,10 @@ export async function createDomain(
   companyId: string,
   domains: string[],
 ) {
-  const r = await postReq(
-    app,
-    testData.admin.token,
-    `/company/${companyId}/domain`,
-    { domains: domains },
-  );
+  const r = await postReq(app, testData.admin.token, `/domains`, {
+    domains: domains,
+    companyId: companyId,
+  });
 
   return r.body;
 }
@@ -268,12 +278,10 @@ export async function createHosts(
   companyId: string,
   ips: string[],
 ) {
-  const r = await postReq(
-    app,
-    testData.admin.token,
-    `/company/${companyId}/host`,
-    { ips: ips },
-  );
+  const r = await postReq(app, testData.admin.token, `/hosts`, {
+    ips: ips,
+    companyId: companyId,
+  });
   return r.body;
 }
 
@@ -309,6 +317,10 @@ export async function cleanup() {
     'companies',
     'tags',
     'reports',
+    'cronsubscriptions',
+    'eventsubscriptions',
+    'customjobs',
+    'jobs',
   ];
 
   const promises = collectionsToDelete.map(async (c) => {
