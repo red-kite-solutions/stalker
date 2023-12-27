@@ -8,7 +8,7 @@ import { StartedJobViewModel } from '../../../shared/types/jobs/job.type';
   selector: 'job-logs-summary',
   styleUrls: ['./job-execution-logs-summary.component.scss'],
   template: `
-    <span class="summary" *ngIf="job?.numberOfErrors"
+    <span class="summary align" *ngIf="job?.numberOfErrors"
       ><mat-icon class="error" [inline]="true">error</mat-icon> {{ job?.numberOfErrors }}</span
     >
     <span class="summary" *ngIf="job?.numberOfWarnings"

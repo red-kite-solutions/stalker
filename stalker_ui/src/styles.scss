@@ -1,4 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @import 'app/shared/widget/filtered-paginated-table/_filtered-paginated-table.component.scss';
 @import 'app/shared/components/panel-section/_panel-section.component.scss';
 @import 'app/shared/widget/code-editor/_code-editor.component.scss';

@@ -9,7 +9,7 @@ import { StartedJobState } from '../../../shared/types/jobs/job.type';
   selector: 'app-job-state',
   styleUrls: ['./job-execution-state.component.scss'],
   imports: [CommonModule, MatIconModule, MatProgressSpinnerModule],
-  template: `<div [ngSwitch]="state">
+  template: `<div [ngSwitch]="state" class="tw-flex tw-items-center">
     <ng-container *ngSwitchCase="'in-progress'"><mat-spinner diameter="16"></mat-spinner></ng-container>
     <ng-container *ngSwitchCase="'done'">
       <mat-icon class="done" [inline]="true">check_circle</mat-icon>
