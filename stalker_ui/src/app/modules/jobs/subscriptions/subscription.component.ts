@@ -42,7 +42,7 @@ export class SubscriptionComponent implements OnDestroy {
   dataSource = new MatTableDataSource<Subscription>();
 
   public subscriptionTemplate =
-    'name: my subscription\nfinding: FindingTypeName\njob:\n  name: JobName\n  parameters:\n    - name: ParamName\n      value: param value\nconditions:\n  - lhs: string\n    operator: contains\n    rhs: ring\n';
+    'name: my subscription\nfinding: FindingTypeName\ncooldown: 86400\njob:\n  name: JobName\n  parameters:\n    - name: ParamName\n      value: param value\nconditions:\n  - lhs: string\n    operator: contains\n    rhs: ring\n';
   public cronSubscriptionTemplate =
     'name: my cron subscription\ncronExpression: 0 0 12 * * ?\njob:\n  name: JobName\n  parameters:\n  - name: ParamName\n    value: param value\n';
 
@@ -88,6 +88,8 @@ export class SubscriptionComponent implements OnDestroy {
         } else if (currSubscription === this.cronSubscriptionContext) {
           this.code = this.cronSubscriptionTemplate;
         } else this.code = '';
+        this.selectedRow = undefined;
+        this.tempSelectedRow = undefined;
         this.currentCodeBackup = this.code;
         this.dataSource$ = this.refreshData();
       })
@@ -129,6 +131,7 @@ export class SubscriptionComponent implements OnDestroy {
           this.data = data;
           this.dataSource.data = data;
           this.dataSource.paginator = this.paginator;
+          if (this.selectedRow) this.selectSubscription(this.selectedRow);
         })
       );
     } else {
@@ -137,6 +140,7 @@ export class SubscriptionComponent implements OnDestroy {
           this.data = data;
           this.dataSource.data = data;
           this.dataSource.paginator = this.paginator;
+          if (this.selectedRow) this.selectSubscription(this.selectedRow);
         })
       );
     }
@@ -321,5 +325,26 @@ export class SubscriptionComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptionType$?.unsubscribe();
+  }
+
+  async revertToDefault(): Promise<void> {
+    if (!this.selectedRow?._id) return;
+
+    try {
+      if (this.subscriptionTypeContext === this.subscriptionTypes[0].value) {
+        await this.eventSubscriptionsService.revert(this.selectedRow._id);
+      } else if (this.subscriptionTypeContext === this.subscriptionTypes[1].value) {
+        await this.cronSubscriptionsService.revert(this.selectedRow._id);
+      } else {
+        this.toastr.warning($localize`:Nothing to revert|Nothing to revert:Nothing to revert`);
+        return;
+      }
+      this.toastr.success(
+        $localize`:Successfully reverted subscription|Successfully reverted subscription:Successfully reverted subscription`
+      );
+      this.dataSource$ = this.refreshData();
+    } catch {
+      this.toastr.error($localize`:Error while reverting|Error while reverting:Error while reverting`);
+    }
   }
 }

@@ -4,6 +4,8 @@ import { DeleteResult, UpdateResult } from 'mongodb';
 import { Model, Types } from 'mongoose';
 import { HttpNotFoundException } from '../../../../exceptions/http.exceptions';
 import escapeStringRegexp from '../../../../utils/escape-string-regexp';
+import { IpFinding } from '../../../findings/findings.service';
+import { FindingsQueue } from '../../../job-queue/findings-queue';
 import { ConfigService } from '../../admin/config/config.service';
 import { TagsService } from '../../tags/tag.service';
 import { Company } from '../company.model';
@@ -29,6 +31,7 @@ export class HostService {
     @Inject(forwardRef(() => DomainsService))
     private domainService: DomainsService,
     private portsService: PortService,
+    private findingsQueue: FindingsQueue,
   ) {}
 
   public async getAll(
@@ -116,6 +119,7 @@ export class HostService {
               ),
             },
             $addToSet: { domains: ds, tags: { $each: existingTags } },
+            lastSeen: Date.now(),
           },
           { upsert: true, useFindAndModify: false },
         )
@@ -161,11 +165,11 @@ export class HostService {
     return this.hostModel.findById(id);
   }
 
-  public async addHosts(
-    hosts: string[],
-    companyId: string,
-    companyName: string,
-  ) {
+  public async addHosts(hosts: string[], companyId: string) {
+    const company = await this.companyModel.findById(companyId);
+    if (!company)
+      throw new HttpNotFoundException(`Company ${companyId} not found`);
+
     const hostDocuments: HostDocument[] = [];
     for (let ip of hosts) {
       const model = new this.hostModel({
@@ -173,6 +177,7 @@ export class HostService {
         ip: ip,
         companyId: new Types.ObjectId(companyId),
         correlationKey: CorrelationKeyUtils.hostCorrelationKey(companyId, ip),
+        lastSeen: Date.now(),
       });
 
       hostDocuments.push(model);
@@ -189,7 +194,6 @@ export class HostService {
       if (!err.writeErrors) {
         throw err;
       }
-      console.log(err);
       insertedHosts = err.insertedDocs;
     }
 
@@ -201,10 +205,54 @@ export class HostService {
     const config = await this.configService.getConfig();
 
     if (config.isNewContentReported) {
-      this.reportService.addHosts(companyName, newIps);
+      this.reportService.addHosts(company.name, newIps);
     }
 
+    const findings: IpFinding[] = [];
+    // For each new domain name found, a finding is created
+    newIps.forEach((ip) => {
+      findings.push({
+        type: 'IpFinding',
+        key: 'IpFinding',
+        ip: ip,
+        companyId: companyId,
+      });
+    });
+    this.findingsQueue.publish(...findings);
+
     return insertedHosts;
+  }
+
+  /**
+   * This function adds a host to the database if it did not exist. If it existed,
+   * the lastSeen value is updated.
+   * @param host The ip address to add
+   * @param companyId The host's company
+   */
+  public async addHost(host: string, companyId: string) {
+    const company = await this.companyModel.findById(companyId);
+    if (!company) {
+      this.logger.debug(`Could not find the company (companyId=${companyId})`);
+      throw new HttpNotFoundException(`companyId=${companyId}`);
+    }
+
+    const companyIdObject = new Types.ObjectId(companyId);
+
+    return await this.hostModel.findOneAndUpdate(
+      { ip: { $eq: host }, companyId: { $eq: companyIdObject } },
+      {
+        lastSeen: Date.now(),
+        $setOnInsert: {
+          ip: host,
+          correlationKey: CorrelationKeyUtils.domainCorrelationKey(
+            companyId,
+            host,
+          ),
+          companyId: companyIdObject,
+        },
+      },
+      { upsert: true },
+    );
   }
 
   public async delete(hostId: string): Promise<DeleteResult> {
@@ -212,7 +260,7 @@ export class HostService {
       ?.domains;
     if (domains) {
       for (const domain of domains) {
-        this.domainService.unlinkHost(domain.id.toString(), hostId);
+        await this.domainService.unlinkHost(domain.id.toString(), hostId);
       }
     }
 

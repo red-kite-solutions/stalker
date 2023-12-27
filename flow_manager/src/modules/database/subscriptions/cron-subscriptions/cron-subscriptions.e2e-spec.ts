@@ -8,7 +8,9 @@ import {
   deleteReq,
   getReq,
   initTesting,
+  patchReq,
   postReq,
+  putReq,
 } from 'test/e2e.utils';
 import { AppModule } from '../../../app.module';
 import { Role } from '../../../auth/constants';
@@ -21,7 +23,7 @@ describe('Cron Subscriptions Controller (e2e)', () => {
   let companyId: string;
   let subscriptionId: string;
 
-  const subscription: CronSubscription = {
+  const subscription: Partial<CronSubscription> = {
     name: 'My test subscription',
     cronExpression: '*/5 * * * *',
     jobName: 'DomainNameResolvingJob',
@@ -76,15 +78,21 @@ describe('Cron Subscriptions Controller (e2e)', () => {
     const r = await getReq(app, testData.user.token, '/cron-subscriptions');
     // assert
     expect(r.statusCode).toBe(HttpStatus.OK);
-    expect(r.body[0]._id).toBe(subscriptionId);
-    expect(r.body[0].name).toBe(subscription.name);
+    let foundSubscription = false;
+    for (const sub of r.body) {
+      if (sub._id === subscriptionId) {
+        foundSubscription = true;
+        expect(sub.name).toBe(subscription.name);
+      }
+    }
+    expect(foundSubscription).toBe(true);
   });
 
-  it('Should edit a cron subscription (POST /cron-subscriptions/{id})', async () => {
+  it('Should edit a cron subscription (PUT /cron-subscriptions/{id})', async () => {
     // arrange
     const changedName = 'My changed name';
     // act
-    let r = await postReq(
+    let r = await putReq(
       app,
       testData.user.token,
       `/cron-subscriptions/${subscriptionId}`,
@@ -95,13 +103,23 @@ describe('Cron Subscriptions Controller (e2e)', () => {
       },
     );
     // assert
-    expect(r.statusCode).toBe(HttpStatus.CREATED);
+    expect(r.statusCode).toBe(HttpStatus.OK);
 
     r = await getReq(app, testData.user.token, '/cron-subscriptions');
     expect(r.statusCode).toBe(HttpStatus.OK);
-    expect(r.body[0]._id).toBe(subscriptionId);
-    expect(r.body[0].name).toBe(changedName);
+    let foundSubscription = false;
+    for (const sub of r.body) {
+      if (sub._id === subscriptionId) {
+        foundSubscription = true;
+        expect(sub.name).toBe(changedName);
+      }
+    }
+    expect(foundSubscription).toBe(true);
   });
+
+  // TODO: make a test for this API call. It will be possible when there will be a built-in cron subscription
+  // it('Should revert a built-in cron subscription (PUT /cron-subscriptions/{id}/revert)', async () => {
+  // });
 
   it('Should delete a subscription by id (DELETE /cron-subscriptions/{id})', async () => {
     // arrange & act
@@ -140,15 +158,31 @@ describe('Cron Subscriptions Controller (e2e)', () => {
     expect(success).toBe(true);
   });
 
-  it('Should have proper authorizations (POST /cron-subscriptions/{id})', async () => {
+  it('Should have proper authorizations (PUT /cron-subscriptions/{id})', async () => {
     const success = await checkAuthorizations(
       testData,
       Role.User,
       async (givenToken: string) => {
-        return await postReq(
+        return await putReq(
           app,
           givenToken,
           `/cron-subscriptions/${subscriptionId}`,
+          {},
+        );
+      },
+    );
+    expect(success).toBe(true);
+  });
+
+  it('Should have proper authorizations (PATCH /cron-subscriptions/{id}?revert=true)', async () => {
+    const success = await checkAuthorizations(
+      testData,
+      Role.User,
+      async (givenToken: string) => {
+        return await patchReq(
+          app,
+          givenToken,
+          `/cron-subscriptions/${subscriptionId}?revert=true`,
           {},
         );
       },

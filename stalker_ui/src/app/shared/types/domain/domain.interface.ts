@@ -8,4 +8,7 @@ export interface Domain {
   tags: string[];
   companyId: string;
   correlationKey: string;
+  lastSeen: number;
+  createdAt: number;
+  updatedAt: number;
 }

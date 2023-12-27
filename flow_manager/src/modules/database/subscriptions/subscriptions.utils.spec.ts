@@ -7,10 +7,12 @@ import {
   CreateCustomFinding,
   HostnameFinding,
   HostnameIpFinding,
+  PortFinding,
 } from '../../findings/findings.service';
 import { ConfigService } from '../admin/config/config.service';
 import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
 import { CompanyService } from '../reporting/company.service';
+import { CronSubscription } from './cron-subscriptions/cron-subscriptions.model';
 import {
   EventSubscription,
   JobCondition,
@@ -401,10 +403,35 @@ describe('Findings Handler Base', () => {
     );
 
     it.each([
+      '   ${    port   }     ',
+      '${port}',
+      '${port}  ',
+      '    ${ port  }',
+    ])(
+      'Should be replaced by the content of the finding',
+      (paramValue: string) => {
+        // Arrange
+        const hnFinding = new PortFinding();
+        hnFinding.port = 1234;
+        let valueCopy = [paramValue];
+
+        // Act
+        valueCopy = SubscriptionsUtils.replaceValueIfReferingToFinding(
+          valueCopy,
+          hnFinding,
+        );
+
+        // Assert
+        expect(valueCopy[0]).toStrictEqual(hnFinding.port);
+      },
+    );
+
+    it.each([
       '   ${    domainName   ',
       '{domainName}',
       '    $   { domainName  }',
       'domainName',
+      '${}',
     ])(
       'Should not be replaced by the content of the finding',
       (paramValue: string) => {
@@ -522,6 +549,99 @@ describe('Findings Handler Base', () => {
           (p) => p.name === customParam.name && p.value === customParam.value,
         ),
       ).toStrictEqual(true);
+    });
+  });
+
+  describe('Parse the yaml to make a subscription', () => {
+    it('Should return a CronSubscription', async () => {
+      // Arrange
+      const cs: CronSubscription = {
+        name: 'Yaml to parse',
+        file: 'not a file.yaml',
+        builtIn: true,
+        cronExpression: '*/30 * * * * *',
+        jobName: 'HostnameResolvingJob',
+        jobParameters: [{ name: 'domainName', value: 'example.com' }],
+      };
+      let yaml = [
+        `name: ${cs.name}`,
+        `cronExpression: "${cs.cronExpression}"`,
+        `job:`,
+        `  name: ${cs.jobName}`,
+        `  parameters:`,
+        `    - name: ${cs.jobParameters[0].name}`,
+        `      value: ${cs.jobParameters[0].value}`,
+      ].join('\n');
+
+      // Act
+      const sub = SubscriptionsUtils.parseCronSubscriptionYaml(yaml);
+
+      // Assert
+      expect(sub.cronExpression).toStrictEqual(cs.cronExpression);
+      expect(sub.name).toStrictEqual(cs.name);
+      expect(sub.jobName).toStrictEqual(cs.jobName);
+      expect(sub.jobParameters[0].value).toStrictEqual(
+        cs.jobParameters[0].value,
+      );
+      expect(sub.jobParameters[0].name).toStrictEqual(cs.jobParameters[0].name);
+    });
+
+    it('Should return an EventSubscription', async () => {
+      // Arrange
+      const es: EventSubscription = {
+        name: 'Http(s) server port check',
+        file: 'not a file.yaml',
+        cooldown: 82800,
+        builtIn: true,
+        finding: 'PortFinding',
+        jobName: 'HttpServerCheckJob',
+        jobParameters: [
+          { name: 'targetIp', value: '${ip}' },
+          { name: 'ports', value: ['${port}'] },
+        ],
+        conditions: [{ lhs: '${protocol}', operator: 'equals', rhs: 'tcp' }],
+      };
+      let yaml = [
+        `name: ${es.name}`,
+        `finding: ${es.finding}`,
+        `triggerInterval: ${es.cooldown}`,
+        `job:`,
+        `  name: ${es.jobName}`,
+        `  parameters:`,
+        `    - name: ${es.jobParameters[0].name}`,
+        `      value: ${es.jobParameters[0].value}`,
+        `    - name: ${es.jobParameters[1].name}`,
+        `      value:`,
+        `        - ${es.jobParameters[1].value}`,
+        `conditions:`,
+        `  - lhs: ${es.conditions[0].lhs}`,
+        `    operator: ${es.conditions[0].operator}`,
+        `    rhs: ${es.conditions[0].rhs}`,
+      ].join('\n');
+
+      // Act
+      const sub = SubscriptionsUtils.parseEventSubscriptionYaml(yaml);
+
+      // Assert
+      expect(sub.finding).toStrictEqual(es.finding);
+      expect(sub.name).toStrictEqual(es.name);
+      expect(sub.jobName).toStrictEqual(es.jobName);
+
+      expect(sub.jobParameters[0].name).toStrictEqual(es.jobParameters[0].name);
+      expect(sub.jobParameters[0].value).toStrictEqual(
+        es.jobParameters[0].value,
+      );
+
+      expect(sub.jobParameters[1].name).toStrictEqual(es.jobParameters[1].name);
+      expect(sub.jobParameters[1].value[0]).toStrictEqual(
+        es.jobParameters[1].value[0],
+      );
+
+      expect(sub.conditions[0].lhs).toStrictEqual(es.conditions[0].lhs);
+      expect(sub.conditions[0].operator).toStrictEqual(
+        es.conditions[0].operator,
+      );
+      expect(sub.conditions[0].rhs).toStrictEqual(es.conditions[0].rhs);
     });
   });
 });

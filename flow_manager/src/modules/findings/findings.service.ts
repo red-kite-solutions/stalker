@@ -13,6 +13,7 @@ import { CompanyService } from '../database/reporting/company.service';
 import { CorrelationKeyUtils } from '../database/reporting/correlation.utils';
 import { CustomFinding } from '../database/reporting/findings/finding.model';
 import { HostnameCommand } from './commands/Findings/hostname.command';
+import { IpCommand } from './commands/Findings/ip.command';
 import { CustomFindingCommand } from './commands/JobFindings/custom.command';
 import { HostnameIpCommand } from './commands/JobFindings/hostname-ip.command';
 import { PortCommand } from './commands/JobFindings/port.command';
@@ -21,11 +22,14 @@ import { CustomFindingFieldDto } from './finding.dto';
 export type Finding =
   | HostnameIpFinding
   | HostnameFinding
+  | IpFinding
   | PortFinding
   | JobStatusFinding
   | CreateCustomFinding;
 
 export class FindingBase {
+  jobId?: string;
+  correlationKey?: string;
   fields?: CustomFindingFieldDto[];
 }
 
@@ -65,6 +69,13 @@ export class HostnameFinding extends FindingBase {
   key: 'HostnameFinding';
   companyId: string;
   domainName: string;
+}
+
+export class IpFinding extends FindingBase {
+  type: 'IpFinding';
+  key: 'IpFinding';
+  companyId: string;
+  ip: string;
 }
 
 export class HostnameIpFinding extends FindingBase {
@@ -152,7 +163,7 @@ export class FindingsService {
       );
     }
 
-    const correlationKey = this.getCorrelationKey(
+    const correlationKey = CorrelationKeyUtils.generateCorrelationKey(
       companyId,
       dto.domainName,
       dto.ip,
@@ -170,56 +181,6 @@ export class FindingsService {
     };
 
     await this.findingModel.create(finding);
-  }
-
-  private getCorrelationKey(
-    companyId: string,
-    domainName?: string,
-    ip?: string,
-    port?: number,
-    protocol?: string,
-  ) {
-    if (!companyId) {
-      throw new HttpBadRequestException(
-        'CompanyId is required in order to create a custom finding.',
-      );
-    }
-
-    let correlationKey = null;
-    const ambiguousRequest =
-      'Ambiguous request; must provide a domainName, an ip or a combination of ip, port and protocol.';
-    if (domainName) {
-      if (ip || port || protocol)
-        throw new HttpBadRequestException(ambiguousRequest);
-
-      correlationKey = CorrelationKeyUtils.domainCorrelationKey(
-        companyId,
-        domainName,
-      );
-    } else if (ip) {
-      if (port && protocol) {
-        correlationKey = CorrelationKeyUtils.portCorrelationKey(
-          companyId,
-          ip,
-          port,
-          protocol,
-        );
-      } else {
-        if (port || protocol)
-          throw new HttpBadRequestException(ambiguousRequest);
-        correlationKey = CorrelationKeyUtils.hostCorrelationKey(companyId, ip);
-      }
-    } else if (port) {
-      throw new HttpBadRequestException(
-        'The ip must be specified with the port.',
-      );
-    } else {
-      throw new HttpBadRequestException(
-        'Correlation key must contain at least a domain or a host.',
-      );
-    }
-
-    return correlationKey;
   }
 
   /**
@@ -258,6 +219,7 @@ export class FindingsService {
         this.logger.error(`The given job does not exist (jobId=${jobId})`);
         return;
       }
+      finding.jobId = jobId;
 
       if (job.companyId !== undefined) {
         const company = await this.companyService.get(job.companyId);
@@ -294,6 +256,11 @@ export class FindingsService {
 
     switch (finding.type) {
       case 'HostnameIpFinding':
+        finding.correlationKey = CorrelationKeyUtils.generateCorrelationKey(
+          companyId,
+          null,
+          finding.ip,
+        );
         this.commandBus.execute(
           new HostnameIpCommand(
             jobId,
@@ -304,18 +271,49 @@ export class FindingsService {
         );
         break;
       case 'HostnameFinding':
+        finding.companyId = finding.companyId ? finding.companyId : companyId;
+        finding.correlationKey = CorrelationKeyUtils.generateCorrelationKey(
+          finding.companyId,
+          finding.domainName,
+        );
         this.commandBus.execute(
           new HostnameCommand(finding.companyId, HostnameCommand.name, finding),
         );
         break;
 
+      case 'IpFinding':
+        finding.companyId = finding.companyId ? finding.companyId : companyId;
+        finding.correlationKey = CorrelationKeyUtils.generateCorrelationKey(
+          finding.companyId,
+          null,
+          finding.ip,
+        );
+        this.commandBus.execute(
+          new IpCommand(finding.companyId, IpCommand.name, finding),
+        );
+        break;
+
       case 'PortFinding':
+        finding.correlationKey = CorrelationKeyUtils.generateCorrelationKey(
+          companyId,
+          null,
+          finding.ip,
+          finding.port,
+          finding.fields[0]?.data,
+        );
         this.commandBus.execute(
           new PortCommand(jobId, companyId, PortCommand.name, finding),
         );
         break;
 
       case 'CustomFinding':
+        finding.correlationKey = CorrelationKeyUtils.generateCorrelationKey(
+          companyId,
+          finding.domainName,
+          finding.ip,
+          finding.port,
+          finding.protocol,
+        );
         this.commandBus.execute(
           new CustomFindingCommand(
             jobId,
@@ -327,7 +325,7 @@ export class FindingsService {
         break;
 
       default:
-        console.log(`Unknown finding type ${finding['type']}`);
+        this.logger.error(`Unknown finding type ${finding['type']}`);
     }
   }
 }

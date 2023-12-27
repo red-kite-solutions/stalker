@@ -4,16 +4,21 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
+  Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { DeleteResult, UpdateResult } from 'mongodb';
+import { HttpBadRequestException } from '../../../../exceptions/http.exceptions';
 import { MongoIdDto } from '../../../../types/dto/mongo-id.dto';
 import { Role } from '../../../auth/constants';
 import { Roles } from '../../../auth/decorators/roles.decorator';
 import { CronApiTokenGuard } from '../../../auth/guards/cron-api-token.guard';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../auth/guards/role.guard';
+import { PatchSubscriptionDto } from '../subscriptions.dto';
 import { CronSubscriptionDto } from './cron-subscriptions.dto';
 import { CronSubscriptionsDocument } from './cron-subscriptions.model';
 import { CronSubscriptionsService } from './cron-subscriptions.service';
@@ -36,6 +41,18 @@ export class CronSubscriptionsController {
     return await this.subscriptionsService.getAll();
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User)
+  @Patch(':id')
+  async revertSubscription(
+    @Param() IdDto: MongoIdDto,
+    @Query() queryParams: PatchSubscriptionDto,
+  ): Promise<UpdateResult> {
+    if (queryParams.revert)
+      return await this.subscriptionsService.revertToDefaults(IdDto.id);
+    else throw new HttpBadRequestException();
+  }
+
   @UseGuards(CronApiTokenGuard)
   @Post(':id/notify')
   async notifySubscription(@Param() IdDto: MongoIdDto): Promise<void> {
@@ -44,7 +61,7 @@ export class CronSubscriptionsController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
-  @Post(':id')
+  @Put(':id')
   async editSubscription(
     @Param() IdDto: MongoIdDto,
     @Body() dto: CronSubscriptionDto,

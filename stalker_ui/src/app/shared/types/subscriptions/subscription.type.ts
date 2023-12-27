@@ -6,9 +6,12 @@ export interface EventSubscription extends EventSubscriptionData {
 
 export interface CronSubscription extends CronSubscriptionData {
   _id: string;
+  builtIn: boolean;
 }
 
 export interface EventSubscriptionData extends SubscriptionData {
+  cooldown: number;
+  builtIn: boolean;
   finding: string;
   conditions?: Condition[] | undefined | null;
 }

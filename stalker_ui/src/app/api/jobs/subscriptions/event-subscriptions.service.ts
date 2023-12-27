@@ -21,6 +21,8 @@ export class EventSubscriptionsService {
             name: item.name,
             finding: item.finding,
             companyId: item.companyId ? item.companyId : allCompaniesSubscriptions,
+            cooldown: item.cooldown,
+            builtIn: item.builtIn,
             job: { name: item.jobName },
           };
           if (item.jobParameters) {
@@ -44,10 +46,12 @@ export class EventSubscriptionsService {
       _id: newSub._id,
       name: newSub.name,
       finding: newSub.finding,
+      cooldown: newSub.cooldown,
       companyId: newSub.companyId ? newSub.companyId : allCompaniesSubscriptions,
       job: {
         name: newSub.jobName,
       },
+      builtIn: false,
     };
     if (newSub.jobParameters && Array.isArray(newSub.jobParameters)) parsedSub.job.parameters = newSub.jobParameters;
     if (newSub.conditions && Array.isArray(newSub.conditions)) parsedSub.conditions = newSub.conditions;
@@ -56,7 +60,7 @@ export class EventSubscriptionsService {
 
   public async edit(id: string, subscription: EventSubscriptionData) {
     const data: any = this.parseSubscription(subscription);
-    return await firstValueFrom(this.http.post(`${environment.fmUrl}/event-subscriptions/${id}`, data));
+    return await firstValueFrom(this.http.put(`${environment.fmUrl}/event-subscriptions/${id}`, data));
   }
 
   public async delete(id: string) {
@@ -67,6 +71,7 @@ export class EventSubscriptionsService {
     const data: any = {
       name: subscription.name,
       finding: subscription.finding,
+      cooldown: subscription.cooldown,
       jobName: subscription.job.name,
       companyId: subscription.companyId === allCompaniesSubscriptions ? undefined : subscription.companyId,
     };
@@ -79,5 +84,9 @@ export class EventSubscriptionsService {
       data['conditions'] = subscription.conditions;
     }
     return data;
+  }
+
+  public async revert(id: string) {
+    return await firstValueFrom(this.http.patch(`${environment.fmUrl}/event-subscriptions/${id}?revert=true`, {}));
   }
 }

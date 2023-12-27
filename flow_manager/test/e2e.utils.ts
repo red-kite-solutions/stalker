@@ -162,6 +162,19 @@ export async function putReq(
     .send(data);
 }
 
+export async function patchReq(
+  app: INestApplication,
+  token: string,
+  path: string,
+  data: any,
+) {
+  return await request(app.getHttpServer())
+    .patch(path)
+    .set('Content-Type', 'application/json')
+    .set('Authorization', `Bearer ${token}`)
+    .send(data);
+}
+
 export async function deleteReq(
   app: INestApplication,
   token: string,
@@ -251,12 +264,10 @@ export async function createDomain(
   companyId: string,
   domains: string[],
 ) {
-  const r = await postReq(
-    app,
-    testData.admin.token,
-    `/company/${companyId}/domain`,
-    { domains: domains },
-  );
+  const r = await postReq(app, testData.admin.token, `/domains`, {
+    domains: domains,
+    companyId: companyId,
+  });
 
   return r.body;
 }
@@ -267,12 +278,10 @@ export async function createHosts(
   companyId: string,
   ips: string[],
 ) {
-  const r = await postReq(
-    app,
-    testData.admin.token,
-    `/company/${companyId}/host`,
-    { ips: ips },
-  );
+  const r = await postReq(app, testData.admin.token, `/hosts`, {
+    ips: ips,
+    companyId: companyId,
+  });
   return r.body;
 }
 

@@ -27,10 +27,9 @@ import { ConfigService } from '../admin/config/config.service';
 import { JobPodConfiguration } from '../admin/config/job-pod-config/job-pod-config.model';
 import { CustomJobEntry } from '../custom-jobs/custom-jobs.model';
 import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
-import { StartJobDto } from '../reporting/company.dto';
 import { JobParameter } from '../subscriptions/event-subscriptions/event-subscriptions.model';
-import { JobExecutionsDto } from './job-executions.dto';
 import { JobDefinitions, JobSources } from './job-model.module';
+import { JobExecutionsDto, StartJobDto } from './jobs.dto';
 import { JobFactory, JobFactoryUtils } from './jobs.factory';
 import { JobsService } from './jobs.service';
 import { CustomJob } from './models/custom-job.model';
@@ -121,7 +120,9 @@ export class JobsController {
 
     const companyIdParameter = new JobParameter();
     companyIdParameter.name = 'companyId';
-    companyIdParameter.value = CompanyUnassigned;
+    companyIdParameter.value = dto.companyId
+      ? dto.companyId
+      : CompanyUnassigned;
     dto.jobParameters.push(companyIdParameter);
 
     // parameters are validated thoroughly in job creation

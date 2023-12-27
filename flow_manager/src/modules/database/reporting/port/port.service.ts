@@ -76,7 +76,7 @@ export class PortService {
     protocol: 'tcp' | 'udp',
   ) {
     const host = await this.hostModel.findOne({
-      _id: { $eq: hostId },
+      _id: { $eq: new Types.ObjectId(hostId) },
       companyId: { $eq: new Types.ObjectId(companyId) },
     });
     if (!host) throw new HttpNotFoundException(this.hostNotFoundError);
@@ -114,9 +114,20 @@ export class PortService {
     port.hostId = new Types.ObjectId(validHostId);
     port.layer4Protocol = protocol;
     port.correlationKey = correlationKey;
+    port.lastSeen = Date.now();
     port.tags = [];
 
     let res = null;
+
+    // Does not need to be awaited.
+    // Updating the lastSeen timestamp as, when we see a port, we see its host
+    this.hostModel
+      .updateOne(
+        { _id: { $eq: new Types.ObjectId(validHostId) } },
+        { lastSeen: Date.now() },
+      )
+      .exec();
+
     try {
       res = await this.portsModel.create(port);
     } catch (err) {

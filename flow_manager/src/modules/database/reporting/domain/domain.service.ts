@@ -36,6 +36,13 @@ export class DomainsService {
     private tagsService: TagsService,
   ) {}
 
+  /**
+   * Add domains to the database.
+   * This function will propagate the new domains as findings in the findings queue
+   * @param domains
+   * @param companyId
+   * @returns
+   */
   public async addDomains(domains: string[], companyId: string) {
     const company = await this.companyModel.findById(companyId);
     if (!company) {
@@ -46,7 +53,8 @@ export class DomainsService {
     // for each domain, create a mongo id
     const domainDocuments: DomainDocument[] = [];
     const companyIdObject = new Types.ObjectId(companyId);
-    domains.forEach((domain) => {
+
+    for (const domain of domains) {
       const model = new this.domainModel({
         _id: new Types.ObjectId(),
         name: domain,
@@ -55,11 +63,12 @@ export class DomainsService {
           domain,
         ),
         companyId: companyIdObject,
+        lastSeen: Date.now(),
       });
       domainDocuments.push(model);
-    });
+    }
 
-    let insertedDomains: any = [];
+    let insertedDomains: DomainDocument[] = [];
 
     // insertmany with ordered false to continue on fail and use the exception
     try {
@@ -74,9 +83,9 @@ export class DomainsService {
     }
 
     const newDomains: string[] = [];
-    insertedDomains.forEach((domain: DomainDocument) => {
+    for (const domain of insertedDomains) {
       newDomains.push(domain.name);
-    });
+    }
 
     const config = await this.configService.getConfig();
 
@@ -97,6 +106,38 @@ export class DomainsService {
     this.findingsQueue.publish(...findings);
 
     return insertedDomains;
+  }
+
+  /**
+   * This function adds a domain to the database if it did not exist. If it existed,
+   * the lastSeen value is updated.
+   * @param domainName The domain name to add
+   * @param companyId The domain's company
+   */
+  public async addDomain(domainName: string, companyId: string) {
+    const company = await this.companyModel.findById(companyId);
+    if (!company) {
+      this.logger.debug(`Could not find the company (companyId=${companyId})`);
+      throw new HttpNotFoundException(`companyId=${companyId}`);
+    }
+
+    const companyIdObject = new Types.ObjectId(companyId);
+
+    return await this.domainModel.findOneAndUpdate(
+      { name: { $eq: domainName }, companyId: { $eq: companyIdObject } },
+      {
+        lastSeen: Date.now(),
+        $setOnInsert: {
+          name: domainName,
+          correlationKey: CorrelationKeyUtils.domainCorrelationKey(
+            companyId,
+            domainName,
+          ),
+          companyId: companyIdObject,
+        },
+      },
+      { upsert: true },
+    );
   }
 
   public async getDomain(id: string): Promise<DomainDocument> {
@@ -168,6 +209,7 @@ export class DomainsService {
     }
     if (domain.hosts) throw new HttpNotImplementedException(); // has to validate hosts and unlink
     if (domain.correlationKey) throw new HttpNotImplementedException(); // should not change correlation key
+    domain.lastSeen = Date.now();
 
     return await this.domainModel.updateOne({ _id: { $eq: id } }, domain);
   }

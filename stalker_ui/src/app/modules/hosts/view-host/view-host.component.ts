@@ -12,10 +12,11 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, combineLatest, map, merge, Observable, Subject, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, combineLatest, map, merge, switchMap, tap } from 'rxjs';
 import { CompaniesService } from 'src/app/api/companies/companies.service';
 import { HostsService } from 'src/app/api/hosts/hosts.service';
 import { TagsService } from 'src/app/api/tags/tags.service';
@@ -55,6 +56,7 @@ import { FindingsModule } from '../../findings/findings.module';
     RouterModule,
     PanelSectionModule,
     AppHeaderComponent,
+    MatTooltipModule,
   ],
   selector: 'app-view-host',
   templateUrl: './view-host.component.html',

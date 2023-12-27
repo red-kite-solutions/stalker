@@ -25,6 +25,7 @@ import { NgxFileDropModule } from 'ngx-file-drop';
 import { FooterComponent } from './components/footer/footer.component';
 import { HeaderComponent } from './components/header/header.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
+import { HumanizeDatePipe } from './pipes/humanize-date.pipe';
 import { HumanizePipe } from './pipes/humanize.pipe';
 import { MemoryUnitsPipe } from './pipes/memory-units.pipe';
 import { TimeAgoPipe } from './pipes/time-ago.pipe';
@@ -51,6 +52,7 @@ import { TextSelectMenuComponent } from './widget/text-select-menu/text-select-m
     PillTagComponent,
     TimeAgoPipe,
     HumanizePipe,
+    HumanizeDatePipe,
     MemoryUnitsPipe,
     TextSelectMenuComponent,
     TextMenuComponent,
@@ -94,6 +96,7 @@ import { TextSelectMenuComponent } from './widget/text-select-menu/text-select-m
     PillTagComponent,
     TimeAgoPipe,
     HumanizePipe,
+    HumanizeDatePipe,
     MemoryUnitsPipe,
     CodeEditorComponent,
     TextSelectMenuComponent,

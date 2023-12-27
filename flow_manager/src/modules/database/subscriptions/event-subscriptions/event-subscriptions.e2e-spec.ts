@@ -6,10 +6,14 @@ import {
   deleteReq,
   getReq,
   initTesting,
+  patchReq,
   postReq,
+  putReq,
 } from 'test/e2e.utils';
 import { AppModule } from '../../../app.module';
 import { Role } from '../../../auth/constants';
+import { EventSubscriptionDto } from './event-subscriptions.dto';
+import { EventSubscriptionsDocument } from './event-subscriptions.model';
 
 describe('Event Subscriptions Controller (e2e)', () => {
   let app: INestApplication;
@@ -18,7 +22,7 @@ describe('Event Subscriptions Controller (e2e)', () => {
   let companyId: string;
   let subscriptionId: string;
 
-  const subscription = {
+  const subscription: EventSubscriptionDto = {
     name: 'My test subscription',
     finding: 'HostnameIpFinding',
     jobName: 'TcpPortScanningJob',
@@ -55,6 +59,7 @@ describe('Event Subscriptions Controller (e2e)', () => {
         rhs: 'qwerty',
       },
     ],
+    cooldown: 3600,
   };
 
   beforeAll(async () => {
@@ -100,15 +105,21 @@ describe('Event Subscriptions Controller (e2e)', () => {
     const r = await getReq(app, testData.user.token, '/event-subscriptions');
     // assert
     expect(r.statusCode).toBe(HttpStatus.OK);
-    expect(r.body[0]._id).toBe(subscriptionId);
-    expect(r.body[0].name).toBe(subscription.name);
+    let foundSubscription = false;
+    for (const sub of r.body) {
+      if (sub._id === subscriptionId) {
+        foundSubscription = true;
+        expect(sub.name).toBe(subscription.name);
+      }
+    }
+    expect(foundSubscription).toBe(true);
   });
 
-  it('Should edit an event subscription (POST /event-subscriptions/{id})', async () => {
+  it('Should edit an event subscription (PUT /event-subscriptions/{id})', async () => {
     // arrange
     const changedName = 'My changed name';
     // act
-    let r = await postReq(
+    let r = await putReq(
       app,
       testData.user.token,
       `/event-subscriptions/${subscriptionId}`,
@@ -119,12 +130,67 @@ describe('Event Subscriptions Controller (e2e)', () => {
       },
     );
     // assert
-    expect(r.statusCode).toBe(HttpStatus.CREATED);
+    expect(r.statusCode).toBe(HttpStatus.OK);
 
     r = await getReq(app, testData.user.token, '/event-subscriptions');
     expect(r.statusCode).toBe(HttpStatus.OK);
-    expect(r.body[0]._id).toBe(subscriptionId);
-    expect(r.body[0].name).toBe(changedName);
+
+    let foundSubscription = false;
+    for (const sub of r.body) {
+      if (sub._id === subscriptionId) {
+        foundSubscription = true;
+        expect(sub.name).toBe(changedName);
+      }
+    }
+    expect(foundSubscription).toBe(true);
+  });
+
+  it('Should revert a built-in event subscription (PATCH /event-subscriptions/{id}?revert=true)', async () => {
+    // Arrange
+    let r = await getReq(app, testData.user.token, '/event-subscriptions');
+    let builtInSub: EventSubscriptionsDocument;
+    for (const sub of r.body) {
+      if (sub.builtIn) {
+        builtInSub = sub;
+        break;
+      }
+    }
+
+    const changedName = 'My changed name';
+    r = await patchReq(
+      app,
+      testData.user.token,
+      `/event-subscriptions/${builtInSub._id}?revert=true`,
+      {
+        ...builtInSub,
+        _id: null,
+        builtIn: null,
+        name: changedName,
+      },
+    );
+
+    // Act
+    r = await patchReq(
+      app,
+      testData.user.token,
+      `/event-subscriptions/${builtInSub._id}?revert=true`,
+      {},
+    );
+
+    // Assert
+    expect(r.statusCode).toBe(HttpStatus.OK);
+
+    r = await getReq(app, testData.user.token, '/event-subscriptions');
+    expect(r.statusCode).toBe(HttpStatus.OK);
+
+    let foundSubscription = false;
+    for (const sub of r.body) {
+      if (sub._id === builtInSub._id) {
+        foundSubscription = true;
+        expect(sub.name).not.toBe(changedName);
+      }
+    }
+    expect(foundSubscription).toBe(true);
   });
 
   it('Should delete a subscription by id (DELETE /event-subscriptions/{id})', async () => {
@@ -164,15 +230,31 @@ describe('Event Subscriptions Controller (e2e)', () => {
     expect(success).toBe(true);
   });
 
-  it('Should have proper authorizations (POST /event-subscriptions/{id})', async () => {
+  it('Should have proper authorizations (PUT /event-subscriptions/{id})', async () => {
     const success = await checkAuthorizations(
       testData,
       Role.User,
       async (givenToken: string) => {
-        return await postReq(
+        return await putReq(
           app,
           givenToken,
           `/event-subscriptions/${subscriptionId}`,
+          {},
+        );
+      },
+    );
+    expect(success).toBe(true);
+  });
+
+  it('Should have proper authorizations (PATCH /event-subscriptions/{id}?revert=true)', async () => {
+    const success = await checkAuthorizations(
+      testData,
+      Role.User,
+      async (givenToken: string) => {
+        return await patchReq(
+          app,
+          givenToken,
+          `/event-subscriptions/${subscriptionId}?revert=true`,
           {},
         );
       },

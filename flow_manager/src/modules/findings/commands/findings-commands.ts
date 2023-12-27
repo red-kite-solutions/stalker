@@ -1,5 +1,7 @@
 import { HostnameCommand } from './Findings/hostname.command';
 import { HostnameHandler } from './Findings/hostname.handler';
+import { IpCommand } from './Findings/ip.command';
+import { IpHandler } from './Findings/ip.handler';
 import { CustomFindingCommand } from './JobFindings/custom.command';
 import { CustomFindingHandler } from './JobFindings/custom.handler';
 import { HostnameIpCommand } from './JobFindings/hostname-ip.command';
@@ -12,6 +14,11 @@ export const FindingsCommandMapping = [
     finding: 'HostnameIpFinding',
     handler: HostnameIpHandler,
     command: HostnameIpCommand,
+  },
+  {
+    finding: 'IpFinding',
+    handler: IpHandler,
+    command: IpCommand,
   },
   {
     finding: 'HostnameFinding',

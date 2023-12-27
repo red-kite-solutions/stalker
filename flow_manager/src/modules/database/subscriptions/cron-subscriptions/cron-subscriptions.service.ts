@@ -2,12 +2,17 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DeleteResult, UpdateResult } from 'mongodb';
 import { Model, Types } from 'mongoose';
+import {
+  HttpBadRequestException,
+  HttpNotFoundException,
+} from '../../../../exceptions/http.exceptions';
 import { ConfigService } from '../../admin/config/config.service';
 import { CustomJobsService } from '../../custom-jobs/custom-jobs.service';
 import { JobFactory } from '../../jobs/jobs.factory';
 import { CustomJob } from '../../jobs/models/custom-job.model';
 import { Job } from '../../jobs/models/jobs.model';
 import { CompanyService } from '../../reporting/company.service';
+import { CRON_SUBSCRIPTIONS_FILES_PATH } from '../subscriptions.constants';
 import { SubscriptionsUtils } from '../subscriptions.utils';
 import { CronSubscriptionDto } from './cron-subscriptions.dto';
 import {
@@ -15,6 +20,7 @@ import {
   CronSubscriptionsDocument,
   JobParameter,
 } from './cron-subscriptions.model';
+import { JobsService } from '../../jobs/jobs.service';
 
 @Injectable()
 export class CronSubscriptionsService {
@@ -26,6 +32,7 @@ export class CronSubscriptionsService {
     private readonly companyService: CompanyService,
     private readonly configService: ConfigService,
     private readonly customJobsService: CustomJobsService,
+    private readonly jobsService: JobsService,
   ) {}
 
   public async create(dto: CronSubscriptionDto) {
@@ -40,14 +47,14 @@ export class CronSubscriptionsService {
   }
 
   public async getAll() {
-    return await this.subscriptionModel.find({});
+    return await this.subscriptionModel.find({}, '-file');
   }
 
   public async edit(
     id: string,
     dto: CronSubscriptionDto,
   ): Promise<UpdateResult> {
-    const sub: CronSubscription = {
+    const sub: Partial<CronSubscription> = {
       companyId: dto.companyId ? new Types.ObjectId(dto.companyId) : null,
       name: dto.name,
       cronExpression: dto.cronExpression,
@@ -116,7 +123,35 @@ export class CronSubscriptionsService {
       sub.jobParameters.push(companyIdParameter);
 
       const job: Job = JobFactory.createJob(sub.jobName, sub.jobParameters);
-      if (job != null) this.companyService.publishJob(job);
+      if (job != null) this.jobsService.publish(job);
     }
+  }
+
+  public async revertToDefaults(id: string): Promise<UpdateResult> {
+    const sub = await this.subscriptionModel.findById(new Types.ObjectId(id));
+    if (!sub) {
+      throw new HttpNotFoundException('Subscription not found');
+    }
+
+    if (!(sub.builtIn && sub.file)) {
+      throw new HttpBadRequestException('Subscription not suitable for revert');
+    }
+
+    const defaultSub = SubscriptionsUtils.readCronSubscriptionFile(
+      CRON_SUBSCRIPTIONS_FILES_PATH,
+      sub.file,
+    );
+
+    const subUpdate: Partial<CronSubscription> = {
+      name: defaultSub.name,
+      jobName: defaultSub.jobName,
+      jobParameters: defaultSub.jobParameters,
+      cronExpression: defaultSub.cronExpression,
+    };
+
+    return await this.subscriptionModel.updateOne(
+      { _id: { $eq: sub._id } },
+      subUpdate,
+    );
   }
 }

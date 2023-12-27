@@ -2,10 +2,12 @@ import { Type } from 'class-transformer';
 import {
   IsArray,
   IsIn,
+  IsInt,
   IsMongoId,
   IsNotEmpty,
   IsOptional,
   IsString,
+  Min,
   ValidateNested,
 } from 'class-validator';
 import { IsTypeIn } from '../../../../validators/is-type-in.validator';
@@ -40,6 +42,11 @@ export class EventSubscriptionDto {
   @Type(() => JobConditionDto)
   @IsOptional()
   public conditions?: JobConditionDto[];
+
+  @IsNotEmpty()
+  @IsInt()
+  @Min(0)
+  public cooldown: number;
 }
 
 export class JobParameterDto {

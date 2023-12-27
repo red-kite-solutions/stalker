@@ -2,9 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DeleteResult, UpdateResult } from 'mongodb';
 import { Model, Types } from 'mongoose';
-import { HttpNotFoundException } from '../../../exceptions/http.exceptions';
 import { JobsService } from '../jobs/jobs.service';
-import { Job } from '../jobs/models/jobs.model';
 import { CronSubscription } from '../subscriptions/cron-subscriptions/cron-subscriptions.model';
 import { EventSubscriptionsService } from '../subscriptions/event-subscriptions/event-subscriptions.service';
 import { CreateCompanyDto } from './company.dto';
@@ -102,48 +100,6 @@ export class CompanyService {
       companyId: { $eq: new Types.ObjectId(id) },
     });
     return result;
-  }
-
-  public async addDomains(domains: string[], companyId: string) {
-    const company = await this.companyModel.findOne({
-      _id: { $eq: companyId },
-    });
-    if (!company) {
-      throw new HttpNotFoundException();
-    }
-
-    return await this.domainsService.addDomains(domains, companyId);
-  }
-
-  public async addHosts(hosts: string[], companyId: string) {
-    const company = await this.companyModel.findById(companyId);
-    if (!company) {
-      throw new HttpNotFoundException();
-    }
-
-    return await this.hostsService.addHosts(hosts, companyId, company.name);
-  }
-
-  public async addHostsWithDomain(
-    ips: string[],
-    domainName: string,
-    companyId: string,
-  ) {
-    const company = await this.companyModel.findById(companyId);
-    if (!company) {
-      throw new HttpNotFoundException();
-    }
-
-    await this.hostsService.addHostsWithDomain(ips, domainName, companyId, []);
-  }
-
-  public async publishJob(job: Job) {
-    const company = await this.companyModel.findById(job.companyId);
-    if (!company) {
-      throw new HttpNotFoundException();
-    }
-
-    return await this.jobsService.publish(job);
   }
 
   public generateFullImage(b64Content: string, imageType: string) {

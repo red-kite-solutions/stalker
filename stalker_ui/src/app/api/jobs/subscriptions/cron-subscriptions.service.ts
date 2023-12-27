@@ -22,6 +22,7 @@ export class CronSubscriptionsService {
             cronExpression: item.cronExpression,
             companyId: item.companyId ? item.companyId : allCompaniesSubscriptions,
             job: { name: item.jobName },
+            builtIn: item.builtIn,
           };
           if (item.jobParameters) {
             sub.job.parameters = item.jobParameters;
@@ -45,6 +46,7 @@ export class CronSubscriptionsService {
       job: {
         name: newSub.jobName,
       },
+      builtIn: false,
     };
     if (newSub.jobParameters && Array.isArray(newSub.jobParameters)) parsedSub.job.parameters = newSub.jobParameters;
     return parsedSub;
@@ -52,7 +54,7 @@ export class CronSubscriptionsService {
 
   public async edit(id: string, subscription: CronSubscriptionData) {
     const data: any = this.parseSubscription(subscription);
-    return await firstValueFrom(this.http.post(`${environment.fmUrl}/cron-subscriptions/${id}`, data));
+    return await firstValueFrom(this.http.put(`${environment.fmUrl}/cron-subscriptions/${id}`, data));
   }
 
   public async delete(id: string) {
@@ -72,5 +74,9 @@ export class CronSubscriptionsService {
     }
 
     return data;
+  }
+
+  public async revert(id: string) {
+    return await firstValueFrom(this.http.patch(`${environment.fmUrl}/cron-subscriptions/${id}?revert=true`, {}));
   }
 }

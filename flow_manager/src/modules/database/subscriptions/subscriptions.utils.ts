@@ -1,4 +1,7 @@
 import { Logger } from '@nestjs/common';
+import { existsSync, readFileSync } from 'node:fs';
+import { basename } from 'node:path';
+import { parse } from 'yaml';
 import {
   executeDsl,
   prepareContext,
@@ -8,7 +11,9 @@ import { Finding } from '../../findings/findings.service';
 import { ConfigService } from '../admin/config/config.service';
 import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
 import { JobFactoryUtils } from '../jobs/jobs.factory';
+import { CronSubscription } from './cron-subscriptions/cron-subscriptions.model';
 import {
+  EventSubscription,
   JobCondition,
   JobParameter,
 } from './event-subscriptions/event-subscriptions.model';
@@ -77,22 +82,9 @@ export class SubscriptionsUtils {
     return jobParameters;
   }
 
-  /**
-   * Identifies the matching Finding output variable to a ${paramName} tag, if it exists
-   * @param value The parameter or condition operand that may be a ${paramName} string
-   * @param finding The finding we are currently reacting to
-   * @returns The finding's referenced output value if it exits, the given *value* otherwise
-   */
-  public static replaceValueIfReferingToFinding(
-    value: unknown,
-    finding: Finding,
-  ) {
+  private static stringReplaceValueForFinding(value: string, finding: Finding) {
     // https://regex101.com/r/9yy2OH/1
     const expressionRegex = /^\s*\$\{\s*([^\s]+)\s*\}\s*$/i;
-    if (typeof value !== 'string') {
-      return value;
-    }
-
     const match = value.match(expressionRegex);
 
     if (!match || match.length <= 1) {
@@ -102,6 +94,35 @@ export class SubscriptionsUtils {
     const expression = match[1].toLowerCase();
     const ctx = prepareContext(finding);
     return executeDsl(expression, ctx) || '';
+  }
+
+  /**
+   * Identifies the matching Finding output variable to a ${paramName} tag, if it exists
+   * @param value The parameter or condition operand that may be a ${paramName} string
+   * @param finding The finding we are currently reacting to
+   * @returns The finding's referenced output value if it exits, the given *value* otherwise
+   */
+  public static replaceValueIfReferingToFinding<T>(value: T, finding: Finding) {
+    if (typeof value !== 'string' && !Array.isArray(value)) {
+      return value;
+    }
+
+    let output: T;
+
+    if (Array.isArray(value)) {
+      for (let i = 0; i < value.length; ++i) {
+        if (typeof value[i] !== 'string') continue;
+        value[i] = SubscriptionsUtils.stringReplaceValueForFinding(
+          value[i],
+          finding,
+        );
+      }
+      output = value;
+    } else {
+      output = SubscriptionsUtils.stringReplaceValueForFinding(value, finding);
+    }
+
+    return output;
   }
 
   /**
@@ -187,14 +208,12 @@ export class SubscriptionsUtils {
   ) {
     let allConditionsMatch = true;
     for (const condition of jobConditions ?? []) {
-      condition.lhs = SubscriptionsUtils.replaceValueIfReferingToFinding(
-        condition.lhs,
-        command.finding,
-      );
-      condition.rhs = SubscriptionsUtils.replaceValueIfReferingToFinding(
-        condition.rhs,
-        command.finding,
-      );
+      condition.lhs = SubscriptionsUtils.replaceValueIfReferingToFinding<
+        string | boolean | number
+      >(condition.lhs, command.finding);
+      condition.rhs = SubscriptionsUtils.replaceValueIfReferingToFinding<
+        string | boolean | number
+      >(condition.rhs, command.finding);
 
       if (!SubscriptionsUtils.evaluateCondition(condition)) {
         allConditionsMatch = false;
@@ -202,5 +221,121 @@ export class SubscriptionsUtils {
       }
     }
     return allConditionsMatch;
+  }
+
+  /**
+   * Validates that the path + file name exists and is valid
+   * @param path a folder path ending with a '/'
+   * @param fileName must be `basename(fileName)` to make sure that it is a proper file name without path
+   * @returns
+   */
+  private static validateSubscriptionFileFullPath(
+    path: string,
+    fileName: string,
+  ): boolean {
+    const fileSplit = fileName.split('.');
+    if (fileSplit.length <= 1) return false;
+
+    const ext = fileSplit[fileSplit.length - 1].toLowerCase();
+    if (ext !== 'yml' && ext !== 'yaml') return false;
+
+    if (!existsSync(path + fileName)) return false;
+
+    return true;
+  }
+
+  public static readEventSubscriptionFile(
+    path: string,
+    fileName: string,
+  ): EventSubscription | null {
+    const baseName = basename(fileName);
+    if (!SubscriptionsUtils.validateSubscriptionFileFullPath(path, baseName))
+      return null;
+
+    const file_content = readFileSync(path + baseName).toString();
+    let sub: EventSubscription | null = null;
+    try {
+      sub = SubscriptionsUtils.parseEventSubscriptionYaml(file_content);
+      sub.file = baseName;
+    } catch (err) {
+      console.log(err);
+    }
+    return sub;
+  }
+
+  public static readCronSubscriptionFile(
+    path: string,
+    fileName: string,
+  ): CronSubscription | null {
+    const baseName = basename(fileName);
+    if (!SubscriptionsUtils.validateSubscriptionFileFullPath(path, baseName))
+      return null;
+
+    const file_content = readFileSync(path + baseName).toString();
+    let sub: CronSubscription | null = null;
+    try {
+      sub = SubscriptionsUtils.parseCronSubscriptionYaml(file_content);
+      sub.file = baseName;
+    } catch (err) {
+      console.log(err);
+    }
+    return sub;
+  }
+
+  public static parseCronSubscriptionYaml(
+    subscriptionYaml: string,
+  ): CronSubscription {
+    const subYamlJson = parse(subscriptionYaml);
+
+    const params = [];
+    if (subYamlJson.job && subYamlJson.job.parameters) {
+      for (const param of subYamlJson.job.parameters) {
+        params.push(param);
+      }
+    }
+
+    const sub: CronSubscription = {
+      name: subYamlJson.name,
+      cronExpression: subYamlJson.cronExpression,
+      builtIn: true,
+      jobName: subYamlJson.job.name,
+      companyId: null,
+      jobParameters: params,
+    };
+
+    return sub;
+  }
+
+  public static parseEventSubscriptionYaml(
+    subscriptionYaml: string,
+  ): EventSubscription {
+    const subYamlJson = parse(subscriptionYaml);
+
+    const params = [];
+    if (subYamlJson.job && subYamlJson.job.parameters) {
+      for (const param of subYamlJson.job.parameters) {
+        params.push(param);
+      }
+    }
+
+    const conditions = [];
+    if (subYamlJson.conditions) {
+      for (const condition of subYamlJson.conditions) {
+        conditions.push(condition);
+      }
+    }
+
+    const sub: EventSubscription = {
+      name: subYamlJson.name,
+      finding: subYamlJson.finding,
+      jobName: subYamlJson.job.name,
+      cooldown: subYamlJson.cooldown,
+      companyId: null,
+      jobParameters: params,
+      conditions: conditions,
+      builtIn: true,
+    };
+
+    return sub;
   }
 }

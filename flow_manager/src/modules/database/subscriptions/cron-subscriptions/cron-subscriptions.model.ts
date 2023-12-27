@@ -24,6 +24,13 @@ export class CronSubscription {
 
   @Prop()
   public jobParameters: JobParameter[];
+
+  // true for a built-in subsctiption, false otherwise
+  @Prop()
+  public builtIn?: boolean;
+
+  @Prop()
+  public file?: string;
 }
 
 export const CronSubscriptionsSchema =
