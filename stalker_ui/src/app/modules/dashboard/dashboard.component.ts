@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { MatLegacyCardModule as MatCardModule } from '@angular/material/legacy-card';
+import { MatCardModule } from '@angular/material/card';
 import { Title } from '@angular/platform-browser';
 import { LatestJobs } from './latest-jobs/latest-jobs.component';
 import { NumberOfDomainsMetric } from './number-of-domains-metric/number-of-domains-metric.component';

@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { MatLegacyListModule as MatListModule } from '@angular/material/legacy-list';
+import { MatListModule } from '@angular/material/list';
 import { RouterModule } from '@angular/router';
 import { map } from 'rxjs';
 import { JobsService } from 'src/app/api/jobs/jobs/jobs.service';

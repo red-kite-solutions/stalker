@@ -1,6 +1,6 @@
 <div class="findings-list" *ngIf="findings$ | async as findings">
   <div class="finding-wrapper" *ngFor="let finding of findings.items">
-    <mat-card>
+    <mat-card appearance="outlined">
       <finding [finding]="finding"></finding>
     </mat-card>
   </div>
@@ -25,6 +25,6 @@
   </div>
 </div>
 
-<mat-card *ngIf="!(findings$ | async)?.totalRecords" i18n="There are no finding yet|There are no finding yet">
+<mat-card appearance="outlined" *ngIf="!(findings$ | async)?.totalRecords" i18n="There are no finding yet|There are no finding yet">
   <span class="no-findings"> There are no finding yet </span>
 </mat-card>

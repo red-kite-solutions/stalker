@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, Input, OnChanges } from '@angular/core';
-import { MatLegacyProgressBarModule as MatProgressBarModule } from '@angular/material/legacy-progress-bar';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { concatMap, debounceTime, map, Observable, scan, shareReplay, startWith } from 'rxjs';
 import { AuthService } from '../../../api/auth/auth.service';
 import { JobsService } from '../../../api/jobs/jobs/jobs.service';

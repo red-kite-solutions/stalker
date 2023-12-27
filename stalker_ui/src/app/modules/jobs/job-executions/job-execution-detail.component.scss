@@ -2,7 +2,7 @@
   border-radius: 4px 4px 0 0;
 }
 
-.mat-card {
+.mat-mdc-card {
   height: 40px;
 }
 
@@ -14,6 +14,7 @@ app-job-logs {
   overflow: hidden;
 }
 
+/* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
 mat-card-content {
   opacity: 0.65;
 

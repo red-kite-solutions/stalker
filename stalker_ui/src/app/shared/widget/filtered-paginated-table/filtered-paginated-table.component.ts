@@ -12,18 +12,18 @@ import {
   ViewChild,
 } from '@angular/core';
 import { UntypedFormControl } from '@angular/forms';
-import { MatLegacyAutocomplete as MatAutocomplete, MatLegacyAutocompleteSelectedEvent as MatAutocompleteSelectedEvent } from '@angular/material/legacy-autocomplete';
-import { MatLegacyChipInputEvent as MatChipInputEvent, MatLegacyChipList as MatChipList } from '@angular/material/legacy-chips';
-import { MatLegacyPaginator as MatPaginator, LegacyPageEvent as PageEvent } from '@angular/material/legacy-paginator';
+import { MatAutocomplete, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { MatChipGrid, MatChipInputEvent } from '@angular/material/chips';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import {
-  MatLegacyColumnDef as MatColumnDef,
-  MatLegacyHeaderRowDef as MatHeaderRowDef,
-  MatLegacyNoDataRow as MatNoDataRow,
-  MatLegacyRowDef as MatRowDef,
-  MatLegacyTable as MatTable,
-  MatLegacyTableDataSource as MatTableDataSource,
-} from '@angular/material/legacy-table';
-import { map, Observable, startWith } from 'rxjs';
+  MatColumnDef,
+  MatHeaderRowDef,
+  MatNoDataRow,
+  MatRowDef,
+  MatTable,
+  MatTableDataSource,
+} from '@angular/material/table';
+import { Observable, map, startWith } from 'rxjs';
 import { IdentifiedElement } from '../../types/identified-element.type';
 
 @Component({
@@ -41,7 +41,7 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatAutocomplete) autocomplete!: MatAutocomplete;
   @ViewChild('filterInput') filterInput!: ElementRef<HTMLInputElement>;
-  @ViewChild('chipList') chipList!: MatChipList;
+  @ViewChild('chipList') chipGrid!: MatChipGrid;
 
   _dataSource!: MatTableDataSource<T>;
   @Input() set dataSource(data: MatTableDataSource<T>) {
@@ -185,9 +185,10 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> {
   private refocusMatChipInput() {
     // Removing the focus from the chips is mandatory to replace the cursor
     // to the end of the text... Took a couple hours to find that
-    for (const chip of this.chipList.chips) {
-      chip._hasFocus = false;
-    }
+    // TODO(mdc-migration)
+    // for (const chip of this.chipGrid.) {
+    //   chip._hasFocus = false;
+    // }
 
     this.filterInput.nativeElement.focus();
     this.filterInput.nativeElement.selectionStart = 100000;

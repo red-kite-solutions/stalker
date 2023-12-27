@@ -1,6 +1,6 @@
 <div fxLayout="row" class="code-editor-container">
   <div fxFlex="45">
-    <mat-card class="container">
+    <mat-card appearance="outlined" class="container">
       <span class="title">
         <h1 i18n="Custom Jobs|Custom Jobs">Custom Jobs</h1>
         <a href="https://github.com/red-kite-solutions/stalker/blob/main/docs/implementing-jobs.md" target="_blank">
@@ -85,11 +85,12 @@
             <input matInput [formControl]="customJobNameFormControl" required />
             <mat-error i18n="Name required|The name input is required">Name is required</mat-error>
           </mat-form-field>
-          <mat-card class="job-pod-config-selection">
+          <mat-card appearance="outlined" class="job-pod-config-selection">
             <mat-card-header>Job Pod Configuration</mat-card-header>
             <mat-card-content>
               <div>
                 <mat-card
+                  appearance="outlined"
                   *ngFor="let jps of jobPodSettings$ | async"
                   [class.selected-config]="selectedConfigId === jps._id"
                   (click)="selectedConfigId = jps._id"

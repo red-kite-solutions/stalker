@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { LegacyMenuPositionX as MenuPositionX } from '@angular/material/legacy-menu';
+import { MenuPositionX } from '@angular/material/menu';
 
 @Component({
   selector: 'app-text-menu',

@@ -3,7 +3,7 @@
 >
 </app-page-header>
 
-<mat-card class="summary" *ngIf="execution$ | async as execution">
+<mat-card appearance="outlined" class="summary" *ngIf="execution$ | async as execution">
   <mat-card-title i18n="Execution details|The details of a job execution">Execution details</mat-card-title>
   <mat-card-content>
     <job-logs-summary [job]="execution"></job-logs-summary>

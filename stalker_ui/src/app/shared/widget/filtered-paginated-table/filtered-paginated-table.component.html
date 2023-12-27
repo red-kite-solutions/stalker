@@ -2,13 +2,13 @@
   <!-- Search filter-->
   <mat-form-field class="filter-chip-list" appearance="fill" fxFlex>
     <mat-label i18n="Search filter|Filter your search to get more precise results">Search filter</mat-label>
-    <mat-chip-list #chipList>
-      <mat-chip *ngFor="let filter of filters" (click)="editFilter($event, filter)" (removed)="removeFilter(filter)">
+    <mat-chip-grid #chipList>
+      <mat-chip-row *ngFor="let filter of filters" (click)="editFilter($event, filter)" (removed)="removeFilter(filter)">
         {{ filter }}
         <button matChipRemove>
           <mat-icon>cancel</mat-icon>
         </button>
-      </mat-chip>
+      </mat-chip-row>
       <input
         tab-directive
         i18n-placeholder="New filter|Creating a new filter"
@@ -21,7 +21,7 @@
         (matChipInputTokenEnd)="addFilter($event)"
         (click)="filterForm.setValue(filterForm.value ? filterForm.value : '')"
       />
-    </mat-chip-list>
+    </mat-chip-grid>
     <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)" [autoActiveFirstOption]="true">
       <mat-option *ngFor="let filter of filteredColumns$ | async" [value]="filter">
         {{ filter }}
