@@ -1008,6 +1008,44 @@ describe('Cron Subscriptions Service', () => {
       expect(spy).not.toHaveBeenCalled();
     });
 
+    it('Should publish job from input ALL_HOSTS (condition=true)', async () => {
+      // Arrange
+      const c = await company('Test company');
+      allHostsCronSub.companyId = c._id;
+      allHostsCronSub.jobParameters = tcpPortScanningJobParams.concat([
+        {
+          name: 'companyId',
+          value: c._id.toString(),
+        },
+        { name: 'targetIp', value: '${ip}' },
+      ]);
+
+      const h1 = await host('1.1.1.1', c._id.toString());
+
+      const spy = jest //@ts-expect-error
+        .spyOn(subscriptionsService, 'publishJob') //@ts-expect-error
+        .mockImplementation(() => {});
+
+      // Act
+      //@ts-expect-error
+      await subscriptionsService.publishJobsFromInput(
+        <CronSubscription>{
+          ...allHostsCronSub,
+          conditions: [
+            {
+              lhs: '${ip}',
+              operator: 'equals',
+              rhs: '1.1.1.1',
+            },
+          ],
+        },
+        c._id.toString(),
+      );
+
+      // Assert
+      expect(spy).toHaveBeenCalled();
+    });
+
     // ALL_TCP_PORTS
     const allTcpPortsCronSub: Partial<CronSubscription> = {
       name: 'test subscription all tcp ports',
