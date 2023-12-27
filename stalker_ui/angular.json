@@ -89,10 +89,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "stalker_ui:build:production"
+              "buildTarget": "stalker_ui:build:production"
             },
             "development": {
-              "browserTarget": "stalker_ui:build:development"
+              "buildTarget": "stalker_ui:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -100,7 +100,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "stalker_ui:build"
+            "buildTarget": "stalker_ui:build"
           }
         },
         "test": {
