@@ -20,13 +20,16 @@ export class SidebarComponent {
   tags = $localize`:Tags|An item's tags:Tags`;
   subscriptions = $localize`:Subscriptions|The jobs automation process to subscribe to finding events:Subscriptions`;
   hosts = $localize`:Hosts|Hosts:Hosts`;
-  customJobs = $localize`:Custom Jobs|Custom Jobs:Custom Jobs`;
-  launchJobs = $localize`:Launch Jobs|Launch Jobs:Launch Jobs`;
-  jobExecutions = $localize`:Job executions|Job Executions:Job Executions`;
+  customJobs = $localize`:Custom jobs|Custom jobs:Custom jobs`;
+  launchJobs = $localize`:Launch jobs|Launch jobs:Launch jobs`;
+  jobExecutions = $localize`:Job executions|Job executions:Job executions`;
 
   isSmallScreen$ = this.responsive
     .observe([Breakpoints.XSmall, Breakpoints.Small])
     .pipe(map((x: BreakpointState) => x.matches));
 
-  constructor(public authService: AuthService, private responsive: BreakpointObserver) {}
+  constructor(
+    public authService: AuthService,
+    private responsive: BreakpointObserver
+  ) {}
 }

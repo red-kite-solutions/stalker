@@ -55,7 +55,7 @@ export class LaunchJobsComponent {
     private titleService: Title,
     public authService: AuthService
   ) {
-    this.titleService.setTitle($localize`:Launch Jobs|:Launch Jobs`);
+    this.titleService.setTitle($localize`:Launch jobs|:Launch jobs`);
   }
 
   private refreshData() {
