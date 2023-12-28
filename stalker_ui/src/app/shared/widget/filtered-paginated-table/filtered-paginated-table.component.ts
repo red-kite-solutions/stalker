@@ -183,13 +183,6 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> {
   }
 
   private refocusMatChipInput() {
-    // Removing the focus from the chips is mandatory to replace the cursor
-    // to the end of the text... Took a couple hours to find that
-    // TODO(mdc-migration)
-    // for (const chip of this.chipGrid.) {
-    //   chip._hasFocus = false;
-    // }
-
     this.filterInput.nativeElement.focus();
     this.filterInput.nativeElement.selectionStart = 100000;
     this.filterInput.nativeElement.selectionEnd = 100000;
