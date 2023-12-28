@@ -10,6 +10,7 @@
 @import 'app/modules/jobs/custom-jobs/_custom-jobs.component';
 @import 'app/modules/jobs/subscriptions/_subscription.component.scss';
 @import 'app/shared/widget/text-menu/_text-menu.component.scss';
+@import 'app/modules/tags/manage-tags/_manage-tags.component.scss';
 
 @include app-filtered-paginated-table();
 @include panel-section();
@@ -18,6 +19,7 @@
 @include app-text-select-menu();
 @include app-custom-jobs();
 @include app-subscriptions();
+@include app-manage-tags();
 
 html,
 body {
@@ -59,16 +61,6 @@ app-image-upload {
   }
 }
 
-// This removes the alpha form field from the ngx mat color canvas
-// in the manage-tags.component.html file
-.ngx-mat-color-canvas {
-  .color-canvas-row:nth-child(2) {
-    mat-form-field:nth-child(3) {
-      display: none !important;
-    }
-  }
-}
-
 /* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
 /* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
 /* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
@@ -94,4 +86,8 @@ a {
 // Tailwind conflicts with Angular Material's style
 .mdc-notched-outline__notch {
   border-right: none;
+}
+
+.mat-mdc-button-base {
+  letter-spacing: normal !important;
 }

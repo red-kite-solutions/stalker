@@ -3,24 +3,18 @@
     @for (finding of findings.items; track finding) {
       <div class="finding-wrapper">
         <mat-card appearance="outlined">
-          <finding [finding]="finding"></finding>
+          <mat-card-content>
+            <finding [finding]="finding"></finding>
+          </mat-card-content>
         </mat-card>
       </div>
     }
     <div class="findings-paginator">
       @if (findings.items.length < findings.totalRecords) {
-        <button
-          mat-button
-          color="primary"
-          (click)="loadMoreFindings()"
-          [disabled]="isLoadingMoreFindings$ | async"
-          >
+        <button mat-button color="primary" (click)="loadMoreFindings()" [disabled]="isLoadingMoreFindings$ | async">
           <span class="load-more-findings">
             @if (isLoadingMoreFindings$ | async) {
-              <mat-progress-spinner
-                [mode]="'indeterminate'"
-                [diameter]="16"
-              ></mat-progress-spinner>
+              <mat-progress-spinner [mode]="'indeterminate'" [diameter]="16"></mat-progress-spinner>
             }
             <span>Load more</span>
           </span>
@@ -32,6 +26,8 @@
 
 @if (!(findings$ | async)?.totalRecords) {
   <mat-card appearance="outlined" i18n="There are no finding yet|There are no finding yet">
-  <span class="no-findings"> There are no finding yet </span>
-</mat-card>
+    <mat-card-content>
+      <span class="no-findings">There are no finding yet</span>
+    </mat-card-content>
+  </mat-card>
 }

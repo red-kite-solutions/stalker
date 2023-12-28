@@ -1,55 +1,60 @@
 <div fxLayout="row" class="code-editor-container">
   <div fxFlex="45">
     <mat-card appearance="outlined" class="container">
-      <h1 i18n="Launch Jobs|Starting jobs manually">Launch Jobs</h1>
-      <div fxLayout="row">
-        <button
-          mat-raised-button
-          color="primary"
-          class="left-action-button"
-          (click)="startJob()"
-          [disabled]="this.authService.role === 'read-only'"
-          >
-          <label i18n="Start|Start the job">Start</label>
-        </button>
-      </div>
+      <mat-card-header>
+        <mat-card-title i18n="Launch Jobs|Starting jobs manually">Launch Jobs</mat-card-title>
+      </mat-card-header>
 
-      <div class="table-container">
-        @if ((dataSource$ | async) || true) {
-          <table mat-table [dataSource]="dataSource">
-            <!-- Name Column -->
-            <ng-container matColumnDef="name">
-              <th mat-header-cell *matHeaderCellDef i18n="Name|Name of an item">Name</th>
-              <td mat-cell *matCellDef="let element">{{ element.name }}</td>
-            </ng-container>
-            <!-- Source Column -->
-            <ng-container matColumnDef="source">
-              <th mat-header-cell *matHeaderCellDef i18n="Source|Source">Source</th>
-              <td mat-cell *matCellDef="let element">{{ element.source }}</td>
-            </ng-container>
-            <tr mat-header-row *matHeaderRowDef="['name', 'source']"></tr>
-            <tr
-              mat-row
-              *matRowDef="let row; columns: ['name', 'source']"
-              class="rows"
-              (click)="selectJob(row)"
-              [class.selected-job]="selectedRow?.name === row.name"
-            ></tr>
-            <tr class="mat-row nodata" *matNoDataRow>
-              <td class="mat-cell" colspan="100%" i18n="No job found|No job were found">No job found</td>
-            </tr>
-          </table>
-        }
-
-        <mat-paginator
-          [length]="100"
-          [pageSize]="10"
-          [pageSizeOptions]="[10, 25, 50, 100]"
-          showFirstLastButtons
-          aria-label="Select page"
+      <mat-card-content>
+        <div fxLayout="row">
+          <button
+            mat-raised-button
+            color="primary"
+            class="left-action-button"
+            (click)="startJob()"
+            [disabled]="this.authService.role === 'read-only'"
           >
-        </mat-paginator>
-      </div>
+            <label i18n="Start|Start the job">Start</label>
+          </button>
+        </div>
+
+        <div class="table-container">
+          @if ((dataSource$ | async) || true) {
+            <table mat-table [dataSource]="dataSource">
+              <!-- Name Column -->
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef i18n="Name|Name of an item">Name</th>
+                <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+              </ng-container>
+              <!-- Source Column -->
+              <ng-container matColumnDef="source">
+                <th mat-header-cell *matHeaderCellDef i18n="Source|Source">Source</th>
+                <td mat-cell *matCellDef="let element">{{ element.source }}</td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="['name', 'source']"></tr>
+              <tr
+                mat-row
+                *matRowDef="let row; columns: ['name', 'source']"
+                class="rows"
+                (click)="selectJob(row)"
+                [class.selected-job]="selectedRow?.name === row.name"
+              ></tr>
+              <tr class="mat-row nodata" *matNoDataRow>
+                <td class="mat-cell" colspan="100%" i18n="No job found|No job were found">No job found</td>
+              </tr>
+            </table>
+          }
+
+          <mat-paginator
+            [length]="100"
+            [pageSize]="10"
+            [pageSizeOptions]="[10, 25, 50, 100]"
+            showFirstLastButtons
+            aria-label="Select page"
+          >
+          </mat-paginator>
+        </div>
+      </mat-card-content>
     </mat-card>
   </div>
   @if (companies$ | async) {
@@ -60,9 +65,7 @@
           <mat-select [(value)]="selectedCompany">
             <mat-option>None</mat-option>
             @for (company of companies$ | async; track company) {
-              <mat-option value="{{ company.id }}">{{
-                company.name
-              }}</mat-option>
+              <mat-option value="{{ company.id }}">{{ company.name }}</mat-option>
             }
           </mat-select>
         </mat-form-field>

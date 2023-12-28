@@ -1,4 +1,3 @@
-
 /* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
 /* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
 mat-card {
@@ -7,12 +6,6 @@ mat-card {
 
 app-pill-tag {
   margin-right: 10px;
-}
-
-.actions {
-  display: flex;
-  gap: 16px;
-  padding-bottom: 16px;
 }
 
 /* TODO(mdc-migration): The following rule targets internal classes of dialog that may no longer apply for the MDC version. */

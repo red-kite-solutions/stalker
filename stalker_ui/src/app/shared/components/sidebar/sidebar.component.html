@@ -1,7 +1,7 @@
 @if (!(isSmallScreen$ | async) || expanded) {
   <mat-nav-list>
     @if (expanded) {
-      <h2 matSubheader i18n="Pages|The different pages of the application">Pages</h2>
+      <h3 matSubheader i18n="Pages|The different pages of the application">Pages</h3>
     }
     <a
       mat-list-item
@@ -10,7 +10,7 @@
       [matTooltip]="expanded ? '' : dashboard"
       [matTooltipShowDelay]="700"
       matTooltipPosition="right"
-      >
+    >
       <mat-icon class="material-icons-outlined">dashboard</mat-icon>
       @if (expanded) {
         <span>{{ dashboard }}</span>
@@ -23,7 +23,7 @@
       [matTooltip]="expanded ? '' : companies"
       [matTooltipShowDelay]="700"
       matTooltipPosition="right"
-      >
+    >
       <mat-icon class="material-icons-outlined">business</mat-icon>
       @if (expanded) {
         <span>{{ companies }}</span>
@@ -36,7 +36,7 @@
       [matTooltip]="expanded ? '' : domains"
       [matTooltipShowDelay]="700"
       matTooltipPosition="right"
-      >
+    >
       <mat-icon class="material-icons-outlined">language</mat-icon>
       @if (expanded) {
         <span>{{ domains }}</span>
@@ -49,7 +49,7 @@
       [matTooltip]="expanded ? '' : hosts"
       [matTooltipShowDelay]="700"
       matTooltipPosition="right"
-      >
+    >
       <mat-icon class="material-icons-outlined">dns</mat-icon>
       @if (expanded) {
         <span>{{ hosts }}</span>
@@ -62,7 +62,7 @@
       [matTooltip]="expanded ? '' : tags"
       [matTooltipShowDelay]="700"
       matTooltipPosition="right"
-      >
+    >
       <mat-icon class="material-icons-outlined">sell</mat-icon>
       @if (expanded) {
         <span>{{ tags }}</span>
@@ -71,7 +71,7 @@
     <!-- Jobs -->
     <mat-divider></mat-divider>
     @if (expanded) {
-      <h2 matSubheader i18n="Jobs|Jobs done by the backend">Jobs</h2>
+      <h3 matSubheader i18n="Jobs|Jobs done by the backend">Jobs</h3>
     }
     <a
       mat-list-item
@@ -80,7 +80,7 @@
       [matTooltip]="expanded ? '' : subscriptions"
       [matTooltipShowDelay]="700"
       matTooltipPosition="right"
-      >
+    >
       <mat-icon class="material-icons-outlined">precision_manufacturing</mat-icon>
       @if (expanded) {
         <span>{{ subscriptions }}</span>
@@ -93,7 +93,7 @@
       [matTooltip]="expanded ? '' : customJobs"
       [matTooltipShowDelay]="700"
       matTooltipPosition="right"
-      >
+    >
       <mat-icon class="material-icons-outlined">engineering</mat-icon>
       @if (expanded) {
         <span>{{ customJobs }}</span>
@@ -106,7 +106,7 @@
       [matTooltip]="expanded ? '' : launchJobs"
       [matTooltipShowDelay]="700"
       matTooltipPosition="right"
-      >
+    >
       <mat-icon class="material-icons-outlined">rocket_launch</mat-icon>
       @if (expanded) {
         <span>{{ launchJobs }}</span>
@@ -119,7 +119,7 @@
       [matTooltip]="expanded ? '' : jobExecutions"
       [matTooltipShowDelay]="700"
       matTooltipPosition="right"
-      >
+    >
       <mat-icon class="material-icons-outlined">play_circle</mat-icon>
       @if (expanded) {
         <span>{{ jobExecutions }}</span>
@@ -130,7 +130,7 @@
       <div>
         <mat-divider></mat-divider>
         @if (expanded) {
-          <h2 matSubheader i18n="Administration|Administration subsection of the menu">Administration</h2>
+          <h3 matSubheader i18n="Administration|Administration subsection of the menu">Administration</h3>
         }
         <a
           mat-list-item
@@ -139,13 +139,14 @@
           [matTooltip]="expanded ? '' : users"
           [matTooltipShowDelay]="700"
           matTooltipPosition="right"
-          >
+        >
           <mat-icon class="material-icons-outlined">manage_accounts</mat-icon>
           @if (expanded) {
             <span>{{ users }}</span>
           }
         </a>
-        <a
+        <!-- This is not supported for now. -->
+        <!-- <a
           mat-list-item
           routerLinkActive="list-item-active"
           routerLink="/admin/settings"
@@ -157,7 +158,7 @@
           @if (expanded) {
             <span>{{ settings }}</span>
           }
-        </a>
+        </a> -->
       </div>
     }
   </mat-nav-list>
