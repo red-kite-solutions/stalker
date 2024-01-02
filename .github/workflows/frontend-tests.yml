@@ -19,7 +19,8 @@ jobs:
         with:
           node-version: 16
 
-      - run: npm ci
+      # FIXME: When we get rid of flex-layout and update the color picker, then we can remove legacy peer-deps.
+      - run: npm ci --legacy-peer-deps
         working-directory: stalker_ui
 
       - run: npm run test:cicd
@@ -37,7 +38,8 @@ jobs:
         with:
           node-version: 16
 
-      - run: npm ci
+      # FIXME: When we get rid of flex-layout and update the color picker, then we can remove legacy peer-deps.
+      - run: npm ci --legacy-peer-deps
         working-directory: stalker_ui
 
       - run: npm run build --prod
