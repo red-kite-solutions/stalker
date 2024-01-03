@@ -1,32 +1,33 @@
 <mat-toolbar color="primary" class="mat-elevation-z6">
   <mat-toolbar-row fxLayout fxLayoutGap="16px">
-    <div fxFlex fxLayoutAlign="flex-start center">
+    <div class="tw-flex tw-items-center tw-gap-2">
       @if (showRouting) {
         <button mat-icon-button (click)="toggleSideBar()">
           <mat-icon>menu</mat-icon>
         </button>
       }
+      <avatar class="tw-max-w-8" src="assets/red-kite-logo-only-color-circle.png"></avatar>
       <span fxHide.lt-sm="true" i18n="Main title|Main application title, the name of the product"
         >Stalker | Recon Automation</span
-        >
-      </div>
+      >
+    </div>
 
-      <div [hidden]="!showRouting">
-        <button mat-button [matMenuTriggerFor]="menu">
-          <mat-icon>person_outline</mat-icon>
-          <span fxHide.lt-md="true">{{ email }}</span>
-        </button>
-      </div>
-    </mat-toolbar-row>
-  </mat-toolbar>
+    <div [hidden]="!showRouting">
+      <button mat-button [matMenuTriggerFor]="menu">
+        <mat-icon>person_outline</mat-icon>
+        <span fxHide.lt-md="true">{{ email }}</span>
+      </button>
+    </div>
+  </mat-toolbar-row>
+</mat-toolbar>
 
-  <mat-menu #menu="matMenu">
-    <button mat-menu-item routerLink="/profile">
-      <mat-icon class="material-icons-outlined">badge</mat-icon>
-      <label i18n="Profile|The user's profile">Profile</label>
-    </button>
-    <button mat-menu-item type="button" (click)="logout()">
-      <mat-icon>exit_to_app</mat-icon>
-      <label i18n="Sign out|Link for a user to log out">Sign out</label>
-    </button>
-  </mat-menu>
+<mat-menu #menu="matMenu">
+  <button mat-menu-item routerLink="/profile">
+    <mat-icon class="material-icons-outlined">badge</mat-icon>
+    <label i18n="Profile|The user's profile">Profile</label>
+  </button>
+  <button mat-menu-item type="button" (click)="logout()">
+    <mat-icon>exit_to_app</mat-icon>
+    <label i18n="Sign out|Link for a user to log out">Sign out</label>
+  </button>
+</mat-menu>
