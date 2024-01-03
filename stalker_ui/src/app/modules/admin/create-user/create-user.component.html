@@ -1,5 +1,5 @@
 <div fxLayout="row" fxLayoutAlign="center">
-  <mat-card fxFlex="60">
+  <mat-card appearance="outlined" fxFlex="60">
     <mat-card-content>
       <h1 fxLayoutAlign="flex-start center">
         <button type="button" mat-icon-button routerLinkActive="list-item-active" routerLink="/admin/users">
@@ -50,9 +50,11 @@
               >Role</mat-label
             >
             <mat-select formControlName="role" required>
-              <mat-option *ngFor="let role of roles" [value]="role">
-                {{ role.displayName }}
-              </mat-option>
+              @for (role of roles; track $index) {
+                <mat-option [value]="role">
+                  {{ role.displayName }}
+                </mat-option>
+              }
             </mat-select>
             <mat-hint>{{ form.controls['role'].value.shortDescription }}</mat-hint>
             <mat-error i18n="Role required|A user must have a role, otherwise the form is invalid"
@@ -141,11 +143,12 @@
           </mat-error>
         </mat-form-field>
 
-        <mat-error
-          *ngIf="!this.newUserValid"
-          i18n="Correct information|Asking the user to correct any invalid information before resubmitting the form"
-          >Please correct the invalid information before submitting</mat-error
-        >
+        @if (!this.newUserValid) {
+          <mat-error
+            i18n="Correct information|Asking the user to correct any invalid information before resubmitting the form"
+            >Please correct the invalid information before submitting</mat-error
+          >
+        }
 
         <div class="center">
           <button

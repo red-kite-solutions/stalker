@@ -7,7 +7,9 @@ import { AvatarComponent } from '../avatar/avatar.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'company-avatar',
   styleUrls: ['./company-avatar.component.scss'],
-  template: `<avatar [src]="company?.logo" [name]="company?.name"></avatar>`,
+  template: `@if (company != null) {
+    <avatar [src]="company.logo" [name]="company.name"></avatar>
+  }`,
   imports: [AvatarComponent],
 })
 export class CompanyAvatarComponent {

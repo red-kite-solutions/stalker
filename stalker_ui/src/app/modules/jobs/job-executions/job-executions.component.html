@@ -1,57 +1,60 @@
 <div>
-  <mat-card class="container">
-    <h1 i18n="Job executions|List of jobs">Job executions</h1>
+  <mat-card appearance="outlined" class="container">
+    <mat-card-header>
+      <mat-card-title i18n="Job executions|List of jobs">Job executions</mat-card-title>
+    </mat-card-header>
 
-    <div class="table-container">
-      <app-filtered-paginated-table
-        *ngIf="((dataSource$ | async) && (companies$ | async)) || true"
-        [dataSource]="dataSource"
-        (pageChange)="pageChange($event)"
-        [isLoading]="dataLoading"
-        [length]="count"
-        [columns]="displayColumns"
-        [filterOptions]="filterOptions"
-        [routerLinkPrefix]="'/jobs/executions/'"
-        (filtersChange)="filtersChange($event)"
-      >
-        <!-- Name Column -->
-        <ng-container matColumnDef="name">
-          <th mat-header-cell *matHeaderCellDef i18n="Name|Name of an item">Name</th>
-          <td mat-cell *matCellDef="let element">
-            <div class="name-cell">
-              <app-job-state [state]="element.state"></app-job-state>
-              <div>
-                <div>{{ element.task }}</div>
-                <div class="execution-info"><job-logs-summary [job]="element"></job-logs-summary></div>
-              </div>
-            </div>
-          </td>
-        </ng-container>
-
-        <!-- Company Column -->
-        <ng-container matColumnDef="company">
-          <th mat-header-cell *matHeaderCellDef i18n="Company|A business">Company</th>
-          <td mat-cell *matCellDef="let element">
-            <company-cell [company]="companies | whereId : [element.companyId]"></company-cell>
-          </td>
-        </ng-container>
-
-        <!-- Time Column -->
-        <ng-container matColumnDef="time">
-          <th mat-header-cell *matHeaderCellDef></th>
-          <td mat-cell *matCellDef="let element">
-            <div *ngIf="element.endTime; else started">
-              <div i18n="Started|Started x days ago">Started {{ element.endTime | timeAgo }}</div>
-              <div i18n="Took|Took x seconds">Took {{ element.endTime - element.endTime | humanize }}</div>
-            </div>
-            <ng-template #started>
-              <div i18n="Started|Started x days ago">Started {{ element.startTime | timeAgo }}</div>
-            </ng-template>
-          </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="displayColumns"></tr>
-      </app-filtered-paginated-table>
-    </div>
+    <mat-card-content>
+      <div class="table-container tw-mt-4">
+        @if (((dataSource$ | async) && (companies$ | async)) || true) {
+          <app-filtered-paginated-table
+            [dataSource]="dataSource"
+            (pageChange)="pageChange($event)"
+            [isLoading]="dataLoading"
+            [length]="count"
+            [columns]="displayColumns"
+            [filterOptions]="filterOptions"
+            [routerLinkPrefix]="'/jobs/executions/'"
+            (filtersChange)="filtersChange($event)"
+          >
+            <!-- Name Column -->
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef i18n="Name|Name of an item">Name</th>
+              <td mat-cell *matCellDef="let element">
+                <div class="name-cell">
+                  <app-job-state [state]="element.state"></app-job-state>
+                  <div>
+                    <div>{{ element.task }}</div>
+                    <div class="execution-info"><job-logs-summary [job]="element"></job-logs-summary></div>
+                  </div>
+                </div>
+              </td>
+            </ng-container>
+            <!-- Company Column -->
+            <ng-container matColumnDef="company">
+              <th mat-header-cell *matHeaderCellDef i18n="Company|A business">Company</th>
+              <td mat-cell *matCellDef="let element">
+                <company-cell [company]="companies | whereId: [element.companyId]"></company-cell>
+              </td>
+            </ng-container>
+            <!-- Time Column -->
+            <ng-container matColumnDef="time">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let element">
+                @if (element.endTime) {
+                  <div>
+                    <div i18n="Started|Started x days ago">Started {{ element.endTime | timeAgo }}</div>
+                    <div i18n="Took|Took x seconds">Took {{ element.endTime - element.endTime | humanize }}</div>
+                  </div>
+                } @else {
+                  <div i18n="Started|Started x days ago">Started {{ element.startTime | timeAgo }}</div>
+                }
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayColumns"></tr>
+          </app-filtered-paginated-table>
+        }
+      </div>
+    </mat-card-content>
   </mat-card>
 </div>

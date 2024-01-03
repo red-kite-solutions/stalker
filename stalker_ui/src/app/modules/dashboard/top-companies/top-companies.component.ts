@@ -11,12 +11,14 @@ import { CompanyAvatarComponent } from 'src/app/shared/components/company-avatar
   selector: 'top-companies',
   template: `<span class="metric-title">Companies</span>
     <mat-list class="metric-list">
-      <mat-list-item *ngFor="let company of companies$ | async">
-        <span class="company">
-          <company-avatar [company]="company"></company-avatar>
-          <a class="metric-list-item" [routerLink]="['companies', company._id]">{{ company.name }}</a>
-        </span>
-      </mat-list-item>
+      @for (company of companies$ | async; track company) {
+        <mat-list-item>
+          <span class="company">
+            <company-avatar [company]="company"></company-avatar>
+            <a class="metric-list-item" [routerLink]="['companies', company._id]">{{ company.name }}</a>
+          </span>
+        </mat-list-item>
+      }
     </mat-list>`,
   styleUrls: ['../metric-styling.scss', './top-companies.component.scss'],
   imports: [CommonModule, CompanyAvatarComponent, MatListModule, RouterModule],

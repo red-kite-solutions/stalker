@@ -13,7 +13,7 @@ import {
 } from '@angular/core';
 import { UntypedFormControl } from '@angular/forms';
 import { MatAutocomplete, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
-import { MatChipInputEvent, MatChipList } from '@angular/material/chips';
+import { MatChipGrid, MatChipInputEvent } from '@angular/material/chips';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import {
   MatColumnDef,
@@ -23,7 +23,7 @@ import {
   MatTable,
   MatTableDataSource,
 } from '@angular/material/table';
-import { map, Observable, startWith } from 'rxjs';
+import { Observable, map, startWith } from 'rxjs';
 import { IdentifiedElement } from '../../types/identified-element.type';
 
 @Component({
@@ -41,7 +41,7 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatAutocomplete) autocomplete!: MatAutocomplete;
   @ViewChild('filterInput') filterInput!: ElementRef<HTMLInputElement>;
-  @ViewChild('chipList') chipList!: MatChipList;
+  @ViewChild('chipList') chipGrid!: MatChipGrid;
 
   _dataSource!: MatTableDataSource<T>;
   @Input() set dataSource(data: MatTableDataSource<T>) {
@@ -183,12 +183,6 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> {
   }
 
   private refocusMatChipInput() {
-    // Removing the focus from the chips is mandatory to replace the cursor
-    // to the end of the text... Took a couple hours to find that
-    for (const chip of this.chipList.chips) {
-      chip._hasFocus = false;
-    }
-
     this.filterInput.nativeElement.focus();
     this.filterInput.nativeElement.selectionStart = 100000;
     this.filterInput.nativeElement.selectionEnd = 100000;

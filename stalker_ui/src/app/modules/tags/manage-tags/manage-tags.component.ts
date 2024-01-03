@@ -1,7 +1,7 @@
 import { Color, NgxMatColorPickerModule } from '@angular-material-components/color-picker';
 import { SelectionModel } from '@angular/cdk/collections';
 import { CommonModule } from '@angular/common';
-import { Component, TemplateRef, ViewChild } from '@angular/core';
+import { Component, TemplateRef } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -11,7 +11,6 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
@@ -41,7 +40,6 @@ import { SharedModule } from '../../../shared/shared.module';
     ReactiveFormsModule,
     MatInputModule,
     MatCheckboxModule,
-    MatPaginatorModule,
     NgxMatColorPickerModule,
   ],
   selector: 'app-manage-tags',
@@ -49,7 +47,6 @@ import { SharedModule } from '../../../shared/shared.module';
   styleUrls: ['./manage-tags.component.scss'],
 })
 export class ManageTagsComponent {
-  @ViewChild(MatPaginator) paginator: MatPaginator | null;
   displayedColumns: string[] = ['select', 'firstName', 'lastName', 'email', 'role', 'active'];
   dataSource = new MatTableDataSource<Tag>();
   selection = new SelectionModel<Tag>(true, []);
@@ -66,7 +63,6 @@ export class ManageTagsComponent {
           n.id = n._id;
         }
         this.dataSource.data = next;
-        this.dataSource.paginator = this.paginator;
       })
     );
   }
@@ -78,7 +74,6 @@ export class ManageTagsComponent {
     private toastr: ToastrService,
     private titleService: Title
   ) {
-    this.paginator = null;
     this.titleService.setTitle($localize`:Manage tags page title|:Manage tags`);
   }
 
@@ -129,7 +124,6 @@ export class ManageTagsComponent {
             this.selection.deselect(tag);
             const removeIndex = this.dataSource.data.findIndex((t: Tag) => t.id === tag.id);
             this.dataSource.data.splice(removeIndex, 1);
-            this.dataSource.paginator = this.paginator;
             this.toastr.success(
               $localize`:Tag deleted|Confirm the successful deletion of a tag:Tag deleted successfully`
             );

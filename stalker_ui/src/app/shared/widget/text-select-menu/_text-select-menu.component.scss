@@ -6,19 +6,11 @@
     overflow: scroll;
   }
   .app-text-select-menu-search-container {
-    .mat-form-field {
+    .mat-mdc-form-field {
       padding-top: 5px;
-      .mat-form-field-wrapper {
+
+      .mat-mdc-text-field-wrapper {
         padding-bottom: 5px;
-        .mat-form-field-outline {
-          height: 40px;
-          font-size: xx-small;
-        }
-        .mat-form-field-infix {
-          padding-top: 8px;
-          padding-bottom: 8px;
-          border-top-width: 5px;
-        }
       }
     }
   }

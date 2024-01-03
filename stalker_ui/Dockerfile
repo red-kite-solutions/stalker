@@ -3,7 +3,9 @@ WORKDIR /app
 
 COPY package.json package.json
 COPY package-lock.json package-lock.json
-RUN npm ci
+
+# FIXME: When we get rid of flex-layout and update the color picker, then we can remove legacy peer-deps.
+RUN npm ci --legacy-peer-deps
 
 COPY angular.json angular.json
 COPY tsconfig.app.json tsconfig.app.json

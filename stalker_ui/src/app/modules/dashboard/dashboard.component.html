@@ -1,19 +1,27 @@
 <h1>Dashboard</h1>
 
 <div class="container">
-  <mat-card>
-    <number-of-hosts-metric></number-of-hosts-metric>
+  <mat-card appearance="outlined">
+    <mat-card-content class="tw-h-full">
+      <number-of-hosts-metric></number-of-hosts-metric>
+    </mat-card-content>
   </mat-card>
 
-  <mat-card>
-    <number-of-domains-metric></number-of-domains-metric>
+  <mat-card appearance="outlined">
+    <mat-card-content class="tw-h-full">
+      <number-of-domains-metric></number-of-domains-metric>
+    </mat-card-content>
   </mat-card>
 
-  <mat-card class="span-col-2 span-row-auto">
-    <latest-jobs></latest-jobs>
+  <mat-card appearance="outlined" class="span-col-2 span-row-auto">
+    <mat-card-content class="tw-h-full">
+      <latest-jobs></latest-jobs>
+    </mat-card-content>
   </mat-card>
 
-  <mat-card class="span-col-2">
-    <top-companies></top-companies>
+  <mat-card appearance="outlined" class="span-col-2">
+    <mat-card-content class="tw-h-full">
+      <top-companies></top-companies>
+    </mat-card-content>
   </mat-card>
 </div>
