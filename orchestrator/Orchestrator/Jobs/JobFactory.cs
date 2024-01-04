@@ -61,7 +61,11 @@ public class JobFactory : IJobFactory
             };
         }
 
-        throw new InvalidOperationException();
+        if (request.Type?.ToLower() == "nuclei")
+        {
+            return new NucleiCustomJobCommand(request, Kubernetes, EventsProducer, JobLogsProducer, Parser, LoggerFactory.CreateLogger<NucleiCustomJobCommand>(), Config);
+        }
 
+        throw new InvalidOperationException();
     }
 }

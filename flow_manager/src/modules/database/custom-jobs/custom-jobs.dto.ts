@@ -1,8 +1,6 @@
-import { IsIn, IsMongoId, IsNotEmpty, IsString } from 'class-validator';
-import {
-  CustomJobLanguages,
-  CustomJobTypes,
-} from '../jobs/models/custom-job.model';
+import { IsMongoId, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsValidCustomJobLanguage } from '../../../validators/is-valid-custom-job-language.validator';
+import { IsValidFindingHandlerLanguage } from '../../../validators/is-valid-finding-handler-language.validator';
 
 export class CustomJobDto {
   @IsString()
@@ -15,15 +13,19 @@ export class CustomJobDto {
 
   @IsString()
   @IsNotEmpty()
-  @IsIn(CustomJobTypes)
   public type!: string;
 
-  @IsString()
-  @IsNotEmpty()
-  @IsIn(CustomJobLanguages)
+  @IsValidCustomJobLanguage()
   public language!: string;
 
   @IsMongoId()
   @IsNotEmpty()
   public jobPodConfigId: string;
+
+  @IsOptional()
+  @IsString()
+  public findingHandler: string;
+
+  @IsValidFindingHandlerLanguage()
+  public findingHandlerLanguage: string;
 }

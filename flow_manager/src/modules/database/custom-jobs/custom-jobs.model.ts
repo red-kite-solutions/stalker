@@ -26,6 +26,12 @@ export class CustomJobEntry {
 
   @Prop()
   public jobPodConfigId: Types.ObjectId;
+
+  @Prop()
+  public findingHandler?: string;
+
+  @Prop()
+  public findingHandlerLanguage?: string;
 }
 
 export const CustomJobsSchema = SchemaFactory.createForClass(CustomJobEntry);

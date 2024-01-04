@@ -24,6 +24,8 @@ export class CustomJobsService {
       language: dto.language,
       jobPodConfigId: new Types.ObjectId(dto.jobPodConfigId),
       source: JobSources.userCreated,
+      findingHandler: dto.findingHandler ?? undefined,
+      findingHandlerLanguage: dto.findingHandlerLanguage ?? undefined,
       parameters: [],
     };
     return await this.customJobModel.create(job);
@@ -47,6 +49,8 @@ export class CustomJobsService {
       language: dto.language,
       jobPodConfigId: new Types.ObjectId(dto.jobPodConfigId),
       source: JobSources.userCreated,
+      findingHandler: dto.findingHandler ?? undefined,
+      findingHandlerLanguage: dto.findingHandlerLanguage ?? undefined,
       parameters: [],
     };
     return await this.customJobModel.updateOne(
