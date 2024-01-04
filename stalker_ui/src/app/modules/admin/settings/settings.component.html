@@ -1,113 +1,111 @@
-<mat-card>
-  <mat-card-content *ngIf="(settings$ | async) || true">
-    <div fxLayout="row" fxLayoutAlign="flex-start center">
-      <h1 fxFlex i18n="Settings|Settings page title to edit the application configuration">Settings</h1>
-      <button
-        mat-raised-button
-        type="button"
-        color="primary"
-        (click)="saveSettings()"
-        i18n="Save settings|Button to save the changes to the settings"
-      >
+<mat-card appearance="outlined">
+  @if ((settings$ | async) || true) {
+    <mat-card-content>
+      <div fxLayout="row" fxLayoutAlign="flex-start center">
+        <h1 fxFlex i18n="Settings|Settings page title to edit the application configuration">Settings</h1>
+        <button
+          mat-raised-button
+          type="button"
+          color="primary"
+          (click)="saveSettings()"
+          i18n="Save settings|Button to save the changes to the settings"
+          >
         Save Settings
       </button>
-    </div>
-
-    <br />
-    <mat-divider></mat-divider>
-    <mat-tab-group>
-      <mat-tab i18n-label="Reporting|Reporting configuration tab title" label="Reporting">
-        <div fxLayout="row" class="header-check" fxLayoutAlign="flex-start center">
-          <mat-checkbox
-            class="inrow"
-            [(ngModel)]="reportingEnabled"
-            (ngModelChange)="toggleReporting()"
-            i18n="Enable reporting|Enables the different reporting features in the application"
-            >Enable Reporting</mat-checkbox
-          >
-        </div>
-
-        <br />
-        <mat-divider></mat-divider>
-
-        <div fxLayout="row" class="header-check" fxLayoutAlign="flex-start center">
-          <h3 class="inrow">Keybase</h3>
-          <mat-checkbox
-            [disabled]="!reportingEnabled"
-            class="inrow"
-            [(ngModel)]="keybaseEnabled"
-            (ngModelChange)="toggleKeybaseForm()"
-            i18n="Enable keybase|Enable the reporting using the keybase application"
-            >Enable Keybase Reporting</mat-checkbox
-          >
-          <button
-            [disabled]="!keybaseReportingForm.valid"
-            type="button"
-            class="inrow"
-            mat-icon-button
-            (click)="syncKeybase()"
-            i18n-matTooltip="Validate Keybase crendentials|Validate that the current keybase credentials are valid"
-            matTooltip="Validate Keybase credentials"
-          >
-            <mat-icon class="material-icons-outlined">sync</mat-icon>
-          </button>
-        </div>
-        <form [formGroup]="keybaseReportingForm">
-          <mat-form-field class="formfieldblock">
-            <input
-              matInput
-              type="text"
-              i18n-placeholder="Username|The name of a user for an application"
-              placeholder="Username"
-              name="username"
-              formControlName="username"
-              required
-            />
-            <mat-error i18n="Username empty|A username must be provided for the form to be valid"
-              >Username must not be empty</mat-error
-            >
-          </mat-form-field>
-
-          <mat-form-field class="formfieldblock">
-            <mat-label i18n="Paperkey|A paper key is meant to be written on paper and is similar to a password"
-              >Paper Key</mat-label
-            >
-            <input
-              matInput
-              [type]="hidePaperkey ? 'password' : 'text'"
-              name="paperkey"
-              formControlName="paperkey"
-              required
-            />
-            <button
-              [disabled]="!keybaseEnabled"
-              mat-icon-button
-              matSuffix
-              (click)="hidePaperkey = !hidePaperkey"
-              [attr.aria-pressed]="hidePaperkey"
-            >
-              <mat-icon>{{ hidePaperkey ? 'visibility_off' : 'visibility' }}</mat-icon>
-            </button>
-            <mat-error i18n="Paperkey empty|A paperkey must be provided for the form to be valid">
+      </div>
+      <br />
+      <mat-divider></mat-divider>
+      <mat-tab-group>
+        <mat-tab i18n-label="Reporting|Reporting configuration tab title" label="Reporting">
+          <div fxLayout="row" class="header-check" fxLayoutAlign="flex-start center">
+            <mat-checkbox
+              class="inrow"
+              [(ngModel)]="reportingEnabled"
+              (ngModelChange)="toggleReporting()"
+              i18n="Enable reporting|Enables the different reporting features in the application"
+              >Enable Reporting</mat-checkbox
+              >
+            </div>
+            <br />
+            <mat-divider></mat-divider>
+            <div fxLayout="row" class="header-check" fxLayoutAlign="flex-start center">
+              <h3 class="inrow">Keybase</h3>
+              <mat-checkbox
+                [disabled]="!reportingEnabled"
+                class="inrow"
+                [(ngModel)]="keybaseEnabled"
+                (ngModelChange)="toggleKeybaseForm()"
+                i18n="Enable keybase|Enable the reporting using the keybase application"
+                >Enable Keybase Reporting</mat-checkbox
+                >
+                <button
+                  [disabled]="!keybaseReportingForm.valid"
+                  type="button"
+                  class="inrow"
+                  mat-icon-button
+                  (click)="syncKeybase()"
+                  i18n-matTooltip="Validate Keybase crendentials|Validate that the current keybase credentials are valid"
+                  matTooltip="Validate Keybase credentials"
+                  >
+                  <mat-icon class="material-icons-outlined">sync</mat-icon>
+                </button>
+              </div>
+              <form [formGroup]="keybaseReportingForm">
+                <mat-form-field class="formfieldblock">
+                  <input
+                    matInput
+                    type="text"
+                    i18n-placeholder="Username|The name of a user for an application"
+                    placeholder="Username"
+                    name="username"
+                    formControlName="username"
+                    required
+                    />
+                  <mat-error i18n="Username empty|A username must be provided for the form to be valid"
+                    >Username must not be empty</mat-error
+                    >
+                  </mat-form-field>
+                  <mat-form-field class="formfieldblock">
+                    <mat-label i18n="Paperkey|A paper key is meant to be written on paper and is similar to a password"
+                      >Paper Key</mat-label
+                      >
+                      <input
+                        matInput
+                        [type]="hidePaperkey ? 'password' : 'text'"
+                        name="paperkey"
+                        formControlName="paperkey"
+                        required
+                        />
+                      <button
+                        [disabled]="!keybaseEnabled"
+                        mat-icon-button
+                        matSuffix
+                        (click)="hidePaperkey = !hidePaperkey"
+                        [attr.aria-pressed]="hidePaperkey"
+                        >
+                        <mat-icon>{{ hidePaperkey ? 'visibility_off' : 'visibility' }}</mat-icon>
+                      </button>
+                      <mat-error i18n="Paperkey empty|A paperkey must be provided for the form to be valid">
               Paper key must not be empty
             </mat-error>
-          </mat-form-field>
-          <mat-form-field class="formfieldblock">
-            <input
-              matInput
-              type="text"
-              i18n-placeholder="Conversation Id|Also called channel id, represents a chat room in keybase"
-              placeholder="Conversation Id"
-              name="conversationId"
-              formControlName="conversationId"
-              required
-            />
-            <mat-error i18n="Conversation id empty|A conversation id must be provided for the form to be valid">
+                    </mat-form-field>
+                    <mat-form-field class="formfieldblock">
+                      <input
+                        matInput
+                        type="text"
+                        i18n-placeholder="Conversation Id|Also called channel id, represents a chat room in keybase"
+                        placeholder="Conversation Id"
+                        name="conversationId"
+                        formControlName="conversationId"
+                        required
+                        />
+                      <mat-error i18n="Conversation id empty|A conversation id must be provided for the form to be valid">
               Conversation Id must not be empty
             </mat-error>
-          </mat-form-field>
-        </form>
-      </mat-tab>
-    </mat-tab-group>
-  </mat-card-content>
-</mat-card>
+                    </mat-form-field>
+                  </form>
+                </mat-tab>
+              </mat-tab-group>
+            </mat-card-content>
+          }
+        </mat-card>

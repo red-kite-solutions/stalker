@@ -1,68 +1,69 @@
-<mat-card>
-  <h1 i18n="Hosts|Hosts">Hosts</h1>
+<mat-card appearance="outlined">
+  <mat-card-header>
+    <mat-card-title i18n="Hosts|Hosts">Hosts</mat-card-title>
+  </mat-card-header>
 
-  <div class="actions">
-    <button mat-raised-button color="primary" (click)="openNewHostsDialog(addHostsDialog)">
-      <mat-icon class="material-icons-outlined">add</mat-icon>
-      <label i18n="Add hosts|Add a new hosts to a company">Add Hosts</label>
-    </button>
+  <mat-card-content>
+    <div class="tw-flex tw-gap-4 tw-pt-2 tw-pb-4">
+      <button mat-raised-button color="primary" (click)="openNewHostsDialog(addHostsDialog)">
+        <mat-icon class="material-icons-outlined">add</mat-icon>
+        <label i18n="Add hosts|Add a new hosts to a company">Add Hosts</label>
+      </button>
 
-    <button mat-raised-button color="warn" class="left-action-button" (click)="deleteHosts()">
-      <mat-icon class="material-icons-outlined"> delete_outline </mat-icon>
-      <label i18n="Delete|Delete an item">Delete</label>
-    </button>
-  </div>
+      <button mat-raised-button color="warn" class="left-action-button" (click)="deleteHosts()">
+        <mat-icon class="material-icons-outlined"> delete_outline </mat-icon>
+        <label i18n="Delete|Delete an item">Delete</label>
+      </button>
+    </div>
 
-  <app-filtered-paginated-table
-    *ngIf="((dataSource$ | async) && (companies$ | async) && (tags$ | async)) || true"
-    [dataSource]="dataSource"
-    (pageChange)="pageChange($event)"
-    [isLoading]="dataLoading"
-    [length]="count"
-    [columns]="displayColumns$ | async"
-    [filterOptions]="filterOptions"
-    [routerLinkPrefix]="'/hosts/'"
-    (filtersChange)="filtersChange($event)"
-    (selectionChange)="selection = $event"
-  >
-    <!-- Ip Column -->
-    <ng-container matColumnDef="ip">
-      <th mat-header-cell *matHeaderCellDef i18n="Ip|An Ip address">Ip</th>
-      <td mat-cell *matCellDef="let element">
-        {{ element.ip }}
-      </td>
-    </ng-container>
-
-    <!-- Domain Column -->
-    <ng-container matColumnDef="domains">
-      <th mat-header-cell *matHeaderCellDef i18n="Domain|A domain name">Domain</th>
-      <td mat-cell *matCellDef="let element">
-        <ng-container *ngFor="let domain of element.domains; let last = last"
-          >{{ domain.name }}{{ !last ? ', ' : '' }}</ng-container
-        >
-      </td>
-    </ng-container>
-
-    <!-- Company Column -->
-    <ng-container matColumnDef="company">
-      <th mat-header-cell *matHeaderCellDef i18n="Company|A business">Company</th>
-      <td mat-cell *matCellDef="let element">
-        <company-cell [company]="companies | whereId : [element.companyId]"></company-cell>
-      </td>
-    </ng-container>
-
-    <!-- Tags Column -->
-    <ng-container matColumnDef="tags">
-      <th mat-header-cell *matHeaderCellDef i18n="Tags|Multiple tags describing somthing">Tags</th>
-      <td mat-cell *matCellDef="let element">
-        <app-pill-tag *ngFor="let tag of element.tags" [color]="(tags | whereId : [tag])?.color">{{
-          (tags | whereId : [tag])?.text
-        }}</app-pill-tag>
-      </td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="displayColumns$ | async"></tr>
-  </app-filtered-paginated-table>
+    @if (((dataSource$ | async) && (companies$ | async) && (tags$ | async)) || true) {
+      <app-filtered-paginated-table
+        [dataSource]="dataSource"
+        (pageChange)="pageChange($event)"
+        [isLoading]="dataLoading"
+        [length]="count"
+        [columns]="displayColumns$ | async"
+        [filterOptions]="filterOptions"
+        [routerLinkPrefix]="'/hosts/'"
+        (filtersChange)="filtersChange($event)"
+        (selectionChange)="selection = $event"
+      >
+        <!-- Ip Column -->
+        <ng-container matColumnDef="ip">
+          <th mat-header-cell *matHeaderCellDef i18n="Ip|An Ip address">Ip</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.ip }}
+          </td>
+        </ng-container>
+        <!-- Domain Column -->
+        <ng-container matColumnDef="domains">
+          <th mat-header-cell *matHeaderCellDef i18n="Domain|A domain name">Domain</th>
+          <td mat-cell *matCellDef="let element">
+            @for (domain of element.domains; track domain; let last = $last) {
+              {{ domain.name }}{{ !last ? ', ' : '' }}
+            }
+          </td>
+        </ng-container>
+        <!-- Company Column -->
+        <ng-container matColumnDef="company">
+          <th mat-header-cell *matHeaderCellDef i18n="Company|A business">Company</th>
+          <td mat-cell *matCellDef="let element">
+            <company-cell [company]="companies | whereId: [element.companyId]"></company-cell>
+          </td>
+        </ng-container>
+        <!-- Tags Column -->
+        <ng-container matColumnDef="tags">
+          <th mat-header-cell *matHeaderCellDef i18n="Tags|Multiple tags describing somthing">Tags</th>
+          <td mat-cell *matCellDef="let element">
+            @for (tag of element.tags; track tag) {
+              <app-pill-tag [color]="(tags | whereId: [tag])?.color">{{ (tags | whereId: [tag])?.text }}</app-pill-tag>
+            }
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayColumns$ | async"></tr>
+      </app-filtered-paginated-table>
+    }
+  </mat-card-content>
 </mat-card>
 
 <!-- Add Host Dialog Template -->
@@ -74,7 +75,9 @@
       <mat-label i18n="Company|Company or business">Company</mat-label>
       <mat-select [(value)]="selectedCompany">
         <mat-option>None</mat-option>
-        <mat-option *ngFor="let company of companies$ | async" value="{{ company._id }}">{{ company.name }}</mat-option>
+        @for (company of companies$ | async; track company) {
+          <mat-option value="{{ company._id }}">{{ company.name }}</mat-option>
+        }
       </mat-select>
     </mat-form-field>
 

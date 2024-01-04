@@ -6,37 +6,38 @@
       <input matInput [(ngModel)]="username" name="username" required />
       <mat-error i18n="Invalid email|Asking for the user to provide a valid email address"
         >Please provide a valid email address</mat-error
-      >
-    </mat-form-field>
+        >
+      </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label i18n="Password|Placeholder for a password form">Password</mat-label>
-      <input matInput [type]="hide ? 'password' : 'text'" [(ngModel)]="password" name="password" required />
-      <button type="button" mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-pressed]="hide">
-        <mat-icon>{{ hide ? 'visibility_off' : 'visibility' }}</mat-icon>
-      </button>
-      <mat-error i18n="Empty password|Asking for the user to provide a valid password"
-        >Please provide a password</mat-error
-      >
-    </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label i18n="Password|Placeholder for a password form">Password</mat-label>
+        <input matInput [type]="hide ? 'password' : 'text'" [(ngModel)]="password" name="password" required />
+        <button type="button" mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-pressed]="hide">
+          <mat-icon>{{ hide ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+        <mat-error i18n="Empty password|Asking for the user to provide a valid password"
+          >Please provide a password</mat-error
+          >
+        </mat-form-field>
 
-    <mat-error
-      *ngIf="!loginValid"
-      i18n="Invalid credentials|The credentials provided by the user were not recognized by the application"
-    >
+        @if (!loginValid) {
+          <mat-error
+            i18n="Invalid credentials|The credentials provided by the user were not recognized by the application"
+            >
       Username and password combination was not recognized
     </mat-error>
+        }
 
-    <button
-      type="button"
-      class="submitButton"
-      mat-raised-button
-      color="primary"
-      [disabled]="!loginForm.form.valid"
-      (click)="onSubmit()"
-      i18n="Login|Login button text"
-    >
+        <button
+          type="button"
+          class="submitButton"
+          mat-raised-button
+          color="primary"
+          [disabled]="!loginForm.form.valid"
+          (click)="onSubmit()"
+          i18n="Login|Login button text"
+          >
       Login
     </button>
-  </form>
-</mat-card-content>
+      </form>
+    </mat-card-content>

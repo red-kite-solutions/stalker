@@ -1,123 +1,122 @@
 <div fxLayout="row" fxLayoutAlign="center">
-  <mat-card fxFlex="60">
+  <mat-card appearance="outlined" fxFlex="60">
     <mat-card-content>
       <h1 i18n="Profile|The user's profile">Profile</h1>
-      <form *ngIf="(form$ | async) || true" [formGroup]="form">
-        <h4 i18n="Edit profile|Page for the user to change their profile">Edit Profile</h4>
+      @if ((form$ | async) || true) {
+        <form [formGroup]="form">
+          <h4 i18n="Edit profile|Page for the user to change their profile">Edit Profile</h4>
+          <mat-form-field class="formfieldinline">
+            <input
+              matInput
+              i18n-placeholder="First name|A person's first name"
+              placeholder="First Name"
+              name="firstName"
+              formControlName="firstName"
+              />
+            <mat-error i18n="First name required|A user must have a first name, otherwise the form is invalid"
+              >First name must not be empty</mat-error
+              >
+            </mat-form-field>
+            <mat-form-field class="formfieldinline">
+              <input
+                matInput
+                i18n-placeholder="Last name|A person's family name"
+                placeholder="Last Name"
+                name="lastName"
+                formControlName="lastName"
+                />
+              <mat-error i18n="Last name required|A user must have a last name, otherwise the form is invalid"
+                >Last name must not be empty</mat-error
+                >
+              </mat-form-field>
+              <mat-form-field class="formfieldblock">
+                <input
+                  matInput
+                  i18n-placeholder="Email|A user's email"
+                  placeholder="Email"
+                  name="email"
+                  formControlName="email"
+                  />
+                <mat-error i18n="Invalid email|Asking for the user to provide a valid email address"
+                  >Please provide a valid email address</mat-error
+                  >
+                </mat-form-field>
+                <br />
+                <mat-divider></mat-divider>
+                <br />
+                <h4 i18n="Change password|Title of a section for a user to chagne their password">Change Password</h4>
+                <mat-form-field class="formfieldblock">
+                  <input
+                    matInput
+                    type="password"
+                    i18n-placeholder="New password|Placeholder for a password form"
+                    placeholder="New Password"
+                    name="newPassword"
+                    formControlName="newPassword"
+                    autocomplete="new-password"
+                    />
+                  <mat-error i18n="Password minimal length|The password must meet the length requirement to be accepted"
+                    >Password must have a minimal length of 12 characters</mat-error
+                    >
+                  </mat-form-field>
+                  <mat-form-field class="formfieldblock">
+                    <input
+                      matInput
+                      type="password"
+                      i18n-placeholder="Confirm new password|Placeholder for a password confirmation form"
+                      placeholder="Confirm New Password"
+                      name="passwordConfirm"
+                      formControlName="passwordConfirm"
+                      />
+                    <mat-error i18n="Passwords not identical|The two passwords must be identical for the form to be valid"
+                      >The two passwords are not identical</mat-error
+                      >
+                    </mat-form-field>
+                  </form>
+                }
 
-        <mat-form-field class="formfieldinline">
-          <input
-            matInput
-            i18n-placeholder="First name|A person's first name"
-            placeholder="First Name"
-            name="firstName"
-            formControlName="firstName"
-          />
-          <mat-error i18n="First name required|A user must have a first name, otherwise the form is invalid"
-            >First name must not be empty</mat-error
-          >
-        </mat-form-field>
-        <mat-form-field class="formfieldinline">
-          <input
-            matInput
-            i18n-placeholder="Last name|A person's family name"
-            placeholder="Last Name"
-            name="lastName"
-            formControlName="lastName"
-          />
-          <mat-error i18n="Last name required|A user must have a last name, otherwise the form is invalid"
-            >Last name must not be empty</mat-error
-          >
-        </mat-form-field>
-        <mat-form-field class="formfieldblock">
-          <input
-            matInput
-            i18n-placeholder="Email|A user's email"
-            placeholder="Email"
-            name="email"
-            formControlName="email"
-          />
-          <mat-error i18n="Invalid email|Asking for the user to provide a valid email address"
-            >Please provide a valid email address</mat-error
-          >
-        </mat-form-field>
+                <br />
+                <mat-divider></mat-divider>
+                <br />
 
-        <br />
-        <mat-divider></mat-divider>
-        <br />
-
-        <h4 i18n="Change password|Title of a section for a user to chagne their password">Change Password</h4>
-
-        <mat-form-field class="formfieldblock">
-          <input
-            matInput
-            type="password"
-            i18n-placeholder="New password|Placeholder for a password form"
-            placeholder="New Password"
-            name="newPassword"
-            formControlName="newPassword"
-            autocomplete="new-password"
-          />
-          <mat-error i18n="Password minimal length|The password must meet the length requirement to be accepted"
-            >Password must have a minimal length of 12 characters</mat-error
-          >
-        </mat-form-field>
-        <mat-form-field class="formfieldblock">
-          <input
-            matInput
-            type="password"
-            i18n-placeholder="Confirm new password|Placeholder for a password confirmation form"
-            placeholder="Confirm New Password"
-            name="passwordConfirm"
-            formControlName="passwordConfirm"
-          />
-          <mat-error i18n="Passwords not identical|The two passwords must be identical for the form to be valid"
-            >The two passwords are not identical</mat-error
-          >
-        </mat-form-field>
-      </form>
-
-      <br />
-      <mat-divider></mat-divider>
-      <br />
-
-      <form #profileForm="ngForm" (ngSubmit)="onSubmit()" [formGroup]="currentPasswordForm">
-        <h4 i18n="Validate identity|Asking the user to validate their identity by providing their password">
+                <form #profileForm="ngForm" (ngSubmit)="onSubmit()" [formGroup]="currentPasswordForm">
+                  <h4 i18n="Validate identity|Asking the user to validate their identity by providing their password">
           Validate Identity
         </h4>
-        <mat-form-field class="formfieldblock">
-          <mat-label i18n="Current password|A user's current password">Current Password</mat-label>
-          <input
-            matInput
-            [type]="hideCurrentPassword ? 'password' : 'text'"
-            formControlName="password"
-            name="currentPassword"
-            required
-          />
-          <button
-            mat-icon-button
-            matSuffix
-            type="button"
-            (click)="hideCurrentPassword = !hideCurrentPassword"
-            [attr.aria-pressed]="hideCurrentPassword"
-          >
-            <mat-icon>{{ hideCurrentPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
-          </button>
-          <mat-error>{{ passwordErr$ | async }}</mat-error>
-        </mat-form-field>
+                  <mat-form-field class="formfieldblock">
+                    <mat-label i18n="Current password|A user's current password">Current Password</mat-label>
+                    <input
+                      matInput
+                      [type]="hideCurrentPassword ? 'password' : 'text'"
+                      formControlName="password"
+                      name="currentPassword"
+                      required
+                      />
+                    <button
+                      mat-icon-button
+                      matSuffix
+                      type="button"
+                      (click)="hideCurrentPassword = !hideCurrentPassword"
+                      [attr.aria-pressed]="hideCurrentPassword"
+                      >
+                      <mat-icon>{{ hideCurrentPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                    </button>
+                    <mat-error>{{ passwordErr$ | async }}</mat-error>
+                  </mat-form-field>
 
-        <mat-error
-          *ngIf="!this.profileEditValid"
-          i18n="Correct information|Asking the user to correct any invalid information before resubmitting the form"
-          >Please correct the invalid information before submitting</mat-error
-        >
+                  @if (!this.profileEditValid) {
+                    <mat-error
+                      i18n="Correct information|Asking the user to correct any invalid information before resubmitting the form"
+                      >Please correct the invalid information before submitting</mat-error
+                      >
+                    }
 
-        <div class="center">
-          <button i18n="Save changes|Save the changes done to an item" class="button" mat-raised-button color="primary">
+                    <div class="center">
+                      <button i18n="Save changes|Save the changes done to an item" class="button" mat-raised-button color="primary">
             Save Changes
           </button>
-        </div>
-      </form>
-    </mat-card-content>
-  </mat-card>
-</div>
+                    </div>
+                  </form>
+                </mat-card-content>
+              </mat-card>
+            </div>

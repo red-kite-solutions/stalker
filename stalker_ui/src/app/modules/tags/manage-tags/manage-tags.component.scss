@@ -1,4 +1,4 @@
-.mat-card {
+.mat-mdc-card {
   padding-bottom: 0;
   overflow: hidden;
 }
@@ -19,26 +19,13 @@ table {
   cursor: default;
 }
 
-.actions {
-  display: flex;
-  gap: 16px;
-}
-
 .mat-column-select {
-  width: 42px;
-  max-width: 42px;
+  width: 56px;
+  max-width: 56px;
 }
 
 .nodata {
   text-align: center;
-}
-
-.create-tag-color-picker-class {
-  display: flex;
-
-  h1 {
-    flex: auto;
-  }
 }
 
 .create-tag-form-row {

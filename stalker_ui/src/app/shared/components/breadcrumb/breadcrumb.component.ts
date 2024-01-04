@@ -1,16 +1,18 @@
-import { CommonModule } from '@angular/common';
+
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
 @Component({
   standalone: true,
   selector: 'app-breadcrumb',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule],
+  imports: [],
   styles: ['.dimmed { opacity: 0.6; }'],
-  template: `<ng-container *ngFor="let part of nonBlankParts; let last = last">
-    <span>{{ part }}</span
-    ><span *ngIf="!last" class="dimmed"> / </span>
-  </ng-container>`,
+  template: `@for (part of nonBlankParts; track part; let last = $last) {
+  <span>{{ part }}</span
+    >@if (!last) {
+    <span class="dimmed"> / </span>
+  }
+}`,
 })
 export class BreadcrumbComponent {
   @Input() public parts: string[] = [];

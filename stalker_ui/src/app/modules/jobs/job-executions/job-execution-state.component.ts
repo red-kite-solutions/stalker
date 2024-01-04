@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, Input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -8,16 +8,20 @@ import { StartedJobState } from '../../../shared/types/jobs/job.type';
   standalone: true,
   selector: 'app-job-state',
   styleUrls: ['./job-execution-state.component.scss'],
-  imports: [CommonModule, MatIconModule, MatProgressSpinnerModule],
-  template: `<div [ngSwitch]="state">
-    <ng-container *ngSwitchCase="'in-progress'"><mat-spinner diameter="16"></mat-spinner></ng-container>
-    <ng-container *ngSwitchCase="'done'">
+  imports: [MatIconModule, MatProgressSpinnerModule],
+  template: `<div class="tw-flex tw-items-center">
+  @switch (state) {
+    @case ('in-progress') {
+      <mat-spinner diameter="16"></mat-spinner>
+    }
+    @case ('done') {
       <mat-icon class="done" [inline]="true">check_circle</mat-icon>
-    </ng-container>
-    <ng-container *ngSwitchCase="'errored'">
+    }
+    @case ('errored') {
       <mat-icon class="error" [inline]="true">error</mat-icon>
-    </ng-container>
-  </div>`,
+    }
+  }
+</div>`,
 })
 export class JobStateComponent {
   @Input() state: StartedJobState | undefined;
