@@ -1,6 +1,6 @@
 <mat-toolbar color="primary" class="mat-elevation-z6">
   <mat-toolbar-row fxLayout fxLayoutGap="16px">
-    <div fxLayoutAlign="flex-start center">
+    <div fxFlex fxLayoutAlign="flex-start center">
       <button mat-icon-button (click)="toggleSideBar()" *ngIf="showRouting">
         <mat-icon>menu</mat-icon>
       </button>
@@ -8,16 +8,6 @@
         >Stalker | Recon Automation</span
       >
     </div>
-
-    <form fxFlex fxLayoutAlign="flex-end center" *ngIf="showRouting">
-      <mat-form-field fxFlex class="stalker-header-search-field" floatLabel="never">
-        <input matInput (focus)="focus()" i18n-placeholder="Search|Search bar placeholder" placeholder="Search" />
-
-        <button mat-icon-button matSuffix type="button" (click)="search()">
-          <mat-icon class="material-icons-outlined">search</mat-icon>
-        </button>
-      </mat-form-field>
-    </form>
 
     <div [hidden]="!showRouting">
       <button mat-button [matMenuTriggerFor]="menu">
