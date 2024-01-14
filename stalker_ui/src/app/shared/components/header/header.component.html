@@ -1,15 +1,21 @@
 <mat-toolbar color="primary" class="mat-elevation-z6">
-  <mat-toolbar-row fxLayout fxLayoutGap="16px">
-    <div class="tw-flex tw-items-center tw-gap-2">
+  <mat-toolbar-row class="tw-flex tw-gap-4">
+    <div class="tw-flex tw-flex-1 tw-items-center tw-gap-2">
       @if (showRouting) {
         <button mat-icon-button (click)="toggleSideBar()">
           <mat-icon>menu</mat-icon>
         </button>
       }
       <avatar class="tw-max-w-8" src="assets/red-kite-logo-only-color-circle.png"></avatar>
-      <span fxHide.lt-sm="true" i18n="Main title|Main application title, the name of the product"
-        >Stalker | Recon Automation</span
-      >
+      <span>
+        <span class="tw-text-lg" i18n="Main title|Main application title, the name of the product">Stalker</span>
+        <span class="tw-text-lg tw-opacity-30 tw-font-light max-sm:tw-hidden"> | </span>
+        <span
+          class="tw-text-sm max-sm:tw-hidden tw-font-light tw-leading-[32px]"
+          i18n="Tagline|Main application tagline"
+          >Attack Surface Management tool</span
+        >
+      </span>
     </div>
 
     <div [hidden]="!showRouting">

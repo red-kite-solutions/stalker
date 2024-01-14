@@ -27,7 +27,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { NgxFileDropModule } from 'ngx-file-drop';
 import { CreateUserComponent } from 'src/app/modules/admin/create-user/create-user.component';
-import { EditUserComponent } from 'src/app/modules/admin/edit-user/edit-user.component';
 import { SettingsComponent } from 'src/app/modules/admin/settings/settings.component';
 import { EditCompaniesComponent } from 'src/app/modules/companies/edit-companies/edit-companies.component';
 import { JobLogsSummaryComponent } from 'src/app/modules/jobs/job-executions/job-execution-logs-summary.component';
@@ -49,7 +48,6 @@ import { DefaultComponent } from './default.component';
     DefaultComponent,
     ProfileComponent,
     CreateUserComponent,
-    EditUserComponent,
     SettingsComponent,
     EditCompaniesComponent,
     SubscriptionComponent,

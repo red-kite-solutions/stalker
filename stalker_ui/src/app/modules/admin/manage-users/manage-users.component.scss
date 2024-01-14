@@ -5,7 +5,7 @@ mat-card {
 
 .actions {
   display: flex;
-  gap: 16px;
+  gap: var(--normal-gap-size);
   padding-bottom: 8px;
 }
 
@@ -29,6 +29,7 @@ table {
   width: 48px;
   max-width: 48px;
   cursor: default;
+  overflow: visible;
 }
 
 .mat-column-active {

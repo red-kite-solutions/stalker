@@ -1,4 +1,3 @@
-
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
 @Component({
@@ -6,13 +5,13 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
   selector: 'app-breadcrumb',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [],
-  styles: ['.dimmed { opacity: 0.6; }'],
+  styles: [':host { height: 20px; }', '.dimmed { opacity: 0.6; }'],
   template: `@for (part of nonBlankParts; track part; let last = $last) {
-  <span>{{ part }}</span
-    >@if (!last) {
-    <span class="dimmed"> / </span>
-  }
-}`,
+    <span>{{ part }}</span>
+    @if (!last) {
+      <span class="dimmed"> / </span>
+    }
+  }`,
 })
 export class BreadcrumbComponent {
   @Input() public parts: string[] = [];

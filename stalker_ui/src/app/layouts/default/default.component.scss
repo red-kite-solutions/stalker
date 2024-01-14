@@ -1,7 +1,7 @@
 :host {
   height: 100vh;
   display: grid;
-  grid-template-rows: minmax(64px, 64px) auto;
+  grid-template-rows: minmax(var(--mat-toolbar-standard-height), var(--mat-toolbar-standard-height)) auto;
 }
 
 mat-drawer-container {

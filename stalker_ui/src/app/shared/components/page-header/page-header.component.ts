@@ -1,4 +1,3 @@
-
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,12 +11,13 @@ import { BreadcrumbComponent } from '../breadcrumb/breadcrumb.component';
   imports: [MatIconModule, BreadcrumbComponent, RouterModule, MatButtonModule],
   styles: [
     `
-              h1 {
-                padding-top: 16px;
-                display: flex;
-                align-items: center;
-              }
-            `,
+      h1 {
+        padding-top: 16px;
+        padding-bottom: 8px;
+        display: flex;
+        align-items: center;
+      }
+    `,
   ],
   template: `<h1>
     <button type="button" mat-icon-button [routerLink]="backRoute">
