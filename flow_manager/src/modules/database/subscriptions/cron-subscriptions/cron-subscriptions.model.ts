@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
+import { JobCondition } from '../event-subscriptions/event-subscriptions.model';
 
 export type CronSubscriptionsDocument = CronSubscription & Document;
 
@@ -7,6 +8,8 @@ export class JobParameter {
   public name!: string;
   public value!: unknown;
 }
+
+export type InputSource = 'ALL_DOMAINS' | 'ALL_HOSTS' | 'ALL_TCP_PORTS';
 
 @Schema()
 export class CronSubscription {
@@ -17,6 +20,9 @@ export class CronSubscription {
   public companyId?: Types.ObjectId;
 
   @Prop()
+  public input?: InputSource;
+
+  @Prop()
   public cronExpression!: string;
 
   @Prop()
@@ -24,6 +30,9 @@ export class CronSubscription {
 
   @Prop()
   public jobParameters: JobParameter[];
+
+  @Prop()
+  public conditions: JobCondition[];
 
   // true for a built-in subsctiption, false otherwise
   @Prop()

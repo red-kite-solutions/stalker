@@ -1,7 +1,7 @@
 import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DeleteResult, UpdateResult } from 'mongodb';
-import { Model, Types } from 'mongoose';
+import { FilterQuery, Model, Types } from 'mongoose';
 import { HttpNotFoundException } from '../../../../exceptions/http.exceptions';
 import escapeStringRegexp from '../../../../utils/escape-string-regexp';
 import { IpFinding } from '../../../findings/findings.service';
@@ -44,6 +44,25 @@ export class HostService {
       query = this.hostModel.find(this.buildFilters(filter));
     } else {
       query = this.hostModel.find({});
+    }
+
+    if (page != null && pageSize != null) {
+      query = query.skip(page * pageSize).limit(pageSize);
+    }
+    return await query;
+  }
+
+  public async getIps(
+    page: number = null,
+    pageSize: number = null,
+    filter: FilterQuery<Host> = null,
+  ): Promise<HostDocument[]> {
+    let query;
+    const projection = '_id ip';
+    if (filter) {
+      query = this.hostModel.find(this.buildFilters(filter), projection);
+    } else {
+      query = this.hostModel.find({}, projection);
     }
 
     if (page != null && pageSize != null) {
@@ -183,7 +202,7 @@ export class HostService {
       hostDocuments.push(model);
     }
 
-    let insertedHosts: any = [];
+    let insertedHosts: HostDocument[] = [];
 
     // insertmany with ordered false to continue on fail and use the exception
     try {
