@@ -1,13 +1,20 @@
 ﻿using Microsoft.IdentityModel.Tokens;
+using Orchestrator.K8s;
 using Orchestrator.Queue.JobsConsumer.JobRequests;
 
 namespace Orchestrator.Jobs.JobTemplates;
 
-public class NucleiCustomJobTemplate : PythonJobTemplate
+public class NucleiCustomJobTemplate : KubernetesJobTemplate
 {
+    public override string Image => "nuclei-job-base:v1";
+    protected IConfiguration Config { get; init; }
 
-    public NucleiCustomJobTemplate(string? id, IConfiguration config, JobParameter[]? jobParameters, string? code, int? jobPodMilliCpuLimit, int? jobPodMemoryKbLimit, string? findingHandler) : base(id, config)
+    public NucleiCustomJobTemplate(string? id, IConfiguration config, JobParameter[]? jobParameters, string? code, int? jobPodMilliCpuLimit, int? jobPodMemoryKbLimit, string? findingHandler)
     {
+        Id = id;
+        Config = config;
+        SetNamespace();
+
         // Adding parameters as environment variables
         if (!jobParameters.IsNullOrEmpty())
         {
@@ -28,10 +35,6 @@ public class NucleiCustomJobTemplate : PythonJobTemplate
             EnvironmentVariable["NUCLEI_FINDING_HANDLER"] = findingHandler!;
         }
 
-        PythonCommand = ""; // TODO: set code to start nuclei wrapper
-
-        Image = "nuclei-job-base:v1";
-
         if (jobPodMilliCpuLimit.HasValue && jobPodMilliCpuLimit > 0)
         {
             this.MilliCpuLimit = jobPodMilliCpuLimit;
@@ -45,5 +48,12 @@ public class NucleiCustomJobTemplate : PythonJobTemplate
         if (timeout == null) throw new NullReferenceException("Setting Timeout is missing.");
 
         Timeout = timeout;
+    }
+
+    private void SetNamespace()
+    {
+        string? k8sNamespace = Config.GetSection("Jobs").GetValue<string>("Namespace");
+        if (k8sNamespace == null) throw new NullReferenceException("Setting Jobs Namespace is missing.");
+        Namespace = k8sNamespace;
     }
 }

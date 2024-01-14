@@ -1,1 +1,75 @@
-<div class="editor-container" #editorContainer (keydown)="this.onKeyDown($event)"></div>
+<!-- TODO: delete this
+0: "editor.background" → Object { rgba: {…}, _toString: "#1e1e1e" }
+1: "editor.foreground" → Object { rgba: {…}, _toString: "#d4d4d4" }​​
+2: "editor.inactiveSelectionBackground" → Object { rgba: {…}, _toString: "#3a3d41" }
+3: "editorIndentGuide.background1" → Object { rgba: {…}, _toString: "#404040" }
+4: "editorIndentGuide.activeBackground1" → Object { rgba: {…}, _toString: "#707070" }
+5: "editor.selectionHighlightBackground" → Object { rgba: {…}, _toString: "rgba(173, 214, 255, 0.15)" }
+-->
+
+<div class="editor-container">
+  @if (fileTabsEnabled && this._editor) {
+    <div class="editor-header">
+      <div
+        class="tabs-container"
+        [style.background-color]="getColor('topbar.background')"
+        [style.border-bottom-color]="getColor('topbar.divider')"
+      >
+        @for (tab of fileTabs; track $index) {
+          <div
+            class="tab"
+            [style.background-color]="$index === _currentFileTabIndex ? getColor('topbar.background1') : 'transparent'"
+            [style.color]="
+              $index === _currentFileTabIndex ? getColor('topbar.foreground') : getColor('topbar.foreground1')
+            "
+            [style.border-bottom-color]="
+              $index === _currentFileTabIndex ? getColor('topbar.background1') : getColor('topbar.divider')
+            "
+            [style.border-top-color]="
+              $index === _currentFileTabIndex ? getColor('topbar.accent') : getColor('topbar.background')
+            "
+            [style.border-right-color]="getColor('topbar.divider')"
+            (click)="selectFileTab($index)"
+          >
+            <div class="tab-text-container">
+              <div class="tab-text">
+                {{ getFileName(tab.uri.path) }}
+              </div>
+              @if (!fileTabsReadOnly) {
+                <div class="close-icon-container" (click)="deleteFileTab($index)">
+                  <span
+                    class="material-icons-outlined close-icon"
+                    [style.background-color]="getColor('topbar.background2')"
+                  >
+                    close
+                  </span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+      <div
+        class="navigation-bar"
+        [style.background-color]="getColor('topbar.background1')"
+        [style.color]="getColor('topbar.foreground1')"
+      >
+        @for (segment of fileTabs[_currentFileTabIndex].uri.path.split('/'); track $index) {
+          <div class="breadcrumbs">
+            @if ($index !== 0 && $index !== 1) {
+              <span class="material-icons-outlined chevron"> chevron_right </span>
+            }
+            {{ segment }}
+          </div>
+        }
+        <div class="info-bar">
+          <div class="info-language" [style.border-left-color]="getColor('topbar.divider1')">
+            {{ fileTabs[_currentFileTabIndex].getLanguageId() }}
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <div class="editor" #editorContainer (keydown)="this.onKeyDown($event)"></div>
+</div>

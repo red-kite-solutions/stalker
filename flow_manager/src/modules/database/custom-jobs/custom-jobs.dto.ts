@@ -1,4 +1,5 @@
 import { IsMongoId, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { CanEnableFindingHandler } from '../../../validators/can-enable-finding-handler.validator';
 import { IsValidCustomJobLanguage } from '../../../validators/is-valid-custom-job-language.validator';
 import { IsValidFindingHandlerLanguage } from '../../../validators/is-valid-finding-handler-language.validator';
 
@@ -20,7 +21,12 @@ export class CustomJobDto {
 
   @IsMongoId()
   @IsNotEmpty()
+  @IsString()
   public jobPodConfigId: string;
+
+  @IsOptional()
+  @CanEnableFindingHandler()
+  findingHandlerEnabled: boolean;
 
   @IsOptional()
   @IsString()

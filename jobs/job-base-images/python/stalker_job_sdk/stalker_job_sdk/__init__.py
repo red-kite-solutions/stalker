@@ -99,7 +99,7 @@ def log_error(message: str):
     
 
 def _log(prefix: str, message: str):
-    lines = message.splitlines()
+    lines = str(message).splitlines()
     for line in lines:
         print(f"{prefix} {line}")
     sys.stdout.flush()

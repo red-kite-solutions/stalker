@@ -22,18 +22,19 @@ import { Job } from './jobs.model';
 
 export type JobDocument = CustomJob & Document;
 
-export const CustomJobTypes = ['code', 'nuclei'] as const;
-export const CustomJobLanguages = ['python', 'yaml'] as const;
-export const CustomJobHandlerLanguages = ['python'] as const;
+export const customJobTypes = ['code', 'nuclei'] as const;
+export const customJobLanguages = ['python', 'yaml'] as const;
+export const customJobFindingHandlerLanguages = ['python'] as const;
 
-type ConstomJobType = (typeof CustomJobTypes)[number];
-type CustomJobLanguage = (typeof CustomJobLanguages)[number];
-type CustomJobHandlerLanguage = (typeof CustomJobHandlerLanguages)[number];
+type CustomJobType = (typeof customJobTypes)[number];
+type CustomJobLanguage = (typeof customJobLanguages)[number];
+type CustomJobFindingHandlerLanguage =
+  (typeof customJobFindingHandlerLanguages)[number];
 
 export interface CustomJobTypeDetails {
-  type: ConstomJobType;
+  type: CustomJobType;
   language: CustomJobLanguage;
-  handlerLanguage: CustomJobHandlerLanguage;
+  handlerLanguage: CustomJobFindingHandlerLanguage;
 }
 
 export const validCustomJobTypeDetails: CustomJobTypeDetails[] = [
@@ -105,10 +106,17 @@ export class CustomJob {
     params['jobpodmillicpulimit'] = undefined;
     params['jobpodmemorykblimit'] = undefined;
     params['customjobparameters'] = undefined;
+    params['findinghandlerenabled'] = undefined;
     params['findinghandler'] = undefined;
     params['findinghandlerlanguage'] = undefined;
 
-    params = JobFactoryUtils.bindFunctionArguments(params, args);
+    const optionalKeys = [
+      'findinghandlerenabled',
+      'findinghandler',
+      'findinghandlerlanguage',
+    ];
+
+    params = JobFactoryUtils.bindFunctionArguments(params, args, optionalKeys);
 
     return CustomJob.createCustomJob(
       params['companyid'],
@@ -119,6 +127,7 @@ export class CustomJob {
       params['jobpodmillicpulimit'],
       params['jobpodmemorykblimit'],
       params['customjobparameters'],
+      params['findinghandlerenabled'],
       params['findinghandler'],
       params['findinghandlerlanguage'],
     );
@@ -133,6 +142,7 @@ export class CustomJob {
     jobPodMilliCpuLimit: number,
     jobPodMemoryKbLimit: number,
     customJobParameters: JobParameter[],
+    findingHandlerEnabled: boolean,
     findingHandler: string,
     findingHandlerLanguage: string,
   ) {
@@ -147,8 +157,12 @@ export class CustomJob {
     job.jobPodMilliCpuLimit = jobPodMilliCpuLimit;
     job.jobPodMemoryKbLimit = jobPodMemoryKbLimit;
     job.customJobParameters = customJobParameters;
-    job.findingHandler = findingHandler;
-    job.findingHandlerLanguage = findingHandlerLanguage;
+    if (findingHandlerEnabled) {
+      job.findingHandler = findingHandler;
+      job.findingHandlerLanguage = findingHandlerLanguage;
+    }
+
+    console.log(job);
 
     if (!isCompanyId(job.companyId)) {
       throw new JobParameterValueException('companyId', job.companyId);
@@ -161,7 +175,7 @@ export class CustomJob {
     if (
       !isString(job.type) ||
       isEmpty(job.type) ||
-      !isIn(job.type, CustomJobTypes)
+      !isIn(job.type, customJobTypes)
     ) {
       throw new JobParameterValueException('type', job.type);
     }
@@ -173,7 +187,7 @@ export class CustomJob {
     if (
       !isString(job.language) ||
       isEmpty(job.language) ||
-      !isIn(job.language, CustomJobLanguages)
+      !isIn(job.language, customJobLanguages)
     ) {
       throw new JobParameterValueException('language', job.language);
     }
@@ -229,17 +243,15 @@ export class CustomJob {
       );
     }
 
-    if (
-      (job.findingHandlerLanguage && !job.findingHandler) ||
-      (!job.findingHandlerLanguage && job.findingHandler)
-    ) {
+    if (!job.findingHandlerLanguage && job.findingHandler) {
       throw new JobParameterValueException(
-        'findingHandlerLanguage or findingHandler',
-        'If any of the two parameters is provided, the other one is required',
+        'findingHandlerLanguage',
+        'If a findingHandler is provided, a findingHandlerLanguage is required',
       );
     }
 
     if (
+      job.findingHandler &&
       !validCustomJobTypeDetails.some((value) => {
         return (
           value.language === job.language &&

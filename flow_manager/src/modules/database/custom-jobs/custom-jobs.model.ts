@@ -28,6 +28,9 @@ export class CustomJobEntry {
   public jobPodConfigId: Types.ObjectId;
 
   @Prop()
+  public findingHandlerEnabled?: boolean;
+
+  @Prop()
   public findingHandler?: string;
 
   @Prop()

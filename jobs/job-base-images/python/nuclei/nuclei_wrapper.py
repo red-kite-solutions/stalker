@@ -1,5 +1,7 @@
+from base64 import b64encode
 from json import loads
 from os import environ
+from os.path import exists
 from subprocess import CompletedProcess, run
 from types import ModuleType
 
@@ -98,26 +100,17 @@ def main():
     # Provided through the UI
     template_content = environ.get('STALKER_NUCLEI_YAML_TEMPLATE')
     custom_parser_code = environ.get("NUCLEI_FINDING_HANDLER")
+
+    stalker_output_type_str = 'StalkerOutputType'
+    output_finding_name_str = 'OutputFindingName'
+    nuclei_target_str = 'NucleiTarget'
+
     # Job parameters
     ## Mandatory parameter
-    target = environ.get('NUCLEI_TARGET')
+    target = environ.get(nuclei_target_str)
     ## Mandatory job parameters if no NUCLEI_FINDING_HANDLER provided
-    expected_output_type = environ.get('STALKER_OUTPUT_TYPE')
-    output_finding_name = environ.get('OUTPUT_FINDING_NAME')
-    
-
-    if not custom_parser_code and not output_finding_name:
-        log_error('OUTPUT_FINDING_NAME is mandatory when no custom finding handler is provided')
-        exit()
-    
-    if not custom_parser_code and not expected_output_type:
-        log_error('STALKER_OUTPUT_TYPE is mandatory when no custom finding handler is provided')
-        exit()
-
-    if expected_output_type != 'domain' and expected_output_type != 'host' and expected_output_type != 'port':
-        log_error('STALKER_OUTPUT_TYPE has to be either domain, host or port')
-        exit()
-
+    expected_output_type = environ.get(stalker_output_type_str)
+    output_finding_name = environ.get(output_finding_name_str)
 
     template_folder = "/nuclei/template/" 
     template_file = template_folder + 'template.yaml'
@@ -136,6 +129,22 @@ def main():
             custom_parser_code = None
             custom_parser = None
 
+    if not target:
+        log_error(f'{nuclei_target_str} is required.')
+        exit()
+
+    if not custom_parser_code and not output_finding_name:
+        log_error(f'{output_finding_name_str} is required when no custom finding handler is provided')
+        exit()
+    
+    if not custom_parser_code and not expected_output_type:
+        log_error(f'{stalker_output_type_str} is required when no custom finding handler is provided')
+        exit()
+
+    if not custom_parser_code and expected_output_type != 'domain' and expected_output_type != 'host' and expected_output_type != 'port':
+        log_error(f'{stalker_output_type_str} has to be either domain, host or port')
+        exit()
+
     with open(template_file, 'w') as f:
         f.writelines(template_content)
 
@@ -146,19 +155,22 @@ def main():
     #   -ot, -omit-template           omit encoded template in the JSON, JSONL output
     #   -or, -omit-raw                omit request/response pairs in the JSON, JSONL, and Markdown outputs (for findings only)
     #   -silent                       display findings only
+    #   -nc, -no-color                disable output content coloring (ANSI escape codes)
     nuclei_process: CompletedProcess = run(
         [
-            'nuclei', 
+            'nuclei',
             '-target', target, 
             '-jle', output_file, 
             '-t', template_file, 
             '-duc',
             '-ot',
             '-or',
-            '-silent'
-        ], 
+            '-silent',
+            '-no-color'
+        ],
         text=True, capture_output=True
     )
+    print("after")
 
     if len(nuclei_process.stderr) > 0:
         log_error(nuclei_process.stderr)
@@ -167,8 +179,10 @@ def main():
     nuclei_findings: list['NucleiFinding'] = []
     custom_parser_findings: list = []
 
-    try:    
+    try:
+        print("before open")
         with open(output_file, 'r') as f:
+            print("opened")
             for line in f:
                 try:
                     if custom_parser:
@@ -198,4 +212,7 @@ def main():
     
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as err:
+        log_error(err)

@@ -54,33 +54,21 @@ export class SubscriptionsUtils {
       );
       return undefined;
     }
-    const customJobParams: JobParameter[] = JSON.parse(
-      JSON.stringify(sub.jobParameters),
-    );
-    const jobParameters: JobParameter[] = [];
-    jobParameters.push({ name: 'name', value: customJobEntry.name });
-    jobParameters.push({ name: 'code', value: customJobEntry.code });
-    jobParameters.push({ name: 'type', value: customJobEntry.type });
-    jobParameters.push({
-      name: 'language',
-      value: customJobEntry.language,
-    });
-    jobParameters.push({
-      name: 'customJobParameters',
-      value: customJobParams,
-    });
+
+    let jobParameters: JobParameter[] =
+      JobFactoryUtils.setupCustomJobParameters(
+        customJobEntry,
+        sub.jobParameters,
+      );
     const jpConf = await JobFactoryUtils.getCustomJobPodConfig(
       customJobEntry,
       configService,
     );
-    jobParameters.push({
-      name: 'jobpodmillicpulimit',
-      value: jpConf.milliCpuLimit,
-    });
-    jobParameters.push({
-      name: 'jobpodmemorykblimit',
-      value: jpConf.memoryKbytesLimit,
-    });
+    jobParameters = JobFactoryUtils.setupJobPodConfigParameters(
+      jobParameters,
+      jpConf,
+    );
+
     return jobParameters;
   }
 

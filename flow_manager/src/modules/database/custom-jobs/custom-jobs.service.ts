@@ -5,7 +5,7 @@ import { Model, Types } from 'mongoose';
 import { JobSummary } from '../../../types/job-summary.type';
 import { JobSources } from '../jobs/job-model.module';
 import { CustomJobDto } from './custom-jobs.dto';
-import { CustomJobEntry } from './custom-jobs.model';
+import { CustomJobEntry, CustomJobsDocument } from './custom-jobs.model';
 
 @Injectable()
 export class CustomJobsService {
@@ -24,6 +24,7 @@ export class CustomJobsService {
       language: dto.language,
       jobPodConfigId: new Types.ObjectId(dto.jobPodConfigId),
       source: JobSources.userCreated,
+      findingHandlerEnabled: dto.findingHandlerEnabled,
       findingHandler: dto.findingHandler ?? undefined,
       findingHandlerLanguage: dto.findingHandlerLanguage ?? undefined,
       parameters: [],
@@ -49,6 +50,7 @@ export class CustomJobsService {
       language: dto.language,
       jobPodConfigId: new Types.ObjectId(dto.jobPodConfigId),
       source: JobSources.userCreated,
+      findingHandlerEnabled: dto.findingHandlerEnabled,
       findingHandler: dto.findingHandler ?? undefined,
       findingHandlerLanguage: dto.findingHandlerLanguage ?? undefined,
       parameters: [],
@@ -69,7 +71,7 @@ export class CustomJobsService {
     });
   }
 
-  public async getByName(name: string) {
+  public async getByName(name: string): Promise<CustomJobsDocument> {
     return await this.customJobModel.findOne({ name: { $eq: name } });
   }
 }

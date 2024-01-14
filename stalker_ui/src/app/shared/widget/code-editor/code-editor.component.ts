@@ -1,7 +1,17 @@
-
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy, Output, ViewChild } from '@angular/core';
-import { first, Subscription } from 'rxjs';
+import {
+  AfterContentInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  Output,
+  ViewChild,
+} from '@angular/core';
+import { Subscription, first } from 'rxjs';
 import { CodeEditorService } from './code-editor.service';
+import { FileTab } from './code-editor.type';
+import { MonacoModel } from './monaco.type';
 
 declare const monaco: any;
 export type CodeEditorTheme = 'vs' | 'vs-dark' | 'hc-black' | 'hc-light';
@@ -16,24 +26,41 @@ export type CodeEditorTheme = 'vs' | 'vs-dark' | 'hc-black' | 'hc-light';
   templateUrl: './code-editor.component.html',
   styleUrls: ['./code-editor.component.scss'],
 })
-export class CodeEditorComponent implements AfterViewInit, OnDestroy {
+export class CodeEditorComponent implements AfterContentInit, OnDestroy {
   private readonly loggingEnabled = false;
-  public _editor: any;
+  public _editor: any; // https://microsoft.github.io/monaco-editor/docs.html#interfaces/editor.ICodeEditor.html
   @ViewChild('editorContainer', { static: true }) _editorContainer!: ElementRef;
 
-  private _code: string | null = '';
+  private _code: string = '';
   private _theme!: string;
   private _minimapEnabled = true;
   private _language!: string;
   private _readonly = false;
   private _tabSize = 2;
   private _divResizeObserver: ResizeObserver | undefined;
+  private _fileTabs: (MonacoModel & any)[] = [];
+  private tabIdPathMapping: Map<string, string> = new Map<string, string>();
+  private pathTabIdMapping: Map<string, string> = new Map<string, string>();
+  public _currentFileTabIndex: number = 0;
 
   private loadSub: Subscription | undefined;
 
   @Input()
-  public set code(val: string | null) {
+  public fileTabsEnabled: boolean = false;
+
+  @Input()
+  public fileTabsReadOnly: boolean = false;
+
+  @Input()
+  public path!: string;
+
+  @Input()
+  public tabId: string = '';
+
+  @Input()
+  public set code(val: string | null | undefined) {
     if (val === this._code) return;
+    if (!val) val = '';
 
     this._code = val;
     if (this.codeEditorService.loaded && this._editor) {
@@ -87,6 +114,10 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
 
   @Output()
   public saveEvent = new EventEmitter();
+
+  public get fileTabs() {
+    return this._fileTabs;
+  }
 
   constructor(private codeEditorService: CodeEditorService) {}
 
@@ -165,14 +196,32 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
         base: 'vs',
         inherit: true,
         rules: lightThemeRules,
-        colors: {},
+        colors: {
+          'topbar.background': '#F4F4F4',
+          'topbar.background1': '#FBFBFB',
+          'topbar.background2': '#CECECE',
+          'topbar.foreground': '#3F3F3F',
+          'topbar.foreground1': '#595959',
+          'topbar.accent': '#3d7eff',
+          'topbar.divider': '#BABABA',
+          'topbar.divider1': '#A8A8A8',
+        },
       });
 
       monaco.editor.defineTheme('vs-dark-stalker', {
         base: 'vs-dark',
         inherit: true,
         rules: darkThemeRules,
-        colors: {},
+        colors: {
+          'topbar.background': '#1e1e1e',
+          'topbar.background1': '#303030',
+          'topbar.background2': '#545454',
+          'topbar.foreground': '#d4d4d4',
+          'topbar.foreground1': '#b5b5b5',
+          'topbar.accent': '#3d7eff',
+          'topbar.divider': '#a1a1a1',
+          'topbar.divider1': '#717171',
+        },
       });
 
       monaco.editor.defineTheme('hc-light-stalker', {
@@ -193,8 +242,6 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
     }
 
     const options = {
-      value: this._code,
-      language: this._language,
       minimap: {
         enabled: this._minimapEnabled,
       },
@@ -204,13 +251,19 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
       automaticLayout: true,
     };
 
+    const firstModel = monaco.editor.createModel(this._code, this._language, monaco.Uri.file(this.path));
     this._editor = monaco.editor.create(this._editorContainer.nativeElement, options);
+    this._editor.setModel(firstModel);
 
     this._editor.onDidChangeModelContent(() => {
       const code = this._editor.getValue();
 
       this.propagateChange(code);
     });
+
+    this._fileTabs.push(firstModel);
+    this.tabIdPathMapping.set(this.tabId, this.path);
+    this.pathTabIdMapping.set(this.path, this.tabId);
 
     const containerElement = document.querySelector('.editor-container');
     this._divResizeObserver = new ResizeObserver(() => {
@@ -220,12 +273,15 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
     if (containerElement) this._divResizeObserver.observe(containerElement);
   }
 
-  ngAfterViewInit(): void {
+  ngAfterContentInit(): void {
     this.initMonaco();
   }
 
   ngOnDestroy(): void {
     if (this.loadSub) this.loadSub.unsubscribe();
+
+    this.deleteAllFileTabs();
+
     if (this._editor) {
       this._editor.dispose();
       this._editor = undefined;
@@ -238,5 +294,144 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy {
       event.preventDefault();
       this.saveEvent.emit();
     }
+  }
+
+  public getColor(colorName: string) {
+    let color = this._editor._themeService._theme.themeData.colors[colorName];
+    if (!color) color = this._editor._themeService._theme.colors.get(colorName);
+    if (!color) color = this._editor._themeService._theme.defaultColors[colorName];
+    return color;
+  }
+
+  public getFileName(path: string) {
+    return path.split('/').pop();
+  }
+
+  public createFileTab(fileTab: FileTab, focusWhenDone: boolean = true) {
+    this._fileTabs.push(monaco.editor.createModel(fileTab.content, fileTab.language, monaco.Uri.file(fileTab.uri)));
+    this.tabIdPathMapping.set(fileTab.id, fileTab.uri);
+    this.pathTabIdMapping.set(fileTab.uri, fileTab.id);
+    if (focusWhenDone) this.selectFileTab(this._fileTabs.length - 1);
+  }
+
+  public createFileTabs(fileTabs: FileTab[], focusWhenDone: boolean = true) {
+    for (const tab of fileTabs) this.createFileTab(tab, false);
+    if (focusWhenDone) this.selectFileTab(this._fileTabs.length - 1);
+  }
+
+  public selectFileTab(index: number) {
+    if (!(0 <= index && index < this._fileTabs.length)) return;
+
+    const state = this._editor.saveViewState();
+    this._fileTabs[this._currentFileTabIndex].state = state;
+    this._currentFileTabIndex = index;
+    this._editor.setModel(this._fileTabs[index]);
+    this._editor.restoreViewState(this._fileTabs[index].state);
+    this._editor.focus();
+  }
+
+  public deleteFileTab(index: number) {
+    if (!(0 <= index && index < this._fileTabs.length)) return;
+
+    const uri = this._fileTabs[index].uri.path;
+    const tabId = this.pathTabIdMapping.get(uri);
+    this.pathTabIdMapping.delete(uri);
+    this.tabIdPathMapping.delete(tabId!);
+
+    // changing the current tab index if the tab that we will delete has a
+    if (
+      (index === this._currentFileTabIndex && index === this._fileTabs.length - 1) ||
+      index < this._currentFileTabIndex
+    ) {
+      this._currentFileTabIndex--;
+    }
+
+    const deleted = this._fileTabs.splice(index, 1);
+
+    // reselect before full delete, but only if there is a tab left
+    if (this._fileTabs.length > 0) {
+      this._editor.setModel(this._fileTabs[this._currentFileTabIndex]);
+      this._editor.restoreViewState(this._fileTabs[this._currentFileTabIndex].state);
+      this._editor.focus();
+    } else {
+      this._editor.setModel(null);
+    }
+
+    deleted[0].dispose();
+  }
+
+  public deleteAllFileTabs() {
+    const tabs = this._fileTabs;
+    this._fileTabs = [];
+    this._currentFileTabIndex = -1;
+    for (const tab of tabs) {
+      if (tab) tab.dispose();
+    }
+    this._editor.setModel(null);
+    this.tabIdPathMapping.clear();
+    this.pathTabIdMapping.clear();
+  }
+
+  public resetEditorFileTabs(fileTabs: FileTab[], fileTabFocusIndex: number = 0) {
+    this.deleteAllFileTabs();
+    for (const tab of fileTabs) {
+      const newModel = monaco.editor.createModel(tab.content, tab.language, monaco.Uri.file(tab.uri));
+      this._fileTabs.push(newModel);
+      this.tabIdPathMapping.set(tab.id, tab.uri);
+      this.pathTabIdMapping.set(tab.uri, tab.id);
+    }
+    this._currentFileTabIndex = fileTabFocusIndex;
+    this._code = fileTabs[fileTabFocusIndex].content;
+    this._language = fileTabs[fileTabFocusIndex].language;
+    this.path = fileTabs[fileTabFocusIndex].uri;
+    this._editor.setModel(this._fileTabs[this._currentFileTabIndex]);
+    this._editor.focus();
+  }
+
+  public getAllFileTabs(): FileTab[] {
+    const tabs: FileTab[] = [];
+    for (const tab of this._fileTabs) {
+      tabs.push({
+        content: tab.getValue(),
+        language: tab.getLanguageId(),
+        uri: tab.uri,
+        id: this.pathTabIdMapping.get(tab.uri) ?? '',
+      });
+    }
+    return tabs;
+  }
+
+  public getFileTabByPath(uri: string): FileTab | undefined {
+    const tab = this._fileTabs.find((tab) => uri === tab.uri.path);
+    if (!tab) return undefined;
+    const id = this.pathTabIdMapping.get(uri);
+    if (!id) return undefined;
+    return {
+      content: tab.getValue(),
+      language: tab.getLanguageId(),
+      uri: tab.uri,
+      id: id,
+    };
+  }
+
+  public getFileTabById(id: string): FileTab | undefined {
+    const uri = this.tabIdPathMapping.get(id);
+    if (!uri) return undefined;
+    const tab = this._fileTabs.find((tab) => uri === tab.uri.path);
+    if (!tab) return undefined;
+    return {
+      content: tab.getValue(),
+      language: tab.getLanguageId(),
+      uri: tab.uri,
+      id: id,
+    };
+  }
+
+  public setFileTabContentById(id: string, content: string) {
+    const uri = this.tabIdPathMapping.get(id);
+    if (!uri) return;
+    const tab = this._fileTabs.find((tab) => uri === tab.uri.path);
+    if (!tab) return;
+    tab.setValue(content);
   }
 }
