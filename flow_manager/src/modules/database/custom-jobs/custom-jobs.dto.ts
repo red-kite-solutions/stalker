@@ -26,12 +26,12 @@ export class CustomJobDto {
 
   @IsOptional()
   @CanEnableFindingHandler()
-  findingHandlerEnabled: boolean;
+  findingHandlerEnabled?: boolean;
 
   @IsOptional()
   @IsString()
-  public findingHandler: string;
+  public findingHandler?: string;
 
   @IsValidFindingHandlerLanguage()
-  public findingHandlerLanguage: string;
+  public findingHandlerLanguage?: string;
 }
