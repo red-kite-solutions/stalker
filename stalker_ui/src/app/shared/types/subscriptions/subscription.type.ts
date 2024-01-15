@@ -18,6 +18,7 @@ export interface EventSubscriptionData extends SubscriptionData {
 
 export interface CronSubscriptionData extends SubscriptionData {
   cronExpression: string;
+  input?: 'ALL_DOMAINS' | 'ALL_HOSTS' | 'ALL_TCP_PORTS';
 }
 
 export interface SubscriptionData {
