@@ -1,11 +1,31 @@
+import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormControl, ValidationErrors, Validators } from '@angular/forms';
+import { FlexLayoutModule } from '@angular/flex-layout';
+import {
+  FormsModule,
+  ReactiveFormsModule,
+  UntypedFormBuilder,
+  UntypedFormControl,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatOptionModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { map, startWith, switchMap, tap } from 'rxjs';
+import { map, shareReplay, startWith, switchMap, tap } from 'rxjs';
 import { UsersService } from 'src/app/api/users/users.service';
+import { AppHeaderComponent } from 'src/app/shared/components/page-header/page-header.component';
+import { SharedModule } from 'src/app/shared/shared.module';
 import { HttpStatus } from 'src/app/shared/types/http-status.type';
 import { User } from 'src/app/shared/types/user.interface';
 import {
@@ -15,9 +35,27 @@ import {
 import { Role, roles, rolesInfoDialogText } from '../roles';
 
 @Component({
+  standalone: true,
   selector: 'app-edit-user',
   templateUrl: './edit-user.component.html',
   styleUrls: ['./edit-user.component.scss'],
+  imports: [
+    CommonModule,
+    AppHeaderComponent,
+    MatButtonModule,
+    MatCardModule,
+    MatIconModule,
+    FormsModule,
+    SharedModule,
+    MatSelectModule,
+    MatFormFieldModule,
+    MatOptionModule,
+    MatDividerModule,
+    MatInputModule,
+    MatCheckboxModule,
+    ReactiveFormsModule,
+    FlexLayoutModule,
+  ],
 })
 export class EditUserComponent {
   passwordConfirm = '';
@@ -120,9 +158,14 @@ export class EditUserComponent {
     })
   );
 
-  public routeSub$ = this.userId$.pipe(
-    switchMap((id) => this.usersService.getUser(id)),
+  public user$ = this.userId$.pipe(switchMap((id) => this.usersService.getUser(id))).pipe(
     tap((user) => this.setTitle(user.email)),
+    shareReplay(1)
+  );
+
+  public userFullName$ = this.user$.pipe(map((x) => [x?.firstName, x?.lastName].filter((p) => p).join(' ')));
+
+  public routeSub$ = this.user$.pipe(
     map((user: any) => {
       this.form.controls['firstName'].setValue(user.firstName);
       this.form.controls['lastName'].setValue(user.lastName);

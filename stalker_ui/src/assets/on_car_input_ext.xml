@@ -1,0 +1,91 @@
+<FortusTransaction Type="Automobile">
+  <Carriers />
+  <CodeNames>
+    <Auto>
+      <QuoteInfo>
+        <Client>
+          <Address>
+            <Address1>401-7 Grenville Street</Address1>
+            <City>TORONTO</City>
+            <Classification>Client</Classification>
+            <ID>1</ID>
+            <PostalCode>M4Y1A1</PostalCode>
+            <Province>ON</Province>
+          </Address>
+          <CoApplicantName>
+            <Classification>Client</Classification>
+            <ID>1</ID>
+          </CoApplicantName>
+          <EmailAddress>aboisier@youset.ca</EmailAddress>
+          <ID>000000000025311</ID>
+          <Name>
+            <Classification>Client</Classification>
+            <FirstName>Antoine Fortus T</FirstName>
+            <ID>1</ID>
+            <LastName>Car On</LastName>
+          </Name>
+          <Telephone>
+            <AreaCode>514</AreaCode>
+            <Classification>Home</Classification>
+            <ID>1</ID>
+            <Number>5555654</Number>
+          </Telephone>
+        </Client>
+        <CreditScore>
+          <Address>
+            <Address1>401-7 Grenville Street</Address1>
+            <City>TORONTO</City>
+            <Classification>Insured</Classification>
+            <ID>1</ID>
+            <PostalCode>M4Y1A1</PostalCode>
+            <Province>ON</Province>
+          </Address>
+          <Birthdate>20001211</Birthdate>
+          <Consent>Y</Consent>
+          <ConsentType>Written</ConsentType>
+          <ID>1</ID>
+          <Name>
+            <Classification>Insured</Classification>
+            <FirstName>Antoine Fortus Test</FirstName>
+            <ID>1</ID>
+            <LastName>Car On</LastName>
+          </Name>
+          <PartyType>IN</PartyType>
+          <Telephone>
+            <AreaCode>514</AreaCode>
+            <Classification>Insured</Classification>
+            <ID>1</ID>
+            <Number>5555654</Number>
+          </Telephone>
+        </CreditScore>
+        <CriminalHistory>N</CriminalHistory>
+        <DriverProfile>
+          <DriverLicense>
+            <ID>1</ID>
+          </DriverLicense>
+          <ID>00009966</ID>
+          <Name>
+            <Classification>Driver</Classification>
+            <FirstName>Antoine Fortus Test</FirstName>
+            <ID>1</ID>
+            <LastName>Car On</LastName>
+          </Name>
+        </DriverProfile>
+        <ID>00029274</ID>
+        <Origin>Allset</Origin>
+        <Remarket>N</Remarket>
+        <Telematics />
+        <Vehicle>
+          <ID>00009153</ID>
+        </Vehicle>
+        <VehLink>
+          <DriverID>00009966</DriverID>
+          <ID>1</ID>
+          <VehicleID>00009153</VehicleID>
+        </VehLink>
+      </QuoteInfo>
+    </Auto>
+  </CodeNames>
+  <Province>ON</Province>
+  <QuoteGUID>d4eac1cc16584391c0dbf5d1f4d1463b</QuoteGUID>
+</FortusTransaction>

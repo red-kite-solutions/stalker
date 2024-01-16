@@ -15,12 +15,12 @@
 }
 <div mat-dialog-actions>
   @if (data.primaryButtonText != '') {
-    <button mat-raised-button color="primary" (click)="primaryClick()">
+    <button mat-flat-button color="primary" (click)="primaryClick()">
       {{ data.primaryButtonText }}
     </button>
   }
   @if (data.dangerButtonText != '') {
-    <button mat-raised-button color="warn" (click)="dangerClick()">
+    <button mat-flat-button color="warn" (click)="dangerClick()">
       {{ data.dangerButtonText }}
     </button>
   }

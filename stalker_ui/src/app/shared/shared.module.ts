@@ -22,6 +22,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { NgxFileDropModule } from 'ngx-file-drop';
+import { AvatarComponent } from './components/avatar/avatar.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { HeaderComponent } from './components/header/header.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
@@ -59,6 +60,7 @@ import { TextSelectMenuComponent } from './widget/text-select-menu/text-select-m
   ],
   imports: [
     CommonModule,
+    AvatarComponent,
     MatDividerModule,
     MatToolbarModule,
     MatIconModule,
