@@ -54,8 +54,10 @@ export class SubscriptionsUtils {
       );
       return undefined;
     }
-    const customJobParams = JSON.parse(JSON.stringify(sub.jobParameters));
-    const jobParameters = [];
+    const customJobParams: JobParameter[] = JSON.parse(
+      JSON.stringify(sub.jobParameters),
+    );
+    const jobParameters: JobParameter[] = [];
     jobParameters.push({ name: 'name', value: customJobEntry.name });
     jobParameters.push({ name: 'code', value: customJobEntry.code });
     jobParameters.push({ name: 'type', value: customJobEntry.type });
@@ -91,6 +93,7 @@ export class SubscriptionsUtils {
       return value;
     }
 
+    // Would extract domainName from ${ domainName }
     const expression = match[1].toLowerCase();
     const ctx = prepareContext(finding);
     return executeDsl(expression, ctx) || '';
@@ -206,14 +209,24 @@ export class SubscriptionsUtils {
     jobConditions: JobCondition[],
     command: T,
   ) {
+    return SubscriptionsUtils.shouldExecuteFromFinding(
+      jobConditions,
+      command.finding,
+    );
+  }
+
+  public static shouldExecuteFromFinding(
+    jobConditions: JobCondition[],
+    finding: Finding,
+  ) {
     let allConditionsMatch = true;
     for (const condition of jobConditions ?? []) {
       condition.lhs = SubscriptionsUtils.replaceValueIfReferingToFinding<
         string | boolean | number
-      >(condition.lhs, command.finding);
+      >(condition.lhs, finding);
       condition.rhs = SubscriptionsUtils.replaceValueIfReferingToFinding<
         string | boolean | number
-      >(condition.rhs, command.finding);
+      >(condition.rhs, finding);
 
       if (!SubscriptionsUtils.evaluateCondition(condition)) {
         allConditionsMatch = false;
@@ -294,13 +307,22 @@ export class SubscriptionsUtils {
       }
     }
 
+    const conditions = [];
+    if (subYamlJson.conditions) {
+      for (const condition of subYamlJson.conditions) {
+        conditions.push(condition);
+      }
+    }
+
     const sub: CronSubscription = {
       name: subYamlJson.name,
+      input: subYamlJson.input ? subYamlJson.input : null,
       cronExpression: subYamlJson.cronExpression,
       builtIn: true,
       jobName: subYamlJson.job.name,
       companyId: null,
       jobParameters: params,
+      conditions: conditions,
     };
 
     return sub;

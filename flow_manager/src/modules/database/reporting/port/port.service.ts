@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DeleteResult, UpdateResult } from 'mongodb';
-import { Model, Types } from 'mongoose';
+import { FilterQuery, Model, Types } from 'mongoose';
 import {
   HttpBadRequestException,
   HttpNotFoundException,
@@ -117,7 +117,7 @@ export class PortService {
     port.lastSeen = Date.now();
     port.tags = [];
 
-    let res = null;
+    let res: PortDocument = null;
 
     // Does not need to be awaited.
     // Updating the lastSeen timestamp as, when we see a port, we see its host
@@ -194,6 +194,27 @@ export class PortService {
       hostId: { $eq: new Types.ObjectId(hostId) },
       layer4Protocol: protocolFilter,
     });
+    if (page != null && pageSize != null) {
+      query = query.skip(page * pageSize).limit(pageSize);
+    }
+    return await query;
+  }
+
+  /**
+   * Gets all the port numbers and protocol only of a host in an undefined order.
+   * @param hostId
+   * @param page
+   * @param pageSize
+   * @param filter
+   * @returns
+   */
+  public async getPortNumbers(
+    page: number = null,
+    pageSize: number = null,
+    filter: FilterQuery<Port> = null,
+  ): Promise<PortDocument[]> {
+    const projection = 'port layer4Protocol';
+    let query = this.portsModel.find(filter, projection);
     if (page != null && pageSize != null) {
       query = query.skip(page * pageSize).limit(pageSize);
     }

@@ -9,8 +9,9 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { IsCronExpression } from '../../../../validators/is-cron-expression.validator';
-import { IsTypeIn } from '../../../../validators/is-type-in.validator';
 import { JobTypes } from '../../jobs/job-model.module';
+import { JobConditionDto, JobParameterDto } from '../subscriptions.dto';
+import { InputSource } from './cron-subscriptions.model';
 
 export class CronSubscriptionDto {
   @IsString()
@@ -36,12 +37,14 @@ export class CronSubscriptionDto {
   @Type(() => JobParameterDto)
   @IsOptional()
   public jobParameters?: JobParameterDto[];
-}
 
-export class JobParameterDto {
-  @IsString()
-  public name!: string;
+  @IsIn(['ALL_DOMAINS', 'ALL_HOSTS', 'ALL_TCP_PORTS'])
+  @IsOptional()
+  public input?: InputSource;
 
-  @IsTypeIn(['string', 'number', 'boolean', 'array', 'object'])
-  public value!: string | number | boolean | Array<any> | object;
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => JobConditionDto)
+  @IsOptional()
+  public conditions?: JobConditionDto[];
 }

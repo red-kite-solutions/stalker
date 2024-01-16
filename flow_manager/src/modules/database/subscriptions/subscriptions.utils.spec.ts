@@ -562,6 +562,7 @@ describe('Findings Handler Base', () => {
         cronExpression: '*/30 * * * * *',
         jobName: 'HostnameResolvingJob',
         jobParameters: [{ name: 'domainName', value: 'example.com' }],
+        conditions: [],
       };
       let yaml = [
         `name: ${cs.name}`,

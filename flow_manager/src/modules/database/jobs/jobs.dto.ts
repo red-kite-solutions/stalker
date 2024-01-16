@@ -13,8 +13,8 @@ import {
   ValidateIf,
   ValidateNested,
 } from 'class-validator';
-import { JobParameterDto } from '../subscriptions/event-subscriptions/event-subscriptions.dto';
 import { JobParameter } from '../subscriptions/event-subscriptions/event-subscriptions.model';
+import { JobParameterDto } from '../subscriptions/subscriptions.dto';
 import { JobSources, JobTypes } from './job-model.module';
 
 export class JobExecutionsDto {

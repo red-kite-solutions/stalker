@@ -15,6 +15,7 @@ A subscription is written in `yaml` format in the front-end. The company for whi
 * [Cron Subscriptions](#cron-subscriptions)
   * [Cron Subscription Syntax](#cron-subscription-syntax)
     * [Cron Subscription Simple Example](#cron-subscription-simple-example)
+    * [Input variable](#input-variable)
 * [Event Subscriptions](#event-subscriptions)
   * [Event Subscription Syntax](#event-subscription-syntax)
     * [Event Subscription Simple Example](#event-subscription-simple-example)
@@ -36,18 +37,20 @@ Even though cron subscriptions do not require a company to be set, they require 
 
 ### Cron Subscription Syntax
 
-A cron subscription contains three main elements :
+A cron subscription contains the following main elements :
 
 | Element        | Description                                              | Mandatory |
 | -------------- | -------------------------------------------------------- | --------- |
 | name           | The name of the subscription, for future reference       | Yes       |
 | cronExpression | The cron expression that specifies when to start the job | Yes       |
+| input          | A value representing all the ressources of a type        | No        |
 | job            | The job to launch when the cron expression is triggered  | Yes       |
 
 > N.B. Additonnal details on these elements are given in the following sections
 
 * The `name` element can be anything and is only used to distinguish the subscription from the others.
 * The `cronExpression` element has to be a valid cron expression. It is used to trigger the job launch.
+* The `input` element is either `ALL_DOMAINS`, `ALL_HOSTS` or `ALL_TCP_PORTS`. These values represent all the ressources of the corresponding type.
 * The `job` element contains multiple values:
   * `name` : mandatory, must be an existing Job's type. See the Jobs section for the list of valid values.
   * `parameters` : optionnal, but almost always needed. It describes the input values of the job by the parameter `name` and its `value` in a list.
@@ -68,6 +71,75 @@ job:
   parameters:
     - name: domainName
       value: example.com
+```
+
+#### Input variable
+
+The `input` variable specifies an input source. There are multiple input sources described in the following table. The `input` variable is optionnal. The variables can be injected in the job parameters as well as in the conditions.
+
+If a company is specified, only the ressources of the targeted company will be used.
+
+| Input source  | Variables                   |
+| ------------- | --------------------------- |
+| ALL_DOMAINS   | ${domainName}               |
+| ALL_HOSTS     | ${ip}                       |
+| ALL_TCP_PORTS | ${ip}, ${port}, ${protocol} |
+
+When you specify the `ALL_DOMAINS` input, you have access to the `${domainName}` injectable variable. Stalker will apply the subscription for all the domains, and the domain's value will be injected where specified.
+
+```yaml
+name: Refreshing all domain names
+input: ALL_DOMAINS
+cronExpression: '0 0 * * *'
+job:
+  name: DomainNameResolvingJob
+  parameters:
+    - name: domainName
+      value: ${domainName}
+```
+
+When you specify the `ALL_HOSTS` input, you have access to the `${ip}` injectable variable. Stalker will apply the subscription for all the hosts, and the hosts's ip value will be injected where specified.
+
+```yaml
+name: Rescanning all hosts
+input: ALL_HOSTS
+cronExpression: '0 0 * * *'
+job:
+  name: TcpPortScanningJob
+  parameters:
+    - name: targetIp
+      value: ${ip}
+    - name: threads
+      value: 1000
+    - name: socketTimeoutSeconds
+      value: 0.7
+    - name: portMin
+      value: 1
+    - name: portMax
+      value: 65535
+    - name: ports
+      value: []
+```
+
+When you specify the `ALL_TCP_PORTS` input, you have access to the `${ip}`, `${port}` and `${protocol}` injectable variables. Stalker will apply the subscription for all the ports, and the ip, port and protocol values can be injected where specified. Protocol is either tcp or udp.
+
+> Only TCP ports are sent with this input, so the protocol variable will always equal 'tcp'
+
+```yaml
+name: All tcp ports with condition
+input: ALL_TCP_PORTS
+cronExpression: '0 0 * * *'
+job:
+  name: HttpServerCheckJob
+  parameters:
+    - name: targetIp
+      value: ${ip}
+    - name: ports
+      value:  ['${port}']
+conditions:
+  - lhs: '${protocol}'
+    operator: 'equals'
+    rhs: 'tcp'
 ```
 
 ## Event Subscriptions

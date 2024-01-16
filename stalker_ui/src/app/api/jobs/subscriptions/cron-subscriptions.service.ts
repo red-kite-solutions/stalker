@@ -20,6 +20,7 @@ export class CronSubscriptionsService {
             _id: item._id,
             name: item.name,
             cronExpression: item.cronExpression,
+            input: item.input ?? undefined,
             companyId: item.companyId ? item.companyId : allCompaniesSubscriptions,
             job: { name: item.jobName },
             builtIn: item.builtIn,
@@ -43,6 +44,7 @@ export class CronSubscriptionsService {
       name: newSub.name,
       cronExpression: newSub.cronExpression,
       companyId: newSub.companyId ? newSub.companyId : allCompaniesSubscriptions,
+      input: newSub.input ?? undefined,
       job: {
         name: newSub.jobName,
       },
@@ -71,6 +73,10 @@ export class CronSubscriptionsService {
 
     if (subscription.job.parameters) {
       data['jobParameters'] = subscription.job.parameters;
+    }
+
+    if (subscription.input) {
+      data['input'] = subscription.input;
     }
 
     return data;
