@@ -1,0 +1,77 @@
+@use '@angular/material' as mat;
+@import './palette.scss';
+
+@include mat.core();
+
+:root {
+  --density-scale: -2;
+  --small-gap-size: calc(16px + var(--density-scale) * 4px);
+  --normal-gap-size: calc(24px + var(--density-scale) * 4px);
+}
+
+$primary: mat.define-palette($primary, 500);
+$accent: mat.define-palette($accent, 500, 300, 700);
+$warn: mat.define-palette($warn);
+
+$typography: mat.define-typography-config(
+  $body-1:
+    mat.define-typography-level(
+      $font-size: 14px,
+      $line-height: 24px,
+    ),
+  $button:
+    mat.define-typography-level(
+      $font-size: 13px,
+    ),
+  $caption:
+    mat.define-typography-level(
+      $font-size: 11px,
+      $line-height: 11px,
+    ),
+);
+
+$stalker-light: mat.define-light-theme(
+  (
+    color: (
+      primary: $primary,
+      accent: $accent,
+      warn: $warn,
+    ),
+    density: -2,
+    typography: $typography,
+  )
+);
+
+@include mat.core-theme($stalker-light);
+@include mat.all-component-themes($stalker-light);
+
+// Paginator
+@include mat.paginator-density(-2);
+
+// HACK: To add density-aware gap utility class to tailwind
+.tw-gap-sm {
+  gap: var(--small-gap-size);
+}
+
+.tw-gap-x-sm {
+  column-gap: var(--small-gap-size);
+}
+
+.tw-gap-y-sm {
+  row-gap: var(--small-gap-size);
+}
+
+.tw-gap,
+.tw-gap-md {
+  gap: var(--normal-gap-size);
+}
+
+.tw-gap-x,
+.tw-gap-x-md {
+  column-gap: var(--normal-gap-size);
+}
+
+.tw-gap-y,
+.tw-gap-y-md {
+  row-gap: var(--normal-gap-size);
+}

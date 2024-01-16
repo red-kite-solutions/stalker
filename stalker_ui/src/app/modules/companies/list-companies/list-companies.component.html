@@ -1,10 +1,6 @@
-<mat-grid-list cols="{{ columns$ | async }}" rowHeight="2:1" [gutterSize]="'10px'">
+<mat-grid-list cols="{{ columns$ | async }}" rowHeight="2:1" [gutterSize]="'16px'">
   @if (addCompanyClicked) {
-    <mat-grid-tile
-      class="buttonTile"
-      fxLayout="flex-start center"
-      (click)="addCompanyClicked = !addCompanyClicked"
-      >
+    <mat-grid-tile class="buttonTile" fxLayout="flex-start center" (click)="addCompanyClicked = !addCompanyClicked">
       <div class="imgContainer" fxFlex="40" fxLayoutAlign="center center">
         <mat-icon class="companyLogo material-icons-outlined">add_circle_outline</mat-icon>
       </div>
@@ -28,8 +24,8 @@
                 <mat-label i18n="Company name|Name of the company">Company name</mat-label>
                 <input matInput [formControl]="companyNameControl" />
                 <mat-error i18n="Company name required|Company name is required to create a company">
-                Company name is required
-              </mat-error>
+                  Company name is required
+                </mat-error>
               </mat-form-field>
             </div>
             <div fxFlex>
@@ -43,14 +39,14 @@
                 ></app-spinner-button>
                 <button
                   type="button"
-                  mat-raised-button
+                  mat-flat-button
                   color="warn"
                   (click)="addCompanyClicked = !addCompanyClicked"
                   fxFlex
                   i18n="Cancel|Cancel action"
-                  >
-                Cancel
-              </button>
+                >
+                  Cancel
+                </button>
               </div>
             </div>
           </div>
@@ -59,11 +55,7 @@
     </mat-grid-tile>
   }
   @for (company of companies; track company) {
-    <mat-grid-tile
-      class="buttonTile"
-      fxLayout="flex-start center"
-      [routerLink]="['/companies/', company._id]"
-      >
+    <mat-grid-tile class="buttonTile" fxLayout="flex-start center" [routerLink]="['/companies/', company._id]">
       <div class="imgContainer" fxFlex="40" fxLayoutAlign="center center">
         <company-avatar [company]="company"></company-avatar>
       </div>

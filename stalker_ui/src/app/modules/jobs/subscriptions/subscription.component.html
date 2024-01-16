@@ -17,19 +17,19 @@
           </mat-form-field>
         </form>
         <div fxLayout="row">
-          <button mat-raised-button color="primary" class="left-action-button" (click)="newSubscriptionClick()">
+          <button mat-flat-button color="primary" class="left-action-button" (click)="newSubscriptionClick()">
             <label i18n="New subscription|Button to create a new subscription">New subscription</label>
           </button>
-          <button mat-raised-button color="warn" class="left-action-button" (click)="delete()">
+          <button mat-stroked-button color="warn" class="left-action-button" (click)="delete()">
             <label i18n="Delete|Delete an item">Delete</label>
           </button>
           <div fxLayoutAlign="end" fxFlex>
             @if (selectedRow?.builtIn) {
-              <button mat-raised-button color="primary" class="right-action-button" (click)="revertToDefault()">
+              <button mat-flat-button color="primary" class="right-action-button" (click)="revertToDefault()">
                 <label i18n="Revert to default|Revert to default values">Revert to default</label>
               </button>
             }
-            <button mat-raised-button color="primary" class="right-action-button" (click)="saveSubscriptionEdits()">
+            <button mat-flat-button color="primary" class="right-action-button" (click)="saveSubscriptionEdits()">
               <label i18n="Save|Save the information">Save</label>
             </button>
           </div>
