@@ -1,95 +1,93 @@
 @if (host$ | async; as host) {
-  <div class="container">
-    <app-page-header [parts]="[(companies$ | async | whereId: [host?.companyId])?.name, host.ip]"> </app-page-header>
-    <div class="content-wrapper">
-      <div class="content">
-        <findings-list [correlationKey]="host.correlationKey"></findings-list>
-      </div>
-      <div class="context">
-        @if (host) {
-          <panel-section>
-            <panel-section-title i18n="Last seen|Last seen"> Last seen </panel-section-title>
-            <panel-section-subtitle [matTooltip]="host.lastSeen | humanizeDate: 'precise'" matTooltipPosition="before">
-              {{ host.lastSeen | timeAgo }}
-            </panel-section-subtitle>
-          </panel-section>
-        }
-        @if ((tagsSelectItems$ | async) && mergedTags$ | async; as hostTags) {
-          <panel-section>
-            <panel-section-title i18n="Tags|The tags of an item"
-              >Tags
-              <span class="manage-tags-menu">
-                —
-                <app-text-select-menu
-                  [menuMaxSize]="menuTargetWidth"
-                  [items]="tagsSelectItems$ | async"
-                  [buttonText]="manageTags"
-                  [filterText]="filterTags"
-                  [filterEnabled]="true"
-                  [colorEnabled]="true"
-                  [opacity]="0.8"
-                  [emptyText]="emptyTags"
-                  (itemSelection)="itemSelected($event)"
-                ></app-text-select-menu>
-              </span>
-            </panel-section-title>
-            @if (!hostTags.length) {
-              <panel-section-subtitle i18n="No tags yet|There are no tags for this item"
-                >No tags yet
-              </panel-section-subtitle>
-            }
-            @for (tag of hostTags; track tag) {
-              <app-pill-tag [color]="(tags | whereId: [tag])?.color">{{ (tags | whereId: [tag])?.text }}</app-pill-tag>
-            }
-          </panel-section>
-        }
+  <app-page-header [parts]="[(companies$ | async | whereId: [host?.companyId])?.name, host.ip]"> </app-page-header>
+  <div class="content-wrapper">
+    <div class="content">
+      <findings-list [correlationKey]="host.correlationKey"></findings-list>
+    </div>
+    <div class="context">
+      @if (host) {
         <panel-section>
-          <panel-section-title i18n="Domains|An IP's related domains">Domains</panel-section-title>
-          @if (!host?.domains?.length) {
-            <panel-section-subtitle i18n="No domains yet|There are no domains for this item"
-              >No domains yet</panel-section-subtitle
+          <panel-section-title i18n="Last seen|Last seen"> Last seen </panel-section-title>
+          <panel-section-subtitle [matTooltip]="host.lastSeen | humanizeDate: 'precise'" matTooltipPosition="before">
+            {{ host.lastSeen | timeAgo }}
+          </panel-section-subtitle>
+        </panel-section>
+      }
+      @if ((tagsSelectItems$ | async) && mergedTags$ | async; as hostTags) {
+        <panel-section>
+          <panel-section-title i18n="Tags|The tags of an item"
+            >Tags
+            <span class="manage-tags-menu">
+              —
+              <app-text-select-menu
+                [menuMaxSize]="menuTargetWidth"
+                [items]="tagsSelectItems$ | async"
+                [buttonText]="manageTags"
+                [filterText]="filterTags"
+                [filterEnabled]="true"
+                [colorEnabled]="true"
+                [opacity]="0.8"
+                [emptyText]="emptyTags"
+                (itemSelection)="itemSelected($event)"
+              ></app-text-select-menu>
+            </span>
+          </panel-section-title>
+          @if (!hostTags.length) {
+            <panel-section-subtitle i18n="No tags yet|There are no tags for this item"
+              >No tags yet
+            </panel-section-subtitle>
+          }
+          @for (tag of hostTags; track tag) {
+            <app-pill-tag [color]="(tags | whereId: [tag])?.color">{{ (tags | whereId: [tag])?.text }}</app-pill-tag>
+          }
+        </panel-section>
+      }
+      <panel-section>
+        <panel-section-title i18n="Domains|An IP's related domains">Domains</panel-section-title>
+        @if (!host?.domains?.length) {
+          <panel-section-subtitle i18n="No domains yet|There are no domains for this item"
+            >No domains yet</panel-section-subtitle
+          >
+        }
+        @for (domain of domains$ | async; track domain) {
+          <div>
+            <a [routerLink]="['/domains', domain.id]">{{ domain.name }}</a>
+          </div>
+        }
+        @if (((shownDomainsCount$ | async) ?? 0) < (host?.domains?.length ?? 0)) {
+          <button panel-load-more (click)="shownDomainsCount$.next(1000)">
+            Show more ({{ host?.domains?.length }})
+          </button>
+        }
+      </panel-section>
+      @if (ports$ | async; as ports) {
+        <panel-section>
+          <panel-section-title i18n="Ports|An IP's related ports">Ports</panel-section-title>
+          @if (!ports.length) {
+            <panel-section-subtitle i18n="No ports yet|There are no ports for this item"
+              >No ports yet</panel-section-subtitle
             >
           }
-          @for (domain of domains$ | async; track domain) {
+          @for (port of ports$ | async; track port) {
             <div>
-              <a [routerLink]="['/domains', domain.id]">{{ domain.name }}</a>
+              <a [routerLink]="['.', 'ports', port.port]">{{ port.port }}</a>
             </div>
           }
-          @if (((shownDomainsCount$ | async) ?? 0) < (host?.domains?.length ?? 0)) {
-            <button panel-load-more (click)="shownDomainsCount$.next(1000)">
-              Show more ({{ host?.domains?.length }})
+          @if (((shownPortsCount$ | async) ?? 0) < (ports?.length ?? 0)) {
+            <button panel-load-more (click)="shownPortsCount$.next(1000)">Show more ({{ ports.length }})</button>
+          }
+        </panel-section>
+      }
+      <mat-divider></mat-divider>
+      <panel-section class="management" #managementPanelSection>
+        <app-text-menu [buttonText]="manageHostText" [iconName]="'settings'" [xPosition]="'before'">
+          <div [style.width.px]="menuTargetWidth - 16" class="management-content">
+            <button mat-stroked-button color="warn" class="full-width" (click)="deleteHost()">
+              <label i18n="Delete|Delete an item">Delete</label>
             </button>
-          }
-        </panel-section>
-        @if (ports$ | async; as ports) {
-          <panel-section>
-            <panel-section-title i18n="Ports|An IP's related ports">Ports</panel-section-title>
-            @if (!ports.length) {
-              <panel-section-subtitle i18n="No ports yet|There are no ports for this item"
-                >No ports yet</panel-section-subtitle
-              >
-            }
-            @for (port of ports$ | async; track port) {
-              <div>
-                <a [routerLink]="['.', 'ports', port.port]">{{ port.port }}</a>
-              </div>
-            }
-            @if (((shownPortsCount$ | async) ?? 0) < (ports?.length ?? 0)) {
-              <button panel-load-more (click)="shownPortsCount$.next(1000)">Show more ({{ ports.length }})</button>
-            }
-          </panel-section>
-        }
-        <mat-divider></mat-divider>
-        <panel-section class="management" #managementPanelSection>
-          <app-text-menu [buttonText]="manageHostText" [iconName]="'settings'" [xPosition]="'before'">
-            <div [style.width.px]="menuTargetWidth - 16" class="management-content">
-              <button mat-stroked-button color="warn" class="full-width" (click)="deleteHost()">
-                <label i18n="Delete|Delete an item">Delete</label>
-              </button>
-            </div>
-          </app-text-menu>
-        </panel-section>
-      </div>
+          </div>
+        </app-text-menu>
+      </panel-section>
     </div>
   </div>
 }
