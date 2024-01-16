@@ -10,7 +10,8 @@
 }
 
 $primary: mat.define-palette($primary, 500);
-$accent: mat.define-palette($warn, A200, A100, A400);
+$accent: mat.define-palette($accent, 500, 300, 700);
+$warn: mat.define-palette($warn);
 
 $typography: mat.define-typography-config(
   $body-1:
@@ -34,6 +35,7 @@ $stalker-light: mat.define-light-theme(
     color: (
       primary: $primary,
       accent: $accent,
+      warn: $warn,
     ),
     density: -2,
     typography: $typography,
