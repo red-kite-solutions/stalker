@@ -371,13 +371,6 @@ export class CustomJobsComponent implements OnDestroy {
         this.data.push(newCustomJob);
         this.selectCustomJob(newCustomJob);
       }
-      // else {
-      //   this.codeEditor.resetEditorModels(
-      //     job.code,
-      //     job.language,
-      //     `${this.uriPath}${job.name}.${languageExtensionMapping[job.language]}`
-      //   );
-      // }
 
       this.dataSource$ = this.refreshData();
     } catch {
