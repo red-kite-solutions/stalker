@@ -11,13 +11,6 @@
   padding-top: 0;
 }
 
-.content-wrapper {
-  box-sizing: border-box;
-  max-width: 1100px;
-  width: 100%;
-  align-self: center;
-}
-
 mat-card {
   min-width: 380px;
 }
@@ -32,6 +25,11 @@ mat-checkbox {
   margin: 10px;
 }
 
-.center {
-  text-align: center;
+mat-divider {
+  margin-left: -16px;
+  margin-right: -16px;
+}
+
+mat-form-field {
+  max-width: 412px;
 }

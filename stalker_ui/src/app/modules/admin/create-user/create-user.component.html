@@ -43,12 +43,15 @@
         />
         <mat-error> {{ emailErr$ | async }} </mat-error>
       </mat-form-field>
+
       <div class="tw-flex tw-items-center tw-gap-2">
         <mat-form-field class="tw-flex-1">
-          <mat-label i18n="User role|The role of a user in the application. Relates to its authorization level"
-            >Role</mat-label
+          <mat-select
+            formControlName="role"
+            required
+            i18n-placeholder="User role|The role of a user in the application. Relates to its authorization level"
+            placeholder="Role"
           >
-          <mat-select formControlName="role" required>
             @for (role of roles; track $index) {
               <mat-option [value]="role">
                 {{ role.displayName }}
@@ -72,7 +75,7 @@
         </button>
       </div>
 
-      <mat-checkbox formControlName="active" color="primary" class="formfieldblock">
+      <mat-checkbox formControlName="active" color="primary">
         {{ userEnabled$ | async }}
       </mat-checkbox>
 
@@ -82,7 +85,7 @@
 
       <h4 i18n="Set password|Title of a subsection of a form to set the user's password">Set Password</h4>
 
-      <mat-form-field class="formfieldblock">
+      <mat-form-field>
         <input
           matInput
           [type]="hideUserPassword ? 'password' : 'text'"
@@ -112,19 +115,18 @@
     <mat-divider></mat-divider>
     <br />
 
-    <form #profileForm="ngForm" [formGroup]="currentPasswordForm">
+    <form #profileForm="ngForm" [formGroup]="currentPasswordForm" class="tw-flex tw-flex-col">
       <h4 i18n="Validate identity|Asking the user to validate their identity by providing their password">
         Validate Identity
       </h4>
-      <mat-form-field class="formfieldblock">
-        <mat-label i18n="Your password|Label indicating that the user must enter their password"
-          >Your Password</mat-label
-        >
+      <mat-form-field>
         <input
           matInput
           [type]="hideCurrentPassword ? 'password' : 'text'"
           formControlName="password"
           name="currentPassword"
+          i18n-placeholder="Current password|Current password"
+          placeholder="Current password"
           required
         />
         <button
@@ -148,7 +150,7 @@
         >
       }
 
-      <div class="center">
+      <div class="tw-text-center">
         <button
           class="button"
           mat-flat-button

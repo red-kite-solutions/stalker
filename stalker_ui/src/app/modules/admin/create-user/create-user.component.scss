@@ -25,6 +25,11 @@ mat-checkbox {
   margin-bottom: 10px;
 }
 
-.center {
-  text-align: center;
+mat-divider {
+  margin-left: -16px;
+  margin-right: -16px;
+}
+
+mat-form-field {
+  max-width: 412px;
 }

@@ -1,167 +1,167 @@
 <app-page-header [parts]="['Users', (userFullName$ | async) || '']" [backRoute]="['/admin', 'users']"></app-page-header>
 
-<div class="content-wrapper">
-  <mat-card appearance="outlined">
-    @if ((routeSub$ | async) || true) {
-      <mat-card-content>
-        <form [formGroup]="form">
-          <h4 i18n="Profile information|Details of a user in a form">Profile Information</h4>
-          <div class="tw-flex tw-gap">
-            <mat-form-field>
-              <input
-                matInput
-                i18n-placeholder="First name|A person's first name"
-                placeholder="First Name"
-                name="firstName"
-                formControlName="firstName"
-              />
-              <mat-error i18n="First name required|A user must have a first name, otherwise the form is invalid"
-                >First name must not be empty</mat-error
-              >
-            </mat-form-field>
+<mat-card appearance="outlined">
+  @if ((routeSub$ | async) || true) {
+    <mat-card-content>
+      <form [formGroup]="form" class="tw-flex tw-flex-col">
+        <h4 i18n="Profile information|Details of a user in a form">Profile Information</h4>
 
-            <mat-form-field>
-              <input
-                matInput
-                i18n-placeholder="Last name|A person's family name"
-                placeholder="Last Name"
-                name="lastName"
-                formControlName="lastName"
-              />
-              <mat-error i18n="Last name required|A user must have a last name, otherwise the form is invalid"
-                >Last name must not be empty</mat-error
-              >
-            </mat-form-field>
-          </div>
-
-          <mat-form-field class="formfieldblock">
+        <div class="tw-flex tw-gap">
+          <mat-form-field class="tw-flex-1">
             <input
               matInput
-              i18n-placeholder="Email|A user's email"
-              placeholder="Email"
-              name="email"
-              formControlName="email"
+              i18n-placeholder="First name|A person's first name"
+              placeholder="First Name"
+              name="firstName"
+              formControlName="firstName"
             />
-            <mat-error> {{ emailErr$ | async }} </mat-error>
+            <mat-error i18n="First name required|A user must have a first name, otherwise the form is invalid"
+              >First name must not be empty</mat-error
+            >
           </mat-form-field>
-          <div fxLayout="row" fxLayoutAlign="flex-start center">
-            <mat-form-field fxFlex="90">
-              <mat-label i18n="User role|The role of a user in the application. Relates to its authorization level"
-                >Role</mat-label
-              >
-              <mat-select formControlName="role" required>
-                @for (role of roles; track role) {
-                  <mat-option [value]="role">
-                    {{ role.displayName }}
-                  </mat-option>
-                }
-              </mat-select>
-              <mat-hint>{{ form.controls['role'].value.shortDescription }}</mat-hint>
-              <mat-error i18n="Role required|A user must have a role, otherwise the form is invalid"
-                >You must pick a role</mat-error
-              >
-            </mat-form-field>
-            <div fxFlex="10" fxLayoutAlign="center center">
-              <button
-                type="button"
-                mat-icon-button
-                (click)="showUserRolesHelp()"
-                i18n-matTooltip="Role information|Tooltip giving more information about the application roles"
-                matTooltip="Role information"
-              >
-                <mat-icon class="material-icons-outlined">help_outline</mat-icon>
-              </button>
-            </div>
-          </div>
-          <mat-checkbox formControlName="active" class="formfieldblock" color="primary">
-            {{ userEnabled$ | async }}
-          </mat-checkbox>
-          <br />
-          <mat-divider></mat-divider>
-          <br />
-          <h4 i18n="Set password|Title of a subsection of a form to set the user's password">Set Password</h4>
-          <mat-form-field class="formfieldblock">
+
+          <mat-form-field class="tw-flex-1">
             <input
               matInput
-              [type]="hideUserPassword ? 'password' : 'text'"
-              i18n-placeholder="New password|Placeholder for a password form"
-              placeholder="New Password"
-              name="newPassword"
-              formControlName="newPassword"
-              autocomplete="new-password"
+              i18n-placeholder="Last name|A person's family name"
+              placeholder="Last Name"
+              name="lastName"
+              formControlName="lastName"
             />
-            <button
-              type="button"
-              mat-icon-button
-              matSuffix
-              (click)="hideUserPassword = !hideUserPassword"
-              [attr.aria-pressed]="hideCurrentPassword"
-            >
-              <mat-icon>{{ hideUserPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
-            </button>
-            <mat-error i18n="Password minimal length|The password must meet the length requirement to be accepted"
-              >Password must have a minimal length of 12 characters</mat-error
+            <mat-error i18n="Last name required|A user must have a last name, otherwise the form is invalid"
+              >Last name must not be empty</mat-error
             >
           </mat-form-field>
-        </form>
+        </div>
+
+        <mat-form-field>
+          <input
+            matInput
+            i18n-placeholder="Email|A user's email"
+            placeholder="Email"
+            name="email"
+            formControlName="email"
+          />
+          <mat-error> {{ emailErr$ | async }} </mat-error>
+        </mat-form-field>
+
+        <div class="tw-flex tw-items-center tw-gap-2">
+          <mat-form-field class="tw-flex-1">
+            <mat-select
+              formControlName="role"
+              required
+              i18n-placeholder="User role|The role of a user in the application. Relates to its authorization level"
+              placeholder="Role"
+            >
+              @for (role of roles; track role) {
+                <mat-option [value]="role">
+                  {{ role.displayName }}
+                </mat-option>
+              }
+            </mat-select>
+            <mat-hint>{{ form.controls['role'].value.shortDescription }}</mat-hint>
+            <mat-error i18n="Role required|A user must have a role, otherwise the form is invalid"
+              >You must pick a role</mat-error
+            >
+          </mat-form-field>
+          <button
+            type="button"
+            mat-icon-button
+            (click)="showUserRolesHelp()"
+            i18n-matTooltip="Role information|Tooltip giving more information about the application roles"
+            matTooltip="Role information"
+          >
+            <mat-icon class="material-icons-outlined">help_outline</mat-icon>
+          </button>
+        </div>
+
+        <mat-checkbox formControlName="active" class="formfieldblock" color="primary">
+          {{ userEnabled$ | async }}
+        </mat-checkbox>
         <br />
         <mat-divider></mat-divider>
         <br />
-        <form #profileForm="ngForm" [formGroup]="currentPasswordForm">
-          <h4 i18n="Validate identity|Asking the user to validate their identity by providing their password">
-            Validate Identity
-          </h4>
-          <mat-form-field class="formfieldblock">
-            <mat-label i18n="Your password|Label indicating that the user must enter their password"
-              >Your Password</mat-label
-            >
-            <input
-              matInput
-              [type]="hideCurrentPassword ? 'password' : 'text'"
-              formControlName="password"
-              name="currentPassword"
-              required
-            />
-            <button
-              mat-icon-button
-              matSuffix
-              (click)="hideCurrentPassword = !hideCurrentPassword"
-              [attr.aria-pressed]="hideCurrentPassword"
-            >
-              <mat-icon>{{ hideCurrentPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
-            </button>
-            <mat-error>{{ passwordErr$ | async }}</mat-error>
-          </mat-form-field>
-          @if (!this.newUserValid) {
-            <mat-error
-              i18n="Correct information|Asking the user to correct any invalid information before resubmitting the form"
-              >Please correct the invalid information before submitting</mat-error
-            >
-          }
-          <div class="center">
-            <button
-              i18n="Save|Save the changes done to an item"
-              type="button"
-              class="button"
-              mat-flat-button
-              color="primary"
-              (click)="onSubmit()"
-            >
-              Save Changes
-            </button>
-            <button
-              i18n="Delete user|Delete a user's profile"
-              type="button"
-              class="button"
-              mat-stroked-button
-              color="warn"
-              (click)="deleteUser()"
-            >
-              Delete user
-            </button>
-          </div>
-        </form>
-      </mat-card-content>
-    }
-  </mat-card>
-</div>
+        <h4 i18n="Set password|Title of a subsection of a form to set the user's password">Set Password</h4>
+        <mat-form-field class="formfieldblock">
+          <input
+            matInput
+            [type]="hideUserPassword ? 'password' : 'text'"
+            i18n-placeholder="New password|Placeholder for a password form"
+            placeholder="New Password"
+            name="newPassword"
+            formControlName="newPassword"
+            autocomplete="new-password"
+          />
+          <button
+            type="button"
+            mat-icon-button
+            matSuffix
+            (click)="hideUserPassword = !hideUserPassword"
+            [attr.aria-pressed]="hideCurrentPassword"
+          >
+            <mat-icon>{{ hideUserPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          <mat-error i18n="Password minimal length|The password must meet the length requirement to be accepted"
+            >Password must have a minimal length of 12 characters</mat-error
+          >
+        </mat-form-field>
+      </form>
+      <br />
+      <mat-divider></mat-divider>
+      <br />
+      <form #profileForm="ngForm" [formGroup]="currentPasswordForm" class="tw-flex tw-flex-col">
+        <h4 i18n="Validate identity|Asking the user to validate their identity by providing their password">
+          Validate Identity
+        </h4>
+        <mat-form-field class="formfieldblock">
+          <input
+            matInput
+            [type]="hideCurrentPassword ? 'password' : 'text'"
+            i18n-placeholder="Current password|Current password"
+            placeholder="Current password"
+            formControlName="password"
+            name="currentPassword"
+            required
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            (click)="hideCurrentPassword = !hideCurrentPassword"
+            [attr.aria-pressed]="hideCurrentPassword"
+          >
+            <mat-icon>{{ hideCurrentPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          <mat-error>{{ passwordErr$ | async }}</mat-error>
+        </mat-form-field>
+        @if (!this.newUserValid) {
+          <mat-error
+            i18n="Correct information|Asking the user to correct any invalid information before resubmitting the form"
+            >Please correct the invalid information before submitting</mat-error
+          >
+        }
+        <div class="tw-text-center">
+          <button
+            i18n="Save|Save the changes done to an item"
+            type="button"
+            class="button"
+            mat-flat-button
+            color="primary"
+            (click)="onSubmit()"
+          >
+            Save changes
+          </button>
+          <button
+            i18n="Delete user|Delete a user's profile"
+            type="button"
+            class="button"
+            mat-stroked-button
+            color="warn"
+            (click)="deleteUser()"
+          >
+            Delete user
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  }
+</mat-card>
