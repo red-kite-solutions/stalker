@@ -16,7 +16,6 @@ import { Company } from '../company.model';
 import { CorrelationKeyUtils } from '../correlation.utils';
 import { HostService } from '../host/host.service';
 import { HostSummary } from '../host/host.summary';
-import { ReportService } from '../report/report.service';
 import { DomainsPagingDto } from './domain.dto';
 import { Domain, DomainDocument } from './domain.model';
 
@@ -28,7 +27,6 @@ export class DomainsService {
     @InjectModel('domain') private readonly domainModel: Model<Domain>,
     @InjectModel('company') private readonly companyModel: Model<Company>,
     private jobService: JobsService,
-    private reportService: ReportService,
     private configService: ConfigService,
     @Inject(forwardRef(() => HostService))
     private hostService: HostService,
@@ -85,12 +83,6 @@ export class DomainsService {
     const newDomains: string[] = [];
     for (const domain of insertedDomains) {
       newDomains.push(domain.name);
-    }
-
-    const config = await this.configService.getConfig();
-
-    if (config?.isNewContentReported) {
-      this.reportService.addDomains(company.name, newDomains);
     }
 
     const findings: HostnameFinding[] = [];

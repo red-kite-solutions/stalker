@@ -44,7 +44,6 @@
     "dot-object": "^2.1.4",
     "jwt-decode": "^3.1.2",
     "kafkajs": "^2.2.3",
-    "keybase-bot": "^1.0.3",
     "mongodb-memory-server": "^8.11.4",
     "mongoose": "^6.10.0",
     "mustache": "^4.2.0",
