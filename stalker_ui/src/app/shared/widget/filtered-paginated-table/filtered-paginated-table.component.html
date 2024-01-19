@@ -1,4 +1,4 @@
-<div class="table-container" fxLayout="column">
+<div class="table-container tw-flex tw-flex-col">
   <!-- Search filter-->
   <mat-form-field class="filter-chip-list" appearance="fill" [floatLabel]="'always'">
     <mat-label i18n="Search filter|Filter your search to get more precise results">Search filter</mat-label>
@@ -79,11 +79,11 @@
     </tr>
   </table>
   @if (isLoading) {
-    <mat-progress-bar mode="indeterminate" fxFlex></mat-progress-bar>
+    <mat-progress-bar mode="indeterminate" class="tw-flex-1"></mat-progress-bar>
   }
 
   <mat-paginator
-    fxFlex
+    class="tw-flex-1"
     [length]="length"
     [pageSize]="pageSize"
     [pageSizeOptions]="pageSizeOptions"
