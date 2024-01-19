@@ -1,4 +1,8 @@
-<app-page-header [parts]="['Users', (userFullName$ | async) || '']" [backRoute]="['/admin', 'users']"></app-page-header>
+<app-page-header
+  class="tw-w-full"
+  [parts]="['Users', (userFullName$ | async) || '']"
+  [backRoute]="['/admin', 'users']"
+></app-page-header>
 
 <mat-card appearance="outlined">
   @if ((routeSub$ | async) || true) {
@@ -78,10 +82,11 @@
         <mat-checkbox formControlName="active" class="formfieldblock" color="primary">
           {{ userEnabled$ | async }}
         </mat-checkbox>
-        <br />
+
         <mat-divider></mat-divider>
-        <br />
+
         <h4 i18n="Set password|Title of a subsection of a form to set the user's password">Set Password</h4>
+
         <mat-form-field class="formfieldblock">
           <input
             matInput
@@ -106,10 +111,10 @@
           >
         </mat-form-field>
       </form>
-      <br />
-      <mat-divider></mat-divider>
-      <br />
-      <form #profileForm="ngForm" [formGroup]="currentPasswordForm" class="tw-flex tw-flex-col">
+
+      <form #profileForm="ngForm" [formGroup]="currentPasswordForm" class="tw-flex tw-flex-col tw-gap">
+        <mat-divider></mat-divider>
+
         <h4 i18n="Validate identity|Asking the user to validate their identity by providing their password">
           Validate Identity
         </h4>
@@ -139,7 +144,7 @@
             >Please correct the invalid information before submitting</mat-error
           >
         }
-        <div class="tw-text-center">
+        <div class="tw-flex tw-justify-center tw-gap">
           <button
             i18n="Save|Save the changes done to an item"
             type="button"
