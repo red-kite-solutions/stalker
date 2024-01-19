@@ -3,7 +3,7 @@
 <mat-card appearance="outlined">
   @if ((routeSub$ | async) || true) {
     <mat-card-content>
-      <form [formGroup]="form" class="tw-flex tw-flex-col">
+      <form [formGroup]="form" class="tw-flex tw-flex-col tw-gap">
         <h4 i18n="Profile information|Details of a user in a form">Profile Information</h4>
 
         <div class="tw-flex tw-gap">

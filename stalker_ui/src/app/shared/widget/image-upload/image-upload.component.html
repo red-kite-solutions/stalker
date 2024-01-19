@@ -8,7 +8,7 @@
           accept=".png,.jpeg,.jpg"
           [directory]="false"
           [multiple]="false"
-          >
+        >
           <ng-template ngx-file-drop-content-tmp let-openFileSelector="openFileSelector">
             <div fxLayout="column">
               @if (!fileLoading) {
@@ -17,27 +17,27 @@
                   <span class="dragndrop" i18n="Dnd|Drang and drop indicator">Drag and drop or </span>
                   <span class="fileBrowse" (click)="openFileSelector()" i18n="Browse files|Browse your local files"
                     >browse files</span
-                    >
-                  </div>
-                }
-                @if (fileLoading) {
-                  <div fxFlex>
-                    <mat-spinner [diameter]="50"></mat-spinner>
-                  </div>
-                }
-              </div>
-            </ng-template>
-          </ngx-file-drop>
-        }
+                  >
+                </div>
+              }
+              @if (fileLoading) {
+                <div fxFlex>
+                  <mat-spinner [diameter]="50"></mat-spinner>
+                </div>
+              }
+            </div>
+          </ng-template>
+        </ngx-file-drop>
+      }
 
-        @if (fileSelected) {
-          <img id="previewImage" [src]="previewSource" fxFlex />
-        }
-        @if (fileSelected) {
-          <button type="button" mat-mini-fab color="accent" (click)="resetImage()">
-            <mat-icon>close</mat-icon>
-          </button>
-        }
-      </div>
+      @if (fileSelected) {
+        <img id="previewImage" [src]="previewSource" fxFlex />
+      }
+      @if (fileSelected) {
+        <button class="delete" type="button" mat-mini-fab color="accent" (click)="resetImage()">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
     </div>
   </div>
+</div>
