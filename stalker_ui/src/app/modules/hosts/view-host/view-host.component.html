@@ -79,10 +79,10 @@
         </panel-section>
       }
       <mat-divider></mat-divider>
-      <panel-section class="management" #managementPanelSection>
+      <panel-section class="tw-opacity-60" #managementPanelSection>
         <app-text-menu [buttonText]="manageHostText" [iconName]="'settings'" [xPosition]="'before'">
           <div [style.width.px]="menuTargetWidth - 16" class="management-content">
-            <button mat-stroked-button color="warn" class="full-width" (click)="deleteHost()">
+            <button mat-stroked-button color="warn" class="tw-w-full" (click)="deleteHost()">
               <label i18n="Delete|Delete an item">Delete</label>
             </button>
           </div>

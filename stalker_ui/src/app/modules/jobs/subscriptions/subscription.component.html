@@ -6,8 +6,8 @@
       </mat-card-header>
 
       <mat-card-content>
-        <form [formGroup]="subscriptionTypeForm" class="full-width configurations-form">
-          <mat-form-field appearance="outline" class="full-width">
+        <form [formGroup]="subscriptionTypeForm" class="tw-w-full configurations-form">
+          <mat-form-field appearance="outline" class="tw-w-full">
             <mat-label i18n="Subscription type|The type of subscriptions">Subscription type</mat-label>
             <mat-select formControlName="subscriptionType">
               @for (subType of subscriptionTypes; track subType) {
@@ -137,8 +137,8 @@
       <div class="tw-flex tw-flex-col code-editor-container">
         <mat-tab-group>
           <mat-tab label-i18n="Configurations|Settings for an item" label="Configurations">
-            <form [formGroup]="subscriptionConfigForm" class="full-width configurations-form">
-              <mat-form-field appearance="outline" class="full-width">
+            <form [formGroup]="subscriptionConfigForm" class="tw-w-full configurations-form">
+              <mat-form-field appearance="outline" class="tw-w-full">
                 <mat-label i18n="Company|Company or business">Company</mat-label>
                 <mat-select formControlName="selectedCompany">
                   <mat-option i18n="All Companies|Select all companies" value="all companies">All Companies</mat-option>

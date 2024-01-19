@@ -81,10 +81,10 @@
         }
       </panel-section>
       <mat-divider></mat-divider>
-      <panel-section class="management" #managementPanelSection>
+      <panel-section class="tw-opacity-60" #managementPanelSection>
         <app-text-menu [buttonText]="manageDomainText" [iconName]="'settings'" [xPosition]="'before'">
           <div [style.width.px]="menuTargetWidth - 16" class="management-content">
-            <button mat-stroked-button color="warn" class="full-width" (click)="deleteDomain()">
+            <button mat-stroked-button color="warn" class="tw-w-full" (click)="deleteDomain()">
               <label i18n="Delete|Delete an item">Delete</label>
             </button>
           </div>
