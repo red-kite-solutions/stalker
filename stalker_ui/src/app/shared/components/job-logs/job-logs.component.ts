@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, Input, OnChanges } from '@angular/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { concatMap, debounceTime, map, Observable, scan, shareReplay, startWith } from 'rxjs';
+import { Observable, concatMap, debounceTime, map, scan, shareReplay, startWith } from 'rxjs';
 import { AuthService } from '../../../api/auth/auth.service';
 import { JobsService } from '../../../api/jobs/jobs/jobs.service';
 import { JobsSocketioClient } from '../../../api/jobs/jobs/jobs.socketio-client';
@@ -24,7 +24,7 @@ import { CodeEditorComponent, CodeEditorTheme } from '../../widget/code-editor/c
       [minimapEnabled]="false"
       [theme]="theme"
       [readonly]="true"
-      fxFlex
+      class="tw-flex-1"
     ></app-code-editor>`,
 })
 export class JobLogsComponent implements OnChanges {
@@ -36,7 +36,10 @@ export class JobLogsComponent implements OnChanges {
   public logs$: Observable<string> | null = null;
   public isJobInProgress$: Observable<boolean> | null = null;
 
-  constructor(public jobsService: JobsService, public authService: AuthService) {}
+  constructor(
+    public jobsService: JobsService,
+    public authService: AuthService
+  ) {}
 
   ngOnChanges(): void {
     if (this.jobId != null) {
