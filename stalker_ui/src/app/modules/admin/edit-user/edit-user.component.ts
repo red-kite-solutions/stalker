@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { FlexLayoutModule } from '@angular/flex-layout';
 import {
   FormsModule,
   ReactiveFormsModule,
@@ -54,7 +53,6 @@ import { Role, roles, rolesInfoDialogText } from '../roles';
     MatInputModule,
     MatCheckboxModule,
     ReactiveFormsModule,
-    FlexLayoutModule,
   ],
 })
 export class EditUserComponent {

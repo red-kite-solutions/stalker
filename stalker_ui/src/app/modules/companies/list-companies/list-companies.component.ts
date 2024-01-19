@@ -1,6 +1,6 @@
+import { BreakpointObserver, BreakpointState, Breakpoints } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy } from '@angular/core';
-import { FlexModule, MediaChange, MediaObserver } from '@angular/flex-layout';
 import { FormsModule, ReactiveFormsModule, UntypedFormControl, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatGridListModule } from '@angular/material/grid-list';
@@ -9,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { distinctUntilChanged, filter, map } from 'rxjs';
+import { map } from 'rxjs';
 import { CompaniesService } from 'src/app/api/companies/companies.service';
 import { CompanyAvatarComponent } from 'src/app/shared/components/company-avatar/company-avatar.component';
 import { SharedModule } from 'src/app/shared/shared.module';
@@ -31,7 +31,6 @@ import { HttpStatus } from 'src/app/shared/types/http-status.type';
     ReactiveFormsModule,
     FormsModule,
     RouterModule,
-    FlexModule,
     CompanyAvatarComponent,
   ],
 })
@@ -45,29 +44,30 @@ export class ListCompaniesComponent implements OnDestroy {
 
   public addCompanyClicked = true;
 
-  private screenSize$ = this.mediaObserver.asObservable().pipe(
-    filter((mediaChanges: MediaChange[]) => !!mediaChanges[0].mqAlias),
-    distinctUntilChanged((previous: MediaChange[], current: MediaChange[]) => {
-      return previous[0].mqAlias === current[0].mqAlias;
-    }),
-    map((mediaChanges: MediaChange[]) => {
-      return mediaChanges[0].mqAlias;
-    })
-  );
+  private screenSize$ = this.bpObserver.observe([
+    Breakpoints.XSmall,
+    Breakpoints.Small,
+    Breakpoints.Large,
+    Breakpoints.XLarge,
+  ]);
 
   public columns$ = this.screenSize$.pipe(
-    map((screen: string) => {
-      if (screen === 'xs') return 1;
-      if (screen === 'sm') return 2;
-      if (screen === 'md' || screen === 'lg') return 3;
+    map((screen: BreakpointState) => {
+      if (screen.breakpoints[Breakpoints.XSmall]) return 1;
+      else if (screen.breakpoints[Breakpoints.Small]) return 2;
+      else if (screen.breakpoints[Breakpoints.Medium]) return 3;
       return 4;
     })
   );
 
   public displayNotes$ = this.screenSize$.pipe(
-    map((screen: string) => {
-      return screen === 'xl' || screen === 'lg' || screen === 'xs';
-    })
+    map(
+      (screen: BreakpointState) =>
+        screen.breakpoints[Breakpoints.XLarge] ||
+        screen.breakpoints[Breakpoints.Large] ||
+        screen.breakpoints[Breakpoints.Small] ||
+        screen.breakpoints[Breakpoints.XSmall]
+    )
   );
 
   public titleFlex$ = this.displayNotes$.pipe(
@@ -83,7 +83,7 @@ export class ListCompaniesComponent implements OnDestroy {
   public creationLoading = false;
 
   constructor(
-    private mediaObserver: MediaObserver,
+    private bpObserver: BreakpointObserver,
     private companiesService: CompaniesService,
     private toastrService: ToastrService,
     private titleService: Title
