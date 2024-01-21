@@ -22,7 +22,7 @@ table {
 }
 
 .rows:hover {
-  background-color: rgb(243, 243, 243);
+  background-color: var(--mat-table-background-color-hover);
 }
 
 .mat-column-select {

@@ -31,7 +31,7 @@ table {
 }
 
 .rows:hover {
-  background-color: rgb(243, 243, 243);
+  background-color: var(--mat-table-background-color-hover);
 }
 
 .rows {
@@ -54,12 +54,10 @@ mat-tab-group {
 .job-pod-config-selection {
   overflow: auto;
   background-color: transparent;
-  border: 0.1em solid rgba(0, 0, 0, 0.12);
   padding: 10px;
 
   mat-card-header {
     font-weight: 400;
-    color: rgba(0, 0, 0, 0.65);
     margin-bottom: 10px;
   }
 
@@ -95,11 +93,11 @@ mat-tab-group {
         }
 
         &:hover {
-          border-color: black;
+          border-color: var(--mdc-outlined-card-outline-color);
         }
 
         &.selected-config {
-          border-color: rgba(63, 81, 181);
+          border-color: var(--mat-tab-header-active-ripple-color);
         }
 
         .job-pod-config-title {

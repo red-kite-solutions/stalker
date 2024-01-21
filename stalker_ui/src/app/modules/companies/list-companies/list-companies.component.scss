@@ -15,7 +15,7 @@ mat-grid-tile {
   transition-duration: 70ms;
 
   &:hover {
-    background-color: rgb(243, 243, 243);
+    background-color: var(--mdc-outlined-card-container-color);
     transform: translateY(-4px);
     @include mat.elevation(2);
 
@@ -44,7 +44,7 @@ h3 {
     transform: scale(3.2);
     height: auto;
     width: auto;
-    color: rgb(116, 116, 116);
+    color: var(--mat-card-subtitle-text-color);
   }
 }
 
