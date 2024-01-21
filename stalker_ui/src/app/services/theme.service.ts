@@ -15,20 +15,20 @@ export class ThemeService {
   private readonly themeLocalStorageKey = 'stalker_theme';
   public readonly themes: ThemeOption[] = [
     {
-      localizedName: 'Light',
+      localizedName: $localize`:Light|Light theme:Light`,
       theme: 'light',
       color1: '#ffffff',
     },
     {
-      localizedName: 'Dark',
+      localizedName: $localize`:Dark theme|Dark theme:Dark`,
       theme: 'dark',
       color1: '#000000',
     },
     {
-      localizedName: 'Browser default',
+      localizedName: $localize`:Sync with system|Keeps Stalker's theme synced with the system mode (either light or dark):Sync with system`,
       theme: undefined,
-      color1: '#ffffff',
-      color2: '#000000',
+      color2: '#ffffff',
+      color1: '#000000',
     },
   ];
 
