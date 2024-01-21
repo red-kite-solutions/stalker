@@ -9,7 +9,14 @@ export class JobParameter {
   public value!: unknown;
 }
 
-export type InputSource = 'ALL_DOMAINS' | 'ALL_HOSTS' | 'ALL_TCP_PORTS';
+export const inputSources = [
+  'ALL_DOMAINS',
+  'ALL_HOSTS',
+  'ALL_TCP_PORTS',
+  'ALL_IP_RANGES',
+] as const;
+
+export type InputSource = (typeof inputSources)[number];
 
 @Schema()
 export class CronSubscription {

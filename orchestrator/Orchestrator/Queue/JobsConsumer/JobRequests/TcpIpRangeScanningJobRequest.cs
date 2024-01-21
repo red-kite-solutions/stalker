@@ -4,7 +4,8 @@ public class TcpIpRangeScanningJobRequest : JobRequest
 {
     public static readonly string Discriminator = "TcpIpRangeScanningJob";
 
-    public string? TargetIpRange { get; init; }
+    public string? TargetIp { get; init; }
+    public int TargetMask { get; init; }
     public int Rate { get; init; }
     public int PortMin { get; init; }
     public int PortMax { get; init; }

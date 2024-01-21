@@ -1,0 +1,27 @@
+name: Scanning IP ranges
+cronExpression: 0 0 */7 * *
+input: ALL_IP_RANGES
+job:
+  name: TcpIpRangeScanningJob
+  parameters:
+    - name: targetIp
+      value: ${ip}
+    - name: targetMask
+      value: ${mask}
+    - name: rate
+      value: 100000
+    - name: portMin
+      value: 1
+    - name: portMax
+      value: 1000
+    - name: ports
+      value:
+        - 1433
+        - 1521
+        - 3000
+        - 3389
+        - 5985
+        - 5986
+        - 8000
+        - 8080
+        - 8443

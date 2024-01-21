@@ -5,9 +5,10 @@ namespace Orchestrator.Jobs.JobTemplates;
 
 public class TcpIpRangeScanningJobTemplate : PythonJobTemplate
 {
-    public TcpIpRangeScanningJobTemplate(string? id, IConfiguration config, string targetIpRange, int rate, int portMin, int portMax, int[] ports, PythonJobTemplateProvider jobProvider) : base(id, config, jobProvider)
+    public TcpIpRangeScanningJobTemplate(string? id, IConfiguration config, string targetIp, int targetMask, int rate, int portMin, int portMax, int[] ports, PythonJobTemplateProvider jobProvider) : base(id, config, jobProvider)
     {
-        EnvironmentVariable["TARGET_IP_RANGE"] = targetIpRange;
+        EnvironmentVariable["TARGET_IP"] = targetIp;
+        EnvironmentVariable["TARGET_MASK"] = targetMask.ToString();
         EnvironmentVariable["RATE"] = rate.ToString();
         EnvironmentVariable["PORT_MIN"] = portMin.ToString();
         EnvironmentVariable["PORT_MAX"] = portMax.ToString();

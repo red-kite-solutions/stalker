@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { isIP } from 'class-validator';
 import { DeleteResult, UpdateResult } from 'mongodb';
 import { Model, Types } from 'mongoose';
+import { HttpBadRequestException } from '../../../exceptions/http.exceptions';
 import { JobsService } from '../jobs/jobs.service';
 import { CronSubscription } from '../subscriptions/cron-subscriptions/cron-subscriptions.model';
 import { EventSubscriptionsService } from '../subscriptions/event-subscriptions/event-subscriptions.service';
@@ -113,6 +115,27 @@ export class CompanyService {
     return await this.companyModel.updateOne(
       { _id: { $eq: id } },
       { ...company },
+    );
+  }
+
+  public async getIpRanges(
+    id: string,
+  ): Promise<Pick<CompanyDocument, 'ipRanges'>> {
+    return await this.companyModel.findById(id, 'ipRanges');
+  }
+
+  public async addIpRangeWithMask(id: string, ip: string, mask: number) {
+    if (0 > mask || mask > 32)
+      throw new HttpBadRequestException(
+        'Mask of ip range is not between 0 and 32',
+      );
+    if (!isIP(ip, 4))
+      throw new HttpBadRequestException('Ip is not an IPv4 address');
+
+    const range = `${ip}/${mask}`;
+    this.companyModel.updateOne(
+      { _id: { $eq: new Types.ObjectId(id) } },
+      { $addToSet: { ipRanges: range } },
     );
   }
 }
