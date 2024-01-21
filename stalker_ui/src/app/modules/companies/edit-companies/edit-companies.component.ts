@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { Subscription, combineLatest, debounceTime, filter, map, merge, switchMap, tap } from 'rxjs';
+import { Subscription, combineLatest, debounceTime, filter, firstValueFrom, map, merge, switchMap, tap } from 'rxjs';
 import { CompaniesService } from 'src/app/api/companies/companies.service';
 import { Company } from 'src/app/shared/types/company/company.interface';
 import { HttpStatus } from 'src/app/shared/types/http-status.type';
@@ -44,7 +44,6 @@ export class EditCompaniesComponent implements OnDestroy {
     frequency: [0, []],
   });
 
-  companyId = '';
   public fileSelected = false;
   public previewSource: string | undefined;
   public fileLoading = false;
@@ -150,12 +149,12 @@ export class EditCompaniesComponent implements OnDestroy {
     return null;
   }
 
-  public routeSub$ = this.route.params.pipe(
-    switchMap((params) => {
-      this.fileLoading = true;
-      this.companyId = params['id'];
-      return this.companiesService.get(this.companyId);
-    }),
+  public companyId$ = this.route.params.pipe(map((params) => params['id']));
+
+  public company$ = this.companyId$.pipe(switchMap((id) => this.companiesService.get(id)));
+
+  public routeSub$ = this.company$.pipe(
+    tap(() => (this.fileLoading = true)),
     tap((company) => this.titleService.setTitle($localize`:Company page title|:Companies · ${company.name}`)),
     map((company: Company) => {
       this.form.controls['name'].setValue(company.name);
@@ -277,7 +276,8 @@ export class EditCompaniesComponent implements OnDestroy {
     });
   }
 
-  deleteCompany() {
+  async deleteCompany() {
+    const companyId = await firstValueFrom(this.companyId$);
     const data: ConfirmDialogData = {
       primaryButtonText: $localize`:Cancel|Cancel action:Cancel`,
       dangerButtonText: $localize`:Delete|Delete item:Delete`,
@@ -287,7 +287,7 @@ export class EditCompaniesComponent implements OnDestroy {
         this.dialog.closeAll();
       },
       onDangerButtonClick: async () => {
-        await this.companiesService.delete(this.companyId);
+        await this.companiesService.delete(companyId);
         this.dialog.closeAll();
         this.toastr.success($localize`:Company deleted|Company deletion was a success:Company successfully deleted`);
         this.router.navigate(['/companies']);
@@ -304,6 +304,7 @@ export class EditCompaniesComponent implements OnDestroy {
     if (this.editLoading) return;
 
     this.editLoading = true;
+    const companyId = await firstValueFrom(this.companyId$);
     const companyUpdates: Partial<Company> = {};
     let formValid = this.form.controls['name'].valid;
     const fa = this.form.controls['ipRanges'] as UntypedFormArray;
@@ -350,7 +351,7 @@ export class EditCompaniesComponent implements OnDestroy {
     try {
       const editData: any = {};
       if (imageType) editData['imageType'] = imageType;
-      await this.companiesService.edit(this.companyId, { ...editData, ...companyUpdates });
+      await this.companiesService.edit(companyId, { ...editData, ...companyUpdates });
       this.toastr.success($localize`:Changes saved|Changes to item saved successfully:Changes saved successfully`);
     } catch (err: any) {
       if (err.status === HttpStatus.Conflict) {

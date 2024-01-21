@@ -1,12 +1,12 @@
-<div fxLayout="row" class="code-editor-container">
-  <div fxFlex="45">
+<div class="tw-flex top-container">
+  <div class="tw-flex-[45%_0_0]">
     <mat-card appearance="outlined" class="container">
       <mat-card-header>
         <mat-card-title i18n="Launch jobs|Starting jobs manually">Launch jobs</mat-card-title>
       </mat-card-header>
 
       <mat-card-content>
-        <div fxLayout="row">
+        <div class="tw-flex tw-gap">
           <button
             mat-flat-button
             color="primary"
@@ -58,8 +58,8 @@
     </mat-card>
   </div>
   @if (companies$ | async) {
-    <div fxFlex="55">
-      <div fxLayout="column" class="code-editor-container">
+    <div class="tw-flex-[55%_0_0]">
+      <div class="tw-flex tw-flex-col code-editor-container">
         <mat-form-field appearance="outline">
           <mat-label i18n="Company|Company or business">Company</mat-label>
           <mat-select [(value)]="selectedCompany">
@@ -76,7 +76,7 @@
           [minimapEnabled]="minimapEnabled"
           [theme]="theme"
           [readonly]="readonly"
-          fxFlex
+          class="tw-flex-1"
         ></app-code-editor>
         <h3 i18n="Output|Output of a job" class="output">Output</h3>
         <app-job-logs [jobId]="currentStartedJob?.id"></app-job-logs>

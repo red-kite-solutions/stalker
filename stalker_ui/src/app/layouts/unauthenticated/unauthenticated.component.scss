@@ -6,6 +6,12 @@
 
 mat-drawer-container {
   height: 100%;
+
+  mat-drawer-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 mat-toolbar {

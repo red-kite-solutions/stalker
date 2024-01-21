@@ -1,13 +1,13 @@
-<div fxLayout="row" class="code-editor-container">
-  <div fxFlex="45">
+<div class="tw-flex top-container">
+  <div class="tw-flex-[45%_0_0]">
     <mat-card appearance="outlined" class="container">
       <mat-card-header>
         <mat-card-title i18n="Subscriptions|Findings Event Subscriptions">Subscriptions</mat-card-title>
       </mat-card-header>
 
       <mat-card-content>
-        <form [formGroup]="subscriptionTypeForm" class="full-width configurations-form">
-          <mat-form-field appearance="outline" class="full-width">
+        <form [formGroup]="subscriptionTypeForm" class="tw-w-full configurations-form">
+          <mat-form-field appearance="outline" class="tw-w-full">
             <mat-label i18n="Subscription type|The type of subscriptions">Subscription type</mat-label>
             <mat-select formControlName="subscriptionType">
               @for (subType of subscriptionTypes; track subType) {
@@ -16,20 +16,23 @@
             </mat-select>
           </mat-form-field>
         </form>
-        <div fxLayout="row">
-          <button mat-flat-button color="primary" class="left-action-button" (click)="newSubscriptionClick()">
-            <label i18n="New subscription|Button to create a new subscription">New subscription</label>
-          </button>
-          <button mat-stroked-button color="warn" class="left-action-button" (click)="delete()">
-            <label i18n="Delete|Delete an item">Delete</label>
-          </button>
-          <div fxLayoutAlign="end" fxFlex>
+        <div class="tw-flex tw-gap tw-justify-between">
+          <div class="tw-flex tw-gap">
+            <button mat-flat-button color="primary" (click)="newSubscriptionClick()">
+              <label i18n="New subscription|Button to create a new subscription">New subscription</label>
+            </button>
+            <button mat-stroked-button color="warn" (click)="delete()">
+              <label i18n="Delete|Delete an item">Delete</label>
+            </button>
+          </div>
+
+          <div class="tw-flex tw-gap">
             @if (selectedRow?.builtIn) {
-              <button mat-flat-button color="primary" class="right-action-button" (click)="revertToDefault()">
+              <button mat-flat-button color="primary" (click)="revertToDefault()">
                 <label i18n="Revert to default|Revert to default values">Revert to default</label>
               </button>
             }
-            <button mat-flat-button color="primary" class="right-action-button" (click)="saveSubscriptionEdits()">
+            <button mat-flat-button color="primary" (click)="saveSubscriptionEdits()">
               <label i18n="Save|Save the information">Save</label>
             </button>
           </div>
@@ -130,12 +133,12 @@
   </div>
 
   @if (companies$ | async) {
-    <div fxFlex="55">
-      <div fxLayout="column" class="code-editor-container">
+    <div class="tw-flex-[55%_0_0]">
+      <div class="tw-flex tw-flex-col code-editor-container">
         <mat-tab-group>
           <mat-tab label-i18n="Configurations|Settings for an item" label="Configurations">
-            <form [formGroup]="subscriptionConfigForm" class="full-width configurations-form">
-              <mat-form-field appearance="outline" class="full-width">
+            <form [formGroup]="subscriptionConfigForm" class="tw-w-full configurations-form">
+              <mat-form-field appearance="outline" class="tw-w-full">
                 <mat-label i18n="Company|Company or business">Company</mat-label>
                 <mat-select formControlName="selectedCompany">
                   <mat-option i18n="All Companies|Select all companies" value="all companies">All Companies</mat-option>
