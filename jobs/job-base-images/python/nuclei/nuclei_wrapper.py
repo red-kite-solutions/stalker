@@ -1,7 +1,5 @@
-from base64 import b64encode
 from json import loads
 from os import environ
-from os.path import exists
 from subprocess import CompletedProcess, run
 from types import ModuleType
 

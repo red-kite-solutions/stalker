@@ -11,6 +11,10 @@ import {
 } from './models/http-server-check.model';
 import { JobSchema } from './models/jobs.model';
 import {
+  TcpIpRangeScanningJob,
+  TcpIpRangeScanningJobSchema,
+} from './models/tcp-ip-range-scanning.model';
+import {
   TcpPortScanningJob,
   TcpPortScanningJobSchema,
 } from './models/tcp-port-scanning.model';
@@ -27,6 +31,12 @@ export const JobDefinitions: JobDefinition[] = [
     schema: TcpPortScanningJobSchema,
     create: TcpPortScanningJob.create,
     params: TcpPortScanningJob.parameterDefinitions,
+  },
+  {
+    name: TcpIpRangeScanningJob.name,
+    schema: TcpIpRangeScanningJobSchema,
+    create: TcpIpRangeScanningJob.create,
+    params: TcpIpRangeScanningJob.parameterDefinitions,
   },
   {
     name: CustomJob.name,
