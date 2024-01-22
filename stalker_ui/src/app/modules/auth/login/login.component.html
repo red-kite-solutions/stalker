@@ -14,7 +14,7 @@
       <mat-label i18n="Password|Placeholder for a password form">Password</mat-label>
       <input matInput [type]="hide ? 'password' : 'text'" [(ngModel)]="password" name="password" required />
       <button type="button" mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-pressed]="hide">
-        <mat-icon class="material-symbols-outlined">{{ hide ? 'visibility_off' : 'visibility' }}</mat-icon>
+        <mat-icon>{{ hide ? 'visibility_off' : 'visibility' }}</mat-icon>
       </button>
       <mat-error i18n="Empty password|Asking for the user to provide a valid password"
         >Please provide a password</mat-error

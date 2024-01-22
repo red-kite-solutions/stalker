@@ -1,4 +1,7 @@
 @mixin app-pill-tag() {
+  // By default, tags are themed for light theme.
+  // We use the tag color as-is for the background and use the luminance
+  // for determining whether we should display white text or black text.
   .pill {
     --luminance-threshold: 0.5;
     --luminance: (
@@ -21,19 +24,19 @@
     background-color: hsla(
       calc(var(--pill-border-color-h) * 360),
       calc(var(--pill-border-color-s) * 100%),
-      calc(var(--pill-border-color-l) * 50%),
-      0.5
+      calc(var(--pill-border-color-l) * 100%),
+      0.25
     );
 
     border-color: hsl(
       calc(var(--pill-border-color-h) * 360),
       calc(var(--pill-border-color-s) * 90%),
-      calc(var(--pill-border-color-l) * 120%)
+      max(calc(var(--pill-border-color-l) * 110%), 40%)
     );
     color: hsl(
       calc(var(--pill-border-color-h) * 360),
       calc(var(--pill-border-color-s) * 100%),
-      calc(var(--pill-border-color-l) * 100% + 25%)
+      max(calc(var(--pill-border-color-l) * 150%), 85%)
     );
   }
 }

@@ -3,7 +3,7 @@
     <div class="tw-flex tw-flex-1 tw-items-center tw-gap-2">
       @if (showRouting) {
         <button mat-icon-button (click)="toggleSideBar()">
-          <mat-icon class="material-symbols-outlined">menu</mat-icon>
+          <mat-icon>menu</mat-icon>
         </button>
       }
       <avatar class="tw-max-w-8" src="assets/red-kite-logo-only-color-circle.png"></avatar>
@@ -20,7 +20,7 @@
 
     <div [hidden]="!showRouting">
       <button mat-button [matMenuTriggerFor]="menu">
-        <mat-icon class="material-symbols-outlined">person_outline</mat-icon>
+        <mat-icon>person_outline</mat-icon>
         <span class="max-sm:tw-hidden">{{ email }}</span>
       </button>
     </div>
@@ -29,15 +29,15 @@
 
 <mat-menu #menu="matMenu">
   <button mat-menu-item routerLink="/profile">
-    <mat-icon class="material-symbols-outlined">badge</mat-icon>
+    <mat-icon>badge</mat-icon>
     <label i18n="Profile|The user's profile">Profile</label>
   </button>
   <button mat-menu-item [matMenuTriggerFor]="subMenu">
-    <mat-icon class="material-symbols-outlined">format_paint</mat-icon>
+    <mat-icon>format_paint</mat-icon>
     <label i18n="Theme|Stalker theme">Theme</label>
   </button>
   <button mat-menu-item type="button" (click)="logout()">
-    <mat-icon class="material-symbols-outlined">exit_to_app</mat-icon>
+    <mat-icon>exit_to_app</mat-icon>
     <label i18n="Sign out|Link for a user to log out">Sign out</label>
   </button>
 </mat-menu>
@@ -45,12 +45,10 @@
 <mat-menu #subMenu="matMenu">
   @for (theme of themeService.themes; track $index) {
     <button mat-menu-item (click)="themeService.selectTheme(theme.theme)">
+      <mat-icon class="check-icon" [style.visibility]="themeService.currentTheme == theme.theme ? 'visible' : 'hidden'"
+        >check</mat-icon
+      >
       <span class="tw-flex tw-items-center tw-gap-2">
-        <span
-          class="material-symbols-outlined check-icon"
-          [style.visibility]="themeService.currentTheme == theme.theme ? 'visible' : 'hidden'"
-          >check</span
-        >
         <span class="color-preview">
           <span class="color-preview-border"></span>
           <span

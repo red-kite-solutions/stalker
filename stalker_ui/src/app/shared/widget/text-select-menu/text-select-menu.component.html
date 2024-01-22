@@ -22,13 +22,17 @@
 
   @for (item of shownItems; track item) {
     <button class="select-item" mat-menu-item (click)="selectItem($event, item)">
-      <span class="material-symbols-outlined check-icon" [style.visibility]="item.isSelected ? 'visible' : 'hidden'"
-        >check</span
-      >
-      @if (colorEnabled && item['color']) {
-        <span class="dot" [style.background-color]="item['color']" [style.opacity]="opacity"></span>
-      }
-      {{ item.text }}
+      <mat-icon class="check-icon" [style.visibility]="item.isSelected ? 'visible' : 'hidden'">check</mat-icon>
+      <span class="tw-flex tw-gap">
+        @if (colorEnabled && item['color']) {
+          <span class="color-preview">
+            <span class="color-preview-border"></span>
+            <span class="dot" [style.background-color]="item['color']"></span>
+            <span class="color-shine"></span>
+          </span>
+        }
+        <span>{{ item.text }}</span>
+      </span>
     </button>
   }
   <ng-content></ng-content>

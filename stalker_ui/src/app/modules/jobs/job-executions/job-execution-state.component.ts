@@ -14,10 +14,10 @@ import { StartedJobState } from '../../../shared/types/jobs/job.type';
         <mat-spinner diameter="16"></mat-spinner>
       }
       @case ('done') {
-        <mat-icon class="material-symbols-outlined done" [inline]="true">check_circle</mat-icon>
+        <mat-icon class="done" [inline]="true">check_circle</mat-icon>
       }
       @case ('errored') {
-        <mat-icon class="material-symbols-outlined error" [inline]="true">error</mat-icon>
+        <mat-icon class="error" [inline]="true">error</mat-icon>
       }
     }
   </div>`,

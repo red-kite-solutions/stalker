@@ -71,7 +71,7 @@
           i18n-matTooltip="Role information|Additionnal information about roles"
           matTooltip="Role information"
         >
-          <mat-icon class="material-symbols-outlined">help_outline</mat-icon>
+          <mat-icon>help_outline</mat-icon>
         </button>
       </div>
 
@@ -103,9 +103,7 @@
           (click)="hideUserPassword = !hideUserPassword"
           [attr.aria-pressed]="hideUserPassword"
         >
-          <mat-icon class="material-symbols-outlined">{{
-            hideUserPassword ? 'visibility_off' : 'visibility'
-          }}</mat-icon>
+          <mat-icon>{{ hideUserPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
         </button>
         <mat-error i18n="Password minimal length|The password must meet the length requirement to be accepted"
           >Password must have a minimal length of 12 characters</mat-error
@@ -138,9 +136,7 @@
           (click)="hideCurrentPassword = !hideCurrentPassword"
           [attr.aria-pressed]="hideCurrentPassword"
         >
-          <mat-icon class="material-symbols-outlined">{{
-            hideCurrentPassword ? 'visibility_off' : 'visibility'
-          }}</mat-icon>
+          <mat-icon>{{ hideCurrentPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
         </button>
         <mat-error>
           {{ passwordErr$ | async }}

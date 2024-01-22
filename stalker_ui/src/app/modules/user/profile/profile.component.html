@@ -108,9 +108,7 @@
           (click)="hideCurrentPassword = !hideCurrentPassword"
           [attr.aria-pressed]="hideCurrentPassword"
         >
-          <mat-icon class="material-symbols-outlined">{{
-            hideCurrentPassword ? 'visibility_off' : 'visibility'
-          }}</mat-icon>
+          <mat-icon>{{ hideCurrentPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
         </button>
         <mat-error>{{ passwordErr$ | async }}</mat-error>
       </mat-form-field>
