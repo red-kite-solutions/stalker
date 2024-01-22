@@ -133,7 +133,7 @@ export class CompanyService {
       throw new HttpBadRequestException('Ip is not an IPv4 address');
 
     const range = `${ip}/${mask}`;
-    this.companyModel.updateOne(
+    await this.companyModel.updateOne(
       { _id: { $eq: new Types.ObjectId(id) } },
       { $addToSet: { ipRanges: range } },
     );

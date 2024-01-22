@@ -132,6 +132,10 @@ export class CronSubscriptionsService {
       if (!sub.jobParameters) return;
     }
 
+    await this.setupSubscriptionsForCompanies(sub);
+  }
+
+  private async setupSubscriptionsForCompanies(sub: CronSubscription) {
     // if no company id, it launches for all companies
     const companyIds = sub.companyId
       ? [sub.companyId.toString()]
@@ -149,9 +153,14 @@ export class CronSubscriptionsService {
       if (subCopy.input) {
         this.publishJobsFromInput(subCopy, companyId);
       } else {
+        let conditionPassed = true;
         for (const condition of subCopy.conditions ?? []) {
-          if (!SubscriptionsUtils.evaluateCondition(condition)) continue;
+          if (!SubscriptionsUtils.evaluateCondition(condition)) {
+            conditionPassed = false;
+            break;
+          }
         }
+        if (!conditionPassed) continue;
         this.publishJob(subCopy.jobName, subCopy.jobParameters);
       }
     }

@@ -124,6 +124,8 @@ describe('Cron Subscriptions Service', () => {
   describe('Cron subscriptions ALL_* input values', () => {
     beforeEach(() => {
       jest.resetAllMocks();
+      jest.clearAllMocks();
+      jest.restoreAllMocks();
     });
 
     // ALL_DOMAINS
@@ -1308,6 +1310,254 @@ describe('Cron Subscriptions Service', () => {
           },
         ]),
       );
+    });
+
+    // ALL_IP_RANGES
+    const ipRangeScanCronSub: Partial<CronSubscription> = {
+      name: 'test subscription scan ranges',
+      input: 'ALL_IP_RANGES',
+      builtIn: true,
+      cronExpression: '* * * * *',
+      jobName: 'TcpIpRangeScanningJob',
+      conditions: [],
+    };
+
+    it('Should publish (1) job from input ALL_IP_RANGES', async () => {
+      // Arrange
+      const c = await company('Test company');
+      const ip = '1.1.1.1';
+      const mask = 32;
+      ipRangeScanCronSub.companyId = c._id;
+      ipRangeScanCronSub.jobParameters = [
+        { name: 'companyId', value: c._id.toString() },
+        { name: 'targetIp', value: '${ip}' },
+        { name: 'targetMask', value: '${mask}' },
+        { name: 'rate', value: 100000 },
+        { name: 'portMin', value: 1 },
+        { name: 'portMax', value: 1000 },
+        { name: 'ports', value: [] },
+      ];
+
+      await companyService.addIpRangeWithMask(c._id.toString(), ip, mask);
+
+      const spy = jest //@ts-expect-error
+        .spyOn(subscriptionsService, 'publishJob') //@ts-expect-error
+        .mockImplementation(() => {});
+
+      // Act
+      //@ts-expect-error
+      await subscriptionsService.publishJobsFromInput(
+        <CronSubscription>ipRangeScanCronSub,
+        c._id.toString(),
+      );
+
+      // Assert
+      expect(spy).toHaveBeenCalled();
+      expect(spy).toHaveBeenCalledWith(ipRangeScanCronSub.jobName, [
+        { name: 'companyId', value: c._id.toString() },
+        { name: 'targetIp', value: ip },
+        { name: 'targetMask', value: mask },
+        { name: 'rate', value: 100000 },
+        { name: 'portMin', value: 1 },
+        { name: 'portMax', value: 1000 },
+        { name: 'ports', value: [] },
+      ]);
+    });
+
+    it('Should publish (5) jobs from input ALL_IP_RANGES', async () => {
+      // Arrange
+      const c = await company('Test company');
+      const ip = '1.1.1.1';
+      const mask = 32;
+      ipRangeScanCronSub.companyId = c._id;
+      ipRangeScanCronSub.jobParameters = [
+        { name: 'companyId', value: c._id.toString() },
+        { name: 'targetIp', value: '${ip}' },
+        { name: 'targetMask', value: '${mask}' },
+        { name: 'rate', value: 100000 },
+        { name: 'portMin', value: 1 },
+        { name: 'portMax', value: 1000 },
+        { name: 'ports', value: [] },
+      ];
+
+      await companyService.addIpRangeWithMask(
+        c._id.toString(),
+        '1.1.1.2',
+        mask,
+      );
+      await companyService.addIpRangeWithMask(
+        c._id.toString(),
+        '1.1.1.3',
+        mask,
+      );
+      await companyService.addIpRangeWithMask(
+        c._id.toString(),
+        '1.1.1.4',
+        mask,
+      );
+      await companyService.addIpRangeWithMask(
+        c._id.toString(),
+        '1.1.1.5',
+        mask,
+      );
+      await companyService.addIpRangeWithMask(c._id.toString(), ip, mask);
+
+      const spy = jest //@ts-expect-error
+        .spyOn(subscriptionsService, 'publishJob') //@ts-expect-error
+        .mockImplementation(() => {});
+
+      // Act
+      //@ts-expect-error
+      await subscriptionsService.publishJobsFromInput(
+        <CronSubscription>ipRangeScanCronSub,
+        c._id.toString(),
+      );
+
+      // Assert
+      expect(spy).toHaveBeenCalled();
+      expect(spy).toHaveBeenLastCalledWith(ipRangeScanCronSub.jobName, [
+        { name: 'companyId', value: c._id.toString() },
+        { name: 'targetIp', value: ip },
+        { name: 'targetMask', value: mask },
+        { name: 'rate', value: 100000 },
+        { name: 'portMin', value: 1 },
+        { name: 'portMax', value: 1000 },
+        { name: 'ports', value: [] },
+      ]);
+    });
+
+    it('Should publish (1) custom job from input ALL_IP_RANGES', async () => {
+      // Arrange
+      const c = await company('Test company');
+      const customJobParams: JobParameter[] = [
+        {
+          name: 'companyId',
+          value: c._id.toString(),
+        },
+        { name: 'name', value: 'Custom job name' },
+        { name: 'code', value: 'print("hello world")' },
+        { name: 'type', value: 'code' },
+        {
+          name: 'jobpodmemorykblimit',
+          value: 500,
+        },
+        {
+          name: 'jobpodmillicpulimit',
+          value: 500,
+        },
+      ];
+      const ip = '1.1.1.1';
+      const mask = 32;
+      ipRangeScanCronSub.jobName = 'CustomJob';
+      ipRangeScanCronSub.companyId = c._id;
+      ipRangeScanCronSub.jobParameters = customJobParams.concat([
+        {
+          name: 'customJobParameters',
+          value: [
+            { name: 'targetIp', value: '${ip}' },
+            { name: 'targetMask', value: '${mask}' },
+          ],
+        },
+      ]);
+
+      await companyService.addIpRangeWithMask(c._id.toString(), ip, mask);
+
+      const spy = jest //@ts-expect-error
+        .spyOn(subscriptionsService, 'publishJob') //@ts-expect-error
+        .mockImplementation(() => {});
+
+      // Act
+      //@ts-expect-error
+      await subscriptionsService.publishJobsFromInput(
+        <CronSubscription>ipRangeScanCronSub,
+        c._id.toString(),
+      );
+
+      // Assert
+      expect(spy).toHaveBeenCalled();
+      expect(spy).toHaveBeenLastCalledWith(
+        ipRangeScanCronSub.jobName,
+        customJobParams.concat([
+          {
+            name: 'customJobParameters',
+            value: [
+              { name: 'targetIp', value: ip },
+              { name: 'targetMask', value: mask },
+            ],
+          },
+        ]),
+      );
+    });
+
+    it('Should start publishing for two companies from input ALL_IP_RANGES', async () => {
+      // Arrange
+      const c = await company('Test company');
+      const c2 = await company('company 2');
+      const customJobParams: JobParameter[] = [
+        {
+          name: 'companyId',
+          value: c._id.toString(),
+        },
+        { name: 'name', value: 'Custom job name' },
+        { name: 'code', value: 'print("hello world")' },
+        { name: 'type', value: 'code' },
+        {
+          name: 'jobpodmemorykblimit',
+          value: 500,
+        },
+        {
+          name: 'jobpodmillicpulimit',
+          value: 500,
+        },
+      ];
+      const ip = '1.1.1.1';
+      const mask = 32;
+      ipRangeScanCronSub.companyId = undefined;
+      ipRangeScanCronSub.jobName = 'CustomJob';
+      ipRangeScanCronSub.jobParameters = customJobParams.concat([
+        {
+          name: 'customJobParameters',
+          value: [
+            { name: 'targetIp', value: '${ip}' },
+            { name: 'targetMask', value: '${mask}' },
+          ],
+        },
+      ]);
+
+      await companyService.addIpRangeWithMask(
+        c._id.toString(),
+        '1.1.1.2',
+        mask,
+      );
+      await companyService.addIpRangeWithMask(
+        c._id.toString(),
+        '1.1.1.3',
+        mask,
+      );
+      await companyService.addIpRangeWithMask(
+        c2._id.toString(),
+        '1.1.1.4',
+        mask,
+      );
+      await companyService.addIpRangeWithMask(
+        c2._id.toString(),
+        '1.1.1.5',
+        mask,
+      );
+      await companyService.addIpRangeWithMask(c2._id.toString(), ip, mask);
+
+      const spy = jest //@ts-expect-error
+        .spyOn(subscriptionsService, 'publishJobsFromInput') //@ts-expect-error
+        .mockImplementation(() => {});
+
+      // Act
+      //@ts-expect-error
+      await subscriptionsService.setupSubscriptionsForCompanies(
+        <CronSubscription>ipRangeScanCronSub,
+      );
+
+      // Assert
+      expect(spy).toHaveBeenCalledTimes(2);
     });
   });
 
