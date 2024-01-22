@@ -1,0 +1,39 @@
+@mixin app-pill-tag() {
+  .pill {
+    --luminance-threshold: 0.5;
+    --luminance: (
+      0.2126 * var(--pill-border-color-r) + 0.7152 * var(--pill-border-color-g) + 0.0722 * var(--pill-border-color-b)
+    );
+
+    content: var(--luminance);
+
+    background-color: hsl(
+      calc(var(--pill-border-color-h) * 360),
+      calc(var(--pill-border-color-s) * 100%),
+      calc(var(--pill-border-color-l) * 100%)
+    );
+
+    --color-switch: max(0, min(calc(1 / (var(--luminance-threshold) - var(--luminance))), 1));
+    color: hsl(0, 0%, calc(var(--color-switch) * 100%));
+  }
+
+  .theme-dark .pill {
+    background-color: hsla(
+      calc(var(--pill-border-color-h) * 360),
+      calc(var(--pill-border-color-s) * 100%),
+      calc(var(--pill-border-color-l) * 50%),
+      0.5
+    );
+
+    border-color: hsl(
+      calc(var(--pill-border-color-h) * 360),
+      calc(var(--pill-border-color-s) * 90%),
+      calc(var(--pill-border-color-l) * 120%)
+    );
+    color: hsl(
+      calc(var(--pill-border-color-h) * 360),
+      calc(var(--pill-border-color-s) * 100%),
+      calc(var(--pill-border-color-l) * 100% + 25%)
+    );
+  }
+}

@@ -1,47 +1,63 @@
-import { Component, Input, OnChanges } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-pill-tag',
   templateUrl: './pill-tag.component.html',
   styleUrls: ['./pill-tag.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PillTagComponent implements OnChanges {
+export class PillTagComponent {
   @Input() color = '#991822';
 
-  textColor = this.color;
-  bgColor = this.colorToBackgroundColor(this.color);
-  border = this.colorToBorderColor(this.color);
-
-  ngOnChanges(): void {
-    this.color = this.color?.trim();
-    if (/^\#?[0-9a-fA-F]{6}$/.test(this.color)) {
-      this.textColor = this.color.startsWith('#') ? this.color : '#' + this.color;
-      this.bgColor = this.colorToBackgroundColor(this.color);
-      this.border = this.colorToBorderColor(this.color);
-    }
+  public get colorHsl() {
+    return this.hexToHsl(this.color);
   }
 
-  private colorToBackgroundColor(c: string) {
-    const rgb = this.hexToRgb(c);
-    if (!rgb) return '#eff4ff';
-    return `rgb(${rgb.r},${rgb.g},${rgb?.b},0.1)`;
+  public get colorRgb() {
+    return this.hexToRgb(this.color);
   }
 
-  private colorToBorderColor(c: string) {
-    const rgb = this.hexToRgb(c);
-    if (!rgb) return '#eff4ff';
-    return `1px solid rgb(${rgb.r},${rgb.g},${rgb?.b},0.8)`;
-  }
-
-  // https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
-  private hexToRgb(hex: string) {
+  private hexToRgb(hex: string): { r: number; g: number; b: number } {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result
-      ? {
-          r: parseInt(result[1], 16),
-          g: parseInt(result[2], 16),
-          b: parseInt(result[3], 16),
-        }
-      : null;
+    if (!result) return { r: 0, g: 0, b: 0 };
+
+    const r = parseInt(result[1], 16) / 255;
+    const g = parseInt(result[2], 16) / 255;
+    const b = parseInt(result[3], 16) / 255;
+
+    return { r, g, b };
+  }
+
+  // Ref.: https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
+  // Ref.: https://stackoverflow.com/questions/3732046/how-do-you-get-the-hue-of-a-xxxxxx-colour
+  private hexToHsl(hex: string): { h: number; s: number; l: number } {
+    const { r, g, b } = this.hexToRgb(hex);
+
+    let max = Math.max(r, g, b),
+      min = Math.min(r, g, b);
+    let h = 0,
+      s,
+      l = (max + min) / 2;
+
+    if (max == min) {
+      h = s = 0; // achromatic
+    } else {
+      let d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch (max) {
+        case r:
+          h = (g - b) / d + (g < b ? 6 : 0);
+          break;
+        case g:
+          h = (b - r) / d + 2;
+          break;
+        case b:
+          h = (r - g) / d + 4;
+          break;
+      }
+      h /= 6;
+    }
+
+    return { h, s, l };
   }
 }

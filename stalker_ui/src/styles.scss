@@ -10,6 +10,7 @@
 @import 'app/modules/jobs/subscriptions/_subscription.component.scss';
 @import 'app/shared/widget/text-menu/_text-menu.component.scss';
 @import 'app/modules/tags/manage-tags/_manage-tags.component.scss';
+@import 'app/shared/widget/pill-tag/_pill-tag.component.scss';
 
 @include app-filtered-paginated-table();
 @include panel-section();
@@ -19,6 +20,7 @@
 @include app-custom-jobs();
 @include app-subscriptions();
 @include app-manage-tags();
+@include app-pill-tag();
 
 html,
 body {
@@ -86,4 +88,20 @@ mat-card-header {
 // Override color picker background color to fit theme
 ngx-mat-color-picker-content.ngx-mat-colorpicker-content {
   background-color: var(--mdc-outlined-card-container-color);
+}
+
+.material-symbols-outlined {
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 300,
+    'GRAD' -25,
+    'opsz' 24;
+}
+
+.material-symbols-outlined-filled {
+  font-variation-settings:
+    'FILL' 1,
+    'wght' 300,
+    'GRAD' -25,
+    'opsz' 24;
 }

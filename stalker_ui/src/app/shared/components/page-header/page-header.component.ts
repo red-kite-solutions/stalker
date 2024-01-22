@@ -21,7 +21,7 @@ import { BreadcrumbComponent } from '../breadcrumb/breadcrumb.component';
   ],
   template: `<h1>
     <button type="button" mat-icon-button [routerLink]="backRoute">
-      <mat-icon class="material-icons-outlined">arrow_back</mat-icon>
+      <mat-icon class="material-symbols-outlined">arrow_back</mat-icon>
     </button>
 
     <app-breadcrumb [parts]="parts"></app-breadcrumb>

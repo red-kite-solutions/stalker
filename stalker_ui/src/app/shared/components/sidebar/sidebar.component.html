@@ -11,7 +11,7 @@
       [matTooltipShowDelay]="700"
       matTooltipPosition="right"
     >
-      <mat-icon class="material-icons-outlined">dashboard</mat-icon>
+      <mat-icon class="material-symbols-outlined material-symbols-outlined-filled">dashboard</mat-icon>
       @if (expanded) {
         <span>{{ dashboard }}</span>
       }
@@ -24,7 +24,7 @@
       [matTooltipShowDelay]="700"
       matTooltipPosition="right"
     >
-      <mat-icon class="material-icons-outlined">business</mat-icon>
+      <mat-icon class="material-symbols-outlined material-symbols-outlined-filled">folder_open</mat-icon>
       @if (expanded) {
         <span>{{ companies }}</span>
       }
@@ -37,7 +37,17 @@
       [matTooltipShowDelay]="700"
       matTooltipPosition="right"
     >
-      <mat-icon class="material-icons-outlined">language</mat-icon>
+      <mat-icon
+        class="material-symbols-outlined"
+        style="
+          font-variation-settings:
+            'FILL' 1,
+            'wght' 300,
+            'GRAD' 0,
+            'opsz' 24;
+        "
+        >language</mat-icon
+      >
       @if (expanded) {
         <span>{{ domains }}</span>
       }
@@ -50,7 +60,7 @@
       [matTooltipShowDelay]="700"
       matTooltipPosition="right"
     >
-      <mat-icon class="material-icons-outlined">dns</mat-icon>
+      <mat-icon class="material-symbols-outlined">storage</mat-icon>
       @if (expanded) {
         <span>{{ hosts }}</span>
       }
@@ -63,7 +73,7 @@
       [matTooltipShowDelay]="700"
       matTooltipPosition="right"
     >
-      <mat-icon class="material-icons-outlined">sell</mat-icon>
+      <mat-icon class="material-symbols-outlined material-symbols-outlined-filled">sell</mat-icon>
       @if (expanded) {
         <span>{{ tags }}</span>
       }
@@ -81,7 +91,7 @@
       [matTooltipShowDelay]="700"
       matTooltipPosition="right"
     >
-      <mat-icon class="material-icons-outlined">precision_manufacturing</mat-icon>
+      <mat-icon class="material-symbols-outlined material-symbols-outlined-filled">precision_manufacturing</mat-icon>
       @if (expanded) {
         <span>{{ subscriptions }}</span>
       }
@@ -94,7 +104,7 @@
       [matTooltipShowDelay]="700"
       matTooltipPosition="right"
     >
-      <mat-icon class="material-icons-outlined">engineering</mat-icon>
+      <mat-icon class="material-symbols-outlined material-symbols-outlined-filled">coffee</mat-icon>
       @if (expanded) {
         <span>{{ customJobs }}</span>
       }
@@ -107,7 +117,7 @@
       [matTooltipShowDelay]="700"
       matTooltipPosition="right"
     >
-      <mat-icon class="material-icons-outlined">rocket_launch</mat-icon>
+      <mat-icon class="material-symbols-outlined material-symbols-outlined-filled">rocket_launch</mat-icon>
       @if (expanded) {
         <span>{{ launchJobs }}</span>
       }
@@ -120,7 +130,7 @@
       [matTooltipShowDelay]="700"
       matTooltipPosition="right"
     >
-      <mat-icon class="material-icons-outlined">play_circle</mat-icon>
+      <mat-icon class="material-symbols-outlined material-symbols-outlined-filled">play_circle</mat-icon>
       @if (expanded) {
         <span>{{ jobExecutions }}</span>
       }
@@ -140,7 +150,7 @@
           [matTooltipShowDelay]="700"
           matTooltipPosition="right"
         >
-          <mat-icon class="material-icons-outlined">manage_accounts</mat-icon>
+          <mat-icon class="material-symbols-outlined material-symbols-outlined-filled">manage_accounts</mat-icon>
           @if (expanded) {
             <span>{{ users }}</span>
           }
@@ -154,7 +164,7 @@
           [matTooltipShowDelay]="700"
           matTooltipPosition="right"
           >
-          <mat-icon class="material-icons-outlined">settings</mat-icon>
+          <mat-icon class="material-symbols-outlined material-symbols-outlined-filled">settings</mat-icon>
           @if (expanded) {
             <span>{{ settings }}</span>
           }

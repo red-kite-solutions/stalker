@@ -22,7 +22,7 @@
 
   @for (item of shownItems; track item) {
     <button class="select-item" mat-menu-item (click)="selectItem($event, item)">
-      <span class="material-icons-outlined check-icon" [style.visibility]="item.isSelected ? 'visible' : 'hidden'"
+      <span class="material-symbols-outlined check-icon" [style.visibility]="item.isSelected ? 'visible' : 'hidden'"
         >check</span
       >
       @if (colorEnabled && item['color']) {
