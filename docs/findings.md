@@ -2,6 +2,7 @@
 
 * [HostnameFinding](#hostnamefinding)
 * [IpFinding](#ipfinding)
+* [IpRangeFinding](#iprangefinding)
 * [HostnameIpFinding](#hostnameipfinding)
 * [PortFinding](#portfinding)
 * [CustomFinding](#customfinding)
@@ -9,7 +10,7 @@
     * [Text field](#text-field)
     * [Image field](#image-field)
 
-Findings are pieces of information attached to a company and a core entity like a domain, a host or a port.
+Findings are pieces of information attached to a project and a core entity like a domain, a host or a port.
 
 Findings come in different shapes and forms. Some findings will create new core entities, others may simply add data to existing ones.
 
@@ -27,7 +28,7 @@ The finding object must contain the `type` field. Here is a list of available ty
 
 ## HostnameFinding
 
-A `HostnameFinding` is an hostname found for a company. Hostname here is used as a short for *fully qualified domain name*, or *FQDN*. A hostname finding creates or updates a domain.
+A `HostnameFinding` is an hostname found for a project. Hostname here is used as a short for *fully qualified domain name*, or *FQDN*. A hostname finding creates or updates a domain.
 
 | Field        | Type   | Description           |
 | ------------ | ------ | --------------------- |
@@ -95,6 +96,47 @@ Which is roughly equivalent to the following python code, but with more metadata
 
 ```python
 print('@finding { "findings": [{ "key": "IpFinding", "type": "IpFinding","ip": "0.0.0.0"}]}')
+```
+
+## IpRangeFinding
+
+An ip range finding creates a new ip range for a project. IP addresses are in the IPv4 format.
+
+| Field  | Type   | Description                                                                                              |
+| ------ | ------ | -------------------------------------------------------------------------------------------------------- |
+| `ip`   | string | The IPv4 for which to create a host                                                                      |
+| `mask` | number | An integer between 0 and 32, inclusively. It represents a network mask in the short notation like `/24`. |
+
+Example:
+
+```json
+{
+  "type": "IpRangeFinding",
+  "key": "IpRangeFinding",
+  "ip": "0.0.0.0",
+  "mask": 16
+}
+```
+
+Using the python sdk, you can emit this finding with the following code:
+
+```python
+from stalker_job_sdk import IpFinding, log_finding
+ip = "0.0.0.0"
+mask = 16
+log_finding(
+    IpRangeFinding(
+        "IpRangeFinding", ip, "IpRangeFinding", mask
+    )
+)
+```
+
+> You can't attach fields to an IP range as they are stored differently.
+
+Which is equivalent to the following python code, but with more metadata:
+
+```python
+print('@finding { "findings": [{ "key": "IpRangeFinding", "type": "IpRangeFinding","ip": "0.0.0.0", "mask":16 }]}')
 ```
 
 ## HostnameIpFinding
