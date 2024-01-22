@@ -7,7 +7,10 @@ import {
   JobPodConfiguration,
   JobPodConfigurationDocument,
 } from '../admin/config/job-pod-config/job-pod-config.model';
-import { CustomJobEntry } from '../custom-jobs/custom-jobs.model';
+import {
+  CustomJobEntry,
+  CustomJobsDocument,
+} from '../custom-jobs/custom-jobs.model';
 import { JobParameter } from '../subscriptions/event-subscriptions/event-subscriptions.model';
 import { JobDefinitions } from './job-model.module';
 import { Job } from './models/jobs.model';
@@ -34,14 +37,7 @@ export class JobFactory {
       jobPodConfig.milliCpuLimit &&
       jobPodConfig.memoryKbytesLimit
     ) {
-      args.push({
-        name: 'jobpodmillicpulimit',
-        value: jobPodConfig.milliCpuLimit,
-      });
-      args.push({
-        name: 'jobpodmemorykblimit',
-        value: jobPodConfig.memoryKbytesLimit,
-      });
+      args = JobFactoryUtils.setupJobPodConfigParameters(args, jobPodConfig);
     }
 
     try {
@@ -58,13 +54,14 @@ export class JobFactoryUtils {
   public static bindFunctionArguments(
     params: { [key: string]: unknown },
     args: JobParameter[],
+    optionalKeys: string[] = [],
   ) {
     for (const arg of args) {
       params[arg.name.toLowerCase()] = arg.value;
     }
 
     for (const key of Object.keys(params)) {
-      if (params[key] === undefined) {
+      if (params[key] === undefined && !optionalKeys.some((v) => v === key)) {
         throw new JobParameterCountException(
           `The ${key} parameter was not filled by the provided arguments. (A parameter is likely missing)`,
         );
@@ -118,5 +115,60 @@ export class JobFactoryUtils {
     return <JobPodConfiguration>(
       JSON.parse(JSON.stringify(DEFAULT_JOB_POD_FALLBACK_CONFIG))
     );
+  }
+
+  public static setupCustomJobParameters(
+    customJob: CustomJobEntry | CustomJobsDocument,
+    currentParameters: JobParameter[],
+  ): JobParameter[] {
+    const customJobParams = JSON.parse(JSON.stringify(currentParameters));
+    const jobParameters = [];
+    jobParameters.push({ name: 'name', value: customJob.name });
+    jobParameters.push({ name: 'code', value: customJob.code });
+    jobParameters.push({ name: 'type', value: customJob.type });
+    jobParameters.push({
+      name: 'language',
+      value: customJob.language,
+    });
+    jobParameters.push({
+      name: 'customJobParameters',
+      value: customJobParams,
+    });
+    if (customJob.findingHandlerEnabled) {
+      jobParameters.push({
+        name: 'findinghandlerenabled',
+        value: customJob.findingHandlerEnabled,
+      });
+    }
+    if (customJob.findingHandler) {
+      jobParameters.push({
+        name: 'findinghandler',
+        value: customJob.findingHandler,
+      });
+    }
+    if (customJob.findingHandlerLanguage) {
+      jobParameters.push({
+        name: 'findinghandlerlanguage',
+        value: customJob.findingHandlerLanguage,
+      });
+    }
+
+    return jobParameters;
+  }
+
+  public static setupJobPodConfigParameters(
+    currentParameters: JobParameter[],
+    jobPodConfig: JobPodConfiguration,
+  ): JobParameter[] {
+    const jobParameters = [].concat(currentParameters);
+    jobParameters.push({
+      name: 'jobpodmillicpulimit',
+      value: jobPodConfig.milliCpuLimit,
+    });
+    jobParameters.push({
+      name: 'jobpodmemorykblimit',
+      value: jobPodConfig.memoryKbytesLimit,
+    });
+    return jobParameters;
   }
 }

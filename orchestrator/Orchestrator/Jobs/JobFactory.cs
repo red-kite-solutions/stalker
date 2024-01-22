@@ -45,6 +45,7 @@ public class JobFactory : IJobFactory
             DomainNameResolvingJobRequest domainResolving => new DomainNameResolvingCommand(domainResolving, Kubernetes, EventsProducer, JobLogsProducer, Parser, LoggerFactory.CreateLogger<DomainNameResolvingCommand>(), JobProvider, Config),
             TcpPortScanningJobRequest tcpPortScanning => new TcpPortScanningCommand(tcpPortScanning, Kubernetes, EventsProducer, JobLogsProducer, Parser, LoggerFactory.CreateLogger<TcpPortScanningCommand>(), JobProvider, Config),
             HttpServerCheckJobRequest httpCheck => new HttpServerCheckCommand(httpCheck, Kubernetes, EventsProducer, JobLogsProducer, Parser, LoggerFactory.CreateLogger<TcpPortScanningCommand>(), JobProvider, Config),
+            TcpIpRangeScanningJobRequest tcpRangeScanning => new TcpIpRangeScanningCommand(tcpRangeScanning, Kubernetes, EventsProducer, JobLogsProducer, Parser, LoggerFactory.CreateLogger<TcpIpRangeScanningCommand>(), JobProvider, Config),
             CustomJobRequest customJob => CreateCustomJobCommand(customJob),
             _ => throw new InvalidOperationException(),
         };
@@ -61,7 +62,11 @@ public class JobFactory : IJobFactory
             };
         }
 
-        throw new InvalidOperationException();
+        if (request.Type?.ToLower() == "nuclei")
+        {
+            return new NucleiCustomJobCommand(request, Kubernetes, EventsProducer, JobLogsProducer, Parser, LoggerFactory.CreateLogger<NucleiCustomJobCommand>(), Config);
+        }
 
+        throw new InvalidOperationException();
     }
 }
