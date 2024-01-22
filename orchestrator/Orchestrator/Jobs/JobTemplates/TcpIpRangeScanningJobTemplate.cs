@@ -17,6 +17,6 @@ public class TcpIpRangeScanningJobTemplate : PythonJobTemplate
         const int cpuMin = 100;
         const int minMemory = 1024 * 10;
         MilliCpuLimit = (int)(1 / 100000f * rate * 900) + cpuMin; // 1 CPU for rate = 100 000
-        MemoryKiloBytesLimit = (int)(490*1024 * 1/100000f * rate) + minMemory; // 500 Mb  for rate = 100 000
+        MemoryKiloBytesLimit = (int)(490 * 1024 * 1 / 100000f * rate) + minMemory; // 500 Mb  for rate = 100 000
     }
 }
