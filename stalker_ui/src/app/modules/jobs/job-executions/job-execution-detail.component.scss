@@ -1,9 +1,19 @@
+:host {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 16px;
+  padding-top: 0;
+}
+
 .summary {
   border-radius: 4px 4px 0 0;
 }
 
 .mat-mdc-card {
-  height: 40px;
+  height: 80px;
 }
 
 app-job-logs {

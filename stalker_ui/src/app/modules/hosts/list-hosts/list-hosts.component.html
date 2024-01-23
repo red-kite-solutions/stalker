@@ -74,8 +74,7 @@
 
   <mat-dialog-content>
     <mat-form-field>
-      <mat-label i18n="Company|Company or business">Company</mat-label>
-      <mat-select [(value)]="selectedCompany">
+      <mat-select i18n-placeholder="Company|Company or business" placeholder="Company" [(value)]="selectedCompany">
         <mat-option>None</mat-option>
         @for (company of companies$ | async; track company) {
           <mat-option value="{{ company._id }}">{{ company.name }}</mat-option>
@@ -83,7 +82,7 @@
       </mat-select>
     </mat-form-field>
 
-    <mat-form-field appearance="outline" class="full-width">
+    <mat-form-field appearance="outline" class="tw-w-full">
       <mat-label i18n="Hosts|A list of hosts">Hosts</mat-label>
       <textarea
         [(ngModel)]="selectedNewHosts"
@@ -102,6 +101,6 @@
     <button mat-flat-button color="primary" (click)="addNewHosts()" i18n="Add hosts|Add a new hosts to a company">
       Add hosts
     </button>
-    <button mat-flat-button color="warn" matDialogClose i18n="Cancel|Cancel an action">Cancel</button>
+    <button mat-stroked-button color="warn" matDialogClose i18n="Cancel|Cancel an action">Cancel</button>
   </mat-dialog-actions>
 </ng-template>
