@@ -1,6 +1,5 @@
 .check-icon {
-  font-size: 1.15em;
-  margin-left: -8px;
+  margin-right: 8px;
 }
 
 .select-item {
@@ -14,14 +13,40 @@
   min-width: 0px;
 }
 
-.dot {
-  height: 15px;
-  width: 15px;
-  background-color: #bbb;
-  border-radius: 50%;
-  display: inline-block;
-  margin-right: 6px;
-  margin-left: 6px;
+.color-preview {
+  width: 18px;
+  height: 18px;
+  border-radius: 100%;
+  overflow: hidden;
+  position: relative;
+
+  .color-preview-border {
+    background-color: var(--mdc-outlined-card-outline-color);
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+  }
+
+  .dot {
+    position: absolute;
+    border-radius: 100%;
+    top: 1px;
+    right: 1px;
+    left: 1px;
+    bottom: 1px;
+  }
+
+  .color-shine {
+    position: absolute;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(222, 222, 222, 0.05) 100%);
+    border-radius: 100%;
+    top: 1px;
+    right: 1px;
+    left: 1px;
+    bottom: 1px;
+  }
 }
 
 .empty-text {

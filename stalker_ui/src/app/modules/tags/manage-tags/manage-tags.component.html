@@ -5,12 +5,12 @@
 
       <div class="tw-flex tw-gap-sm tw-pb-4">
         <button mat-stroked-button (click)="openNewTagDialog(addTagDialog)">
-          <mat-icon class="material-icons-outlined">add</mat-icon>
+          <mat-icon>add</mat-icon>
           <label i18n="New tag|Button to create a new tag">New tag</label>
         </button>
 
         <button mat-stroked-button color="warn" class="left-action-button" (click)="deleteTags()">
-          <mat-icon class="material-icons-outlined">delete_outline</mat-icon>
+          <mat-icon>delete_outline</mat-icon>
           <label i18n="Delete|Delete an item">Delete</label>
         </button>
       </div>
@@ -74,16 +74,17 @@
 
 <!-- Add tag Dialog Template -->
 <ng-template #addTagDialog>
-  <h1 mat-dialog-title i18n="Create Tag|Create a new tag or label">Create Tag</h1>
-
-  <app-pill-tag
-    class="tw-absolute tw-top-4 tw-right-4"
-    [color]="newTagColor.hex ? '#' + newTagColor.hex : '#' + placeholderColor.hex"
-    >{{ newTagText ? newTagText : 'Example' }}</app-pill-tag
-  >
+  <h1 mat-dialog-title i18n="Create Tag|Create a new tag or label">
+    <div class="tw-flex tw-gap tw-align-center">
+      <span>Create tag</span>
+      <app-pill-tag class="" [color]="newTagColor.hex ? '#' + newTagColor.hex : '#' + placeholderColor.hex">{{
+        newTagText ? newTagText : 'Example'
+      }}</app-pill-tag>
+    </div>
+  </h1>
 
   <mat-dialog-content>
-    <div class="create-tag-form-row">
+    <div class="create-tag-form-row tw-p-t-4">
       <mat-form-field appearance="outline">
         <mat-label i18n="Text|Text of an item">Text</mat-label>
         <input matInput name="text" [(ngModel)]="newTagText" />

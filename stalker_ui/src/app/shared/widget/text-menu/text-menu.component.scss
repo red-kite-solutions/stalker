@@ -6,15 +6,15 @@
   display: flex;
   cursor: pointer;
   width: 100%;
-  &:hover {
-    color: #2d5fe6;
-  }
+
   label {
     cursor: pointer;
   }
+
   .center-on-icon {
     padding-top: 2px;
   }
+
   mat-icon {
     margin-right: 3px;
   }

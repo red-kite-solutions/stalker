@@ -1,12 +1,8 @@
 @mixin panel-section() {
   panel-section {
     .panel-section-link {
-      color: black;
       text-decoration: none;
       font-weight: 500;
-      &:hover {
-        color: #2d5fe6;
-      }
     }
 
     .panel-section-load-more-button {
@@ -18,11 +14,6 @@
       margin: 0;
       padding: 0;
       font-size: 0.85em;
-
-      &:hover {
-        color: #2d5fe6;
-        opacity: 0.8;
-      }
     }
   }
 }

@@ -1,0 +1,51 @@
+@mixin app-pill-tag() {
+  // By default, tags are themed for light theme.
+  // We use the tag color as-is for the background and use the luminance
+  // for determining whether we should display white text or black text.
+  //
+  // This strategy seems to produce a text-background duo in compliance with
+  // accessibility guidelines for most cases.
+  .pill {
+    --luminance-threshold: 0.45;
+    --luminance: (
+      0.2126 * var(--pill-border-color-r) + 0.7152 * var(--pill-border-color-g) + 0.0722 * var(--pill-border-color-b)
+    );
+
+    content: var(--luminance);
+
+    background-color: hsl(
+      calc(var(--pill-border-color-h) * 360),
+      calc(var(--pill-border-color-s) * 100%),
+      calc(var(--pill-border-color-l) * 100%)
+    );
+
+    // This is a poor-man's if-else kind of situation for choosing the text color based on the luminance
+    --color-switch: max(0, min(calc(1 / (var(--luminance-threshold) - var(--luminance))), 1));
+    color: hsl(0, 0%, calc(var(--color-switch) * 100%));
+  }
+
+  // For dark theme, we tweak the lightness quite a bit by using multipliers
+  // and minimums values.
+  //
+  // This strategy seems to always produce a text-background duo in compliance with
+  // accessibility guidelines.
+  .theme-dark .pill {
+    background-color: hsla(
+      calc(var(--pill-border-color-h) * 360),
+      calc(var(--pill-border-color-s) * 100%),
+      calc(var(--pill-border-color-l) * 100%),
+      0.25
+    );
+
+    border-color: hsl(
+      calc(var(--pill-border-color-h) * 360),
+      calc(var(--pill-border-color-s) * 90%),
+      max(calc(var(--pill-border-color-l) * 110%), 40%)
+    );
+    color: hsl(
+      calc(var(--pill-border-color-h) * 360),
+      calc(var(--pill-border-color-s) * 100%),
+      max(calc(var(--pill-border-color-l) * 150%), 85%)
+    );
+  }
+}

@@ -9,9 +9,13 @@
   --normal-gap-size: calc(24px + var(--density-scale) * 4px);
 }
 
-$primary: mat.define-palette($primary, 500);
-$accent: mat.define-palette($accent, 500, 300, 700);
-$warn: mat.define-palette($warn);
+$light-primary: mat.define-palette($light-primary, 500);
+$light-accent: mat.define-palette($light-accent, 500, 300, 700);
+$light-warn: mat.define-palette($light-warn);
+
+$dark-primary: mat.define-palette($dark-primary, 500);
+$dark-accent: mat.define-palette($dark-accent, 500, 300, 700);
+$dark-warn: mat.define-palette($dark-warn);
 
 $typography: mat.define-typography-config(
   $body-1:
@@ -33,9 +37,21 @@ $typography: mat.define-typography-config(
 $stalker-light: mat.define-light-theme(
   (
     color: (
-      primary: $primary,
-      accent: $accent,
-      warn: $warn,
+      primary: $light-primary,
+      accent: $light-accent,
+      warn: $light-warn,
+    ),
+    density: -2,
+    typography: $typography,
+  )
+);
+
+$stalker-dark: mat.define-dark-theme(
+  (
+    color: (
+      primary: $dark-primary,
+      accent: $dark-accent,
+      warn: $dark-warn,
     ),
     density: -2,
     typography: $typography,
@@ -44,6 +60,33 @@ $stalker-light: mat.define-light-theme(
 
 @include mat.core-theme($stalker-light);
 @include mat.all-component-themes($stalker-light);
+
+.theme-light {
+  --mat-table-background-color-hover: rgb(243, 243, 243);
+
+  a {
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.theme-dark {
+  @include mat.core-theme($stalker-dark);
+  @include mat.all-component-themes($stalker-dark);
+
+  --mat-table-background-color-hover: #4d4d4d;
+
+  a {
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
 
 // Paginator
 @include mat.paginator-density(-2);

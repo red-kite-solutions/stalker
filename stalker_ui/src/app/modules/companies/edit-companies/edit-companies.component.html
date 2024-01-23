@@ -28,7 +28,7 @@
             <mat-expansion-panel [formGroupName]="0" hideToggle>
               <mat-expansion-panel-header>
                 <mat-panel-title
-                  ><mat-icon class="material-icons-outlined">add_circle_outline</mat-icon
+                  ><mat-icon>add_circle_outline</mat-icon
                   ><label id="title-text" i18n="Add proprietary subnet|"
                     >Add a proprietary subnet</label
                   ></mat-panel-title
@@ -114,7 +114,7 @@
                   <mat-expansion-panel-header>
                     <mat-panel-title>
                       @if (!range.valid && triedSubmitFailed) {
-                        <mat-icon class="material-icons-outlined error-bang" color="warn">error_outline</mat-icon>
+                        <mat-icon class="error-bang" color="warn">error_outline</mat-icon>
                       }
                       <label>{{ range.get('ip')?.value + range.get('shortMask')?.value }}</label></mat-panel-title
                     >
@@ -122,7 +122,7 @@
                       <div class="tw-flex tw-items-center tw-w-full">
                         <div class="tw-flex-1">{{ range.get('minIp')?.value }} – {{ range.get('maxIp')?.value }}</div>
                         <button mat-icon-button type="button" (click)="deleteSubnet($event, i)">
-                          <mat-icon class="material-icons-outlined">clear</mat-icon>
+                          <mat-icon>clear</mat-icon>
                         </button>
                       </div>
                     </mat-panel-description>
