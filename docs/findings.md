@@ -22,6 +22,7 @@ The finding object must contain the `type` field. Here is a list of available ty
 | --------------------------------------- | -------------------------------------------------- |
 | [HostnameFinding](#hostnamefinding)     | Creates a new domain.                              |
 | [IpFinding](#ipfinding)                 | Creates a new host.                                |
+| [IpRangeFinding](#iprangefinding)       | Creates a new IP range.                            |
 | [HostnameIpFinding](#hostnameipfinding) | Creates a new host, attaches it to a given domain. |
 | [PortFinding](#portfinding)             | Creates a new port, attaches it to the given host. |
 | [CustomFinding](#customfinding)         | Attaches custom finding data to a given entity.    |
@@ -131,7 +132,7 @@ log_finding(
 )
 ```
 
-> You can't attach fields to an IP range as they are stored differently.
+> You can't attach fields to an IP range as they are different than other ressources.
 
 Which is equivalent to the following python code, but with more metadata:
 
