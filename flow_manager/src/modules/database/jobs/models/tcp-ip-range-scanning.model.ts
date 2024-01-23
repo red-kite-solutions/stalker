@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { isArray, isInt, isNumber } from 'class-validator';
+import { isArray, isInt, isNumberString } from 'class-validator';
 import { Document } from 'mongoose';
 import { isIP } from 'net';
 import { JobParameterValueException } from '../../../../exceptions/job-parameter.exception';
@@ -10,10 +10,10 @@ import { isPortNumber } from '../../../../validators/is-port-number.validator';
 import { JobParameter } from '../../subscriptions/event-subscriptions/event-subscriptions.model';
 import { JobFactoryUtils } from '../jobs.factory';
 
-export type JobDocument = TcpPortScanningJob & Document;
+export type JobDocument = TcpIpRangeScanningJob & Document;
 
 @Schema()
-export class TcpPortScanningJob {
+export class TcpIpRangeScanningJob {
   public task: string;
   public companyId!: string;
   public priority!: number;
@@ -23,11 +23,9 @@ export class TcpPortScanningJob {
   public endTime: number;
 
   @Prop()
-  public targetIp!: string;
+  public targetIpRange!: string;
   @Prop()
-  public threads!: number;
-  @Prop()
-  public socketTimeoutSeconds!: number;
+  public rate!: number;
   @Prop()
   public portMin!: number;
   @Prop()
@@ -36,30 +34,31 @@ export class TcpPortScanningJob {
   public ports!: number[];
 
   public static parameterDefinitions: JobParameterDefinition[] = [
-    { name: 'targetIp', type: 'string', default: undefined },
-    { name: 'threads', type: 'number', default: 100 },
-    { name: 'socketTimeoutSeconds', type: 'number', default: 0.7 },
+    { name: 'targetIpRange', type: 'string', default: undefined },
+    { name: 'rate', type: 'number', default: 100000 },
     { name: 'portMin', type: 'number', default: 1 },
     { name: 'portMax', type: 'number', default: 1000 },
-    { name: 'ports', type: 'number[]', default: [] },
+    {
+      name: 'ports',
+      type: 'number[]',
+      default: [3000, 3389, 8000, 8080, 8443],
+    },
   ];
 
-  private static createTcpPortScanJob(
+  private static createTcpIpRangeScanJob(
     companyId: string,
-    targetIp: string,
-    threads: number,
-    socketTimeoutSeconds: number,
+    targetIpRange: string,
+    rate: number,
     portMin: number,
     portMax: number,
     ports: number[] = [],
   ) {
-    const job = new TcpPortScanningJob();
-    job.task = TcpPortScanningJob.name;
+    const job = new TcpIpRangeScanningJob();
+    job.task = TcpIpRangeScanningJob.name;
     job.priority = 3;
     job.companyId = companyId;
-    job.targetIp = targetIp;
-    job.threads = threads;
-    job.socketTimeoutSeconds = socketTimeoutSeconds;
+    job.targetIpRange = targetIpRange;
+    job.rate = rate;
     job.portMin = portMin;
     job.portMax = portMax;
     job.ports = ports;
@@ -67,23 +66,20 @@ export class TcpPortScanningJob {
     if (!isCompanyId(job.companyId)) {
       throw new JobParameterValueException('companyId', job.companyId);
     }
-
-    if (isIP(job.targetIp) !== 4) {
-      throw new JobParameterValueException('targetIp', job.targetIp);
-    }
-
-    if (!isInt(job.threads) || !(job.threads > 0 && job.threads <= 1000)) {
-      throw new JobParameterValueException('threads', job.threads);
-    }
+    const range = job.targetIpRange.split('/');
 
     if (
-      !isNumber(job.socketTimeoutSeconds) ||
-      !(job.socketTimeoutSeconds > 0 && job.socketTimeoutSeconds <= 3)
+      range.length !== 2 ||
+      isIP(range[0]) !== 4 ||
+      !isNumberString(range[1]) ||
+      Number(range[1]) < 0 ||
+      Number(range[1]) > 32
     ) {
-      throw new JobParameterValueException(
-        'socketTimeoutSeconds',
-        job.socketTimeoutSeconds,
-      );
+      throw new JobParameterValueException('targetIpRange', job.targetIpRange);
+    }
+
+    if (!isInt(job.rate) || !(job.rate > 0 && job.rate <= 10000000)) {
+      throw new JobParameterValueException('rate', job.rate);
     }
 
     if (!isPortNumber(job.portMin)) {
@@ -104,20 +100,18 @@ export class TcpPortScanningJob {
   public static create(args: JobParameter[]) {
     let params = {};
     params['companyid'] = undefined;
-    params['targetip'] = undefined;
-    params['threads'] = undefined;
-    params['sockettimeoutseconds'] = undefined;
+    params['targetiprange'] = undefined;
+    params['rate'] = undefined;
     params['portmin'] = undefined;
     params['portmax'] = undefined;
     params['ports'] = undefined;
 
     params = JobFactoryUtils.bindFunctionArguments(params, args);
 
-    return TcpPortScanningJob.createTcpPortScanJob(
+    return TcpIpRangeScanningJob.createTcpIpRangeScanJob(
       params['companyid'],
-      params['targetip'],
-      params['threads'],
-      params['sockettimeoutseconds'],
+      params['targetiprange'],
+      params['rate'],
       params['portmin'],
       params['portmax'],
       params['ports'],
@@ -125,5 +119,6 @@ export class TcpPortScanningJob {
   }
 }
 
-export const TcpPortScanningJobSchema =
-  SchemaFactory.createForClass(TcpPortScanningJob);
+export const TcpIpRangeScanningJobSchema = SchemaFactory.createForClass(
+  TcpIpRangeScanningJob,
+);
