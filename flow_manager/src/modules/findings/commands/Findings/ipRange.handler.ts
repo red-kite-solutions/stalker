@@ -32,12 +32,12 @@ export class IpRangeHandler extends UserFindingHandlerBase<IpRangeCommand> {
   }
 
   protected async executeCore(command: IpRangeCommand) {
-    if (command.finding.jobId) {
-      await this.companyService.addIpRangeWithMask(
-        command.companyId,
-        command.finding.ip,
-        command.finding.mask,
-      );
-    }
+    if (!command.finding.jobId) return;
+
+    await this.companyService.addIpRangeWithMask(
+      command.companyId,
+      command.finding.ip,
+      command.finding.mask,
+    );
   }
 }

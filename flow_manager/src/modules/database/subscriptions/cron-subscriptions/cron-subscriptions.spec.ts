@@ -123,8 +123,8 @@ describe('Cron Subscriptions Service', () => {
 
   describe('Cron subscriptions ALL_* input values', () => {
     beforeEach(() => {
-      jest.resetAllMocks();
       jest.clearAllMocks();
+      jest.resetAllMocks();
       jest.restoreAllMocks();
     });
 
@@ -507,6 +507,7 @@ describe('Cron Subscriptions Service', () => {
     it('Should publish a job from input ALL_DOMAINS (condition=true)', async () => {
       // Arrange
       const c = await company('Test company');
+      const domainName = 'example.com';
 
       const sub: CronSubscription = {
         name: 'independent cron subscription',
@@ -519,7 +520,7 @@ describe('Cron Subscriptions Service', () => {
           {
             lhs: '${domainName}',
             operator: 'equals',
-            rhs: 'example.com',
+            rhs: domainName,
           },
         ],
         jobParameters: [
@@ -534,7 +535,7 @@ describe('Cron Subscriptions Service', () => {
         ],
       };
 
-      const d1 = await domain('example.com', c._id.toString());
+      const d1 = await domain(domainName, c._id.toString());
 
       const spy = jest //@ts-expect-error
         .spyOn(subscriptionsService, 'publishJob');
@@ -573,7 +574,7 @@ describe('Cron Subscriptions Service', () => {
       await subscriptionsService.publishJobsFromInput(
         <CronSubscription>{
           ...allDomainsCronSub,
-          name: 'wtf',
+          name: 'randomname',
           conditions: [
             {
               lhs: '${domainName}',

@@ -25,7 +25,7 @@ import { CodeEditorComponent, CodeEditorTheme } from '../../widget/code-editor/c
       [theme]="theme"
       [readonly]="true"
       [path]="'/job-logs/job.log'"
-      fxFlex
+      class="tw-flex-1"
     ></app-code-editor>`,
 })
 export class JobLogsComponent implements OnChanges {

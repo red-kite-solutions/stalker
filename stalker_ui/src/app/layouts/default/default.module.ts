@@ -1,7 +1,6 @@
 import { MAT_COLOR_FORMATS, NGX_MAT_COLOR_FORMATS } from '@angular-material-components/color-picker';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -63,7 +62,6 @@ import { DefaultComponent } from './default.component';
     MatDividerModule,
     MatDialogModule,
     MatCardModule,
-    FlexLayoutModule,
     FormsModule,
     MatFormFieldModule,
     MatInputModule,

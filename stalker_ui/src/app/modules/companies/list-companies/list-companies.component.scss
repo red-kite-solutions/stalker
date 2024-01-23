@@ -1,29 +1,29 @@
 @use '@angular/material' as mat;
 
-.buttonTile {
-  background: white;
+mat-grid-tile {
+  border-width: var(--mdc-outlined-card-outline-width);
+  border-style: solid;
+  border-color: var(--mdc-outlined-card-outline-color);
+  border-radius: var(--mdc-outlined-card-container-shape);
+  background-color: var(--mdc-outlined-card-container-color);
+  box-shadow: var(--mdc-outlined-card-container-elevation);
+}
+
+.button-title {
   cursor: pointer;
-  border-radius: 4px;
-  @include mat.elevation(4);
+  transition: transform ease-in-out;
+  transition-duration: 70ms;
+
   &:hover {
     background-color: rgb(243, 243, 243);
     transform: translateY(-4px);
-    @include mat.elevation(8);
-    .imgContainer {
-      -webkit-filter: brightness(95%);
-    }
+    @include mat.elevation(2);
+
     &:active {
       transform: translateY(0px);
-      @include mat.elevation(4);
+      @include mat.elevation(1);
     }
   }
-}
-
-.companyLogo {
-  max-height: 100%;
-  max-width: 100%;
-  object-fit: contain;
-  height: 100%;
 }
 
 h3 {
@@ -31,44 +31,27 @@ h3 {
   font-size: 20px;
 }
 
-.textContainer {
-  height: 100%;
-  padding: 20px 20px 20px 10px;
-}
-
 .text {
   width: 100%;
 }
 
-.imgContainer {
+.plus-icon {
   padding: 20px 10px 20px 20px;
   text-align: center;
   height: 100%;
+
   mat-icon {
-    transform: scale(4.2);
+    transform: scale(3.2);
     height: auto;
     width: auto;
     color: rgb(116, 116, 116);
   }
 }
 
-.uploadImgContainer {
+.upload-image-container {
   padding: 20px 10px 20px 20px;
   text-align: center;
   height: 100%;
-}
-
-p {
-  font-size: 16px;
-}
-
-#titleDiv {
-  justify-content: center;
-  align-items: center;
-  display: flex;
-  div {
-    width: 100%;
-  }
 }
 
 .ellipsis {

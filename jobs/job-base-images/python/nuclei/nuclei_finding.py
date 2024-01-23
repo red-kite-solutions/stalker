@@ -8,6 +8,7 @@ _scheme_port_mapping = {
 }
 
 class NucleiFinding:
+    """A Nuclei Finding represents and parses a json line from a Nuclei output file."""
     template_id: str = None
     name: str = None
     tags: 'list[str]' = None

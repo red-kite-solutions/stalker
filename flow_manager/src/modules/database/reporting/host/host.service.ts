@@ -13,7 +13,6 @@ import { CorrelationKeyUtils } from '../correlation.utils';
 import { DomainsService } from '../domain/domain.service';
 import { DomainSummary } from '../domain/domain.summary';
 import { PortService } from '../port/port.service';
-import { ReportService } from '../report/report.service';
 import { HostFilterModel } from './host-filter.model';
 import { Host, HostDocument } from './host.model';
 import { HostSummary } from './host.summary';
@@ -25,7 +24,6 @@ export class HostService {
   constructor(
     @InjectModel('host') private readonly hostModel: Model<Host>,
     @InjectModel('company') private readonly companyModel: Model<Company>,
-    private reportService: ReportService,
     private configService: ConfigService,
     private tagsService: TagsService,
     @Inject(forwardRef(() => DomainsService))
@@ -163,13 +161,8 @@ export class HostService {
         hostSummaries.push({ id: hostResult._id, ip: ip });
       }
     }
-    const config = await this.configService.getConfig();
 
     await this.domainService.addHostsToDomain(domain._id, hostSummaries);
-
-    if (config.isNewContentReported) {
-      this.reportService.addHosts(company.name, newIps, domainName);
-    }
 
     return newHosts;
   }
@@ -220,12 +213,6 @@ export class HostService {
     insertedHosts.forEach((host: HostDocument) => {
       newIps.push(host.ip);
     });
-
-    const config = await this.configService.getConfig();
-
-    if (config.isNewContentReported) {
-      this.reportService.addHosts(company.name, newIps);
-    }
 
     const findings: IpFinding[] = [];
     // For each new domain name found, a finding is created

@@ -6,6 +6,7 @@ import { JobParameterValueException } from '../../../../exceptions/job-parameter
 import { JobParameterDefinition } from '../../../../types/job-parameter-definition.type';
 import { TimestampedString } from '../../../../types/timestamped-string.type';
 import { isCompanyId } from '../../../../validators/is-company-id.validator';
+import { isPortNumber } from '../../../../validators/is-port-number.validator';
 import { JobParameter } from '../../subscriptions/event-subscriptions/event-subscriptions.model';
 import { JobFactoryUtils } from '../jobs.factory';
 
@@ -83,21 +84,15 @@ export class TcpIpRangeScanningJob {
       throw new JobParameterValueException('rate', job.rate);
     }
 
-    if (!isInt(job.portMin) || !(job.portMin > 0 && job.portMin < 65535)) {
+    if (!isPortNumber(job.portMin)) {
       throw new JobParameterValueException('portMin', job.portMin);
     }
 
-    if (
-      !isInt(job.portMax) ||
-      !(job.portMax > 1 && job.portMax <= 65535 && job.portMax > job.portMin)
-    ) {
+    if (!isPortNumber(job.portMax) || job.portMax < job.portMin) {
       throw new JobParameterValueException('portMax', job.portMax);
     }
 
-    if (
-      !isArray(job.ports) ||
-      job.ports.some((v) => !isInt(v) && v <= 0 && v > 65535)
-    ) {
+    if (!isArray(job.ports) || job.ports.some((v) => !isPortNumber(v))) {
       throw new JobParameterValueException('ports', job.ports);
     }
 
