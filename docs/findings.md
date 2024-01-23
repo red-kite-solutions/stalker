@@ -126,7 +126,7 @@ ip = "0.0.0.0"
 mask = 16
 log_finding(
     IpRangeFinding(
-        "IpRangeFinding", ip, "IpRangeFinding", mask
+        ip, mask
     )
 )
 ```

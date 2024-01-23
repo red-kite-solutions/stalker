@@ -44,6 +44,15 @@ class IpFinding(Finding):
         super().__init__(key, type, name, fields)
         self.ip = ip
 
+class IpRangeFinding(Finding):
+    def __init__(
+        self,
+        ip: str,
+        mask: str
+    ):
+        super().__init__("IpRangeFinding", "IpRangeFinding", "Ip Range", [])
+        self.ip = ip
+        self.mask = mask
 
 class PortFinding(Finding):
     def __init__(
