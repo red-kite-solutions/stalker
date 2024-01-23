@@ -92,7 +92,8 @@
               "buildTarget": "stalker_ui:build:production"
             },
             "development": {
-              "buildTarget": "stalker_ui:build:development"
+              "buildTarget": "stalker_ui:build:development",
+              "hmr": true
             }
           },
           "defaultConfiguration": "development"
