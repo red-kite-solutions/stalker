@@ -85,13 +85,37 @@
   </div>
   <div class="tw-flex-[55%_0_0]">
     <mat-tab-group>
-      <mat-tab label-i18n="Configurations|Settings for an item" label="Configurations">
+      <mat-tab i18n-label="Configurations|Settings for an item" label="Configurations">
         <div>
-          <mat-form-field appearance="outline" class="job-name-form">
-            <mat-label i18n="Name|Name">Name</mat-label>
-            <input matInput [formControl]="customJobNameFormControl" required />
-            <mat-error i18n="Name required|The name input is required">Name is required</mat-error>
-          </mat-form-field>
+          <div [formGroup]="customJobForm">
+            <mat-form-field appearance="outline" class="job-name-form">
+              <mat-label i18n="Name|Name">Name</mat-label>
+              <input matInput formControlName="customJobName" required />
+              <mat-error i18n="Name required|The name input is required">Name is required</mat-error>
+            </mat-form-field>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="leftmost-item">
+                <mat-label i18n="Custom job type|The type of custom job">Custom job type</mat-label>
+                <mat-select formControlName="customJobType">
+                  @for (customJobType of customJobTypes; track customJobType) {
+                    <mat-option value="{{ customJobType }}">{{ customJobTypesLocalized[customJobType] }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="rightmost-item">
+                <mat-label i18n="Custom job language|The programming language of a custom job"
+                  >Custom job language</mat-label
+                >
+                <mat-select formControlName="customJobLanguage">
+                  @for (language of currentLanguageOptions; track language) {
+                    <mat-option value="{{ language }}">{{ language }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+
           <mat-card appearance="outlined" class="job-pod-config-selection">
             <mat-card-header>Job Pod Configuration</mat-card-header>
             <mat-card-content>
@@ -113,15 +137,43 @@
             </mat-card-content>
           </mat-card>
         </div>
+
+        @if (handlerFormEnabled) {
+          <div class="nuclei-specific-config" [formGroup]="findingHandlerForm">
+            <mat-divider></mat-divider>
+            <h3 i18n="finding handler config|finding handler config title">Custom finding handler config</h3>
+            <div class="checkbox-container">
+              <mat-checkbox
+                i18n="Enable finding handler|Enable the finding handler"
+                formControlName="findingHandlerEnabled"
+                >Enable custom finding handler</mat-checkbox
+              >
+            </div>
+            <mat-form-field appearance="outline">
+              <mat-label i18n="Finding handler language|The programming language of a finding handler"
+                >Finding handler language</mat-label
+              >
+              <mat-select formControlName="findingHandlerLanguage">
+                @for (language of findingHandlerLanguageOptions; track language) {
+                  <mat-option value="{{ language }}">{{ language }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <mat-divider id="bottom-divider"></mat-divider>
+          </div>
+        }
       </mat-tab>
-      <mat-tab label-i18n="Code|Programming language code" label="Code" class="code-editor-container">
+      <mat-tab i18n-label="Code|Programming language code" label="Code" class="code-editor-container">
         <div class="code-editor-container">
           <app-code-editor
-            [(code)]="code"
-            [language]="language"
+            [language]="languageDefault"
             [minimapEnabled]="minimapEnabled"
             [theme]="theme"
             [readonly]="readonly"
+            [path]="basePath + defaultUriFile + '.' + languageExtensionMapping[languageDefault]"
+            [tabId]="customJobCodeTabId"
+            [fileTabsEnabled]="true"
+            [fileTabsReadOnly]="true"
             (saveEvent)="saveCustomJobEdits()"
           ></app-code-editor>
         </div>

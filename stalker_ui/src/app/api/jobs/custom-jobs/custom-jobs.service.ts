@@ -19,7 +19,7 @@ export class CustomJobsService {
   }
 
   public async edit(id: string, data: CustomJobData) {
-    return await firstValueFrom(this.http.post(`${environment.fmUrl}/custom-jobs/${id}`, data));
+    return await firstValueFrom(this.http.put(`${environment.fmUrl}/custom-jobs/${id}`, data));
   }
 
   public async delete(id: string) {

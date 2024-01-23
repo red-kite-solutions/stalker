@@ -82,6 +82,7 @@
                     }
                     @if (element.builtIn) {
                       <img
+                        class="center-image"
                         matTooltip="Stalker"
                         width="25"
                         src="assets/red-kite-logo-only-color-circle.png"
@@ -158,6 +159,7 @@
                 [theme]="theme"
                 [readonly]="readonly"
                 (saveEvent)="saveSubscriptionEdits()"
+                [path]="'/subcriptions/subscription.yaml'"
               ></app-code-editor>
             </div>
           </mat-tab>
