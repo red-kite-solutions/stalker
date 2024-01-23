@@ -1,4 +1,4 @@
-export interface Company {
+export interface Project {
   name: string;
   logo: string;
   _id: string;

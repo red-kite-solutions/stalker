@@ -35,7 +35,7 @@ export class HostnameHandler extends UserFindingHandlerBase<HostnameCommand> {
 
     await this.domainsService.addDomain(
       command.finding.domainName,
-      command.companyId,
+      command.projectId,
     );
   }
 }

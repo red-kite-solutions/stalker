@@ -1,5 +1,5 @@
 <app-page-header
-  [parts]="[(companies$ | async | whereId: [(execution$ | async)?.companyId])?.name, (execution$ | async)?.task]"
+  [parts]="[(projects$ | async | whereId: [(execution$ | async)?.projectId])?.name, (execution$ | async)?.task]"
 >
 </app-page-header>
 

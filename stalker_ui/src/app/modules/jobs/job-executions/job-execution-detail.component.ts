@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { map, Observable, shareReplay, Subject, switchMap } from 'rxjs';
-import { CompaniesService } from '../../../api/companies/companies.service';
 import { JobsService } from '../../../api/jobs/jobs/jobs.service';
+import { ProjectsService } from '../../../api/projects/projects.service';
 import { CodeEditorTheme } from '../../../shared/widget/code-editor/code-editor.component';
 
 @Component({
@@ -19,15 +19,15 @@ export class JobExecutionDetailComponent {
     shareReplay(1)
   );
 
-  public companies$ = this.companiesService
+  public projects$ = this.projectsService
     .getAllSummaries()
-    .pipe(map((companies: any[]) => companies.map((c) => ({ id: c._id, name: c.name }))));
+    .pipe(map((projects: any[]) => projects.map((c) => ({ id: c._id, name: c.name }))));
 
   public logs$: Observable<string> = new Subject<string>();
 
   constructor(
     private jobService: JobsService,
-    private companiesService: CompaniesService,
+    private projectsService: ProjectsService,
     private route: ActivatedRoute
   ) {}
 }

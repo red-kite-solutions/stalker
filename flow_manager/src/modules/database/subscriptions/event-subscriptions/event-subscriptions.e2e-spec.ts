@@ -18,8 +18,8 @@ import { EventSubscriptionsDocument } from './event-subscriptions.model';
 describe('Event Subscriptions Controller (e2e)', () => {
   let app: INestApplication;
   let testData: TestingData;
-  let companyName = 'subscriptionCompany';
-  let companyId: string;
+  let projectName = 'subscriptionProject';
+  let projectId: string;
   let subscriptionId: string;
 
   const subscription: EventSubscriptionDto = {
@@ -77,21 +77,21 @@ describe('Event Subscriptions Controller (e2e)', () => {
     await app.init();
     testData = await initTesting(app);
 
-    let r = await postReq(app, testData.user.token, '/company', {
-      name: companyName,
+    let r = await postReq(app, testData.user.token, '/project', {
+      name: projectName,
     });
-    companyId = r.body._id;
+    projectId = r.body._id;
   });
 
   afterAll(async () => {
-    await deleteReq(app, testData.user.token, `/company/${companyId}`);
+    await deleteReq(app, testData.user.token, `/project/${projectId}`);
     await app.close();
   });
 
   it('Should create an event subscription (POST /event-subscriptions)', async () => {
     // arrange & act
     const r = await postReq(app, testData.user.token, '/event-subscriptions', {
-      companyId: companyId,
+      projectId: projectId,
       ...subscription,
     });
     // assert
@@ -124,7 +124,7 @@ describe('Event Subscriptions Controller (e2e)', () => {
       testData.user.token,
       `/event-subscriptions/${subscriptionId}`,
       {
-        companyId: companyId,
+        projectId: projectId,
         ...subscription,
         name: changedName,
       },

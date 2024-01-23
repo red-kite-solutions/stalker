@@ -36,7 +36,7 @@
             <concept_node>
                 <name>1098534452152698703</name>
                 <definition_loaded>false</definition_loaded>
-                <description>Title to the page to edit a company</description>
+                <description>Title to the page to edit a project</description>
                 <comment/>
                 <default_text/>
                 <translations>
@@ -121,7 +121,7 @@
             <concept_node>
                 <name>1291350410795237882</name>
                 <definition_loaded>false</definition_loaded>
-                <description>The new company was successfully created</description>
+                <description>The new project was successfully created</description>
                 <comment/>
                 <default_text/>
                 <translations>
@@ -393,7 +393,7 @@
             <concept_node>
                 <name>2350915129742241238</name>
                 <definition_loaded>false</definition_loaded>
-                <description>Delete a company</description>
+                <description>Delete a project</description>
                 <comment/>
                 <default_text/>
                 <translations>
@@ -733,7 +733,7 @@
             <concept_node>
                 <name>3738243234320950291</name>
                 <definition_loaded>false</definition_loaded>
-                <description>Company name is required to create a company</description>
+                <description>Project name is required to create a project</description>
                 <comment/>
                 <default_text/>
                 <translations>
@@ -971,7 +971,7 @@
             <concept_node>
                 <name>4698343931126085751</name>
                 <definition_loaded>false</definition_loaded>
-                <description>Name of the company</description>
+                <description>Name of the project</description>
                 <comment/>
                 <default_text/>
                 <translations>
@@ -1090,7 +1090,7 @@
             <concept_node>
                 <name>5156662916852530311</name>
                 <definition_loaded>false</definition_loaded>
-                <description>Confirmation text to delete a company</description>
+                <description>Confirmation text to delete a project</description>
                 <comment/>
                 <default_text/>
                 <translations>
@@ -1209,7 +1209,7 @@
             <concept_node>
                 <name>5477012042714025351</name>
                 <definition_loaded>false</definition_loaded>
-                <description>Conflict happenned when creating a company because another company already uses the provided name</description>
+                <description>Conflict happenned when creating a project because another project already uses the provided name</description>
                 <comment/>
                 <default_text/>
                 <translations>
@@ -1328,7 +1328,7 @@
             <concept_node>
                 <name>5871420796212876016</name>
                 <definition_loaded>false</definition_loaded>
-                <description>Deleting a company subnet</description>
+                <description>Deleting a project subnet</description>
                 <comment/>
                 <default_text/>
                 <translations>
@@ -1345,7 +1345,7 @@
             <concept_node>
                 <name>5889505081688625370</name>
                 <definition_loaded>false</definition_loaded>
-                <description>Deleting a company</description>
+                <description>Deleting a project</description>
                 <comment/>
                 <default_text/>
                 <translations>
@@ -2008,7 +2008,7 @@
             <concept_node>
                 <name>812831998979086425</name>
                 <definition_loaded>false</definition_loaded>
-                <description>Company deletion was a success</description>
+                <description>Project deletion was a success</description>
                 <comment/>
                 <default_text/>
                 <translations>
@@ -2280,7 +2280,7 @@
             <concept_node>
                 <name>9034125950219726218</name>
                 <definition_loaded>false</definition_loaded>
-                <description>Add a company</description>
+                <description>Add a project</description>
                 <comment/>
                 <default_text/>
                 <translations>

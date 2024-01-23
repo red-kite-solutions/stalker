@@ -4,11 +4,11 @@ import { CustomJobsModule } from '../custom-jobs/custom-jobs.module';
 import { DatalayerModule } from '../datalayer.module';
 import { JobsModule } from '../jobs/jobs.module';
 import { EventSubscriptionsModule } from '../subscriptions/event-subscriptions/event-subscriptions.module';
-import { CompanyController } from './company.controller';
-import { CompanyService } from './company.service';
 import { DomainsModule } from './domain/domain.module';
 import { HostModule } from './host/host.module';
 import { PortModule } from './port/port.module';
+import { ProjectController } from './project.controller';
+import { ProjectService } from './project.service';
 
 @Module({
   imports: [
@@ -21,8 +21,8 @@ import { PortModule } from './port/port.module';
     PortModule,
     ConfigModule,
   ],
-  controllers: [CompanyController],
-  providers: [CompanyService],
-  exports: [CompanyService],
+  controllers: [ProjectController],
+  providers: [ProjectService],
+  exports: [ProjectService],
 })
-export class CompanyModule {}
+export class ProjectModule {}

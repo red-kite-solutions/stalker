@@ -6,11 +6,11 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, map, switchMap, tap } from 'rxjs';
-import { CompanyCellComponent } from 'src/app/shared/components/company-cell/company-cell.component';
+import { ProjectCellComponent } from 'src/app/shared/components/project-cell/project-cell.component';
 import { SharedModule } from 'src/app/shared/shared.module';
-import { Company } from 'src/app/shared/types/company/company.interface';
-import { CompaniesService } from '../../../api/companies/companies.service';
+import { Project } from 'src/app/shared/types/project/project.interface';
 import { JobsService } from '../../../api/jobs/jobs/jobs.service';
+import { ProjectsService } from '../../../api/projects/projects.service';
 import { StartedJobViewModel } from '../../../shared/types/jobs/job.type';
 import { Page } from '../../../shared/types/page.type';
 import { JobLogsSummaryComponent } from './job-execution-logs-summary.component';
@@ -28,12 +28,12 @@ import { JobStateComponent } from './job-execution-state.component';
     JobLogsSummaryComponent,
     MatCardModule,
     MatTableModule,
-    CompanyCellComponent,
+    ProjectCellComponent,
   ],
 })
 export class JobExecutionsComponent {
-  readonly displayColumns = ['name', 'company', 'time'];
-  readonly filterOptions: string[] = ['company'];
+  readonly displayColumns = ['name', 'project', 'time'];
+  readonly filterOptions: string[] = ['project'];
 
   @ViewChild(MatPaginator, { static: true }) paginator!: MatPaginator;
 
@@ -63,12 +63,12 @@ export class JobExecutionsComponent {
     })
   );
 
-  companies: Company[] = [];
-  companies$ = this.companiesService.getAll().pipe(tap((x) => (this.companies = x)));
+  projects: Project[] = [];
+  projects$ = this.projectsService.getAll().pipe(tap((x) => (this.projects = x)));
 
   constructor(
     private jobsService: JobsService,
-    private companiesService: CompaniesService,
+    private projectsService: ProjectsService,
     private titleService: Title,
     private toastrService: ToastrService
   ) {
@@ -111,12 +111,12 @@ export class JobExecutionsComponent {
       if (!key || !value) continue;
 
       switch (key) {
-        case 'company':
-          const company = this.companies.find((c) => c.name.trim().toLowerCase() === value.trim().toLowerCase());
-          if (company) filterObject['company'] = company._id;
+        case 'project':
+          const project = this.projects.find((c) => c.name.trim().toLowerCase() === value.trim().toLowerCase());
+          if (project) filterObject['project'] = project._id;
           else
             this.toastrService.warning(
-              $localize`:Company does not exist|The given company name is not known to the application:Company name not recognized`
+              $localize`:Project does not exist|The given project name is not known to the application:Project name not recognized`
             );
           break;
       }

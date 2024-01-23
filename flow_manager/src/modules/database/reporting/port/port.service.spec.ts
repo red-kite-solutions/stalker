@@ -2,17 +2,17 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getName } from '../../../../../test/test.utils';
 import { AppModule } from '../../../app.module';
 import { TagsService } from '../../tags/tag.service';
-import { CreateCompanyDto } from '../company.dto';
-import { CompanyService } from '../company.service';
 import { DomainsService } from '../domain/domain.service';
 import { HostService } from '../host/host.service';
+import { CreateProjectDto } from '../project.dto';
+import { ProjectService } from '../project.service';
 import { PortService } from './port.service';
 
 describe('Port Service', () => {
   let moduleFixture: TestingModule;
   let hostService: HostService;
   let domainService: DomainsService;
-  let companyService: CompanyService;
+  let projectService: ProjectService;
   let tagsService: TagsService;
   let portService: PortService;
   const testPrefix = 'port-service-ut';
@@ -23,22 +23,22 @@ describe('Port Service', () => {
     }).compile();
     hostService = moduleFixture.get(HostService);
     domainService = moduleFixture.get(DomainsService);
-    companyService = moduleFixture.get(CompanyService);
+    projectService = moduleFixture.get(ProjectService);
     tagsService = moduleFixture.get(TagsService);
     portService = moduleFixture.get(PortService);
   });
 
   beforeEach(async () => {
-    const allCompanies = await companyService.getAll();
-    for (const c of allCompanies) {
-      await companyService.delete(c._id);
+    const allProjects = await projectService.getAll();
+    for (const c of allProjects) {
+      await projectService.delete(c._id);
     }
   });
 
   describe('Add ports', () => {
     it('Should add ports to a host', async () => {
       // Arrange
-      const c = await company();
+      const c = await project();
       const h = await host('1.1.1.1', c._id.toString());
 
       // Act
@@ -68,7 +68,7 @@ describe('Port Service', () => {
     it('Should add ports to a host IP', async () => {
       // Arrange
       const hostIp = '1.1.1.1';
-      const c = await company();
+      const c = await project();
       const h = await host(hostIp, c._id.toString());
 
       // Act
@@ -97,7 +97,7 @@ describe('Port Service', () => {
 
     it('Should fail adding the same port to the same host', async () => {
       // Arrange
-      const c = await company();
+      const c = await project();
       const h = await host('1.1.1.1', c._id.toString());
       const portNumber = 80;
       const samePort = async () => {
@@ -120,7 +120,7 @@ describe('Port Service', () => {
 
     it('Should add the same port to a different host', async () => {
       // Arrange
-      const c = await company();
+      const c = await project();
       const h1 = await host('1.1.1.1', c._id.toString());
       const h2 = await host('1.1.1.2', c._id.toString());
       const portNumber = 80;
@@ -148,7 +148,7 @@ describe('Port Service', () => {
   describe('Get ports', () => {
     it('Should return the ports in order of popularity', async () => {
       // Arrange
-      const c = await company();
+      const c = await project();
       const h = await host('1.1.1.1', c._id.toString());
       const portNumbers = [22, 8080, 21, 443, 80];
       const portsAdded = [];
@@ -181,7 +181,7 @@ describe('Port Service', () => {
     });
     it('Should return the ports in order of popularity with paging', async () => {
       // Arrange
-      const c = await company();
+      const c = await project();
       const h = await host('1.1.1.1', c._id.toString());
       const portNumbers = [22, 8080, 21, 443, 80];
       const portsAdded = [];
@@ -212,7 +212,7 @@ describe('Port Service', () => {
     });
     it('Should get the TCP ports in an arbitrary order', async () => {
       // Arrange
-      const c = await company();
+      const c = await project();
       const h = await host('1.1.1.1', c._id.toString());
       const portNumbers = [22, 8080, 21, 443, 80];
       const portsAdded = [];
@@ -241,7 +241,7 @@ describe('Port Service', () => {
 
     it('Should get the TCP ports in an arbitrary order with paging', async () => {
       // Arrange
-      const c = await company();
+      const c = await project();
       const h = await host('1.1.1.1', c._id.toString());
       const portNumbers = [22, 8080, 21, 443, 80];
       const portsAdded = [];
@@ -272,7 +272,7 @@ describe('Port Service', () => {
   describe('Delete ports', () => {
     it('Should delete a port by id', async () => {
       // Arrange
-      const c = await company();
+      const c = await project();
       const h = await host('1.1.1.1', c._id.toString());
       const p1 = await portService.addPort(
         h[0]._id.toString(),
@@ -290,7 +290,7 @@ describe('Port Service', () => {
 
     it('Should delete all ports for a host', async () => {
       // Arrange
-      const c = await company();
+      const c = await project();
       const h = await host('1.1.1.1', c._id.toString());
       const p1 = await portService.addPort(
         h[0]._id.toString(),
@@ -314,13 +314,13 @@ describe('Port Service', () => {
     });
   });
 
-  async function company(name: string = '') {
-    const ccDto: CreateCompanyDto = { name: `${getName(testPrefix)}` };
-    return await companyService.addCompany(ccDto);
+  async function project(name: string = '') {
+    const ccDto: CreateProjectDto = { name: `${getName(testPrefix)}` };
+    return await projectService.addProject(ccDto);
   }
 
-  async function host(ip: string, companyId: string) {
-    return await await hostService.addHosts([ip], companyId);
+  async function host(ip: string, projectId: string) {
+    return await await hostService.addHosts([ip], projectId);
   }
 
   afterAll(async () => {

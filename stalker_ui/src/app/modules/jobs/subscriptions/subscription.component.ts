@@ -18,11 +18,11 @@ import {
   ConfirmDialogData,
 } from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
 import { parse, stringify } from 'yaml';
-import { CompaniesService } from '../../../api/companies/companies.service';
-import { allCompaniesSubscriptions } from '../../../api/constants';
+import { allProjectsSubscriptions } from '../../../api/constants';
 import { CronSubscriptionsService } from '../../../api/jobs/subscriptions/cron-subscriptions.service';
-import { CompanySummary } from '../../../shared/types/company/company.summary';
+import { ProjectsService } from '../../../api/projects/projects.service';
 import { LocalizedOption } from '../../../shared/types/localized-option.type';
+import { ProjectSummary } from '../../../shared/types/project/project.summary';
 import { CodeEditorTheme } from '../../../shared/widget/code-editor/code-editor.component';
 
 @Component({
@@ -69,7 +69,7 @@ export class SubscriptionComponent implements OnDestroy {
   ];
 
   public subscriptionConfigForm = this.fb.group({
-    selectedCompany: new FormControl<string>(allCompaniesSubscriptions),
+    selectedProject: new FormControl<string>(allProjectsSubscriptions),
   });
 
   public subscriptionTypeForm = this.fb.group({
@@ -96,15 +96,15 @@ export class SubscriptionComponent implements OnDestroy {
     )
     .subscribe();
 
-  companies: CompanySummary[] = [];
-  companies$ = this.companiesService.getAllSummaries().pipe(
+  projects: ProjectSummary[] = [];
+  projects$ = this.projectsService.getAllSummaries().pipe(
     map((next: any[]) => {
-      const comp: CompanySummary[] = [];
-      for (const company of next) {
-        comp.push({ id: company._id, name: company.name });
+      const comp: ProjectSummary[] = [];
+      for (const project of next) {
+        comp.push({ id: project._id, name: project.name });
       }
-      this.companies = comp;
-      return this.companies;
+      this.projects = comp;
+      return this.projects;
     })
   );
 
@@ -113,7 +113,7 @@ export class SubscriptionComponent implements OnDestroy {
     private eventSubscriptionsService: EventSubscriptionsService,
     private cronSubscriptionsService: CronSubscriptionsService,
     private toastr: ToastrService,
-    private companiesService: CompaniesService,
+    private projectsService: ProjectsService,
     private titleService: Title,
     private fb: FormBuilder
   ) {
@@ -179,7 +179,7 @@ export class SubscriptionComponent implements OnDestroy {
   private newSubscriptionNext() {
     this.isInNewSubscriptionContext = true;
     this.selectedRow = undefined;
-    this.subscriptionConfigForm.get('selectedCompany')?.setValue(allCompaniesSubscriptions);
+    this.subscriptionConfigForm.get('selectedProject')?.setValue(allProjectsSubscriptions);
     this.code = '';
     this.currentCodeBackup = '';
   }
@@ -192,14 +192,14 @@ export class SubscriptionComponent implements OnDestroy {
   private selectFindingSubscriptionNext() {
     this.isInNewSubscriptionContext = false;
     this.selectedRow = this.tempSelectedRow;
-    this.tempSelectedRow?.companyId
-      ? this.subscriptionConfigForm.get('selectedCompany')?.setValue(this.tempSelectedRow?.companyId)
-      : this.subscriptionConfigForm.get('selectedCompany')?.setValue(allCompaniesSubscriptions);
+    this.tempSelectedRow?.projectId
+      ? this.subscriptionConfigForm.get('selectedProject')?.setValue(this.tempSelectedRow?.projectId)
+      : this.subscriptionConfigForm.get('selectedProject')?.setValue(allProjectsSubscriptions);
     const rowData = this.data.find((v) => v._id === this.tempSelectedRow?._id);
     if (rowData?._id) this.currentSubscriptionId = rowData._id;
     const rowCopy = JSON.parse(JSON.stringify(rowData));
     delete rowCopy._id;
-    delete rowCopy.companyId;
+    delete rowCopy.projectId;
     if (rowCopy.job?.parameters?.length === 0) {
       delete rowCopy.job.parameters;
     }
@@ -221,9 +221,9 @@ export class SubscriptionComponent implements OnDestroy {
       return;
     }
 
-    if (this.subscriptionConfigForm.get('selectedCompany')?.value) {
-      const cId = this.subscriptionConfigForm.get('selectedCompany')?.value;
-      sub.companyId = cId ? cId : allCompaniesSubscriptions;
+    if (this.subscriptionConfigForm.get('selectedProject')?.value) {
+      const cId = this.subscriptionConfigForm.get('selectedProject')?.value;
+      sub.projectId = cId ? cId : allProjectsSubscriptions;
     }
 
     const invalidSubscription = $localize`:Invalid subscription|Subscription is not in a valid format:Invalid subscription`;
@@ -313,7 +313,7 @@ export class SubscriptionComponent implements OnDestroy {
         this.isInNewSubscriptionContext = true;
         this.selectedRow = undefined;
         this.tempSelectedRow = undefined;
-        this.subscriptionConfigForm.get('selectedCompany')?.setValue(allCompaniesSubscriptions);
+        this.subscriptionConfigForm.get('selectedProject')?.setValue(allProjectsSubscriptions);
       },
     };
 

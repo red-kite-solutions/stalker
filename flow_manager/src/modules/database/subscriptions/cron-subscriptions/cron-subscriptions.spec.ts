@@ -1,16 +1,16 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../../../app.module';
-import { CompanyService } from '../../reporting/company.service';
 import { DomainsService } from '../../reporting/domain/domain.service';
 import { HostService } from '../../reporting/host/host.service';
 import { PortService } from '../../reporting/port/port.service';
+import { ProjectService } from '../../reporting/project.service';
 import { CronSubscriptionDto } from './cron-subscriptions.dto';
 import { CronSubscription, JobParameter } from './cron-subscriptions.model';
 import { CronSubscriptionsService } from './cron-subscriptions.service';
 
 describe('Cron Subscriptions Service', () => {
   let moduleFixture: TestingModule;
-  let companyService: CompanyService;
+  let projectService: ProjectService;
   let subscriptionsService: CronSubscriptionsService;
   let domainsService: DomainsService;
   let hostsService: HostService;
@@ -20,7 +20,7 @@ describe('Cron Subscriptions Service', () => {
     cronExpression: '*/5 * * * *',
     jobName: 'DomainNameResolvingJob',
     name: 'Test Cron Subscription',
-    companyId: null,
+    projectId: null,
     jobParameters: [{ name: 'domainName', value: 'example.com' }],
   };
 
@@ -28,7 +28,7 @@ describe('Cron Subscriptions Service', () => {
     cronExpression: '*/5 * * * *',
     jobName: 'DomainNameResolvingJob',
     name: 'Test Cron Subscription2',
-    companyId: null,
+    projectId: null,
     jobParameters: [{ name: 'domainName', value: 'example.ca' }],
   };
 
@@ -36,7 +36,7 @@ describe('Cron Subscriptions Service', () => {
     moduleFixture = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    companyService = moduleFixture.get(CompanyService);
+    projectService = moduleFixture.get(ProjectService);
     subscriptionsService = moduleFixture.get(CronSubscriptionsService);
     domainsService = moduleFixture.get(DomainsService);
     hostsService = moduleFixture.get(HostService);
@@ -44,9 +44,9 @@ describe('Cron Subscriptions Service', () => {
   });
 
   beforeEach(async () => {
-    const allCompanies = await companyService.getAll();
-    for (const c of allCompanies) {
-      await companyService.delete(c._id.toString());
+    const allProjects = await projectService.getAll();
+    for (const c of allProjects) {
+      await projectService.delete(c._id.toString());
     }
     const allSubs = await subscriptionsService.getAll();
     for (const s of allSubs) {
@@ -96,22 +96,22 @@ describe('Cron Subscriptions Service', () => {
       expect(subs[1].name).toStrictEqual(cs2.name);
     });
 
-    it('Should delete the cron subscriptions for a company', async () => {
+    it('Should delete the cron subscriptions for a project', async () => {
       // Arrange
       const cs = await subscription(csDto);
-      const comp = await company('cs company');
+      const comp = await project('cs project');
       const csDto3: CronSubscriptionDto = {
         cronExpression: '*/5 * * * *',
         jobName: 'DomainNameResolvingJob',
         name: 'Test Cron Subscription3',
-        companyId: comp._id.toString(),
+        projectId: comp._id.toString(),
         jobParameters: [{ name: 'domainName', value: 'example.io' }],
       };
       const cs3 = await subscription(csDto3);
       const cs2 = await subscription(csDto2);
 
       // Act
-      await subscriptionsService.deleteAllForCompany(comp._id.toString());
+      await subscriptionsService.deleteAllForProject(comp._id.toString());
       const subs = await subscriptionsService.getAll();
 
       // Assert
@@ -140,15 +140,15 @@ describe('Cron Subscriptions Service', () => {
 
     it('Should publish (1) job from input ALL_DOMAINS', async () => {
       // Arrange
-      const c = await company('Test company');
-      allDomainsCronSub.companyId = c._id;
+      const c = await project('Test project');
+      allDomainsCronSub.projectId = c._id;
       allDomainsCronSub.jobParameters = [
         {
           name: 'domainName',
           value: '${domainName}',
         },
         {
-          name: 'companyId',
+          name: 'projectId',
           value: c._id.toString(),
         },
       ];
@@ -174,7 +174,7 @@ describe('Cron Subscriptions Service', () => {
           value: d1[0].name,
         },
         {
-          name: 'companyId',
+          name: 'projectId',
           value: c._id.toString(),
         },
       ]);
@@ -182,15 +182,15 @@ describe('Cron Subscriptions Service', () => {
 
     it('Should publish (5) jobs from input ALL_DOMAINS', async () => {
       // Arrange
-      const c = await company('Test company');
-      allDomainsCronSub.companyId = c._id;
+      const c = await project('Test project');
+      allDomainsCronSub.projectId = c._id;
       allDomainsCronSub.jobParameters = [
         {
           name: 'domainName',
           value: '${domainName}',
         },
         {
-          name: 'companyId',
+          name: 'projectId',
           value: c._id.toString(),
         },
       ];
@@ -219,7 +219,7 @@ describe('Cron Subscriptions Service', () => {
           value: d5[0].name,
         },
         {
-          name: 'companyId',
+          name: 'projectId',
           value: c._id.toString(),
         },
       ]);
@@ -227,15 +227,15 @@ describe('Cron Subscriptions Service', () => {
 
     it('Should publish (5) jobs from input ALL_DOMAINS with paging (pageSize=2)', async () => {
       // Arrange
-      const c = await company('Test company');
-      allDomainsCronSub.companyId = c._id;
+      const c = await project('Test project');
+      allDomainsCronSub.projectId = c._id;
       allDomainsCronSub.jobParameters = [
         {
           name: 'domainName',
           value: '${domainName}',
         },
         {
-          name: 'companyId',
+          name: 'projectId',
           value: c._id.toString(),
         },
       ];
@@ -265,7 +265,7 @@ describe('Cron Subscriptions Service', () => {
           value: d5[0].name,
         },
         {
-          name: 'companyId',
+          name: 'projectId',
           value: c._id.toString(),
         },
       ]);
@@ -273,10 +273,10 @@ describe('Cron Subscriptions Service', () => {
 
     it('Should publish (1) custom job from input ALL_DOMAINS', async () => {
       // Arrange
-      const c = await company('Test company');
+      const c = await project('Test project');
       const customJobParams: JobParameter[] = [
         {
-          name: 'companyId',
+          name: 'projectId',
           value: c._id.toString(),
         },
         { name: 'name', value: 'Custom job name' },
@@ -298,7 +298,7 @@ describe('Cron Subscriptions Service', () => {
         builtIn: true,
         cronExpression: '* * * * *',
         jobName: 'CustomJob',
-        companyId: c._id,
+        projectId: c._id,
         conditions: [],
         jobParameters: customJobParams.concat([
           {
@@ -333,10 +333,10 @@ describe('Cron Subscriptions Service', () => {
 
     it('Should publish (5) custom job from input ALL_DOMAINS', async () => {
       // Arrange
-      const c = await company('Test company');
+      const c = await project('Test project');
       const customJobParams: JobParameter[] = [
         {
-          name: 'companyId',
+          name: 'projectId',
           value: c._id.toString(),
         },
         { name: 'name', value: 'Custom job name' },
@@ -358,7 +358,7 @@ describe('Cron Subscriptions Service', () => {
         builtIn: true,
         cronExpression: '* * * * *',
         jobName: 'CustomJob',
-        companyId: c._id,
+        projectId: c._id,
         conditions: [],
         jobParameters: customJobParams.concat([
           {
@@ -405,15 +405,15 @@ describe('Cron Subscriptions Service', () => {
 
     it('Should have (3) pages from (5) domains (pageSize=2)', async () => {
       // Arrange
-      const c = await company('Test company');
-      allDomainsCronSub.companyId = c._id;
+      const c = await project('Test project');
+      allDomainsCronSub.projectId = c._id;
       allDomainsCronSub.jobParameters = [
         {
           name: 'domainName',
           value: '${domainName}',
         },
         {
-          name: 'companyId',
+          name: 'projectId',
           value: c._id.toString(),
         },
       ];
@@ -441,15 +441,15 @@ describe('Cron Subscriptions Service', () => {
 
     it('Should have (2) pages from (2) domains (pageSize=2)', async () => {
       // Arrange
-      const c = await company('Test company');
-      allDomainsCronSub.companyId = c._id;
+      const c = await project('Test project');
+      allDomainsCronSub.projectId = c._id;
       allDomainsCronSub.jobParameters = [
         {
           name: 'domainName',
           value: '${domainName}',
         },
         {
-          name: 'companyId',
+          name: 'projectId',
           value: c._id.toString(),
         },
       ];
@@ -474,15 +474,15 @@ describe('Cron Subscriptions Service', () => {
 
     it('Should have (1) page from (1) domain (pageSize=2)', async () => {
       // Arrange
-      const c = await company('Test company');
-      allDomainsCronSub.companyId = c._id;
+      const c = await project('Test project');
+      allDomainsCronSub.projectId = c._id;
       allDomainsCronSub.jobParameters = [
         {
           name: 'domainName',
           value: '${domainName}',
         },
         {
-          name: 'companyId',
+          name: 'projectId',
           value: c._id.toString(),
         },
       ];
@@ -506,14 +506,14 @@ describe('Cron Subscriptions Service', () => {
 
     it('Should publish a job from input ALL_DOMAINS (condition=true)', async () => {
       // Arrange
-      const c = await company('Test company');
+      const c = await project('Test project');
       const domainName = 'example.com';
 
       const sub: CronSubscription = {
         name: 'independent cron subscription',
         input: 'ALL_DOMAINS',
         builtIn: true,
-        companyId: c._id,
+        projectId: c._id,
         cronExpression: '* * * * *',
         jobName: 'DomainNameResolvingJob',
         conditions: [
@@ -529,7 +529,7 @@ describe('Cron Subscriptions Service', () => {
             value: '${domainName}',
           },
           {
-            name: 'companyId',
+            name: 'projectId',
             value: c._id.toString(),
           },
         ],
@@ -550,15 +550,15 @@ describe('Cron Subscriptions Service', () => {
 
     it('Should not publish a job from input ALL_DOMAINS (condition=false)', async () => {
       // Arrange
-      const c = await company('Test company');
-      allDomainsCronSub.companyId = c._id;
+      const c = await project('Test project');
+      allDomainsCronSub.projectId = c._id;
       allDomainsCronSub.jobParameters = [
         {
           name: 'domainName',
           value: '${domainName}',
         },
         {
-          name: 'companyId',
+          name: 'projectId',
           value: c._id.toString(),
         },
       ];
@@ -624,11 +624,11 @@ describe('Cron Subscriptions Service', () => {
 
     it('Should publish (1) job from input ALL_HOSTS', async () => {
       // Arrange
-      const c = await company('Test company');
-      allHostsCronSub.companyId = c._id;
+      const c = await project('Test project');
+      allHostsCronSub.projectId = c._id;
       allHostsCronSub.jobParameters = tcpPortScanningJobParams.concat([
         {
-          name: 'companyId',
+          name: 'projectId',
           value: c._id.toString(),
         },
         { name: 'targetIp', value: '${ip}' },
@@ -653,7 +653,7 @@ describe('Cron Subscriptions Service', () => {
         allHostsCronSub.jobName,
         tcpPortScanningJobParams.concat([
           {
-            name: 'companyId',
+            name: 'projectId',
             value: c._id.toString(),
           },
           { name: 'targetIp', value: h1[0].ip },
@@ -663,11 +663,11 @@ describe('Cron Subscriptions Service', () => {
 
     it('Should publish (5) jobs from input ALL_HOSTS', async () => {
       // Arrange
-      const c = await company('Test company');
-      allHostsCronSub.companyId = c._id;
+      const c = await project('Test project');
+      allHostsCronSub.projectId = c._id;
       allHostsCronSub.jobParameters = tcpPortScanningJobParams.concat([
         {
-          name: 'companyId',
+          name: 'projectId',
           value: c._id.toString(),
         },
         { name: 'targetIp', value: '${ip}' },
@@ -696,7 +696,7 @@ describe('Cron Subscriptions Service', () => {
         allHostsCronSub.jobName,
         tcpPortScanningJobParams.concat([
           {
-            name: 'companyId',
+            name: 'projectId',
             value: c._id.toString(),
           },
           { name: 'targetIp', value: h5[0].ip },
@@ -706,11 +706,11 @@ describe('Cron Subscriptions Service', () => {
 
     it('Should publish (5) jobs from input ALL_HOSTS with paging (pageSize=2)', async () => {
       // Arrange
-      const c = await company('Test company');
-      allHostsCronSub.companyId = c._id;
+      const c = await project('Test project');
+      allHostsCronSub.projectId = c._id;
       allHostsCronSub.jobParameters = tcpPortScanningJobParams.concat([
         {
-          name: 'companyId',
+          name: 'projectId',
           value: c._id.toString(),
         },
         { name: 'targetIp', value: '${ip}' },
@@ -740,7 +740,7 @@ describe('Cron Subscriptions Service', () => {
         allHostsCronSub.jobName,
         tcpPortScanningJobParams.concat([
           {
-            name: 'companyId',
+            name: 'projectId',
             value: c._id.toString(),
           },
           { name: 'targetIp', value: h5[0].ip },
@@ -750,10 +750,10 @@ describe('Cron Subscriptions Service', () => {
 
     it('Should publish (1) custom job from input ALL_HOSTS', async () => {
       // Arrange
-      const c = await company('Test company');
+      const c = await project('Test project');
       const customJobParams: JobParameter[] = [
         {
-          name: 'companyId',
+          name: 'projectId',
           value: c._id.toString(),
         },
         { name: 'name', value: 'Custom job name' },
@@ -775,7 +775,7 @@ describe('Cron Subscriptions Service', () => {
         builtIn: true,
         cronExpression: '* * * * *',
         jobName: 'CustomJob',
-        companyId: c._id,
+        projectId: c._id,
         conditions: [],
         jobParameters: customJobParams.concat([
           {
@@ -810,10 +810,10 @@ describe('Cron Subscriptions Service', () => {
 
     it('Should publish (5) custom job from input ALL_HOSTS', async () => {
       // Arrange
-      const c = await company('Test company');
+      const c = await project('Test project');
       const customJobParams: JobParameter[] = [
         {
-          name: 'companyId',
+          name: 'projectId',
           value: c._id.toString(),
         },
         { name: 'name', value: 'Custom job name' },
@@ -835,7 +835,7 @@ describe('Cron Subscriptions Service', () => {
         builtIn: true,
         cronExpression: '* * * * *',
         jobName: 'CustomJob',
-        companyId: c._id,
+        projectId: c._id,
         conditions: [],
         jobParameters: customJobParams.concat([
           {
@@ -882,11 +882,11 @@ describe('Cron Subscriptions Service', () => {
 
     it('Should have (3) pages from (5) hosts (pageSize=2)', async () => {
       // Arrange
-      const c = await company('Test company');
-      allHostsCronSub.companyId = c._id;
+      const c = await project('Test project');
+      allHostsCronSub.projectId = c._id;
       allHostsCronSub.jobParameters = tcpPortScanningJobParams.concat([
         {
-          name: 'companyId',
+          name: 'projectId',
           value: c._id.toString(),
         },
         { name: 'targetIp', value: '${ip}' },
@@ -916,11 +916,11 @@ describe('Cron Subscriptions Service', () => {
 
     it('Should have (2) pages from (2) hosts (pageSize=2)', async () => {
       // Arrange
-      const c = await company('Test company');
-      allHostsCronSub.companyId = c._id;
+      const c = await project('Test project');
+      allHostsCronSub.projectId = c._id;
       allHostsCronSub.jobParameters = tcpPortScanningJobParams.concat([
         {
-          name: 'companyId',
+          name: 'projectId',
           value: c._id.toString(),
         },
         { name: 'targetIp', value: '${ip}' },
@@ -946,11 +946,11 @@ describe('Cron Subscriptions Service', () => {
 
     it('Should have (1) page from (1) host (pageSize=2)', async () => {
       // Arrange
-      const c = await company('Test company');
-      allHostsCronSub.companyId = c._id;
+      const c = await project('Test project');
+      allHostsCronSub.projectId = c._id;
       allHostsCronSub.jobParameters = tcpPortScanningJobParams.concat([
         {
-          name: 'companyId',
+          name: 'projectId',
           value: c._id.toString(),
         },
         { name: 'targetIp', value: '${ip}' },
@@ -975,11 +975,11 @@ describe('Cron Subscriptions Service', () => {
 
     it('Should not publish job from input ALL_HOSTS (condition=false)', async () => {
       // Arrange
-      const c = await company('Test company');
-      allHostsCronSub.companyId = c._id;
+      const c = await project('Test project');
+      allHostsCronSub.projectId = c._id;
       allHostsCronSub.jobParameters = tcpPortScanningJobParams.concat([
         {
-          name: 'companyId',
+          name: 'projectId',
           value: c._id.toString(),
         },
         { name: 'targetIp', value: '${ip}' },
@@ -1013,11 +1013,11 @@ describe('Cron Subscriptions Service', () => {
 
     it('Should publish job from input ALL_HOSTS (condition=true)', async () => {
       // Arrange
-      const c = await company('Test company');
-      allHostsCronSub.companyId = c._id;
+      const c = await project('Test project');
+      allHostsCronSub.projectId = c._id;
       allHostsCronSub.jobParameters = tcpPortScanningJobParams.concat([
         {
-          name: 'companyId',
+          name: 'projectId',
           value: c._id.toString(),
         },
         { name: 'targetIp', value: '${ip}' },
@@ -1061,10 +1061,10 @@ describe('Cron Subscriptions Service', () => {
 
     it('Should publish (1) job from input ALL_TCP_PORTS', async () => {
       // Arrange
-      const c = await company('Test company');
-      allTcpPortsCronSub.companyId = c._id;
+      const c = await project('Test project');
+      allTcpPortsCronSub.projectId = c._id;
       allTcpPortsCronSub.jobParameters = [
-        { name: 'companyId', value: c._id.toString() },
+        { name: 'projectId', value: c._id.toString() },
         { name: 'targetIp', value: '${ip}' },
         { name: 'ports', value: ['${port}'] },
         { name: 'protocol', value: '${protocol}' },
@@ -1087,7 +1087,7 @@ describe('Cron Subscriptions Service', () => {
       // Assert
       expect(spy).toHaveBeenCalled();
       expect(spy).toHaveBeenCalledWith(allTcpPortsCronSub.jobName, [
-        { name: 'companyId', value: c._id.toString() },
+        { name: 'projectId', value: c._id.toString() },
         { name: 'targetIp', value: h1[0].ip },
         { name: 'ports', value: [p1.port] },
         { name: 'protocol', value: p1.layer4Protocol },
@@ -1096,10 +1096,10 @@ describe('Cron Subscriptions Service', () => {
 
     it('Should publish (5) jobs from input ALL_TCP_PORTS', async () => {
       // Arrange
-      const c = await company('Test company');
-      allTcpPortsCronSub.companyId = c._id;
+      const c = await project('Test project');
+      allTcpPortsCronSub.projectId = c._id;
       allTcpPortsCronSub.jobParameters = [
-        { name: 'companyId', value: c._id.toString() },
+        { name: 'projectId', value: c._id.toString() },
         { name: 'targetIp', value: '${ip}' },
         { name: 'ports', value: ['${port}'] },
         { name: 'protocol', value: '${protocol}' },
@@ -1125,7 +1125,7 @@ describe('Cron Subscriptions Service', () => {
       // Assert
       expect(spy).toHaveBeenCalledTimes(5);
       expect(spy).toHaveBeenCalledWith(allTcpPortsCronSub.jobName, [
-        { name: 'companyId', value: c._id.toString() },
+        { name: 'projectId', value: c._id.toString() },
         { name: 'targetIp', value: h1[0].ip },
         { name: 'ports', value: [p5.port] },
         { name: 'protocol', value: p5.layer4Protocol },
@@ -1134,10 +1134,10 @@ describe('Cron Subscriptions Service', () => {
 
     it('Should publish (10) jobs from input ALL_TCP_PORTS with paging (pageSize=2)', async () => {
       // Arrange
-      const c = await company('Test company');
-      allTcpPortsCronSub.companyId = c._id;
+      const c = await project('Test project');
+      allTcpPortsCronSub.projectId = c._id;
       allTcpPortsCronSub.jobParameters = [
-        { name: 'companyId', value: c._id.toString() },
+        { name: 'projectId', value: c._id.toString() },
         { name: 'targetIp', value: '${ip}' },
         { name: 'ports', value: ['${port}'] },
         { name: 'protocol', value: '${protocol}' },
@@ -1171,7 +1171,7 @@ describe('Cron Subscriptions Service', () => {
       // Assert
       expect(spy).toHaveBeenCalledTimes(10);
       expect(spy).toHaveBeenLastCalledWith(allTcpPortsCronSub.jobName, [
-        { name: 'companyId', value: c._id.toString() },
+        { name: 'projectId', value: c._id.toString() },
         { name: 'targetIp', value: h3[0].ip },
         { name: 'ports', value: [p10.port] },
         { name: 'protocol', value: p10.layer4Protocol },
@@ -1180,10 +1180,10 @@ describe('Cron Subscriptions Service', () => {
 
     it('Should publish (1) custom job from input ALL_TCP_PORTS', async () => {
       // Arrange
-      const c = await company('Test company');
+      const c = await project('Test project');
       const customJobParams: JobParameter[] = [
         {
-          name: 'companyId',
+          name: 'projectId',
           value: c._id.toString(),
         },
         { name: 'name', value: 'Custom job name' },
@@ -1200,7 +1200,7 @@ describe('Cron Subscriptions Service', () => {
       ];
 
       allTcpPortsCronSub.jobName = 'CustomJob';
-      allTcpPortsCronSub.companyId = c._id;
+      allTcpPortsCronSub.projectId = c._id;
       allTcpPortsCronSub.jobParameters = customJobParams.concat([
         {
           name: 'customJobParameters',
@@ -1245,10 +1245,10 @@ describe('Cron Subscriptions Service', () => {
 
     it('Should publish (5) custom job from input ALL_TCP_PORTS', async () => {
       // Arrange
-      const c = await company('Test company');
+      const c = await project('Test project');
       const customJobParams: JobParameter[] = [
         {
-          name: 'companyId',
+          name: 'projectId',
           value: c._id.toString(),
         },
         { name: 'name', value: 'Custom job name' },
@@ -1265,7 +1265,7 @@ describe('Cron Subscriptions Service', () => {
       ];
 
       allTcpPortsCronSub.jobName = 'CustomJob';
-      allTcpPortsCronSub.companyId = c._id;
+      allTcpPortsCronSub.projectId = c._id;
       allTcpPortsCronSub.jobParameters = customJobParams.concat([
         {
           name: 'customJobParameters',
@@ -1325,12 +1325,12 @@ describe('Cron Subscriptions Service', () => {
 
     it('Should publish (1) job from input ALL_IP_RANGES', async () => {
       // Arrange
-      const c = await company('Test company');
+      const c = await project('Test project');
       const ip = '1.1.1.1';
       const mask = 32;
-      ipRangeScanCronSub.companyId = c._id;
+      ipRangeScanCronSub.projectId = c._id;
       ipRangeScanCronSub.jobParameters = [
-        { name: 'companyId', value: c._id.toString() },
+        { name: 'projectId', value: c._id.toString() },
         { name: 'targetIp', value: '${ip}' },
         { name: 'targetMask', value: '${mask}' },
         { name: 'rate', value: 100000 },
@@ -1339,7 +1339,7 @@ describe('Cron Subscriptions Service', () => {
         { name: 'ports', value: [] },
       ];
 
-      await companyService.addIpRangeWithMask(c._id.toString(), ip, mask);
+      await projectService.addIpRangeWithMask(c._id.toString(), ip, mask);
 
       const spy = jest //@ts-expect-error
         .spyOn(subscriptionsService, 'publishJob') //@ts-expect-error
@@ -1355,7 +1355,7 @@ describe('Cron Subscriptions Service', () => {
       // Assert
       expect(spy).toHaveBeenCalled();
       expect(spy).toHaveBeenCalledWith(ipRangeScanCronSub.jobName, [
-        { name: 'companyId', value: c._id.toString() },
+        { name: 'projectId', value: c._id.toString() },
         { name: 'targetIp', value: ip },
         { name: 'targetMask', value: mask },
         { name: 'rate', value: 100000 },
@@ -1367,12 +1367,12 @@ describe('Cron Subscriptions Service', () => {
 
     it('Should publish (5) jobs from input ALL_IP_RANGES', async () => {
       // Arrange
-      const c = await company('Test company');
+      const c = await project('Test project');
       const ip = '1.1.1.1';
       const mask = 32;
-      ipRangeScanCronSub.companyId = c._id;
+      ipRangeScanCronSub.projectId = c._id;
       ipRangeScanCronSub.jobParameters = [
-        { name: 'companyId', value: c._id.toString() },
+        { name: 'projectId', value: c._id.toString() },
         { name: 'targetIp', value: '${ip}' },
         { name: 'targetMask', value: '${mask}' },
         { name: 'rate', value: 100000 },
@@ -1381,27 +1381,27 @@ describe('Cron Subscriptions Service', () => {
         { name: 'ports', value: [] },
       ];
 
-      await companyService.addIpRangeWithMask(
+      await projectService.addIpRangeWithMask(
         c._id.toString(),
         '1.1.1.2',
         mask,
       );
-      await companyService.addIpRangeWithMask(
+      await projectService.addIpRangeWithMask(
         c._id.toString(),
         '1.1.1.3',
         mask,
       );
-      await companyService.addIpRangeWithMask(
+      await projectService.addIpRangeWithMask(
         c._id.toString(),
         '1.1.1.4',
         mask,
       );
-      await companyService.addIpRangeWithMask(
+      await projectService.addIpRangeWithMask(
         c._id.toString(),
         '1.1.1.5',
         mask,
       );
-      await companyService.addIpRangeWithMask(c._id.toString(), ip, mask);
+      await projectService.addIpRangeWithMask(c._id.toString(), ip, mask);
 
       const spy = jest //@ts-expect-error
         .spyOn(subscriptionsService, 'publishJob') //@ts-expect-error
@@ -1417,7 +1417,7 @@ describe('Cron Subscriptions Service', () => {
       // Assert
       expect(spy).toHaveBeenCalled();
       expect(spy).toHaveBeenLastCalledWith(ipRangeScanCronSub.jobName, [
-        { name: 'companyId', value: c._id.toString() },
+        { name: 'projectId', value: c._id.toString() },
         { name: 'targetIp', value: ip },
         { name: 'targetMask', value: mask },
         { name: 'rate', value: 100000 },
@@ -1429,10 +1429,10 @@ describe('Cron Subscriptions Service', () => {
 
     it('Should publish (1) custom job from input ALL_IP_RANGES', async () => {
       // Arrange
-      const c = await company('Test company');
+      const c = await project('Test project');
       const customJobParams: JobParameter[] = [
         {
-          name: 'companyId',
+          name: 'projectId',
           value: c._id.toString(),
         },
         { name: 'name', value: 'Custom job name' },
@@ -1450,7 +1450,7 @@ describe('Cron Subscriptions Service', () => {
       const ip = '1.1.1.1';
       const mask = 32;
       ipRangeScanCronSub.jobName = 'CustomJob';
-      ipRangeScanCronSub.companyId = c._id;
+      ipRangeScanCronSub.projectId = c._id;
       ipRangeScanCronSub.jobParameters = customJobParams.concat([
         {
           name: 'customJobParameters',
@@ -1461,7 +1461,7 @@ describe('Cron Subscriptions Service', () => {
         },
       ]);
 
-      await companyService.addIpRangeWithMask(c._id.toString(), ip, mask);
+      await projectService.addIpRangeWithMask(c._id.toString(), ip, mask);
 
       const spy = jest //@ts-expect-error
         .spyOn(subscriptionsService, 'publishJob') //@ts-expect-error
@@ -1490,13 +1490,13 @@ describe('Cron Subscriptions Service', () => {
       );
     });
 
-    it('Should start publishing for two companies from input ALL_IP_RANGES', async () => {
+    it('Should start publishing for two projects from input ALL_IP_RANGES', async () => {
       // Arrange
-      const c = await company('Test company');
-      const c2 = await company('company 2');
+      const c = await project('Test project');
+      const c2 = await project('project 2');
       const customJobParams: JobParameter[] = [
         {
-          name: 'companyId',
+          name: 'projectId',
           value: c._id.toString(),
         },
         { name: 'name', value: 'Custom job name' },
@@ -1513,7 +1513,7 @@ describe('Cron Subscriptions Service', () => {
       ];
       const ip = '1.1.1.1';
       const mask = 32;
-      ipRangeScanCronSub.companyId = undefined;
+      ipRangeScanCronSub.projectId = undefined;
       ipRangeScanCronSub.jobName = 'CustomJob';
       ipRangeScanCronSub.jobParameters = customJobParams.concat([
         {
@@ -1525,27 +1525,27 @@ describe('Cron Subscriptions Service', () => {
         },
       ]);
 
-      await companyService.addIpRangeWithMask(
+      await projectService.addIpRangeWithMask(
         c._id.toString(),
         '1.1.1.2',
         mask,
       );
-      await companyService.addIpRangeWithMask(
+      await projectService.addIpRangeWithMask(
         c._id.toString(),
         '1.1.1.3',
         mask,
       );
-      await companyService.addIpRangeWithMask(
+      await projectService.addIpRangeWithMask(
         c2._id.toString(),
         '1.1.1.4',
         mask,
       );
-      await companyService.addIpRangeWithMask(
+      await projectService.addIpRangeWithMask(
         c2._id.toString(),
         '1.1.1.5',
         mask,
       );
-      await companyService.addIpRangeWithMask(c2._id.toString(), ip, mask);
+      await projectService.addIpRangeWithMask(c2._id.toString(), ip, mask);
 
       const spy = jest //@ts-expect-error
         .spyOn(subscriptionsService, 'publishJobsFromInput') //@ts-expect-error
@@ -1553,7 +1553,7 @@ describe('Cron Subscriptions Service', () => {
 
       // Act
       //@ts-expect-error
-      await subscriptionsService.setupSubscriptionsForCompanies(
+      await subscriptionsService.setupSubscriptionsForProjects(
         <CronSubscription>ipRangeScanCronSub,
       );
 
@@ -1562,8 +1562,8 @@ describe('Cron Subscriptions Service', () => {
     });
   });
 
-  async function company(name: string) {
-    return await companyService.addCompany({
+  async function project(name: string) {
+    return await projectService.addProject({
       name: name,
       imageType: null,
       logo: null,
@@ -1574,15 +1574,15 @@ describe('Cron Subscriptions Service', () => {
     return await subscriptionsService.create(subscription);
   }
 
-  async function domain(name: string, companyId: string) {
-    return await domainsService.addDomains([name], companyId);
+  async function domain(name: string, projectId: string) {
+    return await domainsService.addDomains([name], projectId);
   }
 
-  async function host(ip: string, companyId: string) {
-    return await hostsService.addHosts([ip], companyId);
+  async function host(ip: string, projectId: string) {
+    return await hostsService.addHosts([ip], projectId);
   }
 
-  async function port(port: number, hostId: string, companyId: string) {
-    return await portsService.addPort(hostId, companyId, port, 'tcp');
+  async function port(port: number, hostId: string, projectId: string) {
+    return await portsService.addPort(hostId, projectId, port, 'tcp');
   }
 });

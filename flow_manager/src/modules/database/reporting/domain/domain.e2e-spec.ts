@@ -15,9 +15,9 @@ import { Role } from '../../../auth/constants';
 describe('Domain Controller (e2e)', () => {
   let app: INestApplication;
   let testData: TestingData;
-  const companyName = 'StalkerDomain';
+  const projectName = 'StalkerDomain';
   let domain: string;
-  let companyId: string;
+  let projectId: string;
   let domainId: string;
   let tagId: string;
 
@@ -29,9 +29,9 @@ describe('Domain Controller (e2e)', () => {
     app = moduleFixture.createNestApplication();
     await app.init();
     testData = await initTesting(app);
-    companyId = (
-      await postReq(app, testData.admin.token, '/company', {
-        name: companyName,
+    projectId = (
+      await postReq(app, testData.admin.token, '/project', {
+        name: projectName,
       })
     ).body._id;
     let randomSub = Math.random().toString(36).substring(2, 12);
@@ -40,7 +40,7 @@ describe('Domain Controller (e2e)', () => {
   });
 
   afterAll(async () => {
-    await deleteReq(app, testData.admin.token, `/company/${companyId}`);
+    await deleteReq(app, testData.admin.token, `/project/${projectId}`);
     await deleteReq(app, testData.admin.token, `/tags/${tagId}`);
     await app.close();
   });
@@ -49,7 +49,7 @@ describe('Domain Controller (e2e)', () => {
     // Arrange & Act
     const r = await postReq(app, testData.admin.token, `/domains`, {
       domains: [domain],
-      companyId: companyId,
+      projectId: projectId,
     });
 
     // Assert
@@ -66,7 +66,7 @@ describe('Domain Controller (e2e)', () => {
     // Act
     const r = await postReq(app, testData.admin.token, `/domains`, {
       domains: domains,
-      companyId: companyId,
+      projectId: projectId,
     });
 
     // Assert
@@ -102,7 +102,7 @@ describe('Domain Controller (e2e)', () => {
     const r = await getReq(
       app,
       testData.admin.token,
-      '/domains?page=0&pageSize=10tags[]=&domain[]=&company=',
+      '/domains?page=0&pageSize=10tags[]=&domain[]=&project=',
     );
 
     // Assert
@@ -164,12 +164,12 @@ describe('Domain Controller (e2e)', () => {
     expect(domainId).toBeTruthy();
   });
 
-  it('Should get a filtered paginated list of domains (filter: company) (GET /domains)', async () => {
+  it('Should get a filtered paginated list of domains (filter: project) (GET /domains)', async () => {
     // Arrange & Act
     const r = await getReq(
       app,
       testData.admin.token,
-      `/domains?page=0&pageSize=10&company=${companyId}`,
+      `/domains?page=0&pageSize=10&project=${projectId}`,
     );
 
     // Assert
@@ -267,7 +267,7 @@ describe('Domain Controller (e2e)', () => {
       testData,
       Role.ReadOnly,
       async (givenToken) => {
-        return await getReq(app, givenToken, `/domains/${companyId}`);
+        return await getReq(app, givenToken, `/domains/${projectId}`);
       },
     );
     expect(success).toBe(true);
@@ -278,7 +278,7 @@ describe('Domain Controller (e2e)', () => {
       testData,
       Role.User,
       async (givenToken) => {
-        return await putReq(app, givenToken, `/domains/${companyId}`, {});
+        return await putReq(app, givenToken, `/domains/${projectId}`, {});
       },
     );
     expect(success).toBe(true);
@@ -289,7 +289,7 @@ describe('Domain Controller (e2e)', () => {
       testData,
       Role.User,
       async (givenToken) => {
-        return await putReq(app, givenToken, `/domains/${companyId}/tags`, {});
+        return await putReq(app, givenToken, `/domains/${projectId}/tags`, {});
       },
     );
     expect(success).toBe(true);

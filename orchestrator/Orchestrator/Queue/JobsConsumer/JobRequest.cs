@@ -6,5 +6,5 @@ public abstract class JobRequest
 
     public string? JobId { get; init; }
 
-    public string? CompanyId { get; init; }
+    public string? ProjectId { get; init; }
 }

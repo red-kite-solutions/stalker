@@ -20,7 +20,7 @@ export class EventSubscription {
   public name!: string;
 
   @Prop()
-  public companyId?: Types.ObjectId;
+  public projectId?: Types.ObjectId;
 
   @Prop()
   public finding!: string;

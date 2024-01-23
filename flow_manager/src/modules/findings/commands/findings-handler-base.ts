@@ -27,10 +27,10 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
   ) {}
 
   public async execute(command: T) {
-    // Only the subscriptions concerning the current company and the current finding
+    // Only the subscriptions concerning the current project and the current finding
     // type are returned by the database
     const subs = await this.subscriptionService.getAllForFinding(
-      command.companyId,
+      command.projectId,
       command.finding.key,
     );
 
@@ -67,11 +67,11 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
         if (!sub.jobParameters) continue;
       }
 
-      // Adding the companyId JobParameter to every job as it is always needed
-      const companyIdParameter = new JobParameter();
-      companyIdParameter.name = 'companyId';
-      companyIdParameter.value = command.companyId;
-      sub.jobParameters.push(companyIdParameter);
+      // Adding the projectId JobParameter to every job as it is always needed
+      const projectIdParameter = new JobParameter();
+      projectIdParameter.name = 'projectId';
+      projectIdParameter.value = command.projectId;
+      sub.jobParameters.push(projectIdParameter);
 
       // Launching the generic function that creates the appropriate job and publishing it
       const job: Job = JobFactory.createJob(sub.jobName, sub.jobParameters);

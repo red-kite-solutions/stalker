@@ -52,7 +52,7 @@ export class DomainsController {
   @Roles(Role.User)
   @Post()
   async submitDomains(@Body() dto: SubmitDomainsDto) {
-    return await this.domainsService.addDomains(dto.domains, dto.companyId);
+    return await this.domainsService.addDomains(dto.domains, dto.projectId);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

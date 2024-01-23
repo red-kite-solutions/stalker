@@ -20,7 +20,7 @@ export class CronSubscriptionDto {
 
   @IsMongoId()
   @IsOptional()
-  public companyId?: string; // if companyId is not set, the subscription is for all companies
+  public projectId?: string; // if projectId is not set, the subscription is for all projects
 
   @IsString()
   @IsNotEmpty()

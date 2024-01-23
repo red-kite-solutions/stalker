@@ -8,6 +8,7 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
 import { Subscription, first } from 'rxjs';
 import { CodeEditorService } from './code-editor.service';
 import { FileTab } from './code-editor.type';
@@ -21,7 +22,7 @@ export type CodeEditorTheme = 'vs' | 'vs-dark' | 'hc-black' | 'hc-light';
 // https://microsoft.github.io/monaco-editor/api/modules/monaco.editor.html
 @Component({
   standalone: true,
-  imports: [],
+  imports: [MatIconModule],
   selector: 'app-code-editor',
   templateUrl: './code-editor.component.html',
   styleUrls: ['./code-editor.component.scss'],

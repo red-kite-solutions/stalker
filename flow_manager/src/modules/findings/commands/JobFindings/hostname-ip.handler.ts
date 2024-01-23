@@ -34,7 +34,7 @@ export class HostnameIpHandler extends JobFindingHandlerBase<HostnameIpCommand> 
     await this.hostService.addHostsWithDomain(
       [command.finding.ip],
       command.finding.domainName,
-      command.companyId,
+      command.projectId,
     );
   }
 }
