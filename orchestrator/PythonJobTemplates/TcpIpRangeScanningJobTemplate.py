@@ -8,7 +8,8 @@ from stalker_job_sdk import (IpFinding, PortFinding, TextField, log_error,
 
 
 def main():
-    TARGET_IP_RANGE: str = environ["TARGET_IP_RANGE"]  # IP to scan
+    TARGET_IP: str = environ["TARGET_IP"]  # Start of ip range
+    TARGET_MASK: int = int(environ["TARGET_MASK"])  # mask (ex: /24)
     RATE: int = int(environ["RATE"])  # number of threads to do the requests
     PORT_MIN: int = int(environ["PORT_MIN"])  # expects a number (0 < p1 < 65535)
     PORT_MAX: int = int(
@@ -32,7 +33,7 @@ def main():
         log_error('No ports provided, exiting')
         exit()
 
-    log_info(f'Start of the IP range scanning {TARGET_IP_RANGE} (rate: {RATE}, ports: {ports_str}). It may take a while.')
+    log_info(f'Start of the IP range scanning {TARGET_IP}/{str(TARGET_MASK)} (rate: {RATE}, ports: {ports_str}). It may take a while.')
 
     masscan_process: CompletedProcess = run(
             [
@@ -41,7 +42,7 @@ def main():
                 '-oL', output_file,
                 '--open-only',
                 '-p', ports_str,
-                TARGET_IP_RANGE
+                f'{TARGET_IP}/{str(TARGET_MASK)}'
             ],
             text=True
         )
@@ -88,7 +89,7 @@ def main():
             except Exception:
                 log_warning(f'Error while parsing line: {line}. Continuing')
 
-    log_info(f'End of the IP range scanning {TARGET_IP_RANGE}')
+    log_info(f'End of the IP range scanning {TARGET_IP}/{str(TARGET_MASK)}')
             
 
 if __name__ == "__main__":

@@ -16,6 +16,17 @@ export class CorrelationKeyUtils {
     );
   }
 
+  public static ipRangeCorrelationKey(
+    companyId: string,
+    ip: string,
+    mask: number,
+  ) {
+    return CorrelationKeyUtils.buildCorrelationKey(
+      CorrelationKeyUtils.hostCorrelationKey(companyId, ip),
+      `mask:${mask}`,
+    );
+  }
+
   public static domainCorrelationKey(companyId: string, domainName: string) {
     return CorrelationKeyUtils.buildCorrelationKey(
       CorrelationKeyUtils.companyCorrelationKey(companyId),
@@ -42,6 +53,7 @@ export class CorrelationKeyUtils {
     ip?: string,
     port?: number,
     protocol?: string,
+    mask?: number,
   ): string {
     if (!companyId) {
       throw new HttpBadRequestException(
@@ -51,7 +63,7 @@ export class CorrelationKeyUtils {
 
     let correlationKey = null;
     const ambiguousRequest =
-      'Ambiguous request; must provide a domainName, an ip or a combination of ip, port and protocol.';
+      'Ambiguous request; must provide a domainName, an ip, an ip and mask or a combination of ip, port and protocol.';
     if (domainName) {
       if (ip || port || protocol)
         throw new HttpBadRequestException(ambiguousRequest);
@@ -61,15 +73,21 @@ export class CorrelationKeyUtils {
         domainName,
       );
     } else if (ip) {
-      if (port && protocol) {
+      if (port && protocol && !mask) {
         correlationKey = CorrelationKeyUtils.portCorrelationKey(
           companyId,
           ip,
           port,
           protocol,
         );
+      } else if (mask && !port && !protocol) {
+        correlationKey = CorrelationKeyUtils.ipRangeCorrelationKey(
+          companyId,
+          ip,
+          mask,
+        );
       } else {
-        if (port || protocol)
+        if (port || protocol || mask)
           throw new HttpBadRequestException(ambiguousRequest);
         correlationKey = CorrelationKeyUtils.hostCorrelationKey(companyId, ip);
       }

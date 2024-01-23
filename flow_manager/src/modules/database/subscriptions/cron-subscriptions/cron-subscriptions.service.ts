@@ -10,6 +10,7 @@ import {
   Finding,
   HostnameFinding,
   IpFinding,
+  IpRangeFinding,
   PortFinding,
 } from '../../../findings/findings.service';
 import { ConfigService } from '../../admin/config/config.service';
@@ -18,6 +19,7 @@ import { JobFactory } from '../../jobs/jobs.factory';
 import { JobsService } from '../../jobs/jobs.service';
 import { CustomJob } from '../../jobs/models/custom-job.model';
 import { Job } from '../../jobs/models/jobs.model';
+import { CompanyDocument } from '../../reporting/company.model';
 import { CompanyService } from '../../reporting/company.service';
 import { Domain, DomainDocument } from '../../reporting/domain/domain.model';
 import { DomainsService } from '../../reporting/domain/domain.service';
@@ -130,6 +132,10 @@ export class CronSubscriptionsService {
       if (!sub.jobParameters) return;
     }
 
+    await this.setupSubscriptionsForCompanies(sub);
+  }
+
+  private async setupSubscriptionsForCompanies(sub: CronSubscription) {
     // if no company id, it launches for all companies
     const companyIds = sub.companyId
       ? [sub.companyId.toString()]
@@ -147,9 +153,14 @@ export class CronSubscriptionsService {
       if (subCopy.input) {
         this.publishJobsFromInput(subCopy, companyId);
       } else {
+        let conditionPassed = true;
         for (const condition of subCopy.conditions ?? []) {
-          if (!SubscriptionsUtils.evaluateCondition(condition)) continue;
+          if (!SubscriptionsUtils.evaluateCondition(condition)) {
+            conditionPassed = false;
+            break;
+          }
         }
+        if (!conditionPassed) continue;
         this.publishJob(subCopy.jobName, subCopy.jobParameters);
       }
     }
@@ -213,6 +224,10 @@ export class CronSubscriptionsService {
           page++;
         } while (hosts.length >= pageSize);
         break;
+      case 'ALL_IP_RANGES':
+        const ranges = await this.companyService.getIpRanges(companyId);
+        this.publishJobsFromIpRanges(sub, ranges);
+        break;
       default:
         this.logger.error(
           `Invalid input type "${sub.input}" for cron subscription "${sub.name}"`,
@@ -238,6 +253,29 @@ export class CronSubscriptionsService {
     for (const host of hosts) {
       const finding = new IpFinding();
       finding.ip = host.ip;
+      this.publishJobForFinding(sub, finding);
+    }
+  }
+
+  private publishJobsFromIpRanges(
+    sub: CronSubscription,
+    company: Pick<CompanyDocument, 'ipRanges'>,
+  ) {
+    if (!company.ipRanges) return;
+
+    for (const range of company.ipRanges) {
+      const finding = new IpRangeFinding();
+      const ipMask = range.split('/');
+      try {
+        finding.ip = ipMask[0];
+        finding.mask = Number(ipMask[1]);
+      } catch (err) {
+        this.logger.error(err);
+        this.logger.error(
+          `Error while trying to start a job for ip range ${range}`,
+        );
+        continue;
+      }
       this.publishJobForFinding(sub, finding);
     }
   }

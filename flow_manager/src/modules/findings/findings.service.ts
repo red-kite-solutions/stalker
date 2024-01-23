@@ -14,6 +14,7 @@ import { CorrelationKeyUtils } from '../database/reporting/correlation.utils';
 import { CustomFinding } from '../database/reporting/findings/finding.model';
 import { HostnameCommand } from './commands/Findings/hostname.command';
 import { IpCommand } from './commands/Findings/ip.command';
+import { IpRangeCommand } from './commands/Findings/ipRange.command';
 import { CustomFindingCommand } from './commands/JobFindings/custom.command';
 import { HostnameIpCommand } from './commands/JobFindings/hostname-ip.command';
 import { PortCommand } from './commands/JobFindings/port.command';
@@ -23,6 +24,7 @@ export type Finding =
   | HostnameIpFinding
   | HostnameFinding
   | IpFinding
+  | IpRangeFinding
   | PortFinding
   | JobStatusFinding
   | CreateCustomFinding;
@@ -76,6 +78,14 @@ export class IpFinding extends FindingBase {
   key: 'IpFinding';
   companyId: string;
   ip: string;
+}
+
+export class IpRangeFinding extends FindingBase {
+  type: 'IpRangeFinding';
+  key: 'IpRangeFinding';
+  companyId: string;
+  ip: string;
+  mask: number; // ex: 24
 }
 
 export class HostnameIpFinding extends FindingBase {
@@ -290,6 +300,21 @@ export class FindingsService {
         );
         this.commandBus.execute(
           new IpCommand(finding.companyId, IpCommand.name, finding),
+        );
+        break;
+
+      case 'IpRangeFinding':
+        finding.companyId = finding.companyId ? finding.companyId : companyId;
+        finding.correlationKey = CorrelationKeyUtils.generateCorrelationKey(
+          finding.companyId,
+          null,
+          finding.ip,
+          null,
+          null,
+          finding.mask,
+        );
+        this.commandBus.execute(
+          new IpRangeCommand(finding.companyId, IpRangeCommand.name, finding),
         );
         break;
 

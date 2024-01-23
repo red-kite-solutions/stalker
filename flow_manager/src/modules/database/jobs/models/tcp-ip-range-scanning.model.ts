@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { isArray, isInt, isNumberString } from 'class-validator';
+import { isArray, isInt } from 'class-validator';
 import { Document } from 'mongoose';
 import { isIP } from 'net';
 import { JobParameterValueException } from '../../../../exceptions/job-parameter.exception';
@@ -23,7 +23,9 @@ export class TcpIpRangeScanningJob {
   public endTime: number;
 
   @Prop()
-  public targetIpRange!: string;
+  public targetIp!: string;
+  @Prop()
+  public targetMask!: number;
   @Prop()
   public rate!: number;
   @Prop()
@@ -34,7 +36,8 @@ export class TcpIpRangeScanningJob {
   public ports!: number[];
 
   public static parameterDefinitions: JobParameterDefinition[] = [
-    { name: 'targetIpRange', type: 'string', default: undefined },
+    { name: 'targetIp', type: 'string', default: undefined },
+    { name: 'targetMask', type: 'number', default: undefined },
     { name: 'rate', type: 'number', default: 100000 },
     { name: 'portMin', type: 'number', default: 1 },
     { name: 'portMax', type: 'number', default: 1000 },
@@ -47,7 +50,8 @@ export class TcpIpRangeScanningJob {
 
   private static createTcpIpRangeScanJob(
     companyId: string,
-    targetIpRange: string,
+    targetIp: string,
+    targetMask: number,
     rate: number,
     portMin: number,
     portMax: number,
@@ -57,7 +61,8 @@ export class TcpIpRangeScanningJob {
     job.task = TcpIpRangeScanningJob.name;
     job.priority = 3;
     job.companyId = companyId;
-    job.targetIpRange = targetIpRange;
+    job.targetIp = targetIp;
+    job.targetMask = targetMask;
     job.rate = rate;
     job.portMin = portMin;
     job.portMax = portMax;
@@ -66,16 +71,13 @@ export class TcpIpRangeScanningJob {
     if (!isCompanyId(job.companyId)) {
       throw new JobParameterValueException('companyId', job.companyId);
     }
-    const range = job.targetIpRange.split('/');
 
-    if (
-      range.length !== 2 ||
-      isIP(range[0]) !== 4 ||
-      !isNumberString(range[1]) ||
-      Number(range[1]) < 0 ||
-      Number(range[1]) > 32
-    ) {
-      throw new JobParameterValueException('targetIpRange', job.targetIpRange);
+    if (isIP(targetIp) !== 4) {
+      throw new JobParameterValueException('targetIp', job.targetIp);
+    }
+
+    if (!isInt(job.targetMask) || job.targetMask < 0 || job.targetMask > 32) {
+      throw new JobParameterValueException('targetMask', job.targetMask);
     }
 
     if (!isInt(job.rate) || !(job.rate > 0 && job.rate <= 10000000)) {
@@ -100,7 +102,8 @@ export class TcpIpRangeScanningJob {
   public static create(args: JobParameter[]) {
     let params = {};
     params['companyid'] = undefined;
-    params['targetiprange'] = undefined;
+    params['targetip'] = undefined;
+    params['targetmask'] = undefined;
     params['rate'] = undefined;
     params['portmin'] = undefined;
     params['portmax'] = undefined;
@@ -110,7 +113,8 @@ export class TcpIpRangeScanningJob {
 
     return TcpIpRangeScanningJob.createTcpIpRangeScanJob(
       params['companyid'],
-      params['targetiprange'],
+      params['targetip'],
+      params['targetmask'],
       params['rate'],
       params['portmin'],
       params['portmax'],
