@@ -1,7 +1,7 @@
 import { SelectionModel } from '@angular/cdk/collections';
+import { BreakpointObserver, BreakpointState, Breakpoints } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, ViewChild } from '@angular/core';
-import { MediaChange, MediaObserver } from '@angular/flex-layout';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -13,14 +13,14 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { distinctUntilChanged, filter, map } from 'rxjs';
+import { map } from 'rxjs';
 import { UsersService } from 'src/app/api/users/users.service';
 import { User } from 'src/app/shared/types/user.interface';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
-import { rolesName, RolesName } from '../roles';
+import { RolesName, rolesName } from '../roles';
 
 @Component({
   standalone: true,
@@ -47,15 +47,12 @@ export class ManageUsersComponent implements OnDestroy {
     this.dataSource.paginator = this.paginator;
   });
 
-  private screenSize$ = this.mediaObserver.asObservable().pipe(
-    filter((mediaChanges: MediaChange[]) => !!mediaChanges[0].mqAlias),
-    distinctUntilChanged((previous: MediaChange[], current: MediaChange[]) => {
-      return previous[0].mqAlias === current[0].mqAlias;
-    }),
-    map((mediaChanges: MediaChange[]) => {
-      return mediaChanges[0].mqAlias;
-    })
-  );
+  private screenSize$ = this.bpObserver.observe([
+    Breakpoints.XSmall,
+    Breakpoints.Small,
+    Breakpoints.Large,
+    Breakpoints.XLarge,
+  ]);
 
   public roles: RolesName = rolesName;
 
@@ -64,14 +61,17 @@ export class ManageUsersComponent implements OnDestroy {
   }
 
   public displayColumns$ = this.screenSize$.pipe(
-    map((screen: string) => {
-      if (screen === 'xs') return ['firstName', 'lastName', 'role'];
-      if (screen === 'sm') return ['firstName', 'lastName', 'role', 'active'];
-      if (screen === 'md') return ['select', 'firstName', 'lastName', 'role', 'active'];
+    map((screen: BreakpointState) => {
+      if (screen.breakpoints[Breakpoints.XSmall]) return ['firstName', 'lastName', 'role'];
+      else if (screen.breakpoints[Breakpoints.Small]) return ['firstName', 'lastName', 'role', 'active'];
+      else if (screen.breakpoints[Breakpoints.Medium]) return ['select', 'firstName', 'lastName', 'role', 'active'];
       return this.displayedColumns;
     })
   );
-  public hideDelete$ = this.screenSize$.pipe(map((screen: string) => screen === 'xs' || screen === 'sm'));
+
+  public hideDelete$ = this.screenSize$.pipe(
+    map((screen: BreakpointState) => screen.breakpoints[Breakpoints.XSmall] || screen.breakpoints[Breakpoints.Small])
+  );
   selection = new SelectionModel<User>(true, []);
 
   @ViewChild(MatPaginator) paginator: MatPaginator | null;
@@ -80,7 +80,7 @@ export class ManageUsersComponent implements OnDestroy {
     public dialog: MatDialog,
     private usersService: UsersService,
     private toastr: ToastrService,
-    private mediaObserver: MediaObserver,
+    private bpObserver: BreakpointObserver,
     private titleService: Title
   ) {
     this.titleService.setTitle($localize`:Users list management page title|:Users`);

@@ -41,3 +41,14 @@
 ngx-file-drop {
   width: 100%;
 }
+
+.delete {
+  width: 22px;
+  height: 22px;
+
+  mat-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+  }
+}

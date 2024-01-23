@@ -5,7 +5,6 @@ import { DatalayerModule } from '../../datalayer.module';
 import { JobsModule } from '../../jobs/jobs.module';
 import { TagsModule } from '../../tags/tag.module';
 import { HostModule } from '../host/host.module';
-import { ReportModule } from '../report/report.module';
 import { DomainsController } from './domain.controller';
 import { DomainsService } from './domain.service';
 
@@ -13,7 +12,6 @@ import { DomainsService } from './domain.service';
   imports: [
     DatalayerModule,
     JobsModule,
-    ReportModule,
     ConfigModule,
     forwardRef(() => HostModule),
     QueueModule,

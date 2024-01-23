@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -20,7 +19,6 @@ import { FirstComponent } from './first/first.component';
     CommonModule,
     RouterModule,
     MatSidenavModule,
-    FlexLayoutModule,
     MatCardModule,
     MatToolbarModule,
     FormsModule,

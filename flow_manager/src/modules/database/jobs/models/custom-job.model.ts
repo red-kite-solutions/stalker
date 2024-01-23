@@ -26,9 +26,9 @@ export const customJobTypes = ['code', 'nuclei'] as const;
 export const customJobLanguages = ['python', 'yaml'] as const;
 export const customJobFindingHandlerLanguages = ['python'] as const;
 
-type CustomJobType = (typeof customJobTypes)[number];
-type CustomJobLanguage = (typeof customJobLanguages)[number];
-type CustomJobFindingHandlerLanguage =
+export type CustomJobType = (typeof customJobTypes)[number];
+export type CustomJobLanguage = (typeof customJobLanguages)[number];
+export type CustomJobFindingHandlerLanguage =
   (typeof customJobFindingHandlerLanguages)[number];
 
 export interface CustomJobTypeDetails {
@@ -64,13 +64,13 @@ export class CustomJob {
   public name!: string;
 
   @Prop()
-  public type!: string;
+  public type!: CustomJobType;
 
   @Prop()
   public code!: string;
 
   @Prop()
-  public language!: string;
+  public language!: CustomJobLanguage;
 
   @Prop()
   public customJobParameters!: JobParameter[];
@@ -88,7 +88,7 @@ export class CustomJob {
   public findingHandler?: string;
 
   @Prop()
-  public findingHandlerLanguage?: string;
+  public findingHandlerLanguage?: CustomJobFindingHandlerLanguage;
 
   constructor() {}
 
@@ -136,15 +136,15 @@ export class CustomJob {
   private static createCustomJob(
     companyId: string,
     name: string,
-    type: string,
+    type: CustomJobType,
     code: string,
-    language: string,
+    language: CustomJobLanguage,
     jobPodMilliCpuLimit: number,
     jobPodMemoryKbLimit: number,
     customJobParameters: JobParameter[],
     findingHandlerEnabled: boolean,
     findingHandler: string,
-    findingHandlerLanguage: string,
+    findingHandlerLanguage: CustomJobFindingHandlerLanguage,
   ) {
     const job = new CustomJob();
     job.task = CustomJob.name;

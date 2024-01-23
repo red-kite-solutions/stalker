@@ -1,18 +1,23 @@
 <app-page-header
-  [parts]="[(companies$ | async | whereId : [(execution$ | async)?.companyId])?.name, (execution$ | async)?.task]"
-  >
+  [parts]="[(companies$ | async | whereId: [(execution$ | async)?.companyId])?.name, (execution$ | async)?.task]"
+>
 </app-page-header>
 
 @if (execution$ | async; as execution) {
   <mat-card appearance="outlined" class="summary">
-    <mat-card-title i18n="Execution details|The details of a job execution">Execution details</mat-card-title>
+    <mat-card-header>
+      <mat-card-title i18n="Execution details|The details of a job execution">Execution details</mat-card-title>
+    </mat-card-header>
+
     <mat-card-content>
       <job-logs-summary [job]="execution"></job-logs-summary>
       <div class="timing">
         @if (execution.endTime) {
           <div>
             <div i18n="Started|Started x days ago">Started {{ execution.endTime | timeAgo }}</div>
-            <div i18n="Took|Took x seconds">Took {{ execution.endTimestamp - execution.startTimestamp | humanize }}</div>
+            <div i18n="Took|Took x seconds">
+              Took {{ execution.endTimestamp - execution.startTimestamp | humanize }}
+            </div>
           </div>
         } @else {
           <div i18n="Started|Started x days ago">Started {{ execution.startTime | timeAgo }}</div>
@@ -23,3 +28,5 @@
 }
 
 <app-job-logs [jobId]="executionId$ | async"></app-job-logs>
+
+<div class="tw-h-2"></div>

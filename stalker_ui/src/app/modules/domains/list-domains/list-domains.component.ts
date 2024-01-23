@@ -1,7 +1,7 @@
 import { SelectionModel } from '@angular/cdk/collections';
+import { BreakpointObserver, BreakpointState, Breakpoints } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
 import { Component, TemplateRef } from '@angular/core';
-import { MediaChange, MediaObserver } from '@angular/flex-layout/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -14,7 +14,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, distinctUntilChanged, filter, map, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, map, switchMap, tap } from 'rxjs';
 import { CompaniesService } from 'src/app/api/companies/companies.service';
 import { DomainsService } from 'src/app/api/domains/domains.service';
 import { TagsService } from 'src/app/api/tags/tags.service';
@@ -108,21 +108,18 @@ export class ListDomainsComponent {
     return p;
   }
 
-  private screenSize$ = this.mediaObserver.asObservable().pipe(
-    filter((mediaChanges: MediaChange[]) => !!mediaChanges[0].mqAlias),
-    distinctUntilChanged((previous: MediaChange[], current: MediaChange[]) => {
-      return previous[0].mqAlias === current[0].mqAlias;
-    }),
-    map((mediaChanges: MediaChange[]) => {
-      return mediaChanges[0].mqAlias;
-    })
-  );
+  private screenSize$ = this.bpObserver.observe([
+    Breakpoints.XSmall,
+    Breakpoints.Small,
+    Breakpoints.Large,
+    Breakpoints.XLarge,
+  ]);
 
   public displayColumns$ = this.screenSize$.pipe(
-    map((screen: string) => {
-      if (screen === 'xs') return ['select', 'domain', 'company'];
-      if (screen === 'sm') return ['select', 'domain', 'company', 'tags'];
-      if (screen === 'md') return ['select', 'domain', 'hosts', 'company', 'tags'];
+    map((screen: BreakpointState) => {
+      if (screen.breakpoints[Breakpoints.XSmall]) return ['select', 'domain', 'company'];
+      else if (screen.breakpoints[Breakpoints.Small]) return ['select', 'domain', 'company', 'tags'];
+      else if (screen.breakpoints[Breakpoints.Medium]) return ['select', 'domain', 'hosts', 'company', 'tags'];
       return this.displayedColumns;
     })
   );
@@ -133,7 +130,7 @@ export class ListDomainsComponent {
   }
 
   constructor(
-    private mediaObserver: MediaObserver,
+    private bpObserver: BreakpointObserver,
     private companiesService: CompaniesService,
     private domainsService: DomainsService,
     private toastr: ToastrService,

@@ -1,18 +1,6 @@
-import { Config } from './config.model';
 import { JobPodConfiguration } from './job-pod-config/job-pod-config.model';
 
 const baseMemory = 1024;
-
-export const DEFAULT_CONFIG: Config = {
-  isNewContentReported: false,
-
-  keybaseConfig: {
-    enabled: false,
-    username: '',
-    paperkey: '',
-    channelId: '',
-  },
-};
 
 export const DEFAULT_JOB_POD_CONFIG: JobPodConfiguration[] = [
   {
