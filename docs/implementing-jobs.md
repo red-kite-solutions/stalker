@@ -19,6 +19,10 @@ job communicates its _findings_ and more to Stalker.
 * [Custom Jobs](#custom-jobs)
   * [Custom Job Input](#custom-job-input)
   * [Custom Job Output](#custom-job-output)
+  * [Types of custom jobs](#types-of-custom-jobs)
+    * [Python Custom Job](#python-custom-job)
+    * [Nuclei Custom Job](#nuclei-custom-job)
+      * [Nuclei Custom Finding Handling](#nuclei-custom-finding-handling)
 
 ## Python
 
@@ -123,7 +127,7 @@ All the parameters given to a job are provided as environment variables. Therefo
 /^[A-Za-z][A-Za-z0-9_]*$/;
 ```
 
-Also, to avoid conflicts with common os variable names, the following varibles must not be set. Naming a parameter with one of these names will result in the job not being created.
+Also, to avoid conflicts with common os variable names, the following variables must not be set. Naming a parameter with one of these names will result in the job not being created.
 
 |             |             |           |            |            |
 | ----------- | ----------- | --------- | ---------- | ---------- |
@@ -146,4 +150,100 @@ Also, to avoid conflicts with common os variable names, the following varibles m
 
 ### Custom Job Output
 
-Custom jobs communicate in the exact same way as regular jobs. They print to stdout, [respecting the syntax for a @finding or a @debug](#making-contact-with-the-outside-world).
+Custom jobs communicate in the exact same way as regular jobs. They print to stdout, [respecting the syntax for a @finding or a log](#making-contact-with-the-outside-world).
+
+### Types of custom jobs
+
+Several types of custom jobs are supported in Stalker. These custom job types have several advantages. Some types are more flexible, some are faster to implement.
+
+The types of custom jobs:
+
+* [Python custom job](#python-custom-job)
+* [Nuclei custom job](#nuclei-custom-job)
+
+#### Python Custom Job
+
+| Type | Language |
+| ---- | -------- |
+| Code | Python   |
+
+A python custom job is the standard way of making a custom job. It gives you full flexibility, but you have to implement it yourself.
+
+The python custom jobs come with a built-in SDK to help you properly [output findings and logs](./findings.md).
+
+#### Nuclei Custom Job
+
+| Type   | Language |
+| ------ | -------- |
+| Nuclei | Yaml     |
+
+A Nuclei custom job uses [Project Discovery's Nuclei](https://github.com/projectdiscovery/nuclei) to run Nuclei templates and output findings understandable by Stalker. It comes with a built-in parser, but if it does not suit your needs, you can specify a custom finding handler. This custom finding handler will be responsible for parsing the Nuclei Findings as well as outputing the Stalker compatible findings. It is implemented in python. Don't worry though, a template, a custom class and the python SDK are avalailable to help you.
+
+To start a Nuclei custom job, a target is always required. You can provide the target with the following job parameter:
+
+| Name         | Value Details                                                                   |
+| ------------ | ------------------------------------------------------------------------------- |
+| NucleiTarget | Corresponds to the `-target` parameter in Nuclei. It is a URL or a host to scan |
+
+To start a Nuclei custom job with the default parser, you must configure the default parser by providing the two following job parameters:
+
+| Name              | Value Details                                                                                                                            |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| StalkerOutputType | Either "domain", "host" or "port". It will change on which ressource the data binds by changing the type of findings that are published. |
+| OutputFindingName | The finding name that you want. It will be used to match subscriptions.                                                                  |
+
+##### Nuclei Custom Finding Handling
+
+The custom finding handler parses every json output line from Nuclei in the `parse_finding` method. To help you in parsing the Nuclei output, the `NucleiFinding` class is provided. The handler then outputs them all in the `publish_findings` method. Everything that is outputted by the `parse_finding` method will be given to the `publish_findings` method in a list. To publish your findings properly, you can refer to [the findings' documentation](./findings.md).
+
+The custom finding handler template's code:
+
+```python
+from nuclei_finding import NucleiFinding
+from stalker_job_sdk import log_info
+
+
+class FindingHandler:
+    """Custom parser template to get you started. The parse_finding and publish_findings methods are required."""
+
+    def __init__(self):
+        log_info("Initializing the custom handler")
+
+    def parse_finding(self, finding_obj: dict):
+        """This method returns a NucleiFinding, but it can return any object."""
+        return NucleiFinding(finding_obj)
+
+    def publish_findings(self, findings: list):
+        """This method receives all the findings given by the parse_finding method as a list."""
+        log_info("TODO: Publish findings")
+        for finding in findings:
+            log_info(finding.template_id)
+
+```
+
+> You could even pass parameters to the parser from the UI through environment variables, the same way you would pass a job parameter for a [code based custom job](#custom-job-input).
+
+The `NucleiFinding` class will parse the provided finding in its constructor. Most of the time, you should not have to parse the findings yourself. If a value is provided by Nuclei and it fits in one of the variables, it is parsed by the constructor.
+
+The `NucleiFinding` class and an overview of its data:
+
+```python
+class NucleiFinding:
+    template_id: str = None
+    name: str = None
+    tags: 'list[str]' = None
+    severity: str = None
+    type: str = None
+    port: int = None
+    scheme: str = None
+    url: str = None
+    matched_at: str = None
+    extracted_results: 'list[str]' = None
+    ip: str = None
+    domain: str = None
+    timestamp: str = None
+    curl_command: str = None
+    description: str = None
+    original_string: str = None
+    matcher_name: str = None
+```

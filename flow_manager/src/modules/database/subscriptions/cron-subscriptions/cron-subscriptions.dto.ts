@@ -11,7 +11,7 @@ import {
 import { IsCronExpression } from '../../../../validators/is-cron-expression.validator';
 import { JobTypes } from '../../jobs/job-model.module';
 import { JobConditionDto, JobParameterDto } from '../subscriptions.dto';
-import { InputSource } from './cron-subscriptions.model';
+import { InputSource, inputSources } from './cron-subscriptions.model';
 
 export class CronSubscriptionDto {
   @IsString()
@@ -38,7 +38,7 @@ export class CronSubscriptionDto {
   @IsOptional()
   public jobParameters?: JobParameterDto[];
 
-  @IsIn(['ALL_DOMAINS', 'ALL_HOSTS', 'ALL_TCP_PORTS'])
+  @IsIn(inputSources)
   @IsOptional()
   public input?: InputSource;
 

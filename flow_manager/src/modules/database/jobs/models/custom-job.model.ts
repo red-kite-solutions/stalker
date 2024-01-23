@@ -22,8 +22,33 @@ import { Job } from './jobs.model';
 
 export type JobDocument = CustomJob & Document;
 
-export const CustomJobTypes = ['code'];
-export const CustomJobLanguages = ['python'];
+export const customJobTypes = ['code', 'nuclei'] as const;
+export const customJobLanguages = ['python', 'yaml'] as const;
+export const customJobFindingHandlerLanguages = ['python'] as const;
+
+export type CustomJobType = (typeof customJobTypes)[number];
+export type CustomJobLanguage = (typeof customJobLanguages)[number];
+export type CustomJobFindingHandlerLanguage =
+  (typeof customJobFindingHandlerLanguages)[number];
+
+export interface CustomJobTypeDetails {
+  type: CustomJobType;
+  language: CustomJobLanguage;
+  handlerLanguage: CustomJobFindingHandlerLanguage;
+}
+
+export const validCustomJobTypeDetails: CustomJobTypeDetails[] = [
+  {
+    type: 'code',
+    language: 'python',
+    handlerLanguage: undefined, // handler not supported for code custom jobs
+  },
+  {
+    type: 'nuclei',
+    language: 'yaml',
+    handlerLanguage: 'python',
+  },
+];
 
 @Schema()
 export class CustomJob {
@@ -39,13 +64,13 @@ export class CustomJob {
   public name!: string;
 
   @Prop()
-  public type!: string;
+  public type!: CustomJobType;
 
   @Prop()
   public code!: string;
 
   @Prop()
-  public language!: string;
+  public language!: CustomJobLanguage;
 
   @Prop()
   public customJobParameters!: JobParameter[];
@@ -58,6 +83,12 @@ export class CustomJob {
 
   @Prop()
   public jobPodMemoryKbLimit: number;
+
+  @Prop()
+  public findingHandler?: string;
+
+  @Prop()
+  public findingHandlerLanguage?: CustomJobFindingHandlerLanguage;
 
   constructor() {}
 
@@ -75,8 +106,17 @@ export class CustomJob {
     params['jobpodmillicpulimit'] = undefined;
     params['jobpodmemorykblimit'] = undefined;
     params['customjobparameters'] = undefined;
+    params['findinghandlerenabled'] = undefined;
+    params['findinghandler'] = undefined;
+    params['findinghandlerlanguage'] = undefined;
 
-    params = JobFactoryUtils.bindFunctionArguments(params, args);
+    const optionalKeys = [
+      'findinghandlerenabled',
+      'findinghandler',
+      'findinghandlerlanguage',
+    ];
+
+    params = JobFactoryUtils.bindFunctionArguments(params, args, optionalKeys);
 
     return CustomJob.createCustomJob(
       params['companyid'],
@@ -87,18 +127,24 @@ export class CustomJob {
       params['jobpodmillicpulimit'],
       params['jobpodmemorykblimit'],
       params['customjobparameters'],
+      params['findinghandlerenabled'],
+      params['findinghandler'],
+      params['findinghandlerlanguage'],
     );
   }
 
   private static createCustomJob(
     companyId: string,
     name: string,
-    type: string,
+    type: CustomJobType,
     code: string,
-    language: string,
+    language: CustomJobLanguage,
     jobPodMilliCpuLimit: number,
     jobPodMemoryKbLimit: number,
     customJobParameters: JobParameter[],
+    findingHandlerEnabled: boolean,
+    findingHandler: string,
+    findingHandlerLanguage: CustomJobFindingHandlerLanguage,
   ) {
     const job = new CustomJob();
     job.task = CustomJob.name;
@@ -111,6 +157,12 @@ export class CustomJob {
     job.jobPodMilliCpuLimit = jobPodMilliCpuLimit;
     job.jobPodMemoryKbLimit = jobPodMemoryKbLimit;
     job.customJobParameters = customJobParameters;
+    if (findingHandlerEnabled) {
+      job.findingHandler = findingHandler;
+      job.findingHandlerLanguage = findingHandlerLanguage;
+    }
+
+    console.log(job);
 
     if (!isCompanyId(job.companyId)) {
       throw new JobParameterValueException('companyId', job.companyId);
@@ -123,7 +175,7 @@ export class CustomJob {
     if (
       !isString(job.type) ||
       isEmpty(job.type) ||
-      !isIn(job.type, CustomJobTypes)
+      !isIn(job.type, customJobTypes)
     ) {
       throw new JobParameterValueException('type', job.type);
     }
@@ -135,7 +187,7 @@ export class CustomJob {
     if (
       !isString(job.language) ||
       isEmpty(job.language) ||
-      !isIn(job.language, CustomJobLanguages)
+      !isIn(job.language, customJobLanguages)
     ) {
       throw new JobParameterValueException('language', job.language);
     }
@@ -174,6 +226,43 @@ export class CustomJob {
       throw new JobParameterValueException(
         'jobPodMemoryKbLimit',
         job.jobPodMemoryKbLimit,
+      );
+    }
+
+    if (job.findingHandler && !isString(job.findingHandler)) {
+      throw new JobParameterValueException(
+        'findingHandler',
+        job.findingHandler,
+      );
+    }
+
+    if (job.findingHandlerLanguage && !isString(job.findingHandlerLanguage)) {
+      throw new JobParameterValueException(
+        'findingHandlerLanguage',
+        job.findingHandlerLanguage,
+      );
+    }
+
+    if (!job.findingHandlerLanguage && job.findingHandler) {
+      throw new JobParameterValueException(
+        'findingHandlerLanguage',
+        'If a findingHandler is provided, a findingHandlerLanguage is required',
+      );
+    }
+
+    if (
+      job.findingHandler &&
+      !validCustomJobTypeDetails.some((value) => {
+        return (
+          value.language === job.language &&
+          value.type === job.type &&
+          value.handlerLanguage === job.findingHandlerLanguage
+        );
+      })
+    ) {
+      throw new JobParameterValueException(
+        'language, type and findingHandlerLanguage',
+        `invalid combination of language ${job.language}, type ${job.type} and findingHandlerLanguage ${job.findingHandlerLanguage}`,
       );
     }
 
