@@ -13,7 +13,7 @@
         <span
           class="tw-text-sm max-sm:tw-hidden tw-font-light tw-leading-[32px]"
           i18n="Tagline|Main application tagline"
-          >Extensible Attack Surface Management tool</span
+          >Extensible Attack Surface Management</span
         >
       </span>
     </div>
@@ -32,8 +32,37 @@
     <mat-icon class="material-icons-outlined">badge</mat-icon>
     <label i18n="Profile|The user's profile">Profile</label>
   </button>
+  <button mat-menu-item [matMenuTriggerFor]="subMenu">
+    <mat-icon>format_paint</mat-icon>
+    <label i18n="Theme|Stalker theme">Theme</label>
+  </button>
   <button mat-menu-item type="button" (click)="logout()">
     <mat-icon>exit_to_app</mat-icon>
     <label i18n="Sign out|Link for a user to log out">Sign out</label>
   </button>
+</mat-menu>
+
+<mat-menu #subMenu="matMenu">
+  @for (theme of themeService.themes; track $index) {
+    <button mat-menu-item (click)="themeService.selectTheme(theme.theme)">
+      <span class="tw-flex tw-items-center tw-gap-2">
+        <span
+          class="material-icons-outlined check-icon"
+          [style.visibility]="themeService.currentTheme == theme.theme ? 'visible' : 'hidden'"
+          >check</span
+        >
+        <span class="color-preview">
+          <span class="color-preview-border"></span>
+          <span
+            class="color"
+            [ngStyle]="{
+              background: 'linear-gradient(90deg, ' + theme.color1 + ' 50%, ' + (theme.color2 ?? theme.color1) + ' 50%)'
+            }"
+          ></span>
+          <span class="color-shine"></span>
+        </span>
+        <span>{{ theme.localizedName }}</span>
+      </span>
+    </button>
+  }
 </mat-menu>

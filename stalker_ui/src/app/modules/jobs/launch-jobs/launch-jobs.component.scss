@@ -46,7 +46,7 @@ table {
 }
 
 .rows:hover {
-  background-color: rgb(243, 243, 243);
+  background-color: var(--mat-table-background-color-hover);
 }
 
 .rows {
@@ -63,7 +63,6 @@ mat-divider {
 }
 
 h3 {
-  color: rgb(0, 0, 0);
   opacity: 0.7;
   margin-top: 0px;
   margin-bottom: 0px;
