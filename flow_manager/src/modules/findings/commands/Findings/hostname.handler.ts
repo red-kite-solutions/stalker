@@ -31,11 +31,11 @@ export class HostnameHandler extends UserFindingHandlerBase<HostnameCommand> {
   }
 
   protected async executeCore(command: HostnameCommand) {
-    if (command.finding.jobId) {
-      await this.domainsService.addDomain(
-        command.finding.domainName,
-        command.companyId,
-      );
-    }
+    if (!command.finding.jobId) return;
+
+    await this.domainsService.addDomain(
+      command.finding.domainName,
+      command.companyId,
+    );
   }
 }
