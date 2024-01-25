@@ -9,7 +9,6 @@ import { LoginComponent } from './modules/auth/login/login.component';
 import { CustomJobsComponent } from './modules/jobs/custom-jobs/custom-jobs.component';
 import { JobExecutionDetailComponent } from './modules/jobs/job-executions/job-execution-detail.component';
 import { LaunchJobsComponent } from './modules/jobs/launch-jobs/launch-jobs.component';
-import { SubscriptionComponent } from './modules/jobs/subscriptions/subscription.component';
 import { EditProjectsComponent } from './modules/projects/edit-projects/edit-projects.component';
 import { ProfileComponent } from './modules/user/profile/profile.component';
 
@@ -53,7 +52,13 @@ const routes: Routes = [
       },
       {
         path: 'jobs/subscriptions',
-        component: SubscriptionComponent,
+        loadComponent: () =>
+          import('./modules/jobs/subscriptions/list-subscriptions.component').then((m) => m.ListSubscriptionsComponent),
+      },
+      {
+        path: 'jobs/subscriptions/:id',
+        loadComponent: () =>
+          import('./modules/jobs/subscriptions/subscription.component').then((m) => m.SubscriptionComponent),
       },
       {
         path: 'jobs/custom',

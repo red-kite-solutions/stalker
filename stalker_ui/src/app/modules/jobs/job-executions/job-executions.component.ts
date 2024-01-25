@@ -9,6 +9,7 @@ import { BehaviorSubject, map, switchMap, tap } from 'rxjs';
 import { ProjectCellComponent } from 'src/app/shared/components/project-cell/project-cell.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { Project } from 'src/app/shared/types/project/project.interface';
+import { FilteredPaginatedTableComponent } from 'src/app/shared/widget/filtered-paginated-table/filtered-paginated-table.component';
 import { JobsService } from '../../../api/jobs/jobs/jobs.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { StartedJobViewModel } from '../../../shared/types/jobs/job.type';
@@ -29,6 +30,7 @@ import { JobStateComponent } from './job-execution-state.component';
     MatCardModule,
     MatTableModule,
     ProjectCellComponent,
+    FilteredPaginatedTableComponent,
   ],
 })
 export class JobExecutionsComponent {

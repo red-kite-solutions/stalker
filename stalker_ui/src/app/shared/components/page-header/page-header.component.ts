@@ -16,12 +16,25 @@ import { BreadcrumbComponent } from '../breadcrumb/breadcrumb.component';
         padding-bottom: 8px;
         display: flex;
         align-items: center;
+        font-weight: 500;
+        font-size: 18px;
+      }
+
+      app-breadcrumb {
+        margin-top: -4px;
       }
     `,
   ],
   template: `<h1>
     <button type="button" mat-icon-button [routerLink]="backRoute">
-      <mat-icon>arrow_back</mat-icon>
+      <mat-icon
+        style="
+          font-variation-settings:
+            'FILL' 1,
+            'wght' 400
+        "
+        >arrow_back</mat-icon
+      >
     </button>
 
     <app-breadcrumb [parts]="parts"></app-breadcrumb>

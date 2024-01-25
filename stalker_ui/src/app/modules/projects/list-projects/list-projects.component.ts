@@ -15,6 +15,7 @@ import { ProjectAvatarComponent } from 'src/app/shared/components/project-avatar
 import { SharedModule } from 'src/app/shared/shared.module';
 import { HttpStatus } from 'src/app/shared/types/http-status.type';
 import { Project } from 'src/app/shared/types/project/project.interface';
+import { SpinnerButtonComponent } from 'src/app/shared/widget/spinner-button/spinner-button.component';
 
 @Component({
   standalone: true,
@@ -31,6 +32,7 @@ import { Project } from 'src/app/shared/types/project/project.interface';
     ReactiveFormsModule,
     FormsModule,
     RouterModule,
+    SpinnerButtonComponent,
     ProjectAvatarComponent,
   ],
 })

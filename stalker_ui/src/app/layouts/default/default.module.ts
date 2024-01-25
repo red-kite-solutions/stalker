@@ -28,10 +28,10 @@ import { NgxFileDropModule } from 'ngx-file-drop';
 import { CreateUserComponent } from 'src/app/modules/admin/create-user/create-user.component';
 import { SettingsComponent } from 'src/app/modules/admin/settings/settings.component';
 import { JobLogsSummaryComponent } from 'src/app/modules/jobs/job-executions/job-execution-logs-summary.component';
-import { SubscriptionComponent } from 'src/app/modules/jobs/subscriptions/subscription.component';
 import { EditProjectsComponent } from 'src/app/modules/projects/edit-projects/edit-projects.component';
 import { ProfileComponent } from 'src/app/modules/user/profile/profile.component';
 import { SharedModule } from 'src/app/shared/shared.module';
+import { SpinnerButtonComponent } from 'src/app/shared/widget/spinner-button/spinner-button.component';
 import { FindingsModule } from '../../modules/findings/findings.module';
 import { CustomJobsComponent } from '../../modules/jobs/custom-jobs/custom-jobs.component';
 import { JobExecutionDetailComponent } from '../../modules/jobs/job-executions/job-execution-detail.component';
@@ -49,7 +49,6 @@ import { DefaultComponent } from './default.component';
     CreateUserComponent,
     SettingsComponent,
     EditProjectsComponent,
-    SubscriptionComponent,
     CustomJobsComponent,
     LaunchJobsComponent,
     JobExecutionDetailComponent,
@@ -88,6 +87,7 @@ import { DefaultComponent } from './default.component';
     JobLogsComponent,
     CodeEditorComponent,
     JobLogsSummaryComponent,
+    SpinnerButtonComponent,
   ],
   providers: [{ provide: MAT_COLOR_FORMATS, useValue: NGX_MAT_COLOR_FORMATS }],
 })

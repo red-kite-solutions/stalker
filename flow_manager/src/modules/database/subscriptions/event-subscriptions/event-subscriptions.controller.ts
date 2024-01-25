@@ -41,6 +41,16 @@ export class EventSubscriptionsController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ReadOnly)
+  @Get(':id')
+  async getSubscription(
+    @Param() IdDto: MongoIdDto,
+  ): Promise<EventSubscriptionsDocument> {
+    // TODO 162: TEST
+    return await this.subscriptionsService.get(IdDto.id);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
   @Patch(':id')
   async revertSubscription(

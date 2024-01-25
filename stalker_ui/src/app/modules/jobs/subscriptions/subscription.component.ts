@@ -1,61 +1,105 @@
-import { Component, OnDestroy, ViewChild } from '@angular/core';
-import { FormBuilder, FormControl } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatTableDataSource } from '@angular/material/table';
+import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatOptionModule } from '@angular/material/core';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSortModule } from '@angular/material/sort';
+import { MatTableModule } from '@angular/material/table';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, map, tap } from 'rxjs';
-import { EventSubscriptionsService } from 'src/app/api/jobs/subscriptions/event-subscriptions.service';
-import {
-  CronSubscription,
-  EventSubscription,
-  EventSubscriptionData,
-  Subscription,
-} from 'src/app/shared/types/subscriptions/subscription.type';
+import { firstValueFrom, map, timer } from 'rxjs';
+import { eventSubscriptionKey } from 'src/app/api/jobs/subscriptions/event-subscriptions.service';
+import { SubscriptionService, SubscriptionType } from 'src/app/api/jobs/subscriptions/subscriptions.service';
+import { AppHeaderComponent } from 'src/app/shared/components/page-header/page-header.component';
+import { SharedModule } from 'src/app/shared/shared.module';
+import { Subscription } from 'src/app/shared/types/subscriptions/subscription.type';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
-import { parse, stringify } from 'yaml';
+import { SpinnerButtonComponent } from 'src/app/shared/widget/spinner-button/spinner-button.component';
+import { parse } from 'yaml';
 import { allProjectsSubscriptions } from '../../../api/constants';
-import { CronSubscriptionsService } from '../../../api/jobs/subscriptions/cron-subscriptions.service';
+import { cronSubscriptionKey } from '../../../api/jobs/subscriptions/cron-subscriptions.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { LocalizedOption } from '../../../shared/types/localized-option.type';
 import { ProjectSummary } from '../../../shared/types/project/project.summary';
-import { CodeEditorTheme } from '../../../shared/widget/code-editor/code-editor.component';
+import { CodeEditorComponent, CodeEditorTheme } from '../../../shared/widget/code-editor/code-editor.component';
+import { cronSubscriptionTemplate, eventSubscriptionTemplate } from './subscription-templates';
 
 @Component({
+  standalone: true,
   selector: 'app-subscription',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './subscription.component.html',
   styleUrls: ['./subscription.component.scss'],
+  imports: [
+    AppHeaderComponent,
+    CommonModule,
+    CodeEditorComponent,
+    FormsModule,
+    SharedModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatOptionModule,
+    MatButtonModule,
+    MatDialogModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    MatTableModule,
+    MatSortModule,
+    MatPaginatorModule,
+    MatTooltipModule,
+    MatSelectModule,
+    MatProgressSpinnerModule,
+    MatOptionModule,
+    MatIconModule,
+    MatPaginatorModule,
+    MatSidenavModule,
+    MatTabsModule,
+    MatTooltipModule,
+    MatCardModule,
+    SpinnerButtonComponent,
+  ],
 })
-export class SubscriptionComponent implements OnDestroy {
+export class SubscriptionComponent implements OnInit {
   public code = '';
-  public currentCodeBackup: string | undefined;
-  public language = 'yaml';
-  public minimapEnabled = false;
+  public originalCode = '';
   public theme: CodeEditorTheme = 'vs-dark';
-  public readonly = false;
+  public isSaving = false;
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  dataSource = new MatTableDataSource<Subscription>();
-
-  public subscriptionTemplate =
-    'name: my subscription\nfinding: FindingTypeName\ncooldown: 86400\njob:\n  name: JobName\n  parameters:\n    - name: ParamName\n      value: param value\nconditions:\n  - lhs: string\n    operator: contains\n    rhs: ring\n';
-  public cronSubscriptionTemplate =
-    'name: my cron subscription\ncronExpression: 0 0 12 * * ?\njob:\n  name: JobName\n  parameters:\n  - name: ParamName\n    value: param value\n';
+  public subscription$ = timer(0, 250).pipe(map(() => parse(this.code)));
+  private id$ = this.activatedRoute.paramMap.pipe(map((x) => x.get('id')));
+  private type$ = this.activatedRoute.queryParamMap.pipe(map((x) => x.get('type') as SubscriptionType));
 
   public selectedRow: Subscription | undefined;
   public tempSelectedRow: Subscription | undefined;
-  public isInNewSubscriptionContext = true;
   public subscriptionTypeContext: string | undefined = undefined;
   public currentSubscriptionId = '';
   public data = new Array<Subscription>();
 
-  public dataSource$!: Observable<void> | undefined;
   public readonly eventSubscriptionContext = 'event subscription';
   public readonly cronSubscriptionContext = 'cron susbcription';
+
+  public hasBeenSaved = false;
+  public get canSave() {
+    return this.code != this.originalCode;
+  }
 
   public subscriptionTypes: LocalizedOption[] = [
     {
@@ -72,30 +116,6 @@ export class SubscriptionComponent implements OnDestroy {
     selectedProject: new FormControl<string>(allProjectsSubscriptions),
   });
 
-  public subscriptionTypeForm = this.fb.group({
-    subscriptionType: new FormControl<string>(''),
-  });
-
-  subscriptionType$ = this.subscriptionTypeForm
-    .get('subscriptionType')
-    ?.valueChanges.pipe(
-      tap((currSubscription) => {
-        this.code = '';
-        this.currentCodeBackup = '';
-        this.subscriptionTypeContext = currSubscription ? currSubscription : undefined;
-        if (currSubscription === this.eventSubscriptionContext) {
-          this.code = this.subscriptionTemplate;
-        } else if (currSubscription === this.cronSubscriptionContext) {
-          this.code = this.cronSubscriptionTemplate;
-        } else this.code = '';
-        this.selectedRow = undefined;
-        this.tempSelectedRow = undefined;
-        this.currentCodeBackup = this.code;
-        this.dataSource$ = this.refreshData();
-      })
-    )
-    .subscribe();
-
   projects: ProjectSummary[] = [];
   projects$ = this.projectsService.getAllSummaries().pipe(
     map((next: any[]) => {
@@ -110,44 +130,19 @@ export class SubscriptionComponent implements OnDestroy {
 
   constructor(
     private dialog: MatDialog,
-    private eventSubscriptionsService: EventSubscriptionsService,
-    private cronSubscriptionsService: CronSubscriptionsService,
     private toastr: ToastrService,
     private projectsService: ProjectsService,
     private titleService: Title,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private activatedRoute: ActivatedRoute,
+    private router: Router,
+    private subscriptionService: SubscriptionService
   ) {
-    this.code = '';
-    this.currentCodeBackup = this.code;
     this.titleService.setTitle($localize`:Subscriptions list page title|:Subscriptions`);
-    this.subscriptionTypeForm.get('subscriptionType')?.setValue(this.subscriptionTypes[0].value);
-  }
-
-  private refreshData() {
-    if (this.subscriptionTypeContext === undefined) return;
-    if (this.subscriptionTypeContext === this.eventSubscriptionContext) {
-      return this.eventSubscriptionsService.getSubscriptions().pipe(
-        map((data) => {
-          this.data = data;
-          this.dataSource.data = data;
-          this.dataSource.paginator = this.paginator;
-          if (this.selectedRow) this.selectSubscription(this.selectedRow);
-        })
-      );
-    } else {
-      return this.cronSubscriptionsService.getSubscriptions().pipe(
-        map((data) => {
-          this.data = data;
-          this.dataSource.data = data;
-          this.dataSource.paginator = this.paginator;
-          if (this.selectedRow) this.selectSubscription(this.selectedRow);
-        })
-      );
-    }
   }
 
   private validateCurrentChanges(next: Function) {
-    if (this.code === this.currentCodeBackup) {
+    if (this.code === this.originalCode) {
       next();
       return;
     }
@@ -172,45 +167,9 @@ export class SubscriptionComponent implements OnDestroy {
     });
   }
 
-  public newSubscriptionClick() {
-    this.validateCurrentChanges(this.newSubscriptionNext.bind(this));
-  }
+  public async save() {
+    this.isSaving = true;
 
-  private newSubscriptionNext() {
-    this.isInNewSubscriptionContext = true;
-    this.selectedRow = undefined;
-    this.subscriptionConfigForm.get('selectedProject')?.setValue(allProjectsSubscriptions);
-    this.code = '';
-    this.currentCodeBackup = '';
-  }
-
-  public selectSubscription(sub: Subscription) {
-    this.tempSelectedRow = sub;
-    this.validateCurrentChanges(this.selectFindingSubscriptionNext.bind(this));
-  }
-
-  private selectFindingSubscriptionNext() {
-    this.isInNewSubscriptionContext = false;
-    this.selectedRow = this.tempSelectedRow;
-    this.tempSelectedRow?.projectId
-      ? this.subscriptionConfigForm.get('selectedProject')?.setValue(this.tempSelectedRow?.projectId)
-      : this.subscriptionConfigForm.get('selectedProject')?.setValue(allProjectsSubscriptions);
-    const rowData = this.data.find((v) => v._id === this.tempSelectedRow?._id);
-    if (rowData?._id) this.currentSubscriptionId = rowData._id;
-    const rowCopy = JSON.parse(JSON.stringify(rowData));
-    delete rowCopy._id;
-    delete rowCopy.projectId;
-    if (rowCopy.job?.parameters?.length === 0) {
-      delete rowCopy.job.parameters;
-    }
-    if (rowCopy.conditions?.length === 0) {
-      delete rowCopy.conditions;
-    }
-    this.code = stringify(<EventSubscriptionData>rowCopy);
-    this.currentCodeBackup = this.code;
-  }
-
-  public async saveSubscriptionEdits() {
     let sub: Subscription;
     try {
       sub = parse(this.code);
@@ -218,6 +177,15 @@ export class SubscriptionComponent implements OnDestroy {
       this.toastr.error(
         $localize`:Yaml syntax error|There was a syntax error in the user provided yaml:Yaml syntax error`
       );
+      this.isSaving = false;
+      return;
+    }
+
+    let valid = sub.name && sub.job && sub.job.name;
+    if (!valid) {
+      const invalidSubscription = $localize`:Invalid subscription|Subscription is not in a valid format:Invalid subscription`;
+      this.toastr.error(invalidSubscription);
+      this.isSaving = false;
       return;
     }
 
@@ -226,125 +194,49 @@ export class SubscriptionComponent implements OnDestroy {
       sub.projectId = cId ? cId : allProjectsSubscriptions;
     }
 
-    const invalidSubscription = $localize`:Invalid subscription|Subscription is not in a valid format:Invalid subscription`;
-    // validate the content of the sub variable?
-    let valid = true;
-    if (!sub.name || !sub.job || !sub.job.name) valid = false;
+    try {
+      const id = await firstValueFrom(this.id$);
+      const type = await firstValueFrom(this.type$);
 
-    if (!valid) {
+      if (id === 'create') {
+        const newSub = await this.subscriptionService.create(type, sub);
+        this.router.navigate(['/jobs', 'subscriptions', newSub._id], { queryParams: { type } });
+      } else {
+        await this.subscriptionService.edit(type, `${id}`, sub);
+      }
+
+      this.originalCode = this.code;
+    } catch {
+      const invalidSubscription = $localize`:Invalid subscription|Subscription is not in a valid format:Invalid subscription`;
       this.toastr.error(invalidSubscription);
     }
-    let newSub: undefined | Subscription = undefined;
-    try {
-      if (this.isInNewSubscriptionContext) {
-        // create a new subscription
 
-        if (this.subscriptionTypeContext === this.eventSubscriptionContext) {
-          sub = sub as EventSubscription;
-          newSub = await this.eventSubscriptionsService.create(sub);
-        } else {
-          sub = sub as CronSubscription;
-          newSub = await this.cronSubscriptionsService.create(sub);
-        }
-
-        this.toastr.success(
-          $localize`:Successfully created subscription|Successfully created subscription:Successfully created subscription`
-        );
-      } else {
-        // edit an existing subscription
-        if (this.subscriptionTypeContext === this.eventSubscriptionContext) {
-          sub = sub as EventSubscription;
-          await this.eventSubscriptionsService.edit(this.currentSubscriptionId, sub);
-        } else {
-          sub = sub as CronSubscription;
-          await this.cronSubscriptionsService.edit(this.currentSubscriptionId, sub);
-        }
-        this.toastr.success(
-          $localize`:Successfully edited subscription|Successfully edited subscription:Successfully edited subscription`
-        );
-      }
-
-      this.currentCodeBackup = this.code;
-      if (newSub) {
-        this.dataSource.data.push(newSub);
-        this.data.push(newSub);
-        this.selectSubscription(newSub);
-      }
-
-      this.dataSource$ = this.refreshData();
-    } catch {
-      this.toastr.error(invalidSubscription);
-    }
+    this.isSaving = false;
+    this.hasBeenSaved = true;
   }
 
-  public async delete() {
-    if (this.isInNewSubscriptionContext) {
-      this.toastr.warning(
-        $localize`:Select a subscription to delete|The user needs to select a subscription to delete:Select a subscription to delete`
-      );
-      return;
-    }
+  async ngOnInit(): Promise<void> {
+    const id = await firstValueFrom(this.id$);
+    const type = await firstValueFrom(this.type$);
 
-    const data: ConfirmDialogData = {
-      text: $localize`:Confirm subscription deletion|Confirmation message asking if the user really wants to delete this description:Do you really wish to delete this description permanently ?`,
-      title: $localize`:Deleting subscription|Title of a page to delete a subscription:Deleting subscription`,
-      primaryButtonText: $localize`:Cancel|Cancel current action:Cancel`,
-      dangerButtonText: $localize`:Delete permanently|Confirm that the user wants to delete the item permanently:Delete permanently`,
-      onPrimaryButtonClick: () => {
-        this.dialog.closeAll();
-      },
-      onDangerButtonClick: async () => {
-        try {
-          if (this.subscriptionTypeContext === this.eventSubscriptionContext)
-            await this.eventSubscriptionsService.delete(this.currentSubscriptionId);
-          else await this.cronSubscriptionsService.delete(this.currentSubscriptionId);
+    // TODO 162: cleanup
+    if (id == null) throw new Error('oopsies');
 
-          this.toastr.success(
-            $localize`:Successfully deleted subscription|Successfully deleted subscription:Successfully deleted subscription`
-          );
-          this.dataSource$ = this.refreshData();
-        } catch {
-          this.toastr.error($localize`:Error while deleting|Error while deleting:Error while deleting`);
-        }
-        this.dialog.closeAll();
-        this.code = '';
-        this.currentCodeBackup = '';
-        this.currentSubscriptionId = '';
-        this.isInNewSubscriptionContext = true;
-        this.selectedRow = undefined;
-        this.tempSelectedRow = undefined;
-        this.subscriptionConfigForm.get('selectedProject')?.setValue(allProjectsSubscriptions);
-      },
-    };
+    if (id === 'create') {
+      switch (type) {
+        case cronSubscriptionKey:
+          this.code = cronSubscriptionTemplate;
+          break;
 
-    this.dialog.open(ConfirmDialogComponent, {
-      data,
-      restoreFocus: false,
-    });
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptionType$?.unsubscribe();
-  }
-
-  async revertToDefault(): Promise<void> {
-    if (!this.selectedRow?._id) return;
-
-    try {
-      if (this.subscriptionTypeContext === this.subscriptionTypes[0].value) {
-        await this.eventSubscriptionsService.revert(this.selectedRow._id);
-      } else if (this.subscriptionTypeContext === this.subscriptionTypes[1].value) {
-        await this.cronSubscriptionsService.revert(this.selectedRow._id);
-      } else {
-        this.toastr.warning($localize`:Nothing to revert|Nothing to revert:Nothing to revert`);
-        return;
+        case eventSubscriptionKey:
+          this.code = eventSubscriptionTemplate;
+          break;
       }
-      this.toastr.success(
-        $localize`:Successfully reverted subscription|Successfully reverted subscription:Successfully reverted subscription`
-      );
-      this.dataSource$ = this.refreshData();
-    } catch {
-      this.toastr.error($localize`:Error while reverting|Error while reverting:Error while reverting`);
+    } else {
+      const sub = await firstValueFrom(this.subscriptionService.get(type, id));
+      this.code = sub.yaml;
     }
+
+    this.originalCode = this.code;
   }
 }
