@@ -21,6 +21,7 @@ import { CompanyCellComponent } from 'src/app/shared/components/company-cell/com
 import { Company } from 'src/app/shared/types/company/company.interface';
 import { Page } from 'src/app/shared/types/page.type';
 import { Tag } from 'src/app/shared/types/tag.type';
+import { FilteredPaginatedTableComponent } from 'src/app/shared/widget/filtered-paginated-table/filtered-paginated-table.component';
 import { HostsService } from '../../../api/hosts/hosts.service';
 import { SharedModule } from '../../../shared/shared.module';
 import { Host } from '../../../shared/types/host/host.interface';
@@ -46,6 +47,7 @@ import {
     ReactiveFormsModule,
     MatInputModule,
     CompanyCellComponent,
+    FilteredPaginatedTableComponent,
   ],
   selector: 'app-list-hosts',
   templateUrl: './list-hosts.component.html',

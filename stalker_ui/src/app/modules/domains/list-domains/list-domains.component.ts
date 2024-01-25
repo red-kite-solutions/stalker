@@ -24,6 +24,7 @@ import { Domain } from 'src/app/shared/types/domain/domain.interface';
 import { HttpStatus } from 'src/app/shared/types/http-status.type';
 import { Page } from 'src/app/shared/types/page.type';
 import { Tag } from 'src/app/shared/types/tag.type';
+import { FilteredPaginatedTableComponent } from 'src/app/shared/widget/filtered-paginated-table/filtered-paginated-table.component';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { SharedModule } from '../../../shared/shared.module';
 import {
@@ -48,6 +49,7 @@ import {
     ReactiveFormsModule,
     FormsModule,
     CompanyCellComponent,
+    FilteredPaginatedTableComponent,
   ],
   selector: 'app-list-domains',
   templateUrl: './list-domains.component.html',

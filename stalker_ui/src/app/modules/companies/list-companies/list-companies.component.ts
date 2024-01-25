@@ -15,6 +15,7 @@ import { CompanyAvatarComponent } from 'src/app/shared/components/company-avatar
 import { SharedModule } from 'src/app/shared/shared.module';
 import { Company } from 'src/app/shared/types/company/company.interface';
 import { HttpStatus } from 'src/app/shared/types/http-status.type';
+import { SpinnerButtonComponent } from 'src/app/shared/widget/spinner-button/spinner-button.component';
 
 @Component({
   standalone: true,
@@ -32,6 +33,7 @@ import { HttpStatus } from 'src/app/shared/types/http-status.type';
     FormsModule,
     RouterModule,
     CompanyAvatarComponent,
+    SpinnerButtonComponent,
   ],
 })
 export class ListCompaniesComponent implements OnDestroy {

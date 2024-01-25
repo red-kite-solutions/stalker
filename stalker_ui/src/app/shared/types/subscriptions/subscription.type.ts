@@ -10,6 +10,7 @@ export interface CronSubscription extends CronSubscriptionData {
 }
 
 export interface EventSubscriptionData extends SubscriptionData {
+  type: 'event';
   cooldown: number;
   builtIn: boolean;
   finding: string;
@@ -17,11 +18,13 @@ export interface EventSubscriptionData extends SubscriptionData {
 }
 
 export interface CronSubscriptionData extends SubscriptionData {
+  type: 'cron';
   cronExpression: string;
   input?: 'ALL_DOMAINS' | 'ALL_HOSTS' | 'ALL_TCP_PORTS';
 }
 
 export interface SubscriptionData {
+  type: 'cron' | 'event';
   name: string;
   companyId: string;
   job: {

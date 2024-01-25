@@ -42,6 +42,16 @@ export class CronSubscriptionsController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ReadOnly)
+  @Get(':id')
+  async getSubscription(
+    @Param() IdDto: MongoIdDto,
+  ): Promise<CronSubscriptionsDocument> {
+    // TODO 162: TEST
+    return await this.subscriptionsService.get(IdDto.id);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
   @Patch(':id')
   async revertSubscription(

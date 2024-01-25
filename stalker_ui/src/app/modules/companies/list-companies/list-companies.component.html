@@ -29,12 +29,9 @@
           </mat-form-field>
 
           <div class="tw-self-end tw-flex tw-gap">
-            <app-spinner-button
-              [loadingState]="creationLoading"
-              [label]="createLabel"
-              (click)="createCompany()"
-              class="tw-flex-1"
-            ></app-spinner-button>
+            <app-spinner-button [loadingState]="creationLoading" (click)="createCompany()" class="tw-flex-1">{{
+              createLabel
+            }}</app-spinner-button>
             <button
               type="button"
               mat-flat-button
