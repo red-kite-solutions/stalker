@@ -27,6 +27,7 @@ import { ConfigService } from '../admin/config/config.service';
 import { JobPodConfiguration } from '../admin/config/job-pod-config/job-pod-config.model';
 import { CustomJobsDocument } from '../custom-jobs/custom-jobs.model';
 import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
+import { SecretsService } from '../secrets/secrets.service';
 import { JobParameter } from '../subscriptions/event-subscriptions/event-subscriptions.model';
 import { JobDefinitions, JobSources } from './job-model.module';
 import { JobExecutionsDto, StartJobDto } from './jobs.dto';
@@ -40,6 +41,7 @@ export class JobsController {
     private readonly jobsService: JobsService,
     private readonly customJobsService: CustomJobsService,
     private readonly configService: ConfigService,
+    private readonly secretsService: SecretsService,
   ) {}
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -115,7 +117,13 @@ export class JobsController {
     dto.jobParameters.push(projectIdParameter);
 
     // parameters are validated thoroughly in job creation
-    const job = JobFactory.createJob(dto.task, dto.jobParameters, jpConfig);
+    const job = await JobFactory.createJob(
+      dto.task,
+      dto.jobParameters,
+      this.secretsService,
+      <string>projectIdParameter.value,
+      jpConfig,
+    );
 
     if (!job) throw new HttpBadRequestException();
     job.priority = 1;

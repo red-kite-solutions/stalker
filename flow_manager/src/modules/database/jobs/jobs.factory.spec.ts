@@ -6,6 +6,8 @@ import { DEFAULT_JOB_POD_FALLBACK_CONFIG } from '../admin/config/config.default'
 import { ConfigService } from '../admin/config/config.service';
 import { JobPodConfiguration } from '../admin/config/job-pod-config/job-pod-config.model';
 import { ProjectService } from '../reporting/project.service';
+import { SecretsService } from '../secrets/secrets.service';
+import { JobParameter } from '../subscriptions/event-subscriptions/event-subscriptions.model';
 import { JobFactoryUtils } from './jobs.factory';
 import { JobsService } from './jobs.service';
 import { Job } from './models/jobs.model';
@@ -17,6 +19,7 @@ describe('Jobs Service', () => {
   let projectService: ProjectService;
   let configService: ConfigService;
   let jobPodConfigModel: Model<JobPodConfiguration>;
+  let secretsService: SecretsService;
 
   beforeAll(async () => {
     moduleFixture = await Test.createTestingModule({
@@ -25,6 +28,7 @@ describe('Jobs Service', () => {
     jobsService = moduleFixture.get(JobsService);
     projectService = moduleFixture.get(ProjectService);
     configService = moduleFixture.get(ConfigService);
+    secretsService = moduleFixture.get(SecretsService);
     jobsModel = moduleFixture.get<Model<Job>>(getModelToken('job'));
     jobPodConfigModel = moduleFixture.get<Model<JobPodConfiguration>>(
       getModelToken('jobPodConfig'),
@@ -37,6 +41,10 @@ describe('Jobs Service', () => {
       await projectService.delete(c._id);
     }
     await jobPodConfigModel.deleteMany({});
+    const allSecrets = await secretsService.getAll();
+    for (const secret of allSecrets) {
+      await secretsService.delete(secret._id.toString());
+    }
   });
 
   afterAll(async () => {
@@ -95,6 +103,80 @@ describe('Jobs Service', () => {
     );
     expect(found.milliCpuLimit).toStrictEqual(defaultConfig.milliCpuLimit);
     expect(found.name).toStrictEqual(defaultConfig.name);
+  });
+
+  it('Should replace a single secret tag value for its secret', async () => {
+    // Arrange
+    const secretName = 'secretName';
+    const secretValue = 'example secret value';
+    const secretNameTag = `\$\{\{${secretName}\}\}`;
+    await secretsService.create(secretName, secretValue);
+
+    // Act
+    // @ts-expect-error
+    const valueToReplace = await JobFactoryUtils.getSecretIfInjectTag(
+      secretNameTag,
+      secretsService,
+    );
+
+    // Assert
+    expect(valueToReplace).toStrictEqual(secretValue);
+  });
+
+  it('Should inject a secret in a parameter array', async () => {
+    // Arrange
+    const secretName = 'secretName';
+    const secretValue = 'example secret value';
+    const secretNameTag = `\$\{\{${secretName}\}\}`;
+    const params: JobParameter[] = [
+      {
+        name: 'asdf',
+        value: 'example',
+      },
+      {
+        name: 'asdf2',
+        value: '${varNameDidNotMatch}',
+      },
+      {
+        name: 'asdf3',
+        value: secretNameTag,
+      },
+    ];
+    await secretsService.create(secretName, secretValue);
+
+    // Act
+    await JobFactoryUtils.injectSecretsInParameters(params, secretsService);
+
+    // Assert
+    expect(params[2].value).toStrictEqual(secretValue);
+  });
+
+  it('Should inject a secret in a parameter array, with one parameter being an array', async () => {
+    // Arrange
+    const secretName = 'secretName';
+    const secretValue = 'example secret value';
+    const secretNameTag: string = `\$\{\{${secretName}\}\}`;
+    const params: JobParameter[] = [
+      {
+        name: 'asdf',
+        value: 'example',
+      },
+      {
+        name: 'asdf2',
+        value: '${varNameDidNotMatch}',
+      },
+      {
+        name: 'asdf3',
+        value: ['asdf', secretNameTag, 'example'],
+      },
+    ];
+    await secretsService.create(secretName, secretValue);
+
+    // Act
+    await JobFactoryUtils.injectSecretsInParameters(params, secretsService);
+
+    // Assert
+    expect(params[2].value[1]).toStrictEqual(secretValue);
   });
 
   async function jobPodConfig() {

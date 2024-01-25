@@ -72,6 +72,10 @@ const routes: Routes = [
         path: 'jobs/executions/:id',
         component: JobExecutionDetailComponent,
       },
+      {
+        path: 'secrets',
+        loadComponent: () => import('./modules/secrets/secrets.component').then((c) => c.SecretsComponent),
+      },
     ],
   },
   {

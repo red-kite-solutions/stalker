@@ -4,6 +4,7 @@ import { QueueModule } from '../../job-queue/queue.module';
 import { ConfigModule } from '../admin/config/config.module';
 import { CustomJobsModule } from '../custom-jobs/custom-jobs.module';
 import { DatalayerModule } from '../datalayer.module';
+import { SecretsModule } from '../secrets/secrets.module';
 import { JobOutputGateway } from './job.gateway';
 import { JobsController } from './jobs.controller';
 import { JobsService } from './jobs.service';
@@ -15,6 +16,7 @@ import { JobsService } from './jobs.service';
     CustomJobsModule,
     JwtModule,
     ConfigModule,
+    SecretsModule,
   ],
   controllers: [JobsController],
   providers: [JobsService, JobOutputGateway],

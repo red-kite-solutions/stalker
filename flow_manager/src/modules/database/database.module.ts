@@ -7,6 +7,7 @@ import { ProjectModule } from './reporting/project.module';
 import { CronSubscriptionsModule } from './subscriptions/cron-subscriptions/cron-subscriptions.module';
 import { EventSubscriptionsModule } from './subscriptions/event-subscriptions/event-subscriptions.module';
 import { TagsModule } from './tags/tag.module';
+import { SecretsModule } from './secrets/secrets.module';
 
 @Module({
   imports: [
@@ -23,7 +24,10 @@ import { TagsModule } from './tags/tag.module';
     EventSubscriptionsModule,
     CronSubscriptionsModule,
     CustomJobsModule,
+    SecretsModule,
   ],
   exports: [JobsModule],
+  providers: [],
+  controllers: [],
 })
 export class DatabaseModule {}

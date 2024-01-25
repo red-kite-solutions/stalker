@@ -10,6 +10,7 @@ import { JobParameter } from '../../database/subscriptions/event-subscriptions/e
 import { EventSubscriptionsService } from '../../database/subscriptions/event-subscriptions/event-subscriptions.service';
 import { SubscriptionsUtils } from '../../database/subscriptions/subscriptions.utils';
 
+import { SecretsService } from '../../database/secrets/secrets.service';
 import { SubscriptionTriggersService } from '../../database/subscriptions/subscription-triggers/subscription-triggers.service';
 import { FindingCommand } from './findings.command';
 
@@ -24,6 +25,7 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
     private customJobsService: CustomJobsService,
     private configService: ConfigService,
     private subscriptionTriggersService: SubscriptionTriggersService,
+    private secretsService: SecretsService,
   ) {}
 
   public async execute(command: T) {
@@ -74,7 +76,12 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
       sub.jobParameters.push(projectIdParameter);
 
       // Launching the generic function that creates the appropriate job and publishing it
-      const job: Job = JobFactory.createJob(sub.jobName, sub.jobParameters);
+      const job: Job = await JobFactory.createJob(
+        sub.jobName,
+        sub.jobParameters,
+        this.secretsService,
+        command.projectId,
+      );
       if (
         job != null &&
         (await this.subscriptionTriggersService.attemptTrigger(

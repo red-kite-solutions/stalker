@@ -12,5 +12,6 @@ module.exports = async function () {
   process.env.STALKER_CRON_API_TOKEN = '123456';
   process.env.FM_JWT_SECRET = '123456';
   process.env.FM_REFRESH_SECRET = '123456';
+  process.env.SECRET_AES256_KEY = 'vhslikfwauikhsfaiuw78t0938gh93iu';
   globalThis.__IN_MEMORY_DB__ = mongo;
 };

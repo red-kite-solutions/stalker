@@ -7,7 +7,6 @@ import {
   Put,
   Request,
   UseGuards,
-  ValidationPipe,
 } from '@nestjs/common';
 import { LogoutDto } from './auth.dto';
 import { AuthService } from './auth.service';
@@ -46,10 +45,7 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Delete('logout')
-  async logOut(
-    @Request() request: any,
-    @Body(new ValidationPipe()) dto: LogoutDto,
-  ) {
+  async logOut(@Request() request: any, @Body() dto: LogoutDto) {
     if (dto.refresh_token) {
       await this.authService.removeRefreshToken(
         request.user.id,

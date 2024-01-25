@@ -178,6 +178,8 @@ deployments:
                 value: ${FM_ENVIRONMENT}
               - name: STALKER_CRON_API_TOKEN
                 value: ${STALKER_CRON_API_TOKEN}
+              - name: SECRET_AES256_KEY
+                value: ${SECRET_AES256_KEY}
 
             image: flow_manager
             name: flow-manager-container
@@ -216,6 +218,8 @@ deployments:
                 value: "tests"
               - name: STALKER_CRON_API_TOKEN
                 value: ${STALKER_CRON_API_TOKEN}
+              - name: SECRET_AES256_KEY
+                value: ${SECRET_AES256_KEY}
 
         service:
           ports:

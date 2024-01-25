@@ -4,6 +4,7 @@ import { ConfigService } from '../../../database/admin/config/config.service';
 import { CustomJobsService } from '../../../database/custom-jobs/custom-jobs.service';
 import { JobsService } from '../../../database/jobs/jobs.service';
 import { HostService } from '../../../database/reporting/host/host.service';
+import { SecretsService } from '../../../database/secrets/secrets.service';
 import { EventSubscriptionsService } from '../../../database/subscriptions/event-subscriptions/event-subscriptions.service';
 import { SubscriptionTriggersService } from '../../../database/subscriptions/subscription-triggers/subscription-triggers.service';
 import { JobFindingHandlerBase } from '../job-findings-handler-base';
@@ -20,6 +21,7 @@ export class HostnameIpHandler extends JobFindingHandlerBase<HostnameIpCommand> 
     customJobsService: CustomJobsService,
     configService: ConfigService,
     subscriptionTriggersService: SubscriptionTriggersService,
+    secretsService: SecretsService,
   ) {
     super(
       jobService,
@@ -27,6 +29,7 @@ export class HostnameIpHandler extends JobFindingHandlerBase<HostnameIpCommand> 
       customJobsService,
       configService,
       subscriptionTriggersService,
+      secretsService,
     );
   }
 
