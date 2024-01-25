@@ -2,7 +2,7 @@
   <div class="container">
     <app-page-header
       [backRoute]="['..', '..']"
-      [parts]="[(companies$ | async | whereId: [host?.companyId])?.name, host.ip, (port$ | async)?.port]"
+      [parts]="[(projects$ | async | whereId: [host?.projectId])?.name, host.ip, (port$ | async)?.port]"
     ></app-page-header>
     <div class="content-wrapper">
       <div class="content">

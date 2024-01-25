@@ -6,7 +6,7 @@ export interface Host {
   notes: string;
   domains: DomainSummary[];
   tags: string[];
-  companyId: string;
+  projectId: string;
   correlationKey: string;
   lastSeen: number;
   createdAt: number;

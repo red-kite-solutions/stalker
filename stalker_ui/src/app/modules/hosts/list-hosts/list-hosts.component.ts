@@ -15,11 +15,11 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, map, switchMap, tap } from 'rxjs';
-import { CompaniesService } from 'src/app/api/companies/companies.service';
+import { ProjectsService } from 'src/app/api/projects/projects.service';
 import { TagsService } from 'src/app/api/tags/tags.service';
-import { CompanyCellComponent } from 'src/app/shared/components/company-cell/company-cell.component';
-import { Company } from 'src/app/shared/types/company/company.interface';
+import { ProjectCellComponent } from 'src/app/shared/components/project-cell/project-cell.component';
 import { Page } from 'src/app/shared/types/page.type';
+import { Project } from 'src/app/shared/types/project/project.interface';
 import { Tag } from 'src/app/shared/types/tag.type';
 import { FilteredPaginatedTableComponent } from 'src/app/shared/widget/filtered-paginated-table/filtered-paginated-table.component';
 import { HostsService } from '../../../api/hosts/hosts.service';
@@ -46,7 +46,7 @@ import {
     MatTableModule,
     ReactiveFormsModule,
     MatInputModule,
-    CompanyCellComponent,
+    ProjectCellComponent,
     FilteredPaginatedTableComponent,
   ],
   selector: 'app-list-hosts',
@@ -55,8 +55,8 @@ import {
 })
 export class ListHostsComponent {
   dataLoading = true;
-  displayedColumns: string[] = ['select', 'ip', 'domains', 'company', 'tags'];
-  filterOptions: string[] = ['host', 'domain', 'company', 'tags'];
+  displayedColumns: string[] = ['select', 'ip', 'domains', 'project', 'tags'];
+  filterOptions: string[] = ['host', 'domain', 'project', 'tags'];
 
   dataSource = new MatTableDataSource<Host>();
   currentPage: PageEvent = this.generateFirstPageEvent();
@@ -81,8 +81,8 @@ export class ListHostsComponent {
     })
   );
 
-  companies: Company[] = [];
-  companies$ = this.companiesService.getAll().pipe(tap((x) => (this.companies = x)));
+  projects: Project[] = [];
+  projects$ = this.projectsService.getAll().pipe(tap((x) => (this.projects = x)));
 
   tags: Tag[] = [];
   tags$ = this.tagsService.getTags().pipe(
@@ -97,7 +97,7 @@ export class ListHostsComponent {
   );
 
   // #addHostsDialog template variables
-  selectedCompany = '';
+  selectedProject = '';
   selectedNewHosts = '';
 
   private generateFirstPageEvent() {
@@ -117,9 +117,9 @@ export class ListHostsComponent {
 
   public displayColumns$ = this.screenSize$.pipe(
     map((screen: BreakpointState) => {
-      if (screen.breakpoints[Breakpoints.XSmall]) return ['select', 'ip', 'company'];
-      else if (screen.breakpoints[Breakpoints.Small]) return ['select', 'ip', 'company', 'tags'];
-      else if (screen.breakpoints[Breakpoints.Medium]) return ['select', 'ip', 'domains', 'company', 'tags'];
+      if (screen.breakpoints[Breakpoints.XSmall]) return ['select', 'ip', 'project'];
+      else if (screen.breakpoints[Breakpoints.Small]) return ['select', 'ip', 'project', 'tags'];
+      else if (screen.breakpoints[Breakpoints.Medium]) return ['select', 'ip', 'domains', 'project', 'tags'];
       return this.displayedColumns;
     })
   );
@@ -131,7 +131,7 @@ export class ListHostsComponent {
 
   constructor(
     private bpObserver: BreakpointObserver,
-    private companiesService: CompaniesService,
+    private projectsService: ProjectsService,
     private hostsService: HostsService,
     private toastr: ToastrService,
     private tagsService: TagsService,
@@ -153,7 +153,7 @@ export class ListHostsComponent {
     const tags = [];
     const domains = [];
     const hosts = [];
-    const companies = [];
+    const projects = [];
 
     for (const filter of stringFilters) {
       if (filter.indexOf(SEPARATOR) === -1) continue;
@@ -168,12 +168,12 @@ export class ListHostsComponent {
       if (!key || !value) continue;
 
       switch (key) {
-        case 'company':
-          const company = this.companies.find((c) => c.name.trim().toLowerCase() === value.trim().toLowerCase());
-          if (company) companies.push(company._id);
+        case 'project':
+          const project = this.projects.find((c) => c.name.trim().toLowerCase() === value.trim().toLowerCase());
+          if (project) projects.push(project._id);
           else
             this.toastr.warning(
-              $localize`:Company does not exist|The given company name is not known to the application:Company name not recognized`
+              $localize`:Project does not exist|The given project name is not known to the application:Project name not recognized`
             );
           break;
         case 'host':
@@ -195,7 +195,7 @@ export class ListHostsComponent {
     if (tags?.length) filterObject['tags'] = tags;
     if (domains?.length) filterObject['domain'] = domains;
     if (hosts?.length) filterObject['host'] = hosts;
-    if (companies?.length) filterObject['company'] = companies;
+    if (projects?.length) filterObject['project'] = projects;
     return filterObject;
   }
 
@@ -207,8 +207,8 @@ export class ListHostsComponent {
   }
 
   async addNewHosts() {
-    if (!this.selectedCompany) {
-      this.toastr.warning($localize`:Missing company|The data selected is missing the company id:Missing company`);
+    if (!this.selectedProject) {
+      this.toastr.warning($localize`:Missing project|The data selected is missing the project id:Missing project`);
       return;
     }
 
@@ -225,7 +225,7 @@ export class ListHostsComponent {
     if (newHosts.length == 0) return;
 
     try {
-      const addedHosts = await this.hostsService.addHosts(this.selectedCompany, newHosts);
+      const addedHosts = await this.hostsService.addHosts(this.selectedProject, newHosts);
       this.toastr.success($localize`:Changes saved|Changes to item saved successfully:Changes saved successfully`);
 
       if (addedHosts.length < newHosts.length) {
@@ -236,7 +236,7 @@ export class ListHostsComponent {
 
       this.dialog.closeAll();
       this.currentPage$.next(this.currentPage);
-      this.selectedCompany = '';
+      this.selectedProject = '';
       this.selectedNewHosts = '';
     } catch (err: any) {
       if (err.status === HttpStatus.BadRequest) {
@@ -252,8 +252,8 @@ export class ListHostsComponent {
   public deleteHosts() {
     const bulletPoints: string[] = Array<string>();
     this.selection.selected.forEach((host: Host) => {
-      const companyName = this.companies.find((d) => d._id === host.companyId)?.name;
-      const bp = companyName ? `${host.ip} (${companyName})` : `${host.ip}`;
+      const projectName = this.projects.find((d) => d._id === host.projectId)?.name;
+      const bp = projectName ? `${host.ip} (${projectName})` : `${host.ip}`;
       bulletPoints.push(bp);
     });
     let data: ConfirmDialogData;

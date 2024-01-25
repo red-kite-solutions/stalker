@@ -24,7 +24,7 @@ export class CronSubscription {
   public name!: string;
 
   @Prop()
-  public companyId?: Types.ObjectId;
+  public projectId?: Types.ObjectId;
 
   @Prop()
   public input?: InputSource;

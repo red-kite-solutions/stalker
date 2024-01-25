@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { firstValueFrom, map, Observable } from 'rxjs';
 import { EventSubscription, EventSubscriptionData } from 'src/app/shared/types/subscriptions/subscription.type';
 import { environment } from 'src/environments/environment';
-import { allCompaniesSubscriptions } from '../../constants';
+import { allProjectsSubscriptions } from '../../constants';
 import { GenericSubscriptionService } from './base-subscription.service';
 
 export const eventSubscriptionKey = 'event';
@@ -40,7 +40,7 @@ export class EventSubscriptionsService implements GenericSubscriptionService<Eve
       name: newSub.name,
       finding: newSub.finding,
       cooldown: newSub.cooldown,
-      companyId: newSub.companyId ? newSub.companyId : allCompaniesSubscriptions,
+      projectId: newSub.projectId ? newSub.projectId : allProjectsSubscriptions,
       job: {
         name: newSub.jobName,
       },
@@ -66,7 +66,7 @@ export class EventSubscriptionsService implements GenericSubscriptionService<Eve
       finding: subscription.finding,
       cooldown: subscription.cooldown,
       jobName: subscription.job.name,
-      companyId: subscription.companyId === allCompaniesSubscriptions ? undefined : subscription.companyId,
+      projectId: subscription.projectId === allProjectsSubscriptions ? undefined : subscription.projectId,
     };
 
     if (subscription.job.parameters) {
@@ -89,7 +89,7 @@ export class EventSubscriptionsService implements GenericSubscriptionService<Eve
       _id: data._id,
       name: data.name,
       finding: data.finding,
-      companyId: data.companyId ? data.companyId : allCompaniesSubscriptions,
+      projectId: data.projectId ? data.projectId : allProjectsSubscriptions,
       cooldown: data.cooldown,
       builtIn: data.builtIn,
       job: { name: data.jobName },

@@ -194,7 +194,7 @@ To start a Nuclei custom job with the default parser, you must configure the def
 
 ##### Nuclei Custom Finding Handling
 
-The custom finding handler parses every json output line from Nuclei in the `parse_finding` method. To help you in parsing the Nuclei output, the `NucleiFinding` class is provided. The handler then outputs them all in the `publish_findings` method. Everything that is outputed by the `parse_finding` method will be given to the `publish_findings` method in a list. To publish your findings properly, you can refer to [the findings' documentation](./findings.md).
+The custom finding handler parses every json output line from Nuclei in the `parse_finding` method. To help you in parsing the Nuclei output, the `NucleiFinding` class is provided. The handler then outputs them all in the `publish_findings` method. Everything that is outputted by the `parse_finding` method will be given to the `publish_findings` method in a list. To publish your findings properly, you can refer to [the findings' documentation](./findings.md).
 
 The custom finding handler template's code:
 

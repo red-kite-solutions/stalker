@@ -6,10 +6,10 @@ import { UnauthenticatedComponent } from './layouts/unauthenticated/unauthentica
 import { AuthComponent } from './modules/auth/auth.component';
 import { FirstComponent } from './modules/auth/first/first.component';
 import { LoginComponent } from './modules/auth/login/login.component';
-import { EditCompaniesComponent } from './modules/companies/edit-companies/edit-companies.component';
 import { CustomJobsComponent } from './modules/jobs/custom-jobs/custom-jobs.component';
 import { JobExecutionDetailComponent } from './modules/jobs/job-executions/job-execution-detail.component';
 import { LaunchJobsComponent } from './modules/jobs/launch-jobs/launch-jobs.component';
+import { EditProjectsComponent } from './modules/projects/edit-projects/edit-projects.component';
 import { ProfileComponent } from './modules/user/profile/profile.component';
 
 const routes: Routes = [
@@ -30,13 +30,13 @@ const routes: Routes = [
         loadChildren: () => import('./modules/admin/admin.module').then((m) => m.AdminModule),
       },
       {
-        path: 'companies',
+        path: 'projects',
         loadComponent: () =>
-          import('./modules/companies/list-companies/list-companies.component').then((c) => c.ListCompaniesComponent),
+          import('./modules/projects/list-projects/list-projects.component').then((c) => c.ListProjectsComponent),
       },
       {
-        path: 'companies/:id',
-        component: EditCompaniesComponent,
+        path: 'projects/:id',
+        component: EditProjectsComponent,
       },
       {
         path: 'domains',

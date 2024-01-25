@@ -19,14 +19,14 @@ import { JobFactory } from '../../jobs/jobs.factory';
 import { JobsService } from '../../jobs/jobs.service';
 import { CustomJob } from '../../jobs/models/custom-job.model';
 import { Job } from '../../jobs/models/jobs.model';
-import { CompanyDocument } from '../../reporting/company.model';
-import { CompanyService } from '../../reporting/company.service';
 import { Domain, DomainDocument } from '../../reporting/domain/domain.model';
 import { DomainsService } from '../../reporting/domain/domain.service';
 import { HostDocument } from '../../reporting/host/host.model';
 import { HostService } from '../../reporting/host/host.service';
 import { Port } from '../../reporting/port/port.model';
 import { PortService } from '../../reporting/port/port.service';
+import { ProjectDocument } from '../../reporting/project.model';
+import { ProjectService } from '../../reporting/project.service';
 import { CRON_SUBSCRIPTIONS_FILES_PATH } from '../subscriptions.constants';
 import { SubscriptionsUtils } from '../subscriptions.utils';
 import { CronSubscriptionDto } from './cron-subscriptions.dto';
@@ -43,7 +43,7 @@ export class CronSubscriptionsService {
   constructor(
     @InjectModel('cronSubscriptions')
     private readonly subscriptionModel: Model<CronSubscription>,
-    private readonly companyService: CompanyService,
+    private readonly projectService: ProjectService,
     private readonly configService: ConfigService,
     private readonly customJobsService: CustomJobsService,
     private readonly jobsService: JobsService,
@@ -54,7 +54,7 @@ export class CronSubscriptionsService {
 
   public async create(dto: CronSubscriptionDto) {
     const sub: CronSubscription = {
-      companyId: dto.companyId ? new Types.ObjectId(dto.companyId) : null,
+      projectId: dto.projectId ? new Types.ObjectId(dto.projectId) : null,
       name: dto.name,
       input: dto.input ? dto.input : null,
       cronExpression: dto.cronExpression,
@@ -78,7 +78,7 @@ export class CronSubscriptionsService {
     dto: CronSubscriptionDto,
   ): Promise<UpdateResult> {
     const sub: Partial<CronSubscription> = {
-      companyId: dto.companyId ? new Types.ObjectId(dto.companyId) : null,
+      projectId: dto.projectId ? new Types.ObjectId(dto.projectId) : null,
       name: dto.name,
       input: dto.input ? dto.input : null,
       cronExpression: dto.cronExpression,
@@ -98,17 +98,17 @@ export class CronSubscriptionsService {
     });
   }
 
-  public async deleteAllForCompany(companyId: string): Promise<DeleteResult> {
+  public async deleteAllForProject(projectId: string): Promise<DeleteResult> {
     return await this.subscriptionModel.deleteMany({
-      companyId: { $eq: new Types.ObjectId(companyId) },
+      projectId: { $eq: new Types.ObjectId(projectId) },
     });
   }
 
   /**
    * Launches the job specified in a cron subscription.
    *
-   * If no `companyId` is specified in the cron subscription, the job
-   * is launched for every company.
+   * If no `projectId` is specified in the cron subscription, the job
+   * is launched for every project.
    *
    * @param id The cron subscription mongo id
    * @returns
@@ -136,26 +136,26 @@ export class CronSubscriptionsService {
       if (!sub.jobParameters) return;
     }
 
-    await this.setupSubscriptionsForCompanies(sub);
+    await this.setupSubscriptionsForProjects(sub);
   }
 
-  private async setupSubscriptionsForCompanies(sub: CronSubscription) {
-    // if no company id, it launches for all companies
-    const companyIds = sub.companyId
-      ? [sub.companyId.toString()]
-      : await this.companyService.getAllIds();
+  private async setupSubscriptionsForProjects(sub: CronSubscription) {
+    // if no project id, it launches for all projects
+    const projectIds = sub.projectId
+      ? [sub.projectId.toString()]
+      : await this.projectService.getAllIds();
 
-    for (const companyId of companyIds) {
-      const companyIdParameter = new JobParameter();
-      companyIdParameter.name = 'companyId';
-      companyIdParameter.value = companyId;
+    for (const projectId of projectIds) {
+      const projectIdParameter = new JobParameter();
+      projectIdParameter.name = 'projectId';
+      projectIdParameter.value = projectId;
       let subCopy: CronSubscription = <CronSubscription>(
         JSON.parse(JSON.stringify(sub))
       );
-      subCopy.jobParameters.push(companyIdParameter);
+      subCopy.jobParameters.push(projectIdParameter);
 
       if (subCopy.input) {
-        this.publishJobsFromInput(subCopy, companyId);
+        this.publishJobsFromInput(subCopy, projectId);
       } else {
         let conditionPassed = true;
         for (const condition of subCopy.conditions ?? []) {
@@ -172,12 +172,12 @@ export class CronSubscriptionsService {
 
   private async publishJobsFromInput(
     sub: CronSubscription,
-    companyId: string,
+    projectId: string,
     pageSize: number = 100,
   ) {
     const now = Date.now();
     const filter = {
-      companyId: new Types.ObjectId(companyId),
+      projectId: new Types.ObjectId(projectId),
       createdAt: { $lte: now },
     };
     const tcpPortFilter: FilterQuery<Port> = {
@@ -229,7 +229,7 @@ export class CronSubscriptionsService {
         } while (hosts.length >= pageSize);
         break;
       case 'ALL_IP_RANGES':
-        const ranges = await this.companyService.getIpRanges(companyId);
+        const ranges = await this.projectService.getIpRanges(projectId);
         this.publishJobsFromIpRanges(sub, ranges);
         break;
       default:
@@ -263,11 +263,11 @@ export class CronSubscriptionsService {
 
   private publishJobsFromIpRanges(
     sub: CronSubscription,
-    company: Pick<CompanyDocument, 'ipRanges'>,
+    project: Pick<ProjectDocument, 'ipRanges'>,
   ) {
-    if (!company.ipRanges) return;
+    if (!project.ipRanges) return;
 
-    for (const range of company.ipRanges) {
+    for (const range of project.ipRanges) {
       const finding = new IpRangeFinding();
       const ipMask = range.split('/');
       try {

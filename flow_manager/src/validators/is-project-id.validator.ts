@@ -1,4 +1,4 @@
-export const CompanyUnassigned = 'unassigned';
+export const ProjectUnassigned = 'unassigned';
 
 import {
   isMongoId,
@@ -8,22 +8,22 @@ import {
   ValidationOptions,
 } from 'class-validator';
 
-export function IsCompanyId(validationOptions?: ValidationOptions) {
+export function IsProjectId(validationOptions?: ValidationOptions) {
   return function (object: Object, propertyName: string) {
     registerDecorator({
-      name: 'isCompanyId',
+      name: 'isProjectId',
       target: object.constructor,
       propertyName: propertyName,
       options: validationOptions,
       validator: {
         validate(value: any, args: ValidationArguments) {
-          return isCompanyId(value);
+          return isProjectId(value);
         },
       },
     });
   };
 }
 
-export function isCompanyId(value: any) {
-  return isString(value) && (isMongoId(value) || value === CompanyUnassigned);
+export function isProjectId(value: any) {
+  return isString(value) && (isMongoId(value) || value === ProjectUnassigned);
 }

@@ -24,37 +24,37 @@ export class PortService {
     @InjectModel('port') private readonly portsModel: Model<Port>,
   ) {}
 
-  private readonly hostNotFoundError = 'Invalid host and company combination.';
+  private readonly hostNotFoundError = 'Invalid host and project combination.';
   private readonly badProtocolError = 'Protocol must be either "tcp" or "udp"';
 
   /**
    *
    * @param ip
-   * @param companyId
+   * @param projectId
    * @param portNumber
    * @param protocol
    * @returns The added port if added, null if the port was a duplicate
    */
   public async addPortByIp(
     ip: string,
-    companyId: string,
+    projectId: string,
     portNumber: number,
     protocol: 'tcp' | 'udp',
   ) {
     const host = await this.hostModel.findOne({
       ip: { $eq: ip },
-      companyId: { $eq: new Types.ObjectId(companyId) },
+      projectId: { $eq: new Types.ObjectId(projectId) },
     });
     if (!host) throw new HttpNotFoundException(this.hostNotFoundError);
     const correlationKey = CorrelationKeyUtils.portCorrelationKey(
-      companyId,
+      projectId,
       host.ip,
       portNumber,
       protocol,
     );
-    return this.addPortToValidCompanyHost(
+    return this.addPortToValidProjectHost(
       host._id.toString(),
-      companyId,
+      projectId,
       portNumber,
       protocol,
       correlationKey,
@@ -64,40 +64,40 @@ export class PortService {
   /**
    *
    * @param hostId
-   * @param companyId
+   * @param projectId
    * @param portNumber
    * @param protocol
    * @returns The added port if added, null if the port was a duplicate
    */
   public async addPort(
     hostId: string,
-    companyId: string,
+    projectId: string,
     portNumber: number,
     protocol: 'tcp' | 'udp',
   ) {
     const host = await this.hostModel.findOne({
       _id: { $eq: new Types.ObjectId(hostId) },
-      companyId: { $eq: new Types.ObjectId(companyId) },
+      projectId: { $eq: new Types.ObjectId(projectId) },
     });
     if (!host) throw new HttpNotFoundException(this.hostNotFoundError);
     const correlationKey = CorrelationKeyUtils.portCorrelationKey(
-      companyId,
+      projectId,
       host.ip,
       portNumber,
       protocol,
     );
-    return await this.addPortToValidCompanyHost(
+    return await this.addPortToValidProjectHost(
       hostId,
-      companyId,
+      projectId,
       portNumber,
       protocol,
       correlationKey,
     );
   }
 
-  private async addPortToValidCompanyHost(
+  private async addPortToValidProjectHost(
     validHostId: string,
-    validCompanyId: string,
+    validProjectId: string,
     portNumber: number,
     protocol: string,
     correlationKey: string,
@@ -110,7 +110,7 @@ export class PortService {
       );
     const port = new Port();
     port.port = portNumber;
-    port.companyId = new Types.ObjectId(validCompanyId);
+    port.projectId = new Types.ObjectId(validProjectId);
     port.hostId = new Types.ObjectId(validHostId);
     port.layer4Protocol = protocol;
     port.correlationKey = correlationKey;
@@ -234,9 +234,9 @@ export class PortService {
     return portsLevelFilter;
   }
 
-  public async deleteAllForCompany(companyId: string): Promise<DeleteResult> {
+  public async deleteAllForProject(projectId: string): Promise<DeleteResult> {
     return await this.portsModel.deleteMany({
-      companyId: { $eq: new Types.ObjectId(companyId) },
+      projectId: { $eq: new Types.ObjectId(projectId) },
     });
   }
 

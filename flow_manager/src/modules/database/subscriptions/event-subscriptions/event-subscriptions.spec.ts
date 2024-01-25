@@ -1,26 +1,26 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../../../app.module';
-import { CompanyService } from '../../reporting/company.service';
+import { ProjectService } from '../../reporting/project.service';
 import { EventSubscriptionDto } from './event-subscriptions.dto';
 import { EventSubscriptionsService } from './event-subscriptions.service';
 
 describe('Event Subscriptions Service', () => {
   let moduleFixture: TestingModule;
-  let companyService: CompanyService;
+  let projectService: ProjectService;
   let subscriptionsService: EventSubscriptionsService;
 
   beforeAll(async () => {
     moduleFixture = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    companyService = moduleFixture.get(CompanyService);
+    projectService = moduleFixture.get(ProjectService);
     subscriptionsService = moduleFixture.get(EventSubscriptionsService);
   });
 
   beforeEach(async () => {
-    const allCompanies = await companyService.getAll();
-    for (const c of allCompanies) {
-      await companyService.delete(c._id);
+    const allProjects = await projectService.getAll();
+    for (const c of allProjects) {
+      await projectService.delete(c._id);
     }
     const allSubs = await subscriptionsService.getAll();
     for (const s of allSubs) {
@@ -33,15 +33,15 @@ describe('Event Subscriptions Service', () => {
   });
 
   describe('Get event subscriptions', () => {
-    it('Should get only the event subscriptions for the company', async () => {
+    it('Should get only the event subscriptions for the project', async () => {
       // Arrange
-      const c1 = await company('sub-c1');
-      const c2 = await company('sub-c2');
+      const c1 = await project('sub-c1');
+      const c2 = await project('sub-c2');
       const finding = 'HostnameFinding';
       const name = 'my special name';
 
       const subData: EventSubscriptionDto = {
-        companyId: '',
+        projectId: '',
         name: 'my sub',
         jobName: 'DomainNameResolvingJob',
         finding: finding,
@@ -50,11 +50,11 @@ describe('Event Subscriptions Service', () => {
 
       const s1 = await subscription({
         ...subData,
-        companyId: c1._id.toString(),
+        projectId: c1._id.toString(),
       });
       const s2 = await subscription({
         ...subData,
-        companyId: c2._id.toString(),
+        projectId: c2._id.toString(),
         name: name,
       });
 
@@ -66,19 +66,19 @@ describe('Event Subscriptions Service', () => {
 
       // Assert
       expect(subs.length).toStrictEqual(1);
-      expect(subs[0].companyId).toStrictEqual(c2._id);
+      expect(subs[0].projectId).toStrictEqual(c2._id);
       expect(subs[0].name).toStrictEqual(name);
     });
 
     it('Should get only the event subscriptions for the finding', async () => {
       // Arrange
-      const c1 = await company('sub-c12');
-      const c2 = await company('sub-c22');
+      const c1 = await project('sub-c12');
+      const c2 = await project('sub-c22');
       const finding = 'HostnameFinding';
       const finding2 = 'HostnameIpFinding';
 
       const subData: EventSubscriptionDto = {
-        companyId: '',
+        projectId: '',
         name: 'my sub',
         jobName: 'DomainNameResolvingJob',
         finding: finding,
@@ -87,11 +87,11 @@ describe('Event Subscriptions Service', () => {
 
       const s1 = await subscription({
         ...subData,
-        companyId: c1._id.toString(),
+        projectId: c1._id.toString(),
       });
       const s2 = await subscription({
         ...subData,
-        companyId: c2._id.toString(),
+        projectId: c2._id.toString(),
         finding: finding2,
       });
 
@@ -103,13 +103,13 @@ describe('Event Subscriptions Service', () => {
 
       // Assert
       expect(subs.length).toStrictEqual(1);
-      expect(subs[0].companyId).toStrictEqual(c2._id);
+      expect(subs[0].projectId).toStrictEqual(c2._id);
       expect(subs[0].finding).toStrictEqual(finding2);
     });
   });
 
-  async function company(name: string) {
-    return await companyService.addCompany({
+  async function project(name: string) {
+    return await projectService.addProject({
       name: name,
       imageType: null,
       logo: null,

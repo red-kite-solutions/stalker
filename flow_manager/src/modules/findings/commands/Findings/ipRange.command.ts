@@ -3,10 +3,10 @@ import { FindingCommand } from '../findings.command';
 
 export class IpRangeCommand extends FindingCommand {
   constructor(
-    companyId: string,
+    projectId: string,
     commandType: string,
     public readonly finding: IpRangeFinding,
   ) {
-    super(companyId, commandType);
+    super(projectId, commandType);
   }
 }

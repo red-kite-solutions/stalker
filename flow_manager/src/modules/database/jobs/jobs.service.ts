@@ -2,34 +2,34 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ChangeStream, ChangeStreamDocument, UpdateResult } from 'mongodb';
 import { Document, Model, Types } from 'mongoose';
+import { HttpNotFoundException } from '../../../exceptions/http.exceptions';
 import { JobLog } from '../../../types/job-log.model';
 import { Page } from '../../../types/page.type';
 import {
   JobLogLevel,
   TimestampedString,
 } from '../../../types/timestamped-string.type';
-import { CompanyUnassigned } from '../../../validators/is-company-id.validator';
+import { ProjectUnassigned } from '../../../validators/is-project-id.validator';
 import { FM_ENVIRONMENTS } from '../../app.constants';
 import { JobQueue } from '../../job-queue/job-queue';
+import { Project } from '../reporting/project.model';
 import { JobExecutionsDto } from './jobs.dto';
 import { Job, JobDocument } from './models/jobs.model';
-import { Company } from '../reporting/company.model';
-import { HttpNotFoundException } from '../../../exceptions/http.exceptions';
 
 @Injectable()
 export class JobsService {
   constructor(
     private jobQueue: JobQueue,
     @InjectModel('job') private readonly jobModel: Model<Job & Document>,
-    @InjectModel('company') private readonly companyModel: Model<Company>,
+    @InjectModel('project') private readonly projectModel: Model<Project>,
   ) {}
 
   public async getAll(dto: JobExecutionsDto): Promise<Page<JobDocument>> {
     // Build filter
     const filters = {};
-    if (dto.company) {
-      filters['companyId'] = {
-        $eq: new Types.ObjectId(dto.company),
+    if (dto.project) {
+      filters['projectId'] = {
+        $eq: new Types.ObjectId(dto.project),
       };
     }
 
@@ -55,9 +55,9 @@ export class JobsService {
     await this.jobModel.deleteOne({ _id: { $eq: id } });
   }
 
-  public async deleteAllForCompany(companyId: string): Promise<void> {
+  public async deleteAllForProject(projectId: string): Promise<void> {
     await this.jobModel.deleteMany({
-      companyId: { $eq: companyId },
+      projectId: { $eq: projectId },
     });
   }
 
@@ -71,16 +71,16 @@ export class JobsService {
 
   public async publish(job: Job) {
     let createdJob: JobDocument;
-    if (job.companyId === CompanyUnassigned) {
+    if (job.projectId === ProjectUnassigned) {
       createdJob = await this.jobModel.create({
         ...job,
-        companyId: undefined,
+        projectId: undefined,
         publishTime: Date.now(),
       });
-      createdJob.companyId = job.companyId;
+      createdJob.projectId = job.projectId;
     } else {
-      if (!(await this.companyModel.findById(job.companyId)))
-        throw new HttpNotFoundException(`Company ${job.companyId} not found`);
+      if (!(await this.projectModel.findById(job.projectId)))
+        throw new HttpNotFoundException(`Project ${job.projectId} not found`);
       createdJob = await this.jobModel.create(job);
     }
 
@@ -168,7 +168,7 @@ export class JobsService {
       items:
         job.output
           ?.map((log) => ({
-            companyId: job.companyId,
+            projectId: job.projectId,
             jobId: jobId,
             level: log.level,
             value: log.value,

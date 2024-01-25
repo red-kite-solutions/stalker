@@ -7,17 +7,17 @@ import { HttpBadRequestException } from '../../../exceptions/http.exceptions';
 import { JobsService } from '../jobs/jobs.service';
 import { CronSubscription } from '../subscriptions/cron-subscriptions/cron-subscriptions.model';
 import { EventSubscriptionsService } from '../subscriptions/event-subscriptions/event-subscriptions.service';
-import { CreateCompanyDto } from './company.dto';
-import { Company, CompanyDocument } from './company.model';
 import { DomainsService } from './domain/domain.service';
 import { CustomFinding } from './findings/finding.model';
 import { HostService } from './host/host.service';
 import { PortService } from './port/port.service';
+import { CreateProjectDto } from './project.dto';
+import { Project, ProjectDocument } from './project.model';
 
 @Injectable()
-export class CompanyService {
+export class ProjectService {
   constructor(
-    @InjectModel('company') private readonly companyModel: Model<Company>,
+    @InjectModel('project') private readonly projectModel: Model<Project>,
     private readonly domainsService: DomainsService,
     private readonly hostsService: HostService,
     private readonly jobsService: JobsService,
@@ -32,8 +32,8 @@ export class CompanyService {
   public async getAll(
     page: number = null,
     pageSize: number = null,
-  ): Promise<CompanyDocument[]> {
-    let query = this.companyModel.find();
+  ): Promise<ProjectDocument[]> {
+    let query = this.projectModel.find();
     if (page != null && pageSize != null) {
       query = query.skip(page).limit(pageSize);
     }
@@ -44,8 +44,8 @@ export class CompanyService {
   public async getAllSummaries(
     page: number = null,
     pageSize: number = null,
-  ): Promise<Company[]> {
-    let query = this.companyModel.find().select('name');
+  ): Promise<Project[]> {
+    let query = this.projectModel.find().select('name');
     if (page != null && pageSize != null) {
       query = query.skip(page).limit(pageSize);
     }
@@ -57,7 +57,7 @@ export class CompanyService {
     page: number = null,
     pageSize: number = null,
   ): Promise<string[]> {
-    let query = this.companyModel.find().select('_id');
+    let query = this.projectModel.find().select('_id');
     if (page != null && pageSize != null) {
       query = query.skip(page).limit(pageSize);
     }
@@ -69,37 +69,37 @@ export class CompanyService {
   }
 
   /**
-   * This method returns the company with the id provided
+   * This method returns the project with the id provided
    * @param id
-   * @returns A company object document
+   * @returns A project object document
    */
-  public async get(id: string): Promise<CompanyDocument> {
-    return await this.companyModel.findById(id).exec();
+  public async get(id: string): Promise<ProjectDocument> {
+    return await this.projectModel.findById(id).exec();
   }
 
-  public async addCompany(dto: CreateCompanyDto) {
-    return await new this.companyModel({
+  public async addProject(dto: CreateProjectDto) {
+    return await new this.projectModel({
       name: dto.name,
       logo: dto.logo ? this.generateFullImage(dto.logo, dto.imageType) : '',
     }).save();
   }
 
-  public async update(id: string, company: Company) {
-    await this.companyModel.updateOne({ _id: { $eq: id } }, company);
+  public async update(id: string, project: Project) {
+    await this.projectModel.updateOne({ _id: { $eq: id } }, project);
   }
 
   public async delete(id: string): Promise<DeleteResult> {
-    const result = await this.companyModel.deleteOne({ _id: { $eq: id } });
-    await this.hostsService.deleteAllForCompany(id);
-    await this.domainsService.deleteAllForCompany(id);
-    await this.jobsService.deleteAllForCompany(id);
-    await this.subscriptionsService.deleteAllForCompany(id);
-    await this.portsService.deleteAllForCompany(id);
+    const result = await this.projectModel.deleteOne({ _id: { $eq: id } });
+    await this.hostsService.deleteAllForProject(id);
+    await this.domainsService.deleteAllForProject(id);
+    await this.jobsService.deleteAllForProject(id);
+    await this.subscriptionsService.deleteAllForProject(id);
+    await this.portsService.deleteAllForProject(id);
     await this.findingModel.deleteMany({
-      companyId: { $eq: new Types.ObjectId(id) },
+      projectId: { $eq: new Types.ObjectId(id) },
     });
     await this.cronSubscriptionModel.deleteMany({
-      companyId: { $eq: new Types.ObjectId(id) },
+      projectId: { $eq: new Types.ObjectId(id) },
     });
     return result;
   }
@@ -108,20 +108,20 @@ export class CompanyService {
     return `data:image/${imageType};base64,${b64Content}`;
   }
 
-  public async editCompany(
+  public async editProject(
     id: string,
-    company: Partial<Company>,
+    project: Partial<Project>,
   ): Promise<UpdateResult> {
-    return await this.companyModel.updateOne(
+    return await this.projectModel.updateOne(
       { _id: { $eq: id } },
-      { ...company },
+      { ...project },
     );
   }
 
   public async getIpRanges(
     id: string,
-  ): Promise<Pick<CompanyDocument, 'ipRanges'>> {
-    return await this.companyModel.findById(id, 'ipRanges');
+  ): Promise<Pick<ProjectDocument, 'ipRanges'>> {
+    return await this.projectModel.findById(id, 'ipRanges');
   }
 
   public async addIpRangeWithMask(id: string, ip: string, mask: number) {
@@ -133,7 +133,7 @@ export class CompanyService {
       throw new HttpBadRequestException('Ip is not an IPv4 address');
 
     const range = `${ip}/${mask}`;
-    await this.companyModel.updateOne(
+    await this.projectModel.updateOne(
       { _id: { $eq: new Types.ObjectId(id) } },
       { $addToSet: { ipRanges: range } },
     );

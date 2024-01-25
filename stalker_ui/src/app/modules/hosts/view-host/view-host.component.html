@@ -1,5 +1,5 @@
 @if (host$ | async; as host) {
-  <app-page-header [parts]="[(companies$ | async | whereId: [host?.companyId])?.name, host.ip]"> </app-page-header>
+  <app-page-header [parts]="[(projects$ | async | whereId: [host?.projectId])?.name, host.ip]"> </app-page-header>
   <div class="content-wrapper">
     <div class="content">
       <findings-list [correlationKey]="host.correlationKey"></findings-list>

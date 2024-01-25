@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { firstValueFrom, map, Observable } from 'rxjs';
 import { CronSubscription, CronSubscriptionData } from 'src/app/shared/types/subscriptions/subscription.type';
 import { environment } from 'src/environments/environment';
-import { allCompaniesSubscriptions } from '../../constants';
+import { allProjectsSubscriptions } from '../../constants';
 import { GenericSubscriptionService } from './base-subscription.service';
 
 export const cronSubscriptionKey = 'cron';
@@ -39,7 +39,7 @@ export class CronSubscriptionsService implements GenericSubscriptionService<Cron
       _id: newSub._id,
       name: newSub.name,
       cronExpression: newSub.cronExpression,
-      companyId: newSub.companyId ? newSub.companyId : allCompaniesSubscriptions,
+      projectId: newSub.projectId ? newSub.projectId : allProjectsSubscriptions,
       input: newSub.input ?? undefined,
       job: {
         name: newSub.jobName,
@@ -64,7 +64,7 @@ export class CronSubscriptionsService implements GenericSubscriptionService<Cron
       name: subscription.name,
       cronExpression: subscription.cronExpression,
       jobName: subscription.job.name,
-      companyId: subscription.companyId === allCompaniesSubscriptions ? undefined : subscription.companyId,
+      projectId: subscription.projectId === allProjectsSubscriptions ? undefined : subscription.projectId,
     };
 
     if (subscription.job.parameters) {
@@ -89,7 +89,7 @@ export class CronSubscriptionsService implements GenericSubscriptionService<Cron
       name: data.name,
       cronExpression: data.cronExpression,
       input: data.input ?? undefined,
-      companyId: data.companyId ? data.companyId : allCompaniesSubscriptions,
+      projectId: data.projectId ? data.projectId : allProjectsSubscriptions,
       job: { name: data.jobName },
       builtIn: data.builtIn,
     };

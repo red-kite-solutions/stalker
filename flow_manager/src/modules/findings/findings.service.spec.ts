@@ -6,18 +6,18 @@ import { HttpNotFoundException } from '../../exceptions/http.exceptions';
 import { AppModule } from '../app.module';
 import { DomainNameResolvingJob } from '../database/jobs/models/domain-name-resolving.model';
 import { Job } from '../database/jobs/models/jobs.model';
-import { CompanyService } from '../database/reporting/company.service';
 import { CorrelationKeyUtils } from '../database/reporting/correlation.utils';
 import {
   CustomFinding,
   FindingTextField,
 } from '../database/reporting/findings/finding.model';
+import { ProjectService } from '../database/reporting/project.service';
 import { FindingsService } from './findings.service';
 
 describe('Findings Service Spec', () => {
   let moduleFixture: TestingModule;
   let findingsService: FindingsService;
-  let companyService: CompanyService;
+  let projectService: ProjectService;
   let findingsModel: Model<CustomFinding>;
   let jobsModel: Model<Job>;
 
@@ -26,7 +26,7 @@ describe('Findings Service Spec', () => {
       imports: [AppModule],
     }).compile();
     findingsService = moduleFixture.get(FindingsService);
-    companyService = moduleFixture.get(CompanyService);
+    projectService = moduleFixture.get(ProjectService);
     findingsModel = moduleFixture.get<Model<CustomFinding>>(
       getModelToken('finding'),
     );
@@ -88,7 +88,7 @@ describe('Findings Service Spec', () => {
     expect(secondPage.items.map((x) => x.name).join('')).toBe('ba');
   });
 
-  it('Save - Nonexistent company - Throws', async () => {
+  it('Save - Nonexistent project - Throws', async () => {
     // Arrange
     // Act
     // Assert
@@ -99,7 +99,7 @@ describe('Findings Service Spec', () => {
 
   it('Save - Nonexistent job - Throws', async () => {
     // Arrange
-    const c = await companyService.addCompany({
+    const c = await projectService.addProject({
       name: randomUUID(),
       imageType: null,
       logo: null,
@@ -114,7 +114,7 @@ describe('Findings Service Spec', () => {
 
   it('Save - Nonexistent job - Throws', async () => {
     // Arrange
-    const c = await companyService.addCompany({
+    const c = await projectService.addProject({
       name: randomUUID(),
       imageType: null,
       logo: null,
@@ -137,14 +137,14 @@ describe('Findings Service Spec', () => {
     'Save - Invalid finding correlation information - Throws',
     async (domainName: string, ip: string, port: number) => {
       // Arrange
-      const c = await companyService.addCompany({
+      const c = await projectService.addProject({
         name: randomUUID(),
         imageType: null,
         logo: null,
       });
 
       const j = await jobsModel.create({
-        companyId: c.id,
+        projectId: c.id,
         task: DomainNameResolvingJob.name,
       });
 
@@ -166,14 +166,14 @@ describe('Findings Service Spec', () => {
 
   it('Save - Valid findings - Returns findings', async () => {
     // Arrange
-    const c = await companyService.addCompany({
+    const c = await projectService.addProject({
       name: randomUUID(),
       imageType: null,
       logo: null,
     });
 
     const j = await jobsModel.create({
-      companyId: c.id,
+      projectId: c.id,
       task: DomainNameResolvingJob.name,
     });
 

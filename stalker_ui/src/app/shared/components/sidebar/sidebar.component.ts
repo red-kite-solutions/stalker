@@ -15,7 +15,7 @@ export class SidebarComponent {
   dashboard = $localize`:Dashboard|The application's dashboard:Dashboard`;
   users = $localize`:Users|Users list page title:Users`;
   settings = $localize`:Settings|Settings page title to edit the application configuration:Settings`;
-  companies = $localize`:Companies|Multiple businesses:Companies`;
+  projects = $localize`:Projects|Multiple businesses:Projects`;
   domains = $localize`:Domains|A domain name:Domains`;
   tags = $localize`:Tags|An item's tags:Tags`;
   subscriptions = $localize`:Subscriptions|The jobs automation process to subscribe to finding events:Subscriptions`;

@@ -31,11 +31,11 @@ import {
 } from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
 import { SpinnerButtonComponent } from 'src/app/shared/widget/spinner-button/spinner-button.component';
 import { parse } from 'yaml';
-import { CompaniesService } from '../../../api/companies/companies.service';
-import { allCompaniesSubscriptions } from '../../../api/constants';
+import { allProjectsSubscriptions } from '../../../api/constants';
 import { cronSubscriptionKey } from '../../../api/jobs/subscriptions/cron-subscriptions.service';
-import { CompanySummary } from '../../../shared/types/company/company.summary';
+import { ProjectsService } from '../../../api/projects/projects.service';
 import { LocalizedOption } from '../../../shared/types/localized-option.type';
+import { ProjectSummary } from '../../../shared/types/project/project.summary';
 import { CodeEditorComponent, CodeEditorTheme } from '../../../shared/widget/code-editor/code-editor.component';
 import { cronSubscriptionTemplate, eventSubscriptionTemplate } from './subscription-templates';
 
@@ -113,25 +113,25 @@ export class SubscriptionComponent implements OnInit {
   ];
 
   public subscriptionConfigForm = this.fb.group({
-    selectedCompany: new FormControl<string>(allCompaniesSubscriptions),
+    selectedProject: new FormControl<string>(allProjectsSubscriptions),
   });
 
-  companies: CompanySummary[] = [];
-  companies$ = this.companiesService.getAllSummaries().pipe(
+  projects: ProjectSummary[] = [];
+  projects$ = this.projectsService.getAllSummaries().pipe(
     map((next: any[]) => {
-      const comp: CompanySummary[] = [];
-      for (const company of next) {
-        comp.push({ id: company._id, name: company.name });
+      const comp: ProjectSummary[] = [];
+      for (const project of next) {
+        comp.push({ id: project._id, name: project.name });
       }
-      this.companies = comp;
-      return this.companies;
+      this.projects = comp;
+      return this.projects;
     })
   );
 
   constructor(
     private dialog: MatDialog,
     private toastr: ToastrService,
-    private companiesService: CompaniesService,
+    private projectsService: ProjectsService,
     private titleService: Title,
     private fb: FormBuilder,
     private activatedRoute: ActivatedRoute,
@@ -189,9 +189,9 @@ export class SubscriptionComponent implements OnInit {
       return;
     }
 
-    if (this.subscriptionConfigForm.get('selectedCompany')?.value) {
-      const cId = this.subscriptionConfigForm.get('selectedCompany')?.value;
-      sub.companyId = cId ? cId : allCompaniesSubscriptions;
+    if (this.subscriptionConfigForm.get('selectedProject')?.value) {
+      const cId = this.subscriptionConfigForm.get('selectedProject')?.value;
+      sub.projectId = cId ? cId : allProjectsSubscriptions;
     }
 
     try {

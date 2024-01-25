@@ -3,8 +3,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { randomUUID } from 'crypto';
 import { Model } from 'mongoose';
 import { AppModule } from '../../app.module';
-import { CompanyDocument } from '../reporting/company.model';
-import { CompanyService } from '../reporting/company.service';
+import { ProjectDocument } from '../reporting/project.model';
+import { ProjectService } from '../reporting/project.service';
 import { JobsService } from './jobs.service';
 import { DomainNameResolvingJob } from './models/domain-name-resolving.model';
 import { Job } from './models/jobs.model';
@@ -13,21 +13,21 @@ describe('Jobs Service', () => {
   let moduleFixture: TestingModule;
   let jobsModel: Model<Job>;
   let jobsService: JobsService;
-  let companyService: CompanyService;
+  let projectService: ProjectService;
 
   beforeAll(async () => {
     moduleFixture = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
     jobsService = moduleFixture.get(JobsService);
-    companyService = moduleFixture.get(CompanyService);
+    projectService = moduleFixture.get(ProjectService);
     jobsModel = moduleFixture.get<Model<Job>>(getModelToken('job'));
   });
 
   beforeEach(async () => {
-    const allCompanies = await companyService.getAll();
-    for (const c of allCompanies) {
-      await companyService.delete(c._id);
+    const allProjects = await projectService.getAll();
+    for (const c of allProjects) {
+      await projectService.delete(c._id);
     }
   });
 
@@ -38,7 +38,7 @@ describe('Jobs Service', () => {
   it('Get logs - No logs - Returns empty list', async () => {
     // Arrange
     // Act
-    const c = await company(randomUUID());
+    const c = await project(randomUUID());
     const j = await job(c);
     const actual = await jobsService.getLogs(j.id);
 
@@ -49,7 +49,7 @@ describe('Jobs Service', () => {
 
   it('Add and get logs - Existing job - Returns logs', async () => {
     // Arrange
-    const c = await company(randomUUID());
+    const c = await project(randomUUID());
     const j = await job(c);
 
     // Act
@@ -67,17 +67,17 @@ describe('Jobs Service', () => {
     expect(actual.items[2].value).toBe('C');
   });
 
-  async function company(name: string) {
-    return await companyService.addCompany({
+  async function project(name: string) {
+    return await projectService.addProject({
       name: name,
       imageType: null,
       logo: null,
     });
   }
 
-  async function job(company: CompanyDocument) {
+  async function job(project: ProjectDocument) {
     return await jobsModel.create({
-      companyId: company.id,
+      projectId: project.id,
       task: DomainNameResolvingJob.name,
     });
   }

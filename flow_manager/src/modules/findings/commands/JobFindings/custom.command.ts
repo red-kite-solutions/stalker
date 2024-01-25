@@ -4,10 +4,10 @@ import { JobFindingCommand } from '../findings.command';
 export class CustomFindingCommand extends JobFindingCommand {
   constructor(
     jobId: string,
-    companyId: string,
+    projectId: string,
     commandType: string,
     public readonly finding: CreateCustomFinding,
   ) {
-    super(jobId, companyId, commandType);
+    super(jobId, projectId, commandType);
   }
 }
