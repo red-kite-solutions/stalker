@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import * as crypto from 'crypto';
 import { Filter } from 'mongodb';
 import { Model, Types } from 'mongoose';
+import * as forge from 'node-forge';
 import { Secret, SecretDocument } from './secrets.model';
 
-const keyEnvironmentVariable = 'SECRET_AES256_KEY';
+const keyEnvironmentVariable = 'SECRET_PUBLIC_RSA_KEY';
+export const secretPrefix = '$$secret$$';
 
 @Injectable()
 export class SecretsService {
@@ -14,17 +15,18 @@ export class SecretsService {
     private readonly secretModel: Model<Secret>,
   ) {}
 
-  private readonly hideValueProjection = '-value';
-  private static readonly cipherType: crypto.CipherGCMTypes = 'aes-256-gcm';
-  private static readonly key: crypto.CipherKey =
-    process.env[keyEnvironmentVariable];
+  private readonly selectValueProjection = '+value';
+  // private static readonly cipherType: crypto.CipherGCMTypes = 'aes-256-gcm';
+  private static readonly publicKey = forge.pki.publicKeyFromPem(
+    forge.util.decode64(process.env[keyEnvironmentVariable]),
+  );
 
   public async getAll(): Promise<SecretDocument[]> {
-    return await this.secretModel.find({}, this.hideValueProjection);
+    return await this.secretModel.find({});
   }
 
   public async get(id: string): Promise<SecretDocument | null> {
-    return await this.secretModel.findById(id, this.hideValueProjection);
+    return await this.secretModel.findById(id);
   }
 
   /**
@@ -48,10 +50,13 @@ export class SecretsService {
       };
     }
 
-    const secrets = await this.secretModel.find({
-      name: { $eq: name },
-      projectFilter,
-    });
+    const secrets = await this.secretModel.find(
+      {
+        name: { $eq: name },
+        projectFilter,
+      },
+      this.selectValueProjection,
+    );
 
     if (!secrets || (Array.isArray(secrets) && secrets.length === 0))
       return undefined;
@@ -86,35 +91,40 @@ export class SecretsService {
     return this.secretModel.deleteOne({ _id: { $eq: new Types.ObjectId(id) } });
   }
 
-  public static decrypt(value: string): string {
-    const values = value.split('$');
-    const iv = Buffer.from(values[0], 'hex');
-    const tag = Buffer.from(values[1], 'hex');
-    const encrypted = values[2];
-    const decipher = crypto.createDecipheriv(
-      SecretsService.cipherType,
-      SecretsService.key,
-      iv,
-    );
-    decipher.setAuthTag(tag);
-    let decrypted = decipher.update(encrypted, 'hex', 'utf-8');
-    decrypted += decipher.final('utf-8');
-    return decrypted;
-  }
+  // public static decrypt(value: string): string {
+  //   const values = value.split('$');
+  //   const iv = Buffer.from(values[0], 'hex');
+  //   const tag = Buffer.from(values[1], 'hex');
+  //   const encrypted = values[2];
+  //   const decipher = crypto.createDecipheriv(
+  //     SecretsService.cipherType,
+  //     SecretsService.key,
+  //     iv,
+  //   );
+  //   decipher.setAuthTag(tag);
+  //   let decrypted = decipher.update(encrypted, 'hex', 'utf-8');
+  //   decrypted += decipher.final('utf-8');
+  //   return decrypted;
+  // }
 
-  public static encrypt(value: string): string {
-    const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipheriv(
-      SecretsService.cipherType,
-      SecretsService.key,
-      iv,
-    );
-    let encrypted = cipher.update(value, 'utf-8', 'hex');
-    encrypted += cipher.final('hex');
+  // public static encrypt(value: string): string {
+  //   const iv = crypto.randomBytes(16);
+  //   const cipher = crypto.createCipheriv(
+  //     SecretsService.cipherType,
+  //     SecretsService.key,
+  //     iv,
+  //   );
+  //   let encrypted = cipher.update(value, 'utf-8', 'hex');
+  //   encrypted += cipher.final('hex');
 
-    return `${iv.toString('hex')}$${cipher
-      .getAuthTag()
-      .toString('hex')}$${encrypted}`;
+  //   return `${iv.toString('hex')}$${cipher
+  //     .getAuthTag()
+  //     .toString('hex')}$${encrypted}`;
+  // }
+
+  public static encrypt(value: string) {
+    const encrypted = this.publicKey.encrypt(value);
+    return secretPrefix + forge.util.encode64(encrypted);
   }
 
   public async deleteAllForProject(projectId: string) {

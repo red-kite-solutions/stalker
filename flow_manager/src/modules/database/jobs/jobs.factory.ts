@@ -229,6 +229,6 @@ export class JobFactoryUtils {
 
     if (!secret) return value;
 
-    return SecretsService.decrypt(secret.value);
+    return secret.value;
   }
 }

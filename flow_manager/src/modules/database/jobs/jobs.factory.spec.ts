@@ -6,6 +6,7 @@ import { DEFAULT_JOB_POD_FALLBACK_CONFIG } from '../admin/config/config.default'
 import { ConfigService } from '../admin/config/config.service';
 import { JobPodConfiguration } from '../admin/config/job-pod-config/job-pod-config.model';
 import { ProjectService } from '../reporting/project.service';
+import { Secret } from '../secrets/secrets.model';
 import { SecretsService } from '../secrets/secrets.service';
 import { JobParameter } from '../subscriptions/event-subscriptions/event-subscriptions.model';
 import { JobFactoryUtils } from './jobs.factory';
@@ -20,6 +21,7 @@ describe('Jobs Service', () => {
   let configService: ConfigService;
   let jobPodConfigModel: Model<JobPodConfiguration>;
   let secretsService: SecretsService;
+  let secretsModel: Model<Secret>;
 
   beforeAll(async () => {
     moduleFixture = await Test.createTestingModule({
@@ -33,6 +35,7 @@ describe('Jobs Service', () => {
     jobPodConfigModel = moduleFixture.get<Model<JobPodConfiguration>>(
       getModelToken('jobPodConfig'),
     );
+    secretsModel = moduleFixture.get<Model<Secret>>(getModelToken('secret'));
   });
 
   beforeEach(async () => {
@@ -110,7 +113,7 @@ describe('Jobs Service', () => {
     const secretName = 'secretName';
     const secretValue = 'example secret value';
     const secretNameTag = `\$\{\{${secretName}\}\}`;
-    await secretsService.create(secretName, secretValue);
+    const s = await secretsService.create(secretName, secretValue);
 
     // Act
     // @ts-expect-error
@@ -120,7 +123,8 @@ describe('Jobs Service', () => {
     );
 
     // Assert
-    expect(valueToReplace).toStrictEqual(secretValue);
+    const svalue = (await secretsModel.findById(s._id, '+value')).value;
+    expect(valueToReplace).toStrictEqual(svalue);
   });
 
   it('Should inject a secret in a parameter array', async () => {
@@ -142,13 +146,14 @@ describe('Jobs Service', () => {
         value: secretNameTag,
       },
     ];
-    await secretsService.create(secretName, secretValue);
+    const s = await secretsService.create(secretName, secretValue);
 
     // Act
     await JobFactoryUtils.injectSecretsInParameters(params, secretsService);
 
     // Assert
-    expect(params[2].value).toStrictEqual(secretValue);
+    const svalue = (await secretsModel.findById(s._id, '+value')).value;
+    expect(params[2].value).toStrictEqual(svalue);
   });
 
   it('Should inject a secret in a parameter array, with one parameter being an array', async () => {
@@ -170,13 +175,14 @@ describe('Jobs Service', () => {
         value: ['asdf', secretNameTag, 'example'],
       },
     ];
-    await secretsService.create(secretName, secretValue);
+    const s = await secretsService.create(secretName, secretValue);
 
     // Act
     await JobFactoryUtils.injectSecretsInParameters(params, secretsService);
 
     // Assert
-    expect(params[2].value[1]).toStrictEqual(secretValue);
+    const svalue = (await secretsModel.findById(s._id, '+value')).value;
+    expect(params[2].value[1]).toStrictEqual(svalue);
   });
 
   async function jobPodConfig() {

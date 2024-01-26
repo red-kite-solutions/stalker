@@ -1,11 +1,15 @@
+import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
+import { Model } from 'mongoose';
 import { AppModule } from '../../app.module';
 import { MONGO_DUPLICATE_ERROR } from '../database.constants';
 import { ProjectService } from '../reporting/project.service';
-import { SecretsService } from './secrets.service';
+import { Secret } from './secrets.model';
+import { SecretsService, secretPrefix } from './secrets.service';
 
 describe('SecretsService', () => {
   let secretsService: SecretsService;
+  let secretsModel: Model<Secret>;
   let projectsService: ProjectService;
   let moduleFixture: TestingModule;
 
@@ -15,6 +19,7 @@ describe('SecretsService', () => {
     }).compile();
     secretsService = moduleFixture.get(SecretsService);
     projectsService = moduleFixture.get(ProjectService);
+    secretsModel = moduleFixture.get<Model<Secret>>(getModelToken('secret'));
   });
 
   afterAll(async () => {
@@ -34,12 +39,12 @@ describe('SecretsService', () => {
 
   const testingValueToEncrypt = 'example secret string';
 
-  it('Should encrypt and decrypt a secret', () => {
+  it('Should encrypt a secret', () => {
     // Arrange & Act
     const encrypted = SecretsService.encrypt(testingValueToEncrypt);
-    const decrypted = SecretsService.decrypt(encrypted);
     // Assert
-    expect(decrypted).toStrictEqual(testingValueToEncrypt);
+    expect(encrypted).toBeTruthy();
+    expect(encrypted.slice(0, secretPrefix.length)).toStrictEqual(secretPrefix);
   });
 
   it('Should give two different encrypted values for the same input value', () => {
@@ -47,7 +52,7 @@ describe('SecretsService', () => {
     const e1 = SecretsService.encrypt(testingValueToEncrypt);
     const e2 = SecretsService.encrypt(testingValueToEncrypt);
     // Assert
-    expect(e1).not.toEqual(testingValueToEncrypt);
+    expect(e1).not.toEqual(e2);
   });
 
   it('Should create a secret and not return its value', async () => {
@@ -180,9 +185,10 @@ describe('SecretsService', () => {
     const s = await secretsService.getBestSecretWithValue(name);
 
     // Assert
-    expect(s.name).toStrictEqual(name);
+    const s3Value = (await secretsModel.findById(s3._id, '+value')).value;
+    expect(s.name).toStrictEqual(s3.name);
     expect(s.projectId.toString()).toStrictEqual(s3.projectId.toString());
-    expect(SecretsService.decrypt(s.value)).toStrictEqual(sValue);
+    expect(s.value).toStrictEqual(s3Value);
   });
 
   it('Should get the best secret for a project (no secret matching)', async () => {

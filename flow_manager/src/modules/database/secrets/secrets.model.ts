@@ -11,7 +11,7 @@ export class Secret {
   @Prop()
   public projectId?: Types.ObjectId;
 
-  @Prop()
+  @Prop({ select: false })
   public value: string;
 }
 
