@@ -34,7 +34,6 @@ import { parse } from 'yaml';
 import { allProjectsSubscriptions } from '../../../api/constants';
 import { cronSubscriptionKey } from '../../../api/jobs/subscriptions/cron-subscriptions.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
-import { LocalizedOption } from '../../../shared/types/localized-option.type';
 import { ProjectSummary } from '../../../shared/types/project/project.summary';
 import { CodeEditorComponent, CodeEditorTheme } from '../../../shared/widget/code-editor/code-editor.component';
 import { cronSubscriptionTemplate, eventSubscriptionTemplate } from './subscription-templates';
@@ -93,24 +92,10 @@ export class SubscriptionComponent implements OnInit {
   public currentSubscriptionId = '';
   public data = new Array<Subscription>();
 
-  public readonly eventSubscriptionContext = 'event subscription';
-  public readonly cronSubscriptionContext = 'cron susbcription';
-
   public hasBeenSaved = false;
   public get canSave() {
     return this.code != this.originalCode;
   }
-
-  public subscriptionTypes: LocalizedOption[] = [
-    {
-      value: this.eventSubscriptionContext,
-      text: $localize`:Event subscription|Subscription based on an event:Event Subscription`,
-    },
-    {
-      value: this.cronSubscriptionContext,
-      text: $localize`:Cron subscription|Subscription based on time:Cron Subscription`,
-    },
-  ];
 
   public subscriptionConfigForm = this.fb.group({
     selectedProject: new FormControl<string>(allProjectsSubscriptions),
