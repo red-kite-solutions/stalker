@@ -8,6 +8,7 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
 import { Subscription, first } from 'rxjs';
 import { CodeEditorService } from './code-editor.service';
 import { FileTab } from './code-editor.type';
@@ -21,7 +22,7 @@ export type CodeEditorTheme = 'vs' | 'vs-dark' | 'hc-black' | 'hc-light';
 // https://microsoft.github.io/monaco-editor/api/modules/monaco.editor.html
 @Component({
   standalone: true,
-  imports: [],
+  imports: [MatIconModule],
   selector: 'app-code-editor',
   templateUrl: './code-editor.component.html',
   styleUrls: ['./code-editor.component.scss'],
@@ -320,7 +321,7 @@ export class CodeEditorComponent implements AfterContentInit, OnDestroy {
   }
 
   public selectFileTab(index: number) {
-    if (!(0 <= index && index < this._fileTabs.length)) return;
+    if (index < 0 || index >= this._fileTabs.length) return;
 
     const state = this._editor.saveViewState();
     this._fileTabs[this._currentFileTabIndex].state = state;
@@ -331,14 +332,14 @@ export class CodeEditorComponent implements AfterContentInit, OnDestroy {
   }
 
   public deleteFileTab(index: number) {
-    if (!(0 <= index && index < this._fileTabs.length)) return;
+    if (index < 0 || index >= this._fileTabs.length) return;
 
     const uri = this._fileTabs[index].uri.path;
     const tabId = this.pathTabIdMapping.get(uri);
     this.pathTabIdMapping.delete(uri);
     this.tabIdPathMapping.delete(tabId!);
 
-    // changing the current tab index if the tab that we will delete has a
+    // changing the current tab index if the tab that we will delete is the currently selected tab
     if (
       (index === this._currentFileTabIndex && index === this._fileTabs.length - 1) ||
       index < this._currentFileTabIndex

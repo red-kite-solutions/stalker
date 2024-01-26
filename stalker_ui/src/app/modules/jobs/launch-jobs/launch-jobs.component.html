@@ -57,15 +57,15 @@
       </mat-card-content>
     </mat-card>
   </div>
-  @if (companies$ | async) {
+  @if (projects$ | async) {
     <div class="tw-flex-[55%_0_0]">
       <div class="tw-flex tw-flex-col code-editor-container">
         <mat-form-field appearance="outline">
-          <mat-label i18n="Company|Company or business">Company</mat-label>
-          <mat-select [(value)]="selectedCompany">
+          <mat-label i18n="Project|Project or business">Project</mat-label>
+          <mat-select [(value)]="selectedProject">
             <mat-option>None</mat-option>
-            @for (company of companies$ | async; track company) {
-              <mat-option value="{{ company.id }}">{{ company.name }}</mat-option>
+            @for (project of projects$ | async; track project) {
+              <mat-option value="{{ project.id }}">{{ project.name }}</mat-option>
             }
           </mat-select>
         </mat-form-field>

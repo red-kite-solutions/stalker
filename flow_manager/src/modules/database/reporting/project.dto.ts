@@ -7,7 +7,7 @@ import {
   IsString,
 } from 'class-validator';
 
-export class CreateCompanyDto {
+export class CreateProjectDto {
   @IsNotEmpty()
   @IsString()
   public name: string;
@@ -23,7 +23,7 @@ export class CreateCompanyDto {
   public imageType?: string;
 }
 
-export class EditCompanyDto {
+export class EditProjectDto {
   @IsOptional()
   @IsString()
   public name: string;

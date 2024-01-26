@@ -24,14 +24,14 @@ import { ConfigService } from '../admin/config/config.service';
 import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
 import { MONGO_DUPLICATE_ERROR } from '../database.constants';
 
-import { CreateCompanyDto, EditCompanyDto } from './company.dto';
-import { Company } from './company.model';
-import { CompanyService } from './company.service';
+import { CreateProjectDto, EditProjectDto } from './project.dto';
+import { Project } from './project.model';
+import { ProjectService } from './project.service';
 
-@Controller('company')
-export class CompanyController {
+@Controller('project')
+export class ProjectController {
   constructor(
-    private readonly companyService: CompanyService,
+    private readonly projectService: ProjectService,
     private readonly customJobsService: CustomJobsService,
     private readonly configService: ConfigService,
   ) {}
@@ -56,26 +56,26 @@ export class CompanyController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ReadOnly)
   @Get()
-  async getCompanies() {
-    return await this.companyService.getAll();
+  async getProjects() {
+    return await this.projectService.getAll();
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ReadOnly)
   @Get('summary')
-  async getCompanySummaries() {
-    return await this.companyService.getAllSummaries();
+  async getProjectSummaries() {
+    return await this.projectService.getAllSummaries();
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
   @Post()
-  async createCompany(@Body(new ValidationPipe()) dto: CreateCompanyDto) {
+  async createProject(@Body(new ValidationPipe()) dto: CreateProjectDto) {
     if ((dto.imageType && !dto.logo) || (dto.logo && !dto.imageType))
       throw new HttpBadRequestException();
 
     try {
-      return await this.companyService.addCompany(dto);
+      return await this.projectService.addProject(dto);
     } catch (err) {
       if (err.code === MONGO_DUPLICATE_ERROR) {
         // Duplicate key error
@@ -88,22 +88,22 @@ export class CompanyController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ReadOnly)
   @Get(':id')
-  async getCompany(@Param() id: MongoIdDto) {
-    return await this.companyService.get(id.id);
+  async getProject(@Param() id: MongoIdDto) {
+    return await this.projectService.get(id.id);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
   @Put(':id')
-  async editCompany(
+  async editProject(
     @Param() id: MongoIdDto,
-    @Body(new ValidationPipe()) dto: EditCompanyDto,
+    @Body(new ValidationPipe()) dto: EditProjectDto,
   ): Promise<UpdateResult> {
-    const data: Partial<Company> = {};
+    const data: Partial<Project> = {};
     if ((dto.imageType && !dto.logo) || (dto.logo && !dto.imageType)) {
       throw new HttpBadRequestException();
     } else if (dto.imageType && dto.logo) {
-      data['logo'] = this.companyService.generateFullImage(
+      data['logo'] = this.projectService.generateFullImage(
         dto.logo,
         dto.imageType,
       );
@@ -124,7 +124,7 @@ export class CompanyController {
       // ^ This previous line checks for an empty array. The check is needed because the value
       // may also be, at this point, null or undefined
       // If an empty array is explicitly provided, it is because the user wants to
-      // empty the company's ipRanges array. Therefore, we assign an empty array to overwrite the
+      // empty the project's ipRanges array. Therefore, we assign an empty array to overwrite the
       // existing one in the database.
       data['ipRanges'] = [];
     }
@@ -140,7 +140,7 @@ export class CompanyController {
     }
 
     try {
-      return await this.companyService.editCompany(id.id, data);
+      return await this.projectService.editProject(id.id, data);
     } catch (err) {
       if (err.code === MONGO_DUPLICATE_ERROR) {
         // Duplicate key error
@@ -153,7 +153,7 @@ export class CompanyController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
   @Delete(':id')
-  async deleteCompany(@Param() id: MongoIdDto): Promise<DeleteResult> {
-    return await this.companyService.delete(id.id);
+  async deleteProject(@Param() id: MongoIdDto): Promise<DeleteResult> {
+    return await this.projectService.delete(id.id);
   }
 }

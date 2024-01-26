@@ -10,7 +10,7 @@ export class Port {
   public hostId?: Types.ObjectId;
 
   @Prop()
-  public companyId?: Types.ObjectId;
+  public projectId?: Types.ObjectId;
 
   /**
    * A pseudo-unique key identifying this entity. Used for findings.
@@ -44,5 +44,5 @@ export class Port {
 }
 
 export const PortSchema = SchemaFactory.createForClass(Port);
-// The company id is not included here as the hostId-companyId combination is already unique
+// The project id is not included here as the hostId-projectId combination is already unique
 PortSchema.index({ hostId: 1, port: 1, layer4Protocol: 1 }, { unique: true });

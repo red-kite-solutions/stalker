@@ -22,8 +22,8 @@ import {
 describe('Cron Subscriptions Controller (e2e)', () => {
   let app: INestApplication;
   let testData: TestingData;
-  let companyName = 'CronSubscriptionCompany';
-  let companyId: string;
+  let projectName = 'CronSubscriptionProject';
+  let projectId: string;
   let subscriptionId: string;
 
   const subscription: Partial<CronSubscription> = {
@@ -53,10 +53,10 @@ describe('Cron Subscriptions Controller (e2e)', () => {
     await app.init();
     testData = await initTesting(app);
 
-    let r = await postReq(app, testData.user.token, '/company', {
-      name: companyName,
+    let r = await postReq(app, testData.user.token, '/project', {
+      name: projectName,
     });
-    companyId = r.body._id;
+    projectId = r.body._id;
   });
 
   afterAll(async () => {
@@ -67,7 +67,7 @@ describe('Cron Subscriptions Controller (e2e)', () => {
   it('Should create a cron subscription (POST /cron-subscriptions)', async () => {
     // arrange & act
     const r = await postReq(app, testData.user.token, '/cron-subscriptions', {
-      companyId: companyId,
+      projectId: projectId,
       ...subscription,
     });
     // assert
@@ -100,7 +100,7 @@ describe('Cron Subscriptions Controller (e2e)', () => {
       testData.user.token,
       `/cron-subscriptions/${subscriptionId}`,
       {
-        companyId: companyId,
+        projectId: projectId,
         ...subscription,
         name: changedName,
       },

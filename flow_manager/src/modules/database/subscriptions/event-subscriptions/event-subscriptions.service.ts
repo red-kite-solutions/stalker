@@ -6,7 +6,7 @@ import {
   HttpBadRequestException,
   HttpNotFoundException,
 } from '../../../../exceptions/http.exceptions';
-import { CompanyUnassigned } from '../../../../validators/is-company-id.validator';
+import { ProjectUnassigned } from '../../../../validators/is-project-id.validator';
 import { EVENT_SUBSCRIPTIONS_FILES_PATH } from '../subscriptions.constants';
 import { SubscriptionsUtils } from '../subscriptions.utils';
 import { EventSubscriptionDto } from './event-subscriptions.dto';
@@ -23,7 +23,7 @@ export class EventSubscriptionsService {
 
   public async create(dto: EventSubscriptionDto) {
     const sub: EventSubscription = {
-      companyId: dto.companyId ? new Types.ObjectId(dto.companyId) : null,
+      projectId: dto.projectId ? new Types.ObjectId(dto.projectId) : null,
       name: dto.name,
       finding: dto.finding,
       jobName: dto.jobName,
@@ -47,7 +47,7 @@ export class EventSubscriptionsService {
     dto: EventSubscriptionDto,
   ): Promise<UpdateResult> {
     const sub: Partial<EventSubscription> = {
-      companyId: dto.companyId ? new Types.ObjectId(dto.companyId) : null,
+      projectId: dto.projectId ? new Types.ObjectId(dto.projectId) : null,
       name: dto.name,
       finding: dto.finding,
       jobName: dto.jobName,
@@ -97,21 +97,21 @@ export class EventSubscriptionsService {
     });
   }
 
-  public async getAllForFinding(companyId: string, finding: string) {
-    if (companyId === CompanyUnassigned) return [];
+  public async getAllForFinding(projectId: string, finding: string) {
+    if (projectId === ProjectUnassigned) return [];
 
     return await this.subscriptionModel.find({
       $or: [
-        { companyId: { $eq: new Types.ObjectId(companyId) } },
-        { companyId: null },
+        { projectId: { $eq: new Types.ObjectId(projectId) } },
+        { projectId: null },
       ],
       finding: { $eq: finding },
     });
   }
 
-  public async deleteAllForCompany(companyId: string): Promise<DeleteResult> {
+  public async deleteAllForProject(projectId: string): Promise<DeleteResult> {
     return await this.subscriptionModel.deleteMany({
-      companyId: { $eq: new Types.ObjectId(companyId) },
+      projectId: { $eq: new Types.ObjectId(projectId) },
     });
   }
 }

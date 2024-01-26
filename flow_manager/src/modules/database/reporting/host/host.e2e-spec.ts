@@ -5,9 +5,9 @@ import {
   TestingData,
   checkAuthorizations,
   cleanup,
-  createCompany,
   createDomain as createDomains,
   createHosts,
+  createProject,
   createTag,
   deleteReq,
   getReq,
@@ -70,24 +70,24 @@ describe('Host Controller (e2e)', () => {
 
     it('List hosts - Different page sizes - Should return expected hosts', async () => {
       // Arrange
-      const company1 = await createCompany(app, testData, getName());
-      const company2 = await createCompany(app, testData, getName());
+      const project1 = await createProject(app, testData, getName());
+      const project2 = await createProject(app, testData, getName());
 
       const domain1 = 'www.example.org';
       const domain2 = 'www.example.com';
-      await createDomains(app, testData, company1._id, [domain1]);
-      await createDomains(app, testData, company2._id, [domain2]);
+      await createDomains(app, testData, project1._id, [domain1]);
+      await createDomains(app, testData, project2._id, [domain2]);
 
       await hostsService.addHostsWithDomain(
         ['192.168.1.1', '192.168.1.2'],
         domain1,
-        company1._id,
+        project1._id,
         [],
       );
       await hostsService.addHostsWithDomain(
         ['192.168.1.3', '192.168.1.4', '192.168.1.5', '192.168.1.6'],
         domain2,
-        company2._id,
+        project2._id,
         [],
       );
 
@@ -123,27 +123,27 @@ describe('Host Controller (e2e)', () => {
       expect(secondPage.body.items.length).toBe(2);
     });
 
-    it('List hosts - Filter by company - Should return only hosts matching the filter', async () => {
+    it('List hosts - Filter by project - Should return only hosts matching the filter', async () => {
       // Arrange
-      const company1 = await createCompany(app, testData, getName());
-      const company2 = await createCompany(app, testData, getName());
+      const project1 = await createProject(app, testData, getName());
+      const project2 = await createProject(app, testData, getName());
 
       const domain1 = 'www.example.org';
       const domain2 = 'www.example.com';
-      await createDomains(app, testData, company1._id, [domain1]);
-      await createDomains(app, testData, company2._id, [domain2]);
+      await createDomains(app, testData, project1._id, [domain1]);
+      await createDomains(app, testData, project2._id, [domain2]);
 
       // Act
       await hostsService.addHostsWithDomain(
         ['192.168.2.1', '192.168.2.2'],
         domain1,
-        company1._id,
+        project1._id,
         [],
       );
       await hostsService.addHostsWithDomain(
         ['192.168.2.2', '192.168.2.4', '192.168.2.5', '192.168.2.6'],
         domain2,
-        company2._id,
+        project2._id,
         [],
       );
 
@@ -151,7 +151,7 @@ describe('Host Controller (e2e)', () => {
       const filtered = await getReq(
         app,
         testData.user.token,
-        `/hosts?page=0&pageSize=2&company[]=${company2._id}`,
+        `/hosts?page=0&pageSize=2&project[]=${project2._id}`,
       );
 
       expect(filtered.body.totalRecords).toBe(4);
@@ -161,14 +161,14 @@ describe('Host Controller (e2e)', () => {
 
   it('Should create a host (POST /hosts)', async () => {
     // Arrange
-    const company = await createCompany(app, testData, getName());
+    const project = await createProject(app, testData, getName());
     const domain = 'www.example.org';
-    await createDomains(app, testData, company._id, [domain]);
+    await createDomains(app, testData, project._id, [domain]);
 
     // Act
     const r = await postReq(app, testData.admin.token, `/hosts`, {
       ips: ['192.168.2.1', '192.168.2.2'],
-      companyId: company._id.toString(),
+      projectId: project._id.toString(),
     });
 
     // Assert
@@ -178,12 +178,12 @@ describe('Host Controller (e2e)', () => {
 
   it('Should get a host by id (GET /hosts/:id)', async () => {
     // Arrange
-    const company = await createCompany(app, testData, getName());
+    const project = await createProject(app, testData, getName());
     const domain = 'www.example.org';
-    await createDomains(app, testData, company._id, [domain]);
+    await createDomains(app, testData, project._id, [domain]);
     const rHost = await postReq(app, testData.admin.token, `/hosts`, {
       ips: ['192.168.2.1'],
-      companyId: company._id.toString(),
+      projectId: project._id.toString(),
     });
 
     const hostId = rHost.body[0]._id;
@@ -199,9 +199,9 @@ describe('Host Controller (e2e)', () => {
 
   it('Should tag a host (PUT /hosts/:id/tags)', async () => {
     // Arrange
-    const company = await createCompany(app, testData, getName());
+    const project = await createProject(app, testData, getName());
     const tag = await createTag(app, testData, 'my-tag-1');
-    const hosts = await createHosts(app, testData, company._id, [
+    const hosts = await createHosts(app, testData, project._id, [
       '192.168.1.1',
     ]);
 
@@ -225,9 +225,9 @@ describe('Host Controller (e2e)', () => {
 
   it('Should untag a host (PUT /hosts/:id/tags)', async () => {
     // Arrange
-    const company = await createCompany(app, testData, getName());
+    const project = await createProject(app, testData, getName());
     const tag = await createTag(app, testData, 'my-tag-1');
-    const hosts = await createHosts(app, testData, company._id, [
+    const hosts = await createHosts(app, testData, project._id, [
       '192.168.1.1',
     ]);
     let r = await putReq(
@@ -255,12 +255,12 @@ describe('Host Controller (e2e)', () => {
 
   it('Should delete host by id (DELETE /hosts/:id)', async () => {
     // Arrange
-    const company = await createCompany(app, testData, getName());
+    const project = await createProject(app, testData, getName());
     const domain = 'www.example.org';
-    await createDomains(app, testData, company._id, [domain]);
+    await createDomains(app, testData, project._id, [domain]);
     const rHost = await postReq(app, testData.admin.token, `/hosts`, {
       ips: ['192.168.2.1'],
-      companyId: company._id.toString(),
+      projectId: project._id.toString(),
     });
 
     const hostId = rHost.body[0]._id;
@@ -297,7 +297,7 @@ describe('Host Controller (e2e)', () => {
 
   it('Should have proper authorizations (POST /hosts)', async () => {
     // Arrange
-    const company = await createCompany(app, testData, getName());
+    const project = await createProject(app, testData, getName());
 
     // Assert
     const success = await checkAuthorizations(
@@ -314,12 +314,12 @@ describe('Host Controller (e2e)', () => {
 
   it('Should have proper authorizations (GET /hosts/:id)', async () => {
     // Arrange
-    const company = await createCompany(app, testData, getName());
+    const project = await createProject(app, testData, getName());
     const domain = 'www.example.org';
-    await createDomains(app, testData, company._id, [domain]);
+    await createDomains(app, testData, project._id, [domain]);
     const rHost = await postReq(app, testData.admin.token, `/hosts`, {
       ips: ['192.168.2.1'],
-      companyId: company._id.toString(),
+      projectId: project._id.toString(),
     });
 
     const hostId = rHost.body[0]._id;
@@ -337,12 +337,12 @@ describe('Host Controller (e2e)', () => {
 
   it('Should have proper authorizations (DELETE /hosts/:id)', async () => {
     // Arrange
-    const company = await createCompany(app, testData, getName());
+    const project = await createProject(app, testData, getName());
     const domain = 'www.example.org';
-    await createDomains(app, testData, company._id, [domain]);
+    await createDomains(app, testData, project._id, [domain]);
     const rHost = await postReq(app, testData.admin.token, `/hosts`, {
       ips: ['192.168.2.1'],
-      companyId: company._id.toString(),
+      projectId: project._id.toString(),
     });
 
     const hostId = rHost.body[0]._id;

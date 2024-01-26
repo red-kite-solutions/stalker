@@ -18,10 +18,10 @@ export class Host {
   public correlationKey!: string;
 
   @Prop()
-  public companyId: Types.ObjectId;
+  public projectId: Types.ObjectId;
 
   @Prop()
-  public companyName: string;
+  public projectName: string;
 
   @Prop()
   public domains?: DomainSummary[];
@@ -43,4 +43,4 @@ export class Host {
 }
 
 export const HostSchema = SchemaFactory.createForClass(Host);
-HostSchema.index({ ip: 1, companyId: 1 }, { unique: true });
+HostSchema.index({ ip: 1, projectId: 1 }, { unique: true });

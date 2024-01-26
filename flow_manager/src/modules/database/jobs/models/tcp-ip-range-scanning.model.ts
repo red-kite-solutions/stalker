@@ -5,7 +5,8 @@ import { isIP } from 'net';
 import { JobParameterValueException } from '../../../../exceptions/job-parameter.exception';
 import { JobParameterDefinition } from '../../../../types/job-parameter-definition.type';
 import { TimestampedString } from '../../../../types/timestamped-string.type';
-import { isCompanyId } from '../../../../validators/is-company-id.validator';
+import { isPortNumber } from '../../../../validators/is-port-number.validator';
+import { isProjectId } from '../../../../validators/is-project-id.validator';
 import { JobParameter } from '../../subscriptions/event-subscriptions/event-subscriptions.model';
 import { JobFactoryUtils } from '../jobs.factory';
 
@@ -14,7 +15,7 @@ export type JobDocument = TcpIpRangeScanningJob & Document;
 @Schema()
 export class TcpIpRangeScanningJob {
   public task: string;
-  public companyId!: string;
+  public projectId!: string;
   public priority!: number;
   public output: TimestampedString[];
   public publishTime: number;
@@ -48,7 +49,7 @@ export class TcpIpRangeScanningJob {
   ];
 
   private static createTcpIpRangeScanJob(
-    companyId: string,
+    projectId: string,
     targetIp: string,
     targetMask: number,
     rate: number,
@@ -59,7 +60,7 @@ export class TcpIpRangeScanningJob {
     const job = new TcpIpRangeScanningJob();
     job.task = TcpIpRangeScanningJob.name;
     job.priority = 3;
-    job.companyId = companyId;
+    job.projectId = projectId;
     job.targetIp = targetIp;
     job.targetMask = targetMask;
     job.rate = rate;
@@ -67,8 +68,8 @@ export class TcpIpRangeScanningJob {
     job.portMax = portMax;
     job.ports = ports;
 
-    if (!isCompanyId(job.companyId)) {
-      throw new JobParameterValueException('companyId', job.companyId);
+    if (!isProjectId(job.projectId)) {
+      throw new JobParameterValueException('projectId', job.projectId);
     }
 
     if (isIP(targetIp) !== 4) {
@@ -83,21 +84,15 @@ export class TcpIpRangeScanningJob {
       throw new JobParameterValueException('rate', job.rate);
     }
 
-    if (!isInt(job.portMin) || !(job.portMin > 0 && job.portMin < 65535)) {
+    if (!isPortNumber(job.portMin)) {
       throw new JobParameterValueException('portMin', job.portMin);
     }
 
-    if (
-      !isInt(job.portMax) ||
-      !(job.portMax > 1 && job.portMax <= 65535 && job.portMax > job.portMin)
-    ) {
+    if (!isPortNumber(job.portMax) || job.portMax < job.portMin) {
       throw new JobParameterValueException('portMax', job.portMax);
     }
 
-    if (
-      !isArray(job.ports) ||
-      job.ports.some((v) => !isInt(v) && v <= 0 && v > 65535)
-    ) {
+    if (!isArray(job.ports) || job.ports.some((v) => !isPortNumber(v))) {
       throw new JobParameterValueException('ports', job.ports);
     }
 
@@ -106,7 +101,7 @@ export class TcpIpRangeScanningJob {
 
   public static create(args: JobParameter[]) {
     let params = {};
-    params['companyid'] = undefined;
+    params['projectid'] = undefined;
     params['targetip'] = undefined;
     params['targetmask'] = undefined;
     params['rate'] = undefined;
@@ -117,7 +112,7 @@ export class TcpIpRangeScanningJob {
     params = JobFactoryUtils.bindFunctionArguments(params, args);
 
     return TcpIpRangeScanningJob.createTcpIpRangeScanJob(
-      params['companyid'],
+      params['projectid'],
       params['targetip'],
       params['targetmask'],
       params['rate'],

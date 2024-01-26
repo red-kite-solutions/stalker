@@ -2,6 +2,8 @@
 **/bin/
 **/obj/
 **/out/
+**/.devspace/
+**/.vs/
 
 # files
 Dockerfile*

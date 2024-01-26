@@ -308,7 +308,7 @@ export class SubscriptionsUtils {
       cronExpression: subYamlJson.cronExpression,
       builtIn: true,
       jobName: subYamlJson.job.name,
-      companyId: null,
+      projectId: null,
       jobParameters: params,
       conditions: conditions,
     };
@@ -340,7 +340,7 @@ export class SubscriptionsUtils {
       finding: subYamlJson.finding,
       jobName: subYamlJson.job.name,
       cooldown: subYamlJson.cooldown,
-      companyId: null,
+      projectId: null,
       jobParameters: params,
       conditions: conditions,
       builtIn: true,

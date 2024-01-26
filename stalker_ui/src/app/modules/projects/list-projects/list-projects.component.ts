@@ -10,18 +10,18 @@ import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { map } from 'rxjs';
-import { CompaniesService } from 'src/app/api/companies/companies.service';
-import { CompanyAvatarComponent } from 'src/app/shared/components/company-avatar/company-avatar.component';
+import { ProjectsService } from 'src/app/api/projects/projects.service';
+import { ProjectAvatarComponent } from 'src/app/shared/components/project-avatar/project-avatar.component';
 import { SharedModule } from 'src/app/shared/shared.module';
-import { Company } from 'src/app/shared/types/company/company.interface';
 import { HttpStatus } from 'src/app/shared/types/http-status.type';
+import { Project } from 'src/app/shared/types/project/project.interface';
 import { SpinnerButtonComponent } from 'src/app/shared/widget/spinner-button/spinner-button.component';
 
 @Component({
   standalone: true,
-  selector: 'app-list-companies',
-  templateUrl: './list-companies.component.html',
-  styleUrls: ['./list-companies.component.scss'],
+  selector: 'app-list-projects',
+  templateUrl: './list-projects.component.html',
+  styleUrls: ['./list-projects.component.scss'],
   imports: [
     CommonModule,
     MatGridListModule,
@@ -32,19 +32,19 @@ import { SpinnerButtonComponent } from 'src/app/shared/widget/spinner-button/spi
     ReactiveFormsModule,
     FormsModule,
     RouterModule,
-    CompanyAvatarComponent,
     SpinnerButtonComponent,
+    ProjectAvatarComponent,
   ],
 })
-export class ListCompaniesComponent implements OnDestroy {
+export class ListProjectsComponent implements OnDestroy {
   public createLabel = $localize`:Create|Create item:Create`;
 
-  public companies: any[] | undefined;
-  public companies$ = this.companiesService.getAll().subscribe((data) => {
-    this.companies = data;
+  public projects: any[] | undefined;
+  public projects$ = this.projectsService.getAll().subscribe((data) => {
+    this.projects = data;
   });
 
-  public addCompanyClicked = true;
+  public addProjectClicked = true;
 
   private screenSize$ = this.bpObserver.observe([
     Breakpoints.XSmall,
@@ -78,7 +78,7 @@ export class ListCompaniesComponent implements OnDestroy {
     })
   );
 
-  public companyNameControl = new UntypedFormControl('', [Validators.required]);
+  public projectNameControl = new UntypedFormControl('', [Validators.required]);
 
   public fileSelected = false;
   public previewSource: string | undefined;
@@ -86,25 +86,25 @@ export class ListCompaniesComponent implements OnDestroy {
 
   constructor(
     private bpObserver: BreakpointObserver,
-    private companiesService: CompaniesService,
+    private projectsService: ProjectsService,
     private toastrService: ToastrService,
     private titleService: Title
   ) {
-    this.titleService.setTitle($localize`:Companies list page title|:Companies`);
+    this.titleService.setTitle($localize`:Projects list page title|:Projects`);
   }
 
   ngOnDestroy(): void {
-    this.companies$.unsubscribe();
+    this.projects$.unsubscribe();
   }
 
-  public async createCompany() {
+  public async createProject() {
     if (this.creationLoading) return;
 
     this.creationLoading = true;
     let image: string | null = null;
     let imageType: string | null = null;
-    if (!this.companyNameControl.valid) {
-      this.companyNameControl.markAsTouched();
+    if (!this.projectNameControl.valid) {
+      this.projectNameControl.markAsTouched();
       this.creationLoading = false;
       return;
     }
@@ -115,20 +115,20 @@ export class ListCompaniesComponent implements OnDestroy {
       imageType = split[0].split(';')[0].split(':')[1].split('/')[1];
     }
     try {
-      const res: Company = await this.companiesService.create(this.companyNameControl.value, image, imageType);
-      this.companies?.push(res);
+      const res: Project = await this.projectsService.create(this.projectNameControl.value, image, imageType);
+      this.projects?.push(res);
       this.toastrService.success(
-        $localize`:Company created|The new company was successfully created:Company created successfully`
+        $localize`:Project created|The new project was successfully created:Project created successfully`
       );
 
       this.fileSelected = false;
       this.previewSource = '';
-      this.companyNameControl.setValue('');
-      this.companyNameControl.setErrors(null);
+      this.projectNameControl.setValue('');
+      this.projectNameControl.setErrors(null);
     } catch (err: any) {
       if (err.status === HttpStatus.Conflict) {
         this.toastrService.warning(
-          $localize`:Company name unavailable|Conflict happenned when creating a company because another company already uses the provided name:Company with this name already exists`
+          $localize`:Project name unavailable|Conflict happenned when creating a project because another project already uses the provided name:Project with this name already exists`
         );
       } else if (err.status === HttpStatus.PayloadTooLarge) {
         this.toastrService.warning(

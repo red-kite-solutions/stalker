@@ -23,7 +23,7 @@ export class Job {
   task: string;
 
   @Prop()
-  public companyId!: string;
+  public projectId!: string;
 
   @Prop()
   public priority!: number;

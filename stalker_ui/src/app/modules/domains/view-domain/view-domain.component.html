@@ -1,6 +1,5 @@
 @if (domain$ | async; as domain) {
-  <app-page-header [parts]="[(companies$ | async | whereId: [domain?.companyId])?.name, domain.name]">
-  </app-page-header>
+  <app-page-header [parts]="[(projects$ | async | whereId: [domain?.projectId])?.name, domain.name]"> </app-page-header>
 
   <div class="content-wrapper">
     <div class="content">

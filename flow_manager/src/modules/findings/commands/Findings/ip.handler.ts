@@ -31,8 +31,8 @@ export class IpHandler extends UserFindingHandlerBase<IpCommand> {
   }
 
   protected async executeCore(command: IpCommand) {
-    if (command.finding.jobId) {
-      await this.hostService.addHost(command.finding.ip, command.companyId);
-    }
+    if (!command.finding.jobId) return;
+
+    await this.hostService.addHost(command.finding.ip, command.projectId);
   }
 }

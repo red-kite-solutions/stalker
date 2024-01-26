@@ -82,7 +82,7 @@ export class SubscriptionService {
     const copy = JSON.parse(JSON.stringify(subscription));
     delete copy._id;
     delete copy.type;
-    delete copy.companyId;
+    delete copy.projectId;
     if (copy.job?.parameters?.length === 0) {
       delete copy.job.parameters;
     }

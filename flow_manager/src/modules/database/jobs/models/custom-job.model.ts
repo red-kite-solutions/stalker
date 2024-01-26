@@ -15,7 +15,7 @@ import {
   environmentVariableConflict,
   environmentVariableRegex,
 } from '../../../../utils/linux-environment-variables.utils';
-import { isCompanyId } from '../../../../validators/is-company-id.validator';
+import { isProjectId } from '../../../../validators/is-project-id.validator';
 import { JobParameter } from '../../subscriptions/event-subscriptions/event-subscriptions.model';
 import { JobFactoryUtils } from '../jobs.factory';
 import { Job } from './jobs.model';
@@ -26,9 +26,9 @@ export const customJobTypes = ['code', 'nuclei'] as const;
 export const customJobLanguages = ['python', 'yaml'] as const;
 export const customJobFindingHandlerLanguages = ['python'] as const;
 
-type CustomJobType = (typeof customJobTypes)[number];
-type CustomJobLanguage = (typeof customJobLanguages)[number];
-type CustomJobFindingHandlerLanguage =
+export type CustomJobType = (typeof customJobTypes)[number];
+export type CustomJobLanguage = (typeof customJobLanguages)[number];
+export type CustomJobFindingHandlerLanguage =
   (typeof customJobFindingHandlerLanguages)[number];
 
 export interface CustomJobTypeDetails {
@@ -53,7 +53,7 @@ export const validCustomJobTypeDetails: CustomJobTypeDetails[] = [
 @Schema()
 export class CustomJob {
   public task: string;
-  public companyId!: string;
+  public projectId!: string;
   public priority!: number;
   public output: TimestampedString[];
   public publishTime: number;
@@ -64,13 +64,13 @@ export class CustomJob {
   public name!: string;
 
   @Prop()
-  public type!: string;
+  public type!: CustomJobType;
 
   @Prop()
   public code!: string;
 
   @Prop()
-  public language!: string;
+  public language!: CustomJobLanguage;
 
   @Prop()
   public customJobParameters!: JobParameter[];
@@ -88,7 +88,7 @@ export class CustomJob {
   public findingHandler?: string;
 
   @Prop()
-  public findingHandlerLanguage?: string;
+  public findingHandlerLanguage?: CustomJobFindingHandlerLanguage;
 
   constructor() {}
 
@@ -98,7 +98,7 @@ export class CustomJob {
 
   public static create(args: JobParameter[]): Job {
     let params = {};
-    params['companyid'] = undefined;
+    params['projectid'] = undefined;
     params['name'] = undefined;
     params['type'] = undefined;
     params['code'] = undefined;
@@ -119,7 +119,7 @@ export class CustomJob {
     params = JobFactoryUtils.bindFunctionArguments(params, args, optionalKeys);
 
     return CustomJob.createCustomJob(
-      params['companyid'],
+      params['projectid'],
       params['name'],
       params['type'],
       params['code'],
@@ -134,21 +134,21 @@ export class CustomJob {
   }
 
   private static createCustomJob(
-    companyId: string,
+    projectId: string,
     name: string,
-    type: string,
+    type: CustomJobType,
     code: string,
-    language: string,
+    language: CustomJobLanguage,
     jobPodMilliCpuLimit: number,
     jobPodMemoryKbLimit: number,
     customJobParameters: JobParameter[],
     findingHandlerEnabled: boolean,
     findingHandler: string,
-    findingHandlerLanguage: string,
+    findingHandlerLanguage: CustomJobFindingHandlerLanguage,
   ) {
     const job = new CustomJob();
     job.task = CustomJob.name;
-    job.companyId = companyId;
+    job.projectId = projectId;
     job.priority = 3;
     job.name = name;
     job.code = code;
@@ -164,8 +164,8 @@ export class CustomJob {
 
     console.log(job);
 
-    if (!isCompanyId(job.companyId)) {
-      throw new JobParameterValueException('companyId', job.companyId);
+    if (!isProjectId(job.projectId)) {
+      throw new JobParameterValueException('projectId', job.projectId);
     }
 
     if (!isString(job.name) || isEmpty(job.name)) {

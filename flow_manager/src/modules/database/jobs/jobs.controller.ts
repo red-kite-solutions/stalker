@@ -18,7 +18,7 @@ import { MongoIdDto } from '../../../types/dto/mongo-id.dto';
 import { JobLog } from '../../../types/job-log.model';
 import { JobSummary } from '../../../types/job-summary.type';
 import { Page } from '../../../types/page.type';
-import { CompanyUnassigned } from '../../../validators/is-company-id.validator';
+import { ProjectUnassigned } from '../../../validators/is-project-id.validator';
 import { Role } from '../../auth/constants';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
@@ -107,12 +107,12 @@ export class JobsController {
       dto.task = CustomJob.name;
     }
 
-    const companyIdParameter = new JobParameter();
-    companyIdParameter.name = 'companyId';
-    companyIdParameter.value = dto.companyId
-      ? dto.companyId
-      : CompanyUnassigned;
-    dto.jobParameters.push(companyIdParameter);
+    const projectIdParameter = new JobParameter();
+    projectIdParameter.name = 'projectId';
+    projectIdParameter.value = dto.projectId
+      ? dto.projectId
+      : ProjectUnassigned;
+    dto.jobParameters.push(projectIdParameter);
 
     // parameters are validated thoroughly in job creation
     const job = JobFactory.createJob(dto.task, dto.jobParameters, jpConfig);

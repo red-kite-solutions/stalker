@@ -11,7 +11,7 @@ describe('Finding utils', () => {
 
     // Assert
     expect(correlationKey).toBe(
-      `company:507f1f77bcf86cd799439011;host:1.2.3.4`,
+      `project:507f1f77bcf86cd799439011;host:1.2.3.4`,
     );
   });
 
@@ -27,7 +27,7 @@ describe('Finding utils', () => {
 
     // Assert
     expect(correlationId).toBe(
-      `company:507f1f77bcf86cd799439011;host:1.2.3.4;port:443;protocol:tcp`,
+      `project:507f1f77bcf86cd799439011;host:1.2.3.4;port:443;protocol:tcp`,
     );
   });
 
@@ -41,7 +41,7 @@ describe('Finding utils', () => {
 
     // Assert
     expect(correlationId).toBe(
-      `company:507f1f77bcf86cd799439011;domain:www.stalker.is`,
+      `project:507f1f77bcf86cd799439011;domain:www.stalker.is`,
     );
   });
 });

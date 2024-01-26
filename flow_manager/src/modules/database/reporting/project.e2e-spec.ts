@@ -12,12 +12,12 @@ import {
 import { AppModule } from '../../app.module';
 import { Role } from '../../auth/constants';
 
-describe('Company Controller (e2e)', () => {
+describe('Project Controller (e2e)', () => {
   let app: INestApplication;
   let testData: TestingData;
-  const companyNames = ['Stalker', 'StalkerTwo', 'StalkerThree', 'StalkerFour'];
-  let companyId: string;
-  const companies: string[] = [];
+  const projectNames = ['Stalker', 'StalkerTwo', 'StalkerThree', 'StalkerFour'];
+  let projectId: string;
+  const projects: string[] = [];
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -29,171 +29,171 @@ describe('Company Controller (e2e)', () => {
     testData = await initTesting(app);
 
     // Pre-cleaning
-    const r = await getReq(app, testData.user.token, '/company/summary');
-    const currentCompanies = r.body;
-    for (let c of currentCompanies) {
-      if (companyNames.includes(c.name))
-        await deleteReq(app, testData.user.token, `/company/${c._id}`);
+    const r = await getReq(app, testData.user.token, '/project/summary');
+    const currentProjects = r.body;
+    for (let c of currentProjects) {
+      if (projectNames.includes(c.name))
+        await deleteReq(app, testData.user.token, `/project/${c._id}`);
     }
   });
 
   afterAll(async () => {
-    for (let c of companies)
-      await deleteReq(app, testData.user.token, `/company/${c}`);
+    for (let c of projects)
+      await deleteReq(app, testData.user.token, `/project/${c}`);
     await app.close();
   });
 
-  it('Should create a company (POST /company)', async () => {
-    const r = await postReq(app, testData.user.token, '/company', {
-      name: companyNames[0],
+  it('Should create a project (POST /project)', async () => {
+    const r = await postReq(app, testData.user.token, '/project', {
+      name: projectNames[0],
     });
 
     expect(r.statusCode).toBe(HttpStatus.CREATED);
     expect(r.body._id).toBeTruthy();
-    companyId = r.body._id;
+    projectId = r.body._id;
   });
 
-  it('Should get a company by id (GET /company/:id)', async () => {
-    const r = await getReq(app, testData.user.token, `/company/${companyId}`);
+  it('Should get a project by id (GET /project/:id)', async () => {
+    const r = await getReq(app, testData.user.token, `/project/${projectId}`);
     expect(r.statusCode).toBe(HttpStatus.OK);
-    expect(r.body.name).toBe(companyNames[0]);
+    expect(r.body.name).toBe(projectNames[0]);
     expect(r.body._id).toBeTruthy();
   });
 
-  it('Should edit a company by id (PUT /company/:id)', async () => {
+  it('Should edit a project by id (PUT /project/:id)', async () => {
     const nameEdit = 'StalkerModified';
     const subnetEdit = ['192.168.0.1/24', '10.10.10.10/16', '121.1.1.1/30'];
     const notesEdit = 'great notes over here';
-    let r = await putReq(app, testData.user.token, `/company/${companyId}`, {
+    let r = await putReq(app, testData.user.token, `/project/${projectId}`, {
       name: nameEdit,
       ipRanges: subnetEdit,
       notes: notesEdit,
     });
     expect(r.statusCode).toBe(HttpStatus.OK);
 
-    r = await getReq(app, testData.user.token, `/company/${companyId}`);
+    r = await getReq(app, testData.user.token, `/project/${projectId}`);
     expect(r.body._id).toBeTruthy();
     expect(r.body.name).toBe(nameEdit);
     expect(r.body.ipRanges).toEqual(subnetEdit);
     expect(r.body.notes).toBe(notesEdit);
   });
 
-  it('Should edit a company by id, adding a logo (PUT /company/:id)', async () => {
+  it('Should edit a project by id, adding a logo (PUT /project/:id)', async () => {
     const logoB64 =
       'iVBORw0KGgoAAAANSUhEUgAAABQAAAA8CAYAAABmdppWAAAABHNCSVQICAgIfAhkiAAAABl0RVh0U29mdHdhcmUAZ25vbWUtc2NyZWVuc2hvdO8Dvz4AAAAzSURBVFiF7cxBEQAgCAAwpBgZCGs+6eDx3ALsVN8Xi3IzEwqFQqFQKBQKhUKhUCgUCv8NhMECvInB4dQAAAAASUVORK5CYII=';
-    let r = await putReq(app, testData.user.token, `/company/${companyId}`, {
+    let r = await putReq(app, testData.user.token, `/project/${projectId}`, {
       logo: logoB64,
       imageType: 'png',
     });
-    r = await getReq(app, testData.user.token, `/company/${companyId}`);
+    r = await getReq(app, testData.user.token, `/project/${projectId}`);
     expect(r.statusCode).toBe(HttpStatus.OK);
     expect(r.body.logo).toBe(`data:image/png;base64,${logoB64}`);
   });
 
-  it('Should edit a company by id, removing a logo (PUT /company/:id)', async () => {
-    let r = await putReq(app, testData.user.token, `/company/${companyId}`, {
+  it('Should edit a project by id, removing a logo (PUT /project/:id)', async () => {
+    let r = await putReq(app, testData.user.token, `/project/${projectId}`, {
       logo: '',
     });
-    r = await getReq(app, testData.user.token, `/company/${companyId}`);
+    r = await getReq(app, testData.user.token, `/project/${projectId}`);
     expect(r.statusCode).toBe(HttpStatus.OK);
     expect(r.body.logo).toBe('');
   });
 
-  it('Should delete a company (DELETE /company/:id)', async () => {
+  it('Should delete a project (DELETE /project/:id)', async () => {
     const r = await deleteReq(
       app,
       testData.user.token,
-      `/company/${companyId}`,
+      `/project/${projectId}`,
     );
     expect(r.statusCode).toBe(HttpStatus.OK);
   });
 
-  it('Should get the list of companies (GET /company)', async () => {
+  it('Should get the list of projects (GET /project)', async () => {
     // Arrange
-    let r = await postReq(app, testData.user.token, '/company', {
-      name: companyNames[0],
+    let r = await postReq(app, testData.user.token, '/project', {
+      name: projectNames[0],
     });
 
     expect(r.statusCode).toBe(HttpStatus.CREATED);
     expect(r.body._id).toBeTruthy();
-    companies.push(r.body._id);
+    projects.push(r.body._id);
 
-    r = await postReq(app, testData.user.token, '/company', {
-      name: companyNames[1],
+    r = await postReq(app, testData.user.token, '/project', {
+      name: projectNames[1],
     });
 
     expect(r.statusCode).toBe(HttpStatus.CREATED);
     expect(r.body._id).toBeTruthy();
-    companies.push(r.body._id);
+    projects.push(r.body._id);
 
     // Act
-    r = await getReq(app, testData.user.token, '/company');
+    r = await getReq(app, testData.user.token, '/project');
 
     // Assert
     expect(r.statusCode).toBe(HttpStatus.OK);
     expect(r.body.length).toBeGreaterThanOrEqual(2);
   });
 
-  it('Should get the list of company summaries (GET /company/summary)', async () => {
+  it('Should get the list of project summaries (GET /project/summary)', async () => {
     // Arrange
-    let r = await postReq(app, testData.user.token, '/company', {
-      name: companyNames[3],
+    let r = await postReq(app, testData.user.token, '/project', {
+      name: projectNames[3],
     });
 
     expect(r.statusCode).toBe(HttpStatus.CREATED);
     expect(r.body._id).toBeTruthy();
-    companies.push(r.body._id);
+    projects.push(r.body._id);
 
-    r = await postReq(app, testData.user.token, '/company', {
-      name: companyNames[2],
+    r = await postReq(app, testData.user.token, '/project', {
+      name: projectNames[2],
     });
 
     expect(r.statusCode).toBe(HttpStatus.CREATED);
     expect(r.body._id).toBeTruthy();
-    companies.push(r.body._id);
+    projects.push(r.body._id);
 
     // Act
-    r = await getReq(app, testData.user.token, '/company/summary');
+    r = await getReq(app, testData.user.token, '/project/summary');
 
     // Assert
     expect(r.statusCode).toBe(HttpStatus.OK);
     expect(r.body.length).toBeGreaterThanOrEqual(2);
   });
 
-  it('Should have proper authorizations (GET /company)', async () => {
+  it('Should have proper authorizations (GET /project)', async () => {
     const success = await checkAuthorizations(
       testData,
       Role.ReadOnly,
       async (givenToken: string) => {
-        return await getReq(app, givenToken, `/company`);
+        return await getReq(app, givenToken, `/project`);
       },
     );
     expect(success).toBe(true);
   });
 
-  it('Should have proper authorizations (GET /company/summary)', async () => {
+  it('Should have proper authorizations (GET /project/summary)', async () => {
     const success = await checkAuthorizations(
       testData,
       Role.ReadOnly,
       async (givenToken: string) => {
-        return await getReq(app, givenToken, `/company/summary`);
+        return await getReq(app, givenToken, `/project/summary`);
       },
     );
     expect(success).toBe(true);
   });
 
-  it('Should have proper authorizations (POST /company)', async () => {
+  it('Should have proper authorizations (POST /project)', async () => {
     const success = await checkAuthorizations(
       testData,
       Role.User,
       async (givenToken: string) => {
-        return await postReq(app, givenToken, `/company`, {});
+        return await postReq(app, givenToken, `/project`, {});
       },
     );
     expect(success).toBe(true);
   });
 
-  it('Should have proper authorizations (GET /company/:id)', async () => {
+  it('Should have proper authorizations (GET /project/:id)', async () => {
     const success = await checkAuthorizations(
       testData,
       Role.ReadOnly,
@@ -201,25 +201,25 @@ describe('Company Controller (e2e)', () => {
         return await getReq(
           app,
           givenToken,
-          `/company/62780ca0156f3d3fda24c4e2`,
+          `/project/62780ca0156f3d3fda24c4e2`,
         );
       },
     );
     expect(success).toBe(true);
   });
 
-  it('Should have proper authorizations (PUT /company/:id)', async () => {
+  it('Should have proper authorizations (PUT /project/:id)', async () => {
     const success = await checkAuthorizations(
       testData,
       Role.User,
       async (givenToken: string) => {
-        return await postReq(app, givenToken, `/company`, {});
+        return await postReq(app, givenToken, `/project`, {});
       },
     );
     expect(success).toBe(true);
   });
 
-  it('Should have proper authorizations (DELETE /company/:id)', async () => {
+  it('Should have proper authorizations (DELETE /project/:id)', async () => {
     const success = await checkAuthorizations(
       testData,
       Role.User,
@@ -227,7 +227,7 @@ describe('Company Controller (e2e)', () => {
         return await deleteReq(
           app,
           givenToken,
-          `/company/62780ca0156f3d3fda24c4e2`,
+          `/project/62780ca0156f3d3fda24c4e2`,
         );
       },
     );

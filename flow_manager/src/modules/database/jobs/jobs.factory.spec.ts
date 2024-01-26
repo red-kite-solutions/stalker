@@ -5,7 +5,7 @@ import { AppModule } from '../../app.module';
 import { DEFAULT_JOB_POD_FALLBACK_CONFIG } from '../admin/config/config.default';
 import { ConfigService } from '../admin/config/config.service';
 import { JobPodConfiguration } from '../admin/config/job-pod-config/job-pod-config.model';
-import { CompanyService } from '../reporting/company.service';
+import { ProjectService } from '../reporting/project.service';
 import { JobFactoryUtils } from './jobs.factory';
 import { JobsService } from './jobs.service';
 import { Job } from './models/jobs.model';
@@ -14,7 +14,7 @@ describe('Jobs Service', () => {
   let moduleFixture: TestingModule;
   let jobsModel: Model<Job>;
   let jobsService: JobsService;
-  let companyService: CompanyService;
+  let projectService: ProjectService;
   let configService: ConfigService;
   let jobPodConfigModel: Model<JobPodConfiguration>;
 
@@ -23,7 +23,7 @@ describe('Jobs Service', () => {
       imports: [AppModule],
     }).compile();
     jobsService = moduleFixture.get(JobsService);
-    companyService = moduleFixture.get(CompanyService);
+    projectService = moduleFixture.get(ProjectService);
     configService = moduleFixture.get(ConfigService);
     jobsModel = moduleFixture.get<Model<Job>>(getModelToken('job'));
     jobPodConfigModel = moduleFixture.get<Model<JobPodConfiguration>>(
@@ -32,9 +32,9 @@ describe('Jobs Service', () => {
   });
 
   beforeEach(async () => {
-    const allCompanies = await companyService.getAll();
-    for (const c of allCompanies) {
-      await companyService.delete(c._id);
+    const allProjects = await projectService.getAll();
+    for (const c of allProjects) {
+      await projectService.delete(c._id);
     }
     await jobPodConfigModel.deleteMany({});
   });

@@ -5,7 +5,7 @@ import { MongoClient } from 'mongodb';
 import request from 'supertest';
 import { FM_ENVIRONMENTS } from '../src/modules/app.constants';
 import { Role } from '../src/modules/auth/constants';
-import { CompanyDocument } from '../src/modules/database/reporting/company.model';
+import { ProjectDocument } from '../src/modules/database/reporting/project.model';
 
 export interface UserTestingData {
   token: string;
@@ -244,13 +244,13 @@ export async function checkAuthorizations(
   return true;
 }
 
-export async function createCompany(
+export async function createProject(
   app,
   testData: TestingData,
-  companyName = null,
-): Promise<CompanyDocument> {
-  const res = await postReq(app, testData.user.token, '/company', {
-    name: companyName ?? 'e2e-tests-' + randomUUID(),
+  projectName = null,
+): Promise<ProjectDocument> {
+  const res = await postReq(app, testData.user.token, '/project', {
+    name: projectName ?? 'e2e-tests-' + randomUUID(),
   });
 
   expect(res.statusCode).toBe(201);
@@ -261,12 +261,12 @@ export async function createCompany(
 export async function createDomain(
   app,
   testData: TestingData,
-  companyId: string,
+  projectId: string,
   domains: string[],
 ) {
   const r = await postReq(app, testData.admin.token, `/domains`, {
     domains: domains,
-    companyId: companyId,
+    projectId: projectId,
   });
 
   return r.body;
@@ -275,12 +275,12 @@ export async function createDomain(
 export async function createHosts(
   app,
   testData: TestingData,
-  companyId: string,
+  projectId: string,
   ips: string[],
 ) {
   const r = await postReq(app, testData.admin.token, `/hosts`, {
     ips: ips,
-    companyId: companyId,
+    projectId: projectId,
   });
   return r.body;
 }
@@ -314,7 +314,7 @@ export async function cleanup() {
     'jobs',
     'domains',
     'hosts',
-    'companies',
+    'projects',
     'tags',
     'reports',
     'cronsubscriptions',

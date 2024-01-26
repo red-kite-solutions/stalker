@@ -10,10 +10,10 @@
           <CoverageOverride>More</CoverageOverride>
           <CreditScore></CreditScore>
           <DriverProfile>
-            <AutoCompanyCode>CHUB</AutoCompanyCode>
+            <AutoProjectCode>CHUB</AutoProjectCode>
             <Birthdate>20001211</Birthdate>
             <DateContinuousInsurance>20201211</DateContinuousInsurance>
-            <DateWithCompany>20201211</DateWithCompany>
+            <DateWithProject>20201211</DateWithProject>
             <DriverLicense>
               <ID>DriverLicence1</ID>
               <LicenseClass>G</LicenseClass>

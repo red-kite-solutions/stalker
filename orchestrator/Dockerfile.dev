@@ -12,4 +12,4 @@ RUN dotnet dev-certs https -t
 COPY . .
 RUN dotnet restore "./Orchestrator.sln"
 
-CMD ["dotnet", "watch", "--project", "Orchestrator", "--no-hot-reload"]
+ENTRYPOINT ["dotnet", "watch", "--project", "Orchestrator", "--no-hot-reload"]

@@ -7,7 +7,7 @@ export type JobLogDocument = JobLog & Document;
 @Schema()
 export class JobLog {
   @Prop()
-  public companyId!: string;
+  public projectId!: string;
 
   @Prop()
   public jobId!: string;

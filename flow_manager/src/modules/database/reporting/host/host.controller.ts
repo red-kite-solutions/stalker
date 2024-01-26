@@ -29,7 +29,7 @@ export class HostController {
   @Roles(Role.User)
   @Post('')
   async submitHosts(@Body() dto: SubmitHostsDto) {
-    return await this.hostsService.addHosts(dto.ips, dto.companyId);
+    return await this.hostsService.addHosts(dto.ips, dto.projectId);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
