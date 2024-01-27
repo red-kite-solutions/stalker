@@ -1,5 +1,6 @@
+import { SelectionModel } from '@angular/cdk/collections';
 import { CommonModule } from '@angular/common';
-import { Component, TemplateRef } from '@angular/core';
+import { AfterViewInit, Component, TemplateRef } from '@angular/core';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -8,13 +9,13 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, combineLatest, debounceTime, map, scan, shareReplay, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, Subject, combineLatest, debounceTime, map, scan, shareReplay, switchMap, tap } from 'rxjs';
 import { ProjectsService } from '../../api/projects/projects.service';
 import { SecretService } from '../../api/secrets/secrets.service';
 import { AvatarComponent } from '../../shared/components/avatar/avatar.component';
@@ -22,6 +23,7 @@ import { ProjectCellComponent } from '../../shared/components/project-cell/proje
 import { SharedModule } from '../../shared/shared.module';
 import { ProjectSummary } from '../../shared/types/project/project.summary';
 import { Secret } from '../../shared/types/secret.type';
+import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/widget/confirm-dialog/confirm-dialog.component';
 import { FilteredPaginatedTableComponent } from '../../shared/widget/filtered-paginated-table/filtered-paginated-table.component';
 import { secretExplanation } from './secrets.constants';
 
@@ -51,15 +53,18 @@ import { secretExplanation } from './secrets.constants';
     MatSelectModule,
   ],
 })
-export class SecretsComponent {
+export class SecretsComponent implements AfterViewInit {
   public isLoading$ = new BehaviorSubject(true);
   private filters$ = new BehaviorSubject<string[]>([]);
   private createSecret$ = new BehaviorSubject<Secret[]>([]);
+  private deleteSecret$ = new BehaviorSubject<string[]>([]);
+  private paging$ = new Subject<PageEvent>();
 
   public noDataMessage = $localize`:No secret found|No secret were found:No secret found`;
   public hideValue = true;
   public secretExplanation = secretExplanation;
   public allProjects = 'all projects';
+  public selection = new SelectionModel<Secret>(true, []);
 
   public projects?: ProjectSummary[];
   public projects$ = this.projectsService.getAllSummaries().pipe(
@@ -81,8 +86,16 @@ export class SecretsComponent {
     })
   );
 
-  public secrets$ = combineLatest([this.createdSecret$, this.secretService.getSecrets()]).pipe(
-    map(([createdSecrets, dbSecrets]) => dbSecrets.concat(createdSecrets)),
+  private deletedSecret$ = this.deleteSecret$.pipe(
+    scan((deleted, previous) => {
+      return previous.concat(deleted);
+    })
+  );
+
+  public secrets$ = combineLatest([this.createdSecret$, this.secretService.getSecrets(), this.deletedSecret$]).pipe(
+    map(([createdSecrets, dbSecrets, deletedSecrets]) =>
+      dbSecrets.concat(createdSecrets).filter((v) => !deletedSecrets.some((d) => v._id === d))
+    ),
     map((secrets) => secrets.sort((a, b) => a._id.localeCompare(b._id))),
     switchMap((secrets) =>
       this.filters$.pipe(
@@ -94,8 +107,13 @@ export class SecretsComponent {
     shareReplay(1)
   );
 
-  public dataSource$ = combineLatest([this.secrets$, this.projects$]).pipe(
-    map(([secrets]) => new MatTableDataSource<Secret>(secrets)),
+  public dataSource$ = combineLatest([this.secrets$, this.paging$, this.projects$]).pipe(
+    map(([secrets, paging]) => {
+      const start = paging.pageIndex * paging.pageSize;
+      let end = start + paging.pageSize;
+      end = end < secrets.length ? end : secrets.length;
+      return new MatTableDataSource<Secret>(secrets.slice(start, end));
+    }),
     tap(() => this.isLoading$.next(false)),
     shareReplay(1)
   );
@@ -108,7 +126,59 @@ export class SecretsComponent {
     private toastr: ToastrService
   ) {}
 
-  delete() {}
+  ngAfterViewInit(): void {
+    const firstPage = new PageEvent();
+    firstPage.pageSize = 10;
+    firstPage.pageIndex = 0;
+    this.paging$.next(firstPage);
+  }
+
+  delete() {
+    const bulletPoints: string[] = Array<string>();
+    for (const secret of this.selection.selected) {
+      const projectName = this.projects!.find((p) => p.id === secret.projectId)?.name;
+      const bp = projectName ? `${secret.name} (${projectName})` : secret.name;
+      bulletPoints.push(bp);
+    }
+
+    let data: ConfirmDialogData;
+    if (bulletPoints.length > 0) {
+      data = {
+        text: $localize`:Confirm delete secrets|Confirmation message asking if the user really wants to delete the selected secrets:Do you really wish to delete these secrets permanently?`,
+        title: $localize`:Deleting secrets|Title of a page to delete selected secrets:Deleting secrets`,
+        primaryButtonText: $localize`:Cancel|Cancel current action:Cancel`,
+        dangerButtonText: $localize`:Delete permanently|Confirm that the user wants to delete the item permanently:Delete permanently`,
+        listElements: bulletPoints,
+        onPrimaryButtonClick: () => {
+          this.dialog.closeAll();
+        },
+        onDangerButtonClick: async () => {
+          const ids = this.selection.selected.map((h: Secret) => {
+            return h._id;
+          });
+          this.secretService.deleteMany(ids).forEach((n) => this.deleteSecret$.next([n]));
+          this.selection.clear();
+          this.toastr.success(
+            $localize`:Secrets deleted|Confirm the successful deletion of a Domain:Secrets deleted successfully`
+          );
+          this.dialog.closeAll();
+        },
+      };
+    } else {
+      data = {
+        text: $localize`:Select secrets again|No secrets were selected so there is nothing to delete:Select the secrets to delete and try again.`,
+        title: $localize`:Nothing to delete|Tried to delete something, but there was nothing to delete:Nothing to delete`,
+        primaryButtonText: $localize`:Ok|Accept or confirm:Ok`,
+        onPrimaryButtonClick: () => {
+          this.dialog.closeAll();
+        },
+      };
+    }
+    this.dialog.open(ConfirmDialogComponent, {
+      data,
+      restoreFocus: false,
+    });
+  }
 
   async create() {
     if (!this.newSecretForm.valid) {
@@ -136,7 +206,9 @@ export class SecretsComponent {
     }
   }
 
-  public pageChange(e: any) {}
+  public pageChange(page: PageEvent) {
+    this.paging$.next(page);
+  }
 
   public filterChange(filters: string[]) {
     this.filters$.next(filters);

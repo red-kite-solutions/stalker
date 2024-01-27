@@ -37,7 +37,7 @@
     @if (projects$ | async) {
       <form [formGroup]="subscriptionConfigForm" class="tw-w-full configurations-form">
         <mat-form-field appearance="outline" class="tw-w-full">
-          <mat-label i18n="Project|Project or business">Project</mat-label>
+          <mat-label i18n="Project|Project">Project</mat-label>
           <mat-select formControlName="selectedProject">
             <mat-option i18n="All Projects|Select all projects" value="all projects">All Projects</mat-option>
             @for (project of projects$ | async; track project) {

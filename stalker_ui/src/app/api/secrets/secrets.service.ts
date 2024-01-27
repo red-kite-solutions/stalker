@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, firstValueFrom } from 'rxjs';
+import { Observable, firstValueFrom, from, map, mergeMap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Secret } from '../../shared/types/secret.type';
 
@@ -16,5 +16,9 @@ export class SecretService {
 
   async create(secret: Pick<Secret, 'name' | 'projectId' | 'value' | 'description'>) {
     return <Secret>await firstValueFrom(this.http.post(`${environment.fmUrl}/secrets/`, secret));
+  }
+
+  deleteMany(ids: string[]) {
+    return from(ids).pipe(mergeMap((id) => this.http.delete(`${environment.fmUrl}/secrets/${id}`).pipe(map(() => id))));
   }
 }
