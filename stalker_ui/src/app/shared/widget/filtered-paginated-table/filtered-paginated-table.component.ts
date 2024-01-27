@@ -114,6 +114,7 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> {
   @Input() isLoading = false;
   @Input() length: number | null = 0;
   @Input() routerLinkPrefix = '/';
+  @Input() elementLinkActive = true;
   @Input() queryParamsFunc: (row: T) => {} = () => ({});
 
   @Output() pageChange = new EventEmitter<PageEvent>();

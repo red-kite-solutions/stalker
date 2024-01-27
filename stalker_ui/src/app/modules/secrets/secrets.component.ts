@@ -70,7 +70,7 @@ export class SecretsComponent {
 
   public newSecretForm = this.fb.group({
     project: new FormControl<string>(this.allProjects),
-    name: new FormControl<string>('', Validators.required),
+    name: new FormControl<string>('', [Validators.required, Validators.pattern(/^\s*[^\s\{\}]+\s*$/)]),
     value: new FormControl<string>('', Validators.required),
     description: new FormControl<string>(''),
   });

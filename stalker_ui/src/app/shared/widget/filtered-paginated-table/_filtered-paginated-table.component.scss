@@ -10,6 +10,16 @@
       }
     }
 
+    table .rows-inactive {
+      cursor: default;
+      label {
+        cursor: default;
+      }
+      span {
+        cursor: default;
+      }
+    }
+
     table .rows:hover {
       background-color: var(--mat-table-background-color-hover);
     }

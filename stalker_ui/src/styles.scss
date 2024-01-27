@@ -130,3 +130,10 @@ mat-icon {
     padding-bottom: 5px !important;
   }
 }
+
+// Sticking the mat errors closer to the input for higher density
+.mat-mdc-form-field {
+  mat-error {
+    margin-top: -5px;
+  }
+}
