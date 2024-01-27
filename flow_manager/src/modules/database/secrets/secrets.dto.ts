@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, Matches } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, Matches } from 'class-validator';
 import { IsProjectId } from '../../../validators/is-project-id.validator';
 
 export class CreateSecretDto {
@@ -16,5 +16,10 @@ export class CreateSecretDto {
   public value: string;
 
   @IsProjectId()
+  @IsOptional()
   public projectId: string;
+
+  @IsOptional()
+  @IsString()
+  public description: string;
 }

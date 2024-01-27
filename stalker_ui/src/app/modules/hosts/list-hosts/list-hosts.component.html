@@ -29,6 +29,7 @@
         [routerLinkPrefix]="'/hosts/'"
         (filtersChange)="filtersChange($event)"
         (selectionChange)="selection = $event"
+        [noDataMessage]="noDataMessage"
       >
         <!-- Ip Column -->
         <ng-container matColumnDef="ip">

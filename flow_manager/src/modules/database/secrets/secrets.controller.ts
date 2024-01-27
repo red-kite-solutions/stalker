@@ -51,7 +51,10 @@ export class SecretsController {
       return await this.secretsService.create(
         dto.name.trim(),
         dto.value,
-        dto.projectId === ProjectUnassigned ? undefined : dto.projectId,
+        !dto.projectId || dto.projectId === ProjectUnassigned
+          ? undefined
+          : dto.projectId,
+        dto.description,
       );
     } catch (err) {
       if (err.code === MONGO_DUPLICATE_ERROR) {

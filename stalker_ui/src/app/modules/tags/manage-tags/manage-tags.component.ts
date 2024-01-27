@@ -55,6 +55,7 @@ export class ManageTagsComponent {
   public newTagColor: Color = new Color(0, 0, 0);
   public placeholderColor: Color = new Color(0, 0, 0);
   public color: ThemePalette = 'primary';
+  public readonly noDataMessage = $localize`:No tag found|No tag was found for this item:No tag found`;
 
   private refreshData() {
     return this.tagsService.getTags().pipe(

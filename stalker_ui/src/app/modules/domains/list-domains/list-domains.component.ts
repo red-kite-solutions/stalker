@@ -59,6 +59,7 @@ export class ListDomainsComponent {
   dataLoading = true;
   displayedColumns: string[] = ['select', 'domain', 'hosts', 'project', 'tags'];
   filterOptions: string[] = ['host', 'domain', 'project', 'tags'];
+  public readonly noDataMessage = $localize`:No domain found|No domain was found:No domain found`;
 
   dataSource = new MatTableDataSource<Domain>();
   currentPage: PageEvent = this.generateFirstPageEvent();

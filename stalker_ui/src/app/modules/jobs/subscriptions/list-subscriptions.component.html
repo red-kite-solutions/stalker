@@ -28,6 +28,7 @@
       [queryParamsFunc]="getSubscriptionQueryParams"
       [filterType]="'fulltext'"
       (filtersChange)="filterChange($event)"
+      [noDataMessage]="noDataMessage"
     >
       <!-- Name Column -->
       <ng-container matColumnDef="name">
@@ -62,11 +63,6 @@
         </td>
       </ng-container>
       <tr mat-header-row *matHeaderRowDef="['name', 'trigger', 'job', 'source']"></tr>
-      <tr class="mat-row nodata" *matNoDataRow>
-        <td class="mat-cell" colspan="100%" i18n="No subscription found|No subscriptions were found">
-          No subscription found
-        </td>
-      </tr>
     </app-filtered-paginated-table>
   </mat-card-content>
 </mat-card>

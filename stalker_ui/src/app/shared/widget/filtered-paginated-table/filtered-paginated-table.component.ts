@@ -106,6 +106,8 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> {
     this.selectionChange.emit(this.selection);
   }
 
+  @Input() noDataMessage: string =
+    $localize`:No data|No data is matching the filter, the array is empty:No matching data.`;
   @Input() filterType: 'tokens' | 'fulltext' = 'tokens';
   @Input() columns!: string[] | null;
   @Input() filterOptions!: string[] | null;

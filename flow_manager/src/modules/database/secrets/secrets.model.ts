@@ -13,6 +13,9 @@ export class Secret {
 
   @Prop({ select: false })
   public value: string;
+
+  @Prop()
+  public description?: string;
 }
 
 export const SecretSchema = SchemaFactory.createForClass(Secret);

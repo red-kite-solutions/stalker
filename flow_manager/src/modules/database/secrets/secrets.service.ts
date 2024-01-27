@@ -76,11 +76,13 @@ export class SecretsService {
     name: string,
     value: string,
     projectId: string = undefined,
+    description: string = undefined,
   ): Promise<Pick<SecretDocument, '_id' | 'name' | 'projectId'>> {
     const secret = await this.secretModel.create({
       name: name,
       projectId: projectId ? new Types.ObjectId(projectId) : undefined,
       value: SecretsService.encrypt(value),
+      description: description,
     });
 
     secret.value = undefined;
@@ -90,37 +92,6 @@ export class SecretsService {
   public async delete(id: string) {
     return this.secretModel.deleteOne({ _id: { $eq: new Types.ObjectId(id) } });
   }
-
-  // public static decrypt(value: string): string {
-  //   const values = value.split('$');
-  //   const iv = Buffer.from(values[0], 'hex');
-  //   const tag = Buffer.from(values[1], 'hex');
-  //   const encrypted = values[2];
-  //   const decipher = crypto.createDecipheriv(
-  //     SecretsService.cipherType,
-  //     SecretsService.key,
-  //     iv,
-  //   );
-  //   decipher.setAuthTag(tag);
-  //   let decrypted = decipher.update(encrypted, 'hex', 'utf-8');
-  //   decrypted += decipher.final('utf-8');
-  //   return decrypted;
-  // }
-
-  // public static encrypt(value: string): string {
-  //   const iv = crypto.randomBytes(16);
-  //   const cipher = crypto.createCipheriv(
-  //     SecretsService.cipherType,
-  //     SecretsService.key,
-  //     iv,
-  //   );
-  //   let encrypted = cipher.update(value, 'utf-8', 'hex');
-  //   encrypted += cipher.final('hex');
-
-  //   return `${iv.toString('hex')}$${cipher
-  //     .getAuthTag()
-  //     .toString('hex')}$${encrypted}`;
-  // }
 
   public static encrypt(value: string) {
     const encrypted = this.publicKey.encrypt(value);

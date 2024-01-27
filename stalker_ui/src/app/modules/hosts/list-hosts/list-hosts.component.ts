@@ -57,6 +57,7 @@ export class ListHostsComponent {
   dataLoading = true;
   displayedColumns: string[] = ['select', 'ip', 'domains', 'project', 'tags'];
   filterOptions: string[] = ['host', 'domain', 'project', 'tags'];
+  public readonly noDataMessage = $localize`:No host found|No host was found:No host found`;
 
   dataSource = new MatTableDataSource<Host>();
   currentPage: PageEvent = this.generateFirstPageEvent();

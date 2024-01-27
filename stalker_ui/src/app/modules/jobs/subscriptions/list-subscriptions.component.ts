@@ -46,6 +46,7 @@ import { subscriptionTypes } from './subscription-templates';
 export class ListSubscriptionsComponent {
   public isLoading$ = new BehaviorSubject(true);
   public subscriptionTypes = subscriptionTypes;
+  public noDataMessage = $localize`:No subscription found|No subscriptions were found:No subscription found`;
 
   private filters$ = new BehaviorSubject<string[]>([]);
   public subscriptions$ = this.subscriptionsService.getSubscriptions().pipe(
