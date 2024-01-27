@@ -44,9 +44,10 @@ describe('Secrets Controller (e2e)', () => {
   });
 
   const secret: CreateSecretDto = {
-    name: 'First Secret',
+    name: 'FirstSecret',
     value: 'Secret value',
     projectId: ProjectUnassigned,
+    description: 'example description',
   };
 
   it('Should create a secret (POST /secrets/)', async () => {

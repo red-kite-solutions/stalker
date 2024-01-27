@@ -20,7 +20,10 @@ export function CanEnableFindingHandler(validationOptions?: ValidationOptions) {
           const type = args.object['type'];
           if (
             !validCustomJobTypeDetails.some((cjtd) => {
-              return cjtd.type === type && cjtd.handlerLanguage !== undefined;
+              return (
+                cjtd.type === type &&
+                (cjtd.handlerLanguage !== undefined || value === false)
+              );
             })
           ) {
             return false;
