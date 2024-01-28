@@ -1,5 +1,5 @@
 export interface Tag {
-  id: string;
+  _id: string;
   text: string;
   color: string; // hex format like #ffffff
 }

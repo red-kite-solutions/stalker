@@ -155,7 +155,7 @@ export class ViewPortComponent implements OnDestroy {
     map((next: any[]) => {
       const tagsArr: Tag[] = [];
       for (const tag of next) {
-        tagsArr.push({ id: tag._id, text: tag.text, color: tag.color });
+        tagsArr.push({ _id: tag._id, text: tag.text, color: tag.color });
       }
       return tagsArr;
     })
@@ -165,10 +165,10 @@ export class ViewPortComponent implements OnDestroy {
     map(([portTags, allTags]) => {
       const tagsArr: (Tag & SelectItem)[] = [];
       for (const tag of allTags) {
-        if (portTags?.includes(tag.id)) {
-          tagsArr.push({ id: tag.id, text: tag.text, color: tag.color, isSelected: true });
+        if (portTags?.includes(tag._id)) {
+          tagsArr.push({ _id: tag._id, text: tag.text, color: tag.color, isSelected: true });
         } else {
-          tagsArr.push({ id: tag.id, text: tag.text, color: tag.color, isSelected: false });
+          tagsArr.push({ _id: tag._id, text: tag.text, color: tag.color, isSelected: false });
         }
       }
       this.tags = tagsArr;
