@@ -101,6 +101,23 @@ describe('Custom Jobs Controller (e2e)', () => {
     expect(r.body._id).toBeTruthy();
   });
 
+  it('Should not create a custom job (handler enabled = true) (POST /custom-jobs)', async () => {
+    // Arrange
+    const cj: CustomJobDto = {
+      language: 'python',
+      type: 'code',
+      name: 'print secret',
+      code: "import os\n\nprint(os.environ['secret'])",
+      jobPodConfigId: '65b013faed7664d0b13d7e7c',
+      findingHandlerEnabled: true,
+    };
+
+    // Act
+    const r = await postReq(app, testData.user.token, '/custom-jobs', cj);
+
+    expect(r.statusCode).toBe(HttpStatus.BAD_REQUEST);
+  });
+
   it('Should get the list of custom jobs (GET /custom-jobs)', async () => {
     // arrange & act
     const r = await getReq(app, testData.user.token, '/custom-jobs');
