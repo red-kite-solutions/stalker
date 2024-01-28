@@ -7,15 +7,13 @@
           [backRoute]="['/jobs/subscriptions']"
         ></app-page-header>
 
-        @if (canSave) {
-          <app-spinner-button class="tw-mt-[9px]" [loadingState]="isSaving" i18n="Save changes|Save" (click)="save()"
-            >Save</app-spinner-button
-          >
-        }
-
-        @if (hasBeenSaved && !canSave) {
-          <mat-icon class="tw-text-green-600 tw-text-[16px] tw-mt-[20px]">check_circle</mat-icon>
-        }
+        <app-saving-button
+          class="tw-mt-[9px]"
+          [isSaving]="isSaving"
+          [canSave]="canSave"
+          [hasBeenSaved]="hasBeenSaved"
+          (save)="save()"
+        ></app-saving-button>
       </div>
 
       <div class="code-editor-container">
@@ -24,8 +22,8 @@
           [language]="'yaml'"
           [minimapEnabled]="false"
           [theme]="theme"
-          [readonly]="false"
-          (saveEvent)="save()"
+          [readonly]="isInitializing"
+          (saveEvent)="forceSave()"
           [path]="'/subcriptions/subscription.yaml'"
         ></app-code-editor>
       </div>
@@ -33,19 +31,43 @@
   </mat-drawer-content>
 
   <mat-drawer mode="side" position="end" opened>
-    <h2 i18n="Configuration|Subscription configuration">Configuration</h2>
-    @if (projects$ | async) {
-      <form [formGroup]="subscriptionConfigForm" class="tw-w-full configurations-form">
-        <mat-form-field appearance="outline" class="tw-w-full">
-          <mat-label i18n="Project|Project or business">Project</mat-label>
-          <mat-select formControlName="selectedProject">
-            <mat-option i18n="All Projects|Select all projects" value="all projects">All Projects</mat-option>
-            @for (project of projects$ | async; track project) {
-              <mat-option value="{{ project.id }}">{{ project.name }}</mat-option>
+    <div #contextMenu class="tw-flex tw-gap-2 tw-flex-col tw-m-4">
+      <h2 i18n="Configuration|Subscription configuration">Configuration</h2>
+      @if (projects$ | async) {
+        <form [formGroup]="subscriptionConfigForm" class="tw-w-full configurations-form">
+          <mat-form-field appearance="outline" class="tw-w-full">
+            <mat-label i18n="Project|Project or business">Project</mat-label>
+            <mat-select formControlName="selectedProject">
+              <mat-option i18n="All Projects|Select all projects" value="all projects">All Projects</mat-option>
+              @for (project of projects$ | async; track project) {
+                <mat-option value="{{ project.id }}">{{ project.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </form>
+      }
+
+      <mat-divider></mat-divider>
+
+      <panel-section class="tw-opacity-60">
+        <app-text-menu
+          i18n-buttonText="Manage subscription|Manage subscription"
+          [buttonText]="'Manage subscription'"
+          [iconName]="'settings'"
+        >
+          <div class="tw-flex tw-flex-col tw-gap-2">
+            @if ((subscription$ | async)?.builtIn) {
+              <button mat-stroked-button class="tw-w-full" (click)="revertToOriginal()">
+                <label i18n="Revert to original|Revert to original subscription">Revert to original</label>
+              </button>
             }
-          </mat-select>
-        </mat-form-field>
-      </form>
-    }
+
+            <button mat-stroked-button color="warn" class="tw-w-full" (click)="deleteSubscription()">
+              <label i18n="Delete|Delete an item">Delete</label>
+            </button>
+          </div>
+        </app-text-menu>
+      </panel-section>
+    </div>
   </mat-drawer>
 </mat-drawer-container>

@@ -7,8 +7,8 @@ export interface ConfirmDialogData {
   primaryButtonText?: string;
   dangerButtonText?: string;
   listElements?: string[];
-  onPrimaryButtonClick?: Function;
-  onDangerButtonClick?: Function;
+  onPrimaryButtonClick?: () => unknown | (() => Promise<unknown>);
+  onDangerButtonClick?: () => unknown | (() => Promise<unknown>);
 }
 
 @Component({
@@ -19,6 +19,9 @@ export interface ConfirmDialogData {
 export class ConfirmDialogComponent {
   @Input()
   public readonly maxListLength: number = 15;
+
+  public primaryLoading = false;
+  public dangerLoading = false;
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: ConfirmDialogData) {
     if (data.listElements && data.listElements.length > this.maxListLength + 1) {
@@ -31,15 +34,25 @@ export class ConfirmDialogComponent {
     }
   }
 
-  primaryClick() {
-    if (this.data.onPrimaryButtonClick) {
-      this.data.onPrimaryButtonClick();
+  public async primaryClick() {
+    this.primaryLoading = true;
+    try {
+      if (this.data.onPrimaryButtonClick) {
+        await this.data.onPrimaryButtonClick();
+      }
+    } finally {
+      this.primaryLoading = false;
     }
   }
 
-  dangerClick() {
-    if (this.data.onDangerButtonClick) {
-      this.data.onDangerButtonClick();
+  public async dangerClick() {
+    this.dangerLoading = true;
+    try {
+      if (this.data.onDangerButtonClick) {
+        await this.data.onDangerButtonClick();
+      }
+    } finally {
+      this.dangerLoading = false;
     }
   }
 }

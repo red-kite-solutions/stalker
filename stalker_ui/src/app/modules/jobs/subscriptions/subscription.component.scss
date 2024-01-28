@@ -27,9 +27,18 @@ app-code-editor {
 
 mat-drawer {
   padding: 16px;
-  width: 324px;
+  width: 312px;
 }
 
 .configurations-form {
   margin-top: 10px;
+}
+
+mat-divider {
+  margin-left: -16px;
+  margin-right: -16px;
+}
+
+mat-drawer {
+  padding: 0;
 }

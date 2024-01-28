@@ -37,6 +37,7 @@ export class EventSubscriptionsService implements GenericSubscriptionService<Eve
     const parsedSub: EventSubscription = {
       type: eventSubscriptionKey,
       _id: newSub._id,
+      builtIn: false,
       name: newSub.name,
       finding: newSub.finding,
       cooldown: newSub.cooldown,
@@ -44,7 +45,6 @@ export class EventSubscriptionsService implements GenericSubscriptionService<Eve
       job: {
         name: newSub.jobName,
       },
-      builtIn: false,
     };
     if (newSub.jobParameters && Array.isArray(newSub.jobParameters)) parsedSub.job.parameters = newSub.jobParameters;
     if (newSub.conditions && Array.isArray(newSub.conditions)) parsedSub.conditions = newSub.conditions;

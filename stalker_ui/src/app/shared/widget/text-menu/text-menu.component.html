@@ -1,9 +1,12 @@
-<a class="clickable-text" [matMenuTriggerFor]="menu">
+<a #button class="clickable-text" [matMenuTriggerFor]="menu">
   @if (iconName) {
-    <mat-icon [ngClass]="iconOutlined ? 'material-symbols-outlined' : ''">{{ iconName }}</mat-icon>
+    <mat-icon>{{ iconName }}</mat-icon>
   }
   <label [ngClass]="iconName ? 'center-on-icon' : ''">{{ buttonText }}</label>
 </a>
-<mat-menu #menu="matMenu" class="app-text-menu-container" [xPosition]="xPosition">
-  <ng-content></ng-content>
+
+<mat-menu #menu="matMenu" [xPosition]="xPosition">
+  <div class="tw-px-2" [style.minWidth.px]="width">
+    <ng-content></ng-content>
+  </div>
 </mat-menu>

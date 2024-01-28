@@ -23,11 +23,12 @@
       (pageChange)="pageChange($event)"
       [isLoading]="(isLoading$ | async) || false"
       [length]="(subscriptions$ | async)?.length || 0"
-      [columns]="['name', 'trigger', 'job', 'source']"
+      [columns]="['select', 'name', 'trigger', 'job', 'source']"
       [routerLinkPrefix]="'/jobs/subscriptions/'"
       [queryParamsFunc]="getSubscriptionQueryParams"
       [filterType]="'fulltext'"
       (filtersChange)="filterChange($event)"
+      (selectionChange)="selection = $event"
     >
       <!-- Name Column -->
       <ng-container matColumnDef="name">
@@ -61,7 +62,7 @@
           }
         </td>
       </ng-container>
-      <tr mat-header-row *matHeaderRowDef="['name', 'trigger', 'job', 'source']"></tr>
+      <tr mat-header-row *matHeaderRowDef="['select', 'name', 'trigger', 'job', 'source']"></tr>
       <tr class="mat-row nodata" *matNoDataRow>
         <td class="mat-cell" colspan="100%" i18n="No subscription found|No subscriptions were found">
           No subscription found

@@ -71,6 +71,8 @@ $stalker-dark: mat.define-dark-theme(
       color: mat.get-theme-color($stalker-light, primary, default);
     }
   }
+
+  color-scheme: light;
 }
 
 .theme-dark {
@@ -86,6 +88,8 @@ $stalker-dark: mat.define-dark-theme(
       color: mat.get-theme-color($stalker-dark, primary, default);
     }
   }
+
+  color-scheme: dark;
 }
 
 // Paginator
