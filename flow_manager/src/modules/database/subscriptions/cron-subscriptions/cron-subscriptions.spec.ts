@@ -168,16 +168,20 @@ describe('Cron Subscriptions Service', () => {
 
       // Assert
       expect(spy).toHaveBeenCalled();
-      expect(spy).toHaveBeenCalledWith(allDomainsCronSub.jobName, [
-        {
-          name: 'domainName',
-          value: d1[0].name,
-        },
-        {
-          name: 'projectId',
-          value: c._id.toString(),
-        },
-      ]);
+      expect(spy).toHaveBeenCalledWith(
+        allDomainsCronSub.jobName,
+        [
+          {
+            name: 'domainName',
+            value: d1[0].name,
+          },
+          {
+            name: 'projectId',
+            value: c._id.toString(),
+          },
+        ],
+        c._id.toString(),
+      );
     });
 
     it('Should publish (5) jobs from input ALL_DOMAINS', async () => {
@@ -213,16 +217,20 @@ describe('Cron Subscriptions Service', () => {
 
       // Assert
       expect(spy).toHaveBeenCalledTimes(5);
-      expect(spy).toHaveBeenLastCalledWith(allDomainsCronSub.jobName, [
-        {
-          name: 'domainName',
-          value: d5[0].name,
-        },
-        {
-          name: 'projectId',
-          value: c._id.toString(),
-        },
-      ]);
+      expect(spy).toHaveBeenLastCalledWith(
+        allDomainsCronSub.jobName,
+        [
+          {
+            name: 'domainName',
+            value: d5[0].name,
+          },
+          {
+            name: 'projectId',
+            value: c._id.toString(),
+          },
+        ],
+        c._id.toString(),
+      );
     });
 
     it('Should publish (5) jobs from input ALL_DOMAINS with paging (pageSize=2)', async () => {
@@ -259,16 +267,20 @@ describe('Cron Subscriptions Service', () => {
 
       // Assert
       expect(spy).toHaveBeenCalledTimes(5);
-      expect(spy).toHaveBeenLastCalledWith(allDomainsCronSub.jobName, [
-        {
-          name: 'domainName',
-          value: d5[0].name,
-        },
-        {
-          name: 'projectId',
-          value: c._id.toString(),
-        },
-      ]);
+      expect(spy).toHaveBeenLastCalledWith(
+        allDomainsCronSub.jobName,
+        [
+          {
+            name: 'domainName',
+            value: d5[0].name,
+          },
+          {
+            name: 'projectId',
+            value: c._id.toString(),
+          },
+        ],
+        c._id.toString(),
+      );
     });
 
     it('Should publish (1) custom job from input ALL_DOMAINS', async () => {
@@ -328,6 +340,7 @@ describe('Cron Subscriptions Service', () => {
             value: [{ name: 'domainName', value: d1[0].name }],
           },
         ]),
+        c._id.toString(),
       );
     });
 
@@ -400,6 +413,7 @@ describe('Cron Subscriptions Service', () => {
             ],
           },
         ]),
+        c._id.toString(),
       );
     });
 
@@ -658,6 +672,7 @@ describe('Cron Subscriptions Service', () => {
           },
           { name: 'targetIp', value: h1[0].ip },
         ]),
+        c._id.toString(),
       );
     });
 
@@ -701,6 +716,7 @@ describe('Cron Subscriptions Service', () => {
           },
           { name: 'targetIp', value: h5[0].ip },
         ]),
+        c._id.toString(),
       );
     });
 
@@ -745,6 +761,7 @@ describe('Cron Subscriptions Service', () => {
           },
           { name: 'targetIp', value: h5[0].ip },
         ]),
+        c._id.toString(),
       );
     });
 
@@ -805,6 +822,7 @@ describe('Cron Subscriptions Service', () => {
             value: [{ name: 'ip', value: h1[0].ip }],
           },
         ]),
+        c._id.toString(),
       );
     });
 
@@ -877,6 +895,7 @@ describe('Cron Subscriptions Service', () => {
             ],
           },
         ]),
+        c._id.toString(),
       );
     });
 
@@ -1086,12 +1105,16 @@ describe('Cron Subscriptions Service', () => {
 
       // Assert
       expect(spy).toHaveBeenCalled();
-      expect(spy).toHaveBeenCalledWith(allTcpPortsCronSub.jobName, [
-        { name: 'projectId', value: c._id.toString() },
-        { name: 'targetIp', value: h1[0].ip },
-        { name: 'ports', value: [p1.port] },
-        { name: 'protocol', value: p1.layer4Protocol },
-      ]);
+      expect(spy).toHaveBeenCalledWith(
+        allTcpPortsCronSub.jobName,
+        [
+          { name: 'projectId', value: c._id.toString() },
+          { name: 'targetIp', value: h1[0].ip },
+          { name: 'ports', value: [p1.port] },
+          { name: 'protocol', value: p1.layer4Protocol },
+        ],
+        c._id.toString(),
+      );
     });
 
     it('Should publish (5) jobs from input ALL_TCP_PORTS', async () => {
@@ -1124,12 +1147,16 @@ describe('Cron Subscriptions Service', () => {
 
       // Assert
       expect(spy).toHaveBeenCalledTimes(5);
-      expect(spy).toHaveBeenCalledWith(allTcpPortsCronSub.jobName, [
-        { name: 'projectId', value: c._id.toString() },
-        { name: 'targetIp', value: h1[0].ip },
-        { name: 'ports', value: [p5.port] },
-        { name: 'protocol', value: p5.layer4Protocol },
-      ]);
+      expect(spy).toHaveBeenCalledWith(
+        allTcpPortsCronSub.jobName,
+        [
+          { name: 'projectId', value: c._id.toString() },
+          { name: 'targetIp', value: h1[0].ip },
+          { name: 'ports', value: [p5.port] },
+          { name: 'protocol', value: p5.layer4Protocol },
+        ],
+        c._id.toString(),
+      );
     });
 
     it('Should publish (10) jobs from input ALL_TCP_PORTS with paging (pageSize=2)', async () => {
@@ -1170,12 +1197,16 @@ describe('Cron Subscriptions Service', () => {
 
       // Assert
       expect(spy).toHaveBeenCalledTimes(10);
-      expect(spy).toHaveBeenLastCalledWith(allTcpPortsCronSub.jobName, [
-        { name: 'projectId', value: c._id.toString() },
-        { name: 'targetIp', value: h3[0].ip },
-        { name: 'ports', value: [p10.port] },
-        { name: 'protocol', value: p10.layer4Protocol },
-      ]);
+      expect(spy).toHaveBeenLastCalledWith(
+        allTcpPortsCronSub.jobName,
+        [
+          { name: 'projectId', value: c._id.toString() },
+          { name: 'targetIp', value: h3[0].ip },
+          { name: 'ports', value: [p10.port] },
+          { name: 'protocol', value: p10.layer4Protocol },
+        ],
+        c._id.toString(),
+      );
     });
 
     it('Should publish (1) custom job from input ALL_TCP_PORTS', async () => {
@@ -1240,6 +1271,7 @@ describe('Cron Subscriptions Service', () => {
             ],
           },
         ]),
+        c._id.toString(),
       );
     });
 
@@ -1310,6 +1342,7 @@ describe('Cron Subscriptions Service', () => {
             ],
           },
         ]),
+        c._id.toString(),
       );
     });
 
@@ -1354,15 +1387,19 @@ describe('Cron Subscriptions Service', () => {
 
       // Assert
       expect(spy).toHaveBeenCalled();
-      expect(spy).toHaveBeenCalledWith(ipRangeScanCronSub.jobName, [
-        { name: 'projectId', value: c._id.toString() },
-        { name: 'targetIp', value: ip },
-        { name: 'targetMask', value: mask },
-        { name: 'rate', value: 100000 },
-        { name: 'portMin', value: 1 },
-        { name: 'portMax', value: 1000 },
-        { name: 'ports', value: [] },
-      ]);
+      expect(spy).toHaveBeenCalledWith(
+        ipRangeScanCronSub.jobName,
+        [
+          { name: 'projectId', value: c._id.toString() },
+          { name: 'targetIp', value: ip },
+          { name: 'targetMask', value: mask },
+          { name: 'rate', value: 100000 },
+          { name: 'portMin', value: 1 },
+          { name: 'portMax', value: 1000 },
+          { name: 'ports', value: [] },
+        ],
+        c._id.toString(),
+      );
     });
 
     it('Should publish (5) jobs from input ALL_IP_RANGES', async () => {
@@ -1416,15 +1453,19 @@ describe('Cron Subscriptions Service', () => {
 
       // Assert
       expect(spy).toHaveBeenCalled();
-      expect(spy).toHaveBeenLastCalledWith(ipRangeScanCronSub.jobName, [
-        { name: 'projectId', value: c._id.toString() },
-        { name: 'targetIp', value: ip },
-        { name: 'targetMask', value: mask },
-        { name: 'rate', value: 100000 },
-        { name: 'portMin', value: 1 },
-        { name: 'portMax', value: 1000 },
-        { name: 'ports', value: [] },
-      ]);
+      expect(spy).toHaveBeenLastCalledWith(
+        ipRangeScanCronSub.jobName,
+        [
+          { name: 'projectId', value: c._id.toString() },
+          { name: 'targetIp', value: ip },
+          { name: 'targetMask', value: mask },
+          { name: 'rate', value: 100000 },
+          { name: 'portMin', value: 1 },
+          { name: 'portMax', value: 1000 },
+          { name: 'ports', value: [] },
+        ],
+        c._id.toString(),
+      );
     });
 
     it('Should publish (1) custom job from input ALL_IP_RANGES', async () => {
@@ -1487,6 +1528,7 @@ describe('Cron Subscriptions Service', () => {
             ],
           },
         ]),
+        c._id.toString(),
       );
     });
 

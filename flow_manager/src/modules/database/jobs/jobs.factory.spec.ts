@@ -112,7 +112,7 @@ describe('Jobs Service', () => {
     // Arrange
     const secretName = 'secretName';
     const secretValue = 'example secret value';
-    const secretNameTag = `\$\{\{${secretName}\}\}`;
+    const secretNameTag = `\$\{secrets.${secretName}\}`;
     const s = await secretsService.create(secretName, secretValue);
 
     // Act
@@ -131,7 +131,7 @@ describe('Jobs Service', () => {
     // Arrange
     const secretName = 'secretName';
     const secretValue = 'example secret value';
-    const secretNameTag = `\$\{\{${secretName}\}\}`;
+    const secretNameTag = `\$\{secrets.${secretName}\}`;
     const params: JobParameter[] = [
       {
         name: 'asdf',
@@ -160,7 +160,7 @@ describe('Jobs Service', () => {
     // Arrange
     const secretName = 'secretName';
     const secretValue = 'example secret value';
-    const secretNameTag: string = `\$\{\{${secretName}\}\}`;
+    const secretNameTag: string = `\$\{secrets.${secretName}\}`;
     const params: JobParameter[] = [
       {
         name: 'asdf',

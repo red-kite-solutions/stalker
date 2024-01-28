@@ -61,8 +61,6 @@ export class JobFactory {
       );
     }
 
-    console.log(args);
-
     try {
       return jobDefinition.create(args);
     } catch (err) {
