@@ -311,6 +311,8 @@ deployments:
           - env:
               - name: JobsQueue__QueueUri
                 value: ${KAFKA_URI}
+              - name: SECRET_PRIVATE_RSA_KEY
+                value: ${SECRET_PRIVATE_RSA_KEY}
 
             image: orchestrator
             name: orchestrator-container

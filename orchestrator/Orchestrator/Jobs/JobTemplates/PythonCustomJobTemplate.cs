@@ -1,5 +1,6 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using Orchestrator.Queue.JobsConsumer.JobRequests;
+using Orchestrator.Utils;
 
 namespace Orchestrator.Jobs.JobTemplates;
 
@@ -14,7 +15,7 @@ public class PythonCustomJobTemplate : PythonJobTemplate
             foreach (var param in jobParameters!)
             {
                 if (param.Name.IsNullOrEmpty() || param.Value.IsNullOrEmpty()) continue;
-                EnvironmentVariable[param.Name!] = param.Value!;
+                EnvironmentVariable[param.Name!] = CryptoUtils.Decrypt(param.Value!);
             }
         }
 

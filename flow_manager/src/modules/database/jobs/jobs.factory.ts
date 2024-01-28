@@ -15,7 +15,10 @@ import {
 import { SecretsService } from '../secrets/secrets.service';
 import { JobParameter } from '../subscriptions/event-subscriptions/event-subscriptions.model';
 import { JobDefinitions } from './job-model.module';
+import { CustomJob } from './models/custom-job.model';
 import { Job } from './models/jobs.model';
+
+const customJobParameters = 'customJobParameters';
 
 export class JobFactory {
   private static logger = new Logger(JobFactory.name);
@@ -44,11 +47,21 @@ export class JobFactory {
       args = JobFactoryUtils.setupJobPodConfigParameters(args, jobPodConfig);
     }
 
-    await JobFactoryUtils.injectSecretsInParameters(
-      args,
-      secretsService,
-      projectId,
-    );
+    if (jobName === CustomJob.name) {
+      await JobFactoryUtils.injectSecretsInParameters(
+        <JobParameter[]>args.find((v) => v.name === customJobParameters).value,
+        secretsService,
+        projectId,
+      );
+    } else {
+      await JobFactoryUtils.injectSecretsInParameters(
+        args,
+        secretsService,
+        projectId,
+      );
+    }
+
+    console.log(args);
 
     try {
       return jobDefinition.create(args);
@@ -141,7 +154,7 @@ export class JobFactoryUtils {
       value: customJob.language,
     });
     jobParameters.push({
-      name: 'customJobParameters',
+      name: customJobParameters,
       value: customJobParams,
     });
     if (customJob.findingHandlerEnabled) {
@@ -214,8 +227,8 @@ export class JobFactoryUtils {
     secretsService: SecretsService,
     projectId: string = undefined,
   ) {
-    // https://regex101.com/r/1YvfeL/1
-    const expressionRegex = /^\s*\$\{\{\s*([^\s]+)\s*\}\}\s*$/i;
+    // https://regex101.com/r/wUp5Tn/1
+    const expressionRegex = /^\s*\$\{\s*secrets\.([^\s\{\}]+)\s*\}\s*$/i;
     const match = value.match(expressionRegex);
 
     if (!match || match.length <= 1) return value;
