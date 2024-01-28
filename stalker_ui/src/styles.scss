@@ -116,3 +116,15 @@ mat-icon {
     'GRAD' -25,
     'opsz' 24;
 }
+
+// show label for more dense inputs as well
+.mat-mdc-text-field-wrapper:not(.mdc-text-field--outlined) .mat-mdc-floating-label {
+  display: inline !important;
+}
+
+.mat-mdc-text-field-wrapper:not(.mdc-text-field--outlined) :has(.mat-mdc-floating-label) {
+  .mat-mdc-form-field-infix {
+    padding-top: 19px !important;
+    padding-bottom: 5px !important;
+  }
+}
