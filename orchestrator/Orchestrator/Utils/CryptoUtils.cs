@@ -5,14 +5,15 @@ namespace Orchestrator.Utils
 {
     public static class CryptoUtils
     {
-        private static string PrivateKeyEnvironementVariable = "SECRET_PRIVATE_RSA_KEY";
-        public static string SecretPrefix = "$$secret$$";
-        private static string PrivateKey = getPrivateKey();
+        private static readonly string PrivateKeyEnvironementVariable = "SECRET_PRIVATE_RSA_KEY";
+        private static readonly RSACryptoServiceProvider RSA = InitRsa();
+        public static readonly string SecretPrefix = "$$secret$$";
 
-        private static string getPrivateKey() {
-            
+        private static RSACryptoServiceProvider InitRsa() {
             var keyBytes = Convert.FromBase64String(Environment.GetEnvironmentVariable(PrivateKeyEnvironementVariable)!);
-            return Encoding.UTF8.GetString(keyBytes);
+            RSACryptoServiceProvider RSAalg = new();
+            RSAalg.ImportFromPem(Encoding.UTF8.GetString(keyBytes));
+            return RSAalg;
         }
 
         /// <summary>
@@ -25,23 +26,18 @@ namespace Orchestrator.Utils
         {
             if(!value.StartsWith(SecretPrefix)) return value;
 
-            Console.WriteLine("Starting with prefix " + SecretPrefix);
-
             var returnValue = value;
 
             try
             {
                 var valueNoPrefix = value.Substring(SecretPrefix.Length);
                 var valueBytes = Convert.FromBase64String(valueNoPrefix);
-
-                RSACryptoServiceProvider RSAalg = new RSACryptoServiceProvider();
-                RSAalg.ImportFromPem(PrivateKey);
-                returnValue = Encoding.UTF8.GetString(RSAalg.Decrypt(valueBytes, false));
-                Console.WriteLine("#################\n" + returnValue + "#################\n");
+                returnValue = Encoding.UTF8.GetString(RSA.Decrypt(valueBytes, false));
             }
-            catch(Exception ex)
+            catch(Exception)
             {
-                Console.WriteLine(ex);
+                // If we have an error, we simply return the original value
+                // We intentionally soft fail the decryption
             }
 
             return returnValue;
