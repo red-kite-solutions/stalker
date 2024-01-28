@@ -1,10 +1,10 @@
-<app-page-header [parts]="['Edit company', (company$ | async)?.name || '']"></app-page-header>
+<app-page-header [parts]="['Edit project', (project$ | async)?.name || '']"></app-page-header>
 
 @if ((routeSub$ | async) || true) {
   <mat-card appearance="outlined">
     <mat-card-content>
       <form [formGroup]="form" class="tw-flex tw-flex-col tw-gap">
-        <h4 i18n="Company information|Details of a ompany in a form">Company Information</h4>
+        <h4 i18n="Project information|Details of a project in a form">Project Information</h4>
 
         <div class="tw-flex tw-flex-col tw-gap">
           <div class="tw-flex-1 tw-flex tw-gap-6">
@@ -16,10 +16,10 @@
             ></app-image-upload>
 
             <mat-form-field class="tw-w-full">
-              <mat-label i18n="Company name|Name of the company">Company name</mat-label>
+              <mat-label i18n="Project name|Name of the project">Project name</mat-label>
               <input formControlName="name" matInput />
-              <mat-error i18n="Company name required|Company name is required to create a company">
-                Company name is required
+              <mat-error i18n="Project name required|Project name is required to create a project">
+                Project name is required
               </mat-error>
             </mat-form-field>
           </div>
@@ -221,13 +221,13 @@
         ></app-spinner-button>
 
         <button
-          i18n="Delete company|Delete a company"
+          i18n="Delete project|Delete a project"
           type="button"
           mat-stroked-button
           color="warn"
-          (click)="deleteCompany()"
+          (click)="deleteProject()"
         >
-          Delete company
+          Delete project
         </button>
       </div>
     </mat-card-content>

@@ -23,7 +23,7 @@ export interface CronSubscriptionData extends SubscriptionData {
 
 export interface SubscriptionData {
   name: string;
-  companyId: string;
+  projectId: string;
   job: {
     name: string;
     parameters?: JobParameter[] | undefined | null;

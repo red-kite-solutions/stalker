@@ -62,6 +62,9 @@ namespace Orchestrator.Queue
                     catch (Exception ex)
                     {
                         Logger.LogError(ex, "An error occurred while deserializing the message.");
+                        Consumer.Dispose();
+                        ct = SetupConsumer(ConsumerConfig, deserializer);
+                        Logger.LogDebug("Consumer recreated, continuing with new consumer.");
                     }
                     await Task.Delay(5);
                 }

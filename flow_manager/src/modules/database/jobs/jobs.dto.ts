@@ -29,7 +29,7 @@ export class JobExecutionsDto {
 
   @IsMongoId()
   @IsOptional()
-  company: string;
+  project: string;
 }
 
 export class StartJobDto {
@@ -56,5 +56,5 @@ export class StartJobDto {
 
   @IsMongoId()
   @IsOptional()
-  companyId?: string;
+  projectId?: string;
 }

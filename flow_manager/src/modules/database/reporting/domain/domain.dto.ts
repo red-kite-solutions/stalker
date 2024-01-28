@@ -35,10 +35,10 @@ export class DomainsPagingDto {
   @IsOptional()
   tags: Array<string>;
 
-  @ValidateIf((dto) => dto.company !== '')
+  @ValidateIf((dto) => dto.project !== '')
   @IsMongoId()
   @IsOptional()
-  company: string;
+  project: string;
 }
 
 export class EditDomainDto {
@@ -59,5 +59,5 @@ export class SubmitDomainsDto {
   domains: string[];
 
   @IsMongoId()
-  companyId: string;
+  projectId: string;
 }

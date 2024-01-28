@@ -415,6 +415,9 @@ dev:
     sync:
       - path: ./orchestrator/:/app/
         disableDownload: true
+        excludePaths:
+          - Orchestrator/bin
+          - Orchestrator/obj
     restartHelper:
       inject: false
     ports:

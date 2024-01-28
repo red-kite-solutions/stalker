@@ -14,7 +14,7 @@ public class JobSerializerTests
         var job = new DomainNameResolvingJobRequest
         {
             JobId = "123",
-            CompanyId = "456",
+            ProjectId = "456",
             DomainName = "www.google.com",
         };
 

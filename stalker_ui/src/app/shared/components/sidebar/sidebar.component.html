@@ -19,14 +19,14 @@
     <a
       mat-list-item
       routerLinkActive="list-item-active"
-      routerLink="/companies"
-      [matTooltip]="expanded ? '' : companies"
+      routerLink="/projects"
+      [matTooltip]="expanded ? '' : projects"
       [matTooltipShowDelay]="700"
       matTooltipPosition="right"
     >
       <mat-icon class="material-symbols-outlined-filled">folder_open</mat-icon>
       @if (expanded) {
-        <span>{{ companies }}</span>
+        <span>{{ projects }}</span>
       }
     </a>
     <a

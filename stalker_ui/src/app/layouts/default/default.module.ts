@@ -27,9 +27,9 @@ import { RouterModule } from '@angular/router';
 import { NgxFileDropModule } from 'ngx-file-drop';
 import { CreateUserComponent } from 'src/app/modules/admin/create-user/create-user.component';
 import { SettingsComponent } from 'src/app/modules/admin/settings/settings.component';
-import { EditCompaniesComponent } from 'src/app/modules/companies/edit-companies/edit-companies.component';
 import { JobLogsSummaryComponent } from 'src/app/modules/jobs/job-executions/job-execution-logs-summary.component';
 import { SubscriptionComponent } from 'src/app/modules/jobs/subscriptions/subscription.component';
+import { EditProjectsComponent } from 'src/app/modules/projects/edit-projects/edit-projects.component';
 import { ProfileComponent } from 'src/app/modules/user/profile/profile.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { FindingsModule } from '../../modules/findings/findings.module';
@@ -48,7 +48,7 @@ import { DefaultComponent } from './default.component';
     ProfileComponent,
     CreateUserComponent,
     SettingsComponent,
-    EditCompaniesComponent,
+    EditProjectsComponent,
     SubscriptionComponent,
     CustomJobsComponent,
     LaunchJobsComponent,

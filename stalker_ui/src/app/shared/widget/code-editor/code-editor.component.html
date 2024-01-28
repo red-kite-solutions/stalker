@@ -28,12 +28,9 @@
               </div>
               @if (!fileTabsReadOnly) {
                 <div class="close-icon-container" (click)="deleteFileTab($index)">
-                  <span
-                    class="material-icons-outlined close-icon"
-                    [style.background-color]="getColor('topbar.background2')"
-                  >
+                  <mat-icon class="close-icon" [style.background-color]="getColor('topbar.background2')">
                     close
-                  </span>
+                  </mat-icon>
                 </div>
               }
             </div>
@@ -48,7 +45,7 @@
         @for (segment of fileTabs[_currentFileTabIndex].uri.path.split('/'); track $index) {
           <div class="breadcrumbs">
             @if ($index !== 0 && $index !== 1) {
-              <span class="material-icons-outlined chevron"> chevron_right </span>
+              <mat-icon class="chevron"> chevron_right </mat-icon>
             }
             {{ segment }}
           </div>

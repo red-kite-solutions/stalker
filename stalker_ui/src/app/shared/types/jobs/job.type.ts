@@ -22,7 +22,7 @@ export interface StartedJob extends JobInput {
   startTime: number;
   endTime: number;
   task: string;
-  companyId: string;
+  projectId: string;
   priority: number;
   output: JobOutputResponse[];
 }
@@ -37,7 +37,7 @@ export interface StartedJobViewModel {
   endTimestamp: number;
   endTime: Date;
   task: string;
-  companyId: string;
+  projectId: string;
   priority: number;
   output: JobOutputResponse[];
   state: StartedJobState | undefined;

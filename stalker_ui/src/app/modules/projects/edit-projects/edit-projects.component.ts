@@ -5,10 +5,10 @@ import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Subscription, combineLatest, debounceTime, filter, firstValueFrom, map, merge, switchMap, tap } from 'rxjs';
-import { CompaniesService } from 'src/app/api/companies/companies.service';
-import { Company } from 'src/app/shared/types/company/company.interface';
+import { ProjectsService } from 'src/app/api/projects/projects.service';
 import { HttpStatus } from 'src/app/shared/types/http-status.type';
 import { Ipv4Subnet } from 'src/app/shared/types/ipv4-subnet';
+import { Project } from 'src/app/shared/types/project/project.interface';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
@@ -16,11 +16,11 @@ import {
 import { Md5 } from 'ts-md5';
 
 @Component({
-  selector: 'app-edit-companies',
-  templateUrl: './edit-companies.component.html',
-  styleUrls: ['./edit-companies.component.scss'],
+  selector: 'app-edit-projects',
+  templateUrl: './edit-projects.component.html',
+  styleUrls: ['./edit-projects.component.scss'],
 })
-export class EditCompaniesComponent implements OnDestroy {
+export class EditProjectsComponent implements OnDestroy {
   ipRanges = this.fb.array([
     this.fb.group({
       ip: ['', { validators: [this.ipValidator] }],
@@ -149,19 +149,19 @@ export class EditCompaniesComponent implements OnDestroy {
     return null;
   }
 
-  public companyId$ = this.route.params.pipe(map((params) => params['id']));
+  public projectId$ = this.route.params.pipe(map((params) => params['id']));
 
-  public company$ = this.companyId$.pipe(switchMap((id) => this.companiesService.get(id)));
+  public project$ = this.projectId$.pipe(switchMap((id) => this.projectsService.get(id)));
 
-  public routeSub$ = this.company$.pipe(
+  public routeSub$ = this.project$.pipe(
     tap(() => (this.fileLoading = true)),
-    tap((company) => this.titleService.setTitle($localize`:Company page title|:Companies · ${company.name}`)),
-    map((company: Company) => {
-      this.form.controls['name'].setValue(company.name);
-      this.form.controls['notes'].setValue(company.notes);
+    tap((project) => this.titleService.setTitle($localize`:Project page title|:Projects · ${project.name}`)),
+    map((project: Project) => {
+      this.form.controls['name'].setValue(project.name);
+      this.form.controls['notes'].setValue(project.notes);
       const ranges = [];
 
-      for (const range of company.ipRanges) {
+      for (const range of project.ipRanges) {
         const rangeSplit = range.split('/');
         ranges.push(new Ipv4Subnet(rangeSplit[0], '/' + rangeSplit[1]));
       }
@@ -186,13 +186,13 @@ export class EditCompaniesComponent implements OnDestroy {
         group.controls['shortMask'].setValue(x.shortMask);
       });
 
-      this.form.controls['frequency'].setValue(company.dataRefreshFrequency);
+      this.form.controls['frequency'].setValue(project.dataRefreshFrequency);
 
       this.fileLoading = false;
-      if (company.logo) {
-        this.previewSource = company.logo;
+      if (project.logo) {
+        this.previewSource = project.logo;
         const md5 = new Md5();
-        md5.appendStr(company.logo);
+        md5.appendStr(project.logo);
         const logoMd5 = md5.end()?.toString();
         this.md5Logo = logoMd5 ? logoMd5 : '';
         this.fileSelected = true;
@@ -205,7 +205,7 @@ export class EditCompaniesComponent implements OnDestroy {
     private route: ActivatedRoute,
     private toastr: ToastrService,
     private dialog: MatDialog,
-    private companiesService: CompaniesService,
+    private projectsService: ProjectsService,
     private router: Router,
     private titleService: Title
   ) {}
@@ -258,7 +258,7 @@ export class EditCompaniesComponent implements OnDestroy {
     const data: ConfirmDialogData = {
       primaryButtonText: $localize`:Cancel|Cancel action:Cancel`,
       dangerButtonText: $localize`:Delete|Delete item:Delete`,
-      title: $localize`:Deleting subnet|Deleting a company subnet:Deleting subnet`,
+      title: $localize`:Deleting subnet|Deleting a project subnet:Deleting subnet`,
       text: $localize`:Deleting subnet confirm|Confirmation text to delete a subnet:Do you really wish to delete the following subnet ?`,
       listElements: list,
       onPrimaryButtonClick: () => {
@@ -276,21 +276,21 @@ export class EditCompaniesComponent implements OnDestroy {
     });
   }
 
-  async deleteCompany() {
-    const companyId = await firstValueFrom(this.companyId$);
+  async deleteProject() {
+    const projectId = await firstValueFrom(this.projectId$);
     const data: ConfirmDialogData = {
       primaryButtonText: $localize`:Cancel|Cancel action:Cancel`,
       dangerButtonText: $localize`:Delete|Delete item:Delete`,
-      title: $localize`:Deleting company|Deleting a company:Deleting company`,
-      text: $localize`:Deleting comapny confirm|Confirmation text to delete a company:Do you really wish to delete this company ? All its associated data (hosts, domains, etc.), will be deleted.`,
+      title: $localize`:Deleting project|Deleting a project:Deleting project`,
+      text: $localize`:Deleting comapny confirm|Confirmation text to delete a project:Do you really wish to delete this project ? All its associated data (hosts, domains, etc.), will be deleted.`,
       onPrimaryButtonClick: () => {
         this.dialog.closeAll();
       },
       onDangerButtonClick: async () => {
-        await this.companiesService.delete(companyId);
+        await this.projectsService.delete(projectId);
         this.dialog.closeAll();
-        this.toastr.success($localize`:Company deleted|Company deletion was a success:Company successfully deleted`);
-        this.router.navigate(['/companies']);
+        this.toastr.success($localize`:Project deleted|Project deletion was a success:Project successfully deleted`);
+        this.router.navigate(['/projects']);
       },
     };
 
@@ -304,17 +304,17 @@ export class EditCompaniesComponent implements OnDestroy {
     if (this.editLoading) return;
 
     this.editLoading = true;
-    const companyId = await firstValueFrom(this.companyId$);
-    const companyUpdates: Partial<Company> = {};
+    const projectId = await firstValueFrom(this.projectId$);
+    const projectUpdates: Partial<Project> = {};
     let formValid = this.form.controls['name'].valid;
     const fa = this.form.controls['ipRanges'] as UntypedFormArray;
-    companyUpdates.ipRanges = [];
+    projectUpdates.ipRanges = [];
     for (let i = 1; i < fa.length; ++i) {
       formValid = formValid && fa.controls[i].valid;
       const ip = fa.controls[i].get('ip')?.value;
       const sm = fa.controls[i].get('shortMask')?.value;
       if (ip && sm) {
-        companyUpdates.ipRanges.push(ip + sm);
+        projectUpdates.ipRanges.push(ip + sm);
       }
     }
 
@@ -339,24 +339,24 @@ export class EditCompaniesComponent implements OnDestroy {
     if (currentLogoHash !== this.md5Logo) {
       if (this.previewSource) {
         const split = (this.previewSource as string).split(',');
-        companyUpdates.logo = split[1];
+        projectUpdates.logo = split[1];
         imageType = split[0].split(';')[0].split(':')[1].split('/')[1];
       } else {
-        companyUpdates.logo = '';
+        projectUpdates.logo = '';
       }
     }
 
-    companyUpdates.name = this.form.controls['name'].value;
-    companyUpdates.notes = this.form.controls['notes'].value ? this.form.controls['notes'].value : '';
+    projectUpdates.name = this.form.controls['name'].value;
+    projectUpdates.notes = this.form.controls['notes'].value ? this.form.controls['notes'].value : '';
     try {
       const editData: any = {};
       if (imageType) editData['imageType'] = imageType;
-      await this.companiesService.edit(companyId, { ...editData, ...companyUpdates });
+      await this.projectsService.edit(projectId, { ...editData, ...projectUpdates });
       this.toastr.success($localize`:Changes saved|Changes to item saved successfully:Changes saved successfully`);
     } catch (err: any) {
       if (err.status === HttpStatus.Conflict) {
         this.toastr.warning(
-          $localize`:Company name unavailable|Conflict happenned when creating a company because another company already uses the provided name:Company with this name already exists`
+          $localize`:Project name unavailable|Conflict happenned when creating a project because another project already uses the provided name:Project with this name already exists`
         );
       } else if (err.status === HttpStatus.PayloadTooLarge) {
         this.toastr.warning(

@@ -32,7 +32,7 @@ export class CustomFindingHandler extends JobFindingHandlerBase<CustomFindingCom
 
   protected async executeCore(command: CustomFindingCommand) {
     this.findingsService.save(
-      command.companyId,
+      command.projectId,
       command.jobId,
       command.finding,
     );

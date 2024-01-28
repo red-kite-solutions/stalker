@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { firstValueFrom, map, Observable } from 'rxjs';
 import { CronSubscription, CronSubscriptionData } from 'src/app/shared/types/subscriptions/subscription.type';
 import { environment } from 'src/environments/environment';
-import { allCompaniesSubscriptions } from '../../constants';
+import { allProjectsSubscriptions } from '../../constants';
 
 @Injectable({
   providedIn: 'root',
@@ -21,7 +21,7 @@ export class CronSubscriptionsService {
             name: item.name,
             cronExpression: item.cronExpression,
             input: item.input ?? undefined,
-            companyId: item.companyId ? item.companyId : allCompaniesSubscriptions,
+            projectId: item.projectId ? item.projectId : allProjectsSubscriptions,
             job: { name: item.jobName },
             builtIn: item.builtIn,
           };
@@ -43,7 +43,7 @@ export class CronSubscriptionsService {
       _id: newSub._id,
       name: newSub.name,
       cronExpression: newSub.cronExpression,
-      companyId: newSub.companyId ? newSub.companyId : allCompaniesSubscriptions,
+      projectId: newSub.projectId ? newSub.projectId : allProjectsSubscriptions,
       input: newSub.input ?? undefined,
       job: {
         name: newSub.jobName,
@@ -68,7 +68,7 @@ export class CronSubscriptionsService {
       name: subscription.name,
       cronExpression: subscription.cronExpression,
       jobName: subscription.job.name,
-      companyId: subscription.companyId === allCompaniesSubscriptions ? undefined : subscription.companyId,
+      projectId: subscription.projectId === allProjectsSubscriptions ? undefined : subscription.projectId,
     };
 
     if (subscription.job.parameters) {

@@ -13,7 +13,7 @@ export type JobDocument = HttpServerCheckJob & Document;
 @Schema()
 export class HttpServerCheckJob {
   public task: string;
-  public companyId!: string;
+  public projectId!: string;
   public priority!: number;
   public output: TimestampedString[];
   public publishTime: number;
@@ -32,19 +32,19 @@ export class HttpServerCheckJob {
   ];
 
   private static createHttpServerCheckJob(
-    companyId: string,
+    projectId: string,
     targetIp: string,
     ports: number[] = [],
   ) {
     const job = new HttpServerCheckJob();
     job.task = HttpServerCheckJob.name;
     job.priority = 3;
-    job.companyId = companyId;
+    job.projectId = projectId;
     job.targetIp = targetIp;
     job.ports = ports;
 
-    if (!isMongoId(job.companyId)) {
-      throw new JobParameterValueException('companyId', job.companyId);
+    if (!isMongoId(job.projectId)) {
+      throw new JobParameterValueException('projectId', job.projectId);
     }
 
     if (isIP(job.targetIp) !== 4) {
@@ -63,14 +63,14 @@ export class HttpServerCheckJob {
 
   public static create(args: JobParameter[]) {
     let params = {};
-    params['companyid'] = undefined;
+    params['projectid'] = undefined;
     params['targetip'] = undefined;
     params['ports'] = undefined;
 
     params = JobFactoryUtils.bindFunctionArguments(params, args);
 
     return HttpServerCheckJob.createHttpServerCheckJob(
-      params['companyid'],
+      params['projectid'],
       params['targetip'],
       params['ports'],
     );

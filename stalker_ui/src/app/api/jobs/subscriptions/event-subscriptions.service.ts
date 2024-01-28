@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { firstValueFrom, map, Observable } from 'rxjs';
 import { EventSubscription, EventSubscriptionData } from 'src/app/shared/types/subscriptions/subscription.type';
 import { environment } from 'src/environments/environment';
-import { allCompaniesSubscriptions } from '../../constants';
+import { allProjectsSubscriptions } from '../../constants';
 
 @Injectable({
   providedIn: 'root',
@@ -20,7 +20,7 @@ export class EventSubscriptionsService {
             _id: item._id,
             name: item.name,
             finding: item.finding,
-            companyId: item.companyId ? item.companyId : allCompaniesSubscriptions,
+            projectId: item.projectId ? item.projectId : allProjectsSubscriptions,
             cooldown: item.cooldown,
             builtIn: item.builtIn,
             job: { name: item.jobName },
@@ -47,7 +47,7 @@ export class EventSubscriptionsService {
       name: newSub.name,
       finding: newSub.finding,
       cooldown: newSub.cooldown,
-      companyId: newSub.companyId ? newSub.companyId : allCompaniesSubscriptions,
+      projectId: newSub.projectId ? newSub.projectId : allProjectsSubscriptions,
       job: {
         name: newSub.jobName,
       },
@@ -73,7 +73,7 @@ export class EventSubscriptionsService {
       finding: subscription.finding,
       cooldown: subscription.cooldown,
       jobName: subscription.job.name,
-      companyId: subscription.companyId === allCompaniesSubscriptions ? undefined : subscription.companyId,
+      projectId: subscription.projectId === allProjectsSubscriptions ? undefined : subscription.projectId,
     };
 
     if (subscription.job.parameters) {

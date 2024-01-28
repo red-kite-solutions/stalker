@@ -5,8 +5,8 @@ import { isIP } from 'net';
 import { JobParameterValueException } from '../../../../exceptions/job-parameter.exception';
 import { JobParameterDefinition } from '../../../../types/job-parameter-definition.type';
 import { TimestampedString } from '../../../../types/timestamped-string.type';
-import { isCompanyId } from '../../../../validators/is-company-id.validator';
 import { isPortNumber } from '../../../../validators/is-port-number.validator';
+import { isProjectId } from '../../../../validators/is-project-id.validator';
 import { JobParameter } from '../../subscriptions/event-subscriptions/event-subscriptions.model';
 import { JobFactoryUtils } from '../jobs.factory';
 
@@ -15,7 +15,7 @@ export type JobDocument = TcpPortScanningJob & Document;
 @Schema()
 export class TcpPortScanningJob {
   public task: string;
-  public companyId!: string;
+  public projectId!: string;
   public priority!: number;
   public output: TimestampedString[];
   public publishTime: number;
@@ -45,7 +45,7 @@ export class TcpPortScanningJob {
   ];
 
   private static createTcpPortScanJob(
-    companyId: string,
+    projectId: string,
     targetIp: string,
     threads: number,
     socketTimeoutSeconds: number,
@@ -56,7 +56,7 @@ export class TcpPortScanningJob {
     const job = new TcpPortScanningJob();
     job.task = TcpPortScanningJob.name;
     job.priority = 3;
-    job.companyId = companyId;
+    job.projectId = projectId;
     job.targetIp = targetIp;
     job.threads = threads;
     job.socketTimeoutSeconds = socketTimeoutSeconds;
@@ -64,8 +64,8 @@ export class TcpPortScanningJob {
     job.portMax = portMax;
     job.ports = ports;
 
-    if (!isCompanyId(job.companyId)) {
-      throw new JobParameterValueException('companyId', job.companyId);
+    if (!isProjectId(job.projectId)) {
+      throw new JobParameterValueException('projectId', job.projectId);
     }
 
     if (isIP(job.targetIp) !== 4) {
@@ -103,7 +103,7 @@ export class TcpPortScanningJob {
 
   public static create(args: JobParameter[]) {
     let params = {};
-    params['companyid'] = undefined;
+    params['projectid'] = undefined;
     params['targetip'] = undefined;
     params['threads'] = undefined;
     params['sockettimeoutseconds'] = undefined;
@@ -114,7 +114,7 @@ export class TcpPortScanningJob {
     params = JobFactoryUtils.bindFunctionArguments(params, args);
 
     return TcpPortScanningJob.createTcpPortScanJob(
-      params['companyid'],
+      params['projectid'],
       params['targetip'],
       params['threads'],
       params['sockettimeoutseconds'],
