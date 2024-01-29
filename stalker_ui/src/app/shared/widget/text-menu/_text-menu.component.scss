@@ -6,6 +6,7 @@
     overflow: scroll;
     &.mat-mdc-menu-panel {
       min-height: fit-content;
+      max-width: 1000px !important;
     }
   }
 }

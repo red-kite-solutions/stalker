@@ -33,6 +33,7 @@ import { CodeEditorComponent } from './widget/code-editor/code-editor.component'
 import { ConfirmDialogComponent } from './widget/confirm-dialog/confirm-dialog.component';
 import { ImageUploadComponent } from './widget/image-upload/image-upload.component';
 import { PillTagComponent } from './widget/pill-tag/pill-tag.component';
+import { SpinnerButtonComponent } from './widget/spinner-button/spinner-button.component';
 import { TextMenuComponent } from './widget/text-menu/text-menu.component';
 import { TextSelectMenuComponent } from './widget/text-select-menu/text-select-menu.component';
 
@@ -49,7 +50,6 @@ import { TextSelectMenuComponent } from './widget/text-select-menu/text-select-m
     HumanizeDatePipe,
     MemoryUnitsPipe,
     TextSelectMenuComponent,
-    TextMenuComponent,
   ],
   imports: [
     CommonModule,
@@ -77,6 +77,8 @@ import { TextSelectMenuComponent } from './widget/text-select-menu/text-select-m
     MatOptionModule,
     MatSelectModule,
     FormsModule,
+    TextMenuComponent,
+    SpinnerButtonComponent,
   ],
   exports: [
     HeaderComponent,
@@ -91,7 +93,6 @@ import { TextSelectMenuComponent } from './widget/text-select-menu/text-select-m
     MemoryUnitsPipe,
     CodeEditorComponent,
     TextSelectMenuComponent,
-    TextMenuComponent,
   ],
 })
 export class SharedModule {}

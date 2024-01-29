@@ -13,15 +13,15 @@
     }
   </div>
 }
-<div mat-dialog-actions>
+<div mat-dialog-actions [align]="'end'" class="tw-flex tw-gap-2">
   @if (data.primaryButtonText != '') {
-    <button mat-flat-button color="primary" (click)="primaryClick()">
+    <app-spinner-button (click)="primaryClick()" [loadingState]="primaryLoading">
       {{ data.primaryButtonText }}
-    </button>
+    </app-spinner-button>
   }
   @if (data.dangerButtonText != '') {
-    <button mat-flat-button color="warn" (click)="dangerClick()">
+    <app-spinner-button (click)="dangerClick()" buttonColor="warn" [loadingState]="dangerLoading">
       {{ data.dangerButtonText }}
-    </button>
+    </app-spinner-button>
   }
 </div>

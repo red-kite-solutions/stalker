@@ -7,7 +7,6 @@
 @import 'app/shared/widget/code-editor/_code-editor.component.scss';
 @import 'app/shared/widget/text-select-menu/_text-select-menu.component.scss';
 @import 'app/modules/jobs/custom-jobs/_custom-jobs.component';
-@import 'app/modules/jobs/subscriptions/_subscription.component.scss';
 @import 'app/shared/widget/text-menu/_text-menu.component.scss';
 @import 'app/modules/tags/manage-tags/_manage-tags.component.scss';
 @import 'app/shared/widget/pill-tag/_pill-tag.component.scss';
@@ -18,7 +17,6 @@
 @include app-text-menu();
 @include app-text-select-menu();
 @include app-custom-jobs();
-@include app-subscriptions();
 @include app-manage-tags();
 @include app-pill-tag();
 
