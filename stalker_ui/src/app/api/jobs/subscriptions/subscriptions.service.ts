@@ -51,12 +51,10 @@ export class SubscriptionService {
     type: SubscriptionType,
     subscription: CronSubscriptionData | EventSubscriptionData
   ): Promise<CronSubscription | EventSubscription> {
-    // TODO 162: I don't like this typing
     return this.getService(type).create(subscription as any);
   }
 
   edit(type: SubscriptionType, id: string, subscription: CronSubscriptionData | EventSubscriptionData): Promise<void> {
-    // TODO 162: I don't like this typing
     return this.getService(type).edit(id, subscription as any);
   }
 
