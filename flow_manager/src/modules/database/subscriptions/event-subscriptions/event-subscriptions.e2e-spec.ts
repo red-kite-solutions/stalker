@@ -115,6 +115,21 @@ describe('Event Subscriptions Controller (e2e)', () => {
     expect(foundSubscription).toBe(true);
   });
 
+  it('Should have proper authorizations (GET /event-subscriptions/:id)', async () => {
+    const success = await checkAuthorizations(
+      testData,
+      Role.ReadOnly,
+      async (givenToken: string) => {
+        return await getReq(
+          app,
+          givenToken,
+          `/event-subscriptions/507f1f77bcf86cd799439011`,
+        );
+      },
+    );
+    expect(success).toBe(true);
+  });
+
   it('Should edit an event subscription (PUT /event-subscriptions/{id})', async () => {
     // arrange
     const changedName = 'My changed name';

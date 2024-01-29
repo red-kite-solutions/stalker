@@ -47,7 +47,6 @@ export class CronSubscriptionsController {
   async getSubscription(
     @Param() IdDto: MongoIdDto,
   ): Promise<CronSubscriptionsDocument> {
-    // TODO 162: TEST
     return await this.subscriptionsService.get(IdDto.id);
   }
 

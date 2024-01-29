@@ -194,6 +194,21 @@ describe('Cron Subscriptions Controller (e2e)', () => {
     expect(success).toBe(true);
   });
 
+  it('Should have proper authorizations (GET /cron-subscriptions/:id)', async () => {
+    const success = await checkAuthorizations(
+      testData,
+      Role.ReadOnly,
+      async (givenToken: string) => {
+        return await getReq(
+          app,
+          givenToken,
+          `/cron-subscriptions/507f1f77bcf86cd799439011`,
+        );
+      },
+    );
+    expect(success).toBe(true);
+  });
+
   it('Should have proper authorizations (POST /cron-subscriptions)', async () => {
     const success = await checkAuthorizations(
       testData,
