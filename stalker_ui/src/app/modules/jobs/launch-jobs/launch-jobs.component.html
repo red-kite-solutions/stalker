@@ -76,8 +76,8 @@
           [minimapEnabled]="minimapEnabled"
           [theme]="theme"
           [readonly]="readonly"
-          [path]="'/launch-jobs/launch-job.yaml'"
           class="tw-flex-1"
+          [path]="'/launch-jobs/launch-job.yaml'"
         ></app-code-editor>
         <h3 i18n="Output|Output of a job" class="output">Output</h3>
         <app-job-logs [jobId]="currentStartedJob?.id"></app-job-logs>

@@ -213,12 +213,9 @@
       </form>
 
       <div class="tw-w-full tw-flex tw-gap tw-justify-center">
-        <app-spinner-button
-          (click)="saveChanges()"
-          buttonColor="primary"
-          [loadingState]="editLoading"
-          [label]="spinnerButtonText"
-        ></app-spinner-button>
+        <app-spinner-button (click)="saveChanges()" buttonColor="primary" [loadingState]="editLoading">{{
+          spinnerButtonText
+        }}</app-spinner-button>
 
         <button
           i18n="Delete project|Delete a project"

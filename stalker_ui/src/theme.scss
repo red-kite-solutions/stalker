@@ -64,13 +64,15 @@ $stalker-dark: mat.define-dark-theme(
 .theme-light {
   --mat-table-background-color-hover: rgb(243, 243, 243);
 
-  a {
+  *:not(button) a {
     text-decoration: none;
 
     &:hover {
-      text-decoration: underline;
+      color: mat.get-theme-color($stalker-light, primary, default);
     }
   }
+
+  color-scheme: light;
 }
 
 .theme-dark {
@@ -79,13 +81,15 @@ $stalker-dark: mat.define-dark-theme(
 
   --mat-table-background-color-hover: #4d4d4d;
 
-  a {
+  *:not(button) a {
     text-decoration: none;
 
     &:hover {
-      text-decoration: underline;
+      color: mat.get-theme-color($stalker-dark, primary, default);
     }
   }
+
+  color-scheme: dark;
 }
 
 // Paginator

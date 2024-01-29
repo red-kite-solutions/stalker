@@ -34,6 +34,10 @@ export class EventSubscriptionsService {
     return await this.subscriptionModel.create(sub);
   }
 
+  public async get(id: string) {
+    return await this.subscriptionModel.findOne({ _id: id }, '-file');
+  }
+
   public async getAll() {
     return await this.subscriptionModel.find({}, '-file');
   }

@@ -1,20 +1,26 @@
-import { Component, Input } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-spinner-button',
-  template: `<button class="tw-w-full" type="button" mat-flat-button [color]="buttonColor" [disabled]="loadingState">
+  template: `<button mat-stroked-button class="tw-w-full" type="button" [color]="buttonColor" [disabled]="loadingState">
     <span class="tw-flex tw-gap-2 tw-items-center">
       @if (loadingState) {
         <mat-spinner [diameter]="16" [color]="spinnerColor"></mat-spinner>
       }
 
-      <span>{{ label }}</span>
+      <span><ng-content></ng-content></span>
     </span>
   </button>`,
+  imports: [CommonModule, MatButtonModule, MatProgressSpinnerModule],
 })
 export class SpinnerButtonComponent {
   @Input() label = '';
-  @Input() buttonColor = 'primary';
-  @Input() spinnerColor = 'accent';
+  @Input() buttonColor: 'primary' | 'accent' | 'warn' | undefined = undefined;
+  @Input() spinnerColor = 'primary';
   @Input() loadingState = false;
 }

@@ -14,6 +14,7 @@ import { ProjectsService } from 'src/app/api/projects/projects.service';
 import { TagsService } from 'src/app/api/tags/tags.service';
 import { ProjectSummary } from 'src/app/shared/types/project/project.summary';
 import { Tag } from 'src/app/shared/types/tag.type';
+import { TextMenuComponent } from 'src/app/shared/widget/text-menu/text-menu.component';
 import { PortsService } from '../../../api/ports/ports.service';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PanelSectionModule } from '../../../shared/components/panel-section/panel-section.module';
@@ -40,22 +41,20 @@ import { FindingsModule } from '../../findings/findings.module';
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
+    TextMenuComponent,
   ],
   selector: 'app-view-domain',
   templateUrl: './view-domain.component.html',
   styleUrls: ['./view-domain.component.scss'],
 })
 export class ViewDomainComponent implements OnDestroy {
-  public menuTargetWidth = 100;
   public menuResizeObserver$?: ResizeObserver;
 
   @ViewChild('managementPanelSection', { read: ElementRef, static: false })
   set managementPanelSection(managementPanelSection: ElementRef) {
     if (managementPanelSection && !this._managementPanelSection) {
       this._managementPanelSection = managementPanelSection;
-      this.menuResizeObserver$ = new ResizeObserver((resize) => {
-        this.menuTargetWidth = resize[0].contentRect.width;
-      });
+      this.menuResizeObserver$ = new ResizeObserver((resize) => {});
       this.menuResizeObserver$.observe(this._managementPanelSection.nativeElement);
     }
   }

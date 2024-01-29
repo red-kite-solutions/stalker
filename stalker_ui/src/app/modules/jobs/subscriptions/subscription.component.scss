@@ -1,18 +1,23 @@
-.top-container {
-  width: 100%;
-  height: 100%;
+:host {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: 0;
   right: 0;
-  padding: 16px;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding-top: 0;
+  align-items: center;
 }
 
 .code-editor-container {
-  width: 100%;
   height: 100%;
-  display: block;
+  width: 100%;
+  border-radius: 4px;
+  overflow: hidden;
+  padding: 16px;
+  padding-top: 0;
 }
 
 app-code-editor {
@@ -20,45 +25,20 @@ app-code-editor {
   width: 100%;
 }
 
-.container {
-  margin-right: 20px;
-}
-
-.nodata {
-  text-align: center;
-}
-
-.table-container {
-  margin: 0 -16px -16px -16px;
-}
-
-table {
-  width: 100%;
-}
-
-.rows:hover {
-  background-color: var(--mat-table-background-color-hover);
-}
-
-.rows {
-  cursor: pointer;
-}
-
-.selected-subscription {
-  font-weight: bold;
-}
-
-mat-tab-group {
-  height: 100%;
+mat-drawer {
+  padding: 16px;
+  width: 312px;
 }
 
 .configurations-form {
   margin-top: 10px;
 }
 
-.centered {
-  text-align: center;
-  .center-image {
-    margin: 0px auto;
-  }
+mat-divider {
+  margin-left: -16px;
+  margin-right: -16px;
+}
+
+mat-drawer {
+  padding: 0;
 }

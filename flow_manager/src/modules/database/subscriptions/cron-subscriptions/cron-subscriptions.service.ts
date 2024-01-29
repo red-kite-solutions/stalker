@@ -69,6 +69,10 @@ export class CronSubscriptionsService {
     return await this.subscriptionModel.find({}, '-file');
   }
 
+  public async get(id: string) {
+    return await this.subscriptionModel.findOne({ _id: id }, '-file');
+  }
+
   public async edit(
     id: string,
     dto: CronSubscriptionDto,
