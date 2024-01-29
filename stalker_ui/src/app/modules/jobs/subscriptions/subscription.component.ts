@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatOptionModule } from '@angular/material/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -23,13 +24,16 @@ import { firstValueFrom, map, timer } from 'rxjs';
 import { eventSubscriptionKey } from 'src/app/api/jobs/subscriptions/event-subscriptions.service';
 import { SubscriptionService, SubscriptionType } from 'src/app/api/jobs/subscriptions/subscriptions.service';
 import { AppHeaderComponent } from 'src/app/shared/components/page-header/page-header.component';
+import { PanelSectionModule } from 'src/app/shared/components/panel-section/panel-section.module';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { Subscription } from 'src/app/shared/types/subscriptions/subscription.type';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
+import { SavingButtonComponent } from 'src/app/shared/widget/spinner-button/saving-button.component';
 import { SpinnerButtonComponent } from 'src/app/shared/widget/spinner-button/spinner-button.component';
+import { TextMenuComponent } from 'src/app/shared/widget/text-menu/text-menu.component';
 import { parse } from 'yaml';
 import { allProjectsSubscriptions } from '../../../api/constants';
 import { cronSubscriptionKey } from '../../../api/jobs/subscriptions/cron-subscriptions.service';
@@ -74,13 +78,18 @@ import { cronSubscriptionTemplate, eventSubscriptionTemplate } from './subscript
     MatTooltipModule,
     MatCardModule,
     SpinnerButtonComponent,
+    TextMenuComponent,
+    PanelSectionModule,
+    MatDividerModule,
+    SavingButtonComponent,
   ],
 })
-export class SubscriptionComponent implements OnInit {
+export class SubscriptionComponent implements OnInit, OnDestroy {
   public code = '';
   public originalCode = '';
   public theme: CodeEditorTheme = 'vs-dark';
   public isSaving = false;
+  public isInitializing = true;
 
   public subscription$ = timer(0, 250).pipe(map(() => parse(this.code)));
   private id$ = this.activatedRoute.paramMap.pipe(map((x) => x.get('id')));
@@ -93,16 +102,17 @@ export class SubscriptionComponent implements OnInit {
   public data = new Array<Subscription>();
 
   public hasBeenSaved = false;
+  public hasConfigChanged = false;
   public get canSave() {
-    return this.code != this.originalCode;
+    return this.code != this.originalCode || this.hasConfigChanged;
   }
 
   public subscriptionConfigForm = this.fb.group({
     selectedProject: new FormControl<string>(allProjectsSubscriptions),
   });
 
-  projects: ProjectSummary[] = [];
-  projects$ = this.projectsService.getAllSummaries().pipe(
+  public projects: ProjectSummary[] = [];
+  public projects$ = this.projectsService.getAllSummaries().pipe(
     map((next: any[]) => {
       const comp: ProjectSummary[] = [];
       for (const project of next) {
@@ -112,6 +122,10 @@ export class SubscriptionComponent implements OnInit {
       return this.projects;
     })
   );
+
+  private formSubscription = this.subscriptionConfigForm.valueChanges.subscribe(() => {
+    this.hasConfigChanged = true;
+  });
 
   constructor(
     private dialog: MatDialog,
@@ -152,8 +166,14 @@ export class SubscriptionComponent implements OnInit {
     });
   }
 
+  public async forceSave() {
+    this.hasConfigChanged = true;
+    await this.save();
+  }
+
   public async save() {
     this.isSaving = true;
+    this.subscriptionConfigForm.disable();
 
     let sub: Subscription;
     try {
@@ -163,6 +183,7 @@ export class SubscriptionComponent implements OnInit {
         $localize`:Yaml syntax error|There was a syntax error in the user provided yaml:Yaml syntax error`
       );
       this.isSaving = false;
+      this.subscriptionConfigForm.enable();
       return;
     }
 
@@ -190,22 +211,26 @@ export class SubscriptionComponent implements OnInit {
         await this.subscriptionService.edit(type, `${id}`, sub);
       }
 
+      this.hasBeenSaved = true;
       this.originalCode = this.code;
+      this.isSaving = false;
+      this.subscriptionConfigForm.enable();
+      this.hasConfigChanged = false;
     } catch {
       const invalidSubscription = $localize`:Invalid subscription|Subscription is not in a valid format:Invalid subscription`;
       this.toastr.error(invalidSubscription);
     }
-
-    this.isSaving = false;
-    this.hasBeenSaved = true;
   }
 
-  async ngOnInit(): Promise<void> {
+  async ngOnInit() {
+    await this.initialize();
+  }
+
+  async initialize(): Promise<void> {
     const id = await firstValueFrom(this.id$);
     const type = await firstValueFrom(this.type$);
 
-    // TODO 162: cleanup
-    if (id == null) throw new Error('oopsies');
+    if (id == null) throw new Error('Id missing');
 
     if (id === 'create') {
       switch (type) {
@@ -219,9 +244,88 @@ export class SubscriptionComponent implements OnInit {
       }
     } else {
       const sub = await firstValueFrom(this.subscriptionService.get(type, id));
+      this.subscriptionConfigForm.get('selectedProject')?.setValue(sub.projectId);
       this.code = sub.yaml;
+      this.hasConfigChanged = false;
     }
 
     this.originalCode = this.code;
+    this.isInitializing = false;
+  }
+
+  ngOnDestroy(): void {
+    this.formSubscription?.unsubscribe();
+  }
+
+  public async deleteSubscription() {
+    const data: ConfirmDialogData = {
+      text: $localize`:Confirm subscription deletion|Confirmation message asking if the user really wants to delete the subscription:Do you really wish to delete this subscription permanently ?`,
+      title: $localize`:Deleting subscription|Title of a page to delete a subscription:Deleting subscription`,
+      primaryButtonText: $localize`:Cancel|Cancel current action:Cancel`,
+      dangerButtonText: $localize`:Delete permanently|Confirm that the user wants to delete the item permanently:Delete permanently`,
+      onPrimaryButtonClick: () => {
+        this.dialog.closeAll();
+      },
+      onDangerButtonClick: async () => {
+        try {
+          const id = await firstValueFrom(this.id$);
+          const type = await firstValueFrom(this.type$);
+          if (id == null) throw new Error('Id is null.');
+
+          await this.subscriptionService.delete(type, id);
+
+          this.router.navigate(['/', 'jobs', 'subscriptions']);
+          this.toastr.success(
+            $localize`:Subscription deleted|The subscription has been deleted:Subscription successfully deleted`
+          );
+          this.router.navigate(['/hosts/']);
+          this.dialog.closeAll();
+        } catch (err) {
+          const errorDeleting = $localize`:Error while deleting|Error while deleting an item:Error while deleting`;
+          this.toastr.error(errorDeleting);
+        }
+      },
+    };
+
+    this.dialog.open(ConfirmDialogComponent, {
+      data,
+      restoreFocus: false,
+    });
+  }
+  public async revertToOriginal() {
+    const data: ConfirmDialogData = {
+      text: $localize`:Confirm revert to original|Confirmation message asking if the user really wants to revert the subscription to the original configuraton:Do you really wish to revert this subscription to its original configuration?`,
+      title: $localize`:Reverting subscription to original|Title of a page to revert a subscription to the original configuration:Revert to original`,
+      primaryButtonText: $localize`:Cancel|Cancel current action:Cancel`,
+      dangerButtonText: $localize`:Revert to original|Confirm that the user wants to revert the subscription to its original configuration:Revert to original`,
+      onPrimaryButtonClick: () => {
+        this.dialog.closeAll();
+      },
+      onDangerButtonClick: async () => {
+        try {
+          const id = await firstValueFrom(this.id$);
+          const type = await firstValueFrom(this.type$);
+          if (id == null) throw new Error('Id is null.');
+
+          await this.subscriptionService.revert(type, id);
+
+          this.toastr.success(
+            $localize`:Subscription reverted|The subscription has been reverted to its original configuration:Subscription successfully reverted to its original configuration`
+          );
+
+          this.dialog.closeAll();
+
+          await this.initialize();
+        } catch (err) {
+          const errorReverting = $localize`:Error while deleting|Error while deleting an item:Error while deleting`;
+          this.toastr.error(errorReverting);
+        }
+      },
+    };
+
+    this.dialog.open(ConfirmDialogComponent, {
+      data,
+      restoreFocus: false,
+    });
   }
 }

@@ -5,7 +5,7 @@
     <div class="content">
       <findings-list [correlationKey]="domain.correlationKey"></findings-list>
     </div>
-    <div class="context">
+    <div #contextPanel class="context">
       @if (domain) {
         <panel-section>
           <panel-section-title i18n="Last seen|Last seen"> Last seen </panel-section-title>
@@ -21,7 +21,6 @@
             <span class="manage-tags-menu">
               —
               <app-text-select-menu
-                [menuMaxSize]="menuTargetWidth"
                 [items]="tagsSelectItems$ | async"
                 [buttonText]="manageTags"
                 [filterText]="filterTags"
@@ -29,6 +28,7 @@
                 [colorEnabled]="true"
                 [emptyText]="emptyTags"
                 (itemSelection)="itemSelected($event)"
+                [containerElement]="contextPanel"
               ></app-text-select-menu>
             </span>
           </panel-section-title>
@@ -81,11 +81,9 @@
       <mat-divider></mat-divider>
       <panel-section class="tw-opacity-60" #managementPanelSection>
         <app-text-menu [buttonText]="manageDomainText" [iconName]="'settings'" [xPosition]="'before'">
-          <div [style.width.px]="menuTargetWidth - 16" class="management-content">
-            <button mat-stroked-button color="warn" class="tw-w-full" (click)="deleteDomain()">
-              <label i18n="Delete|Delete an item">Delete</label>
-            </button>
-          </div>
+          <button mat-stroked-button color="warn" class="tw-w-full" (click)="deleteDomain()">
+            <label i18n="Delete|Delete an item">Delete</label>
+          </button>
         </app-text-menu>
       </panel-section>
     </div>

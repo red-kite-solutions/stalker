@@ -38,8 +38,10 @@ export class TextSelectMenuComponent {
   @Input() buttonText = $localize`:Click Here|:Click Here`;
   @Input() filterText = $localize`:Filter Items|Filter the items of a list:Filter Items`;
   @Input() emptyText = $localize`:No Items|The list is empty:No items available`;
-  @Input() menuMaxSize?: number;
   @Output() itemSelection = new EventEmitter<SelectItem>();
+
+  /** Used to determine the menu width. Otherwise, uses the button width. */
+  @Input() containerElement: HTMLElement | undefined = undefined;
 
   selectItem(event: Event, item: SelectItem) {
     event.stopPropagation();

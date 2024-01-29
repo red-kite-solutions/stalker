@@ -37,6 +37,7 @@ export class CronSubscriptionsService implements GenericSubscriptionService<Cron
     const parsedSub: CronSubscription = {
       type: cronSubscriptionKey,
       _id: newSub._id,
+      builtIn: false,
       name: newSub.name,
       cronExpression: newSub.cronExpression,
       projectId: newSub.projectId ? newSub.projectId : allProjectsSubscriptions,
@@ -44,7 +45,6 @@ export class CronSubscriptionsService implements GenericSubscriptionService<Cron
       job: {
         name: newSub.jobName,
       },
-      builtIn: false,
     };
     if (newSub.jobParameters && Array.isArray(newSub.jobParameters)) parsedSub.job.parameters = newSub.jobParameters;
     return parsedSub;
