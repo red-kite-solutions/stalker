@@ -6,6 +6,6 @@ export class HostsPagingModel {
 export class HostFilterModel {
   domain?: Array<string>;
   tags?: Array<string>;
-  company?: Array<string>;
+  project?: Array<string>;
   host?: Array<string>;
 }

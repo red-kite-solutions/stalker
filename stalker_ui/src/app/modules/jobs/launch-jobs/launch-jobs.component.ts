@@ -6,10 +6,10 @@ import { ToastrService } from 'ngx-toastr';
 import { map } from 'rxjs';
 import { parse, parseDocument, stringify } from 'yaml';
 import { AuthService } from '../../../api/auth/auth.service';
-import { CompaniesService } from '../../../api/companies/companies.service';
 import { JobsService } from '../../../api/jobs/jobs/jobs.service';
-import { CompanySummary } from '../../../shared/types/company/company.summary';
+import { ProjectsService } from '../../../api/projects/projects.service';
 import { JobListEntry, JobParameterDefinition, StartedJob } from '../../../shared/types/jobs/job.type';
+import { ProjectSummary } from '../../../shared/types/project/project.summary';
 import { CodeEditorTheme } from '../../../shared/widget/code-editor/code-editor.component';
 
 @Component({
@@ -35,27 +35,27 @@ export class LaunchJobsComponent {
 
   public dataSource$ = this.refreshData();
 
-  selectedCompany: string | undefined = undefined;
-  companies: CompanySummary[] = [];
-  companies$ = this.companiesService.getAllSummaries().pipe(
+  selectedProject: string | undefined = undefined;
+  projects: ProjectSummary[] = [];
+  projects$ = this.projectsService.getAllSummaries().pipe(
     map((next: any[]) => {
-      const comp: CompanySummary[] = [];
-      for (const company of next) {
-        comp.push({ id: company._id, name: company.name });
+      const comp: ProjectSummary[] = [];
+      for (const project of next) {
+        comp.push({ id: project._id, name: project.name });
       }
-      this.companies = comp;
-      return this.companies;
+      this.projects = comp;
+      return this.projects;
     })
   );
 
   constructor(
     private jobsService: JobsService,
     private toastr: ToastrService,
-    private companiesService: CompaniesService,
+    private projectsService: ProjectsService,
     private titleService: Title,
     public authService: AuthService
   ) {
-    this.titleService.setTitle($localize`:Launch Jobs|:Launch Jobs`);
+    this.titleService.setTitle($localize`:Launch jobs|:Launch jobs`);
   }
 
   private refreshData() {
@@ -128,12 +128,12 @@ export class LaunchJobsComponent {
     }
 
     try {
-      if (this.selectedCompany) {
+      if (this.selectedProject) {
         this.currentStartedJob = await this.jobsService.startJob(
           this.currentJobName,
           this.currentJobSource,
           parameters,
-          this.selectedCompany
+          this.selectedProject
         );
       } else {
         this.currentStartedJob = await this.jobsService.startJob(

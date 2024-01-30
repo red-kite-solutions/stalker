@@ -76,16 +76,16 @@
         formControlName="passwordConfirm"
       />
       <mat-label i18n="Confirm password|Placeholder for a password confirmation form">Confirm password</mat-label>
-      <mat-error
-        *ngIf="!form.get('passwordConfirm')?.hasError('required')"
-        i18n="Passwords not identical|The two passwords must be identical for the form to be valid"
-        >The two passwords are not identical</mat-error
-      >
-      <mat-error
-        *ngIf="form.get('passwordConfirm')?.hasError('required')"
-        i18n="Confirm password required|The user must confirm the password by retyping it"
-        >Password confirmation is required</mat-error
-      >
+      @if (!form.get('passwordConfirm')?.hasError('required')) {
+        <mat-error i18n="Passwords not identical|The two passwords must be identical for the form to be valid"
+          >The two passwords are not identical</mat-error
+        >
+      }
+      @if (form.get('passwordConfirm')?.hasError('required')) {
+        <mat-error i18n="Confirm password required|The user must confirm the password by retyping it"
+          >Password confirmation is required</mat-error
+        >
+      }
       <button
         type="button"
         mat-icon-button
@@ -100,7 +100,7 @@
     <button
       type="button"
       class="submitButton"
-      mat-raised-button
+      mat-flat-button
       color="primary"
       (click)="onSubmit()"
       i18n="Create|Create an item"

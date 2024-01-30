@@ -39,7 +39,7 @@
     "params": [],
     "body": {
       "type": "json",
-      "raw": "{ \n    \"task\":\"DomainNameResolvingJob\", \n    \"companyId\": \"62ddcbddec1b05b5a047a3f2\",\n    \"priority\":1, \n    \"data\": {\n        \"domainName\":\"amazon.com\"\n    }\n}",
+      "raw": "{ \n    \"task\":\"DomainNameResolvingJob\", \n    \"projectId\": \"62ddcbddec1b05b5a047a3f2\",\n    \"priority\":1, \n    \"data\": {\n        \"domainName\":\"amazon.com\"\n    }\n}",
       "form": []
     },
     "auth": {
@@ -73,8 +73,8 @@
     "_id": "a4fe4c79-fb43-4510-8daa-ccc7b0f9dbff",
     "colId": "83698f4b-e885-47fd-ba39-da7735f7932f",
     "containerId": "4081ce99-f840-423d-9170-661638b08bbe",
-    "name": "Create Company",
-    "url": "{{FlowManagerAPI}}/report/companies",
+    "name": "Create Project",
+    "url": "{{FlowManagerAPI}}/report/projects",
     "method": "POST",
     "sortNum": 10000,
     "created": "2022-07-24T22:31:09.439Z",

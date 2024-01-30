@@ -9,11 +9,12 @@ import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, combineLatest, map, merge, shareReplay, switchMap, tap } from 'rxjs';
-import { CompaniesService } from 'src/app/api/companies/companies.service';
 import { DomainsService } from 'src/app/api/domains/domains.service';
+import { ProjectsService } from 'src/app/api/projects/projects.service';
 import { TagsService } from 'src/app/api/tags/tags.service';
-import { CompanySummary } from 'src/app/shared/types/company/company.summary';
+import { ProjectSummary } from 'src/app/shared/types/project/project.summary';
 import { Tag } from 'src/app/shared/types/tag.type';
+import { TextMenuComponent } from 'src/app/shared/widget/text-menu/text-menu.component';
 import { PortsService } from '../../../api/ports/ports.service';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PanelSectionModule } from '../../../shared/components/panel-section/panel-section.module';
@@ -40,22 +41,20 @@ import { FindingsModule } from '../../findings/findings.module';
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
+    TextMenuComponent,
   ],
   selector: 'app-view-domain',
   templateUrl: './view-domain.component.html',
   styleUrls: ['./view-domain.component.scss'],
 })
 export class ViewDomainComponent implements OnDestroy {
-  public menuTargetWidth = 100;
   public menuResizeObserver$?: ResizeObserver;
 
   @ViewChild('managementPanelSection', { read: ElementRef, static: false })
   set managementPanelSection(managementPanelSection: ElementRef) {
     if (managementPanelSection && !this._managementPanelSection) {
       this._managementPanelSection = managementPanelSection;
-      this.menuResizeObserver$ = new ResizeObserver((resize) => {
-        this.menuTargetWidth = resize[0].contentRect.width;
-      });
+      this.menuResizeObserver$ = new ResizeObserver((resize) => {});
       this.menuResizeObserver$.observe(this._managementPanelSection.nativeElement);
     }
   }
@@ -69,15 +68,15 @@ export class ViewDomainComponent implements OnDestroy {
   public emptyTags: string = $localize`:No Tags|List of tags is empty:No Tags Available`;
   public manageDomainText: string = $localize`:Manage domain|Manage the domain name element:Manage domain`;
 
-  companies: CompanySummary[] = [];
-  companies$ = this.companiesService.getAllSummaries().pipe(
+  projects: ProjectSummary[] = [];
+  projects$ = this.projectsService.getAllSummaries().pipe(
     map((next: any[]) => {
-      const comp: CompanySummary[] = [];
-      for (const company of next) {
-        comp.push({ id: company._id, name: company.name });
+      const comp: ProjectSummary[] = [];
+      for (const project of next) {
+        comp.push({ id: project._id, name: project.name });
       }
-      this.companies = comp;
-      return this.companies;
+      this.projects = comp;
+      return this.projects;
     })
   );
 
@@ -223,7 +222,7 @@ export class ViewDomainComponent implements OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private domainsService: DomainsService,
-    private companiesService: CompaniesService,
+    private projectsService: ProjectsService,
     private tagsService: TagsService,
     private titleService: Title,
     private toastr: ToastrService,

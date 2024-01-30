@@ -8,4 +8,7 @@ svg {
   height: 100%;
   border-radius: 50%;
   overflow: hidden;
+  border: 1px var(--mdc-outlined-card-outline-color) solid;
+  box-sizing: border-box;
+  background-color: white;
 }

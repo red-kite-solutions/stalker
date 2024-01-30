@@ -45,7 +45,7 @@
               }
             ],
             "styles": [
-              "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
+              "./src/theme.scss",
               "src/styles.scss",
               "node_modules/ngx-toastr/toastr.css"
             ],
@@ -89,10 +89,11 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "stalker_ui:build:production"
+              "buildTarget": "stalker_ui:build:production"
             },
             "development": {
-              "browserTarget": "stalker_ui:build:development"
+              "buildTarget": "stalker_ui:build:development",
+              "hmr": true
             }
           },
           "defaultConfiguration": "development"
@@ -100,7 +101,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "stalker_ui:build"
+            "buildTarget": "stalker_ui:build"
           }
         },
         "test": {
@@ -118,5 +119,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "f33126de-771c-4e9e-9fd1-a0b4b2ed989a"
   }
 }

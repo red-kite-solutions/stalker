@@ -12,11 +12,10 @@ import { FindingsQueue } from '../../../job-queue/findings-queue';
 import { ConfigService } from '../../admin/config/config.service';
 import { JobsService } from '../../jobs/jobs.service';
 import { TagsService } from '../../tags/tag.service';
-import { Company } from '../company.model';
 import { CorrelationKeyUtils } from '../correlation.utils';
 import { HostService } from '../host/host.service';
 import { HostSummary } from '../host/host.summary';
-import { ReportService } from '../report/report.service';
+import { Project } from '../project.model';
 import { DomainsPagingDto } from './domain.dto';
 import { Domain, DomainDocument } from './domain.model';
 
@@ -26,9 +25,8 @@ export class DomainsService {
 
   constructor(
     @InjectModel('domain') private readonly domainModel: Model<Domain>,
-    @InjectModel('company') private readonly companyModel: Model<Company>,
+    @InjectModel('project') private readonly projectModel: Model<Project>,
     private jobService: JobsService,
-    private reportService: ReportService,
     private configService: ConfigService,
     @Inject(forwardRef(() => HostService))
     private hostService: HostService,
@@ -40,29 +38,29 @@ export class DomainsService {
    * Add domains to the database.
    * This function will propagate the new domains as findings in the findings queue
    * @param domains
-   * @param companyId
+   * @param projectId
    * @returns
    */
-  public async addDomains(domains: string[], companyId: string) {
-    const company = await this.companyModel.findById(companyId);
-    if (!company) {
-      this.logger.debug(`Could not find the company (companyId=${companyId})`);
-      throw new HttpNotFoundException(`companyId=${companyId}`);
+  public async addDomains(domains: string[], projectId: string) {
+    const project = await this.projectModel.findById(projectId);
+    if (!project) {
+      this.logger.debug(`Could not find the project (projectId=${projectId})`);
+      throw new HttpNotFoundException(`projectId=${projectId}`);
     }
 
     // for each domain, create a mongo id
     const domainDocuments: DomainDocument[] = [];
-    const companyIdObject = new Types.ObjectId(companyId);
+    const projectIdObject = new Types.ObjectId(projectId);
 
     for (const domain of domains) {
       const model = new this.domainModel({
         _id: new Types.ObjectId(),
         name: domain,
         correlationKey: CorrelationKeyUtils.domainCorrelationKey(
-          companyIdObject.toString(),
+          projectIdObject.toString(),
           domain,
         ),
-        companyId: companyIdObject,
+        projectId: projectIdObject,
         lastSeen: Date.now(),
       });
       domainDocuments.push(model);
@@ -87,12 +85,6 @@ export class DomainsService {
       newDomains.push(domain.name);
     }
 
-    const config = await this.configService.getConfig();
-
-    if (config?.isNewContentReported) {
-      this.reportService.addDomains(company.name, newDomains);
-    }
-
     const findings: HostnameFinding[] = [];
     // For each new domain name found, a finding is created
     newDomains.forEach((domain) => {
@@ -100,7 +92,7 @@ export class DomainsService {
         type: 'HostnameFinding',
         key: 'HostnameFinding',
         domainName: domain,
-        companyId: companyId,
+        projectId: projectId,
       });
     });
     this.findingsQueue.publish(...findings);
@@ -112,32 +104,58 @@ export class DomainsService {
    * This function adds a domain to the database if it did not exist. If it existed,
    * the lastSeen value is updated.
    * @param domainName The domain name to add
-   * @param companyId The domain's company
+   * @param projectId The domain's project
    */
-  public async addDomain(domainName: string, companyId: string) {
-    const company = await this.companyModel.findById(companyId);
-    if (!company) {
-      this.logger.debug(`Could not find the company (companyId=${companyId})`);
-      throw new HttpNotFoundException(`companyId=${companyId}`);
+  public async addDomain(domainName: string, projectId: string) {
+    const project = await this.projectModel.findById(projectId);
+    if (!project) {
+      this.logger.debug(`Could not find the project (projectId=${projectId})`);
+      throw new HttpNotFoundException(`projectId=${projectId}`);
     }
 
-    const companyIdObject = new Types.ObjectId(companyId);
+    const projectIdObject = new Types.ObjectId(projectId);
 
     return await this.domainModel.findOneAndUpdate(
-      { name: { $eq: domainName }, companyId: { $eq: companyIdObject } },
+      { name: { $eq: domainName }, projectId: { $eq: projectIdObject } },
       {
         lastSeen: Date.now(),
         $setOnInsert: {
           name: domainName,
           correlationKey: CorrelationKeyUtils.domainCorrelationKey(
-            companyId,
+            projectId,
             domainName,
           ),
-          companyId: companyIdObject,
+          projectId: projectIdObject,
         },
       },
       { upsert: true },
     );
+  }
+
+  /**
+   * Returns only the domains' name for a domain object
+   * @param page
+   * @param pageSize
+   * @param filter
+   * @returns
+   */
+  public async getDomainNames(
+    page: number = null,
+    pageSize: number = null,
+    filter: any = null,
+  ): Promise<Pick<DomainDocument, 'name'>[]> {
+    let query;
+    const projection = 'name';
+    if (filter) {
+      query = this.domainModel.find(filter, projection);
+    } else {
+      query = this.domainModel.find({}, projection);
+    }
+
+    if (page != null && pageSize != null) {
+      query = query.skip(page * pageSize).limit(pageSize);
+    }
+    return await query;
   }
 
   public async getDomain(id: string): Promise<DomainDocument> {
@@ -164,9 +182,9 @@ export class DomainsService {
     );
   }
 
-  public async deleteAllForCompany(companyId: string): Promise<DeleteResult> {
+  public async deleteAllForProject(projectId: string): Promise<DeleteResult> {
     return await this.domainModel.deleteMany({
-      companyId: { $eq: new Types.ObjectId(companyId) },
+      projectId: { $eq: new Types.ObjectId(projectId) },
     });
   }
 
@@ -202,10 +220,10 @@ export class DomainsService {
   ): Promise<UpdateResult> {
     if (domain.tags)
       domain.tags = domain.tags.map((t) => new Types.ObjectId(t));
-    if (domain.companyId) {
-      const c = await this.companyModel.findById(domain.companyId);
+    if (domain.projectId) {
+      const c = await this.projectModel.findById(domain.projectId);
       if (!c) throw new HttpNotFoundException();
-      domain.companyId = new Types.ObjectId(domain.companyId);
+      domain.projectId = new Types.ObjectId(domain.projectId);
     }
     if (domain.hosts) throw new HttpNotImplementedException(); // has to validate hosts and unlink
     if (domain.correlationKey) throw new HttpNotImplementedException(); // should not change correlation key
@@ -303,10 +321,10 @@ export class DomainsService {
       }
     }
 
-    // Filter by company
-    if (dto.company) {
-      finalFilter['companyId'] = {
-        $eq: new Types.ObjectId(dto.company),
+    // Filter by project
+    if (dto.project) {
+      finalFilter['projectId'] = {
+        $eq: new Types.ObjectId(dto.project),
       };
     }
 

@@ -54,31 +54,21 @@ export class SubscriptionsUtils {
       );
       return undefined;
     }
-    const customJobParams = JSON.parse(JSON.stringify(sub.jobParameters));
-    const jobParameters = [];
-    jobParameters.push({ name: 'name', value: customJobEntry.name });
-    jobParameters.push({ name: 'code', value: customJobEntry.code });
-    jobParameters.push({ name: 'type', value: customJobEntry.type });
-    jobParameters.push({
-      name: 'language',
-      value: customJobEntry.language,
-    });
-    jobParameters.push({
-      name: 'customJobParameters',
-      value: customJobParams,
-    });
+
+    let jobParameters: JobParameter[] =
+      JobFactoryUtils.setupCustomJobParameters(
+        customJobEntry,
+        sub.jobParameters,
+      );
     const jpConf = await JobFactoryUtils.getCustomJobPodConfig(
       customJobEntry,
       configService,
     );
-    jobParameters.push({
-      name: 'jobpodmillicpulimit',
-      value: jpConf.milliCpuLimit,
-    });
-    jobParameters.push({
-      name: 'jobpodmemorykblimit',
-      value: jpConf.memoryKbytesLimit,
-    });
+    jobParameters = JobFactoryUtils.setupJobPodConfigParameters(
+      jobParameters,
+      jpConf,
+    );
+
     return jobParameters;
   }
 
@@ -91,6 +81,7 @@ export class SubscriptionsUtils {
       return value;
     }
 
+    // Would extract domainName from ${ domainName }
     const expression = match[1].toLowerCase();
     const ctx = prepareContext(finding);
     return executeDsl(expression, ctx) || '';
@@ -206,14 +197,24 @@ export class SubscriptionsUtils {
     jobConditions: JobCondition[],
     command: T,
   ) {
+    return SubscriptionsUtils.shouldExecuteFromFinding(
+      jobConditions,
+      command.finding,
+    );
+  }
+
+  public static shouldExecuteFromFinding(
+    jobConditions: JobCondition[],
+    finding: Finding,
+  ) {
     let allConditionsMatch = true;
     for (const condition of jobConditions ?? []) {
       condition.lhs = SubscriptionsUtils.replaceValueIfReferingToFinding<
         string | boolean | number
-      >(condition.lhs, command.finding);
+      >(condition.lhs, finding);
       condition.rhs = SubscriptionsUtils.replaceValueIfReferingToFinding<
         string | boolean | number
-      >(condition.rhs, command.finding);
+      >(condition.rhs, finding);
 
       if (!SubscriptionsUtils.evaluateCondition(condition)) {
         allConditionsMatch = false;
@@ -294,13 +295,22 @@ export class SubscriptionsUtils {
       }
     }
 
+    const conditions = [];
+    if (subYamlJson.conditions) {
+      for (const condition of subYamlJson.conditions) {
+        conditions.push(condition);
+      }
+    }
+
     const sub: CronSubscription = {
       name: subYamlJson.name,
+      input: subYamlJson.input ? subYamlJson.input : null,
       cronExpression: subYamlJson.cronExpression,
       builtIn: true,
       jobName: subYamlJson.job.name,
-      companyId: null,
+      projectId: null,
       jobParameters: params,
+      conditions: conditions,
     };
 
     return sub;
@@ -330,7 +340,7 @@ export class SubscriptionsUtils {
       finding: subYamlJson.finding,
       jobName: subYamlJson.job.name,
       cooldown: subYamlJson.cooldown,
-      companyId: null,
+      projectId: null,
       jobParameters: params,
       conditions: conditions,
       builtIn: true,

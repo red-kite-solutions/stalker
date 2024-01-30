@@ -1,3 +1,13 @@
-<button class="pill" [ngStyle]="{ 'background-color': bgColor, border: border, color: color }">
-  <ng-content></ng-content>
-</button>
+@if (colorHsl) {
+  <button
+    class="pill"
+    [style.--pill-border-color-h]="colorHsl.h"
+    [style.--pill-border-color-s]="colorHsl.s"
+    [style.--pill-border-color-l]="colorHsl.l"
+    [style.--pill-border-color-r]="colorRgb.r"
+    [style.--pill-border-color-g]="colorRgb.g"
+    [style.--pill-border-color-b]="colorRgb.b"
+  >
+    <ng-content></ng-content>
+  </button>
+}

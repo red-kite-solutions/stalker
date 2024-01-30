@@ -11,7 +11,7 @@ import {
 } from '../../findings/findings.service';
 import { ConfigService } from '../admin/config/config.service';
 import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
-import { CompanyService } from '../reporting/company.service';
+import { ProjectService } from '../reporting/project.service';
 import { CronSubscription } from './cron-subscriptions/cron-subscriptions.model';
 import {
   EventSubscription,
@@ -22,7 +22,7 @@ import { SubscriptionsUtils } from './subscriptions.utils';
 
 describe('Findings Handler Base', () => {
   let moduleFixture: TestingModule;
-  let companyService: CompanyService;
+  let projectService: ProjectService;
   let customJobsService: CustomJobsService;
   let configService: ConfigService;
 
@@ -31,7 +31,7 @@ describe('Findings Handler Base', () => {
       imports: [AppModule],
     }).compile();
 
-    companyService = moduleFixture.get(CompanyService);
+    projectService = moduleFixture.get(ProjectService);
     customJobsService = moduleFixture.get(CustomJobsService);
     configService = moduleFixture.get(ConfigService);
   });
@@ -492,7 +492,7 @@ describe('Findings Handler Base', () => {
       });
 
       const sub = new EventSubscription();
-      sub.companyId = new Types.ObjectId('507f1f77bcf86cd799439011');
+      sub.projectId = new Types.ObjectId('507f1f77bcf86cd799439011');
       sub.conditions = [];
       sub.finding = 'HostnameFinding';
       sub.jobName = 'CustomJob';
@@ -562,6 +562,7 @@ describe('Findings Handler Base', () => {
         cronExpression: '*/30 * * * * *',
         jobName: 'HostnameResolvingJob',
         jobParameters: [{ name: 'domainName', value: 'example.com' }],
+        conditions: [],
       };
       let yaml = [
         `name: ${cs.name}`,

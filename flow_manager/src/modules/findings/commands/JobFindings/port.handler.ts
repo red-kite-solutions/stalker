@@ -39,7 +39,7 @@ export class PortHandler extends JobFindingHandlerBase<PortCommand> {
 
     await this.portService.addPortByIp(
       command.finding.ip,
-      command.companyId,
+      command.projectId,
       command.finding.port,
       protocol,
     );

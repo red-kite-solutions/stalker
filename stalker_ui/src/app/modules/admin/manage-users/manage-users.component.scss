@@ -5,7 +5,7 @@ mat-card {
 
 .actions {
   display: flex;
-  gap: 16px;
+  gap: var(--normal-gap-size);
   padding-bottom: 8px;
 }
 
@@ -22,13 +22,14 @@ table {
 }
 
 .rows:hover {
-  background-color: rgb(243, 243, 243);
+  background-color: var(--mat-table-background-color-hover);
 }
 
 .mat-column-select {
-  width: 42px;
-  max-width: 42px;
+  width: 48px;
+  max-width: 48px;
   cursor: default;
+  overflow: visible;
 }
 
 .mat-column-active {

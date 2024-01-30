@@ -1,6 +1,6 @@
 .container {
   display: grid;
-  gap: 16px;
+  gap: var(--normal-gap-size);
   grid-template-columns: repeat(1, 100%);
 
   .span-col-2 {

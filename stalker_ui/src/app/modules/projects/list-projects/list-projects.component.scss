@@ -1,0 +1,91 @@
+@use '@angular/material' as mat;
+
+mat-grid-tile {
+  border-width: var(--mdc-outlined-card-outline-width);
+  border-style: solid;
+  border-color: var(--mdc-outlined-card-outline-color);
+  border-radius: var(--mdc-outlined-card-container-shape);
+  background-color: var(--mdc-outlined-card-container-color);
+  box-shadow: var(--mdc-outlined-card-container-elevation);
+}
+
+.button-title {
+  cursor: pointer;
+  transition: transform ease-in-out;
+  transition-duration: 70ms;
+
+  &:hover {
+    background-color: var(--mdc-outlined-card-container-color);
+    transform: translateY(-4px);
+    @include mat.elevation(2);
+
+    &:active {
+      transform: translateY(0px);
+      @include mat.elevation(1);
+    }
+  }
+}
+
+h3 {
+  text-align: center;
+  font-size: 20px;
+}
+
+.text {
+  width: 100%;
+}
+
+.plus-icon {
+  padding: 20px 10px 20px 20px;
+  text-align: center;
+  height: 100%;
+
+  mat-icon {
+    transform: scale(3.2);
+    height: auto;
+    width: auto;
+    color: var(--mat-card-subtitle-text-color);
+  }
+}
+
+.upload-image-container {
+  padding: 20px 10px 20px 20px;
+  text-align: center;
+  height: 100%;
+}
+
+.ellipsis {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ellipsis2 {
+  -webkit-line-clamp: 2;
+}
+
+.ellipsis5 {
+  -webkit-line-clamp: 5;
+}
+
+.createProjectForm {
+  width: 100%;
+}
+
+.fileUploadTemplate {
+  display: flex;
+}
+
+#createProjectButton {
+  margin-right: 10px;
+}
+
+mat-grid-list {
+  margin-bottom: 40px;
+}
+
+project-avatar {
+  max-width: 100%;
+  max-height: 100%;
+}

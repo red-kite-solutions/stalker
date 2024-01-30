@@ -10,8 +10,8 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { IsTypeIn } from '../../../../validators/is-type-in.validator';
 import { JobTypes } from '../../jobs/job-model.module';
+import { JobConditionDto, JobParameterDto } from '../subscriptions.dto';
 
 export class EventSubscriptionDto {
   @IsString()
@@ -20,7 +20,7 @@ export class EventSubscriptionDto {
 
   @IsMongoId()
   @IsOptional()
-  public companyId?: string; // if companyId is not set, the subscription is for all companies
+  public projectId?: string; // if projectId is not set, the subscription is for all projects
 
   @IsString()
   @IsNotEmpty()
@@ -47,37 +47,4 @@ export class EventSubscriptionDto {
   @IsInt()
   @Min(0)
   public cooldown: number;
-}
-
-export class JobParameterDto {
-  @IsString()
-  public name!: string;
-
-  @IsTypeIn(['string', 'number', 'boolean', 'array', 'object'])
-  public value!: string | number | boolean | Array<any> | object;
-}
-
-class JobConditionDto {
-  @IsTypeIn(['string', 'number', 'boolean'])
-  public lhs!: string | number | boolean;
-
-  @IsString()
-  @IsIn([
-    'equals',
-    'gte',
-    'gt',
-    'lte',
-    'lt',
-    'contains',
-    'contains_i',
-    'startsWith',
-    'startsWith_i',
-    'endsWith',
-    'endsWith_i',
-    'equals_i',
-  ])
-  public operator: string;
-
-  @IsTypeIn(['string', 'number', 'boolean'])
-  public rhs!: string | number | boolean;
 }

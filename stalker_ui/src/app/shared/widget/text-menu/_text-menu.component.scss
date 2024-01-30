@@ -4,8 +4,9 @@
     // !important is required
     max-height: calc(60vh - 48px) !important;
     overflow: scroll;
-    &.mat-menu-panel {
+    &.mat-mdc-menu-panel {
       min-height: fit-content;
+      max-width: 1000px !important;
     }
   }
 }

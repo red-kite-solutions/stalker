@@ -1,84 +1,96 @@
-<mat-card>
-  <h1 i18n="Domains|Domain names">Domains</h1>
+<mat-card appearance="outlined">
+  <mat-card-header>
+    <div class="tw-w-full tw-flex tw-flex-wrap">
+      <mat-card-title class="tw-flex-1" i18n="Domains|Domain names">Domains</mat-card-title>
 
-  <div class="actions">
-    <button mat-raised-button color="primary" (click)="openNewDomainsDialog(addDomainDialog)">
-      <mat-icon class="material-icons-outlined">add</mat-icon>
-      <label i18n="Add domains|Add a new domain to a company">Add Domains</label>
-    </button>
+      <div class="tw-flex tw-gap-sm tw-pb-4">
+        <button mat-stroked-button (click)="openNewDomainsDialog(addDomainDialog)">
+          <mat-icon>add</mat-icon>
+          <label i18n="Add domains|Add a new domains to a project">Add domains</label>
+        </button>
 
-    <button mat-raised-button color="warn" class="left-action-button" (click)="deleteDomains()">
-      <mat-icon class="material-icons-outlined"> delete_outline </mat-icon>
-      <label i18n="Delete|Delete an item">Delete</label>
-    </button>
-  </div>
+        <button mat-stroked-button color="warn" class="left-action-button" (click)="deleteDomains()">
+          <mat-icon>delete_outline</mat-icon>
+          <label i18n="Delete|Delete an item">Delete</label>
+        </button>
+      </div>
+    </div>
+  </mat-card-header>
 
-  <app-filtered-paginated-table
-    *ngIf="((dataSource$ | async) && (companies$ | async) && (tags$ | async)) || true"
-    [dataSource]="dataSource"
-    (pageChange)="pageChange($event)"
-    [isLoading]="dataLoading"
-    [length]="count"
-    [columns]="displayColumns$ | async"
-    [filterOptions]="filterOptions"
-    [routerLinkPrefix]="'/domains/'"
-    (filtersChange)="filtersChange($event)"
-    (selectionChange)="selection = $event"
-  >
-    <!-- Domain Column -->
-    <ng-container matColumnDef="domain">
-      <th mat-header-cell *matHeaderCellDef i18n="Domain|A domain name">Domain</th>
-      <td mat-cell *matCellDef="let element">{{ element.name }}</td>
-    </ng-container>
-
-    <!-- Hosts Column -->
-    <ng-container matColumnDef="hosts">
-      <th mat-header-cell *matHeaderCellDef i18n="Hosts|Multiple server hosts">Hosts</th>
-      <td mat-cell *matCellDef="let element">
-        <ng-container *ngFor="let host of element.hosts; let i = index; let last = last">
-          <span *ngIf="i <= 5">{{ host.ip }}</span
-          ><span *ngIf="!last && i <= 4">, </span>
-          <span *ngIf="i === 6">...</span>
-          <br *ngIf="i <= 5" />
+  <mat-card-content>
+    @if (((dataSource$ | async) && (projects$ | async) && (tags$ | async)) || true) {
+      <app-filtered-paginated-table
+        [dataSource]="dataSource"
+        (pageChange)="pageChange($event)"
+        [isLoading]="dataLoading"
+        [length]="count"
+        [columns]="displayColumns$ | async"
+        [filterOptions]="filterOptions"
+        [routerLinkPrefix]="'/domains/'"
+        (filtersChange)="filtersChange($event)"
+        (selectionChange)="selection = $event"
+      >
+        <!-- Domain Column -->
+        <ng-container matColumnDef="domain">
+          <th mat-header-cell *matHeaderCellDef i18n="Domain|A domain name">Domain</th>
+          <td mat-cell *matCellDef="let element">{{ element.name }}</td>
         </ng-container>
-      </td>
-    </ng-container>
-
-    <!-- Company Column -->
-    <ng-container matColumnDef="company">
-      <th mat-header-cell *matHeaderCellDef i18n="Company|A business">Company</th>
-      <td mat-cell *matCellDef="let element">
-        <company-cell [company]="companies | whereId : [element.companyId]"></company-cell>
-      </td>
-    </ng-container>
-
-    <!-- Tags Column -->
-    <ng-container matColumnDef="tags">
-      <th mat-header-cell *matHeaderCellDef i18n="Tags|Multiple tags describing somthing">Tags</th>
-      <td mat-cell *matCellDef="let element">
-        <app-pill-tag *ngFor="let tag of element.tags" [color]="(tags | whereId : [tag])?.color">{{
-          (tags | whereId : [tag])?.text
-        }}</app-pill-tag>
-      </td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="displayColumns$ | async"></tr>
-  </app-filtered-paginated-table>
+        <!-- Hosts Column -->
+        <ng-container matColumnDef="hosts">
+          <th mat-header-cell *matHeaderCellDef i18n="Hosts|Multiple server hosts">Hosts</th>
+          <td mat-cell *matCellDef="let element">
+            @for (host of element.hosts; track host; let i = $index; let last = $last) {
+              @if (i <= 5) {
+                <span>{{ host.ip }}</span>
+              }
+              @if (!last && i <= 4) {
+                <span>, </span>
+              }
+              @if (i === 6) {
+                <span>...</span>
+              }
+              @if (i <= 5) {
+                <br />
+              }
+            }
+          </td>
+        </ng-container>
+        <!-- Project Column -->
+        <ng-container matColumnDef="project">
+          <th mat-header-cell *matHeaderCellDef i18n="Project|A business">Project</th>
+          <td mat-cell *matCellDef="let element">
+            <project-cell [project]="projects | whereId: [element.projectId]"></project-cell>
+          </td>
+        </ng-container>
+        <!-- Tags Column -->
+        <ng-container matColumnDef="tags">
+          <th mat-header-cell *matHeaderCellDef i18n="Tags|Multiple tags describing somthing">Tags</th>
+          <td mat-cell *matCellDef="let element">
+            @for (tag of element.tags; track tag) {
+              <app-pill-tag [color]="(tags | whereId: [tag])?.color">{{ (tags | whereId: [tag])?.text }}</app-pill-tag>
+            }
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayColumns$ | async"></tr>
+      </app-filtered-paginated-table>
+    }
+  </mat-card-content>
 </mat-card>
 
 <!-- Add Domain Dialog Template -->
 <ng-template #addDomainDialog>
-  <h1 mat-dialog-title i18n="Add domains|Add a new domain to a company">Add Domains</h1>
+  <h1 mat-dialog-title i18n="Add domains|Add a new domain to a project">Add Domains</h1>
   <mat-dialog-content>
-    <mat-form-field fxFlex>
-      <mat-label i18n="Company|Company or business">Company</mat-label>
-      <mat-select [(value)]="selectedCompany">
+    <mat-form-field>
+      <mat-select i18n-placeholder="Project|Project or business" placeholder="Project" [(value)]="selectedProject">
         <mat-option>None</mat-option>
-        <mat-option *ngFor="let company of companies$ | async" value="{{ company._id }}">{{ company.name }}</mat-option>
+        @for (project of projects$ | async; track project) {
+          <mat-option value="{{ project._id }}">{{ project.name }}</mat-option>
+        }
       </mat-select>
     </mat-form-field>
 
-    <mat-form-field appearance="outline" class="full-width" fxFlex>
+    <mat-form-field appearance="outline" class="tw-w-full">
       <mat-label i18n="Domain Names|A domain name, or DNS name, used to resolve an IP address">Domain Names</mat-label>
       <textarea
         [(ngModel)]="selectedNewDomains"
@@ -95,14 +107,9 @@ another.stalker.is"
   </mat-dialog-content>
 
   <mat-dialog-actions>
-    <button
-      mat-raised-button
-      color="primary"
-      (click)="addNewDomains()"
-      i18n="Add domains|Add a new domain to a company"
-    >
+    <button mat-flat-button color="primary" (click)="addNewDomains()" i18n="Add domains|Add a new domain to a project">
       Add Domains
     </button>
-    <button mat-raised-button color="warn" matDialogClose i18n="Cancel|Cancel an action">Cancel</button>
+    <button mat-stroked-button color="warn" matDialogClose i18n="Cancel|Cancel an action">Cancel</button>
   </mat-dialog-actions>
 </ng-template>

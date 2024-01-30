@@ -7,7 +7,7 @@ export type DomainDocument = Domain & Document;
 
 @Schema(MONGO_TIMESTAMP_SCHEMA_CONFIG)
 export class Domain {
-  @Prop({ unique: true, index: true })
+  @Prop({ index: true })
   public name!: string;
 
   /**
@@ -18,7 +18,7 @@ export class Domain {
   public correlationKey!: string;
 
   @Prop()
-  public companyId!: Types.ObjectId;
+  public projectId!: Types.ObjectId;
 
   @Prop()
   public hosts?: HostSummary[];
@@ -40,3 +40,4 @@ export class Domain {
 }
 
 export const DomainSchema = SchemaFactory.createForClass(Domain);
+DomainSchema.index({ name: 1, projectId: 1 }, { unique: true });

@@ -1,6 +1,7 @@
 <mat-card-content>
-  <h1 i18n="Sign in|The login screen title">Sign In</h1>
-  <form #loginForm="ngForm" (ngSubmit)="onSubmit()" (keyup.enter)="onSubmit()">
+  <h1 i18n="Sign in|The login screen title" class="tw-w-full tw-text-center tw-pb-8">Sign in</h1>
+
+  <form #loginForm="ngForm" (ngSubmit)="onSubmit()" (keyup.enter)="onSubmit()" class="tw-flex tw-flex-col tw-gap">
     <mat-form-field appearance="outline">
       <mat-label i18n="Email|A user's email">Email</mat-label>
       <input matInput [(ngModel)]="username" name="username" required />
@@ -20,17 +21,16 @@
       >
     </mat-form-field>
 
-    <mat-error
-      *ngIf="!loginValid"
-      i18n="Invalid credentials|The credentials provided by the user were not recognized by the application"
-    >
-      Username and password combination was not recognized
-    </mat-error>
+    @if (!loginValid) {
+      <mat-error i18n="Invalid credentials|The credentials provided by the user were not recognized by the application">
+        Username and password combination was not recognized
+      </mat-error>
+    }
 
     <button
       type="button"
       class="submitButton"
-      mat-raised-button
+      mat-flat-button
       color="primary"
       [disabled]="!loginForm.form.valid"
       (click)="onSubmit()"

@@ -14,13 +14,16 @@ import {
 } from 'test/e2e.utils';
 import { AppModule } from '../../../app.module';
 import { Role } from '../../../auth/constants';
-import { CronSubscription } from './cron-subscriptions.model';
+import {
+  CronSubscription,
+  CronSubscriptionsDocument,
+} from './cron-subscriptions.model';
 
 describe('Cron Subscriptions Controller (e2e)', () => {
   let app: INestApplication;
   let testData: TestingData;
-  let companyName = 'CronSubscriptionCompany';
-  let companyId: string;
+  let projectName = 'CronSubscriptionProject';
+  let projectId: string;
   let subscriptionId: string;
 
   const subscription: Partial<CronSubscription> = {
@@ -50,10 +53,10 @@ describe('Cron Subscriptions Controller (e2e)', () => {
     await app.init();
     testData = await initTesting(app);
 
-    let r = await postReq(app, testData.user.token, '/company', {
-      name: companyName,
+    let r = await postReq(app, testData.user.token, '/project', {
+      name: projectName,
     });
-    companyId = r.body._id;
+    projectId = r.body._id;
   });
 
   afterAll(async () => {
@@ -64,7 +67,7 @@ describe('Cron Subscriptions Controller (e2e)', () => {
   it('Should create a cron subscription (POST /cron-subscriptions)', async () => {
     // arrange & act
     const r = await postReq(app, testData.user.token, '/cron-subscriptions', {
-      companyId: companyId,
+      projectId: projectId,
       ...subscription,
     });
     // assert
@@ -97,7 +100,7 @@ describe('Cron Subscriptions Controller (e2e)', () => {
       testData.user.token,
       `/cron-subscriptions/${subscriptionId}`,
       {
-        companyId: companyId,
+        projectId: projectId,
         ...subscription,
         name: changedName,
       },
@@ -117,9 +120,53 @@ describe('Cron Subscriptions Controller (e2e)', () => {
     expect(foundSubscription).toBe(true);
   });
 
-  // TODO: make a test for this API call. It will be possible when there will be a built-in cron subscription
-  // it('Should revert a built-in cron subscription (PUT /cron-subscriptions/{id}/revert)', async () => {
-  // });
+  it('Should revert a built-in cron subscription (PATCH /cron-subscriptions/{id}?revert=true)', async () => {
+    // Arrange
+    let r = await getReq(app, testData.user.token, '/cron-subscriptions');
+    let builtInSub: CronSubscriptionsDocument;
+    for (const sub of r.body) {
+      if (sub.builtIn) {
+        builtInSub = sub;
+        break;
+      }
+    }
+
+    const changedName = 'My changed name';
+    r = await patchReq(
+      app,
+      testData.user.token,
+      `/cron-subscriptions/${builtInSub._id}?revert=true`,
+      {
+        ...builtInSub,
+        _id: null,
+        builtIn: null,
+        name: changedName,
+      },
+    );
+
+    // Act
+    r = await patchReq(
+      app,
+      testData.user.token,
+      `/cron-subscriptions/${builtInSub._id}?revert=true`,
+      {},
+    );
+
+    // Assert
+    expect(r.statusCode).toBe(HttpStatus.OK);
+
+    r = await getReq(app, testData.user.token, '/cron-subscriptions');
+    expect(r.statusCode).toBe(HttpStatus.OK);
+
+    let foundSubscription = false;
+    for (const sub of r.body) {
+      if (sub._id === builtInSub._id) {
+        foundSubscription = true;
+        expect(sub.name).not.toBe(changedName);
+      }
+    }
+    expect(foundSubscription).toBe(true);
+  });
 
   it('Should delete a subscription by id (DELETE /cron-subscriptions/{id})', async () => {
     // arrange & act
@@ -142,6 +189,21 @@ describe('Cron Subscriptions Controller (e2e)', () => {
       Role.ReadOnly,
       async (givenToken: string) => {
         return await getReq(app, givenToken, `/cron-subscriptions`);
+      },
+    );
+    expect(success).toBe(true);
+  });
+
+  it('Should have proper authorizations (GET /cron-subscriptions/:id)', async () => {
+    const success = await checkAuthorizations(
+      testData,
+      Role.ReadOnly,
+      async (givenToken: string) => {
+        return await getReq(
+          app,
+          givenToken,
+          `/cron-subscriptions/507f1f77bcf86cd799439011`,
+        );
       },
     );
     expect(success).toBe(true);

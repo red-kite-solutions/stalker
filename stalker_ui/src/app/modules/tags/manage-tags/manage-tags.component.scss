@@ -1,4 +1,4 @@
-.mat-card {
+.mat-mdc-card {
   padding-bottom: 0;
   overflow: hidden;
 }
@@ -12,33 +12,21 @@ table {
 }
 
 .rows:hover {
-  background-color: rgb(243, 243, 243);
+  background-color: var(--mat-table-background-color-hover);
 }
 
 .check-box-cell {
   cursor: default;
 }
 
-.actions {
-  display: flex;
-  gap: 16px;
-}
-
 .mat-column-select {
-  width: 42px;
-  max-width: 42px;
+  width: 48px;
+  max-width: 48px;
+  overflow: visible;
 }
 
 .nodata {
   text-align: center;
-}
-
-.create-tag-color-picker-class {
-  display: flex;
-
-  h1 {
-    flex: auto;
-  }
 }
 
 .create-tag-form-row {
@@ -48,4 +36,9 @@ table {
   mat-form-field {
     flex: auto;
   }
+}
+
+h1 {
+  display: flex;
+  margin-top: 16px;
 }

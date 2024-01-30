@@ -7,13 +7,14 @@ import {
   HttpNotFoundException,
 } from '../../exceptions/http.exceptions';
 import { Page } from '../../types/page.type';
-import { CompanyUnassigned } from '../../validators/is-company-id.validator';
+import { ProjectUnassigned } from '../../validators/is-project-id.validator';
 import { JobsService } from '../database/jobs/jobs.service';
-import { CompanyService } from '../database/reporting/company.service';
 import { CorrelationKeyUtils } from '../database/reporting/correlation.utils';
 import { CustomFinding } from '../database/reporting/findings/finding.model';
+import { ProjectService } from '../database/reporting/project.service';
 import { HostnameCommand } from './commands/Findings/hostname.command';
 import { IpCommand } from './commands/Findings/ip.command';
+import { IpRangeCommand } from './commands/Findings/ipRange.command';
 import { CustomFindingCommand } from './commands/JobFindings/custom.command';
 import { HostnameIpCommand } from './commands/JobFindings/hostname-ip.command';
 import { PortCommand } from './commands/JobFindings/port.command';
@@ -23,6 +24,7 @@ export type Finding =
   | HostnameIpFinding
   | HostnameFinding
   | IpFinding
+  | IpRangeFinding
   | PortFinding
   | JobStatusFinding
   | CreateCustomFinding;
@@ -67,15 +69,23 @@ export class JobStatusFinding extends FindingBase {
 export class HostnameFinding extends FindingBase {
   type: 'HostnameFinding';
   key: 'HostnameFinding';
-  companyId: string;
+  projectId: string;
   domainName: string;
 }
 
 export class IpFinding extends FindingBase {
   type: 'IpFinding';
   key: 'IpFinding';
-  companyId: string;
+  projectId: string;
   ip: string;
+}
+
+export class IpRangeFinding extends FindingBase {
+  type: 'IpRangeFinding';
+  key: 'IpRangeFinding';
+  projectId: string;
+  ip: string;
+  mask: number; // ex: 24
 }
 
 export class HostnameIpFinding extends FindingBase {
@@ -101,7 +111,7 @@ export class FindingsService {
   constructor(
     private commandBus: CommandBus,
     private jobsService: JobsService,
-    private companyService: CompanyService,
+    private projectService: ProjectService,
     @InjectModel('finding')
     private readonly findingModel: Model<CustomFinding>,
   ) {}
@@ -141,19 +151,19 @@ export class FindingsService {
    * Saves the given finding.
    */
   public async save(
-    companyId: string,
+    projectId: string,
     jobId: string = null,
     dto: CreateCustomFinding,
   ) {
-    if (companyId !== undefined) {
-      const company = await this.companyService.get(companyId);
-      if (company === null) {
+    if (projectId !== undefined) {
+      const project = await this.projectService.get(projectId);
+      if (project === null) {
         throw new HttpNotFoundException(
-          `The company for the given job does not exist (jobId=${jobId}, companyId=${companyId})`,
+          `The project for the given job does not exist (jobId=${jobId}, projectId=${projectId})`,
         );
       }
     } else {
-      companyId = CompanyUnassigned;
+      projectId = ProjectUnassigned;
     }
 
     const job = await this.jobsService.getById(jobId);
@@ -164,7 +174,7 @@ export class FindingsService {
     }
 
     const correlationKey = CorrelationKeyUtils.generateCorrelationKey(
-      companyId,
+      projectId,
       dto.domainName,
       dto.ip,
       dto.port,
@@ -212,7 +222,7 @@ export class FindingsService {
     timestamp: number,
     jobId: string = '',
   ) {
-    let companyId = '';
+    let projectId = '';
     if (jobId) {
       const job = await this.jobsService.getById(jobId);
       if (job === null) {
@@ -221,17 +231,17 @@ export class FindingsService {
       }
       finding.jobId = jobId;
 
-      if (job.companyId !== undefined) {
-        const company = await this.companyService.get(job.companyId);
-        if (company === null) {
+      if (job.projectId !== undefined) {
+        const project = await this.projectService.get(job.projectId);
+        if (project === null) {
           this.logger.error(
-            `The company for the given job does not exist (jobId=${jobId}, companyId=${job.companyId})`,
+            `The project for the given job does not exist (jobId=${jobId}, projectId=${job.projectId})`,
           );
           return;
         }
-        companyId = company._id.toString();
+        projectId = project._id.toString();
       } else {
-        companyId = CompanyUnassigned;
+        projectId = ProjectUnassigned;
       }
       if (finding.type !== 'JobStatusFinding') {
         await this.jobsService.addJobOutputLine(
@@ -247,8 +257,8 @@ export class FindingsService {
       }
     }
 
-    if (companyId === CompanyUnassigned) {
-      // Skipping the findings management if it was not assigned to any company,
+    if (projectId === ProjectUnassigned) {
+      // Skipping the findings management if it was not assigned to any project,
       // as the job was run as a one time thing. The output will be fetched by
       // the front-end and will be shown to the user.
       return;
@@ -257,58 +267,73 @@ export class FindingsService {
     switch (finding.type) {
       case 'HostnameIpFinding':
         finding.correlationKey = CorrelationKeyUtils.generateCorrelationKey(
-          companyId,
+          projectId,
           null,
           finding.ip,
         );
         this.commandBus.execute(
           new HostnameIpCommand(
             jobId,
-            companyId,
+            projectId,
             HostnameIpCommand.name,
             finding,
           ),
         );
         break;
       case 'HostnameFinding':
-        finding.companyId = finding.companyId ? finding.companyId : companyId;
+        finding.projectId = finding.projectId ? finding.projectId : projectId;
         finding.correlationKey = CorrelationKeyUtils.generateCorrelationKey(
-          finding.companyId,
+          finding.projectId,
           finding.domainName,
         );
         this.commandBus.execute(
-          new HostnameCommand(finding.companyId, HostnameCommand.name, finding),
+          new HostnameCommand(finding.projectId, HostnameCommand.name, finding),
         );
         break;
 
       case 'IpFinding':
-        finding.companyId = finding.companyId ? finding.companyId : companyId;
+        finding.projectId = finding.projectId ? finding.projectId : projectId;
         finding.correlationKey = CorrelationKeyUtils.generateCorrelationKey(
-          finding.companyId,
+          finding.projectId,
           null,
           finding.ip,
         );
         this.commandBus.execute(
-          new IpCommand(finding.companyId, IpCommand.name, finding),
+          new IpCommand(finding.projectId, IpCommand.name, finding),
+        );
+        break;
+
+      case 'IpRangeFinding':
+        finding.projectId = finding.projectId ? finding.projectId : projectId;
+        finding.correlationKey = CorrelationKeyUtils.generateCorrelationKey(
+          finding.projectId,
+          null,
+          finding.ip,
+          null,
+          null,
+          finding.mask,
+        );
+        this.commandBus.execute(
+          new IpRangeCommand(finding.projectId, IpRangeCommand.name, finding),
         );
         break;
 
       case 'PortFinding':
         finding.correlationKey = CorrelationKeyUtils.generateCorrelationKey(
-          companyId,
+          projectId,
           null,
           finding.ip,
           finding.port,
           finding.fields[0]?.data,
         );
         this.commandBus.execute(
-          new PortCommand(jobId, companyId, PortCommand.name, finding),
+          new PortCommand(jobId, projectId, PortCommand.name, finding),
         );
         break;
 
       case 'CustomFinding':
         finding.correlationKey = CorrelationKeyUtils.generateCorrelationKey(
-          companyId,
+          projectId,
           finding.domainName,
           finding.ip,
           finding.port,
@@ -317,7 +342,7 @@ export class FindingsService {
         this.commandBus.execute(
           new CustomFindingCommand(
             jobId,
-            companyId,
+            projectId,
             CustomFindingCommand.name,
             finding,
           ),

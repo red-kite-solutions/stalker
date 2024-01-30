@@ -1,5 +1,6 @@
 .metric-title {
   opacity: 0.9;
+  font-size: 0.8rem;
 }
 
 .metric-list {
@@ -8,7 +9,7 @@
   margin-bottom: -16px;
 
   mat-list-item {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    border-bottom: 1px solid var(--mdc-outlined-card-outline-color);
     width: 100%;
 
     .metric-list-item {

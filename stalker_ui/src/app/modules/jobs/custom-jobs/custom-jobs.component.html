@@ -1,9 +1,13 @@
-<div fxLayout="row" class="code-editor-container">
-  <div fxFlex="45">
-    <mat-card class="container">
-      <span class="title">
-        <h1 i18n="Custom Jobs|Custom Jobs">Custom Jobs</h1>
-        <a href="https://github.com/red-kite-solutions/stalker/blob/main/docs/implementing-jobs.md" target="_blank">
+<div class="tw-flex code-editor-container">
+  <div class="tw-flex-[45%_0_0]">
+    <mat-card appearance="outlined" class="container">
+      <mat-card-header>
+        <mat-card-title i18n="Custom jobs|Custom jobs">Custom jobs</mat-card-title>
+        <a
+          class="tw-absolute tw-top-0 tw-right-0 tw-opacity-50"
+          href="https://github.com/red-kite-solutions/stalker/blob/main/docs/implementing-jobs.md"
+          target="_blank"
+        >
           <button
             mat-icon-button
             i18n-matTooltip="Link to Job Implementaiton documentation|Link to Job Implementaiton documentation"
@@ -12,107 +16,164 @@
             <mat-icon fontIcon="help_outline"></mat-icon>
           </button>
         </a>
-      </span>
-      <div fxLayout="row">
-        <button mat-raised-button color="primary" class="left-action-button" (click)="newCustomJobClick()">
-          <label i18n="New custom job|Button to create a new custom job">New custom job</label>
-        </button>
-        <button mat-raised-button color="warn" class="left-action-button" (click)="delete()">
-          <label i18n="Delete|Delete an item">Delete</label>
-        </button>
-        <div fxLayoutAlign="end" fxFlex>
-          <button mat-raised-button color="primary" class="right-action-button" (click)="saveCustomJobEdits()">
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="tw-flex tw-gap tw-justify-between">
+          <div class="tw-flex tw-gap">
+            <button mat-flat-button color="primary" (click)="newCustomJobClick()">
+              <label i18n="New custom job|Button to create a new custom job">New custom job</label>
+            </button>
+
+            <button mat-stroked-button color="warn" (click)="delete()">
+              <label i18n="Delete|Delete an item">Delete</label>
+            </button>
+          </div>
+
+          <button mat-flat-button color="primary" class="tw-self-end" (click)="saveCustomJobEdits()">
             <label i18n="Save|Save the information">Save</label>
           </button>
         </div>
-      </div>
 
-      <div class="table-container">
-        <table mat-table [dataSource]="dataSource" *ngIf="(dataSource$ | async) || true">
-          <!-- Name Column -->
-          <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef i18n="Name|Name of an item">Name</th>
-            <td mat-cell *matCellDef="let element">{{ element.name }}</td>
-          </ng-container>
+        <div class="table-container">
+          @if ((dataSource$ | async) || true) {
+            <table mat-table [dataSource]="dataSource">
+              <!-- Name Column -->
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef i18n="Name|Name of an item">Name</th>
+                <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+              </ng-container>
+              <!-- Type Column -->
+              <ng-container matColumnDef="type">
+                <th mat-header-cell *matHeaderCellDef i18n="Type|Type of job">Type</th>
+                <td mat-cell *matCellDef="let element">{{ element.type }}</td>
+              </ng-container>
+              <!-- Language Column -->
+              <ng-container matColumnDef="language">
+                <th mat-header-cell *matHeaderCellDef i18n="Language|Programming language">Language</th>
+                <td mat-cell *matCellDef="let element">
+                  {{ element.language }}
+                </td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="['name', 'type', 'language']"></tr>
+              <tr
+                mat-row
+                *matRowDef="let row; columns: ['name', 'type', 'language']"
+                class="rows"
+                (click)="selectCustomJob(row)"
+                [class.selected-job]="selectedRow?._id === row._id"
+              ></tr>
+              <tr class="mat-row nodata" *matNoDataRow>
+                <td class="mat-cell" colspan="100%" i18n="No custom job found|No custom job were found">
+                  No custom job found
+                </td>
+              </tr>
+            </table>
+          }
 
-          <!-- Type Column -->
-          <ng-container matColumnDef="type">
-            <th mat-header-cell *matHeaderCellDef i18n="Type|Type of job">Type</th>
-            <td mat-cell *matCellDef="let element">{{ element.type }}</td>
-          </ng-container>
-
-          <!-- Language Column -->
-          <ng-container matColumnDef="language">
-            <th mat-header-cell *matHeaderCellDef i18n="Language|Programming language">Language</th>
-            <td mat-cell *matCellDef="let element">
-              {{ element.language }}
-            </td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="['name', 'type', 'language']"></tr>
-          <tr
-            mat-row
-            *matRowDef="let row; columns: ['name', 'type', 'language']"
-            class="rows"
-            (click)="selectCustomJob(row)"
-            [class.selected-job]="selectedRow?._id === row._id"
-          ></tr>
-
-          <tr class="mat-row nodata" *matNoDataRow>
-            <td class="mat-cell" colspan="100%" i18n="No custom job found|No custom job were found">
-              No custom job found
-            </td>
-          </tr>
-        </table>
-
-        <mat-paginator
-          [length]="100"
-          [pageSize]="10"
-          [pageSizeOptions]="[10, 25, 50, 100]"
-          showFirstLastButtons
-          aria-label="Select page"
-        >
-        </mat-paginator>
-      </div>
+          <mat-paginator
+            [length]="100"
+            [pageSize]="10"
+            [pageSizeOptions]="[10, 25, 50, 100]"
+            showFirstLastButtons
+            aria-label="Select page"
+          >
+          </mat-paginator>
+        </div>
+      </mat-card-content>
     </mat-card>
   </div>
-  <div fxFlex="55">
+  <div class="tw-flex-[55%_0_0]">
     <mat-tab-group>
-      <mat-tab label-i18n="Configurations|Settings for an item" label="Configurations">
+      <mat-tab i18n-label="Configurations|Settings for an item" label="Configurations">
         <div>
-          <mat-form-field appearance="outline" class="job-name-form">
-            <mat-label i18n="Name|Name">Name</mat-label>
-            <input matInput [formControl]="customJobNameFormControl" required />
-            <mat-error i18n="Name required|The name input is required">Name is required</mat-error>
-          </mat-form-field>
-          <mat-card class="job-pod-config-selection">
+          <div [formGroup]="customJobForm">
+            <mat-form-field appearance="outline" class="job-name-form">
+              <mat-label i18n="Name|Name">Name</mat-label>
+              <input matInput formControlName="customJobName" required />
+              <mat-error i18n="Name required|The name input is required">Name is required</mat-error>
+            </mat-form-field>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="leftmost-item">
+                <mat-label i18n="Custom job type|The type of custom job">Custom job type</mat-label>
+                <mat-select formControlName="customJobType">
+                  @for (customJobType of customJobTypes; track customJobType) {
+                    <mat-option value="{{ customJobType }}">{{ customJobTypesLocalized[customJobType] }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="rightmost-item">
+                <mat-label i18n="Custom job language|The programming language of a custom job"
+                  >Custom job language</mat-label
+                >
+                <mat-select formControlName="customJobLanguage">
+                  @for (language of currentLanguageOptions; track language) {
+                    <mat-option value="{{ language }}">{{ language }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <mat-card appearance="outlined" class="job-pod-config-selection">
             <mat-card-header>Job Pod Configuration</mat-card-header>
             <mat-card-content>
               <div>
-                <mat-card
-                  *ngFor="let jps of jobPodSettings$ | async"
-                  [class.selected-config]="selectedConfigId === jps._id"
-                  (click)="selectedConfigId = jps._id"
-                >
-                  <div>
-                    <label class="job-pod-config-title">{{ jps.name }}</label>
-                    <label>{{ jps.milliCpuLimit / 1000 }} CPU</label>
-                    <label>{{ jps.memoryKbytesLimit | memoryUnits }}</label>
-                  </div>
-                </mat-card>
+                @for (jps of jobPodSettings$ | async; track jps) {
+                  <mat-card
+                    appearance="outlined"
+                    [class.selected-config]="selectedConfigId === jps._id"
+                    (click)="selectedConfigId = jps._id"
+                  >
+                    <div>
+                      <label class="job-pod-config-title">{{ jps.name }}</label>
+                      <label>{{ jps.milliCpuLimit / 1000 }} CPU</label>
+                      <label>{{ jps.memoryKbytesLimit | memoryUnits }}</label>
+                    </div>
+                  </mat-card>
+                }
               </div>
             </mat-card-content>
           </mat-card>
         </div>
+
+        @if (handlerFormEnabled) {
+          <div class="nuclei-specific-config" [formGroup]="findingHandlerForm">
+            <mat-divider></mat-divider>
+            <h3 i18n="finding handler config|finding handler config title">Custom finding handler config</h3>
+            <div class="checkbox-container">
+              <mat-checkbox
+                i18n="Enable finding handler|Enable the finding handler"
+                formControlName="findingHandlerEnabled"
+                >Enable custom finding handler</mat-checkbox
+              >
+            </div>
+            <mat-form-field appearance="outline">
+              <mat-label i18n="Finding handler language|The programming language of a finding handler"
+                >Finding handler language</mat-label
+              >
+              <mat-select formControlName="findingHandlerLanguage">
+                @for (language of findingHandlerLanguageOptions; track language) {
+                  <mat-option value="{{ language }}">{{ language }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <mat-divider id="bottom-divider"></mat-divider>
+          </div>
+        }
       </mat-tab>
-      <mat-tab label-i18n="Code|Programming language code" label="Code" class="code-editor-container">
+      <mat-tab i18n-label="Code|Programming language code" label="Code" class="code-editor-container">
         <div class="code-editor-container">
           <app-code-editor
-            [(code)]="code"
-            [language]="language"
+            [language]="languageDefault"
             [minimapEnabled]="minimapEnabled"
             [theme]="theme"
             [readonly]="readonly"
+            [path]="basePath + defaultUriFile + '.' + languageExtensionMapping[languageDefault]"
+            [tabId]="customJobCodeTabId"
+            [fileTabsEnabled]="true"
+            [fileTabsReadOnly]="true"
             (saveEvent)="saveCustomJobEdits()"
           ></app-code-editor>
         </div>

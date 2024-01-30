@@ -1,19 +1,18 @@
 import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DeleteResult, UpdateResult } from 'mongodb';
-import { Model, Types } from 'mongoose';
+import { FilterQuery, Model, Types } from 'mongoose';
 import { HttpNotFoundException } from '../../../../exceptions/http.exceptions';
 import escapeStringRegexp from '../../../../utils/escape-string-regexp';
 import { IpFinding } from '../../../findings/findings.service';
 import { FindingsQueue } from '../../../job-queue/findings-queue';
 import { ConfigService } from '../../admin/config/config.service';
 import { TagsService } from '../../tags/tag.service';
-import { Company } from '../company.model';
 import { CorrelationKeyUtils } from '../correlation.utils';
 import { DomainsService } from '../domain/domain.service';
 import { DomainSummary } from '../domain/domain.summary';
 import { PortService } from '../port/port.service';
-import { ReportService } from '../report/report.service';
+import { Project } from '../project.model';
 import { HostFilterModel } from './host-filter.model';
 import { Host, HostDocument } from './host.model';
 import { HostSummary } from './host.summary';
@@ -24,8 +23,7 @@ export class HostService {
 
   constructor(
     @InjectModel('host') private readonly hostModel: Model<Host>,
-    @InjectModel('company') private readonly companyModel: Model<Company>,
-    private reportService: ReportService,
+    @InjectModel('project') private readonly projectModel: Model<Project>,
     private configService: ConfigService,
     private tagsService: TagsService,
     @Inject(forwardRef(() => DomainsService))
@@ -52,6 +50,25 @@ export class HostService {
     return await query;
   }
 
+  public async getIps(
+    page: number = null,
+    pageSize: number = null,
+    filter: FilterQuery<Host> = null,
+  ): Promise<HostDocument[]> {
+    let query;
+    const projection = '_id ip';
+    if (filter) {
+      query = this.hostModel.find(this.buildFilters(filter), projection);
+    } else {
+      query = this.hostModel.find({}, projection);
+    }
+
+    if (page != null && pageSize != null) {
+      query = query.skip(page * pageSize).limit(pageSize);
+    }
+    return await query;
+  }
+
   public async count(filter: HostFilterModel = null) {
     if (!filter) {
       return await this.hostModel.estimatedDocumentCount();
@@ -63,7 +80,7 @@ export class HostService {
   public async addHostsWithDomain(
     ips: string[],
     domainName: string,
-    companyId: string,
+    projectId: string,
     tagsIds: string[] = [],
   ) {
     const domain = await this.domainService.getDomainByName(domainName);
@@ -72,10 +89,10 @@ export class HostService {
       throw new HttpNotFoundException(`domainName=${domainName})`);
     }
 
-    const company = await this.companyModel.findById(companyId);
-    if (!company) {
-      this.logger.debug(`Could not find the company (companyId=${companyId})`);
-      throw new HttpNotFoundException(`companyId=${companyId}`);
+    const project = await this.projectModel.findById(projectId);
+    if (!project) {
+      this.logger.debug(`Could not find the project (projectId=${projectId})`);
+      throw new HttpNotFoundException(`projectId=${projectId}`);
     }
 
     const allTags = await this.tagsService.getAll();
@@ -106,15 +123,15 @@ export class HostService {
         .findOneAndUpdate(
           {
             ip: { $eq: ip },
-            companyId: { $eq: new Types.ObjectId(companyId) },
+            projectId: { $eq: new Types.ObjectId(projectId) },
           },
           {
             $setOnInsert: {
               _id: mongoId,
-              companyId: new Types.ObjectId(companyId),
-              companyName: company.name,
+              projectId: new Types.ObjectId(projectId),
+              projectName: project.name,
               correlationKey: CorrelationKeyUtils.hostCorrelationKey(
-                companyId,
+                projectId,
                 ip,
               ),
             },
@@ -132,8 +149,8 @@ export class HostService {
           ip: ip,
           _id: mongoId.toString(),
           domains: [ds],
-          companyId: new Types.ObjectId(companyId),
-          correlationKey: CorrelationKeyUtils.hostCorrelationKey(companyId, ip),
+          projectId: new Types.ObjectId(projectId),
+          correlationKey: CorrelationKeyUtils.hostCorrelationKey(projectId, ip),
         });
         hostSummaries.push({ id: mongoId, ip: ip });
       } else if (
@@ -144,20 +161,15 @@ export class HostService {
         hostSummaries.push({ id: hostResult._id, ip: ip });
       }
     }
-    const config = await this.configService.getConfig();
 
     await this.domainService.addHostsToDomain(domain._id, hostSummaries);
-
-    if (config.isNewContentReported) {
-      this.reportService.addHosts(company.name, newIps, domainName);
-    }
 
     return newHosts;
   }
 
-  public async deleteAllForCompany(companyId: string): Promise<DeleteResult> {
+  public async deleteAllForProject(projectId: string): Promise<DeleteResult> {
     return await this.hostModel.deleteMany({
-      companyId: { $eq: new Types.ObjectId(companyId) },
+      projectId: { $eq: new Types.ObjectId(projectId) },
     });
   }
 
@@ -165,25 +177,25 @@ export class HostService {
     return this.hostModel.findById(id);
   }
 
-  public async addHosts(hosts: string[], companyId: string) {
-    const company = await this.companyModel.findById(companyId);
-    if (!company)
-      throw new HttpNotFoundException(`Company ${companyId} not found`);
+  public async addHosts(hosts: string[], projectId: string) {
+    const project = await this.projectModel.findById(projectId);
+    if (!project)
+      throw new HttpNotFoundException(`Project ${projectId} not found`);
 
     const hostDocuments: HostDocument[] = [];
     for (let ip of hosts) {
       const model = new this.hostModel({
         _id: new Types.ObjectId(),
         ip: ip,
-        companyId: new Types.ObjectId(companyId),
-        correlationKey: CorrelationKeyUtils.hostCorrelationKey(companyId, ip),
+        projectId: new Types.ObjectId(projectId),
+        correlationKey: CorrelationKeyUtils.hostCorrelationKey(projectId, ip),
         lastSeen: Date.now(),
       });
 
       hostDocuments.push(model);
     }
 
-    let insertedHosts: any = [];
+    let insertedHosts: HostDocument[] = [];
 
     // insertmany with ordered false to continue on fail and use the exception
     try {
@@ -202,12 +214,6 @@ export class HostService {
       newIps.push(host.ip);
     });
 
-    const config = await this.configService.getConfig();
-
-    if (config.isNewContentReported) {
-      this.reportService.addHosts(company.name, newIps);
-    }
-
     const findings: IpFinding[] = [];
     // For each new domain name found, a finding is created
     newIps.forEach((ip) => {
@@ -215,7 +221,7 @@ export class HostService {
         type: 'IpFinding',
         key: 'IpFinding',
         ip: ip,
-        companyId: companyId,
+        projectId: projectId,
       });
     });
     this.findingsQueue.publish(...findings);
@@ -227,28 +233,28 @@ export class HostService {
    * This function adds a host to the database if it did not exist. If it existed,
    * the lastSeen value is updated.
    * @param host The ip address to add
-   * @param companyId The host's company
+   * @param projectId The host's project
    */
-  public async addHost(host: string, companyId: string) {
-    const company = await this.companyModel.findById(companyId);
-    if (!company) {
-      this.logger.debug(`Could not find the company (companyId=${companyId})`);
-      throw new HttpNotFoundException(`companyId=${companyId}`);
+  public async addHost(host: string, projectId: string) {
+    const project = await this.projectModel.findById(projectId);
+    if (!project) {
+      this.logger.debug(`Could not find the project (projectId=${projectId})`);
+      throw new HttpNotFoundException(`projectId=${projectId}`);
     }
 
-    const companyIdObject = new Types.ObjectId(companyId);
+    const projectIdObject = new Types.ObjectId(projectId);
 
     return await this.hostModel.findOneAndUpdate(
-      { ip: { $eq: host }, companyId: { $eq: companyIdObject } },
+      { ip: { $eq: host }, projectId: { $eq: projectIdObject } },
       {
         lastSeen: Date.now(),
         $setOnInsert: {
           ip: host,
           correlationKey: CorrelationKeyUtils.domainCorrelationKey(
-            companyId,
+            projectId,
             host,
           ),
-          companyId: companyIdObject,
+          projectId: projectIdObject,
         },
       },
       { upsert: true },
@@ -318,14 +324,14 @@ export class HostService {
       }
     }
 
-    // Filter by company
-    if (dto.company) {
-      const companyIds = dto.company
+    // Filter by project
+    if (dto.project) {
+      const projectIds = dto.project
         .filter((x) => x)
         .map((x) => new Types.ObjectId(x));
 
-      if (companyIds.length > 0) {
-        finalFilter['companyId'] = { $in: companyIds };
+      if (projectIds.length > 0) {
+        finalFilter['projectId'] = { $in: projectIds };
       }
     }
 

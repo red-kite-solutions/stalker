@@ -1,35 +1,40 @@
-<div fxLayout="row" fxLayoutAlign="center">
-  <mat-card fxFlex="60">
-    <mat-card-content>
-      <h1 i18n="Profile|The user's profile">Profile</h1>
-      <form *ngIf="(form$ | async) || true" [formGroup]="form">
+<app-page-header class="tw-w-full" [parts]="['Profile']"></app-page-header>
+
+<mat-card appearance="outlined">
+  <mat-card-content>
+    @if ((form$ | async) || true) {
+      <form [formGroup]="form" class="tw-flex tw-flex-col tw-gap">
         <h4 i18n="Edit profile|Page for the user to change their profile">Edit Profile</h4>
 
-        <mat-form-field class="formfieldinline">
-          <input
-            matInput
-            i18n-placeholder="First name|A person's first name"
-            placeholder="First Name"
-            name="firstName"
-            formControlName="firstName"
-          />
-          <mat-error i18n="First name required|A user must have a first name, otherwise the form is invalid"
-            >First name must not be empty</mat-error
-          >
-        </mat-form-field>
-        <mat-form-field class="formfieldinline">
-          <input
-            matInput
-            i18n-placeholder="Last name|A person's family name"
-            placeholder="Last Name"
-            name="lastName"
-            formControlName="lastName"
-          />
-          <mat-error i18n="Last name required|A user must have a last name, otherwise the form is invalid"
-            >Last name must not be empty</mat-error
-          >
-        </mat-form-field>
-        <mat-form-field class="formfieldblock">
+        <div class="tw-flex tw-gap">
+          <mat-form-field class="tw-flex-1">
+            <input
+              matInput
+              i18n-placeholder="First name|A person's first name"
+              placeholder="First Name"
+              name="firstName"
+              formControlName="firstName"
+            />
+            <mat-error i18n="First name required|A user must have a first name, otherwise the form is invalid"
+              >First name must not be empty</mat-error
+            >
+          </mat-form-field>
+
+          <mat-form-field class="tw-flex-1">
+            <input
+              matInput
+              i18n-placeholder="Last name|A person's family name"
+              placeholder="Last Name"
+              name="lastName"
+              formControlName="lastName"
+            />
+            <mat-error i18n="Last name required|A user must have a last name, otherwise the form is invalid"
+              >Last name must not be empty</mat-error
+            >
+          </mat-form-field>
+        </div>
+
+        <mat-form-field class="tw-flex-1">
           <input
             matInput
             i18n-placeholder="Email|A user's email"
@@ -42,13 +47,11 @@
           >
         </mat-form-field>
 
-        <br />
         <mat-divider></mat-divider>
-        <br />
 
         <h4 i18n="Change password|Title of a section for a user to chagne their password">Change Password</h4>
 
-        <mat-form-field class="formfieldblock">
+        <mat-form-field>
           <input
             matInput
             type="password"
@@ -62,7 +65,7 @@
             >Password must have a minimal length of 12 characters</mat-error
           >
         </mat-form-field>
-        <mat-form-field class="formfieldblock">
+        <mat-form-field>
           <input
             matInput
             type="password"
@@ -76,48 +79,52 @@
           >
         </mat-form-field>
       </form>
+    }
 
-      <br />
+    <form
+      #profileForm="ngForm"
+      (ngSubmit)="onSubmit()"
+      [formGroup]="currentPasswordForm"
+      class="tw-flex tw-flex-col tw-gap"
+    >
       <mat-divider></mat-divider>
-      <br />
 
-      <form #profileForm="ngForm" (ngSubmit)="onSubmit()" [formGroup]="currentPasswordForm">
-        <h4 i18n="Validate identity|Asking the user to validate their identity by providing their password">
-          Validate Identity
-        </h4>
-        <mat-form-field class="formfieldblock">
-          <mat-label i18n="Current password|A user's current password">Current Password</mat-label>
-          <input
-            matInput
-            [type]="hideCurrentPassword ? 'password' : 'text'"
-            formControlName="password"
-            name="currentPassword"
-            required
-          />
-          <button
-            mat-icon-button
-            matSuffix
-            type="button"
-            (click)="hideCurrentPassword = !hideCurrentPassword"
-            [attr.aria-pressed]="hideCurrentPassword"
-          >
-            <mat-icon>{{ hideCurrentPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
-          </button>
-          <mat-error>{{ passwordErr$ | async }}</mat-error>
-        </mat-form-field>
+      <h4 i18n="Validate identity|Asking the user to validate their identity by providing their password">
+        Validate Identity
+      </h4>
+      <mat-form-field>
+        <mat-label i18n="Current password|A user's current password">Current Password</mat-label>
+        <input
+          matInput
+          [type]="hideCurrentPassword ? 'password' : 'text'"
+          formControlName="password"
+          name="currentPassword"
+          required
+        />
+        <button
+          mat-icon-button
+          matSuffix
+          type="button"
+          (click)="hideCurrentPassword = !hideCurrentPassword"
+          [attr.aria-pressed]="hideCurrentPassword"
+        >
+          <mat-icon>{{ hideCurrentPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+        <mat-error>{{ passwordErr$ | async }}</mat-error>
+      </mat-form-field>
 
+      @if (!this.profileEditValid) {
         <mat-error
-          *ngIf="!this.profileEditValid"
           i18n="Correct information|Asking the user to correct any invalid information before resubmitting the form"
           >Please correct the invalid information before submitting</mat-error
         >
+      }
 
-        <div class="center">
-          <button i18n="Save changes|Save the changes done to an item" class="button" mat-raised-button color="primary">
-            Save Changes
-          </button>
-        </div>
-      </form>
-    </mat-card-content>
-  </mat-card>
-</div>
+      <div class="tw-flex tw-justify-center">
+        <button i18n="Save changes|Save the changes done to an item" class="button" mat-flat-button color="primary">
+          Save Changes
+        </button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>

@@ -1,95 +1,91 @@
-<div class="container" *ngIf="domain$ | async as domain">
-  <app-page-header [parts]="[(companies$ | async | whereId : [domain?.companyId])?.name, domain.name]">
-  </app-page-header>
+@if (domain$ | async; as domain) {
+  <app-page-header [parts]="[(projects$ | async | whereId: [domain?.projectId])?.name, domain.name]"> </app-page-header>
 
   <div class="content-wrapper">
     <div class="content">
       <findings-list [correlationKey]="domain.correlationKey"></findings-list>
     </div>
-
-    <div class="context">
-      <panel-section *ngIf="domain">
-        <panel-section-title i18n="Last seen|Last seen"> Last seen </panel-section-title>
-        <panel-section-subtitle [matTooltip]="domain.lastSeen | humanizeDate : 'precise'" matTooltipPosition="before">
-          {{ domain.lastSeen | timeAgo }}
-        </panel-section-subtitle>
-      </panel-section>
-      <panel-section *ngIf="(tagsSelectItems$ | async) && mergedTags$ | async as domainTags">
-        <panel-section-title i18n="Tags|The tags of an item"
-          >Tags
-          <span class="manage-tags-menu">
-            —
-            <app-text-select-menu
-              [menuMaxSize]="menuTargetWidth"
-              [items]="tagsSelectItems$ | async"
-              [buttonText]="manageTags"
-              [filterText]="filterTags"
-              [filterEnabled]="true"
-              [colorEnabled]="true"
-              [opacity]="0.8"
-              [emptyText]="emptyTags"
-              (itemSelection)="itemSelected($event)"
-            ></app-text-select-menu>
-          </span>
-        </panel-section-title>
-
-        <panel-section-subtitle *ngIf="!domainTags.length" i18n="No tags yet|There are no tags for this item"
-          >No tags yet</panel-section-subtitle
-        >
-
-        <app-pill-tag *ngFor="let tag of domainTags" [color]="(tags | whereId : [tag])?.color">{{
-          (tags | whereId : [tag])?.text
-        }}</app-pill-tag>
-      </panel-section>
-
+    <div #contextPanel class="context">
+      @if (domain) {
+        <panel-section>
+          <panel-section-title i18n="Last seen|Last seen"> Last seen </panel-section-title>
+          <panel-section-subtitle [matTooltip]="domain.lastSeen | humanizeDate: 'precise'" matTooltipPosition="before">
+            {{ domain.lastSeen | timeAgo }}
+          </panel-section-subtitle>
+        </panel-section>
+      }
+      @if ((tagsSelectItems$ | async) && mergedTags$ | async; as domainTags) {
+        <panel-section>
+          <panel-section-title i18n="Tags|The tags of an item"
+            >Tags
+            <span class="manage-tags-menu">
+              —
+              <app-text-select-menu
+                [items]="tagsSelectItems$ | async"
+                [buttonText]="manageTags"
+                [filterText]="filterTags"
+                [filterEnabled]="true"
+                [colorEnabled]="true"
+                [emptyText]="emptyTags"
+                (itemSelection)="itemSelected($event)"
+                [containerElement]="contextPanel"
+              ></app-text-select-menu>
+            </span>
+          </panel-section-title>
+          @if (!domainTags.length) {
+            <panel-section-subtitle i18n="No tags yet|There are no tags for this item"
+              >No tags yet</panel-section-subtitle
+            >
+          }
+          @for (tag of domainTags; track tag) {
+            <app-pill-tag [color]="(tags | whereId: [tag])?.color">{{ (tags | whereId: [tag])?.text }}</app-pill-tag>
+          }
+        </panel-section>
+      }
       <panel-section>
         <panel-section-title i18n="IP Address|A host's IP address">IP Addresses</panel-section-title>
-
-        <panel-section-subtitle
-          *ngIf="!(ipAddresses$ | async)?.length"
-          i18n="No hosts yet|There are no hosts for this item"
-          >No hosts yet</panel-section-subtitle
-        >
-
-        <div class="host" *ngFor="let ip of (ipAddresses$ | async) ?? []">
-          <a [routerLink]="['/hosts', ip.id]">{{ ip.ip }}</a>
-
-          <ul class="ports" *ngIf="(showAllPorts[ip.ip] ? ip.ports$ : ip.portsSubset$) | async as ports">
-            <li *ngFor="let port of ports; let last = last" [routerLink]="['/hosts', ip.id, 'ports', port.port]">
-              <a>{{ port.port }}</a>
-            </li>
-          </ul>
-
-          <ng-container *ngIf="ip.numberOfPorts$ | async as numberOfPorts">
-            <div
-              class="show-more"
-              *ngIf="!showAllPorts[ip.ip] && numberOfPorts > ((ip.portsSubset$ | async)?.length ?? 0)"
-            >
-              <button panel-load-more (click)="showAllPorts[ip.ip] = true">Show all ports ({{ numberOfPorts }})</button>
-            </div>
-          </ng-container>
-        </div>
-
-        <button
-          panel-load-more
-          *ngIf="((ipAddressesDataSourceShowCount$ | async) ?? 0) < (domain?.hosts?.length ?? 0)"
-          (click)="ipAddressesDataSourceShowCount$.next(1000)"
-        >
-          Show more ({{ domain?.hosts?.length }})
-        </button>
-      </panel-section>
-
-      <mat-divider></mat-divider>
-
-      <panel-section class="management" #managementPanelSection>
-        <app-text-menu [buttonText]="manageDomainText" [iconName]="'settings'" [xPosition]="'before'">
-          <div [style.width.px]="menuTargetWidth - 16" class="management-content">
-            <button mat-flat-button color="warn" class="full-width" (click)="deleteDomain()">
-              <label i18n="Delete|Delete an item">Delete</label>
-            </button>
+        @if (!(ipAddresses$ | async)?.length) {
+          <panel-section-subtitle i18n="No hosts yet|There are no hosts for this item"
+            >No hosts yet</panel-section-subtitle
+          >
+        }
+        @for (ip of (ipAddresses$ | async) ?? []; track ip) {
+          <div class="host">
+            <a [routerLink]="['/hosts', ip.id]">{{ ip.ip }}</a>
+            @if ((showAllPorts[ip.ip] ? ip.ports$ : ip.portsSubset$) | async; as ports) {
+              <ul class="ports">
+                @for (port of ports; track port; let last = $last) {
+                  <li [routerLink]="['/hosts', ip.id, 'ports', port.port]">
+                    <a>{{ port.port }}</a>
+                  </li>
+                }
+              </ul>
+            }
+            @if (ip.numberOfPorts$ | async; as numberOfPorts) {
+              @if (!showAllPorts[ip.ip] && numberOfPorts > ((ip.portsSubset$ | async)?.length ?? 0)) {
+                <div class="show-more">
+                  <button panel-load-more (click)="showAllPorts[ip.ip] = true">
+                    Show all ports ({{ numberOfPorts }})
+                  </button>
+                </div>
+              }
+            }
           </div>
+        }
+        @if (((ipAddressesDataSourceShowCount$ | async) ?? 0) < (domain?.hosts?.length ?? 0)) {
+          <button panel-load-more (click)="ipAddressesDataSourceShowCount$.next(1000)">
+            Show more ({{ domain?.hosts?.length }})
+          </button>
+        }
+      </panel-section>
+      <mat-divider></mat-divider>
+      <panel-section class="tw-opacity-60" #managementPanelSection>
+        <app-text-menu [buttonText]="manageDomainText" [iconName]="'settings'" [xPosition]="'before'">
+          <button mat-stroked-button color="warn" class="tw-w-full" (click)="deleteDomain()">
+            <label i18n="Delete|Delete an item">Delete</label>
+          </button>
         </app-text-menu>
       </panel-section>
     </div>
   </div>
-</div>
+}

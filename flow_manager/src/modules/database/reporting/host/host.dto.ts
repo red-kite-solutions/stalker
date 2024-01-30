@@ -60,7 +60,7 @@ export class HostsFilterDto {
 
   @IsArray()
   @IsOptional()
-  company: string[];
+  project: string[];
 
   @IsArray()
   @IsOptional()
@@ -84,5 +84,5 @@ export class SubmitHostsDto {
   ips: string[];
 
   @IsMongoId()
-  companyId: string;
+  projectId: string;
 }

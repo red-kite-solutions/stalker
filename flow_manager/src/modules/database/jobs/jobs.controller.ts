@@ -18,14 +18,14 @@ import { MongoIdDto } from '../../../types/dto/mongo-id.dto';
 import { JobLog } from '../../../types/job-log.model';
 import { JobSummary } from '../../../types/job-summary.type';
 import { Page } from '../../../types/page.type';
-import { CompanyUnassigned } from '../../../validators/is-company-id.validator';
+import { ProjectUnassigned } from '../../../validators/is-project-id.validator';
 import { Role } from '../../auth/constants';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/role.guard';
 import { ConfigService } from '../admin/config/config.service';
 import { JobPodConfiguration } from '../admin/config/job-pod-config/job-pod-config.model';
-import { CustomJobEntry } from '../custom-jobs/custom-jobs.model';
+import { CustomJobsDocument } from '../custom-jobs/custom-jobs.model';
 import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
 import { JobParameter } from '../subscriptions/event-subscriptions/event-subscriptions.model';
 import { JobDefinitions, JobSources } from './job-model.module';
@@ -91,9 +91,8 @@ export class JobsController {
           'The task parameter is not a valid string',
         );
 
-      const customJob: CustomJobEntry = await this.customJobsService.getByName(
-        dto.task,
-      );
+      const customJob: CustomJobsDocument =
+        await this.customJobsService.getByName(dto.task);
       if (!customJob) throw new HttpNotFoundException();
 
       jpConfig = await JobFactoryUtils.getCustomJobPodConfig(
@@ -101,29 +100,19 @@ export class JobsController {
         this.configService,
       );
 
-      const customJobParams = JSON.parse(JSON.stringify(dto.jobParameters));
-      const jobParameters = [];
-      jobParameters.push({ name: 'name', value: customJob.name });
-      jobParameters.push({ name: 'code', value: customJob.code });
-      jobParameters.push({ name: 'type', value: customJob.type });
-      jobParameters.push({
-        name: 'language',
-        value: customJob.language,
-      });
-      jobParameters.push({
-        name: 'customJobParameters',
-        value: customJobParams,
-      });
-      dto.jobParameters = jobParameters;
+      dto.jobParameters = JobFactoryUtils.setupCustomJobParameters(
+        customJob,
+        dto.jobParameters,
+      );
       dto.task = CustomJob.name;
     }
 
-    const companyIdParameter = new JobParameter();
-    companyIdParameter.name = 'companyId';
-    companyIdParameter.value = dto.companyId
-      ? dto.companyId
-      : CompanyUnassigned;
-    dto.jobParameters.push(companyIdParameter);
+    const projectIdParameter = new JobParameter();
+    projectIdParameter.name = 'projectId';
+    projectIdParameter.value = dto.projectId
+      ? dto.projectId
+      : ProjectUnassigned;
+    dto.jobParameters.push(projectIdParameter);
 
     // parameters are validated thoroughly in job creation
     const job = JobFactory.createJob(dto.task, dto.jobParameters, jpConfig);

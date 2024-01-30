@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import jwt_decode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 import { firstValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { getReturnUrl } from '../../utils/return-url';
@@ -43,7 +43,10 @@ export class AuthService implements AuthTokenProvider {
     return this._id ? this._id : '';
   }
 
-  constructor(private http: HttpClient, private router: Router) {
+  constructor(
+    private http: HttpClient,
+    private router: Router
+  ) {
     const token: string | null = localStorage.getItem(tokenName);
     const refresh: string | null = localStorage.getItem(refreshTokenName);
     if (token && refresh) {
@@ -59,7 +62,7 @@ export class AuthService implements AuthTokenProvider {
   }
 
   private initSession(token: string) {
-    this.decodedToken = jwt_decode(token);
+    this.decodedToken = jwtDecode(token);
     const epochNow = Math.floor(Date.now() / 1000);
     if (this.decodedToken.exp > epochNow) {
       localStorage.setItem(tokenName, token);
@@ -87,7 +90,7 @@ export class AuthService implements AuthTokenProvider {
   }
 
   private initRefreshToken(token: string) {
-    this.decodedRefreshToken = jwt_decode(token);
+    this.decodedRefreshToken = jwtDecode(token);
     const epoch = Math.floor(Date.now() / 1000);
     if (this.decodedRefreshToken.exp > epoch) {
       localStorage.setItem(refreshTokenName, token);

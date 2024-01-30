@@ -1,7 +1,7 @@
 import { SelectionModel } from '@angular/cdk/collections';
+import { BreakpointObserver, BreakpointState, Breakpoints } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
 import { Component, TemplateRef } from '@angular/core';
-import { MediaChange, MediaObserver } from '@angular/flex-layout/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -14,16 +14,17 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, distinctUntilChanged, filter, map, switchMap, tap } from 'rxjs';
-import { CompaniesService } from 'src/app/api/companies/companies.service';
+import { BehaviorSubject, map, switchMap, tap } from 'rxjs';
 import { DomainsService } from 'src/app/api/domains/domains.service';
+import { ProjectsService } from 'src/app/api/projects/projects.service';
 import { TagsService } from 'src/app/api/tags/tags.service';
-import { CompanyCellComponent } from 'src/app/shared/components/company-cell/company-cell.component';
-import { Company } from 'src/app/shared/types/company/company.interface';
+import { ProjectCellComponent } from 'src/app/shared/components/project-cell/project-cell.component';
 import { Domain } from 'src/app/shared/types/domain/domain.interface';
 import { HttpStatus } from 'src/app/shared/types/http-status.type';
 import { Page } from 'src/app/shared/types/page.type';
+import { Project } from 'src/app/shared/types/project/project.interface';
 import { Tag } from 'src/app/shared/types/tag.type';
+import { FilteredPaginatedTableComponent } from 'src/app/shared/widget/filtered-paginated-table/filtered-paginated-table.component';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { SharedModule } from '../../../shared/shared.module';
 import {
@@ -47,7 +48,8 @@ import {
     MatInputModule,
     ReactiveFormsModule,
     FormsModule,
-    CompanyCellComponent,
+    ProjectCellComponent,
+    FilteredPaginatedTableComponent,
   ],
   selector: 'app-list-domains',
   templateUrl: './list-domains.component.html',
@@ -55,8 +57,8 @@ import {
 })
 export class ListDomainsComponent {
   dataLoading = true;
-  displayedColumns: string[] = ['select', 'domain', 'hosts', 'company', 'tags'];
-  filterOptions: string[] = ['host', 'domain', 'company', 'tags'];
+  displayedColumns: string[] = ['select', 'domain', 'hosts', 'project', 'tags'];
+  filterOptions: string[] = ['host', 'domain', 'project', 'tags'];
 
   dataSource = new MatTableDataSource<Domain>();
   currentPage: PageEvent = this.generateFirstPageEvent();
@@ -81,8 +83,8 @@ export class ListDomainsComponent {
     })
   );
 
-  companies: Company[] = [];
-  companies$ = this.companiesService.getAll().pipe(tap((x) => (this.companies = x)));
+  projects: Project[] = [];
+  projects$ = this.projectsService.getAll().pipe(tap((x) => (this.projects = x)));
 
   tags: Tag[] = [];
   tags$ = this.tagsService.getTags().pipe(
@@ -97,7 +99,7 @@ export class ListDomainsComponent {
   );
 
   // #addDomainDialog template variables
-  selectedCompany = '';
+  selectedProject = '';
   selectedNewDomains = '';
 
   private generateFirstPageEvent() {
@@ -108,21 +110,18 @@ export class ListDomainsComponent {
     return p;
   }
 
-  private screenSize$ = this.mediaObserver.asObservable().pipe(
-    filter((mediaChanges: MediaChange[]) => !!mediaChanges[0].mqAlias),
-    distinctUntilChanged((previous: MediaChange[], current: MediaChange[]) => {
-      return previous[0].mqAlias === current[0].mqAlias;
-    }),
-    map((mediaChanges: MediaChange[]) => {
-      return mediaChanges[0].mqAlias;
-    })
-  );
+  private screenSize$ = this.bpObserver.observe([
+    Breakpoints.XSmall,
+    Breakpoints.Small,
+    Breakpoints.Large,
+    Breakpoints.XLarge,
+  ]);
 
   public displayColumns$ = this.screenSize$.pipe(
-    map((screen: string) => {
-      if (screen === 'xs') return ['select', 'domain', 'company'];
-      if (screen === 'sm') return ['select', 'domain', 'company', 'tags'];
-      if (screen === 'md') return ['select', 'domain', 'hosts', 'company', 'tags'];
+    map((screen: BreakpointState) => {
+      if (screen.breakpoints[Breakpoints.XSmall]) return ['select', 'domain', 'project'];
+      else if (screen.breakpoints[Breakpoints.Small]) return ['select', 'domain', 'project', 'tags'];
+      else if (screen.breakpoints[Breakpoints.Medium]) return ['select', 'domain', 'hosts', 'project', 'tags'];
       return this.displayedColumns;
     })
   );
@@ -133,8 +132,8 @@ export class ListDomainsComponent {
   }
 
   constructor(
-    private mediaObserver: MediaObserver,
-    private companiesService: CompaniesService,
+    private bpObserver: BreakpointObserver,
+    private projectsService: ProjectsService,
     private domainsService: DomainsService,
     private toastr: ToastrService,
     private tagsService: TagsService,
@@ -170,12 +169,12 @@ export class ListDomainsComponent {
       if (!key || !value) continue;
 
       switch (key) {
-        case 'company':
-          const company = this.companies.find((c) => c.name.trim().toLowerCase() === value.trim().toLowerCase());
-          if (company) filterObject['company'] = company._id;
+        case 'project':
+          const project = this.projects.find((c) => c.name.trim().toLowerCase() === value.trim().toLowerCase());
+          if (project) filterObject['project'] = project._id;
           else
             this.toastr.warning(
-              $localize`:Company does not exist|The given company name is not known to the application:Company name not recognized`
+              $localize`:Project does not exist|The given project name is not known to the application:Project name not recognized`
             );
           break;
         case 'host':
@@ -208,8 +207,8 @@ export class ListDomainsComponent {
   }
 
   async addNewDomains() {
-    if (!this.selectedCompany) {
-      this.toastr.warning($localize`:Missing company|The data selected is missing the company id:Missing company`);
+    if (!this.selectedProject) {
+      this.toastr.warning($localize`:Missing project|The data selected is missing the project id:Missing project`);
       return;
     }
 
@@ -228,7 +227,7 @@ export class ListDomainsComponent {
     if (newDomains.length == 0) return;
 
     try {
-      const addedDomains = await this.domainsService.addDomains(this.selectedCompany, newDomains);
+      const addedDomains = await this.domainsService.addDomains(this.selectedProject, newDomains);
       this.toastr.success($localize`:Changes saved|Changes to item saved successfully:Changes saved successfully`);
 
       if (addedDomains.length < newDomains.length) {
@@ -239,7 +238,7 @@ export class ListDomainsComponent {
 
       this.dialog.closeAll();
       this.currentPage$.next(this.currentPage);
-      this.selectedCompany = '';
+      this.selectedProject = '';
       this.selectedNewDomains = '';
     } catch (err: any) {
       if (err.status === HttpStatus.BadRequest) {
@@ -255,8 +254,8 @@ export class ListDomainsComponent {
   public deleteDomains() {
     const bulletPoints: string[] = Array<string>();
     this.selection.selected.forEach((domain: Domain) => {
-      const companyName = this.companies.find((d) => d._id === domain.companyId)?.name;
-      const bp = companyName ? `${domain.name} (${companyName})` : `${domain.name}`;
+      const projectName = this.projects.find((d) => d._id === domain.projectId)?.name;
+      const bp = projectName ? `${domain.name} (${projectName})` : `${domain.name}`;
       bulletPoints.push(bp);
     });
     let data: ConfirmDialogData;

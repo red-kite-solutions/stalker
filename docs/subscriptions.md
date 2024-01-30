@@ -2,19 +2,20 @@
 
 Subscriptions are used in Stalker to start jobs based on either a cron expression (cron subscriptions) or a finding (event subscription). They are used to expand Stalker's automation workflow.
 
-A subscription can belong to a company, in which case, they will only take effect on the mentionned company. If a company is not specified for a subscription, it will take effect on all the companies.
+A subscription can belong to a project, in which case, they will only take effect on the mentionned project. If a project is not specified for a subscription, it will take effect on all the projects.
 
 Some subscriptions come built-in Stalker. These subscriptions are marked as such, but they can still be modified by the users. When a built-in subscription is altered, it can be reverted back to its original state. Built-in subscriptions can even be deleted, but be sure to know what you are doing.
 
-A subscription is written in `yaml` format in the front-end. The company for which to apply the subscription can also be chosen using the dropdown menu.
+A subscription is written in `yaml` format in the front-end. The project for which to apply the subscription can also be chosen using the dropdown menu.
 
-> A subscription belongning to a company will be deleted automatically if the company is deleted.
+> A subscription belongning to a project will be deleted automatically if the project is deleted.
 
 **Table of content**
 
 * [Cron Subscriptions](#cron-subscriptions)
   * [Cron Subscription Syntax](#cron-subscription-syntax)
     * [Cron Subscription Simple Example](#cron-subscription-simple-example)
+    * [Input variable](#input-variable)
 * [Event Subscriptions](#event-subscriptions)
   * [Event Subscription Syntax](#event-subscription-syntax)
     * [Event Subscription Simple Example](#event-subscription-simple-example)
@@ -32,22 +33,24 @@ Cron subscriptions are started based on a cron expression. They are the most sim
 
 Cron subscriptions can be reliably triggered as often as every twenty (20) seconds. The cron service, who is in charge of notifying the flow manager when a cron subscription triggers, checks its local cache of cron subscriptions every 10 seconds. The local cache is synchronized with the subscriptions database every 60 seconds. A new cron subscription added from the UI will therefore be up and running at the latest one 1 minute 20 seconds after the save.
 
-Even though cron subscriptions do not require a company to be set, they require at least one company to exist at the moment it is triggered to properly start at least one job.
+Even though cron subscriptions do not require a project to be set, they require at least one project to exist at the moment it is triggered to properly start at least one job.
 
 ### Cron Subscription Syntax
 
-A cron subscription contains three main elements :
+A cron subscription contains the following main elements :
 
 | Element        | Description                                              | Mandatory |
 | -------------- | -------------------------------------------------------- | --------- |
 | name           | The name of the subscription, for future reference       | Yes       |
 | cronExpression | The cron expression that specifies when to start the job | Yes       |
+| input          | A value representing all the ressources of a type        | No        |
 | job            | The job to launch when the cron expression is triggered  | Yes       |
 
 > N.B. Additonnal details on these elements are given in the following sections
 
 * The `name` element can be anything and is only used to distinguish the subscription from the others.
 * The `cronExpression` element has to be a valid cron expression. It is used to trigger the job launch.
+* The `input` element is either `ALL_DOMAINS`, `ALL_HOSTS`, `ALL_IP_RANGES` or `ALL_TCP_PORTS`. These values represent all the ressources of the corresponding type.
 * The `job` element contains multiple values:
   * `name` : mandatory, must be an existing Job's type. See the Jobs section for the list of valid values.
   * `parameters` : optionnal, but almost always needed. It describes the input values of the job by the parameter `name` and its `value` in a list.
@@ -70,6 +73,98 @@ job:
       value: example.com
 ```
 
+#### Input variable
+
+The `input` variable specifies an input source. There are multiple input sources described in the following table. The `input` variable is optionnal. The variables can be injected in the job parameters as well as in the conditions.
+
+If a project is specified, only the ressources of the targeted project will be used.
+
+| Input source  | Variables                   |
+| ------------- | --------------------------- |
+| ALL_DOMAINS   | ${domainName}               |
+| ALL_HOSTS     | ${ip}                       |
+| ALL_TCP_PORTS | ${ip}, ${port}, ${protocol} |
+
+When you specify the `ALL_DOMAINS` input, you have access to the `${domainName}` injectable variable. Stalker will apply the subscription for all the domains, and the domain's value will be injected where specified.
+
+```yaml
+name: Refreshing all domain names
+input: ALL_DOMAINS
+cronExpression: '0 0 * * *'
+job:
+  name: DomainNameResolvingJob
+  parameters:
+    - name: domainName
+      value: ${domainName}
+```
+
+When you specify the `ALL_HOSTS` input, you have access to the `${ip}` injectable variable. Stalker will apply the subscription for all the hosts, and the hosts's ip value will be injected where specified.
+
+```yaml
+name: Rescanning all hosts
+input: ALL_HOSTS
+cronExpression: '0 0 * * *'
+job:
+  name: TcpPortScanningJob
+  parameters:
+    - name: targetIp
+      value: ${ip}
+    - name: threads
+      value: 1000
+    - name: socketTimeoutSeconds
+      value: 0.7
+    - name: portMin
+      value: 1
+    - name: portMax
+      value: 65535
+    - name: ports
+      value: []
+```
+
+When you specify the `ALL_TCP_PORTS` input, you have access to the `${ip}`, `${port}` and `${protocol}` injectable variables. Stalker will apply the subscription for all the ports, and the ip, port and protocol values can be injected where specified. Protocol is either tcp or udp.
+
+> Only TCP ports are sent with this input, so the protocol variable will always equal 'tcp'
+
+```yaml
+name: All tcp ports with condition
+input: ALL_TCP_PORTS
+cronExpression: '0 0 * * *'
+job:
+  name: HttpServerCheckJob
+  parameters:
+    - name: targetIp
+      value: ${ip}
+    - name: ports
+      value:  ['${port}']
+conditions:
+  - lhs: '${protocol}'
+    operator: 'equals'
+    rhs: 'tcp'
+```
+
+When you specify the `ALL_IP_RANGES` input, you have access to the `${ip}` and `${mask}` injectable variables. Stalker will apply the subscription for all the projects' ip ranges.
+
+```yaml
+name: Scanning IP ranges
+cronExpression: 0 0 */7 * *
+input: ALL_IP_RANGES
+job:
+  name: TcpIpRangeScanningJob
+  parameters:
+    - name: targetIp
+      value: ${ip}
+    - name: targetMask
+      value: ${mask}
+    - name: rate
+      value: 100000
+    - name: portMin
+      value: 1
+    - name: portMax
+      value: 1000
+    - name: ports
+      value: []
+```
+
 ## Event Subscriptions
 
 When Stalker finds some information, either through the output of a Job or through user input, a Finding is emitted. This Finding contains the output information given by the Job or the user. From this information, new Jobs are started that will output more Findings. This is roughly how Stalker's automation workflow works.
@@ -80,7 +175,7 @@ Event subscriptions also have a cooldown in seconds. This value ensures that a s
 
 ### Event Subscription Syntax
 
-An event subscription can contain four main elements :
+An event subscription can contain these main elements :
 
 | Element    | Description                                                                                             | Mandatory |
 | ---------- | ------------------------------------------------------------------------------------------------------- | --------- |

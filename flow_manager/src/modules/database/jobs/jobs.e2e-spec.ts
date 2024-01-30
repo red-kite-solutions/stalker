@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import {
   TestingData,
   checkAuthorizations,
-  createCompany,
+  createProject,
   deleteReq,
   getReq,
   initTesting,
@@ -42,22 +42,22 @@ describe('Job Controller (e2e)', () => {
     await app.close();
   });
 
-  it('Should fail to create a new job since the company does not exist (POST /jobs)', async () => {
+  it('Should fail to create a new job since the project does not exist (POST /jobs)', async () => {
     const r = await postReq(app, testData.user.token, '/jobs', {
       ...domainNameResolvingJob,
-      companyId: '6271641f2c0920007820b5f2',
+      projectId: '6271641f2c0920007820b5f2',
     });
     expect(r.statusCode).toBe(HttpStatus.NOT_FOUND);
   });
 
   it('Should create a domain name resolving job (POST /jobs)', async () => {
     // Arrange
-    const c = await createCompany(app, testData);
+    const c = await createProject(app, testData);
 
     // Act
     const r = await postReq(app, testData.user.token, `/jobs`, {
       ...domainNameResolvingJob,
-      companyId: c._id.toString(),
+      projectId: c._id.toString(),
     });
 
     // Assert
@@ -69,11 +69,11 @@ describe('Job Controller (e2e)', () => {
 
   it('Should get a job list (GET /jobs?page=&pageSize=)', async () => {
     // Arrange
-    const c = await createCompany(app, testData);
+    const c = await createProject(app, testData);
 
     const jr = await postReq(app, testData.user.token, `/jobs`, {
       ...domainNameResolvingJob,
-      companyId: c._id.toString(),
+      projectId: c._id.toString(),
     });
 
     // Act
@@ -135,7 +135,7 @@ describe('Job Controller (e2e)', () => {
       async (givenToken: string) => {
         return await postReq(app, givenToken, '/jobs', {
           ...domainNameResolvingJob,
-          companyId: '6271641f2c0920007820b5f2',
+          projectId: '6271641f2c0920007820b5f2',
         });
       },
     );

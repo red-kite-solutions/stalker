@@ -1,0 +1,14 @@
+# directories
+**/bin/
+**/obj/
+**/out/
+**/.devspace/
+**/.vs/
+
+# files
+Dockerfile*
+**/*.trx
+**/*.md
+**/*.ps1
+**/*.cmd
+**/*.sh

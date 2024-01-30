@@ -1,80 +1,87 @@
-<div fxLayout="row" class="code-editor-container">
-  <div fxFlex="45">
-    <mat-card class="container">
-      <h1 i18n="Launch Jobs|Starting jobs manually">Launch Jobs</h1>
-      <div fxLayout="row">
-        <button
-          mat-raised-button
-          color="primary"
-          class="left-action-button"
-          (click)="startJob()"
-          [disabled]="this.authService.role === 'read-only'"
-        >
-          <label i18n="Start|Start the job">Start</label>
-        </button>
-      </div>
+<div class="tw-flex top-container">
+  <div class="tw-flex-[45%_0_0]">
+    <mat-card appearance="outlined" class="container">
+      <mat-card-header>
+        <mat-card-title i18n="Launch jobs|Starting jobs manually">Launch jobs</mat-card-title>
+      </mat-card-header>
 
-      <div class="table-container">
-        <table mat-table [dataSource]="dataSource" *ngIf="(dataSource$ | async) || true">
-          <!-- Name Column -->
-          <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef i18n="Name|Name of an item">Name</th>
-            <td mat-cell *matCellDef="let element">{{ element.name }}</td>
-          </ng-container>
+      <mat-card-content>
+        <div class="tw-flex tw-gap">
+          <button
+            mat-flat-button
+            color="primary"
+            class="left-action-button"
+            (click)="startJob()"
+            [disabled]="this.authService.role === 'read-only'"
+          >
+            <label i18n="Start|Start the job">Start</label>
+          </button>
+        </div>
 
-          <!-- Source Column -->
-          <ng-container matColumnDef="source">
-            <th mat-header-cell *matHeaderCellDef i18n="Source|Source">Source</th>
-            <td mat-cell *matCellDef="let element">{{ element.source }}</td>
-          </ng-container>
+        <div class="table-container">
+          @if ((dataSource$ | async) || true) {
+            <table mat-table [dataSource]="dataSource">
+              <!-- Name Column -->
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef i18n="Name|Name of an item">Name</th>
+                <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+              </ng-container>
+              <!-- Source Column -->
+              <ng-container matColumnDef="source">
+                <th mat-header-cell *matHeaderCellDef i18n="Source|Source">Source</th>
+                <td mat-cell *matCellDef="let element">{{ element.source }}</td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="['name', 'source']"></tr>
+              <tr
+                mat-row
+                *matRowDef="let row; columns: ['name', 'source']"
+                class="rows"
+                (click)="selectJob(row)"
+                [class.selected-job]="selectedRow?.name === row.name"
+              ></tr>
+              <tr class="mat-row nodata" *matNoDataRow>
+                <td class="mat-cell" colspan="100%" i18n="No job found|No job were found">No job found</td>
+              </tr>
+            </table>
+          }
 
-          <tr mat-header-row *matHeaderRowDef="['name', 'source']"></tr>
-          <tr
-            mat-row
-            *matRowDef="let row; columns: ['name', 'source']"
-            class="rows"
-            (click)="selectJob(row)"
-            [class.selected-job]="selectedRow?.name === row.name"
-          ></tr>
-
-          <tr class="mat-row nodata" *matNoDataRow>
-            <td class="mat-cell" colspan="100%" i18n="No job found|No job were found">No job found</td>
-          </tr>
-        </table>
-
-        <mat-paginator
-          [length]="100"
-          [pageSize]="10"
-          [pageSizeOptions]="[10, 25, 50, 100]"
-          showFirstLastButtons
-          aria-label="Select page"
-        >
-        </mat-paginator>
-      </div>
+          <mat-paginator
+            [length]="100"
+            [pageSize]="10"
+            [pageSizeOptions]="[10, 25, 50, 100]"
+            showFirstLastButtons
+            aria-label="Select page"
+          >
+          </mat-paginator>
+        </div>
+      </mat-card-content>
     </mat-card>
   </div>
-  <div fxFlex="55" *ngIf="companies$ | async">
-    <div fxLayout="column" class="code-editor-container">
-      <mat-form-field appearance="outline">
-        <mat-label i18n="Company|Company or business">Company</mat-label>
-        <mat-select [(value)]="selectedCompany">
-          <mat-option>None</mat-option>
-          <mat-option *ngFor="let company of companies$ | async" value="{{ company.id }}">{{
-            company.name
-          }}</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <h3 i18n="Input|Input of a job">Input</h3>
-      <app-code-editor
-        [(code)]="code"
-        [language]="language"
-        [minimapEnabled]="minimapEnabled"
-        [theme]="theme"
-        [readonly]="readonly"
-        fxFlex
-      ></app-code-editor>
-      <h3 i18n="Output|Output of a job" class="output">Output</h3>
-      <app-job-logs [jobId]="currentStartedJob?.id"></app-job-logs>
+  @if (projects$ | async) {
+    <div class="tw-flex-[55%_0_0]">
+      <div class="tw-flex tw-flex-col code-editor-container">
+        <mat-form-field appearance="outline">
+          <mat-label i18n="Project|Project or business">Project</mat-label>
+          <mat-select [(value)]="selectedProject">
+            <mat-option>None</mat-option>
+            @for (project of projects$ | async; track project) {
+              <mat-option value="{{ project.id }}">{{ project.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <h3 i18n="Input|Input of a job">Input</h3>
+        <app-code-editor
+          [(code)]="code"
+          [language]="language"
+          [minimapEnabled]="minimapEnabled"
+          [theme]="theme"
+          [readonly]="readonly"
+          class="tw-flex-1"
+          [path]="'/launch-jobs/launch-job.yaml'"
+        ></app-code-editor>
+        <h3 i18n="Output|Output of a job" class="output">Output</h3>
+        <app-job-logs [jobId]="currentStartedJob?.id"></app-job-logs>
+      </div>
     </div>
-  </div>
+  }
 </div>

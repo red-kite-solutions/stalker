@@ -11,17 +11,17 @@ imports:
 
 pipelines:
   build:
-    run: build_images ui flow-manager orchestrator python-job-base
+    run: build_images ui flow-manager orchestrator python-job-base nuclei-job-base
 
   deploy:
     run: |-
-      build_images ui flow-manager orchestrator python-job-base
+      build_images ui flow-manager orchestrator python-job-base nuclei-job-base
       create_deployments mongo ui flow-manager kafka orchestrator-service-account orchestrator --sequential
 
   dev:
     run: |-
       create_deployments namespaces
-      build_images ui flow-manager orchestrator python-job-base cron-service
+      build_images ui flow-manager orchestrator python-job-base nuclei-job-base cron-service
       create_deployments mongo kafka --sequential
 
       # Start mongo and kafka
@@ -34,17 +34,23 @@ pipelines:
 
       create_deployments ui flow-manager orchestrator-service-account orchestrator cron-service --sequential
 
-      # Wait for last services before applying network policies
+      # Wait for services before applying network policies
       wait_pod --label-selector app.kubernetes.io/component=ui --timeout 300
       wait_pod --label-selector app.kubernetes.io/component=flow-manager --timeout 300
       wait_pod --label-selector app.kubernetes.io/component=orchestrator --timeout 300
-      wait_pod --label-selector app.kubernetes.io/component=cron-service --timeout 300
+
 
       create_deployments network-policies
       create_deployments resource-quotas
 
       # Start microservices + ui
-      start_dev orchestrator flow-manager ui cron-service
+      start_dev orchestrator flow-manager ui
+
+      create_deployments cron-service
+
+      wait_pod --label-selector app.kubernetes.io/component=cron-service --timeout 300
+
+      start_dev cron-service
 
   flow-manager-e2e:
     flags:
@@ -53,7 +59,7 @@ pipelines:
         type: bool
     run: |-
       create_deployments namespaces
-      build_images flow-manager-e2e orchestrator python-job-base
+      build_images flow-manager-e2e orchestrator python-job-base nuclei-job-base
       create_deployments mongo kafka orchestrator-service-account orchestrator flow-manager-e2e --sequential
 
       # Wait for kafka and mongo to be ready
@@ -79,7 +85,7 @@ pipelines:
       purge_deployments mongo ui flow-manager flow-manager-e2e kafka orchestrator-service-account orchestrator --sequential
 
   build-e2e:
-    run: build_images ui flow-manager-e2e orchestrator python-job-base
+    run: build_images ui flow-manager-e2e orchestrator python-job-base nuclei-job-base
 
   flow-manager-e2e-cicd-deploy:
     run: |-
@@ -132,11 +138,20 @@ images:
 
   python-job-base:
     image: python-job-base
-    dockerfile: job-base-images/python/Dockerfile
+    dockerfile: jobs/job-base-images/python/Dockerfile
     tags:
       - "latest"
       - "v1"
-    context: job-base-images/python
+    context: jobs/job-base-images/python
+    rebuildStrategy: always
+
+  nuclei-job-base:
+    image: nuclei-job-base
+    dockerfile: jobs/job-base-images/python/Dockerfile.nuclei
+    tags:
+      - "latest"
+      - "v1"
+    context: jobs/job-base-images/python/
     rebuildStrategy: always
 
 deployments:
@@ -400,6 +415,9 @@ dev:
     sync:
       - path: ./orchestrator/:/app/
         disableDownload: true
+        excludePaths:
+          - Orchestrator/bin
+          - Orchestrator/obj
     restartHelper:
       inject: false
     ports:

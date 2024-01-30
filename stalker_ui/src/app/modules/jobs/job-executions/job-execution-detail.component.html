@@ -1,23 +1,32 @@
 <app-page-header
-  [parts]="[(companies$ | async | whereId : [(execution$ | async)?.companyId])?.name, (execution$ | async)?.task]"
+  [parts]="[(projects$ | async | whereId: [(execution$ | async)?.projectId])?.name, (execution$ | async)?.task]"
 >
 </app-page-header>
 
-<mat-card class="summary" *ngIf="execution$ | async as execution">
-  <mat-card-title i18n="Execution details|The details of a job execution">Execution details</mat-card-title>
-  <mat-card-content>
-    <job-logs-summary [job]="execution"></job-logs-summary>
+@if (execution$ | async; as execution) {
+  <mat-card appearance="outlined" class="summary">
+    <mat-card-header>
+      <mat-card-title i18n="Execution details|The details of a job execution">Execution details</mat-card-title>
+    </mat-card-header>
 
-    <div class="timing">
-      <div *ngIf="execution.endTime; else started">
-        <div i18n="Started|Started x days ago">Started {{ execution.endTime | timeAgo }}</div>
-        <div i18n="Took|Took x seconds">Took {{ execution.endTimestamp - execution.startTimestamp | humanize }}</div>
+    <mat-card-content>
+      <job-logs-summary [job]="execution"></job-logs-summary>
+      <div class="timing">
+        @if (execution.endTime) {
+          <div>
+            <div i18n="Started|Started x days ago">Started {{ execution.endTime | timeAgo }}</div>
+            <div i18n="Took|Took x seconds">
+              Took {{ execution.endTimestamp - execution.startTimestamp | humanize }}
+            </div>
+          </div>
+        } @else {
+          <div i18n="Started|Started x days ago">Started {{ execution.startTime | timeAgo }}</div>
+        }
       </div>
-      <ng-template #started>
-        <div i18n="Started|Started x days ago">Started {{ execution.startTime | timeAgo }}</div>
-      </ng-template>
-    </div>
-  </mat-card-content>
-</mat-card>
+    </mat-card-content>
+  </mat-card>
+}
 
 <app-job-logs [jobId]="executionId$ | async"></app-job-logs>
+
+<div class="tw-h-2"></div>

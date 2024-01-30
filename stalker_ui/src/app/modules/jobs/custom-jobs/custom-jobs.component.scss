@@ -1,36 +1,17 @@
-.title {
-  display: flex;
-
-  h1 {
-    flex: 1;
-  }
-
-  button {
-    opacity: 0.35;
-    color: black;
-
-    margin-right: -10px;
-    margin-top: -6px;
-  }
-}
-
 .code-editor-container {
   width: 100%;
   height: 100%;
-  display: inline-block;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px;
 }
 
 app-code-editor {
   height: 100%;
   width: 100%;
-}
-
-.left-action-button {
-  margin: 10px 20px 20px 0px;
-}
-
-.right-action-button {
-  margin: 10px 0px 20px 10px;
 }
 
 .container {
@@ -50,7 +31,7 @@ table {
 }
 
 .rows:hover {
-  background-color: rgb(243, 243, 243);
+  background-color: var(--mat-table-background-color-hover);
 }
 
 .rows {
@@ -70,16 +51,55 @@ mat-tab-group {
   height: 100%;
 }
 
+.form-row {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  margin-top: 5px;
+  mat-form-field {
+    flex-grow: 1;
+    flex-shrink: 1;
+    padding: 0 5px;
+  }
+
+  .leftmost-item {
+    padding: 0 5px 0 0;
+  }
+
+  .rightmost-item {
+    padding: 0 0 0 5px;
+  }
+}
+
+.nuclei-specific-config {
+  width: 100%;
+  h3 {
+    margin-bottom: 0px;
+  }
+  mat-divider {
+    margin-top: 20px;
+    margin-bottom: 10px;
+  }
+  .checkbox-container {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  mat-form-field {
+    width: 100%;
+    margin-bottom: 0px;
+  }
+  #bottom-divider {
+    margin-top: 0px;
+  }
+}
+
 .job-pod-config-selection {
+  overflow: auto;
   background-color: transparent;
-  border-width: 0.1em;
-  border-style: solid;
-  border-color: rgba(0, 0, 0, 0.12);
   padding: 10px;
 
   mat-card-header {
     font-weight: 400;
-    color: rgba(0, 0, 0, 0.65);
     margin-bottom: 10px;
   }
 
@@ -87,10 +107,10 @@ mat-tab-group {
     width: 100%;
     & > div {
       width: 100%;
-      overflow: scroll;
       display: flex;
       min-height: fit-content;
       padding-bottom: 7px;
+
       mat-card {
         float: left;
         margin: 0px 10px 5px 10px;
@@ -115,11 +135,11 @@ mat-tab-group {
         }
 
         &:hover {
-          border-color: black;
+          border-color: var(--mdc-outlined-card-outline-color);
         }
 
         &.selected-config {
-          border-color: rgba(63, 81, 181);
+          border-color: var(--mat-tab-header-active-ripple-color);
         }
 
         .job-pod-config-title {

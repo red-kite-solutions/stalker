@@ -90,13 +90,13 @@ export class JobsService {
     jobName: string,
     source: string,
     jobParameters: JobParameter[],
-    companyId: string | null = null
+    projectId: string | null = null
   ) {
     const data = {
       task: jobName,
       source: source,
       jobParameters: jobParameters,
-      companyId: companyId,
+      projectId: projectId,
     };
 
     return <StartedJob>await firstValueFrom(this.http.post(`${environment.fmUrl}/jobs/`, data));

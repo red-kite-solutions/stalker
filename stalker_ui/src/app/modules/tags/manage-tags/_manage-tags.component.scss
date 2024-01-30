@@ -1,0 +1,15 @@
+@mixin app-manage-tags() {
+  // This removes the alpha form field from the ngx mat color canvas
+  // in the manage-tags.component.html file
+  .ngx-mat-color-canvas {
+    .color-canvas-row:nth-child(2) {
+      mat-form-field:nth-child(3) {
+        display: none !important;
+      }
+    }
+
+    .zone-canvas {
+      display: flex;
+    }
+  }
+}

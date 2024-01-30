@@ -31,11 +31,11 @@ describe('Subscriptions Triggers Service', () => {
   it('Triggers a subscription never triggered before', async () => {
     // Arrange
     const subId = '6574f560570cfc954ccf0b42';
-    const companyId = '657e1b45342eb1549b05e4bf';
+    const projectId = '657e1b45342eb1549b05e4bf';
     const domain = 'example.com';
     const subCooldown = 100;
     const correlationKey = CorrelationKeyUtils.generateCorrelationKey(
-      companyId,
+      projectId,
       domain,
     );
 
@@ -53,11 +53,11 @@ describe('Subscriptions Triggers Service', () => {
   it('Adds a new subscription trigger to the database', async () => {
     // Arrange
     const subId = '6574f560570cfc954ccf0b42';
-    const companyId = '657e1b45342eb1549b05e4bf';
+    const projectId = '657e1b45342eb1549b05e4bf';
     const domain = 'example.com';
     const subCooldown = 100;
     const correlationKey = CorrelationKeyUtils.generateCorrelationKey(
-      companyId,
+      projectId,
       domain,
     );
 
@@ -73,11 +73,11 @@ describe('Subscriptions Triggers Service', () => {
   it('Triggers a subscription ready to be triggered', async () => {
     // Arrange
     const subId = '6574f560570cfc954ccf0b42';
-    const companyId = '657e1b45342eb1549b05e4bf';
+    const projectId = '657e1b45342eb1549b05e4bf';
     const domain = 'example.com';
     const subCooldown = 100;
     const correlationKey = CorrelationKeyUtils.generateCorrelationKey(
-      companyId,
+      projectId,
       domain,
     );
     await triggersService.attemptTrigger(subId, correlationKey, subCooldown);
@@ -97,11 +97,11 @@ describe('Subscriptions Triggers Service', () => {
   it('Triggers a subscription ready to be triggered (exact clock)', async () => {
     // Arrange
     const subId = '6574f560570cfc954ccf0b42';
-    const companyId = '657e1b45342eb1549b05e4bf';
+    const projectId = '657e1b45342eb1549b05e4bf';
     const domain = 'example.com';
     const subCooldown = 100;
     const correlationKey = CorrelationKeyUtils.generateCorrelationKey(
-      companyId,
+      projectId,
       domain,
     );
     await triggersService.attemptTrigger(subId, correlationKey, subCooldown);
@@ -121,11 +121,11 @@ describe('Subscriptions Triggers Service', () => {
   it('Triggers a subscription ready to be triggered (exact clock +1)', async () => {
     // Arrange
     const subId = '6574f560570cfc954ccf0b42';
-    const companyId = '657e1b45342eb1549b05e4bf';
+    const projectId = '657e1b45342eb1549b05e4bf';
     const domain = 'example.com';
     const subCooldown = 100;
     const correlationKey = CorrelationKeyUtils.generateCorrelationKey(
-      companyId,
+      projectId,
       domain,
     );
     await triggersService.attemptTrigger(subId, correlationKey, subCooldown);
@@ -145,11 +145,11 @@ describe('Subscriptions Triggers Service', () => {
   it('Fails to trigger a subscription not ready to be triggered (exact clock -1)', async () => {
     // Arrange
     const subId = '6574f560570cfc954ccf0b42';
-    const companyId = '657e1b45342eb1549b05e4bf';
+    const projectId = '657e1b45342eb1549b05e4bf';
     const domain = 'example.com';
     const subCooldown = 100;
     const correlationKey = CorrelationKeyUtils.generateCorrelationKey(
-      companyId,
+      projectId,
       domain,
     );
     await triggersService.attemptTrigger(subId, correlationKey, subCooldown);
@@ -169,11 +169,11 @@ describe('Subscriptions Triggers Service', () => {
   it('Ensures that subscription trigger cooldowns are evaluated as seconds', async () => {
     // Arrange
     const subId = '6574f560570cfc954ccf0b42';
-    const companyId = '657e1b45342eb1549b05e4bf';
+    const projectId = '657e1b45342eb1549b05e4bf';
     const domain = 'example.com';
     const subCooldown = 100;
     const correlationKey = CorrelationKeyUtils.generateCorrelationKey(
-      companyId,
+      projectId,
       domain,
     );
     await triggersService.attemptTrigger(subId, correlationKey, subCooldown);

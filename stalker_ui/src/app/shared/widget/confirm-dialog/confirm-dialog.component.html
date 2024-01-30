@@ -1,15 +1,27 @@
-<h1 mat-dialog-title *ngIf="data.title">{{ data.title }}</h1>
-<div mat-dialog-content *ngIf="data.text || data.listElements?.length">
-  {{ data.text }}
-  <ul *ngIf="data.listElements?.length">
-    <li *ngFor="let line of data.listElements">{{ line }}</li>
-  </ul>
-</div>
-<div mat-dialog-actions>
-  <button *ngIf="data.primaryButtonText != ''" mat-raised-button color="primary" (click)="primaryClick()">
-    {{ data.primaryButtonText }}
-  </button>
-  <button *ngIf="data.dangerButtonText != ''" mat-raised-button color="warn" (click)="dangerClick()">
-    {{ data.dangerButtonText }}
-  </button>
+@if (data.title) {
+  <h1 mat-dialog-title>{{ data.title }}</h1>
+}
+@if (data.text || data.listElements?.length) {
+  <div mat-dialog-content>
+    {{ data.text }}
+    @if (data.listElements?.length) {
+      <ul>
+        @for (line of data.listElements; track line) {
+          <li>{{ line }}</li>
+        }
+      </ul>
+    }
+  </div>
+}
+<div mat-dialog-actions [align]="'end'" class="tw-flex tw-gap-2">
+  @if (data.primaryButtonText != '') {
+    <app-spinner-button (click)="primaryClick()" [loadingState]="primaryLoading">
+      {{ data.primaryButtonText }}
+    </app-spinner-button>
+  }
+  @if (data.dangerButtonText != '') {
+    <app-spinner-button (click)="dangerClick()" buttonColor="warn" [loadingState]="dangerLoading">
+      {{ data.dangerButtonText }}
+    </app-spinner-button>
+  }
 </div>

@@ -17,14 +17,15 @@ import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, Observable, Subject, combineLatest, map, merge, switchMap, tap } from 'rxjs';
-import { CompaniesService } from 'src/app/api/companies/companies.service';
 import { HostsService } from 'src/app/api/hosts/hosts.service';
+import { ProjectsService } from 'src/app/api/projects/projects.service';
 import { TagsService } from 'src/app/api/tags/tags.service';
-import { CompanySummary } from 'src/app/shared/types/company/company.summary';
 import { Domain } from 'src/app/shared/types/domain/domain.interface';
 import { DomainSummary } from 'src/app/shared/types/domain/domain.summary';
 import { Port } from 'src/app/shared/types/ports/port.interface';
+import { ProjectSummary } from 'src/app/shared/types/project/project.summary';
 import { Tag } from 'src/app/shared/types/tag.type';
+import { TextMenuComponent } from 'src/app/shared/widget/text-menu/text-menu.component';
 import { PortsService } from '../../../api/ports/ports.service';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PanelSectionModule } from '../../../shared/components/panel-section/panel-section.module';
@@ -57,6 +58,7 @@ import { FindingsModule } from '../../findings/findings.module';
     PanelSectionModule,
     AppHeaderComponent,
     MatTooltipModule,
+    TextMenuComponent,
   ],
   selector: 'app-view-host',
   templateUrl: './view-host.component.html',
@@ -64,16 +66,13 @@ import { FindingsModule } from '../../findings/findings.module';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ViewHostComponent implements OnDestroy {
-  public menuTargetWidth = 100;
   public menuResizeObserver$?: ResizeObserver;
 
   @ViewChild('managementPanelSection', { read: ElementRef, static: false })
   set managementPanelSection(managementPanelSection: ElementRef) {
     if (managementPanelSection && !this._managementPanelSection) {
       this._managementPanelSection = managementPanelSection;
-      this.menuResizeObserver$ = new ResizeObserver((resize) => {
-        this.menuTargetWidth = resize[0].contentRect.width;
-      });
+      this.menuResizeObserver$ = new ResizeObserver((resize) => {});
       this.menuResizeObserver$.observe(this._managementPanelSection.nativeElement);
     }
   }
@@ -93,15 +92,15 @@ export class ViewHostComponent implements OnDestroy {
   public portDetails$: Observable<Port> | null = null;
   public selectedItemCorrelationKey$ = new Subject<string | null>();
 
-  companies: CompanySummary[] = [];
-  companies$ = this.companiesService.getAllSummaries().pipe(
+  projects: ProjectSummary[] = [];
+  projects$ = this.projectsService.getAllSummaries().pipe(
     map((next: any[]) => {
-      const comp: CompanySummary[] = [];
-      for (const company of next) {
-        comp.push({ id: company._id, name: company.name });
+      const comp: ProjectSummary[] = [];
+      for (const project of next) {
+        comp.push({ id: project._id, name: project.name });
       }
-      this.companies = comp;
-      return this.companies;
+      this.projects = comp;
+      return this.projects;
     })
   );
 
@@ -232,7 +231,7 @@ export class ViewHostComponent implements OnDestroy {
 
   constructor(
     private route: ActivatedRoute,
-    private companiesService: CompaniesService,
+    private projectsService: ProjectsService,
     private hostsService: HostsService,
     private tagsService: TagsService,
     private titleService: Title,

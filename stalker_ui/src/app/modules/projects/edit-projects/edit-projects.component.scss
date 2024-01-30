@@ -1,0 +1,36 @@
+:host {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 16px;
+  padding-top: 0;
+  margin-bottom: 16px;
+}
+
+mat-divider {
+  margin-left: -16px;
+  margin-right: -16px;
+}
+
+#title-text {
+  margin-left: 10px;
+}
+
+mat-panel-title {
+  label {
+    cursor: pointer;
+  }
+}
+
+mat-panel-description {
+  margin-right: 0px;
+}
+
+.error-bang {
+  margin-right: 10px;
+}

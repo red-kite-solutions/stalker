@@ -1,5 +1,6 @@
 import { SelectionModel } from '@angular/cdk/collections';
 import { ENTER, TAB } from '@angular/cdk/keycodes';
+import { CommonModule } from '@angular/common';
 import {
   Component,
   ContentChild,
@@ -11,10 +12,22 @@ import {
   QueryList,
   ViewChild,
 } from '@angular/core';
-import { UntypedFormControl } from '@angular/forms';
-import { MatAutocomplete, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
-import { MatChipInputEvent, MatChipList } from '@angular/material/chips';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { FormsModule, ReactiveFormsModule, UntypedFormControl } from '@angular/forms';
+import { MatAutocomplete, MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatChipGrid, MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
+import { MatOptionModule } from '@angular/material/core';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatListModule } from '@angular/material/list';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import {
   MatColumnDef,
   MatHeaderRowDef,
@@ -22,14 +35,49 @@ import {
   MatRowDef,
   MatTable,
   MatTableDataSource,
+  MatTableModule,
 } from '@angular/material/table';
-import { map, Observable, startWith } from 'rxjs';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { RouterModule } from '@angular/router';
+import { NgxFileDropModule } from 'ngx-file-drop';
+import { Observable, map, startWith } from 'rxjs';
+import { AvatarComponent } from '../../components/avatar/avatar.component';
 import { IdentifiedElement } from '../../types/identified-element.type';
+import { CodeEditorComponent } from '../code-editor/code-editor.component';
 
 @Component({
+  standalone: true,
   selector: 'app-filtered-paginated-table',
   templateUrl: './filtered-paginated-table.component.html',
   styleUrls: ['./filtered-paginated-table.component.scss'],
+  imports: [
+    CommonModule,
+    AvatarComponent,
+    MatDividerModule,
+    MatToolbarModule,
+    MatIconModule,
+    MatButtonModule,
+    MatMenuModule,
+    MatListModule,
+    RouterModule,
+    MatInputModule,
+    MatDialogModule,
+    MatTooltipModule,
+    MatProgressSpinnerModule,
+    NgxFileDropModule,
+    MatCheckboxModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatProgressBarModule,
+    MatChipsModule,
+    MatAutocompleteModule,
+    ReactiveFormsModule,
+    CodeEditorComponent,
+    MatOptionModule,
+    MatSelectModule,
+    FormsModule,
+  ],
 })
 export class FilteredPaginatedTableComponent<T extends IdentifiedElement> {
   @ContentChildren(MatHeaderRowDef) headerRowDefs!: QueryList<MatHeaderRowDef>;
@@ -41,13 +89,13 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatAutocomplete) autocomplete!: MatAutocomplete;
   @ViewChild('filterInput') filterInput!: ElementRef<HTMLInputElement>;
-  @ViewChild('chipList') chipList!: MatChipList;
+  @ViewChild('chipList') chipGrid!: MatChipGrid;
 
   _dataSource!: MatTableDataSource<T>;
-  @Input() set dataSource(data: MatTableDataSource<T>) {
-    this._dataSource = data;
+  @Input() set dataSource(data: MatTableDataSource<T> | null) {
+    this._dataSource = data || new MatTableDataSource<T>([]);
     this.selection.setSelection(
-      ...data.data.filter((newRow: T) => {
+      ...this._dataSource.data.filter((newRow: T) => {
         return this.selection.selected.some((selectedRow: T) => {
           const newRowId = selectedRow._id ? selectedRow._id : selectedRow.id;
           const selectedRowId = newRow._id ? newRow._id : newRow.id;
@@ -58,11 +106,13 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> {
     this.selectionChange.emit(this.selection);
   }
 
+  @Input() filterType: 'tokens' | 'fulltext' = 'tokens';
   @Input() columns!: string[] | null;
   @Input() filterOptions!: string[] | null;
   @Input() isLoading = false;
   @Input() length: number | null = 0;
   @Input() routerLinkPrefix = '/';
+  @Input() queryParamsFunc: (row: T) => {} = () => ({});
 
   @Output() pageChange = new EventEmitter<PageEvent>();
   @Output() filtersChange = new EventEmitter<string[]>();
@@ -164,7 +214,7 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> {
       this.filterForm.setValue(completedString, { emitEvent: false });
       this.refocusMatChipInput();
       // Some more autocomplete could be done here?
-      // For instance, a company name could be autocompleted since
+      // For instance, a project name could be autocompleted since
       // they are known. So are the tags. However, this component needs to stay generic
     }
   }
@@ -183,12 +233,6 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> {
   }
 
   private refocusMatChipInput() {
-    // Removing the focus from the chips is mandatory to replace the cursor
-    // to the end of the text... Took a couple hours to find that
-    for (const chip of this.chipList.chips) {
-      chip._hasFocus = false;
-    }
-
     this.filterInput.nativeElement.focus();
     this.filterInput.nativeElement.selectionStart = 100000;
     this.filterInput.nativeElement.selectionEnd = 100000;

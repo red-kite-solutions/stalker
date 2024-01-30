@@ -1,113 +1,121 @@
-<mat-card>
-  <h1 i18n="Users|Users list page title">Users</h1>
+<mat-card appearance="outlined">
+  <mat-card-header>
+    <mat-card-title i18n="Users|Users list page title">Users</mat-card-title>
+  </mat-card-header>
 
-  <div class="actions">
-    <button mat-raised-button color="primary" routerLinkActive="list-item-active" routerLink="/admin/users/create">
-      <mat-icon class="material-icons-outlined"> person_add_alt </mat-icon>
-      <label i18n="New user|Button to create a new user">New User</label>
-    </button>
-    <button mat-raised-button color="warn" (click)="deleteUsers()" *ngIf="!(hideDelete$ | async)">
-      <mat-icon class="material-icons-outlined"> delete_outline </mat-icon>
-      <label i18n="Delete|Delete an item">Delete</label>
-    </button>
-  </div>
+  <mat-card-content>
+    <div class="tw-flex tw-gap-sm tw-pt-2 tw-pb-4">
+      <button mat-flat-button color="primary" routerLinkActive="list-item-active" routerLink="/admin/users/create">
+        <mat-icon> person_add_alt </mat-icon>
+        <label i18n="New user|Button to create a new user">New User</label>
+      </button>
+      @if (!(hideDelete$ | async)) {
+        <button mat-stroked-button color="warn" (click)="deleteUsers()">
+          <mat-icon> delete_outline </mat-icon>
+          <label i18n="Delete|Delete an item">Delete</label>
+        </button>
+      }
+    </div>
 
-  <div class="table-container">
-    <table mat-table [dataSource]="dataSource">
-      <!-- Checkbox Column -->
-      <ng-container matColumnDef="select">
-        <th mat-header-cell *matHeaderCellDef>
-          <mat-checkbox
-            (change)="$event ? masterToggle() : null"
-            [checked]="selection.hasValue() && isAllSelected()"
-            [indeterminate]="selection.hasValue() && !isAllSelected()"
-            [aria-label]="checkboxLabel()"
-          >
-          </mat-checkbox>
-        </th>
-        <td mat-cell *matCellDef="let row" (click)="$event.stopPropagation()" class="check-box-cell">
-          <mat-checkbox
-            (click)="$event.stopPropagation()"
-            (change)="$event ? selection.toggle(row) : null"
-            [checked]="selection.isSelected(row)"
-            [aria-label]="checkboxLabel(row)"
-          >
-          </mat-checkbox>
-        </td>
-      </ng-container>
+    <div class="table-container">
+      <table mat-table [dataSource]="dataSource">
+        <!-- Checkbox Column -->
+        <ng-container matColumnDef="select">
+          <th mat-header-cell *matHeaderCellDef>
+            <mat-checkbox
+              color="primary"
+              (change)="$event ? masterToggle() : null"
+              [checked]="selection.hasValue() && isAllSelected()"
+              [indeterminate]="selection.hasValue() && !isAllSelected()"
+              [aria-label]="checkboxLabel()"
+            >
+            </mat-checkbox>
+          </th>
+          <td mat-cell *matCellDef="let row" (click)="$event.stopPropagation()" class="check-box-cell">
+            <mat-checkbox
+              color="primary"
+              (click)="$event.stopPropagation()"
+              (change)="$event ? selection.toggle(row) : null"
+              [checked]="selection.isSelected(row)"
+              [aria-label]="checkboxLabel(row)"
+            >
+            </mat-checkbox>
+          </td>
+        </ng-container>
 
-      <!-- ID Column -->
-      <ng-container matColumnDef="id">
-        <th mat-header-cell *matHeaderCellDef i18n="ID|Short for identifier">ID</th>
-        <td mat-cell *matCellDef="let element">{{ element._id }}</td>
-      </ng-container>
+        <!-- ID Column -->
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef i18n="ID|Short for identifier">ID</th>
+          <td mat-cell *matCellDef="let element">{{ element._id }}</td>
+        </ng-container>
 
-      <!-- Fist Name Column -->
-      <ng-container matColumnDef="firstName">
-        <th mat-header-cell *matHeaderCellDef i18n="First name|A person's first name">First Name</th>
-        <td mat-cell *matCellDef="let element">{{ element.firstName }}</td>
-      </ng-container>
+        <!-- Fist Name Column -->
+        <ng-container matColumnDef="firstName">
+          <th mat-header-cell *matHeaderCellDef i18n="First name|A person's first name">First Name</th>
+          <td mat-cell *matCellDef="let element">{{ element.firstName }}</td>
+        </ng-container>
 
-      <!-- Last Name Column -->
-      <ng-container matColumnDef="lastName">
-        <th mat-header-cell *matHeaderCellDef i18n="Last name|A person's family name">Last Name</th>
-        <td mat-cell *matCellDef="let element">{{ element.lastName }}</td>
-      </ng-container>
+        <!-- Last Name Column -->
+        <ng-container matColumnDef="lastName">
+          <th mat-header-cell *matHeaderCellDef i18n="Last name|A person's family name">Last Name</th>
+          <td mat-cell *matCellDef="let element">{{ element.lastName }}</td>
+        </ng-container>
 
-      <!-- Email Column -->
-      <ng-container matColumnDef="email">
-        <th mat-header-cell *matHeaderCellDef i18n="Email|A user's email">Email</th>
-        <td mat-cell *matCellDef="let element">{{ element.email }}</td>
-      </ng-container>
+        <!-- Email Column -->
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *matHeaderCellDef i18n="Email|A user's email">Email</th>
+          <td mat-cell *matCellDef="let element">{{ element.email }}</td>
+        </ng-container>
 
-      <!-- Role Column -->
-      <ng-container matColumnDef="role">
-        <th mat-header-cell *matHeaderCellDef i18n="User role|The role of a user in the application">Role</th>
-        <td mat-cell *matCellDef="let element">
-          {{ roles[element.role] }}
-        </td>
-      </ng-container>
+        <!-- Role Column -->
+        <ng-container matColumnDef="role">
+          <th mat-header-cell *matHeaderCellDef i18n="User role|The role of a user in the application">Role</th>
+          <td mat-cell *matCellDef="let element">
+            {{ roles[element.role] }}
+          </td>
+        </ng-container>
 
-      <!-- Active Status Column -->
-      <ng-container matColumnDef="active">
-        <th mat-header-cell *matHeaderCellDef i18n="Active|User status title, if he can connect or not">Active</th>
-        <td mat-cell *matCellDef="let element">
-          <mat-icon
-            *ngIf="element.active"
-            class="material-icons-outlined"
-            i18n-matTooltip="User enabled|The user is enabled and therefore can login"
-            matTooltip="User is enabled"
-          >
-            how_to_reg
-          </mat-icon>
-          <mat-icon
-            *ngIf="!element.active"
-            class="material-icons-outlined"
-            i18n-matTooltip="User disabled|The user is disabled and therefore cannot login"
-            matTooltip="User is disabled"
-          >
-            block
-          </mat-icon>
-        </td>
-      </ng-container>
+        <!-- Active Status Column -->
+        <ng-container matColumnDef="active">
+          <th mat-header-cell *matHeaderCellDef i18n="Active|User status title, if he can connect or not">Active</th>
+          <td mat-cell *matCellDef="let element">
+            @if (element.active) {
+              <mat-icon
+                i18n-matTooltip="User enabled|The user is enabled and therefore can login"
+                matTooltip="User is enabled"
+              >
+                how_to_reg
+              </mat-icon>
+            }
+            @if (!element.active) {
+              <mat-icon
+                i18n-matTooltip="User disabled|The user is disabled and therefore cannot login"
+                matTooltip="User is disabled"
+              >
+                block
+              </mat-icon>
+            }
+          </td>
+        </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="displayColumns$ | async"></tr>
-      <tr
-        mat-row
-        *matRowDef="let row; columns: displayColumns$ | async"
-        routerLinkActive="list-item-active"
-        [routerLink]="['/admin/users/', row._id]"
-        class="rows"
-      ></tr>
-    </table>
+        <tr mat-header-row *matHeaderRowDef="displayColumns$ | async"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayColumns$ | async"
+          routerLinkActive="list-item-active"
+          [routerLink]="['/admin/users/', row._id]"
+          class="rows"
+        ></tr>
+      </table>
 
-    <mat-paginator
-      [length]="100"
-      [pageSize]="10"
-      [pageSizeOptions]="[10, 25, 50, 100]"
-      showFirstLastButtons
-      aria-label="Select page"
-    >
-    </mat-paginator>
-  </div>
+      <mat-paginator
+        [length]="100"
+        [pageSize]="10"
+        [pageSizeOptions]="[10, 25, 50, 100]"
+        showFirstLastButtons
+        aria-label="Select page"
+      >
+      </mat-paginator>
+    </div>
+  </mat-card-content>
 </mat-card>
