@@ -16,7 +16,6 @@ public class JobFactory : IJobFactory
     private IFindingsParser Parser { get; }
     private ILoggerFactory LoggerFactory { get; }
     private ILogger<JobFactory> Logger { get; }
-    private PythonJobTemplateProvider JobProvider { get; }
     private IConfiguration Config { get; }
 
     public JobFactory(IKubernetesFacade kubernetes, IMessagesProducer<JobEventMessage> eventsProducer, IMessagesProducer<JobLogMessage> jobLogsProducer, IFindingsParser parser, ILoggerFactory loggerFactoryFactory, IConfiguration config)
@@ -28,12 +27,6 @@ public class JobFactory : IJobFactory
         LoggerFactory = loggerFactoryFactory;
         Logger = loggerFactoryFactory.CreateLogger<JobFactory>();
         Config = config;
-
-        string? pythonJobTemplatePath = config.GetSection("Jobs").GetSection("JobsProvider").GetValue<string>("PythonTemplatesPath");
-
-        if (pythonJobTemplatePath == null) throw new NullReferenceException("Setting PythonTemplatesPath is missing.");
-
-        JobProvider = new PythonJobTemplateProvider(LoggerFactory.CreateLogger<PythonJobTemplateProvider>(), pythonJobTemplatePath);
     }
 
     public JobCommand Create(JobRequest request)
@@ -42,10 +35,6 @@ public class JobFactory : IJobFactory
 
         return request switch
         {
-            DomainNameResolvingJobRequest domainResolving => new DomainNameResolvingCommand(domainResolving, Kubernetes, EventsProducer, JobLogsProducer, Parser, LoggerFactory.CreateLogger<DomainNameResolvingCommand>(), JobProvider, Config),
-            TcpPortScanningJobRequest tcpPortScanning => new TcpPortScanningCommand(tcpPortScanning, Kubernetes, EventsProducer, JobLogsProducer, Parser, LoggerFactory.CreateLogger<TcpPortScanningCommand>(), JobProvider, Config),
-            HttpServerCheckJobRequest httpCheck => new HttpServerCheckCommand(httpCheck, Kubernetes, EventsProducer, JobLogsProducer, Parser, LoggerFactory.CreateLogger<TcpPortScanningCommand>(), JobProvider, Config),
-            TcpIpRangeScanningJobRequest tcpRangeScanning => new TcpIpRangeScanningCommand(tcpRangeScanning, Kubernetes, EventsProducer, JobLogsProducer, Parser, LoggerFactory.CreateLogger<TcpIpRangeScanningCommand>(), JobProvider, Config),
             CustomJobRequest customJob => CreateCustomJobCommand(customJob),
             _ => throw new InvalidOperationException(),
         };

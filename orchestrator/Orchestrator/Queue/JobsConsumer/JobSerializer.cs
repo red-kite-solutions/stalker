@@ -24,10 +24,6 @@ public class JobSerializer<T> : ISerializer<T>, IDeserializer<T> where T : JobRe
             var type = generic["Task"]?.GetValue<string>() ?? generic["task"]?.GetValue<string>();
             return type switch
             {
-                "DomainNameResolvingJob" => JsonSerializer.Deserialize<DomainNameResolvingJobRequest>(data.ToArray(), Options) as T,
-                "TcpPortScanningJob" => JsonSerializer.Deserialize<TcpPortScanningJobRequest>(data.ToArray(), Options) as T,
-                "HttpServerCheckJob" => JsonSerializer.Deserialize<HttpServerCheckJobRequest>(data.ToArray(), Options) as T,
-                "TcpIpRangeScanningJob" => JsonSerializer.Deserialize<TcpIpRangeScanningJobRequest>(data.ToArray(), Options) as T,
                 "CustomJob" => JsonSerializer.Deserialize<CustomJobRequest>(data.ToArray(), Options) as T,
                 _ => default
             } ?? throw new InvalidOperationException();
