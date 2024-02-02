@@ -28,7 +28,6 @@ export const jobsInitProvider = [
         const files = readdirSync(fp);
 
         for (const file of files) {
-          console.log(`looking for file ${file}`);
           if (lstatSync(fp + file).isDirectory()) continue;
           const j = await CustomJobsUtils.getCustomJob(fp, file, jpcModel);
           if (!j) continue;

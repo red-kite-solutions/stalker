@@ -6,7 +6,6 @@ import { AppModule } from '../../app.module';
 import { ProjectDocument } from '../reporting/project.model';
 import { ProjectService } from '../reporting/project.service';
 import { JobsService } from './jobs.service';
-import { DomainNameResolvingJob } from './models/domain-name-resolving.model';
 import { Job } from './models/jobs.model';
 
 describe('Jobs Service', () => {
@@ -78,7 +77,7 @@ describe('Jobs Service', () => {
   async function job(project: ProjectDocument) {
     return await jobsModel.create({
       projectId: project.id,
-      task: DomainNameResolvingJob.name,
+      task: 'CustomJob',
     });
   }
 });
