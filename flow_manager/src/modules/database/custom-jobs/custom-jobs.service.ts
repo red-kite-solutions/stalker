@@ -3,7 +3,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { DeleteResult, UpdateResult } from 'mongodb';
 import { Model, Types } from 'mongoose';
 import { JobSummary } from '../../../types/job-summary.type';
-import { JobSources } from '../jobs/job-model.module';
 import { CustomJobDto } from './custom-jobs.dto';
 import { CustomJobEntry, CustomJobsDocument } from './custom-jobs.model';
 
@@ -23,7 +22,6 @@ export class CustomJobsService {
       type: dto.type,
       language: dto.language,
       jobPodConfigId: new Types.ObjectId(dto.jobPodConfigId),
-      source: JobSources.userCreated,
       findingHandlerEnabled: dto.findingHandlerEnabled,
       findingHandler: dto.findingHandler ?? undefined,
       findingHandlerLanguage: dto.findingHandlerLanguage ?? undefined,
@@ -39,26 +37,23 @@ export class CustomJobsService {
   public async getAllSummaries(): Promise<JobSummary[]> {
     return await this.customJobModel
       .find()
-      .select(['-_id', 'name', 'parameters', 'source']);
+      .select(['-_id', 'name', 'parameters', 'builtIn']);
   }
 
   public async edit(id: string, dto: CustomJobDto): Promise<UpdateResult> {
-    const job: CustomJobEntry = {
+    const job: Partial<CustomJobEntry> = {
       name: dto.name,
       code: dto.code,
       type: dto.type,
       language: dto.language,
       jobPodConfigId: new Types.ObjectId(dto.jobPodConfigId),
-      source: JobSources.userCreated,
       findingHandlerEnabled: dto.findingHandlerEnabled,
       findingHandler: dto.findingHandler ?? undefined,
       findingHandlerLanguage: dto.findingHandlerLanguage ?? undefined,
-      parameters: [],
     };
     return await this.customJobModel.updateOne(
       {
         _id: { $eq: new Types.ObjectId(id) },
-        source: { $eq: JobSources.userCreated },
       },
       job,
     );
@@ -67,7 +62,6 @@ export class CustomJobsService {
   public async delete(id: string): Promise<DeleteResult> {
     return await this.customJobModel.deleteOne({
       _id: { $eq: new Types.ObjectId(id) },
-      source: { $eq: JobSources.userCreated },
     });
   }
 

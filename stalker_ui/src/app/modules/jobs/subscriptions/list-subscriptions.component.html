@@ -56,7 +56,7 @@
         <th mat-header-cell *matHeaderCellDef i18n="Source|Source of the content" class="centered">Source</th>
         <td mat-cell *matCellDef="let element" class="centered">
           @if (!element.builtIn) {
-            <mat-icon matTooltip="Custom" matTooltip-i18n="Custom|Customized element">precision_manufacturing</mat-icon>
+            <mat-icon matTooltip="Custom" i18n-matTooltip="Custom|Customized element">precision_manufacturing</mat-icon>
           }
           @if (element.builtIn) {
             <avatar class="tw-block tw-w-8 tw-h-8" src="assets/red-kite-logo-only-color-circle.png"></avatar>

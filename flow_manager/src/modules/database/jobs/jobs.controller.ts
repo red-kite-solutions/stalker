@@ -29,7 +29,7 @@ import { CustomJobsDocument } from '../custom-jobs/custom-jobs.model';
 import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
 import { SecretsService } from '../secrets/secrets.service';
 import { JobParameter } from '../subscriptions/event-subscriptions/event-subscriptions.model';
-import { JobDefinitions, JobSources } from './job-model.module';
+import { JobDefinitions } from './job-model.module';
 import { JobExecutionsDto, StartJobDto } from './jobs.dto';
 import { JobFactory, JobFactoryUtils } from './jobs.factory';
 import { JobsService } from './jobs.service';
@@ -69,7 +69,6 @@ export class JobsController {
       return {
         name: jd.name,
         parameters: jd.params,
-        source: JobSources.builtIn,
       };
     });
 
@@ -87,27 +86,26 @@ export class JobsController {
   @Post()
   async startJob(@Body() dto: StartJobDto) {
     let jpConfig: JobPodConfiguration = null;
-    if (dto.source === JobSources.userCreated) {
-      if (!isNotEmpty(dto.task) || !isString(dto.task))
-        throw new HttpBadRequestException(
-          'The task parameter is not a valid string',
-        );
 
-      const customJob: CustomJobsDocument =
-        await this.customJobsService.getByName(dto.task);
-      if (!customJob) throw new HttpNotFoundException();
-
-      jpConfig = await JobFactoryUtils.getCustomJobPodConfig(
-        customJob,
-        this.configService,
+    if (!isNotEmpty(dto.task) || !isString(dto.task))
+      throw new HttpBadRequestException(
+        'The task parameter is not a valid string',
       );
 
-      dto.jobParameters = JobFactoryUtils.setupCustomJobParameters(
-        customJob,
-        dto.jobParameters,
-      );
-      dto.task = CustomJob.name;
-    }
+    const customJob: CustomJobsDocument =
+      await this.customJobsService.getByName(dto.task);
+    if (!customJob) throw new HttpNotFoundException();
+
+    jpConfig = await JobFactoryUtils.getCustomJobPodConfig(
+      customJob,
+      this.configService,
+    );
+
+    dto.jobParameters = JobFactoryUtils.setupCustomJobParameters(
+      customJob,
+      dto.jobParameters,
+    );
+    dto.task = CustomJob.name;
 
     const projectIdParameter = new JobParameter();
     projectIdParameter.name = 'projectId';
