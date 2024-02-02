@@ -10,7 +10,9 @@ Stalker's API can be used by third-party tools for automated consumption.
 **Quick Links**
 
 * [Architecture](./architecture.md)
-* [Jobs](./implementing-jobs.md)
+* Jobs
+  * [Built-in jobs](./jobs.md)
+  * [Implementing jobs](./implementing-jobs.md)
 * [Findings](./findings.md)
 * [Subscriptions](./subscriptions.md)
 * [Secrets](./secrets.md)
