@@ -3,6 +3,7 @@ import { CommandHandler } from '@nestjs/cqrs';
 import { ConfigService } from '../../../database/admin/config/config.service';
 import { CustomJobsService } from '../../../database/custom-jobs/custom-jobs.service';
 import { JobsService } from '../../../database/jobs/jobs.service';
+import { DomainsService } from '../../../database/reporting/domain/domain.service';
 import { HostService } from '../../../database/reporting/host/host.service';
 import { SecretsService } from '../../../database/secrets/secrets.service';
 import { EventSubscriptionsService } from '../../../database/subscriptions/event-subscriptions/event-subscriptions.service';
@@ -16,6 +17,7 @@ export class HostnameIpHandler extends JobFindingHandlerBase<HostnameIpCommand> 
 
   constructor(
     private hostService: HostService,
+    private domainsService: DomainsService,
     jobService: JobsService,
     subscriptionsService: EventSubscriptionsService,
     customJobsService: CustomJobsService,
@@ -34,6 +36,11 @@ export class HostnameIpHandler extends JobFindingHandlerBase<HostnameIpCommand> 
   }
 
   protected async executeCore(command: HostnameIpCommand) {
+    await this.domainsService.addDomain(
+      command.finding.domainName,
+      command.projectId,
+    );
+
     await this.hostService.addHostsWithDomain(
       [command.finding.ip],
       command.finding.domainName,

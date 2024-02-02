@@ -105,7 +105,6 @@ export class JobsController {
       customJob,
       dto.jobParameters,
     );
-    dto.task = CustomJob.name;
 
     const projectIdParameter = new JobParameter();
     projectIdParameter.name = 'projectId';
