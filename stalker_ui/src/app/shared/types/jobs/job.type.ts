@@ -37,6 +37,7 @@ export interface StartedJobViewModel {
   endTimestamp: number;
   endTime: Date;
   task: string;
+  name: string;
   projectId: string;
   priority: number;
   output: JobOutputResponse[];

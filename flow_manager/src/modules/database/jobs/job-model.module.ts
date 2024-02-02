@@ -12,8 +12,6 @@ export const JobDefinitions: JobDefinition[] = [
   },
 ];
 
-export const JobTypes = JobDefinitions.map((j) => j.name);
-
 const discriminators = JobDefinitions.map((j) => {
   return { name: j.name, schema: j.schema };
 });
