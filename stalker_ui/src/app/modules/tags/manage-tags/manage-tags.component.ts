@@ -1,7 +1,7 @@
 import { Color, NgxMatColorPickerModule } from '@angular-material-components/color-picker';
 import { SelectionModel } from '@angular/cdk/collections';
 import { CommonModule } from '@angular/common';
-import { Component, TemplateRef } from '@angular/core';
+import { AfterViewInit, Component, TemplateRef } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -11,11 +11,12 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
-import { map } from 'rxjs';
+import { BehaviorSubject, Subject, combineLatest, debounceTime, map, scan, shareReplay, switchMap, tap } from 'rxjs';
 import { TagsService } from 'src/app/api/tags/tags.service';
 import { Tag } from 'src/app/shared/types/tag.type';
 import {
@@ -23,6 +24,7 @@ import {
   ConfirmDialogData,
 } from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
 import { SharedModule } from '../../../shared/shared.module';
+import { FilteredPaginatedTableComponent } from '../../../shared/widget/filtered-paginated-table/filtered-paginated-table.component';
 
 @Component({
   standalone: true,
@@ -41,15 +43,31 @@ import { SharedModule } from '../../../shared/shared.module';
     MatInputModule,
     MatCheckboxModule,
     NgxMatColorPickerModule,
+    FilteredPaginatedTableComponent,
   ],
   selector: 'app-manage-tags',
   templateUrl: './manage-tags.component.html',
   styleUrls: ['./manage-tags.component.scss'],
 })
-export class ManageTagsComponent {
-  displayedColumns: string[] = ['select', 'firstName', 'lastName', 'email', 'role', 'active'];
-  dataSource = new MatTableDataSource<Tag>();
+export class ManageTagsComponent implements AfterViewInit {
   selection = new SelectionModel<Tag>(true, []);
+  public isLoading$ = new BehaviorSubject(true);
+  private filters$ = new BehaviorSubject<string[]>([]);
+  private deleted$ = new BehaviorSubject<string[]>([]);
+  private created$ = new BehaviorSubject<Tag[]>([]);
+  private paging$ = new Subject<PageEvent>();
+
+  private createdTags$ = this.created$.pipe(
+    scan((newSecret, previousNewSecrets) => {
+      return previousNewSecrets.concat(newSecret);
+    })
+  );
+
+  private deletedTags$ = this.deleted$.pipe(
+    scan((deleted, previous) => {
+      return previous.concat(deleted);
+    })
+  );
 
   public newTagText = '';
   public newTagColor: Color = new Color(0, 0, 0);
@@ -57,17 +75,31 @@ export class ManageTagsComponent {
   public color: ThemePalette = 'primary';
   public readonly noDataMessage = $localize`:No tag found|No tag was found for this item:No tag found`;
 
-  private refreshData() {
-    return this.tagsService.getTags().pipe(
-      map((next) => {
-        for (const n of next) {
-          n.id = n._id;
-        }
-        this.dataSource.data = next;
-      })
-    );
-  }
-  public dataSource$ = this.refreshData();
+  public tags$ = combineLatest([this.createdTags$, this.tagsService.getTags(), this.deletedTags$]).pipe(
+    map(([createdTags, dbTags, deletedTags]) =>
+      dbTags.concat(createdTags).filter((v) => !deletedTags.some((d) => v._id === d))
+    ),
+    map((tags) => tags.sort((a, b) => a._id.localeCompare(b._id))),
+    switchMap((tags) =>
+      this.filters$.pipe(
+        debounceTime(250),
+        map((filters) => filters.map((filter) => this.normalizeString(filter))),
+        map((filters) => tags.filter((sub) => !filters.length || this.filterSecret(sub, filters)))
+      )
+    ),
+    shareReplay(1)
+  );
+
+  public dataSource$ = combineLatest([this.tags$, this.paging$]).pipe(
+    map(([secrets, paging]) => {
+      const start = paging.pageIndex * paging.pageSize;
+      let end = start + paging.pageSize;
+      end = end < secrets.length ? end : secrets.length;
+      return new MatTableDataSource<Tag>(secrets.slice(start, end));
+    }),
+    tap(() => this.isLoading$.next(false)),
+    shareReplay(1)
+  );
 
   constructor(
     private tagsService: TagsService,
@@ -78,36 +110,28 @@ export class ManageTagsComponent {
     this.titleService.setTitle($localize`:Manage tags page title|:Manage tags`);
   }
 
-  /** Whether the number of selected elements matches the total number of rows. */
-  isAllSelected() {
-    const numSelected = this.selection.selected.length;
-    const numRows = this.dataSource.data.length;
-    return numSelected === numRows;
+  ngAfterViewInit(): void {
+    const firstPage = new PageEvent();
+    firstPage.pageSize = 10;
+    firstPage.pageIndex = 0;
+    this.paging$.next(firstPage);
   }
 
-  /** Selects all rows if they are not all selected; otherwise clear selection. */
-  masterToggle() {
-    if (this.isAllSelected()) {
-      this.selection.clear();
-      return;
-    }
-
-    this.selection.select(...this.dataSource.data);
+  public pageChange(page: PageEvent) {
+    this.paging$.next(page);
   }
 
-  /** The label for the checkbox on the passed row */
-  checkboxLabel(row?: Tag): string {
-    if (!row) {
-      return `${this.isAllSelected() ? 'deselect' : 'select'} all`;
-    }
-    return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.id + 1}`;
+  public filterChange(filters: string[]) {
+    this.filters$.next(filters);
   }
 
   public deleteTags() {
     const bulletPoints: string[] = Array<string>();
-    this.selection.selected.forEach((tag: Tag) => {
-      bulletPoints.push(`${tag.text}`);
-    });
+
+    for (const tag of this.selection.selected) {
+      bulletPoints.push(tag.text);
+    }
+
     let data: ConfirmDialogData;
     if (bulletPoints.length > 0) {
       data = {
@@ -121,10 +145,9 @@ export class ManageTagsComponent {
         },
         onDangerButtonClick: () => {
           this.selection.selected.forEach(async (tag: Tag) => {
-            await this.tagsService.delete(tag.id);
+            await this.tagsService.delete(tag._id);
             this.selection.deselect(tag);
-            const removeIndex = this.dataSource.data.findIndex((t: Tag) => t.id === tag.id);
-            this.dataSource.data.splice(removeIndex, 1);
+            this.deleted$.next([tag._id]);
             this.toastr.success(
               $localize`:Tag deleted|Confirm the successful deletion of a tag:Tag deleted successfully`
             );
@@ -157,9 +180,9 @@ export class ManageTagsComponent {
         );
         return;
       }
-      await this.tagsService.createTag(this.newTagText, '#' + this.newTagColor.hex);
+      const newTag = await this.tagsService.createTag(this.newTagText, '#' + this.newTagColor.hex);
       this.toastr.success($localize`:Tag created|Confirm the successful creation of a tag:Tag created successfully`);
-      this.dataSource$ = this.refreshData();
+      this.created$.next([newTag]);
       this.newTagText = '';
       this.newTagColor = new Color(0, 0, 0);
       this.dialog.closeAll();
@@ -168,6 +191,18 @@ export class ManageTagsComponent {
         $localize`:Error while submitting tag|There was a server error while submitting the new tag:Error while submitting tag`
       );
     }
+  }
+
+  private filterSecret(secret: Tag, filters: string[]) {
+    const parts = [secret?.text, secret.color];
+    return filters.some((filter) => this.normalizeString(parts.join(' ')).includes(filter));
+  }
+
+  private normalizeString(str: string) {
+    return str
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
   }
 
   openNewTagDialog(templateRef: TemplateRef<any>) {

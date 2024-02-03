@@ -105,7 +105,7 @@ export class ViewDomainComponent implements OnDestroy {
     map((next: any[]) => {
       const tagsArr: Tag[] = [];
       for (const tag of next) {
-        tagsArr.push({ id: tag._id, text: tag.text, color: tag.color });
+        tagsArr.push({ _id: tag._id, text: tag.text, color: tag.color });
       }
       return tagsArr;
     })
@@ -115,10 +115,10 @@ export class ViewDomainComponent implements OnDestroy {
     map(([hostTags, allTags]) => {
       const tagsArr: (Tag & SelectItem)[] = [];
       for (const tag of allTags) {
-        if (hostTags.includes(tag.id)) {
-          tagsArr.push({ id: tag.id, text: tag.text, color: tag.color, isSelected: true });
+        if (hostTags.includes(tag._id)) {
+          tagsArr.push({ _id: tag._id, text: tag.text, color: tag.color, isSelected: true });
         } else {
-          tagsArr.push({ id: tag.id, text: tag.text, color: tag.color, isSelected: false });
+          tagsArr.push({ _id: tag._id, text: tag.text, color: tag.color, isSelected: false });
         }
       }
       this.tags = tagsArr;

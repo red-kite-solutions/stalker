@@ -1,44 +1,31 @@
-.mat-mdc-card {
-  padding-bottom: 0;
-  overflow: hidden;
-}
-
-.table-container {
-  margin: 0 -16px -16px -16px;
-}
-
-table {
-  width: 100%;
-}
-
-.rows:hover {
-  background-color: var(--mat-table-background-color-hover);
-}
-
-.check-box-cell {
-  cursor: default;
-}
-
-.mat-column-select {
-  width: 48px;
-  max-width: 48px;
-  overflow: visible;
-}
-
-.nodata {
-  text-align: center;
-}
-
 .create-tag-form-row {
   display: flex;
   gap: 16px;
+  padding-top: 3px;
 
-  mat-form-field {
-    flex: auto;
+  div {
+    width: 50%;
+    mat-form-field {
+      width: 100%;
+    }
   }
 }
 
 h1 {
   display: flex;
   margin-top: 16px;
+}
+
+.button-row {
+  gap: 16px;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  div {
+    width: 50%;
+  }
+}
+
+mat-dialog-content {
+  padding-bottom: 0px !important;
 }
