@@ -16,7 +16,6 @@ export class SecretsService {
   ) {}
 
   private readonly selectValueProjection = '+value';
-  // private static readonly cipherType: crypto.CipherGCMTypes = 'aes-256-gcm';
   private static readonly publicKey = forge.pki.publicKeyFromPem(
     forge.util.decode64(process.env[keyEnvironmentVariable]),
   );
