@@ -1,6 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { JobParameterCountException } from '../../../exceptions/job-parameter.exception';
+import { ProjectUnassigned } from '../../../validators/is-project-id.validator';
 import { DEFAULT_JOB_POD_FALLBACK_CONFIG } from '../admin/config/config.default';
 import { ConfigService } from '../admin/config/config.service';
 import {
@@ -11,18 +12,24 @@ import {
   CustomJobEntry,
   CustomJobsDocument,
 } from '../custom-jobs/custom-jobs.model';
+import { SecretsService } from '../secrets/secrets.service';
 import { JobParameter } from '../subscriptions/event-subscriptions/event-subscriptions.model';
 import { JobDefinitions } from './job-model.module';
+import { CustomJob } from './models/custom-job.model';
 import { Job } from './models/jobs.model';
+
+const customJobParameters = 'customJobParameters';
 
 export class JobFactory {
   private static logger = new Logger(JobFactory.name);
 
-  public static createJob(
+  public static async createJob(
     jobName: string,
     args: JobParameter[],
+    secretsService: SecretsService,
+    projectId: string = undefined,
     jobPodConfig: JobPodConfiguration = null,
-  ): Job {
+  ): Promise<Job> {
     const jobDefinition = JobDefinitions.find((jd) => jd.name === jobName);
 
     if (!jobDefinition) {
@@ -38,6 +45,20 @@ export class JobFactory {
       jobPodConfig.memoryKbytesLimit
     ) {
       args = JobFactoryUtils.setupJobPodConfigParameters(args, jobPodConfig);
+    }
+
+    if (jobName === CustomJob.name) {
+      await JobFactoryUtils.injectSecretsInParameters(
+        <JobParameter[]>args.find((v) => v.name === customJobParameters).value,
+        secretsService,
+        projectId,
+      );
+    } else {
+      await JobFactoryUtils.injectSecretsInParameters(
+        args,
+        secretsService,
+        projectId,
+      );
     }
 
     try {
@@ -131,7 +152,7 @@ export class JobFactoryUtils {
       value: customJob.language,
     });
     jobParameters.push({
-      name: 'customJobParameters',
+      name: customJobParameters,
       value: customJobParams,
     });
     if (customJob.findingHandlerEnabled) {
@@ -170,5 +191,55 @@ export class JobFactoryUtils {
       value: jobPodConfig.memoryKbytesLimit,
     });
     return jobParameters;
+  }
+
+  public static async injectSecretsInParameters(
+    jobParameters: JobParameter[],
+    secretsService: SecretsService,
+    projectId: string = undefined,
+  ) {
+    for (const param of jobParameters) {
+      if (Array.isArray(param.value)) {
+        for (let i = 0; i < param.value.length; ++i) {
+          if (typeof param.value[i] !== 'string') continue;
+          param.value[i] = await JobFactoryUtils.getSecretIfInjectTag(
+            param.value[i],
+            secretsService,
+            projectId,
+          );
+        }
+        continue;
+      }
+
+      if (typeof param.value !== 'string') continue;
+      param.value = await JobFactoryUtils.getSecretIfInjectTag(
+        param.value,
+        secretsService,
+        projectId,
+      );
+    }
+  }
+
+  private static async getSecretIfInjectTag(
+    value: string,
+    secretsService: SecretsService,
+    projectId: string = undefined,
+  ) {
+    // https://regex101.com/r/wUp5Tn/1
+    const expressionRegex = /^\s*\$\{\s*secrets\.([^\s\{\}]+)\s*\}\s*$/i;
+    const match = value.match(expressionRegex);
+
+    if (!match || match.length <= 1) return value;
+
+    // Would extract domainName from ${{ domainName }}
+    const secretName = match[1];
+    const secret = await secretsService.getBestSecretWithValue(
+      secretName,
+      projectId === ProjectUnassigned ? undefined : projectId,
+    );
+
+    if (!secret) return value;
+
+    return secret.value;
   }
 }

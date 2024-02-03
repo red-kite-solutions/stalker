@@ -3,6 +3,7 @@ import { CommandHandler } from '@nestjs/cqrs';
 import { ConfigService } from '../../../database/admin/config/config.service';
 import { CustomJobsService } from '../../../database/custom-jobs/custom-jobs.service';
 import { JobsService } from '../../../database/jobs/jobs.service';
+import { SecretsService } from '../../../database/secrets/secrets.service';
 import { EventSubscriptionsService } from '../../../database/subscriptions/event-subscriptions/event-subscriptions.service';
 import { SubscriptionTriggersService } from '../../../database/subscriptions/subscription-triggers/subscription-triggers.service';
 import { FindingsService } from '../../findings.service';
@@ -20,6 +21,7 @@ export class CustomFindingHandler extends JobFindingHandlerBase<CustomFindingCom
     customJobsService: CustomJobsService,
     configService: ConfigService,
     subscriptionTriggersService: SubscriptionTriggersService,
+    secretsService: SecretsService,
   ) {
     super(
       jobService,
@@ -27,6 +29,7 @@ export class CustomFindingHandler extends JobFindingHandlerBase<CustomFindingCom
       customJobsService,
       configService,
       subscriptionTriggersService,
+      secretsService,
     );
   }
 

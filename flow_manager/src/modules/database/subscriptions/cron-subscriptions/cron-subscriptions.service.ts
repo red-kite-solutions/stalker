@@ -27,6 +27,7 @@ import { Port } from '../../reporting/port/port.model';
 import { PortService } from '../../reporting/port/port.service';
 import { ProjectDocument } from '../../reporting/project.model';
 import { ProjectService } from '../../reporting/project.service';
+import { SecretsService } from '../../secrets/secrets.service';
 import { CRON_SUBSCRIPTIONS_FILES_PATH } from '../subscriptions.constants';
 import { SubscriptionsUtils } from '../subscriptions.utils';
 import { CronSubscriptionDto } from './cron-subscriptions.dto';
@@ -50,6 +51,7 @@ export class CronSubscriptionsService {
     private readonly domainsService: DomainsService,
     private readonly hostsService: HostService,
     private readonly portsService: PortService,
+    private readonly secretsService: SecretsService,
   ) {}
 
   public async create(dto: CronSubscriptionDto) {
@@ -165,7 +167,7 @@ export class CronSubscriptionsService {
           }
         }
         if (!conditionPassed) continue;
-        this.publishJob(subCopy.jobName, subCopy.jobParameters);
+        this.publishJob(subCopy.jobName, subCopy.jobParameters, projectId);
       }
     }
   }
@@ -197,14 +199,14 @@ export class CronSubscriptionsService {
             pageSize,
             filter,
           );
-          this.publishJobsFromDomainsPage(sub, domains);
+          this.publishJobsFromDomainsPage(sub, domains, projectId);
           page++;
         } while (domains.length >= pageSize);
         break;
       case 'ALL_HOSTS':
         do {
           hosts = await this.hostsService.getIps(page, pageSize, filter);
-          this.publishJobsFromHostsPage(sub, hosts);
+          this.publishJobsFromHostsPage(sub, hosts, projectId);
           page++;
         } while (hosts.length >= pageSize);
         break;
@@ -221,7 +223,7 @@ export class CronSubscriptionsService {
                 pageSize,
                 tcpPortFilter,
               );
-              this.publishJobsFromPortsPage(sub, ports, host.ip);
+              this.publishJobsFromPortsPage(sub, ports, host.ip, projectId);
               portPage++;
             } while (ports.length >= pageSize);
           }
@@ -230,7 +232,7 @@ export class CronSubscriptionsService {
         break;
       case 'ALL_IP_RANGES':
         const ranges = await this.projectService.getIpRanges(projectId);
-        this.publishJobsFromIpRanges(sub, ranges);
+        this.publishJobsFromIpRanges(sub, ranges, projectId);
         break;
       default:
         this.logger.error(
@@ -242,28 +244,31 @@ export class CronSubscriptionsService {
   private publishJobsFromDomainsPage(
     sub: CronSubscription,
     domains: Pick<DomainDocument, 'name'>[],
+    projectId: string,
   ) {
     for (const domain of domains) {
       const finding = new HostnameFinding();
       finding.domainName = domain.name;
-      this.publishJobForFinding(sub, finding);
+      this.publishJobForFinding(sub, finding, projectId);
     }
   }
 
   private publishJobsFromHostsPage(
     sub: CronSubscription,
     hosts: Pick<HostDocument, 'ip'>[],
+    projectId: string,
   ) {
     for (const host of hosts) {
       const finding = new IpFinding();
       finding.ip = host.ip;
-      this.publishJobForFinding(sub, finding);
+      this.publishJobForFinding(sub, finding, projectId);
     }
   }
 
   private publishJobsFromIpRanges(
     sub: CronSubscription,
     project: Pick<ProjectDocument, 'ipRanges'>,
+    projectId: string,
   ) {
     if (!project.ipRanges) return;
 
@@ -280,7 +285,7 @@ export class CronSubscriptionsService {
         );
         continue;
       }
-      this.publishJobForFinding(sub, finding);
+      this.publishJobForFinding(sub, finding, projectId);
     }
   }
 
@@ -288,6 +293,7 @@ export class CronSubscriptionsService {
     sub: CronSubscription,
     ports: Pick<Port, 'port' | 'layer4Protocol'>[],
     ip: string,
+    projectId: string,
   ) {
     for (const port of ports) {
       const finding = new PortFinding();
@@ -301,11 +307,15 @@ export class CronSubscriptionsService {
           type: 'text',
         },
       ];
-      this.publishJobForFinding(sub, finding);
+      this.publishJobForFinding(sub, finding, projectId);
     }
   }
 
-  private publishJobForFinding(sub: CronSubscription, finding: Finding) {
+  private publishJobForFinding(
+    sub: CronSubscription,
+    finding: Finding,
+    projectId: string,
+  ) {
     if (!SubscriptionsUtils.shouldExecuteFromFinding(sub.conditions, finding))
       return;
 
@@ -330,11 +340,20 @@ export class CronSubscriptionsService {
       );
     }
 
-    this.publishJob(sub.jobName, parametersCopy);
+    this.publishJob(sub.jobName, parametersCopy, projectId);
   }
 
-  private publishJob(jobName: string, parameters: JobParameter[]) {
-    const job: Job = JobFactory.createJob(jobName, parameters);
+  private async publishJob(
+    jobName: string,
+    parameters: JobParameter[],
+    projectId: string,
+  ) {
+    const job: Job = await JobFactory.createJob(
+      jobName,
+      parameters,
+      this.secretsService,
+      projectId,
+    );
     if (job != null) this.jobsService.publish(job);
   }
 

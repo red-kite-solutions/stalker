@@ -5,6 +5,7 @@ import { CustomJobsService } from '../../../database/custom-jobs/custom-jobs.ser
 import { JobsService } from '../../../database/jobs/jobs.service';
 import { HostService } from '../../../database/reporting/host/host.service';
 import { PortService } from '../../../database/reporting/port/port.service';
+import { SecretsService } from '../../../database/secrets/secrets.service';
 import { EventSubscriptionsService } from '../../../database/subscriptions/event-subscriptions/event-subscriptions.service';
 import { SubscriptionTriggersService } from '../../../database/subscriptions/subscription-triggers/subscription-triggers.service';
 import { JobFindingHandlerBase } from '../job-findings-handler-base';
@@ -22,6 +23,7 @@ export class PortHandler extends JobFindingHandlerBase<PortCommand> {
     customJobsService: CustomJobsService,
     configService: ConfigService,
     subscriptionTriggersService: SubscriptionTriggersService,
+    secretsService: SecretsService,
   ) {
     super(
       jobService,
@@ -29,6 +31,7 @@ export class PortHandler extends JobFindingHandlerBase<PortCommand> {
       customJobsService,
       configService,
       subscriptionTriggersService,
+      secretsService,
     );
   }
 

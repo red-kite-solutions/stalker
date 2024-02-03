@@ -16,6 +16,7 @@
             [filterOptions]="filterOptions"
             [routerLinkPrefix]="'/jobs/executions/'"
             (filtersChange)="filtersChange($event)"
+            [noDataMessage]="noDataMessage"
           >
             <!-- Name Column -->
             <ng-container matColumnDef="name">

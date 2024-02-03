@@ -28,6 +28,7 @@
       [queryParamsFunc]="getSubscriptionQueryParams"
       [filterType]="'fulltext'"
       (filtersChange)="filterChange($event)"
+      [noDataMessage]="noDataMessage"
       (selectionChange)="selection = $event"
     >
       <!-- Name Column -->

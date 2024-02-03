@@ -29,6 +29,7 @@
         [routerLinkPrefix]="'/domains/'"
         (filtersChange)="filtersChange($event)"
         (selectionChange)="selection = $event"
+        [noDataMessage]="noDataMessage"
       >
         <!-- Domain Column -->
         <ng-container matColumnDef="domain">

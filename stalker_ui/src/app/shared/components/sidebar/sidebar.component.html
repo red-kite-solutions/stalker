@@ -134,6 +134,19 @@
         <span>{{ jobExecutions }}</span>
       }
     </a>
+    <a
+      mat-list-item
+      routerLinkActive="list-item-active"
+      routerLink="/secrets"
+      [matTooltip]="expanded ? '' : secrets"
+      [matTooltipShowDelay]="700"
+      matTooltipPosition="right"
+    >
+      <mat-icon class="material-symbols-outlined-filled">password</mat-icon>
+      @if (expanded) {
+        <span>{{ secrets }}</span>
+      }
+    </a>
     <!-- Administration -->
     @if (this.authService.role === 'admin') {
       <div>

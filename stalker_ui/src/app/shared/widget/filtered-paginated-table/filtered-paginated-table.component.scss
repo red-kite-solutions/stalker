@@ -20,6 +20,10 @@ table {
 
 .nodata {
   text-align: center;
+  td {
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
 }
 
 .filter-chip-list {
@@ -30,4 +34,9 @@ table {
   width: 48px;
   max-width: 48px;
   overflow: visible;
+}
+
+mat-progress-bar {
+  height: 3px;
+  width: auto;
 }

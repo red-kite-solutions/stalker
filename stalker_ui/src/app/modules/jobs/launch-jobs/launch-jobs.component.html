@@ -61,7 +61,7 @@
     <div class="tw-flex-[55%_0_0]">
       <div class="tw-flex tw-flex-col code-editor-container">
         <mat-form-field appearance="outline">
-          <mat-label i18n="Project|Project or business">Project</mat-label>
+          <mat-label i18n="Project|Project">Project</mat-label>
           <mat-select [(value)]="selectedProject">
             <mat-option>None</mat-option>
             @for (project of projects$ | async; track project) {

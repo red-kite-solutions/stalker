@@ -7,7 +7,6 @@ import {
   Post,
   Put,
   UseGuards,
-  ValidationPipe,
 } from '@nestjs/common';
 import { DeleteResult, UpdateResult } from 'mongodb';
 import {
@@ -70,7 +69,7 @@ export class ProjectController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
   @Post()
-  async createProject(@Body(new ValidationPipe()) dto: CreateProjectDto) {
+  async createProject(@Body() dto: CreateProjectDto) {
     if ((dto.imageType && !dto.logo) || (dto.logo && !dto.imageType))
       throw new HttpBadRequestException();
 
@@ -97,7 +96,7 @@ export class ProjectController {
   @Put(':id')
   async editProject(
     @Param() id: MongoIdDto,
-    @Body(new ValidationPipe()) dto: EditProjectDto,
+    @Body() dto: EditProjectDto,
   ): Promise<UpdateResult> {
     const data: Partial<Project> = {};
     if ((dto.imageType && !dto.logo) || (dto.logo && !dto.imageType)) {
