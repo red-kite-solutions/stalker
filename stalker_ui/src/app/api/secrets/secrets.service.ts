@@ -14,7 +14,7 @@ export class SecretService {
     return <Observable<Array<Secret>>>this.http.get(`${environment.fmUrl}/secrets/`);
   }
 
-  async create(secret: Pick<Secret, 'name' | 'projectId' | 'value' | 'description'>) {
+  async create(secret: Omit<Secret, '_id'>) {
     return <Secret>await firstValueFrom(this.http.post(`${environment.fmUrl}/secrets/`, secret));
   }
 
