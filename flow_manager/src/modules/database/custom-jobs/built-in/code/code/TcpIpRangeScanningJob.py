@@ -7,6 +7,23 @@ from stalker_job_sdk import (IpFinding, PortFinding, TextField, log_error,
                              log_finding, log_info, log_warning)
 
 
+def validate_ip(ip: str, name: str):
+    try:
+        ip = ip_address(ip)
+    except ValueError:
+        log_error(f"{name} parameter is invalid: {ip}")
+        exit()
+
+def validate_port(port: int, name: str):
+    try:
+        if not isinstance(port, int) or port < 1 or port > 65535:
+            log_error(f"Invalid port {str(port)} in {name}")
+            exit()
+    except Exception:
+        log_error(f"Invalid port {str(port)} in {name}")
+        exit()
+
+
 def main():
     TARGET_IP: str = environ["targetIp"]  # Start of ip range
     TARGET_MASK: int = int(environ["targetMask"])  # mask (ex: /24)
@@ -20,8 +37,33 @@ def main():
         "ports"
     ]  # expects a json array of numbers, ex: [ 80, 443, 3389 ]. Array can be empty
 
-    ports_list: list = loads(PORTS) if PORTS and PORTS != "" else []
-    ports_set: set = set(ports_list)
+    validate_ip(TARGET_IP, 'targetIp')
+    if not isinstance(TARGET_MASK, int) or TARGET_MASK < 0 or TARGET_MASK > 32:
+        log_error(f"Invalid mask parameter: {str(TARGET_MASK)}")
+        exit()
+    
+    if not isinstance(RATE, int) or RATE < 0:
+        log_error(f"Invalid rate parameter: {str(RATE)}")
+    
+    if RATE >= 1000000:
+        log_warning(f"rate value is high (>= 1 000 000) and may have an effect on performances.")
+
+    ports_list:list = []
+    ports_set: set = set()
+
+    try:
+        ports_list = loads(PORTS) if PORTS and PORTS != "" else []
+        for p in ports_list:
+            validate_port(p, 'ports')
+        ports_set: set = set(ports_list)
+    except Exception:
+        log_error(f"ports parameter is invalid: {PORTS}")
+        exit()
+
+    validate_port(PORT_MIN, 'portMin')
+    validate_port(PORT_MAX, 'portMax')
+
+
     output_file = 'out.txt'
     ports_str = ','.join(str(n) for n in ports_set)
 

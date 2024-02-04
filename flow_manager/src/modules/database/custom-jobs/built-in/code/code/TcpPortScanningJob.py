@@ -4,9 +4,27 @@ import os
 import random
 import socket
 import threading
+from ipaddress import ip_address
 
-from stalker_job_sdk import PortFinding, TextField, log_finding
+from stalker_job_sdk import (PortFinding, TextField, log_error, log_finding,
+                             log_warning)
 
+
+def validate_ip(ip: str, name: str):
+    try:
+        ip = ip_address(ip)
+    except ValueError:
+        log_error(f"{name} parameter is invalid: {ip}")
+        exit()
+
+def validate_port(port: int, name: str):
+    try:
+        if not isinstance(port, int) or port < 1 or port > 65535:
+            log_error(f"Invalid port {str(port)} in {name}")
+            exit()
+    except Exception:
+        log_error(f"Invalid port {str(port)} in {name}")
+        exit()
 
 class PortScanThread(threading.Thread):
     def __init__(self, ports: list):
@@ -21,7 +39,7 @@ class PortScanThread(threading.Thread):
             s.connect((TARGET_IP, port))
             s.close()
             return True
-        except:
+        except Exception:
             return False
 
     def run(self):
@@ -43,6 +61,35 @@ PORT_MAX: int = int(
 PORTS = os.environ[
     "ports"
 ]  # expects a json array of numbers, ex: [ 80, 443, 3389 ]. Array can be empty
+
+validate_ip(TARGET_IP, 'targetIp')
+
+if not isinstance(THREADS, int) or THREADS <= 0:
+    log_error(f"Invalid rate parameter: {str(THREADS)}")
+    
+if THREADS > 1300:
+    log_warning(f"threads value is high (> 1 300) and may have an effect on performances.")
+
+ports_list:list = []
+ports_set: set = set()
+
+try:
+    ports_list = json.loads(PORTS) if PORTS and PORTS != "" else []
+    for p in ports_list:
+        validate_port(p, 'ports')
+    ports_set: set = set(ports_list)
+except Exception:
+    log_error(f"ports parameter is invalid: {PORTS}")
+    exit()
+
+validate_port(PORT_MIN, 'portMin')
+validate_port(PORT_MAX, 'portMax')
+
+if (not isinstance(SOCKET_TIMEOUT, int) and not isinstance(SOCKET_TIMEOUT, float)) or SOCKET_TIMEOUT < 0:
+    log_error(f"socketTimeoutSeconds parameter is invalid: {SOCKET_TIMEOUT}")
+
+if SOCKET_TIMEOUT > 3:
+    log_warning(f"socketTimeoutSeconds value is high (> 3) and it may have an effect on performances.")
 
 ports_list: list = json.loads(PORTS) if PORTS and PORTS != "" else []
 ports_set: set = set(ports_list)

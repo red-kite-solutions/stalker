@@ -1,15 +1,33 @@
 import json
 import os
 import random
+from ipaddress import ip_address
 
 import httpx
-from stalker_job_sdk import PortFinding, log_error, log_finding
+from stalker_job_sdk import PortFinding, log_error, log_finding, log_info
 
 TARGET_IP: str = os.environ["targetIp"]  # IP to scan
 PORTS = os.environ["ports"]  # expects a json array of numbers, ex: [ 80, 443, 3389 ].
 
-ports_list: list = json.loads(PORTS) if PORTS and PORTS != "" else []
-ports_set: set = set(ports_list)
+try:
+    ip = ip_address(TARGET_IP)
+except ValueError:
+    log_error(f"targetIp parameter is invalid: {TARGET_IP}")
+    exit()
+
+ports_list:list = []
+ports_set: set = set()
+
+try:
+    ports_list = json.loads(PORTS) if PORTS and PORTS != "" else []
+    for p in ports_list:
+        if not isinstance(p, int) or p < 1 or p > 65535:
+            log_error(f"Invalid port {str(p)} of the ports list {str(ports_list)}")
+            exit()
+    ports_set: set = set(ports_list)
+except Exception:
+    log_error(f"ports parameter is invalid: {PORTS}")
+    exit()
 
 ports_list = list(ports_set)
 random.shuffle(ports_list)  # randomizing port scan order
@@ -31,7 +49,7 @@ with httpx.Client(verify=False, http2=True) as client:
             exit()
 
         except Exception as e:
-            print(e)
+            a = "retrying with http"
 
         # Test HTTP
         try:
@@ -44,4 +62,4 @@ with httpx.Client(verify=False, http2=True) as client:
             exit()
 
         except Exception as e:
-            log_error(e)
+            log_info(f"Port {port} is not http(s)")
