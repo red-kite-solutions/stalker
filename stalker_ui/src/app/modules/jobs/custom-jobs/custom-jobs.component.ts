@@ -106,7 +106,7 @@ export class CustomJobsComponent implements OnInit, OnDestroy {
 
   @ViewChild(CodeEditorComponent) codeEditor!: CodeEditorComponent;
 
-  public jobPodSettings$ = this.settingsService.getJobPodSettings();
+  public podSettingOptions$ = this.settingsService.getJobPodSettings();
 
   public handlerFormEnabled$ = of(false);
   public isSaving = false;
