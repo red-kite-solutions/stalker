@@ -11,7 +11,11 @@ export class CustomJobsService {
   constructor(private http: HttpClient) {}
 
   public getCustomJobs(): Observable<CustomJob[]> {
-    return <Observable<Array<CustomJob>>>this.http.get(`${environment.fmUrl}/custom-jobs/`);
+    return <Observable<CustomJob[]>>this.http.get(`${environment.fmUrl}/custom-jobs/`);
+  }
+
+  public get(id: string): Observable<CustomJob> {
+    return <Observable<CustomJob>>this.http.get(`${environment.fmUrl}/custom-jobs/${id}`);
   }
 
   public async create(data: CustomJobData): Promise<CustomJob> {

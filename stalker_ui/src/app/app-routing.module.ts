@@ -6,7 +6,6 @@ import { UnauthenticatedComponent } from './layouts/unauthenticated/unauthentica
 import { AuthComponent } from './modules/auth/auth.component';
 import { FirstComponent } from './modules/auth/first/first.component';
 import { LoginComponent } from './modules/auth/login/login.component';
-import { CustomJobsComponent } from './modules/jobs/custom-jobs/custom-jobs.component';
 import { JobExecutionDetailComponent } from './modules/jobs/job-executions/job-execution-detail.component';
 import { LaunchJobsComponent } from './modules/jobs/launch-jobs/launch-jobs.component';
 import { EditProjectsComponent } from './modules/projects/edit-projects/edit-projects.component';
@@ -62,7 +61,13 @@ const routes: Routes = [
       },
       {
         path: 'jobs/custom',
-        component: CustomJobsComponent,
+        loadComponent: () =>
+          import('./modules/jobs/custom-jobs/list-custom-jobs.component').then((m) => m.ListCustomJobsComponent),
+      },
+      {
+        path: 'jobs/custom/:id',
+        loadComponent: () =>
+          import('./modules/jobs/custom-jobs/custom-jobs.component').then((m) => m.CustomJobsComponent),
       },
       {
         path: 'jobs/launch',

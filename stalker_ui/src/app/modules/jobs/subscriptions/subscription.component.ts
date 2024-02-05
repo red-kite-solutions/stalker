@@ -226,7 +226,7 @@ export class SubscriptionComponent implements OnInit, OnDestroy {
     await this.initialize();
   }
 
-  async initialize(): Promise<void> {
+  private async initialize(): Promise<void> {
     const id = await firstValueFrom(this.id$);
     const type = await firstValueFrom(this.type$);
 

@@ -33,7 +33,6 @@ import { ProfileComponent } from 'src/app/modules/user/profile/profile.component
 import { SharedModule } from 'src/app/shared/shared.module';
 import { SpinnerButtonComponent } from 'src/app/shared/widget/spinner-button/spinner-button.component';
 import { FindingsModule } from '../../modules/findings/findings.module';
-import { CustomJobsComponent } from '../../modules/jobs/custom-jobs/custom-jobs.component';
 import { JobExecutionDetailComponent } from '../../modules/jobs/job-executions/job-execution-detail.component';
 import { LaunchJobsComponent } from '../../modules/jobs/launch-jobs/launch-jobs.component';
 import { JobLogsComponent } from '../../shared/components/job-logs/job-logs.component';
@@ -49,7 +48,6 @@ import { DefaultComponent } from './default.component';
     CreateUserComponent,
     SettingsComponent,
     EditProjectsComponent,
-    CustomJobsComponent,
     LaunchJobsComponent,
     JobExecutionDetailComponent,
   ],

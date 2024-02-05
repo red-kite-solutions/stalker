@@ -6,6 +6,7 @@
     <a
       mat-list-item
       routerLinkActive="list-item-active"
+      [routerLinkActiveOptions]="{ exact: true }"
       routerLink="/"
       [matTooltip]="expanded ? '' : dashboard"
       [matTooltipShowDelay]="700"
@@ -19,6 +20,7 @@
     <a
       mat-list-item
       routerLinkActive="list-item-active"
+      [routerLinkActiveOptions]="{ exact: false }"
       routerLink="/projects"
       [matTooltip]="expanded ? '' : projects"
       [matTooltipShowDelay]="700"
@@ -32,6 +34,7 @@
     <a
       mat-list-item
       routerLinkActive="list-item-active"
+      [routerLinkActiveOptions]="{ exact: false }"
       routerLink="/domains"
       [matTooltip]="expanded ? '' : domains"
       [matTooltipShowDelay]="700"
@@ -54,6 +57,7 @@
     <a
       mat-list-item
       routerLinkActive="list-item-active"
+      [routerLinkActiveOptions]="{ exact: false }"
       routerLink="/hosts"
       [matTooltip]="expanded ? '' : hosts"
       [matTooltipShowDelay]="700"
@@ -67,6 +71,7 @@
     <a
       mat-list-item
       routerLinkActive="list-item-active"
+      [routerLinkActiveOptions]="{ exact: false }"
       routerLink="/tags"
       [matTooltip]="expanded ? '' : tags"
       [matTooltipShowDelay]="700"
@@ -85,6 +90,7 @@
     <a
       mat-list-item
       routerLinkActive="list-item-active"
+      [routerLinkActiveOptions]="{ exact: false }"
       routerLink="/jobs/subscriptions"
       [matTooltip]="expanded ? '' : subscriptions"
       [matTooltipShowDelay]="700"
@@ -98,6 +104,7 @@
     <a
       mat-list-item
       routerLinkActive="list-item-active"
+      [routerLinkActiveOptions]="{ exact: false }"
       routerLink="/jobs/custom"
       [matTooltip]="expanded ? '' : customJobs"
       [matTooltipShowDelay]="700"
@@ -111,6 +118,7 @@
     <a
       mat-list-item
       routerLinkActive="list-item-active"
+      [routerLinkActiveOptions]="{ exact: false }"
       routerLink="/jobs/launch"
       [matTooltip]="expanded ? '' : launchJobs"
       [matTooltipShowDelay]="700"
@@ -124,6 +132,7 @@
     <a
       mat-list-item
       routerLinkActive="list-item-active"
+      [routerLinkActiveOptions]="{ exact: false }"
       routerLink="/jobs/executions"
       [matTooltip]="expanded ? '' : jobExecutions"
       [matTooltipShowDelay]="700"
@@ -144,6 +153,7 @@
         <a
           mat-list-item
           routerLinkActive="list-item-active"
+          [routerLinkActiveOptions]="{ exact: false }"
           routerLink="/admin/users"
           [matTooltip]="expanded ? '' : users"
           [matTooltipShowDelay]="700"
@@ -157,7 +167,9 @@
         <!-- This is not supported for now. -->
         <!-- <a
           mat-list-item
-          routerLinkActive="list-item-active"
+          
+      routerLinkActive="list-item-active"
+      [routerLinkActiveOptions]="{ exact: false }"
           routerLink="/admin/settings"
           [matTooltip]="expanded ? '' : settings"
           [matTooltipShowDelay]="700"
