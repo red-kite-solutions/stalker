@@ -186,14 +186,15 @@ export class CustomJobsComponent implements OnInit, OnDestroy {
           this.canSave = true;
         }
 
-        const { customJobName, customJobType, findingHandlerEnabled, customJobLanguage, findingHandlerLanguage } =
+        let { customJobName, customJobType, findingHandlerEnabled, customJobLanguage, findingHandlerLanguage } =
           formValues;
 
         this.languageOptions = this.getLanguageOptions(customJobType || this.typeDefault);
         this.findingHandlerLanguageOptions = this.getHandlerLanguageOptions(customJobType || this.typeDefault);
 
         if (!this.languageOptions.includes(customJobLanguage as CustomJobLanguage)) {
-          this.customJobForm.controls.customJobLanguage.setValue(this.languageOptions[0]);
+          customJobLanguage = this.languageOptions[0];
+          this.customJobForm.controls.customJobLanguage.setValue(customJobLanguage);
         }
 
         findingHandlerEnabled
