@@ -321,6 +321,7 @@ export async function cleanup() {
     'eventsubscriptions',
     'customjobs',
     'jobs',
+    'secrets',
   ];
 
   const promises = collectionsToDelete.map(async (c) => {

@@ -34,23 +34,31 @@
 
     <ng-content></ng-content>
 
-    <tr
-      mat-row
-      *matRowDef="let row; columns: columns"
-      routerLinkActive="list-item-active"
-      [routerLink]="[routerLinkPrefix, row._id ? row._id : row.id]"
-      [queryParams]="queryParamsFunc != null ? queryParamsFunc(row) : undefined"
-      class="rows"
-    ></tr>
+    @if (elementLinkActive) {
+      <tr
+        mat-row
+        *matRowDef="let row; columns: columns"
+        routerLinkActive="list-item-active"
+        [routerLink]="[routerLinkPrefix, row._id ? row._id : row.id]"
+        [queryParams]="queryParamsFunc != null ? queryParamsFunc(row) : undefined"
+        class="rows"
+      ></tr>
+    }
+    @if (!elementLinkActive) {
+      <tr mat-row *matRowDef="let row; columns: columns" class="rows rows-inactive"></tr>
+    }
 
     <tr class="mat-row nodata" *matNoDataRow>
-      <td class="mat-cell" colspan="100%" i18n="No data|No data is matching the filter, the array is empty">
-        No matching data.
+      <td class="mat-cell" colspan="100%">
+        {{ noDataMessage }}
       </td>
     </tr>
   </table>
+
   @if (isLoading) {
-    <mat-progress-bar mode="indeterminate" class="tw-flex-1"></mat-progress-bar>
+    <div>
+      <mat-progress-bar mode="indeterminate" class="tw-flex-1" color="accent"></mat-progress-bar>
+    </div>
   }
 
   <mat-paginator

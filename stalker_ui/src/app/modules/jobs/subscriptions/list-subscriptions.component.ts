@@ -53,6 +53,7 @@ import { subscriptionTypes } from './subscription-templates';
 export class ListSubscriptionsComponent {
   public isLoading$ = new BehaviorSubject(true);
   public subscriptionTypes = subscriptionTypes;
+  public noDataMessage = $localize`:No subscription found|No subscriptions were found:No subscription found`;
   public selection = new SelectionModel<CronSubscription | EventSubscription>(true, []);
 
   private filters$ = new BehaviorSubject<string[]>([]);

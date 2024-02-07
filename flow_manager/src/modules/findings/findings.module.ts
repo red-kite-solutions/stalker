@@ -11,6 +11,7 @@ import { DomainsModule } from '../database/reporting/domain/domain.module';
 import { HostModule } from '../database/reporting/host/host.module';
 import { PortModule } from '../database/reporting/port/port.module';
 import { ProjectModule } from '../database/reporting/project.module';
+import { SecretsModule } from '../database/secrets/secrets.module';
 import { EventSubscriptionsModule } from '../database/subscriptions/event-subscriptions/event-subscriptions.module';
 import { SubscriptionTriggersModule } from '../database/subscriptions/subscription-triggers/subscription-triggers.module';
 import { FindingsHandlers } from './commands/findings-commands';
@@ -32,6 +33,7 @@ import { JobLogsConsumer } from './job-logs.consumer';
     PortModule,
     ConfigModule,
     SubscriptionTriggersModule,
+    SecretsModule,
   ],
   controllers: [FindingsController],
   providers: [FindingsService, ...FindingsHandlers],

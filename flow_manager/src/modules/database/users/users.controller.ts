@@ -9,7 +9,6 @@ import {
   Put,
   Request,
   UseGuards,
-  ValidationPipe,
 } from '@nestjs/common';
 import { DeleteResult } from 'mongodb';
 import {
@@ -49,7 +48,7 @@ export class UsersController {
   @Post()
   public async createUser(
     @Request() req,
-    @Body(new ValidationPipe()) dto: CreateUserDto,
+    @Body() dto: CreateUserDto,
   ): Promise<UserDocument> {
     const valid: boolean | null = await this.usersService.validateIdentity(
       req.user.email,
@@ -104,7 +103,7 @@ export class UsersController {
   public async editUser(
     @Request() req,
     @Param() idDto: MongoIdDto,
-    @Body(new ValidationPipe()) dto: EditUserDto,
+    @Body() dto: EditUserDto,
   ): Promise<void> {
     if (req.user.role !== Role.Admin && req.user.id !== idDto.id) {
       throw new HttpForbiddenException();

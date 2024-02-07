@@ -8,6 +8,7 @@ import {
   ElementRef,
   EventEmitter,
   Input,
+  OnInit,
   Output,
   QueryList,
   ViewChild,
@@ -79,7 +80,7 @@ import { CodeEditorComponent } from '../code-editor/code-editor.component';
     FormsModule,
   ],
 })
-export class FilteredPaginatedTableComponent<T extends IdentifiedElement> {
+export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implements OnInit {
   @ContentChildren(MatHeaderRowDef) headerRowDefs!: QueryList<MatHeaderRowDef>;
   @ContentChildren(MatRowDef) rowDefs!: QueryList<MatRowDef<T>>;
   @ContentChildren(MatColumnDef) columnDefs!: QueryList<MatColumnDef>;
@@ -106,12 +107,15 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> {
     this.selectionChange.emit(this.selection);
   }
 
+  @Input() noDataMessage: string =
+    $localize`:No data|No data is matching the filter, the array is empty:No matching data.`;
   @Input() filterType: 'tokens' | 'fulltext' = 'tokens';
   @Input() columns!: string[] | null;
   @Input() filterOptions!: string[] | null;
   @Input() isLoading = false;
   @Input() length: number | null = 0;
   @Input() routerLinkPrefix = '/';
+  @Input() elementLinkActive = true;
   @Input() queryParamsFunc: (row: T) => {} = () => ({});
 
   @Output() pageChange = new EventEmitter<PageEvent>();
@@ -120,10 +124,11 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> {
   @Output() selectionChange = new EventEmitter<SelectionModel<T>>();
   @Input() selection = new SelectionModel<T>(true, []);
 
+  @Input() currentPage = 0;
+  @Input() pageSizeOptions: number[] = [10, 25, 50, 100];
+  @Input() pageSize = 0;
+
   filters: string[] = [];
-  pageSize = 10;
-  currentPage = 0;
-  pageSizeOptions: number[] = [10, 25, 50, 100];
   separatorKeysCodes: number[] = [TAB, ENTER];
   filterForm = new UntypedFormControl('');
   filteredColumns$: Observable<string[] | null | undefined>;
@@ -146,6 +151,11 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> {
     this.pageSize = event.pageSize;
     this.currentPage = event.pageIndex;
     this.pageChange.emit(event);
+  }
+
+  ngOnInit(): void {
+    if (!this.pageSize)
+      this.pageSize = this.pageSizeOptions && this.pageSizeOptions.length > 0 ? this.pageSizeOptions[0] : 10;
   }
 
   isAllSelected() {

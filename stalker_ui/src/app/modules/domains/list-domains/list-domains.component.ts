@@ -59,6 +59,7 @@ export class ListDomainsComponent {
   dataLoading = true;
   displayedColumns: string[] = ['select', 'domain', 'hosts', 'project', 'tags'];
   filterOptions: string[] = ['host', 'domain', 'project', 'tags'];
+  public readonly noDataMessage = $localize`:No domain found|No domain was found:No domain found`;
 
   dataSource = new MatTableDataSource<Domain>();
   currentPage: PageEvent = this.generateFirstPageEvent();
@@ -91,7 +92,7 @@ export class ListDomainsComponent {
     map((next: any[]) => {
       const tagsArr: Tag[] = [];
       for (const tag of next) {
-        tagsArr.push({ id: tag._id, text: tag.text, color: tag.color });
+        tagsArr.push({ _id: tag._id, text: tag.text, color: tag.color });
       }
       this.tags = tagsArr;
       return this.tags;
@@ -182,7 +183,7 @@ export class ListDomainsComponent {
           break;
         case 'host':
           const tag = this.tags.find((t) => t.text.trim().toLowerCase() === value.trim().toLowerCase());
-          if (tag) tags.push(tag.id);
+          if (tag) tags.push(tag._id);
           else
             this.toastr.warning(
               $localize`:Tag does not exist|The given tag is not known to the application:Tag not recognized`

@@ -8,11 +8,6 @@ export class Project {
   @Prop({ index: true, unique: true })
   public name: string;
 
-  // Simplified for now, eventually a RefreshFrequency object
-  // detailing the refresh options
-  @Prop()
-  public dataRefreshFrequency: number;
-
   @Prop()
   public ipRanges?: string[];
 

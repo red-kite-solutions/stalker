@@ -36,6 +36,7 @@ import { JobStateComponent } from './job-execution-state.component';
 export class JobExecutionsComponent {
   readonly displayColumns = ['name', 'project', 'time'];
   readonly filterOptions: string[] = ['project'];
+  public readonly noDataMessage = $localize`:No job history|No jobs were run up to this point:No job history`;
 
   @ViewChild(MatPaginator, { static: true }) paginator!: MatPaginator;
 

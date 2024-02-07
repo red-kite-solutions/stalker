@@ -200,6 +200,8 @@ An event subscription can contain these main elements :
 
 > You can reference a Finding's output variable by name in a Job parameter's value or in a condition's operand using the following syntax: `${parameterName}`. The variable name is case insensitive.
 
+> You can inject a secret as a parameter value with the `${secrets.secretName}` syntax. You can [learn more about secrets here](./secrets.md).
+
 #### Event Subscription Simple Example
 
 Here is one of the shortest event subscription possible. It reacts to a `HostnameFinding` to launch a `DomainNameResolvingJob`, using the output of the Finding as the `domainName` parameter value.

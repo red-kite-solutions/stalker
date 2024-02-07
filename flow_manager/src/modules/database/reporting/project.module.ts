@@ -3,6 +3,7 @@ import { ConfigModule } from '../admin/config/config.module';
 import { CustomJobsModule } from '../custom-jobs/custom-jobs.module';
 import { DatalayerModule } from '../datalayer.module';
 import { JobsModule } from '../jobs/jobs.module';
+import { SecretsModule } from '../secrets/secrets.module';
 import { EventSubscriptionsModule } from '../subscriptions/event-subscriptions/event-subscriptions.module';
 import { DomainsModule } from './domain/domain.module';
 import { HostModule } from './host/host.module';
@@ -20,6 +21,7 @@ import { ProjectService } from './project.service';
     CustomJobsModule,
     PortModule,
     ConfigModule,
+    SecretsModule,
   ],
   controllers: [ProjectController],
   providers: [ProjectService],

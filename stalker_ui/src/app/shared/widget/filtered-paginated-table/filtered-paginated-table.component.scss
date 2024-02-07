@@ -23,6 +23,11 @@ table {
   height: 48px;
 }
 
+td {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
 .filter-chip-list {
   width: 100%;
 }
@@ -31,4 +36,9 @@ table {
   width: 48px;
   max-width: 48px;
   overflow: visible;
+}
+
+mat-progress-bar {
+  height: 3px;
+  width: auto;
 }

@@ -1,0 +1,1 @@
+export const secretExplanation = $localize`:Secret explanation|Explaning how to use a secret:A secret can be injected in a job parameter with the $\{ secrets.secretName \} notation. A secret can be global, or it can be assigned to a project. A project secret with the same name overwrites a global secret for the project.`;

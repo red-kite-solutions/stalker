@@ -10,8 +10,26 @@
       }
     }
 
+    table .rows-inactive {
+      cursor: default;
+      label {
+        cursor: default;
+      }
+      span {
+        cursor: default;
+      }
+    }
+
     table .rows:hover {
       background-color: var(--mat-table-background-color-hover);
+    }
+  }
+  // Removing the background from mat-checkboxes
+  .theme-dark {
+    app-filtered-paginated-table {
+      .mdc-checkbox__background {
+        background-color: transparent !important;
+      }
     }
   }
 }

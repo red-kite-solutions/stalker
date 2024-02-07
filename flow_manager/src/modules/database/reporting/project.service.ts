@@ -5,6 +5,7 @@ import { DeleteResult, UpdateResult } from 'mongodb';
 import { Model, Types } from 'mongoose';
 import { HttpBadRequestException } from '../../../exceptions/http.exceptions';
 import { JobsService } from '../jobs/jobs.service';
+import { SecretsService } from '../secrets/secrets.service';
 import { CronSubscription } from '../subscriptions/cron-subscriptions/cron-subscriptions.model';
 import { EventSubscriptionsService } from '../subscriptions/event-subscriptions/event-subscriptions.service';
 import { DomainsService } from './domain/domain.service';
@@ -27,6 +28,7 @@ export class ProjectService {
     @InjectModel('finding')
     private readonly findingModel: Model<CustomFinding>,
     private readonly portsService: PortService,
+    private readonly secretsService: SecretsService,
   ) {}
 
   public async getAll(
@@ -101,6 +103,7 @@ export class ProjectService {
     await this.cronSubscriptionModel.deleteMany({
       projectId: { $eq: new Types.ObjectId(id) },
     });
+    await this.secretsService.deleteAllForProject(id);
     return result;
   }
 

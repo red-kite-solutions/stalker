@@ -162,8 +162,6 @@ export class CustomJob {
       job.findingHandlerLanguage = findingHandlerLanguage;
     }
 
-    console.log(job);
-
     if (!isProjectId(job.projectId)) {
       throw new JobParameterValueException('projectId', job.projectId);
     }
