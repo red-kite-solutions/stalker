@@ -290,55 +290,19 @@ export class CustomJobsComponent implements OnInit, OnDestroy {
     this.valueChangeSubscription?.unsubscribe();
   }
 
-  private validateCurrentChanges(next: Function) {
-    // if (this.codeEditor.getFileTabById(this.customJobCodeTabId)!.content === this.currentCodeBackup) {
-    //   next();
-    //   return;
-    // }
-
-    const data: ConfirmDialogData = {
-      text: $localize`:Unsaved job changes|Unsaved job changes:There are unsaved changes to the current custom job.`,
-      title: $localize`:Unsaved Changes Detected|There are unsaved changes that the user may want to save:Unsaved Changes Detected`,
-      primaryButtonText: $localize`:Cancel|Cancel current action:Cancel`,
-      dangerButtonText: $localize`:Discard|Confirm that the user wants to leave despite losing changes:Discard`,
-      onPrimaryButtonClick: () => {
-        this.dialog.closeAll();
-      },
-      onDangerButtonClick: () => {
-        next();
-        this.dialog.closeAll();
-      },
-    };
-
-    this.dialog.open(ConfirmDialogComponent, {
-      data,
-      restoreFocus: false,
-    });
-  }
-
   public async forceSave() {
-    this.isSaving = true;
     this.canSave = true;
     await this.save();
   }
 
   public async save() {
-    const {
-      customJobLanguage,
-      customJobName,
-      customJobType,
-      findingHandlerEnabled,
-      findingHandlerLanguage,
-      podSettings,
-    } = this.customJobForm.value;
-
     if (!this.customJobForm.get('customJobName')?.valid || !this.customJobForm.get('customJobName')?.value) {
       this.customJobForm.get('customJobName')?.markAsTouched();
       this.toastr.error($localize`:Empty Name|A job name is required:Name job before submitting`);
       return;
     }
 
-    if (!podSettings) {
+    if (!this.customJobForm.value.podSettings) {
       this.toastr.error($localize`:Empty Config|Select a configuration before submitting:Missing pod configurations`);
       return;
     }
@@ -351,12 +315,24 @@ export class CustomJobsComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const {
+      customJobLanguage,
+      customJobName,
+      customJobType,
+      findingHandlerEnabled,
+      findingHandlerLanguage,
+      podSettings,
+    } = this.customJobForm.value;
+
     const job: CustomJobData = {
       language: customJobLanguage ?? 'python',
       type: customJobType ?? 'code',
       name: customJobName ?? '',
       code: code,
       jobPodConfigId: podSettings,
+      findingHandler: undefined,
+      findingHandlerLanguage: undefined,
+      findingHandlerEnabled: undefined,
     };
 
     if (this.typeAllowsHandler(customJobType)) {
@@ -365,10 +341,9 @@ export class CustomJobsComponent implements OnInit, OnDestroy {
       job.findingHandlerEnabled = findingHandlerEnabled || false;
     }
 
-    const invalidCustomJob = $localize`:Invalid custom job|Custom job is not in a valid format:Invalid custom job`;
-
     const id = await firstValueFrom(this.id$);
     try {
+      this.isSaving = true;
       if (id == null || id === 'create') {
         // Create a new subscription
         const newCustomJob = await this.customJobsService.create(job);
@@ -386,11 +361,12 @@ export class CustomJobsComponent implements OnInit, OnDestroy {
       }
 
       this.hasBeenSaved = true;
-      this.isSaving = false;
       this.canSave = false;
     } catch (e) {
       console.log(e);
-      this.toastr.error(invalidCustomJob);
+      this.toastr.error($localize`:Invalid custom job|Custom job is not in a valid format:Invalid custom job`);
+    } finally {
+      this.isSaving = false;
     }
   }
 
