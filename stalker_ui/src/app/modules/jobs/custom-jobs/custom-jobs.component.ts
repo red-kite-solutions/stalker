@@ -154,18 +154,28 @@ export class CustomJobsComponent implements OnInit, OnDestroy {
     const id = await firstValueFrom(this.id$);
 
     let customJob: CustomJob | undefined = undefined;
-    if (id == null) {
+    if (id == null || id === 'create') {
+      const settingOptions = await firstValueFrom(this.podSettingOptions$);
+      customJob = {
+        _id: undefined!,
+        code: '',
+        jobPodConfigId: settingOptions[0]._id,
+        language: 'python',
+        name: 'New job',
+        type: 'code',
+      };
     } else {
       customJob = await firstValueFrom(this.customJobsService.get(id));
-      this.customJobForm.setValue({
-        customJobLanguage: customJob.language,
-        customJobName: customJob.name,
-        customJobType: customJob.type,
-        podSettings: customJob.jobPodConfigId,
-        findingHandlerEnabled: customJob.findingHandlerEnabled || false,
-        findingHandlerLanguage: customJob.findingHandlerLanguage || null,
-      });
     }
+
+    this.customJobForm.setValue({
+      customJobLanguage: customJob.language,
+      customJobName: customJob.name,
+      customJobType: customJob.type,
+      podSettings: customJob.jobPodConfigId,
+      findingHandlerEnabled: customJob.findingHandlerEnabled || false,
+      findingHandlerLanguage: customJob.findingHandlerLanguage || null,
+    });
 
     const formValue$ = this.customJobForm.valueChanges.pipe(
       startWith(this.customJobForm.value),

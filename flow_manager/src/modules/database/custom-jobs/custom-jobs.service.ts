@@ -55,8 +55,8 @@ export class CustomJobsService {
       jobPodConfigId: new Types.ObjectId(dto.jobPodConfigId),
       source: JobSources.userCreated,
       findingHandlerEnabled: dto.findingHandlerEnabled,
-      findingHandler: dto.findingHandler ?? undefined,
-      findingHandlerLanguage: dto.findingHandlerLanguage ?? undefined,
+      findingHandler: dto.findingHandler ?? null,
+      findingHandlerLanguage: dto.findingHandlerLanguage ?? null,
       parameters: [],
     };
     return await this.customJobModel.updateOne(
