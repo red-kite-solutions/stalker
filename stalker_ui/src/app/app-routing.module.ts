@@ -10,6 +10,7 @@ import { JobExecutionDetailComponent } from './modules/jobs/job-executions/job-e
 import { LaunchJobsComponent } from './modules/jobs/launch-jobs/launch-jobs.component';
 import { EditProjectsComponent } from './modules/projects/edit-projects/edit-projects.component';
 import { ProfileComponent } from './modules/user/profile/profile.component';
+import { hasUnsavedChangesGuard } from './shared/guards/unsaved-changes-can-deactivate.component';
 
 const routes: Routes = [
   {
@@ -56,6 +57,7 @@ const routes: Routes = [
       },
       {
         path: 'jobs/subscriptions/:id',
+        canDeactivate: [hasUnsavedChangesGuard],
         loadComponent: () =>
           import('./modules/jobs/subscriptions/subscription.component').then((m) => m.SubscriptionComponent),
       },
@@ -66,6 +68,7 @@ const routes: Routes = [
       },
       {
         path: 'jobs/custom/:id',
+        canDeactivate: [hasUnsavedChangesGuard],
         loadComponent: () =>
           import('./modules/jobs/custom-jobs/custom-jobs.component').then((m) => m.CustomJobsComponent),
       },

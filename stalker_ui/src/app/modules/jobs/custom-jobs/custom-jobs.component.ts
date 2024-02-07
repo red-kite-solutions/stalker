@@ -18,9 +18,19 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { Subscription, distinctUntilChanged, firstValueFrom, map, of, pairwise, startWith } from 'rxjs';
+import {
+  BehaviorSubject,
+  Subscription,
+  distinctUntilChanged,
+  firstValueFrom,
+  map,
+  of,
+  pairwise,
+  startWith,
+} from 'rxjs';
 import { AppHeaderComponent } from 'src/app/shared/components/page-header/page-header.component';
 import { PanelSectionModule } from 'src/app/shared/components/panel-section/panel-section.module';
+import { HasUnsavedChanges } from 'src/app/shared/guards/unsaved-changes-can-deactivate.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { FileTab } from 'src/app/shared/widget/code-editor/code-editor.type';
 import {
@@ -83,7 +93,7 @@ import { CodeEditorComponent, CodeEditorTheme } from '../../../shared/widget/cod
     SavingButtonComponent,
   ],
 })
-export class CustomJobsComponent implements OnInit, OnDestroy {
+export class CustomJobsComponent implements OnInit, OnDestroy, HasUnsavedChanges {
   public readonly basePath = '/custom-jobs/';
   public readonly defaultUriFile = 'custom-job';
   public readonly handlerFileSuffix = '-handler';
@@ -132,6 +142,8 @@ export class CustomJobsComponent implements OnInit, OnDestroy {
   customJobLanguage$ = this.customJobForm.get('customJobLanguage')?.valueChanges.pipe(startWith(this.languageDefault));
 
   private valueChangeSubscription: Subscription | undefined = undefined;
+
+  public hasUnsavedChanges$ = new BehaviorSubject(false);
 
   constructor(
     private dialog: MatDialog,
@@ -194,6 +206,7 @@ export class CustomJobsComponent implements OnInit, OnDestroy {
 
         if (oldFormValues != null) {
           this.canSave = true;
+          this.hasUnsavedChanges$.next(true);
         }
 
         let { customJobName, customJobType, findingHandlerEnabled, customJobLanguage, findingHandlerLanguage } =
@@ -372,8 +385,8 @@ export class CustomJobsComponent implements OnInit, OnDestroy {
 
       this.hasBeenSaved = true;
       this.canSave = false;
+      this.hasUnsavedChanges$.next(false);
     } catch (e) {
-      console.log(e);
       this.toastr.error($localize`:Invalid custom job|Custom job is not in a valid format:Invalid custom job`);
     } finally {
       this.isSaving = false;

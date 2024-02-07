@@ -27,7 +27,7 @@
           [tabId]="customJobCodeTabId"
           [fileTabsEnabled]="true"
           [fileTabsReadOnly]="true"
-          (codeChange)="canSave = true"
+          (codeChange)="canSave = true; hasUnsavedChanges$.next(true)"
           (saveEvent)="forceSave()"
         ></app-code-editor>
       </div>

@@ -20,11 +20,12 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { firstValueFrom, map, timer } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, map, timer } from 'rxjs';
 import { eventSubscriptionKey } from 'src/app/api/jobs/subscriptions/event-subscriptions.service';
 import { SubscriptionService, SubscriptionType } from 'src/app/api/jobs/subscriptions/subscriptions.service';
 import { AppHeaderComponent } from 'src/app/shared/components/page-header/page-header.component';
 import { PanelSectionModule } from 'src/app/shared/components/panel-section/panel-section.module';
+import { HasUnsavedChanges } from 'src/app/shared/guards/unsaved-changes-can-deactivate.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { Subscription } from 'src/app/shared/types/subscriptions/subscription.type';
 import {
@@ -84,7 +85,7 @@ import { cronSubscriptionTemplate, eventSubscriptionTemplate } from './subscript
     SavingButtonComponent,
   ],
 })
-export class SubscriptionComponent implements OnInit, OnDestroy {
+export class SubscriptionComponent implements OnInit, OnDestroy, HasUnsavedChanges {
   public code = '';
   public originalCode = '';
   public theme: CodeEditorTheme = 'vs-dark';
@@ -125,7 +126,10 @@ export class SubscriptionComponent implements OnInit, OnDestroy {
 
   private formSubscription = this.subscriptionConfigForm.valueChanges.subscribe(() => {
     this.hasConfigChanged = true;
+    this.hasUnsavedChanges$.next(true);
   });
+
+  public hasUnsavedChanges$ = new BehaviorSubject(false);
 
   constructor(
     private dialog: MatDialog,
@@ -216,6 +220,7 @@ export class SubscriptionComponent implements OnInit, OnDestroy {
       this.isSaving = false;
       this.subscriptionConfigForm.enable();
       this.hasConfigChanged = false;
+      this.hasUnsavedChanges$.next(false);
     } catch {
       const invalidSubscription = $localize`:Invalid subscription|Subscription is not in a valid format:Invalid subscription`;
       this.toastr.error(invalidSubscription);
@@ -247,6 +252,7 @@ export class SubscriptionComponent implements OnInit, OnDestroy {
       this.subscriptionConfigForm.get('selectedProject')?.setValue(sub.projectId);
       this.code = sub.yaml;
       this.hasConfigChanged = false;
+      this.hasUnsavedChanges$.next(false);
     }
 
     this.originalCode = this.code;
