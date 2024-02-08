@@ -399,9 +399,6 @@ dev:
       statefulset.kubernetes.io/pod-name: mongo-mongodb-0
     ports:
       - port: "27017"
-    # sync:
-    #   - path: ./database/init/:/docker-entrypoint-initdb.d/
-    #     disableDownload: true
 
   kafka:
     labelSelector:
