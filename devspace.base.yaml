@@ -3,13 +3,18 @@ name: stalker-vars-base
 
 vars:
   MONGO_ROOT_PASSWORD: "123456"
+  MONGO_FM_USER: "flowmanager"
+  MONGO_FM_PASSWORD: "123456"
+  MONGO_CRON_SERVICE_USER: "cronservice"
+  MONGO_CRON_SERVICE_PASSWORD: "123456"
   MONGO_REPLICA_SET_NAME: "rs0"
   MONGO_REPLICA_SET_COUNT:
     value: 3
   STALKER_CRON_API_TOKEN: "123456" # Flow Manager's cron subscriptions notification API token for the cron service
   FM_JWT_SECRET: "123456" # The secret used to sign JWT for users
   FM_REFRESH_SECRET: "123456" # The secret used to sign JWT refresh token for users
-  FM_MONGO_ADDRESS: mongodb://root:${MONGO_ROOT_PASSWORD}@mongo-mongodb-headless:27017/ # The address of the FM's mongo database
+  FM_MONGO_ADDRESS: mongodb://${MONGO_FM_USER}:${MONGO_FM_PASSWORD}@mongo-mongodb-headless:27017/ # The address of the FM's mongo database
+  CRON_SERVICE_MONGO_ADDRESS: mongodb://${MONGO_CRON_SERVICE_USER}:${MONGO_CRON_SERVICE_PASSWORD}@mongo-mongodb-headless:27017/
   FM_MONGO_DATABASE_NAME: stalker
 
   # openssl genrsa -out private.pem 2048; cat private.pem | base64 -w 0
