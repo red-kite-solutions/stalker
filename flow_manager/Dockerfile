@@ -10,7 +10,11 @@ COPY package-lock.json package-lock.json
 
 RUN npm ci
 
-COPY . . 
+COPY . .
+RUN mkdir -p /certs/
+COPY ca.pem /certs/
+COPY client-signed.crt /certs/
+COPY client.key /certs/
 
 RUN npm run build --omit=dev
 

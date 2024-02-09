@@ -200,7 +200,7 @@ deployments:
             name: flow-manager-container-e2e
             env:
               - name: MONGO_ADDRESS
-                value: ${FM_MONGO_ADDRESS}
+                value: ${FM_MONGO_ADDRESS_E2E}
               - name: MONGO_DATABASE_NAME
                 # value: stalker-flow-manager-e2e
                 value: ${FM_MONGO_DATABASE_NAME}
@@ -222,6 +222,8 @@ deployments:
                 value: ${STALKER_CRON_API_TOKEN}
               - name: SECRET_PUBLIC_RSA_KEY
                 value: ${SECRET_PUBLIC_RSA_KEY}
+              - name: FM_MONGO_KEY_PASSWORD
+                value: ${FM_MONGO_KEY_PASSWORD}
 
         service:
           ports:
@@ -330,13 +332,31 @@ deployments:
                     db:"stalker", 
                     collection:"" 
                   }, 
-                  actions: ["find", "insert", "remove", "update", "createCollection", "changeStream"] 
+                  actions: ["find", "insert", "remove", "update", "createCollection", "changeStream", "createIndex", "convertToCapped"] 
                 }
               ], 
               roles:[]
             }
             db.createRole(flowRole);
             var flowUser = { user: "${MONGO_FM_USER}", pwd: "${MONGO_FM_PASSWORD}", roles: ["flowrole"] };
+            db.createUser(flowUser);
+
+            // The next one is used for e2e testing
+            var flowRole = { 
+              role: "flowrolee2e", 
+              privileges: [ 
+                {  
+                  resource: {
+                    db:"stalker", 
+                    collection:"" 
+                  }, 
+                  actions: ["find", "insert", "remove", "update", "createCollection", "changeStream", "createIndex", "dropCollection", "convertToCapped"] 
+                }
+              ], 
+              roles:[]
+            }
+            db.createRole(flowRole);
+            var flowUser = { user: "${MONGO_FM_USER_E2E}", pwd: "${MONGO_FM_PASSWORD}", roles: ["flowrolee2e"] };
             db.createUser(flowUser);
 
   kafka:
