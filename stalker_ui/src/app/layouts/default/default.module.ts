@@ -34,7 +34,6 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { SpinnerButtonComponent } from 'src/app/shared/widget/spinner-button/spinner-button.component';
 import { FindingsModule } from '../../modules/findings/findings.module';
 import { JobExecutionDetailComponent } from '../../modules/jobs/job-executions/job-execution-detail.component';
-import { LaunchJobsComponent } from '../../modules/jobs/launch-jobs/launch-jobs.component';
 import { JobLogsComponent } from '../../shared/components/job-logs/job-logs.component';
 import { AppHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { PanelSectionModule } from '../../shared/components/panel-section/panel-section.module';
@@ -48,7 +47,6 @@ import { DefaultComponent } from './default.component';
     CreateUserComponent,
     SettingsComponent,
     EditProjectsComponent,
-    LaunchJobsComponent,
     JobExecutionDetailComponent,
   ],
   imports: [

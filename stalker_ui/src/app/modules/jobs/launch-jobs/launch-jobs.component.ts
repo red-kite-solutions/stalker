@@ -1,22 +1,89 @@
+import { CommonModule } from '@angular/common';
 import { Component, ViewChild } from '@angular/core';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatTableDataSource } from '@angular/material/table';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatOptionModule } from '@angular/material/core';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatListModule } from '@angular/material/list';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSortModule } from '@angular/material/sort';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
+import { RouterModule } from '@angular/router';
+import { NgxFileDropModule } from 'ngx-file-drop';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, map } from 'rxjs';
 import { ThemeService } from 'src/app/services/theme.service';
+import { JobLogsComponent } from 'src/app/shared/components/job-logs/job-logs.component';
+import { AppHeaderComponent } from 'src/app/shared/components/page-header/page-header.component';
+import { PanelSectionModule } from 'src/app/shared/components/panel-section/panel-section.module';
+import { SharedModule } from 'src/app/shared/shared.module';
+import { SpinnerButtonComponent } from 'src/app/shared/widget/spinner-button/spinner-button.component';
 import { parse, parseDocument, stringify } from 'yaml';
 import { AuthService } from '../../../api/auth/auth.service';
 import { JobsService } from '../../../api/jobs/jobs/jobs.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { JobListEntry, JobParameterDefinition, StartedJob } from '../../../shared/types/jobs/job.type';
 import { ProjectSummary } from '../../../shared/types/project/project.summary';
-import { CodeEditorTheme } from '../../../shared/widget/code-editor/code-editor.component';
+import { CodeEditorComponent, CodeEditorTheme } from '../../../shared/widget/code-editor/code-editor.component';
+import { FindingsModule } from '../../findings/findings.module';
+import { JobLogsSummaryComponent } from '../job-executions/job-execution-logs-summary.component';
 
 @Component({
+  standalone: true,
   selector: 'app-launch-jobs',
   templateUrl: './launch-jobs.component.html',
   styleUrls: ['./launch-jobs.component.scss'],
+  imports: [
+    CommonModule,
+    RouterModule,
+    SharedModule,
+    MatSidenavModule,
+    MatDividerModule,
+    MatDialogModule,
+    MatCardModule,
+    FormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    ReactiveFormsModule,
+    MatTableModule,
+    MatCheckboxModule,
+    MatSortModule,
+    MatPaginatorModule,
+    MatTooltipModule,
+    MatSelectModule,
+    MatTabsModule,
+    MatGridListModule,
+    NgxFileDropModule,
+    MatProgressSpinnerModule,
+    MatExpansionModule,
+    MatListModule,
+    MatOptionModule,
+    FindingsModule,
+    PanelSectionModule,
+    MatProgressBarModule,
+    AppHeaderComponent,
+    JobLogsComponent,
+    CodeEditorComponent,
+    JobLogsSummaryComponent,
+    SpinnerButtonComponent,
+  ],
 })
 export class LaunchJobsComponent {
   public code = '';

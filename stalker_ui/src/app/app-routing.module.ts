@@ -7,7 +7,6 @@ import { AuthComponent } from './modules/auth/auth.component';
 import { FirstComponent } from './modules/auth/first/first.component';
 import { LoginComponent } from './modules/auth/login/login.component';
 import { JobExecutionDetailComponent } from './modules/jobs/job-executions/job-execution-detail.component';
-import { LaunchJobsComponent } from './modules/jobs/launch-jobs/launch-jobs.component';
 import { EditProjectsComponent } from './modules/projects/edit-projects/edit-projects.component';
 import { ProfileComponent } from './modules/user/profile/profile.component';
 import { hasUnsavedChangesGuard } from './shared/guards/unsaved-changes-can-deactivate.component';
@@ -74,7 +73,9 @@ const routes: Routes = [
       },
       {
         path: 'jobs/launch',
-        component: LaunchJobsComponent,
+
+        loadComponent: () =>
+          import('./modules/jobs/launch-jobs/launch-jobs.component').then((m) => m.LaunchJobsComponent),
       },
       {
         path: 'jobs/executions',

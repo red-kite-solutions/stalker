@@ -1,74 +1,27 @@
-<div class="tw-flex top-container">
-  <div class="tw-flex-[45%_0_0]">
-    <mat-card appearance="outlined" class="container">
-      <mat-card-header>
-        <mat-card-title i18n="Launch jobs|Starting jobs manually">Launch jobs</mat-card-title>
-      </mat-card-header>
+<mat-drawer-container class="tw-h-full tw-w-full" [autosize]="true">
+  <mat-drawer-content class="tw-h-full">
+    <div class="tw-flex tw-flex-col tw-h-full">
+      <div class="tw-flex tw-items-center tw-px-4 tw-gap">
+        <app-page-header [parts]="['Launch job']" [backRoute]="undefined"></app-page-header>
 
-      <mat-card-content>
-        <div class="tw-flex tw-gap">
-          <button
-            mat-flat-button
-            color="primary"
-            class="left-action-button"
-            (click)="startJob()"
-            [disabled]="this.authService.role === 'read-only'"
-          >
-            <label i18n="Start|Start the job">Start</label>
-          </button>
-        </div>
+        <button
+          mat-stroked-button
+          class="tw-mt-[9px]"
+          (click)="startJob()"
+          [disabled]="this.authService.role === 'read-only' || !selectedRow"
+        >
+          <label i18n="Start|Start the job">Start</label>
+        </button>
+      </div>
 
-        <div class="table-container">
-          @if ((dataSource$ | async) || true) {
-            <table mat-table [dataSource]="dataSource">
-              <!-- Name Column -->
-              <ng-container matColumnDef="name">
-                <th mat-header-cell *matHeaderCellDef i18n="Name|Name of an item">Name</th>
-                <td mat-cell *matCellDef="let element">{{ element.name }}</td>
-              </ng-container>
-              <!-- Source Column -->
-              <ng-container matColumnDef="source">
-                <th mat-header-cell *matHeaderCellDef i18n="Source|Source">Source</th>
-                <td mat-cell *matCellDef="let element">{{ element.source }}</td>
-              </ng-container>
-              <tr mat-header-row *matHeaderRowDef="['name', 'source']"></tr>
-              <tr
-                mat-row
-                *matRowDef="let row; columns: ['name', 'source']"
-                class="rows"
-                (click)="selectJob(row)"
-                [class.selected-job]="selectedRow?.name === row.name"
-              ></tr>
-              <tr class="mat-row nodata" *matNoDataRow>
-                <td class="mat-cell" colspan="100%" i18n="No job found|No job were found">No job found</td>
-              </tr>
-            </table>
-          }
+      <div class="tw-flex tw-flex-col tw-h-full tw-px-4 tw-pb-4">
+        @if (!selectedRow) {
+          <div class="choose-job">
+            <h1>Select a job in the side panel.</h1>
+            <mat-icon>list</mat-icon>
+          </div>
+        }
 
-          <mat-paginator
-            [length]="100"
-            [pageSize]="10"
-            [pageSizeOptions]="[10, 25, 50, 100]"
-            showFirstLastButtons
-            aria-label="Select page"
-          >
-          </mat-paginator>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  </div>
-  @if (projects$ | async) {
-    <div class="tw-flex-[55%_0_0]">
-      <div class="tw-flex tw-flex-col code-editor-container">
-        <mat-form-field appearance="outline">
-          <mat-label i18n="Project|Project">Project</mat-label>
-          <mat-select [(value)]="selectedProject">
-            <mat-option>None</mat-option>
-            @for (project of projects$ | async; track project) {
-              <mat-option value="{{ project.id }}">{{ project.name }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
         <h3 i18n="Input|Input of a job">Input</h3>
         <app-code-editor
           [(code)]="code"
@@ -87,5 +40,51 @@
         ></app-job-logs>
       </div>
     </div>
-  }
-</div>
+  </mat-drawer-content>
+
+  <mat-drawer mode="side" position="end" opened>
+    <div class="tw-flex tw-gap-2 tw-flex-col tw-m-4">
+      @if (projects$ | async) {
+        <mat-form-field appearance="outline" class="tw-mt-4">
+          <mat-label i18n="Project|Project">Project</mat-label>
+          <mat-select [(value)]="selectedProject">
+            <mat-option>None</mat-option>
+            @for (project of projects$ | async; track project) {
+              <mat-option value="{{ project.id }}">{{ project.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      }
+
+      <mat-divider></mat-divider>
+
+      <h2 i18n="Configuration|Subscription configuration">Select a job</h2>
+
+      @if ((dataSource$ | async) || true) {
+        <table mat-table [dataSource]="dataSource">
+          <!-- Name Column -->
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef i18n="Name|Name of an item">Name</th>
+            <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+          </ng-container>
+          <!-- Source Column -->
+          <ng-container matColumnDef="source">
+            <th mat-header-cell *matHeaderCellDef i18n="Source|Source">Source</th>
+            <td mat-cell *matCellDef="let element">{{ element.source }}</td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="['name', 'source']"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: ['name', 'source']"
+            class="rows"
+            (click)="selectJob(row)"
+            [class.selected-job]="selectedRow?.name === row.name"
+          ></tr>
+          <tr class="mat-row nodata" *matNoDataRow>
+            <td class="mat-cell" colspan="100%" i18n="No job found|No job were found">No job found</td>
+          </tr>
+        </table>
+      }
+    </div>
+  </mat-drawer>
+</mat-drawer-container>

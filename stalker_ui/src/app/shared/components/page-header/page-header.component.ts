@@ -11,6 +11,13 @@ import { BreadcrumbComponent } from '../breadcrumb/breadcrumb.component';
   imports: [MatIconModule, BreadcrumbComponent, RouterModule, MatButtonModule],
   styles: [
     `
+      :host {
+        height: 64px;
+        display: flex;
+        align-content: center;
+        flex-wrap: wrap;
+      }
+
       h1 {
         padding-top: 16px;
         padding-bottom: 8px;
@@ -26,21 +33,23 @@ import { BreadcrumbComponent } from '../breadcrumb/breadcrumb.component';
     `,
   ],
   template: `<h1>
-    <button type="button" mat-icon-button [routerLink]="backRoute">
-      <mat-icon
-        style="
+    @if (backRoute) {
+      <button type="button" mat-icon-button [routerLink]="backRoute">
+        <mat-icon
+          style="
           font-variation-settings:
-            'FILL' 1,
-            'wght' 400
-        "
-        >arrow_back</mat-icon
-      >
-    </button>
+          'FILL' 1,
+          'wght' 400
+          "
+          >arrow_back</mat-icon
+        >
+      </button>
+    }
 
     <app-breadcrumb [parts]="parts"></app-breadcrumb>
   </h1>`,
 })
 export class AppHeaderComponent {
   @Input() public parts: string[] = [];
-  @Input() public backRoute: unknown[] = ['..'];
+  @Input() public backRoute: unknown[] | undefined = ['..'];
 }
