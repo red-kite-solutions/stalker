@@ -9,7 +9,8 @@ namespace Orchestrator.Utils
         private static readonly RSACryptoServiceProvider RSA = InitRsa();
         public static readonly string SecretPrefix = "$$secret$$";
 
-        private static RSACryptoServiceProvider InitRsa() {
+        private static RSACryptoServiceProvider InitRsa()
+        {
             var keyBytes = Convert.FromBase64String(Environment.GetEnvironmentVariable(PrivateKeyEnvironementVariable)!);
             RSACryptoServiceProvider RSAalg = new();
             RSAalg.ImportFromPem(Encoding.UTF8.GetString(keyBytes));
@@ -24,7 +25,7 @@ namespace Orchestrator.Utils
         /// <returns>The decrypted value, or the value unchanged if it did not start with <see cref="CryptoUtils.SecretPrefix"/></returns>
         public static string Decrypt(string value)
         {
-            if(!value.StartsWith(SecretPrefix)) return value;
+            if (!value.StartsWith(SecretPrefix)) return value;
 
             var returnValue = value;
 
@@ -34,7 +35,7 @@ namespace Orchestrator.Utils
                 var valueBytes = Convert.FromBase64String(valueNoPrefix);
                 returnValue = Encoding.UTF8.GetString(RSA.Decrypt(valueBytes, false));
             }
-            catch(Exception)
+            catch (Exception)
             {
                 // If we have an error, we simply return the original value
                 // We intentionally soft fail the decryption

@@ -11,3 +11,10 @@ span {
 h3 {
   margin: 8px 0px 4px 16px;
 }
+
+.list-item-active {
+  &::before {
+    background-color: var(--mdc-list-list-item-focus-state-layer-color);
+    opacity: 0.1;
+  }
+}
