@@ -18,10 +18,10 @@
 
       <div class="code-editor-container">
         <app-code-editor
-          class="mat-elevation-z4"
+          class="mat-elevation-z2"
           [language]="languageDefault"
           [minimapEnabled]="false"
-          [theme]="theme"
+          [theme]="(theme$ | async) ?? 'vs-dark'"
           [readonly]="false"
           [path]="basePath + defaultUriFile + '.' + languageExtensionMapping[languageDefault]"
           [tabId]="customJobCodeTabId"

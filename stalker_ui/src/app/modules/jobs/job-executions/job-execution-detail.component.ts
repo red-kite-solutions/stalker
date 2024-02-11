@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { map, Observable, shareReplay, Subject, switchMap } from 'rxjs';
+import { ThemeService } from 'src/app/services/theme.service';
 import { JobsService } from '../../../api/jobs/jobs/jobs.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { CodeEditorTheme } from '../../../shared/widget/code-editor/code-editor.component';
@@ -12,8 +13,9 @@ import { CodeEditorTheme } from '../../../shared/widget/code-editor/code-editor.
 })
 export class JobExecutionDetailComponent {
   public executionId$ = this.route.paramMap.pipe(map((x) => x.get('id')));
-  public theme: CodeEditorTheme = 'vs-dark';
-
+  public theme$: Observable<CodeEditorTheme> = this.themeService.theme$.pipe(
+    map((theme) => (theme === 'dark' ? 'vs-dark' : 'vs'))
+  );
   public execution$ = this.executionId$.pipe(
     switchMap((jobId) => this.jobService.getJobExecution(`${jobId}`)),
     shareReplay(1)
@@ -28,6 +30,7 @@ export class JobExecutionDetailComponent {
   constructor(
     private jobService: JobsService,
     private projectsService: ProjectsService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private themeService: ThemeService
   ) {}
 }

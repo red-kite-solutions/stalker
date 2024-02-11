@@ -3,7 +3,8 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
-import { map } from 'rxjs';
+import { Observable, map } from 'rxjs';
+import { ThemeService } from 'src/app/services/theme.service';
 import { parse, parseDocument, stringify } from 'yaml';
 import { AuthService } from '../../../api/auth/auth.service';
 import { JobsService } from '../../../api/jobs/jobs/jobs.service';
@@ -21,9 +22,11 @@ export class LaunchJobsComponent {
   public code = '';
   public language = 'yaml';
   public minimapEnabled = false;
-  public theme: CodeEditorTheme = 'vs-dark';
   public readonly = false;
   public currentStartedJob: StartedJob | undefined;
+  public theme$: Observable<CodeEditorTheme> = this.themeService.theme$.pipe(
+    map((theme) => (theme === 'dark' ? 'vs-dark' : 'vs'))
+  );
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   dataSource = new MatTableDataSource<JobListEntry>();
@@ -53,7 +56,8 @@ export class LaunchJobsComponent {
     private toastr: ToastrService,
     private projectsService: ProjectsService,
     private titleService: Title,
-    public authService: AuthService
+    public authService: AuthService,
+    private themeService: ThemeService
   ) {
     this.titleService.setTitle($localize`:Launch jobs|:Launch jobs`);
   }
