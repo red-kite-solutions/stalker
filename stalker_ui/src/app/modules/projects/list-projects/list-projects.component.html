@@ -11,7 +11,11 @@
   } @else {
     <mat-grid-tile class="tw-flex tw-items-center tw-justify-center">
       <div class="upload-image-container tw-flex-[40%]">
-        <app-image-upload [(previewSource)]="previewSource" [(fileSelected)]="fileSelected"></app-image-upload>
+        <app-image-upload
+          class="tw-min-w-[120px]"
+          [(previewSource)]="previewSource"
+          [(fileSelected)]="fileSelected"
+        ></app-image-upload>
       </div>
 
       <div class="tw-flex tw-flex-col tw-flex-[60%] tw-p-6">
@@ -28,7 +32,7 @@
             </mat-error>
           </mat-form-field>
 
-          <div class="tw-self-end tw-flex tw-gap">
+          <div class="tw-self-end tw-flex tw-gap-1">
             <app-spinner-button [loadingState]="creationLoading" (click)="createProject()" class="tw-flex-1">{{
               createLabel
             }}</app-spinner-button>

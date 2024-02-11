@@ -10,6 +10,7 @@
 @import 'app/shared/widget/text-menu/_text-menu.component.scss';
 @import 'app/modules/tags/manage-tags/_manage-tags.component.scss';
 @import 'app/shared/widget/pill-tag/_pill-tag.component.scss';
+@import 'app/modules/projects/list-projects/_list-projects.component.scss';
 
 @include app-filtered-paginated-table();
 @include panel-section();
@@ -19,6 +20,7 @@
 @include app-custom-jobs();
 @include app-manage-tags();
 @include app-pill-tag();
+@include app-list-projects();
 
 html,
 body {
@@ -54,6 +56,7 @@ button {
 app-image-upload {
   .ngx-file-drop__drop-zone {
     height: 100% !important;
+    padding: 8px;
     .ngx-file-drop__content {
       height: 100% !important;
     }

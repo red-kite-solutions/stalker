@@ -8,20 +8,23 @@
 
         <div class="tw-flex tw-flex-col tw-gap">
           <div class="tw-flex-1 tw-flex tw-gap-6">
-            <app-image-upload
-              [(previewSource)]="previewSource"
-              [(fileSelected)]="fileSelected"
-              [(fileLoading)]="fileLoading"
-              class="tw-max-w-16"
-            ></app-image-upload>
+            <div class="tw-flex-1 tw-max-w-32">
+              <app-image-upload
+                [(previewSource)]="previewSource"
+                [(fileSelected)]="fileSelected"
+                [(fileLoading)]="fileLoading"
+              ></app-image-upload>
+            </div>
 
-            <mat-form-field class="tw-w-full">
-              <mat-label i18n="Project name|Name of the project">Project name</mat-label>
-              <input formControlName="name" matInput />
-              <mat-error i18n="Project name required|Project name is required to create a project">
-                Project name is required
-              </mat-error>
-            </mat-form-field>
+            <div class="tw-flex-1">
+              <mat-form-field class="tw-w-full">
+                <mat-label i18n="Project name|Name of the project">Project name</mat-label>
+                <input formControlName="name" matInput />
+                <mat-error i18n="Project name required|Project name is required to create a project">
+                  Project name is required
+                </mat-error>
+              </mat-form-field>
+            </div>
           </div>
 
           <mat-accordion class="tw-flex-1" formArrayName="ipRanges">
