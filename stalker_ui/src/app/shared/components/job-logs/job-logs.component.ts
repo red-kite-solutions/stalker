@@ -32,7 +32,7 @@ export class JobLogsComponent implements OnChanges {
   @Input() public theme: CodeEditorTheme = 'vs-dark';
   @Input() public jobId: string | null | undefined = undefined;
 
-  private socket = new JobsSocketioClient(this.authService);
+  private socket: JobsSocketioClient | undefined = undefined;
 
   public logs$: Observable<string> | null = null;
   public isJobInProgress$: Observable<boolean> | null = null;
@@ -44,12 +44,14 @@ export class JobLogsComponent implements OnChanges {
 
   ngOnChanges(): void {
     if (this.jobId != null) {
+      this.socket?.disconnect();
+      this.socket = new JobsSocketioClient(this.authService);
       this.logs$ = this.jobsService.getJobLogs(this.jobId).pipe(
         map((initialLogs) =>
           initialLogs.items.map((value) => this.formatLog(value.timestamp, value.level, value.value))
         ),
         concatMap((initialLogs) =>
-          this.socket.jobOutput.pipe(
+          this.socket!.jobOutput.pipe(
             startWith(null),
             scan((acc, value) => {
               console.log(value);
@@ -82,7 +84,7 @@ export class JobLogsComponent implements OnChanges {
         })
       );
 
-      this.socket.sendMessage({ jobId: this.jobId });
+      this.socket.sendMessage({ jobId: this.jobId || '' });
     }
   }
 
