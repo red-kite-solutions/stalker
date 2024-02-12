@@ -28,6 +28,10 @@ vars:
   FM_URL: "http://flow-manager:3000"
 
   KAFKA_URI: "kafka:9092"
+  FM_KAFKA_USERNAME: "flowuser"
+  FM_KAFKA_PASSWORD: "123456"
+  ORCHESTRATOR_KAFKA_USERNAME: "orchestratoruser"
+  ORCHESTRATOR_KAFKA_PASSWORD: "123456"
 
   STALKER_URL: "http://localhost:4200"
   NETWORK_POLICY: "network-policy.yml"

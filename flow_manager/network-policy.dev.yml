@@ -30,6 +30,8 @@ spec:
       ports:
         - protocol: TCP
           port: 9092
+        - protocol: TCP
+          port: 9093
 
     - to:
         - namespaceSelector:

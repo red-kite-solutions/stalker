@@ -21,6 +21,9 @@ pipelines:
   dev:
     run: |-
       create_deployments namespaces
+      ${DEVSPACE_KUBECTL_EXECUTABLE} delete secret kafka-jks-0 --ignore-not-found -n ${DEVSPACE_NAMESPACE}
+      ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks-0 --from-file=kafka.truststore.jks=./queue/kafka.server.truststore.jks --from-file=kafka.keystore.jks=./queue/kafka-0.keystore.jks -n ${DEVSPACE_NAMESPACE}
+
       build_images ui flow-manager orchestrator python-job-base nuclei-job-base cron-service
       create_deployments mongo kafka --sequential
 
@@ -182,6 +185,8 @@ deployments:
                 value: ${SECRET_PUBLIC_RSA_KEY}
               - name: FM_MONGO_KEY_PASSWORD
                 value: ${FM_MONGO_KEY_PASSWORD}
+              - name: FM_KAFKA_KEY_PASSWORD
+                value: ${FM_KAFKA_KEY_PASSWORD}
 
             image: flow_manager
             name: flow-manager-container
@@ -224,6 +229,8 @@ deployments:
                 value: ${SECRET_PUBLIC_RSA_KEY}
               - name: FM_MONGO_KEY_PASSWORD
                 value: ${FM_MONGO_KEY_PASSWORD}
+              - name: FM_KAFKA_KEY_PASSWORD
+                value: ${FM_KAFKA_KEY_PASSWORD}
 
         service:
           ports:
@@ -365,6 +372,44 @@ deployments:
         name: kafka
         repo: https://charts.bitnami.com/bitnami
         version: "21.0.0"
+      values:
+        allowPlaintextListener: true # TODO: set to false
+        auth:
+          clientProtocol: mtls
+          externalClientProtocol: mtls
+          interBrokerProtocol: mtls
+          # clientProtocol: tls
+          # externalClientProtocol: tls
+          # interBrokerProtocol: tls
+          tls:
+            existingSecrets:
+              - kafka-jks-0
+            password: ${KAFKA_KEYSTORE_PASSWORD}
+            endpointIdentificationAlgorithm: ""
+        extraConfig: |
+          ssl.principal.mapping.rules=
+          RULE:^CN=(.*?),OU=Stalker Kafka Clients.*$/$1/,
+          DEFAULT
+
+        provisioning:
+          enabled: true
+          topics:
+            - name: stalker.jobs.findings
+              partitions: 1
+              replicationFactor: 1
+            - name: stalker.jobs.requests
+              partitions: 1
+              replicationFactor: 1
+            - name: stalker.jobs.logs
+              partitions: 1
+              replicationFactor: 1
+          extraProvisionningCommands:
+            - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:flow-manager --operation read --operation write --topic stalker.jobs.findings"
+            - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:flow-manager --operation write --topic stalker.jobs.requests"
+            - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:flow-manager --operation read --topic stalker.jobs.logs"
+            - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:orchestrator --operation write --topic stalker.jobs.findings"
+            - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:orchestrator --operation read --topic stalker.jobs.requests"
+            - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:orchestrator --operation write --topic stalker.jobs.logs"
 
   orchestrator-service-account:
     kubectl:
@@ -381,6 +426,8 @@ deployments:
                 value: ${KAFKA_URI}
               - name: SECRET_PRIVATE_RSA_KEY
                 value: ${SECRET_PRIVATE_RSA_KEY}
+              - name: ORCHESTRATOR_KAFKA_KEY_PASSWORD
+                value: ${ORCHESTRATOR_KAFKA_KEY_PASSWORD}
 
             image: orchestrator
             name: orchestrator-container
@@ -425,6 +472,7 @@ dev:
       app.kubernetes.io/component: kafka
     ports:
       - port: "9092"
+      - port: "9093"
 
   flow-manager:
     labelSelector:
