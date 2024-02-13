@@ -11,6 +11,10 @@
   align-items: center;
 }
 
+.content {
+  height: calc(100% - 64px);
+}
+
 mat-drawer {
   width: 312px;
 }
@@ -23,10 +27,6 @@ app-job-logs {
 
 .container {
   margin-right: 20px;
-}
-
-.nodata {
-  text-align: center;
 }
 
 table {
@@ -43,7 +43,7 @@ table {
 }
 
 .selected-job {
-  font-weight: bold;
+  font-weight: 600;
 }
 
 mat-divider {
@@ -76,16 +76,17 @@ h3.output {
   flex-direction: column;
 
   h1 {
+    margin-top: -64px;
     position: relative;
     z-index: 10000;
     font-size: 1.5em;
+    opacity: 0.9;
   }
 
   mat-icon {
     width: 82px;
     height: 82px;
     font-size: 6em;
-    margin-top: -12px;
     margin-left: -12px;
   }
 
@@ -98,6 +99,6 @@ h3.output {
     left: 0;
     top: 0;
     z-index: 1000;
-    opacity: 0.5;
+    opacity: 0.65;
   }
 }

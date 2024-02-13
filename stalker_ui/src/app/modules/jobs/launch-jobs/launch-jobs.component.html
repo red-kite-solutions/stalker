@@ -2,7 +2,10 @@
   <mat-drawer-content class="tw-h-full">
     <div class="tw-flex tw-flex-col tw-h-full">
       <div class="tw-flex tw-items-center tw-px-4 tw-gap">
-        <app-page-header [parts]="['Launch job']" [backRoute]="undefined"></app-page-header>
+        <app-page-header
+          [parts]="['Launch job', selectedRow?.name ?? 'No job selected']"
+          [backRoute]="undefined"
+        ></app-page-header>
 
         <button
           mat-stroked-button
@@ -14,11 +17,11 @@
         </button>
       </div>
 
-      <div class="tw-flex tw-flex-col tw-h-full tw-px-4 tw-pb-4">
+      <div class="content tw-flex tw-flex-col tw-px-4 tw-pb-4">
         @if (!selectedRow) {
           <div class="choose-job">
-            <h1>Select a job in the side panel.</h1>
-            <mat-icon>list</mat-icon>
+            <h1>Select a job in the side panel</h1>
+            <mat-icon>follow_the_signs</mat-icon>
           </div>
         }
 
@@ -58,7 +61,7 @@
 
       <mat-divider></mat-divider>
 
-      <h2 i18n="Configuration|Subscription configuration">Select a job</h2>
+      <h2 i18n="Configuration|Subscription configuration">Jobs</h2>
 
       @if ((dataSource$ | async) || true) {
         <table mat-table [dataSource]="dataSource">
@@ -80,9 +83,6 @@
             (click)="selectJob(row)"
             [class.selected-job]="selectedRow?.name === row.name"
           ></tr>
-          <tr class="mat-row nodata" *matNoDataRow>
-            <td class="mat-cell" colspan="100%" i18n="No job found|No job were found">No job found</td>
-          </tr>
         </table>
       }
     </div>
