@@ -23,6 +23,8 @@ pipelines:
       create_deployments namespaces
       ${DEVSPACE_KUBECTL_EXECUTABLE} delete secret kafka-jks-0 --ignore-not-found -n ${DEVSPACE_NAMESPACE}
       ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks-0 --from-file=kafka.truststore.jks=./queue/kafka.server.truststore.jks --from-file=kafka.keystore.jks=./queue/kafka-0.keystore.jks -n ${DEVSPACE_NAMESPACE}
+      ${DEVSPACE_KUBECTL_EXECUTABLE} delete secret kafka-zookeeper --ignore-not-found -n ${DEVSPACE_NAMESPACE}
+      ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-zookeeper --from-file=kafka-zookeeper.truststore.jks=./queue/kafka-zookeeper.truststore.jks --from-file=kafka-zookeeper.keystore.jks=./queue/kafka-zookeeper.keystore.jks -n ${DEVSPACE_NAMESPACE}
 
       build_images ui flow-manager orchestrator python-job-base nuclei-job-base cron-service
       create_deployments mongo kafka --sequential
@@ -378,38 +380,63 @@ deployments:
           clientProtocol: mtls
           externalClientProtocol: mtls
           interBrokerProtocol: mtls
-          # clientProtocol: tls
-          # externalClientProtocol: tls
-          # interBrokerProtocol: tls
           tls:
             existingSecrets:
               - kafka-jks-0
             password: ${KAFKA_KEYSTORE_PASSWORD}
-            endpointIdentificationAlgorithm: ""
-        extraConfig: |
-          ssl.principal.mapping.rules=
-          RULE:^CN=(.*?),OU=Stalker Kafka Clients.*$/$1/,
-          DEFAULT
+            endpointIdentificationAlgorithm: "" # TODO: Set to https
+        extraEnvVars:
+          - name: ALLOW_PLAINTEXT_LISTENER
+            value: "yes" # TODO: set to no
+          - name: KAFKA_CFG_AUTHORIZER_CLASS_NAME
+            value: kafka.security.authorizer.AclAuthorizer
+          - name: KAFKA_CFG_SSL_PRINCIPAL_MAPPING_RULES
+            value: RULE:^.*OU=Stalker Kafka Clients.*,CN=(.*?)(,.*)?$/$1/,DEFAULT # Extracts the CN part of the certificate to be used as the username in ACL rules
+        # tls:
+        #   zookeeper:
+        #     enabled: true
+        #     verifyHostname: false # TODO: set to true (kafka-zookeeper)
+        #     existingSecret: kafka-zookeeper
+        #     existingSecretKeystoreKey: kafka-zookeeper.keystore.jks
+        #     existingSecretTruststoreKey: kafka-zookeeper.truststore.jks
+        #     keystorePassword: ${KAFKA_ZOOKEEPER_KEYSTORE_PASSWORD}
+        #     truststorePassword: ${KAFKA_ZOOKEEPER_KEYSTORE_PASSWORD}
 
         provisioning:
           enabled: true
+          auth:
+            tls:
+              certificatesSecret: kafka-jks-0
+              keystore: kafka.keystore.jks
+              truststore: kafka.truststore.jks
+              keystorePassword: ${KAFKA_KEYSTORE_PASSWORD}
+              truststorePassword: ${KAFKA_KEYSTORE_PASSWORD}
           topics:
             - name: stalker.jobs.findings
               partitions: 1
               replicationFactor: 1
+              config:
+                max.message.bytes: 64000
+                flush.messages: 1
             - name: stalker.jobs.requests
               partitions: 1
               replicationFactor: 1
+              config:
+                max.message.bytes: 64000
+                flush.messages: 1
             - name: stalker.jobs.logs
               partitions: 1
               replicationFactor: 1
-          extraProvisionningCommands:
-            - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:flow-manager --operation read --operation write --topic stalker.jobs.findings"
-            - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:flow-manager --operation write --topic stalker.jobs.requests"
-            - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:flow-manager --operation read --topic stalker.jobs.logs"
-            - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:orchestrator --operation write --topic stalker.jobs.findings"
-            - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:orchestrator --operation read --topic stalker.jobs.requests"
-            - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:orchestrator --operation write --topic stalker.jobs.logs"
+              config:
+                max.message.bytes: 64000
+                flush.messages: 1
+          extraProvisioningCommands:
+            - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:flow-manager --operation read --operation write --operation describe --topic stalker.jobs.findings"
+            - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:flow-manager --operation write --operation describe --topic stalker.jobs.requests"
+            - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:flow-manager --operation read --operation describe --topic stalker.jobs.logs"
+            - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:orchestrator --operation write --operation describe --topic stalker.jobs.findings"
+            - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:orchestrator --operation read --operation describe --topic stalker.jobs.requests"
+            - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:orchestrator --operation write --operation describe --topic stalker.jobs.logs"
 
   orchestrator-service-account:
     kubectl:

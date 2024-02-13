@@ -2,8 +2,11 @@
 
 # Parameters
 PASSWORD="$(tr -dc A-Za-z0-9 </dev/urandom | head -c 25)"
+ZOOKEEPER_PASSWORD="$(tr -dc A-Za-z0-9 </dev/urandom | head -c 25)"
 VALIDITY=730
 KAFKA_BROKER_COUNT=1
+FLOW_MANAGER_USERNAME="flow-manager"
+ORCHESTRATOR_USERNAME="orchestrator"
 
 cat > "kafka-ca-openssl.cnf" << EOF
 [req]
@@ -70,19 +73,43 @@ done
 # Import CA certificate in truststore
 keytool -keystore kafka.server.truststore.jks -alias CARoot -importcert -file kafka-ca.crt -storepass $PASSWORD -keypass $PASSWORD -noprompt
 
+#### Zookeeper
+keytool -keystore kafka-zookeeper.keystore.jks -alias kafka-zookeeper -validity $VALIDITY -genkey -keyalg RSA -ext SAN=dns:kafka-zookeeper.stalker.svc.cluster.local,dns:kafka-zookeeper -storepass ${ZOOKEEPER_PASSWORD} -noprompt -dname "CN=kafka-zookeeper, OU=Stalker Kafka, O=Red Kite Solutions, L=, S=, C="
+keytool -keystore kafka-zookeeper.keystore.jks -alias kafka-zookeeper -certreq -file ca-request-zookeeper -storepass ${ZOOKEEPER_PASSWORD} -noprompt
+cat > extzookeeper.cnf << EOF
+basicConstraints = CA:FALSE
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer
+keyUsage = critical, digitalSignature, keyEncipherment
+extendedKeyUsage = clientAuth, serverAuth
+subjectAltName = @alt_names
+[alt_names]
+DNS.1 = kafka-zookeeper.stalker.svc.cluster.local
+DNS.2 = kafka-zookeeper
+EOF
+openssl x509 -req -CA kafka-ca.crt -CAkey kafka-ca.key -in ca-request-zookeeper -out ca-signed-kafka-zookeeper -days $VALIDITY -CAcreateserial -extfile extzookeeper.cnf
+keytool -keystore kafka-zookeeper.keystore.jks -alias CARoot -importcert -file kafka-ca.crt -storepass ${ZOOKEEPER_PASSWORD} -noprompt
+keytool -keystore kafka-zookeeper.keystore.jks -alias kafka-zookeeper -importcert -file ca-signed-kafka-zookeeper -storepass ${ZOOKEEPER_PASSWORD} -noprompt
+keytool -keystore kafka-zookeeper.truststore.jks -alias CARoot -importcert -file kafka-ca.crt -storepass $ZOOKEEPER_PASSWORD -keypass $ZOOKEEPER_PASSWORD -noprompt
+####
 
-# ---- CA
+### Created files :
+# ---- CA ----
 # kafka-ca-openssl.cnf
 # kafka-ca.crt
 # kafka-ca.key
-
-
-# ---- Kafka broker
+# ---- Kafka broker ----
 # kafka.server.truststore.jks
 # kafka-0.keystore.jks
 # ca-request-kafka-0
 # ca-signed-kafka-0
 # ext0.cnf
+# ---- Zookeeper ----
+# kafka-zookeeper.truststore.jks
+# kafka-zookeeper.keystore.jks
+# ca-request-zookeeper
+# ca-signed-kafka-zookeeper
+# extzookeeper.cnf
 
 cat > extclient.cnf << EOF
 basicConstraints = CA:FALSE
@@ -100,7 +127,7 @@ EOF
 # A client's username, in the current Kafka configuration, is the CN value for the OU "Stalker Kafka Clients"
 # ---- Client Flow Manager
 PASS_FM="$(tr -dc A-Za-z0-9 </dev/urandom | head -c 25)"
-openssl req -newkey rsa:4096 -passout pass:$PASS_FM -out client1.csr -keyout client1.key -subj="/CN=flow-manager/OU=Stalker Kafka Clients/O=Red Kite Solutions/L=/ST=/C="
+openssl req -newkey rsa:4096 -passout pass:$PASS_FM -out client1.csr -keyout client1.key -subj="/CN=$FLOW_MANAGER_USERNAME/OU=Stalker Kafka Clients/O=Red Kite Solutions/L=/ST=/C="
 openssl x509 -sha256 -req -days 365 -in client1.csr -CA kafka-ca.crt -CAkey kafka-ca.key -CAcreateserial -out ./flow_manager/kafka-client-signed.crt -extfile extclient.cnf
 cp client1.key ./flow_manager/kafka-client.key
 cp kafka-ca.crt ./flow_manager/kafka-ca.crt
@@ -108,7 +135,7 @@ cp kafka-ca.crt ./flow_manager/kafka-ca.crt
 
 # ---- Client Orchestrator
 PASS_ORCHESTRATOR="$(tr -dc A-Za-z0-9 </dev/urandom | head -c 25)"
-openssl req -newkey rsa:4096 -passout pass:$PASS_ORCHESTRATOR -out client2.csr -keyout client2.key -subj="/CN=orchestrator/OU=Stalker Kafka Clients/O=Red Kite Solutions/L=/ST=/C="
+openssl req -newkey rsa:4096 -passout pass:$PASS_ORCHESTRATOR -out client2.csr -keyout client2.key -subj="/CN=$ORCHESTRATOR_USERNAME/OU=Stalker Kafka Clients/O=Red Kite Solutions/L=/ST=/C="
 openssl x509 -sha256 -req -days 365 -in client2.csr -CA kafka-ca.crt -CAkey kafka-ca.key -CAcreateserial -out ./orchestrator/kafka-client-signed.crt
 cp client2.key ./orchestrator/kafka-client.key
 cp kafka-ca.crt ./orchestrator/kafka-ca.crt
@@ -116,6 +143,8 @@ cp kafka-ca.crt ./orchestrator/kafka-ca.crt
 # Moving the keys for safe keeping
 mv kafka-0.keystore.jks ./queue/kafka-0.keystore.jks
 mv kafka.server.truststore.jks ./queue/kafka.server.truststore.jks
+mv kafka-zookeeper.keystore.jks ./queue/kafka-zookeeper.keystore.jks
+mv kafka-zookeeper.truststore.jks ./queue/kafka-zookeeper.truststore.jks
 
 # Cleanup
 rm kafka-ca-openssl.cnf
@@ -127,8 +156,12 @@ rm ca-request-kafka-0
 rm client1.csr
 rm client2.csr
 rm extclient.cnf
+rm ca-request-zookeeper
+rm ca-signed-kafka-zookeeper
+rm extzookeeper.cnf
 
 
 echo "  KAFKA_KEYSTORE_PASSWORD: $PASSWORD" >> devspace.dev.yaml
 echo "  FM_KAFKA_KEY_PASSWORD: $PASS_FM" >> devspace.dev.yaml
 echo "  ORCHESTRATOR_KAFKA_KEY_PASSWORD: $PASS_ORCHESTRATOR" >> devspace.dev.yaml
+echo "  KAFKA_ZOOKEEPER_KEYSTORE_PASSWORD: $ZOOKEEPER_PASSWORD" >> devspace.dev.yaml
