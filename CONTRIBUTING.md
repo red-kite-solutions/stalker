@@ -56,6 +56,10 @@ By default, Stalker uses the variables from _[devspace.base.yaml](./devspace.bas
 
 For instance, overwriting the `FM_ENVIRONMENT` variable with the value `dev` instead of the default `prod` will create a default account with the following credentials at startup.
 
+Some of these environment variables are certificates and keys for the mongodb connections. You can create those certificates and the related variables by running `bash ./setup_mongo_dev.sh` while being in the repository's root on a unix-like system. The script will generate the certificates and append the environment variables and keys to your `devspace.dev.yaml` file. Some of the generated file files will be your own connection key (`user-client.key`) and certificate (`user-client-signed.crt`) for your local client. They will be written to the root of the repository and your key's password will be printed in the terminal.
+
+> Every password, certificate and keys should be custom to your own environment. Do not use the provided certificates, keys and passwords. They are only provided as examples and to run the tests.
+
 ### 2. Run stalker
 
 From the repository root, run
@@ -66,7 +70,7 @@ devspace dev -n stalker
 
 ### 3. Logging in
 
-Once all the containers have started, you're all set to access the application by visiting [http://localhost:4200](http://localhost:4200). 
+Once all the containers have started, you're all set to access the application by visiting [http://localhost:4200](http://localhost:4200).
 
 If you launched Stalker with the default configuration, Stalker will prompt you to create your first admin user.
 
@@ -80,3 +84,30 @@ Password: admin
 This account is only to be used locally in development or tests for quality-of-life purposes. When the value is `prod`, you will be prompted to create the first admin account on your first visit to the web application.
 
 You should now be good to go! 🎉 If you happen to change a file in any microservice or in the front end, the app will be automatically updated with your changes.
+
+### 4. Connecting to the database with a local client
+
+Here, `MongoDB Compass` is used to connect to the local database.
+
+To connect to the database with a local client, for development purposes, you will need a certificate authority file, a client certificate and its private key.
+
+> If your certificates and keys do not exist, try to run the initialization script `setup_mongo_dev.sh`.
+
+1. Create a new connection via `Connect > New connection`
+2. Paste the following string as a connection string to initialize some parameters.
+
+```text
+mongodb://root:123456@localhost:27017/?authSource=admin&replicaSet=rs0&readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=true
+```
+
+3. Click on `Fill in connection fields individually`
+4. Change root's password with yours.
+5. Click on `More Options`
+6. Set `SSL` to `Server and Client Validation` to configure mutual TLS
+7. Set `Certificate Authority` to the generated `ca.pem` file.
+8. Set `Client Certificate` to the generated `user-client-signed.crt` file.
+9. Set `Client Private Key` to the generated `user-client.key` file.
+10. Set `Client Key Password` to the password that was given to you when you ran `setup_mongo_dev.sh`.
+11. Click `Connect`
+
+
