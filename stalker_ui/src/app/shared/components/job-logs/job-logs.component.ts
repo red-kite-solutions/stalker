@@ -34,6 +34,7 @@ export class JobLogsComponent implements OnChanges {
   @Input() public jobId: string | null | undefined = undefined;
 
   private socket: JobsSocketioClient | undefined = undefined;
+  private timeout: any | undefined = undefined;
 
   public logs$: Observable<string> | null = null;
   public isJobInProgress$: Observable<boolean> | null = null;
@@ -45,6 +46,7 @@ export class JobLogsComponent implements OnChanges {
 
   ngOnChanges(): void {
     if (this.jobId != null) {
+      if (this.timeout) clearTimeout(this.timeout);
       this.socket?.disconnect();
       this.socket = new JobsSocketioClient(this.authService);
       this.logs$ = this.jobsService.getJobLogs(this.jobId).pipe(
@@ -75,7 +77,7 @@ export class JobLogsComponent implements OnChanges {
         map((update) => {
           switch (update.status) {
             case 'success':
-              setTimeout(() => this.socket?.disconnect(), 5000);
+              this.timeout = setTimeout(() => this.socket?.disconnect(), 5000);
               return false;
 
             case 'started':
