@@ -36,7 +36,7 @@
 
   <mat-drawer mode="side" position="end" opened>
     <div #contextMenu class="tw-flex tw-gap-2 tw-flex-col tw-m-4" [formGroup]="customJobForm">
-      <h2 i18n="Configuration|Subscription configuration">Configuration</h2>
+      <h2 i18n="Configuration|Configuration">Configuration</h2>
 
       <div class="tw-w-full tw-flex tw-flex-col tw-gap">
         <mat-form-field appearance="outline" class="job-name-form">
@@ -108,11 +108,7 @@
       <mat-divider></mat-divider>
 
       <panel-section class="tw-opacity-60">
-        <app-text-menu
-          i18n-buttonText="Manage subscription|Manage subscription"
-          [buttonText]="'Manage subscription'"
-          [iconName]="'settings'"
-        >
+        <app-text-menu i18n-buttonText="Manage job|Manage job" [buttonText]="'Manage job'" [iconName]="'settings'">
           <div class="tw-flex tw-flex-col tw-gap-2">
             <button mat-stroked-button color="warn" class="tw-w-full" (click)="delete()">
               <label i18n="Delete|Delete an item">Delete</label>

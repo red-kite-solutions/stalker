@@ -16,6 +16,7 @@ import { CodeEditorComponent, CodeEditorTheme } from '../../widget/code-editor/c
   styles: ['app-code-editor { width: 100%; height:100%; border-radius: 0; }'],
   template: ` <mat-progress-bar
       mode="indeterminate"
+      color="accent"
       [ngStyle]="{ display: (isJobInProgress$ | async) ? 'block' : 'none' }"
     ></mat-progress-bar
     ><app-code-editor
