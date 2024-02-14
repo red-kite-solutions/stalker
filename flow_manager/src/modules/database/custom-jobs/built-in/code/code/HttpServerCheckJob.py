@@ -4,14 +4,13 @@ import random
 from ipaddress import ip_address
 
 import httpx
-from stalker_job_sdk import PortFinding, log_error, log_finding, log_info
+from stalker_job_sdk import (PortFinding, is_valid_ip, is_valid_port,
+                             log_error, log_finding, log_info)
 
 TARGET_IP: str = os.environ["targetIp"]  # IP to scan
 PORTS = os.environ["ports"]  # expects a json array of numbers, ex: [ 80, 443, 3389 ].
 
-try:
-    ip = ip_address(TARGET_IP)
-except ValueError:
+if not is_valid_ip(TARGET_IP):
     log_error(f"targetIp parameter is invalid: {TARGET_IP}")
     exit()
 
@@ -21,7 +20,7 @@ ports_set: set = set()
 try:
     ports_list = json.loads(PORTS) if PORTS and PORTS != "" else []
     for p in ports_list:
-        if not isinstance(p, int) or p < 1 or p > 65535:
+        if not is_valid_port(p):
             log_error(f"Invalid port {str(p)} of the ports list {str(ports_list)}")
             exit()
     ports_set: set = set(ports_list)

@@ -3,27 +3,21 @@ from json import loads
 from os import environ
 from subprocess import CompletedProcess, run
 
-from stalker_job_sdk import (IpFinding, PortFinding, TextField, log_error,
-                             log_finding, log_info, log_warning)
+from stalker_job_sdk import (IpFinding, PortFinding, TextField, is_valid_ip,
+                             is_valid_port, log_error, log_finding, log_info,
+                             log_warning)
 
 
 def validate_ip(ip: str, name: str):
-    try:
-        ip = ip_address(ip)
-    except ValueError:
+    if not is_valid_ip(ip):
         log_error(f"{name} parameter is invalid: {ip}")
         exit()
-
+        
 def validate_port(port: int, name: str):
-    try:
-        if not isinstance(port, int) or port < 1 or port > 65535:
-            log_error(f"Invalid port {str(port)} in {name}")
-            exit()
-    except Exception:
+    if not is_valid_port(port):
         log_error(f"Invalid port {str(port)} in {name}")
         exit()
-
-
+        
 def main():
     TARGET_IP: str = environ["targetIp"]  # Start of ip range
     TARGET_MASK: int = int(environ["targetMask"])  # mask (ex: /24)
