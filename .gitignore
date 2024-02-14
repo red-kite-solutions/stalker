@@ -157,3 +157,4 @@ jest-output*.json
 **/*.csr
 **/*.crt
 **/*.key
+**/*.jks
