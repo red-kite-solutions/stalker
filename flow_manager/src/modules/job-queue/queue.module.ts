@@ -10,21 +10,22 @@ import { KafkaJobQueue } from './kafka-job-queue';
 import { NullFindingsQueue } from './null-findings-queue';
 import { NullJobQueue } from './null-job-queue';
 
+const certFolder =
+  process.env.FM_ENVIRONMENT === FM_ENVIRONMENTS.tests &&
+  process.env.TEST_TYPE === 'unit'
+    ? './'
+    : '/certs';
+
 export const kafkaConfig: KafkaConfig = {
   clientId: orchestratorConstants.clientId,
   brokers: orchestratorConstants.brokers,
   ssl: {
     rejectUnauthorized: true,
     requestCert: true,
-    ca: [readFileSync('/certs/kafka-ca.crt', 'utf-8')],
-    cert: readFileSync('/certs/kafka-client-signed.crt', 'utf-8'),
-    key: readFileSync('/certs/kafka-client.key', 'utf-8'),
+    ca: [readFileSync(`${certFolder}/kafka-ca.crt`, 'utf-8')],
+    cert: readFileSync(`${certFolder}/kafka-client-signed.crt`, 'utf-8'),
+    key: readFileSync(`${certFolder}/kafka-client.key`, 'utf-8'),
     passphrase: process.env.FM_KAFKA_KEY_PASSWORD,
-    // sasl: {
-    //   username: process.env.FM_KAFKA_USERNAME,
-    //   password: process.env.FM_KAFKA_PASSWORD,
-    //   mechanism: 'plain',
-    // },
   },
 };
 
