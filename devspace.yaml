@@ -21,10 +21,12 @@ pipelines:
   dev:
     run: |-
       create_deployments namespaces
-      ${DEVSPACE_KUBECTL_EXECUTABLE} delete secret kafka-jks-0 --ignore-not-found -n ${DEVSPACE_NAMESPACE}
-      ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks-0 --from-file=kafka.truststore.jks=./queue/kafka.server.truststore.jks --from-file=kafka.keystore.jks=./queue/kafka-0.keystore.jks -n ${DEVSPACE_NAMESPACE}
-      ${DEVSPACE_KUBECTL_EXECUTABLE} delete secret kafka-zookeeper --ignore-not-found -n ${DEVSPACE_NAMESPACE}
-      ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-zookeeper --from-file=kafka-zookeeper.truststore.jks=./queue/kafka-zookeeper.truststore.jks --from-file=kafka-zookeeper.keystore.jks=./queue/kafka-zookeeper.keystore.jks -n ${DEVSPACE_NAMESPACE}
+
+      # Kafka's keystore and keystore password
+      ${DEVSPACE_KUBECTL_EXECUTABLE} delete secret kafka-jks --ignore-not-found -n ${DEVSPACE_NAMESPACE}
+      ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks --from-file=kafka.truststore.jks=./queue/kafka.server.truststore.jks --from-file=kafka.keystore.jks=./queue/kafka-0.keystore.jks -n ${DEVSPACE_NAMESPACE}
+      ${DEVSPACE_KUBECTL_EXECUTABLE} delete secret kafka-jks-password --ignore-not-found -n ${DEVSPACE_NAMESPACE}
+      ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks-password --from-literal=password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=keystore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=truststore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=key-password=${KAFKA_KEYSTORE_PASSWORD} -n ${DEVSPACE_NAMESPACE}
 
       build_images ui flow-manager orchestrator python-job-base nuclei-job-base cron-service
       create_deployments mongo kafka --sequential
@@ -34,8 +36,7 @@ pipelines:
 
       # Wait for kafka and mongo to be ready
       wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 300
-      wait_pod --label-selector app.kubernetes.io/component=kafka --timeout 300
-      wait_pod --label-selector app.kubernetes.io/component=zookeeper --timeout 300
+      wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 300
 
       create_deployments ui flow-manager orchestrator-service-account orchestrator cron-service --sequential
 
@@ -64,13 +65,19 @@ pipelines:
         type: bool
     run: |-
       create_deployments namespaces
+
+      # Kafka's keystore and keystore password
+      ${DEVSPACE_KUBECTL_EXECUTABLE} delete secret kafka-jks --ignore-not-found -n ${DEVSPACE_NAMESPACE}
+      ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks --from-file=kafka.truststore.jks=./queue/kafka.server.truststore.jks --from-file=kafka.keystore.jks=./queue/kafka-0.keystore.jks -n ${DEVSPACE_NAMESPACE}
+      ${DEVSPACE_KUBECTL_EXECUTABLE} delete secret kafka-jks-password --ignore-not-found -n ${DEVSPACE_NAMESPACE}
+      ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks-password --from-literal=password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=keystore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=truststore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=key-password=${KAFKA_KEYSTORE_PASSWORD} -n ${DEVSPACE_NAMESPACE}
+
       build_images flow-manager-e2e orchestrator python-job-base nuclei-job-base
       create_deployments mongo kafka orchestrator-service-account orchestrator flow-manager-e2e --sequential
 
       # Wait for kafka and mongo to be ready
       wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 300
-      wait_pod --label-selector app.kubernetes.io/component=kafka --timeout 600
-      wait_pod --label-selector app.kubernetes.io/component=zookeeper --timeout 300
+      wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 300
 
       # Run tests
       if [ $(get_flag "watch") == "true" ]; 
@@ -96,12 +103,17 @@ pipelines:
     run: |-
       # Running the build pipeline is required before running this
       create_deployments namespaces
+
+      ${DEVSPACE_KUBECTL_EXECUTABLE} delete secret kafka-jks --ignore-not-found -n ${DEVSPACE_NAMESPACE}
+      ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks --from-file=kafka.truststore.jks=./queue/kafka.server.truststore.jks --from-file=kafka.keystore.jks=./queue/kafka-0.keystore.jks -n ${DEVSPACE_NAMESPACE}
+      ${DEVSPACE_KUBECTL_EXECUTABLE} delete secret kafka-jks-password --ignore-not-found -n ${DEVSPACE_NAMESPACE}
+      ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks-password --from-literal=password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=keystore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=truststore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=key-password=${KAFKA_KEYSTORE_PASSWORD} -n ${DEVSPACE_NAMESPACE}
+
       create_deployments mongo kafka orchestrator-service-account orchestrator flow-manager-e2e --sequential
 
       # Wait for kafka and mongo to be ready
-      wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 600
-      wait_pod --label-selector app.kubernetes.io/component=kafka --timeout 600
-      wait_pod --label-selector app.kubernetes.io/component=zookeeper --timeout 600
+      wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 300
+      wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 300
 
   flow-manager-e2e-cicd-run:
     run: |-
@@ -373,44 +385,49 @@ deployments:
       chart:
         name: kafka
         repo: https://charts.bitnami.com/bitnami
-        version: "21.0.0"
+        version: "26.0.0"
       values:
-        allowPlaintextListener: true # TODO: set to false
-        auth:
-          clientProtocol: mtls
-          externalClientProtocol: mtls
-          interBrokerProtocol: mtls
-          tls:
-            existingSecrets:
-              - kafka-jks-0
-            password: ${KAFKA_KEYSTORE_PASSWORD}
-            endpointIdentificationAlgorithm: "" # TODO: Set to https
+        # The mapping rules extract the CN part of the certificate to be used as the username in ACL rules
+        # kafka as a super user is the account used for provisioning and for inter-kafka communications.
+        # Other accounts have minimal rights defined in "extraProvisioningCommands"
+        extraConfig: |
+          authorizer.class.name = org.apache.kafka.metadata.authorizer.StandardAuthorizer
+          ssl.principal.mapping.rules = RULE:^.*OU=Stalker Kafka Clients.*,CN=(.*?)(,.*)?$/$1/,RULE:^CN=(.*?),OU=Stalker Kafka.*$/$1/,DEFAULT
+          super.users = User:kafka
+        listeners:
+          client:
+            name: CLIENT
+            containerPort: 9092
+            protocol: SSL
+            sslClientAuth: "required"
+          controller:
+            name: CONTROLLER
+            containerPort: 9093
+            protocol: SSL
+            sslClientAuth: "required"
+          interbroker:
+            name: INTERNAL
+            containerPort: 9094
+            protocol: SSL
+            sslClientAuth: "required"
+        tls:
+          passwordsSecret: kafka-jks-password
+          existingSecret: kafka-jks
+          keystorePassword: ${KAFKA_KEYSTORE_PASSWORD}
+          truststorePassword: ${KAFKA_KEYSTORE_PASSWORD}
+          endpointIdentificationAlgorithm: "https"
         extraEnvVars:
           - name: ALLOW_PLAINTEXT_LISTENER
-            value: "yes" # TODO: set to no
-          - name: KAFKA_CFG_AUTHORIZER_CLASS_NAME
-            value: kafka.security.authorizer.AclAuthorizer
-          - name: KAFKA_CFG_SSL_PRINCIPAL_MAPPING_RULES
-            value: RULE:^.*OU=Stalker Kafka Clients.*,CN=(.*?)(,.*)?$/$1/,DEFAULT # Extracts the CN part of the certificate to be used as the username in ACL rules
-        # tls:
-        #   zookeeper:
-        #     enabled: true
-        #     verifyHostname: false # TODO: set to true (kafka-zookeeper)
-        #     existingSecret: kafka-zookeeper
-        #     existingSecretKeystoreKey: kafka-zookeeper.keystore.jks
-        #     existingSecretTruststoreKey: kafka-zookeeper.truststore.jks
-        #     keystorePassword: ${KAFKA_ZOOKEEPER_KEYSTORE_PASSWORD}
-        #     truststorePassword: ${KAFKA_ZOOKEEPER_KEYSTORE_PASSWORD}
-
+            value: "no"
         provisioning:
           enabled: true
           auth:
             tls:
-              certificatesSecret: kafka-jks-0
+              type: jks
+              passwordsSecret: kafka-jks-password
+              certificatesSecret: kafka-jks
               keystore: kafka.keystore.jks
               truststore: kafka.truststore.jks
-              keystorePassword: ${KAFKA_KEYSTORE_PASSWORD}
-              truststorePassword: ${KAFKA_KEYSTORE_PASSWORD}
           topics:
             - name: stalker.jobs.findings
               partitions: 1
@@ -430,13 +447,16 @@ deployments:
               config:
                 max.message.bytes: 64000
                 flush.messages: 1
-          extraProvisioningCommands:
+          extraProvisioningCommands: # Setting the ACLs
             - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:flow-manager --operation read --operation write --operation describe --topic stalker.jobs.findings"
             - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:flow-manager --operation write --operation describe --topic stalker.jobs.requests"
             - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:flow-manager --operation read --operation describe --topic stalker.jobs.logs"
             - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:orchestrator --operation write --operation describe --topic stalker.jobs.findings"
             - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:orchestrator --operation read --operation describe --topic stalker.jobs.requests"
             - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:orchestrator --operation write --operation describe --topic stalker.jobs.logs"
+            - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:flow-manager --operation read --operation describe --group flow-manager"
+            - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:flow-manager --operation read --operation describe --group flow-manager-job-logs"
+            - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:orchestrator --operation read --operation describe --group stalker"
 
   orchestrator-service-account:
     kubectl:
@@ -496,7 +516,8 @@ dev:
 
   kafka:
     labelSelector:
-      app.kubernetes.io/component: kafka
+      # app.kubernetes.io/component: kafka
+      app.kubernetes.io/instance: kafka
     ports:
       - port: "9092"
       - port: "9093"
@@ -630,5 +651,5 @@ hooks:
       terminatedWithCode: 0
     container:
       labelSelector:
-        app.kubernetes.io/component: kafka
+        app.kubernetes.io/instance: kafka
       containerName: kafka-container
