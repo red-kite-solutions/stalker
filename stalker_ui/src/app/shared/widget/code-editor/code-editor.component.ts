@@ -291,7 +291,7 @@ export class CodeEditorComponent implements AfterContentInit, OnDestroy {
   }
 
   public onKeyDown(event: any) {
-    if (event.ctrlKey && event.key === 's') {
+    if (event.ctrlKey && (event.key === 's' || event.key === 'S')) {
       event.preventDefault();
       this.saveEvent.emit();
     }
@@ -374,6 +374,10 @@ export class CodeEditorComponent implements AfterContentInit, OnDestroy {
   }
 
   public resetEditorFileTabs(fileTabs: FileTab[], fileTabFocusIndex: number = 0) {
+    if (new Set(fileTabs.map((x) => x.id)).size != fileTabs.length) {
+      throw new Error('Duplicate tab identifiers found.');
+    }
+
     this.deleteAllFileTabs();
     for (const tab of fileTabs) {
       const newModel = monaco.editor.createModel(tab.content, tab.language, monaco.Uri.file(tab.uri));

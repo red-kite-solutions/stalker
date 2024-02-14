@@ -151,3 +151,9 @@ obj
 
 # test output when run for cicd
 jest-output*.json
+
+# Certificates and keys
+**/*.pem
+**/*.csr
+**/*.crt
+**/*.key

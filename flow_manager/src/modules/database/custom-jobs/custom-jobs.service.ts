@@ -34,6 +34,10 @@ export class CustomJobsService {
     return await this.customJobModel.find({});
   }
 
+  public async get(id: string) {
+    return await this.customJobModel.findById(id);
+  }
+
   public async getAllSummaries(): Promise<JobSummary[]> {
     return await this.customJobModel
       .find()

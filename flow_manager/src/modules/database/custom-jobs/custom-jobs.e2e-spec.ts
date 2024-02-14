@@ -303,6 +303,21 @@ describe('Custom Jobs Controller (e2e)', () => {
     expect(success).toBe(true);
   });
 
+  it('Should have proper authorizations (GET /custom-jobs/id)', async () => {
+    const success = await checkAuthorizations(
+      testData,
+      Role.ReadOnly,
+      async (givenToken: string) => {
+        return await getReq(
+          app,
+          givenToken,
+          `/custom-jobs/65c387dee7ab9b4085a3f872`,
+        );
+      },
+    );
+    expect(success).toBe(true);
+  });
+
   it('Should have proper authorizations (POST /custom-jobs)', async () => {
     const success = await checkAuthorizations(
       testData,

@@ -9,6 +9,7 @@ module.exports = async function () {
   process.env.MONGO_ADDRESS = uri;
   process.env.MONGO_DATABASE_NAME = randomUUID();
   process.env.FM_ENVIRONMENT = FM_ENVIRONMENTS.tests;
+  process.env.TEST_TYPE = 'unit';
   process.env.STALKER_CRON_API_TOKEN = '123456';
   process.env.FM_JWT_SECRET = '123456';
   process.env.FM_REFRESH_SECRET = '123456';
