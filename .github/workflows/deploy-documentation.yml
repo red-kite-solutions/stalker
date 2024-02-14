@@ -1,7 +1,12 @@
-name: Flow Manager / Release
+name: Documentation / Release
 
 on:
   push:
+
+permissions:
+  packages: write
+  id-token: write
+  contents: read
 
 jobs:
   deploy:
