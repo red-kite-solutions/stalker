@@ -516,11 +516,7 @@ dev:
 
   kafka:
     labelSelector:
-      # app.kubernetes.io/component: kafka
       app.kubernetes.io/instance: kafka
-    ports:
-      - port: "9092"
-      - port: "9093"
 
   flow-manager:
     labelSelector:
