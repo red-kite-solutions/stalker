@@ -1,7 +1,7 @@
 import { JobOutputResponse } from '../../../api/jobs/jobs/jobs.socketio-client';
 
 export interface JobListEntry extends JobInput {
-  source: string;
+  builtIn: boolean;
 }
 
 export interface JobParameterDefinition {
@@ -37,6 +37,7 @@ export interface StartedJobViewModel {
   endTimestamp: number;
   endTime: Date;
   task: string;
+  name: string;
   projectId: string;
   priority: number;
   output: JobOutputResponse[];

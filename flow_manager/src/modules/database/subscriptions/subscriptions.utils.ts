@@ -26,18 +26,16 @@ export class SubscriptionsUtils {
     customJobsService: CustomJobsService,
     configService: ConfigService,
   ): Promise<JobParameter[] | undefined> {
-    const customJobNameParam = sub.jobParameters.find(
-      (param) => param.name.toLowerCase() === 'customjobname',
-    );
+    const customJobNameParam = sub.jobName;
 
     if (!customJobNameParam) {
       logger.error(
-        `Invalid subscription <${sub.name}> : The subscription has the job.name CustomJob, but the parameter customJobName is missing.`,
+        `Invalid subscription <${sub.name}> : The subscription has a wrong job name ${customJobNameParam}.`,
       );
       return undefined;
     }
 
-    if (typeof customJobNameParam.value !== 'string') {
+    if (typeof customJobNameParam !== 'string') {
       logger.error(
         `Invalid subscription <${sub.name}> : The parameter customJobName's value must be of type string.`,
       );
@@ -45,12 +43,12 @@ export class SubscriptionsUtils {
     }
 
     const customJobEntry = await customJobsService.getByName(
-      customJobNameParam.value,
+      customJobNameParam,
     );
 
     if (!customJobEntry) {
       logger.error(
-        `Invalid subscription <${sub.name}> : A CustomJob named <${customJobNameParam.value}> was not found.`,
+        `Invalid subscription <${sub.name}> : A CustomJob named <${customJobNameParam}> was not found.`,
       );
       return undefined;
     }

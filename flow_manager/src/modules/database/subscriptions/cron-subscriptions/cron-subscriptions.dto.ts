@@ -8,8 +8,8 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
+import { CustomJobNameExists } from '../../../../validators/custom-job-name-exists.validator';
 import { IsCronExpression } from '../../../../validators/is-cron-expression.validator';
-import { JobTypes } from '../../jobs/job-model.module';
 import { JobConditionDto, JobParameterDto } from '../subscriptions.dto';
 import { InputSource, inputSources } from './cron-subscriptions.model';
 
@@ -29,7 +29,7 @@ export class CronSubscriptionDto {
 
   @IsString()
   @IsNotEmpty()
-  @IsIn(JobTypes)
+  @CustomJobNameExists()
   public jobName!: string;
 
   @IsArray()

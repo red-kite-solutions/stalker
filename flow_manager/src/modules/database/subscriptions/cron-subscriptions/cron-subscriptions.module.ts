@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { CustomJobNameExistsRule } from '../../../../validators/custom-job-name-exists.validator';
 import { ConfigModule } from '../../admin/config/config.module';
 import { CustomJobsModule } from '../../custom-jobs/custom-jobs.module';
 import { DatalayerModule } from '../../datalayer.module';
@@ -23,9 +24,14 @@ import { CronSubscriptionsService } from './cron-subscriptions.service';
     HostModule,
     PortModule,
     SecretsModule,
+    CustomJobsModule,
   ],
   controllers: [CronSubscriptionsController],
-  providers: [CronSubscriptionsService, ...cronSubscriptionsInitProvider],
+  providers: [
+    CronSubscriptionsService,
+    ...cronSubscriptionsInitProvider,
+    CustomJobNameExistsRule,
+  ],
   exports: [CronSubscriptionsService, ...cronSubscriptionsInitProvider],
 })
 export class CronSubscriptionsModule {}

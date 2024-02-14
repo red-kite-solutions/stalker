@@ -17,7 +17,6 @@ import { ConfigService } from '../../admin/config/config.service';
 import { CustomJobsService } from '../../custom-jobs/custom-jobs.service';
 import { JobFactory } from '../../jobs/jobs.factory';
 import { JobsService } from '../../jobs/jobs.service';
-import { CustomJob } from '../../jobs/models/custom-job.model';
 import { Job } from '../../jobs/models/jobs.model';
 import { Domain, DomainDocument } from '../../reporting/domain/domain.model';
 import { DomainsService } from '../../reporting/domain/domain.service';
@@ -126,17 +125,15 @@ export class CronSubscriptionsService {
       return;
     }
 
-    if (sub.jobName === CustomJob.name) {
-      sub.jobParameters =
-        await SubscriptionsUtils.getParametersForCustomJobSubscription(
-          sub,
-          this.logger,
-          this.customJobsService,
-          this.configService,
-        );
+    sub.jobParameters =
+      await SubscriptionsUtils.getParametersForCustomJobSubscription(
+        sub,
+        this.logger,
+        this.customJobsService,
+        this.configService,
+      );
 
-      if (!sub.jobParameters) return;
-    }
+    if (!sub.jobParameters) return;
 
     await this.setupSubscriptionsForProjects(sub);
   }
@@ -324,12 +321,11 @@ export class CronSubscriptionsService {
     );
 
     let originalJobParameters = parametersCopy;
-    if (sub.jobName === CustomJob.name) {
-      for (const parameter of parametersCopy) {
-        if (parameter.name === 'customJobParameters') {
-          originalJobParameters = <JobParameter[]>parameter.value;
-          break;
-        }
+
+    for (const parameter of parametersCopy) {
+      if (parameter.name === 'customJobParameters') {
+        originalJobParameters = <JobParameter[]>parameter.value;
+        break;
       }
     }
 

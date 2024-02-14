@@ -1,7 +1,6 @@
 import { Type } from 'class-transformer';
 import {
   IsArray,
-  IsIn,
   IsInt,
   IsMongoId,
   IsNotEmpty,
@@ -10,7 +9,7 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { JobTypes } from '../../jobs/job-model.module';
+import { CustomJobNameExists } from '../../../../validators/custom-job-name-exists.validator';
 import { JobConditionDto, JobParameterDto } from '../subscriptions.dto';
 
 export class EventSubscriptionDto {
@@ -28,7 +27,7 @@ export class EventSubscriptionDto {
 
   @IsString()
   @IsNotEmpty()
-  @IsIn(JobTypes)
+  @CustomJobNameExists()
   public jobName!: string;
 
   @IsArray()
