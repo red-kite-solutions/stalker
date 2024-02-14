@@ -111,7 +111,7 @@ Now that this new job has been implemented, it could be called through `subscrip
 
 Custom jobs are implemented by a Stalker user or administrator. They are a type of built-in job, but are much more flexible.
 
-Custom jobs can be run manually as a one time thing, or they can be run within the automation process through [subscriptions](./subscriptions.md#custom-job-example).
+Custom jobs can be run manually as a one time thing, or they can be run within the automation process through [subscriptions](/docs/concepts/subscriptions#custom-job-example).
 
 Implementing a `CustomJob` is easy. Simply name your new custom job, write your code, and make sure to [output your findings properly](#making-contact-with-the-outside-world).
 
