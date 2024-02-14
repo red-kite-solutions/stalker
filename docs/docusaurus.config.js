@@ -62,7 +62,7 @@ const config = {
         appId: "5KADQNDXQ2",
         apiKey: "b50be46fed93fa3ab8d854d6130f1f9e",
         indexName: "stalker-red-kite",
-        contextualSearch: true,
+        contextualSearch: false,
 
         // Optional: path for search page that enabled by default (`false` to disable it)
         searchPagePath: "search",
