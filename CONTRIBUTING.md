@@ -50,17 +50,31 @@ The output should look something like this.
 
 <br>
 
-### Create personal configuration
+### 2. Create personal configuration
 
-By default, Stalker uses the variables from _[devspace.base.yaml](./devspace.base.yaml)_. To ensure smooth functioning, you must first create a copy of the _[devspace.dev.yaml.template](./devspace.dev.yaml.template)_ and rename it as _devspace.dev.yaml_. This file will hold your personal configurations. Any variables defined in this file will override the ones found in _devspace.base.yaml_.
+By default, Stalker uses the variables from _[devspace.base.yaml](./devspace.base.yaml)_. To ensure a smooth experience, you must first create a copy of _[devspace.dev.yaml.template](./devspace.dev.yaml.template)_ and rename it as _devspace.dev.yaml_. This file will hold your personal configurations. Any variables defined in this file will override the ones found in _devspace.base.yaml_.
 
 For instance, overwriting the `FM_ENVIRONMENT` variable with the value `dev` instead of the default `prod` will create a default account with the following credentials at startup.
 
-Some of these environment variables are certificates and keys for the mongodb connections. You can create those certificates and the related variables by running `bash ./setup_mongo_dev.sh` while being in the repository's root on a unix-like system. The script will generate the certificates and append the environment variables and keys to your `devspace.dev.yaml` file. Some of the generated file files will be your own connection key (`user-client.key`) and certificate (`user-client-signed.crt`) for your local client. They will be written to the root of the repository and your key's password will be printed in the terminal.
+Some of these environment variables are certificates and keys for the different connections in the cluster.
+
+You can create the certificates, keys and variables for MongoDB by running the following script while being in the repository's root on a unix-like system.
+
+```bash
+bash ./setup_mongo_dev.sh
+```
+
+You can create the certificates, keys and variables for Kafka by running the followingn script while being in the repository's root on a unix-like system.
+
+```bash
+bash ./setup_kafka_dev.sh
+```
+
+The scripts will generate the certificates and keys and append the environment variables and keys to your `devspace.dev.yaml` file. Some of the generated file files will be your own connection key (`user-client.key`) and certificate (`user-client-signed.crt`) to MongoDB for your local client. They will be written to the root of the repository and your key's **password will be printed in the terminal**.
 
 > Every password, certificate and keys should be custom to your own environment. Do not use the provided certificates, keys and passwords. They are only provided as examples and to run the tests.
 
-### 2. Run stalker
+### 3. Run stalker
 
 From the repository root, run
 
@@ -68,7 +82,9 @@ From the repository root, run
 devspace dev -n stalker
 ```
 
-### 3. Logging in
+## Using Stalker
+
+### Logging in
 
 Once all the containers have started, you're all set to access the application by visiting [http://localhost:4200](http://localhost:4200).
 
@@ -85,7 +101,7 @@ This account is only to be used locally in development or tests for quality-of-l
 
 You should now be good to go! 🎉 If you happen to change a file in any microservice or in the front end, the app will be automatically updated with your changes.
 
-### 4. Connecting to the database with a local client
+### Connecting to the database with a local client
 
 Here, `MongoDB Compass` is used to connect to the local database.
 
@@ -109,5 +125,3 @@ mongodb://root:123456@localhost:27017/?authSource=admin&replicaSet=rs0&readPrefe
 9. Set `Client Private Key` to the generated `user-client.key` file.
 10. Set `Client Key Password` to the password that was given to you when you ran `setup_mongo_dev.sh`.
 11. Click `Connect`
-
-
