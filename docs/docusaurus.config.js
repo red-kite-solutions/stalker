@@ -54,6 +54,10 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
+      metadata: [
+        {name: 'keywords', content: 'security, easm, ex'},
+        {name: 'twitter:card', content: 'summary_large_image'},
+      ],
       algolia: {
         appId: "5KADQNDXQ2",
         apiKey: "b50be46fed93fa3ab8d854d6130f1f9e",
@@ -70,7 +74,7 @@ const config = {
         title: "Stalker",
         logo: {
           alt: "Red Kite Solutions logo",
-          src: "img/favicon-32x32.png",
+          src: "img/logo.svg",
         },
         items: [
           {

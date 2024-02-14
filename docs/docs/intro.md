@@ -12,28 +12,13 @@ Stalker's API can be used by third-party tools for automated consumption.
 
 **Quick Links**
 
-- [Architecture](./architecture.md)
-- [Jobs](./implementing-jobs.md)
-- [Findings](./findings.md)
-- [Subscriptions](./subscriptions.md)
-- [Secrets](./secrets.md)
-- [Releasing](./releasing.md)
+- [Architecture](/docs/concepts/architecture)
+- [Findings](/docs/concepts/findings)
+- [Subscriptions](/docs/concepts/subscriptions)
+- [Secrets](/docs/concepts/secrets)
+- [Implementing jobs](/docs/tutorials/implementing-jobs)
 
 ---
-
-**Table of content**
-
-- [Core concepts](#core-concepts)
-  - [Ressources](#ressources)
-    - [Projects](#projects)
-    - [Domains](#domains)
-    - [Hosts](#hosts)
-    - [Ports](#ports)
-  - [Extendability](#extendability)
-    - [Jobs](#jobs)
-    - [Findings](#findings)
-    - [Subscriptions](#subscriptions)
-- [Acknowledgements](#acknowledgements)
 
 ## Core concepts
 
@@ -67,13 +52,13 @@ Jobs refer to small scripts that operate independently to gather information abo
 
 Jobs run in a [Kubernetes job](https://kubernetes.io/docs/concepts/workloads/controllers/job/) pod with configurable resources. A job can be as simple as resolving an IP address, and as complex as scraping a web server.
 
-A guide with detailed [instructions on how to implement a job](./implementing-jobs.md) is available.
+A guide with detailed [instructions on how to implement a job](/docs/tutorials/implementing-jobs) is available.
 
 #### Findings
 
 Findings are produced by [jobs](#jobs) and they represent information that Stalker needs to process and organize data. Findings can be built-in or custom. Depending on their type and content, findings can trigger [Subscriptions](#subscriptions).
 
-Read here for more in-depth [information about findings](./findings.md).
+Read here for more in-depth [information about findings](/docs/concepts/findings).
 
 #### Subscriptions
 
@@ -85,7 +70,7 @@ The second type is the event subscription. The event subscriptions listen to [fi
 
 When a finding is found, the event subscriptions are queried. If an event subscription exists for the given finding, and the conditions specified in the event subscription are met, the detailed job is started. That job can then find new Findings, which may, in turn, trigger other event subscriptions, in a tree-like manner.
 
-Read here for additional [information on subscriptions](./subscriptions.md).
+Read here for additional [information on subscriptions](/docs/concepts/subscriptions).
 
 ## Acknowledgements
 

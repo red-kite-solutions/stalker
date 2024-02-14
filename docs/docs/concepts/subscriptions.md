@@ -200,7 +200,7 @@ An event subscription can contain these main elements :
 
 > You can reference a Finding's output variable by name in a Job parameter's value or in a condition's operand using the following syntax: `${parameterName}`. The variable name is case insensitive.
 
-> You can inject a secret as a parameter value with the `${secrets.secretName}` syntax. You can [learn more about secrets here](./secrets.md).
+> You can inject a secret as a parameter value with the `${secrets.secretName}` syntax. You can [learn more about secrets here](/docs/concepts/secrets).
 
 #### Event Subscription Simple Example
 
@@ -263,9 +263,9 @@ conditions:
 
 #### Event Subscription Custom Job Example
 
-Launching a custom job from an event subscription is really similar to launching a built-in job. The syntax and the logic are the same. However, a custom job requires a `CustomJobName` parameter. Without it, Stalker has no way of knowing which `CustomJob` to start. The value of the `CustomJobName` parameter must match [the name of the job](./implementing-jobs.md#custom-jobs) to start.
+Launching a custom job from an event subscription is really similar to launching a built-in job. The syntax and the logic are the same. However, a custom job requires a `CustomJobName` parameter. Without it, Stalker has no way of knowing which `CustomJob` to start. The value of the `CustomJobName` parameter must match [the name of the job](/docs/tutorials/implementing-jobs#custom-jobs) to start.
 
-The other parameters will be provided as environment variables to the job. Therefore, they must respect some [naming rules](./implementing-jobs.md#custom-job-input).
+The other parameters will be provided as environment variables to the job. Therefore, they must respect some [naming rules](/docs/tutorials/implementing-jobs#custom-job-input).
 
 The following example will start a custom job named `"My custom job"` when a `PortFinding` is found. It will provide four environment variables named `"CustomJobName"`, `"myCustomParameter"`, `"myFindingIpParameter"`, `"myFindingPortParameter"`, with their respective values.
 
@@ -292,7 +292,7 @@ A finding event is propagated by Stalker whenever an information comes into play
 
 It is possible to reference a finding outputted by a job as an input of a new job, as well as a condition operand. All references to a finding's output variable are case insensitive.
 
-To learn more about findings, [click here](./findings.md).
+To learn more about findings, [click here](/docs/concepts/findings).
 
 ### Conditions
 

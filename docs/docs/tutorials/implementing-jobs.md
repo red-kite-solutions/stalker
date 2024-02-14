@@ -50,7 +50,7 @@ To differentiate common logs from logs that are pertinent to Stalker, jobs must 
 
 To give Stalker information about what was found in the job, you need to output findings in the proper format.
 
-To learn more about how to produce findings, [click here](./findings.md).
+To learn more about how to produce findings, [click here](/docs/concepts/findings).
 
 ### Producing logs
 
@@ -169,7 +169,7 @@ The types of custom jobs:
 
 A python custom job is the standard way of making a custom job. It gives you full flexibility, but you have to implement it yourself.
 
-The python custom jobs come with a built-in SDK to help you properly [output findings and logs](./findings.md).
+The python custom jobs come with a built-in SDK to help you properly [output findings and logs](/docs/concepts/findings).
 
 #### Nuclei Custom Job
 
@@ -194,7 +194,7 @@ To start a Nuclei custom job with the default parser, you must configure the def
 
 ##### Nuclei Custom Finding Handling
 
-The custom finding handler parses every json output line from Nuclei in the `parse_finding` method. To help you in parsing the Nuclei output, the `NucleiFinding` class is provided. The handler then outputs them all in the `publish_findings` method. Everything that is outputted by the `parse_finding` method will be given to the `publish_findings` method in a list. To publish your findings properly, you can refer to [the findings' documentation](./findings.md).
+The custom finding handler parses every json output line from Nuclei in the `parse_finding` method. To help you in parsing the Nuclei output, the `NucleiFinding` class is provided. The handler then outputs them all in the `publish_findings` method. Everything that is outputted by the `parse_finding` method will be given to the `publish_findings` method in a list. To publish your findings properly, you can refer to [the findings' documentation](/docs/concepts/findings).
 
 The custom finding handler template's code:
 

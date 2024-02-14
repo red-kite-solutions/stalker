@@ -11,9 +11,9 @@ Stalker's API can be used by third-party tools for automated consumption.
 
 * [Architecture](./architecture.md)
 * [Jobs](./implementing-jobs.md)
-* [Findings](./findings.md)
-* [Subscriptions](./subscriptions.md)
-* [Secrets](./secrets.md)
+* [Findings](/docs/concepts/findings)
+* [Subscriptions](/docs/concepts/subscriptions.md)
+* [Secrets](/docs/concepts/secrets)
 * [Releasing](./releasing.md)
 
 ---
@@ -70,7 +70,7 @@ A guide with detailed [instructions on how to implement a job](./implementing-jo
 
 Findings are produced by [jobs](#jobs) and they represent information that Stalker needs to process and organize data. Findings can be built-in or custom. Depending on their type and content, findings can trigger [Subscriptions](#subscriptions).
 
-Read here for more in-depth [information about findings](./findings.md).
+Read here for more in-depth [information about findings](/docs/concepts/findings).
 
 #### Subscriptions
 
@@ -82,7 +82,7 @@ The second type is the event subscription. The event subscriptions listen to [fi
 
 When a finding is found, the event subscriptions are queried. If an event subscription exists for the given finding, and the conditions specified in the event subscription are met, the detailed job is started. That job can then find new Findings, which may, in turn, trigger other event subscriptions, in a tree-like manner.
 
-Read here for additional [information on subscriptions](./subscriptions.md).
+Read here for additional [information on subscriptions](/docs/concepts/subscriptions.md).
 
 ## Acknowledgements
 
