@@ -1,5 +1,6 @@
 import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { useContainer } from 'class-validator';
 import request from 'supertest';
 import {
   TestingData,
@@ -50,6 +51,7 @@ describe('Cron Subscriptions Controller (e2e)', () => {
         forbidNonWhitelisted: true,
       }),
     );
+    useContainer(app.select(AppModule), { fallbackOnErrors: true });
     await app.init();
     testData = await initTesting(app);
 

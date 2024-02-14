@@ -20,12 +20,8 @@ A subscription is written in `yaml` format in the front-end. The project for whi
   * [Event Subscription Syntax](#event-subscription-syntax)
     * [Event Subscription Simple Example](#event-subscription-simple-example)
     * [Event Subscription Complex Example](#event-subscription-complex-example)
-    * [Event Subscription Custom Job Example](#event-subscription-custom-job-example)
   * [Findings](#findings)
   * [Conditions](#conditions)
-* [Jobs](#jobs)
-  * [DomainNameResolvingJob](#domainnameresolvingjob)
-  * [TcpPortScanningJob](#tcpportscanningjob)
 
 ## Cron Subscriptions
 
@@ -262,31 +258,6 @@ conditions:
     rhs: 3
 ```
 
-#### Event Subscription Custom Job Example
-
-Launching a custom job from an event subscription is really similar to launching a built-in job. The syntax and the logic are the same. However, a custom job requires a `CustomJobName` parameter. Without it, Stalker has no way of knowing which `CustomJob` to start. The value of the `CustomJobName` parameter must match [the name of the job](./implementing-jobs.md#custom-jobs) to start.
-
-The other parameters will be provided as environment variables to the job. Therefore, they must respect some [naming rules](./implementing-jobs.md#custom-job-input).
-
-The following example will start a custom job named `"My custom job"` when a `PortFinding` is found. It will provide four environment variables named `"CustomJobName"`, `"myCustomParameter"`, `"myFindingIpParameter"`, `"myFindingPortParameter"`, with their respective values.
-
-```yaml
-name: My custom job subscription
-finding: PortFinding
-cooldown: 82800
-job:
-  name: CustomJob
-  parameters:
-    - name: CustomJobName
-      value: My custom job
-    - name: myCustomParameter
-      value: "This is a custom parameter"
-    - name: myFindingIpParameter
-      value: ${ip}
-    - name: myFindingPortParameter
-      value: ${port}
-```
-
 ### Findings
 
 A finding event is propagated by Stalker whenever an information comes into play. Every finding type contains information that is specific to it.
@@ -317,47 +288,3 @@ The primitive type of the parameters must match together and must match with the
 | startsWith_i | string                  | Validates if the `lhs` string starts with the `rhs` string. Case insensitive. |
 | endsWith     | string                  | Validates if the `lhs` string ends with the `rhs` string.                     |
 | endsWith_i   | string                  | Validates if the `lhs` string ends with the `rhs` string. Case insensitive.   |
-
-## Jobs
-
-A job is the way for Stalker to find new information. It is started by Stalker and runs in a contained environment. Different jobs will generate different findings. It is possible to reference a Finding's output variable as a job parameter. A job parameter is one of a job's input variables.
-
-When referencing a Finding's output variable by name (ex: `${domainName}`), the variable name is case insensitive.
-
-A job can generate multiple findings of one or many finding types.
-
-**Jobs :**
-
-* DomainNameResolvingJob
-* TcpPortScanningJob
-
-### DomainNameResolvingJob
-
-A `DomainNameResolvingJob` takes a domain name and resolves it to one or more ip address.
-
-**Input variables :**
-
-| Variable Name | Type   | Value Description                  |
-| ------------- | ------ | ---------------------------------- |
-| domainName    | string | A FQDN to resolve to an IP address |
-
-**Possible Findings generated :**
-
-* HostnameIpFinding
-
-### TcpPortScanningJob
-
-**Input variables :**
-
-| Variable Name        | Type   | Value Description                                                                                                              |
-| -------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------ |
-| targetIp             | string | The Host's ipv4 address to scan.                                                                                               |
-| threads              | string | The number of active threads to scan. `1 <= t <= 1000`                                                                         |
-| socketTimeoutSeconds | number | How long the scanner waits before declaring a port as closed and timing out, in seconds. A floating point number. `0 < t <= 3` |
-| portMin              | string | The first port to scan. `1 <= portMin < portMax`                                                                               |
-| portMax              | string | The last port to scan. `portMin < portMax <= 65535`                                                                            |
-| ports                | string | A JSON array in a string. Every port mentionned in it will be scanned. Ex: `"[3389, 8000, 8080, 8443]"`                        |
-
-**Possible Findings generated :**
-
-* PortFinding

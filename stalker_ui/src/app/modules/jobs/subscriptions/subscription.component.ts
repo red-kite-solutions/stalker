@@ -221,13 +221,14 @@ export class SubscriptionComponent implements OnInit, OnDestroy, HasUnsavedChang
 
       this.hasBeenSaved = true;
       this.originalCode = this.code;
-      this.isSaving = false;
       this.subscriptionConfigForm.enable();
       this.hasConfigChanged = false;
       this.hasUnsavedChanges$.next(false);
     } catch {
       const invalidSubscription = $localize`:Invalid subscription|Subscription is not in a valid format:Invalid subscription`;
       this.toastr.error(invalidSubscription);
+    } finally {
+      this.isSaving = false;
     }
   }
 

@@ -14,6 +14,7 @@ import { FM_ENVIRONMENTS } from '../../app.constants';
 import { JobQueue } from '../../job-queue/job-queue';
 import { Project } from '../reporting/project.model';
 import { JobExecutionsDto } from './jobs.dto';
+import { CustomJob } from './models/custom-job.model';
 import { Job, JobDocument } from './models/jobs.model';
 
 @Injectable()
@@ -84,7 +85,32 @@ export class JobsService {
       createdJob = await this.jobModel.create(job);
     }
 
+    // This part of the code ensures that every custom job parameter is sent as a string
+    // Not sending a custom job parameter as a string will break the orchestrator's deserialization
     if (process.env.FM_ENVIRONMENT !== FM_ENVIRONMENTS.tests) {
+      if (job.task === CustomJob.name) {
+        let cJob = job as CustomJob;
+
+        if (
+          cJob.customJobParameters &&
+          Array.isArray(cJob.customJobParameters)
+        ) {
+          for (let j = 0; j < cJob.customJobParameters.length; ++j) {
+            if (
+              !cJob.customJobParameters[j].value ||
+              typeof cJob.customJobParameters[j].value === 'string'
+            ) {
+              continue;
+            }
+
+            cJob.customJobParameters[j].value = JSON.stringify(
+              cJob.customJobParameters[j].value,
+            );
+          }
+          job = cJob;
+        }
+      }
+
       await this.jobQueue.publish({
         key: createdJob.id,
         value: JSON.stringify({

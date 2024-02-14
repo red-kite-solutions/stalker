@@ -4,7 +4,6 @@ import { randomUUID } from 'crypto';
 import { Model } from 'mongoose';
 import { HttpNotFoundException } from '../../exceptions/http.exceptions';
 import { AppModule } from '../app.module';
-import { DomainNameResolvingJob } from '../database/jobs/models/domain-name-resolving.model';
 import { Job } from '../database/jobs/models/jobs.model';
 import { CorrelationKeyUtils } from '../database/reporting/correlation.utils';
 import {
@@ -145,7 +144,7 @@ describe('Findings Service Spec', () => {
 
       const j = await jobsModel.create({
         projectId: c.id,
-        task: DomainNameResolvingJob.name,
+        task: 'CustomJob',
       });
 
       // Act
@@ -174,7 +173,7 @@ describe('Findings Service Spec', () => {
 
     const j = await jobsModel.create({
       projectId: c.id,
-      task: DomainNameResolvingJob.name,
+      task: 'CustomJob',
     });
 
     // Act

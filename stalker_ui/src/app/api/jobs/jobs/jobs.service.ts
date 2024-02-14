@@ -86,15 +86,9 @@ export class JobsService {
     return 'done';
   }
 
-  public async startJob(
-    jobName: string,
-    source: string,
-    jobParameters: JobParameter[],
-    projectId: string | null = null
-  ) {
+  public async startJob(jobName: string, jobParameters: JobParameter[], projectId: string | null = null) {
     const data = {
       task: jobName,
-      source: source,
       jobParameters: jobParameters,
       projectId: projectId,
     };

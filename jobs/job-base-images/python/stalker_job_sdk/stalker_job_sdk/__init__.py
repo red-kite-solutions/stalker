@@ -1,6 +1,7 @@
 import json
 import sys
 from abc import ABC
+from ipaddress import ip_address
 
 
 class Field(ABC):
@@ -110,3 +111,20 @@ def log_error(message: str):
 def _log(prefix: str, message: str):
     print(f"{prefix} {message}")
     sys.stdout.flush()
+
+def is_valid_ip(ip: str):
+    """Validates an IP address. Returns false if the IP is invalid, true otherwise."""
+    try:
+        ip = ip_address(ip)
+    except ValueError:
+        return False
+    return True
+
+def is_valid_port(port: int):
+    """Validates a port number. Returns false if the port is invalid, true otherwise."""
+    try:
+        if not isinstance(port, int) or port < 1 or port > 65535:
+            return False
+    except Exception:
+        return False
+    return True
