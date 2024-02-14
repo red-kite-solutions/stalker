@@ -63,7 +63,7 @@ if not isinstance(THREADS, int) or THREADS <= 0:
     log_error(f"Invalid rate parameter: {str(THREADS)}")
     
 if THREADS > 1300:
-    log_warning(f"threads value is high (> 1 300) and may have an effect on performances.")
+    log_warning(f"threads value is high (> 1,300) and may have an effect on performances.")
 
 ports_list:list = []
 ports_set: set = set()
