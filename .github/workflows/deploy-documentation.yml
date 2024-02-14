@@ -51,4 +51,5 @@ jobs:
           crawler-api-key: ${{ secrets.CRAWLER_API_KEY }}
           algolia-app-id: ${{ secrets.ALGOLIA_APP_ID }}
           algolia-api-key: ${{ secrets.ALGOLIA_API_KEY }}
+          crawler-name: stalker-red-kite
           site-url: 'https://wiki.stalker.red-kite.io/docs/intro/'
