@@ -1,5 +1,7 @@
 ---
-sidebar_position: 2
+sidebar_position: 1
+title: Findings
+description: What are findings and how to use them
 ---
 
 # Findings

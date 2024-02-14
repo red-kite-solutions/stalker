@@ -1,3 +1,9 @@
+---
+sidebar_position: 1
+title: Implementing Jobs
+description: How to implement Stalker jobs
+---
+
 # Implementing jobs
 
 This article describes how to implement a job in Stalker. This process involves a few steps, but it is usually quite easy!

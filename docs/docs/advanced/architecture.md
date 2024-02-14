@@ -1,3 +1,9 @@
+---
+sidebar_position: 1
+title: Network Architecture
+description: An overview of Stalker's network architecture
+---
+
 # Network Architecture
 
 The Stalker application is deployed in a Kubernetes cluster on a one instance per cluster basis. [Kubernetes network policies](https://kubernetes.io/docs/concepts/services-networking/network-policies/) are used to segment the different pods. The Stalker jobs, which are [Kubernetes Jobs](https://kubernetes.io/docs/concepts/workloads/controllers/job/), are run in their own namespace called `stalker-jobs` to isolate them.

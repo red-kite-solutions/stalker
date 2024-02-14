@@ -1,3 +1,9 @@
+---
+sidebar_position: 2
+title: Releasing
+description: Description of Stalker's release process
+---
+
 # Releasing
 
 In this guide, you will be provided with clear instructions on how to release a new version of Stalker.

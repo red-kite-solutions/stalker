@@ -1,5 +1,7 @@
 ---
 sidebar_position: 1
+title: Overview
+description: An overview of Stalker
 ---
 
 # Overview
@@ -12,7 +14,6 @@ Stalker's API can be used by third-party tools for automated consumption.
 
 **Quick Links**
 
-- [Architecture](/docs/concepts/architecture)
 - [Findings](/docs/concepts/findings)
 - [Subscriptions](/docs/concepts/subscriptions)
 - [Secrets](/docs/concepts/secrets)

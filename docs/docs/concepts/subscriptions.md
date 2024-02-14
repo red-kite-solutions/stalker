@@ -1,3 +1,9 @@
+---
+sidebar_position: 2
+title: Subscriptions
+description: What are subscriptions and how to use them
+---
+
 # Subscriptions
 
 Subscriptions are used in Stalker to start jobs based on either a cron expression (cron subscriptions) or a finding (event subscription). They are used to expand Stalker's automation workflow.

@@ -1,3 +1,9 @@
+---
+sidebar_position: 3
+title: Secrets
+description: What are secrets and how to use them
+---
+
 # Secrets
 
 Secrets are encrypted variables that can be given to jobs as parameters. The secrets are decrypted right before being given to the job. They can then be used to connect to third-party services.
