@@ -18,16 +18,16 @@ A subscription is written in `yaml` format in the front-end. The project for whi
 
 **Table of content**
 
-* [Cron Subscriptions](#cron-subscriptions)
-  * [Cron Subscription Syntax](#cron-subscription-syntax)
-    * [Cron Subscription Simple Example](#cron-subscription-simple-example)
-    * [Input variable](#input-variable)
-* [Event Subscriptions](#event-subscriptions)
-  * [Event Subscription Syntax](#event-subscription-syntax)
-    * [Event Subscription Simple Example](#event-subscription-simple-example)
-    * [Event Subscription Complex Example](#event-subscription-complex-example)
-  * [Findings](#findings)
-  * [Conditions](#conditions)
+- [Cron Subscriptions](#cron-subscriptions)
+  - [Cron Subscription Syntax](#cron-subscription-syntax)
+    - [Cron Subscription Simple Example](#cron-subscription-simple-example)
+    - [Input variable](#input-variable)
+- [Event Subscriptions](#event-subscriptions)
+  - [Event Subscription Syntax](#event-subscription-syntax)
+    - [Event Subscription Simple Example](#event-subscription-simple-example)
+    - [Event Subscription Complex Example](#event-subscription-complex-example)
+  - [Findings](#findings)
+  - [Conditions](#conditions)
 
 ## Cron Subscriptions
 
@@ -50,12 +50,12 @@ A cron subscription contains the following main elements :
 
 > N.B. Additonnal details on these elements are given in the following sections
 
-* The `name` element can be anything and is only used to distinguish the subscription from the others.
-* The `cronExpression` element has to be a valid cron expression. It is used to trigger the job launch.
-* The `input` element is either `ALL_DOMAINS`, `ALL_HOSTS`, `ALL_IP_RANGES` or `ALL_TCP_PORTS`. These values represent all the ressources of the corresponding type.
-* The `job` element contains multiple values:
-  * `name` : mandatory, must be an existing Job's type. See the Jobs section for the list of valid values.
-  * `parameters` : optionnal, but almost always needed. It describes the input values of the job by the parameter `name` and its `value` in a list.
+- The `name` element can be anything and is only used to distinguish the subscription from the others.
+- The `cronExpression` element has to be a valid cron expression. It is used to trigger the job launch.
+- The `input` element is either `ALL_DOMAINS`, `ALL_HOSTS`, `ALL_IP_RANGES` or `ALL_TCP_PORTS`. These values represent all the ressources of the corresponding type.
+- The `job` element contains multiple values:
+  - `name` : mandatory, must be an existing Job's type. See the Jobs section for the list of valid values.
+  - `parameters` : optionnal, but almost always needed. It describes the input values of the job by the parameter `name` and its `value` in a list.
 
 #### Cron Subscription Simple Example
 
@@ -81,18 +81,18 @@ The `input` variable specifies an input source. There are multiple input sources
 
 If a project is specified, only the ressources of the targeted project will be used.
 
-| Input source  | Variables                   |
-| ------------- | --------------------------- |
-| ALL_DOMAINS   | ${domainName}               |
-| ALL_HOSTS     | ${ip}                       |
-| ALL_TCP_PORTS | ${ip}, ${port}, ${protocol} |
+| Input source  | Variables                         |
+| ------------- | --------------------------------- |
+| ALL_DOMAINS   | `${domainName}`                   |
+| ALL_HOSTS     | `${ip}`                           |
+| ALL_TCP_PORTS | `${ip}`, `${port}`, `${protocol}` |
 
 When you specify the `ALL_DOMAINS` input, you have access to the `${domainName}` injectable variable. Stalker will apply the subscription for all the domains, and the domain's value will be injected where specified.
 
 ```yaml
 name: Refreshing all domain names
 input: ALL_DOMAINS
-cronExpression: '0 0 * * *'
+cronExpression: "0 0 * * *"
 job:
   name: DomainNameResolvingJob
   parameters:
@@ -105,7 +105,7 @@ When you specify the `ALL_HOSTS` input, you have access to the `${ip}` injectabl
 ```yaml
 name: Rescanning all hosts
 input: ALL_HOSTS
-cronExpression: '0 0 * * *'
+cronExpression: "0 0 * * *"
 job:
   name: TcpPortScanningJob
   parameters:
@@ -130,18 +130,18 @@ When you specify the `ALL_TCP_PORTS` input, you have access to the `${ip}`, `${p
 ```yaml
 name: All tcp ports with condition
 input: ALL_TCP_PORTS
-cronExpression: '0 0 * * *'
+cronExpression: "0 0 * * *"
 job:
   name: HttpServerCheckJob
   parameters:
     - name: targetIp
       value: ${ip}
     - name: ports
-      value:  ['${port}']
+      value: ["${port}"]
 conditions:
-  - lhs: '${protocol}'
-    operator: 'equals'
-    rhs: 'tcp'
+  - lhs: "${protocol}"
+    operator: "equals"
+    rhs: "tcp"
 ```
 
 When you specify the `ALL_IP_RANGES` input, you have access to the `${ip}` and `${mask}` injectable variables. Stalker will apply the subscription for all the projects' ip ranges.
@@ -189,16 +189,16 @@ An event subscription can contain these main elements :
 
 > N.B. Additonnal details on these elements are given in the following sections
 
-* The `name` element can be anything and is only used to distinguish the Subscription from the others.
-* The `finding` element must be a existing Finding's type. See the Findings section for the list.
-* The `cooldown` is a number in seconds for which to wait before relaunching the job for the same ressource.
-* The `job` element contains multiple values:
-  * `name` : mandatory, must be an existing Job's type. See the Jobs section for the list of valid values.
-  * `parameters` : optionnal, but almost always needed. It describes the input values of the job by the parameter `name` and its `value` in a list.
-* The `conditions` element is the only non-mandatory main element. If it is not provided, the Job will always be started when the Finding is found. Multiple conditions can be provided in a list. Conditions contain mulitple elements:
-  * `lhs` : The left-hand side operand.
-  * `operator` : The operator to compare the two operands.
-  * `rhs` : The right-hand side operand.
+- The `name` element can be anything and is only used to distinguish the Subscription from the others.
+- The `finding` element must be a existing Finding's type. See the Findings section for the list.
+- The `cooldown` is a number in seconds for which to wait before relaunching the job for the same ressource.
+- The `job` element contains multiple values:
+  - `name` : mandatory, must be an existing Job's type. See the Jobs section for the list of valid values.
+  - `parameters` : optionnal, but almost always needed. It describes the input values of the job by the parameter `name` and its `value` in a list.
+- The `conditions` element is the only non-mandatory main element. If it is not provided, the Job will always be started when the Finding is found. Multiple conditions can be provided in a list. Conditions contain mulitple elements:
+  - `lhs` : The left-hand side operand.
+  - `operator` : The operator to compare the two operands.
+  - `rhs` : The right-hand side operand.
 
 > You can reference a Finding's output variable by name in a Job parameter's value or in a condition's operand using the following syntax: `${parameterName}`. The variable name is case insensitive.
 
@@ -223,7 +223,6 @@ job:
   parameters:
     - name: domainName
       value: ${domainName}
-
 ```
 
 #### Event Subscription Complex Example
