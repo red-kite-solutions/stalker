@@ -33,9 +33,9 @@ import { ProfileComponent } from 'src/app/modules/user/profile/profile.component
 import { SharedModule } from 'src/app/shared/shared.module';
 import { SpinnerButtonComponent } from 'src/app/shared/widget/spinner-button/spinner-button.component';
 import { FindingsModule } from '../../modules/findings/findings.module';
-import { CustomJobsComponent } from '../../modules/jobs/custom-jobs/custom-jobs.component';
 import { JobExecutionDetailComponent } from '../../modules/jobs/job-executions/job-execution-detail.component';
 import { LaunchJobsComponent } from '../../modules/jobs/launch-jobs/launch-jobs.component';
+import { AvatarComponent } from '../../shared/components/avatar/avatar.component';
 import { JobLogsComponent } from '../../shared/components/job-logs/job-logs.component';
 import { AppHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { PanelSectionModule } from '../../shared/components/panel-section/panel-section.module';
@@ -49,7 +49,6 @@ import { DefaultComponent } from './default.component';
     CreateUserComponent,
     SettingsComponent,
     EditProjectsComponent,
-    CustomJobsComponent,
     LaunchJobsComponent,
     JobExecutionDetailComponent,
   ],
@@ -88,6 +87,7 @@ import { DefaultComponent } from './default.component';
     CodeEditorComponent,
     JobLogsSummaryComponent,
     SpinnerButtonComponent,
+    AvatarComponent,
   ],
   providers: [{ provide: MAT_COLOR_FORMATS, useValue: NGX_MAT_COLOR_FORMATS }],
 })

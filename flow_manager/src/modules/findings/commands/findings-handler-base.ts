@@ -4,7 +4,6 @@ import { ConfigService } from '../../database/admin/config/config.service';
 import { CustomJobsService } from '../../database/custom-jobs/custom-jobs.service';
 import { JobFactory } from '../../database/jobs/jobs.factory';
 import { JobsService } from '../../database/jobs/jobs.service';
-import { CustomJob } from '../../database/jobs/models/custom-job.model';
 import { Job } from '../../database/jobs/models/jobs.model';
 import { JobParameter } from '../../database/subscriptions/event-subscriptions/event-subscriptions.model';
 import { EventSubscriptionsService } from '../../database/subscriptions/event-subscriptions/event-subscriptions.service';
@@ -52,22 +51,19 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
           );
       }
 
-      if (sub.jobName === CustomJob.name) {
-        // Adding the parameters specific to a CustomJob.
-        // The jobParameters array will be customized for the CustomJob
-        // All the subscription's parameters are actually customJobParameters
-        // and the actual parameters come from the CustomJobEntry in the database
-        // If an error occures, undefined is returned.
-        sub.jobParameters =
-          await SubscriptionsUtils.getParametersForCustomJobSubscription(
-            sub,
-            this.logger,
-            this.customJobsService,
-            this.configService,
-          );
+      // The job parameters will be added to the jobParameters array
+      // All the subscription's parameters are actually customJobParameters
+      // and the actual parameters come from the CustomJobEntry in the database
+      // If an error occures, undefined is returned.
+      sub.jobParameters =
+        await SubscriptionsUtils.getParametersForCustomJobSubscription(
+          sub,
+          this.logger,
+          this.customJobsService,
+          this.configService,
+        );
 
-        if (!sub.jobParameters) continue;
-      }
+      if (!sub.jobParameters) continue;
 
       // Adding the projectId JobParameter to every job as it is always needed
       const projectIdParameter = new JobParameter();

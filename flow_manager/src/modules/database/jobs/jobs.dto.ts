@@ -1,7 +1,6 @@
 import { Type } from 'class-transformer';
 import {
   IsArray,
-  IsIn,
   IsMongoId,
   IsNotEmpty,
   IsNumber,
@@ -10,12 +9,10 @@ import {
   IsString,
   Max,
   Min,
-  ValidateIf,
   ValidateNested,
 } from 'class-validator';
 import { JobParameter } from '../subscriptions/event-subscriptions/event-subscriptions.model';
 import { JobParameterDto } from '../subscriptions/subscriptions.dto';
-import { JobSources, JobTypes } from './job-model.module';
 
 export class JobExecutionsDto {
   @IsNumberString()
@@ -34,11 +31,8 @@ export class JobExecutionsDto {
 
 export class StartJobDto {
   /**
-   * The whole validation will be skipped when ValidateIf returns
-   * false. The string checks must be done in the code, in that case
+   * TODO: make a proper validator instead of validating in controller
    */
-  @ValidateIf((o) => o.source !== JobSources.userCreated)
-  @IsIn(JobTypes)
   @IsNotEmpty()
   @IsString()
   public task!: string;
@@ -48,11 +42,6 @@ export class StartJobDto {
   @Type(() => JobParameterDto)
   @IsOptional()
   public jobParameters!: JobParameter[];
-
-  @IsIn(JobSources.all)
-  @IsNotEmpty()
-  @IsString()
-  public source!: string;
 
   @IsMongoId()
   @IsOptional()

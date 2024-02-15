@@ -52,6 +52,13 @@ export class CustomJobsController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ReadOnly)
+  @Get(':id')
+  async getCustomJob(@Param() IdDto: MongoIdDto): Promise<CustomJobsDocument> {
+    return await this.customJobsService.get(IdDto.id);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
   @Put(':id')
   async editCustomJob(

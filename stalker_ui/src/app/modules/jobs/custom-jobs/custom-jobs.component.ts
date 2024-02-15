@@ -1,15 +1,45 @@
-import { Component, OnDestroy, ViewChild } from '@angular/core';
-import { FormBuilder, FormControl, Validators } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatTableDataSource } from '@angular/material/table';
+import { CommonModule } from '@angular/common';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatOptionModule } from '@angular/material/core';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, combineLatest, debounceTime, map, startWith, tap } from 'rxjs';
+import {
+  BehaviorSubject,
+  Subscription,
+  distinctUntilChanged,
+  firstValueFrom,
+  map,
+  of,
+  pairwise,
+  startWith,
+} from 'rxjs';
+import { AppHeaderComponent } from 'src/app/shared/components/page-header/page-header.component';
+import { PanelSectionModule } from 'src/app/shared/components/panel-section/panel-section.module';
+import { HasUnsavedChanges } from 'src/app/shared/guards/unsaved-changes-can-deactivate.component';
+import { SharedModule } from 'src/app/shared/shared.module';
+import { FileTab } from 'src/app/shared/widget/code-editor/code-editor.type';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
+import { SavingButtonComponent } from 'src/app/shared/widget/spinner-button/saving-button.component';
+import { SpinnerButtonComponent } from 'src/app/shared/widget/spinner-button/spinner-button.component';
+import { TextMenuComponent } from 'src/app/shared/widget/text-menu/text-menu.component';
 import { CustomJobsService } from '../../../api/jobs/custom-jobs/custom-jobs.service';
 import { SettingsService } from '../../../api/settings/settings.service';
 import {
@@ -23,193 +53,97 @@ import {
   languageExtensionMapping,
   validCustomJobTypeDetails,
 } from '../../../shared/types/jobs/custom-job.type';
-import { JobPodSettings } from '../../../shared/types/settings/job-pod-settings.type';
 import { CodeEditorComponent, CodeEditorTheme } from '../../../shared/widget/code-editor/code-editor.component';
-import { FileTab } from '../../../shared/widget/code-editor/code-editor.type';
-import { nucleiFindingHandlerTemplate } from './nuclei-finding-handler-template';
 
 @Component({
+  standalone: true,
   selector: 'app-custom-jobs',
   templateUrl: './custom-jobs.component.html',
   styleUrls: ['./custom-jobs.component.scss'],
+  imports: [
+    AppHeaderComponent,
+    CommonModule,
+    CodeEditorComponent,
+    FormsModule,
+    SharedModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatOptionModule,
+    MatButtonModule,
+    MatDialogModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    MatTooltipModule,
+    MatSelectModule,
+    MatProgressSpinnerModule,
+    MatOptionModule,
+    MatIconModule,
+    MatSidenavModule,
+    MatTabsModule,
+    MatTooltipModule,
+    MatCardModule,
+    SpinnerButtonComponent,
+    TextMenuComponent,
+    PanelSectionModule,
+    MatDividerModule,
+    MatCheckboxModule,
+    SavingButtonComponent,
+  ],
 })
-export class CustomJobsComponent implements OnDestroy {
-  public languageExtensionMapping = languageExtensionMapping;
+export class CustomJobsComponent implements OnInit, OnDestroy, HasUnsavedChanges {
   public readonly basePath = '/custom-jobs/';
   public readonly defaultUriFile = 'custom-job';
-  public currentCodeBackup: string | undefined = '';
-  public minimapEnabled = false;
+  public readonly handlerFileSuffix = '-handler';
+  public readonly customJobCodeTabId = 'code';
+  public readonly handlerCodeTabId = 'handler';
+  public readonly typeDefault: CustomJobType = 'code';
+  public readonly languageDefault: CustomJobLanguage = 'python';
+  public readonly findingHandlerLanguageDefault: CustomJobFindingHandlerLanguage = 'python';
   public theme: CodeEditorTheme = 'vs-dark';
-  public readonly = false;
-  public selectedConfigId = '';
+
+  private id$ = this.activatedRoute.paramMap.pipe(map((x) => x.get('id')));
+
+  public originalCode: string = '';
+  public originalHandlerCode: string = '';
+  public languageExtensionMapping = languageExtensionMapping;
   public customJobTypes = customJobTypes;
   public customJobTypesLocalized = customJobTypesLocalized;
-  private readonly typeDefault: CustomJobType = 'code';
-  public readonly languageDefault: CustomJobLanguage = 'python';
-  private readonly findingHandlerLanguageDefault: CustomJobFindingHandlerLanguage = 'python';
-  public currentLanguageOptions: CustomJobLanguage[] = this.getCurrentLanguageOptions(this.typeDefault);
-  public findingHandlerLanguageOptions = this.getCurrentHandlerLanguageOptions(this.typeDefault);
-  public handlerFormEnabled = false;
-  private readonly handlerFileSuffix = '-handler';
-  public readonly customJobCodeTabId = 'code';
-  private readonly handlerCodeTabId = 'handler';
+  public languageOptions: CustomJobLanguage[] = [];
+  public findingHandlerLanguageOptions: CustomJobFindingHandlerLanguage[] = [];
 
   @ViewChild(CodeEditorComponent) codeEditor!: CodeEditorComponent;
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  dataSource = new MatTableDataSource<CustomJobData>();
 
-  public selectedRow: CustomJob | undefined;
-  public tempSelectedRow: CustomJob | undefined;
-  public isInNewCustomJobContext = true;
-  private selectingCustomJobFlag1 = false;
-  private selectingCustomJobFlag2 = false;
-  public currentCustomJobId = '';
-  public data = new Array<CustomJob>();
-  public jobPodSettings$: Observable<JobPodSettings[]> = this.settingsService.getJobPodSettings();
+  public podSettingOptions$ = this.settingsService.getJobPodSettings();
 
-  public dataSource$ = this.refreshData();
+  public handlerFormEnabled$ = of(false);
+  public isSaving = false;
+  public hasBeenSaved = false;
+  public canSave = false;
 
   public customJobForm = this.fb.group({
-    customJobType: new FormControl<CustomJobType>(this.typeDefault),
-    customJobName: new FormControl('', [Validators.required]),
-    customJobLanguage: new FormControl<CustomJobLanguage>({ value: this.languageDefault, disabled: false }),
-  });
-
-  public findingHandlerForm = this.fb.group({
-    findingHandlerEnabled: new FormControl<boolean>(false),
-    findingHandlerLanguage: new FormControl<CustomJobFindingHandlerLanguage>({
+    customJobType: this.fb.control<CustomJobType>(this.typeDefault),
+    customJobName: this.fb.control<string>('', { validators: [Validators.required] }),
+    customJobLanguage: this.fb.control<CustomJobLanguage>({ value: this.languageDefault, disabled: false }),
+    podSettings: this.fb.control<string>(''),
+    findingHandlerEnabled: this.fb.control<boolean>(false),
+    findingHandlerLanguage: this.fb.control<CustomJobFindingHandlerLanguage>({
       value: this.findingHandlerLanguageDefault,
       disabled: true,
     }),
   });
 
-  private getCurrentLanguageOptions(type: string) {
-    const tmpArr: CustomJobLanguage[] = [];
-
-    for (const details of validCustomJobTypeDetails) {
-      if (details.type === type) {
-        tmpArr.push(details.language);
-      }
-    }
-    return tmpArr;
+  get customJobName() {
+    return this.customJobForm.get('customJobName')?.value;
   }
-
-  private getCurrentHandlerLanguageOptions(type: string) {
-    const tmpArr: CustomJobFindingHandlerLanguage[] = [];
-
-    for (const details of validCustomJobTypeDetails) {
-      if (details.type === type) {
-        tmpArr.push(details.handlerLanguage);
-      }
-    }
-    return tmpArr;
-  }
-
-  findingHandlerEnabled$ = this.findingHandlerForm.get('findingHandlerEnabled')?.valueChanges.pipe(
-    startWith(false),
-    tap((value) => {
-      if (value) {
-        this.findingHandlerForm.get('findingHandlerLanguage')?.enable();
-      } else {
-        this.findingHandlerForm.get('findingHandlerLanguage')?.disable();
-      }
-    })
-  );
-
-  findingHandlerLanguage$ = this.findingHandlerForm
-    .get('findingHandlerLanguage')
-    ?.valueChanges.pipe(startWith(undefined));
-
-  findingHandlerFormSubscription$ = this.findingHandlerEnabled$?.subscribe();
-
-  customJobName$ = this.customJobForm.get('customJobName')?.valueChanges.pipe(startWith(''));
-
-  customJobType$ = this.customJobForm.get('customJobType')?.valueChanges.pipe(
-    startWith(<CustomJobType>'code'),
-    tap((currCustomJobType) => {
-      if (currCustomJobType === null) return;
-      this.currentLanguageOptions = this.getCurrentLanguageOptions(currCustomJobType);
-      this.findingHandlerLanguageOptions = this.getCurrentHandlerLanguageOptions(currCustomJobType);
-      this.handlerFormEnabled = this.typeIsHandlerEnabled(currCustomJobType);
-      if (this.selectingCustomJobFlag1) {
-        this.selectingCustomJobFlag1 = false;
-        this.customJobForm
-          .get('customJobLanguage')
-          ?.setValue(this.selectedRow ? this.selectedRow.language : this.currentLanguageOptions[0]);
-      } else {
-        this.customJobForm.get('customJobLanguage')?.setValue(this.currentLanguageOptions[0]);
-      }
-    })
-  );
 
   customJobLanguage$ = this.customJobForm.get('customJobLanguage')?.valueChanges.pipe(startWith(this.languageDefault));
 
-  private handlerCodeFileTab$ = combineLatest([
-    this.findingHandlerEnabled$!,
-    this.customJobType$!,
-    this.findingHandlerLanguage$!,
-    this.customJobName$!,
-  ]).pipe(
-    debounceTime(200),
-    map(([findingHandlerEnabled, customJobType, findingHandlerLanguage, customJobName]) => {
-      const selecting = this.selectingCustomJobFlag2;
-      if (this.selectingCustomJobFlag2) {
-        this.selectingCustomJobFlag2 = false;
-      }
+  private valueChangeSubscription: Subscription | undefined = undefined;
 
-      let handlerCode = selecting
-        ? this.selectedRow?.findingHandler
-        : this.codeEditor.getFileTabById(this.handlerCodeTabId)?.content;
-
-      if (findingHandlerEnabled && !selecting && !handlerCode) {
-        switch (this.customJobForm.get('customJobType')?.value) {
-          case 'nuclei': {
-            handlerCode = nucleiFindingHandlerTemplate;
-            break;
-          }
-        }
-      }
-
-      let fileTab: FileTab | undefined = undefined;
-      let fileName = customJobName ? customJobName : this.defaultUriFile;
-
-      if (handlerCode && this.typeIsHandlerEnabled(customJobType)) {
-        fileTab = {
-          content: handlerCode,
-          language: findingHandlerLanguage!,
-          uri: `${this.basePath}${fileName}${this.handlerFileSuffix}.${
-            languageExtensionMapping[findingHandlerLanguage!]
-          }`,
-          id: this.handlerCodeTabId,
-        };
-      }
-      return fileTab;
-    })
-  );
-
-  private customJobFormSubscription$ = combineLatest([
-    this.customJobName$!,
-    this.customJobType$!,
-    this.customJobLanguage$!,
-    this.handlerCodeFileTab$,
-  ])
-    .pipe(debounceTime(300))
-    .subscribe(([customJobName, customJobType, customJobLanguage, handlerCodeFileTab]) => {
-      let fileName = customJobName ? customJobName : this.defaultUriFile;
-
-      const fileTabs: FileTab[] = [
-        {
-          content: this.codeEditor.getFileTabById(this.customJobCodeTabId)!.content,
-          language: customJobLanguage!,
-          uri: `${this.basePath}${fileName}.${languageExtensionMapping[customJobLanguage!]}`,
-          id: this.customJobCodeTabId,
-        },
-      ];
-
-      if (handlerCodeFileTab) fileTabs.push(handlerCodeFileTab);
-
-      this.codeEditor.resetEditorFileTabs(fileTabs);
-    });
+  public hasUnsavedChanges$ = new BehaviorSubject(false);
 
   constructor(
     private dialog: MatDialog,
@@ -217,102 +151,181 @@ export class CustomJobsComponent implements OnDestroy {
     private toastr: ToastrService,
     private titleService: Title,
     private settingsService: SettingsService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private router: Router,
+    private activatedRoute: ActivatedRoute
   ) {
     this.titleService.setTitle($localize`:Custom Jobs|:Custom Jobs`);
   }
 
-  private typeIsHandlerEnabled(type: CustomJobType | undefined | null): boolean {
+  public async ngOnInit() {
+    await this.initialize();
+  }
+
+  private async initialize() {
+    const id = await firstValueFrom(this.id$);
+
+    let customJob: CustomJob | undefined = undefined;
+    if (id == null || id === 'create') {
+      const settingOptions = await firstValueFrom(this.podSettingOptions$);
+      customJob = {
+        _id: undefined!,
+        code: '',
+        jobPodConfigId: settingOptions[0]._id,
+        language: 'python',
+        name: 'New job',
+        type: 'code',
+      };
+    } else {
+      customJob = await firstValueFrom(this.customJobsService.get(id));
+    }
+
+    this.customJobForm.setValue({
+      customJobLanguage: customJob.language,
+      customJobName: customJob.name,
+      customJobType: customJob.type,
+      podSettings: customJob.jobPodConfigId,
+      findingHandlerEnabled: customJob.findingHandlerEnabled || false,
+      findingHandlerLanguage: customJob.findingHandlerLanguage || null,
+    });
+
+    const formValue$ = this.customJobForm.valueChanges.pipe(
+      startWith(this.customJobForm.value),
+      distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b))
+    );
+
+    this.handlerFormEnabled$ = formValue$.pipe(map((x) => this.typeAllowsHandler(x.customJobType)));
+    this.languageOptions = this.getLanguageOptions(customJob?.type || this.typeDefault);
+    this.findingHandlerLanguageOptions = this.getHandlerLanguageOptions(customJob?.type || this.typeDefault);
+
+    this.valueChangeSubscription?.unsubscribe();
+    this.valueChangeSubscription = formValue$
+      .pipe(startWith(undefined), pairwise())
+      .subscribe(([oldFormValues, formValues]) => {
+        if (formValues == null) return;
+
+        if (oldFormValues != null) {
+          this.canSave = true;
+          this.hasUnsavedChanges$.next(true);
+        }
+
+        let { customJobName, customJobType, findingHandlerEnabled, customJobLanguage, findingHandlerLanguage } =
+          formValues;
+
+        this.languageOptions = this.getLanguageOptions(customJobType || this.typeDefault);
+        this.findingHandlerLanguageOptions = this.getHandlerLanguageOptions(customJobType || this.typeDefault);
+
+        if (!this.languageOptions.includes(customJobLanguage as CustomJobLanguage)) {
+          customJobLanguage = this.languageOptions[0];
+          this.customJobForm.controls.customJobLanguage.setValue(customJobLanguage);
+        }
+
+        findingHandlerEnabled
+          ? this.customJobForm.controls.findingHandlerLanguage.enable()
+          : this.customJobForm.controls.findingHandlerLanguage.disable();
+
+        const hasNameChanged = oldFormValues?.customJobName != formValues.customJobName;
+        const hasTypeChanged = oldFormValues?.customJobType != formValues.customJobType;
+        const hasHandlerStatusChanged = oldFormValues?.findingHandlerEnabled != formValues.findingHandlerEnabled;
+
+        if (hasNameChanged || hasTypeChanged || hasHandlerStatusChanged) {
+          this.initializeFileTabs({
+            name: customJobName!,
+            language: customJobLanguage!,
+            handlerEnabled: (this.typeAllowsHandler(customJobType) && findingHandlerEnabled) || false,
+            handlerLanguage: findingHandlerLanguage,
+          });
+        }
+      });
+
+    this.originalCode = customJob?.code ?? '';
+    this.originalHandlerCode = customJob?.findingHandler ?? '';
+    this.initializeFileTabs({
+      language: customJob?.language!,
+      name: customJob?.name!,
+      handlerEnabled: this.typeAllowsHandler(customJob?.type) && customJob?.findingHandlerEnabled!,
+      handlerLanguage: customJob?.findingHandlerLanguage,
+    });
+  }
+
+  private initializeFileTabs(customJob: {
+    name: string;
+    language: CustomJobLanguage;
+    handlerEnabled?: boolean;
+    handlerLanguage?: CustomJobFindingHandlerLanguage | null;
+  }) {
+    const { name, language, handlerEnabled, handlerLanguage } = customJob;
+
+    const currentCode = this.codeEditor.getFileTabById(this.customJobCodeTabId)?.content ?? '';
+    if (currentCode != null && currentCode != '') {
+      this.originalCode = currentCode;
+    }
+
+    const currentHandlerCode = this.codeEditor.getFileTabById(this.handlerCodeTabId)?.content ?? '';
+    if (currentHandlerCode != null && currentHandlerCode != '') {
+      this.originalHandlerCode = currentHandlerCode;
+    }
+
+    let fileName = name ?? this.defaultUriFile;
+    const fileTabs: FileTab[] = [this.getFileTab(this.customJobCodeTabId, fileName, language, this.originalCode)];
+
+    if (handlerEnabled) {
+      fileTabs.push(
+        this.getFileTab(
+          this.handlerCodeTabId,
+          `${fileName}_handler`,
+          handlerLanguage ?? 'python',
+          this.originalHandlerCode
+        )
+      );
+    }
+
+    this.codeEditor.resetEditorFileTabs(fileTabs);
+  }
+
+  private getFileTab(
+    id: string,
+    fileName: string,
+    language: CustomJobLanguage | CustomJobFindingHandlerLanguage | undefined,
+    code: string | undefined
+  ) {
+    return {
+      content: code || '',
+      language: language!,
+      uri: `${this.basePath}${fileName}.${languageExtensionMapping[language!]}`,
+      id,
+    };
+  }
+
+  private getLanguageOptions(type: string): CustomJobLanguage[] {
+    return validCustomJobTypeDetails.filter((x) => x.type === type).map((x) => x.language);
+  }
+
+  private getHandlerLanguageOptions(type: string): CustomJobFindingHandlerLanguage[] {
+    return validCustomJobTypeDetails.filter((x) => x.type === type).map((x) => x.handlerLanguage);
+  }
+
+  private typeAllowsHandler(type: CustomJobType | undefined | null): boolean {
     return !!type && type === 'nuclei';
   }
 
   ngOnDestroy(): void {
-    this.customJobFormSubscription$.unsubscribe();
-    this.findingHandlerFormSubscription$?.unsubscribe();
+    this.valueChangeSubscription?.unsubscribe();
   }
 
-  private refreshData() {
-    return this.customJobsService.getCustomJobs().pipe(
-      map((data) => {
-        this.data = data;
-        this.dataSource.data = data;
-        this.dataSource.paginator = this.paginator;
-      })
-    );
+  public async forceSave() {
+    this.canSave = true;
+    await this.save();
   }
 
-  private validateCurrentChanges(next: Function) {
-    if (this.codeEditor.getFileTabById(this.customJobCodeTabId)!.content === this.currentCodeBackup) {
-      next();
-      return;
-    }
-
-    const data: ConfirmDialogData = {
-      text: $localize`:Unsaved job changes|Unsaved job changes:There are unsaved changes to the current custom job.`,
-      title: $localize`:Unsaved Changes Detected|There are unsaved changes that the user may want to save:Unsaved Changes Detected`,
-      primaryButtonText: $localize`:Cancel|Cancel current action:Cancel`,
-      dangerButtonText: $localize`:Discard|Confirm that the user wants to leave despite losing changes:Discard`,
-      onPrimaryButtonClick: () => {
-        this.dialog.closeAll();
-      },
-      onDangerButtonClick: () => {
-        next();
-        this.dialog.closeAll();
-      },
-    };
-
-    this.dialog.open(ConfirmDialogComponent, {
-      data,
-      restoreFocus: false,
-    });
-  }
-
-  public newCustomJobClick() {
-    this.validateCurrentChanges(this.newCustomJobNext.bind(this));
-  }
-
-  private newCustomJobNext() {
-    this.isInNewCustomJobContext = true;
-    this.selectedRow = undefined;
-    this.codeEditor.setFileTabContentById(this.customJobCodeTabId, '');
-    this.currentCodeBackup = '';
-    this.selectedConfigId = '';
-    this.customJobForm.get('customJobName')?.setValue('');
-    this.customJobForm.get('customJobType')?.setValue('code');
-  }
-
-  public selectCustomJob(sub: CustomJob) {
-    this.selectingCustomJobFlag1 = true;
-    this.selectingCustomJobFlag2 = true;
-
-    this.tempSelectedRow = sub;
-    this.validateCurrentChanges(this.selectCustomJobNext.bind(this));
-  }
-
-  private selectCustomJobNext() {
-    this.isInNewCustomJobContext = false;
-    this.selectedRow = this.tempSelectedRow;
-    const rowData = this.data.find((v) => v._id === this.tempSelectedRow?._id);
-    if (!rowData) return;
-
-    if (rowData._id) this.currentCustomJobId = rowData._id;
-
-    this.codeEditor.setFileTabContentById(this.customJobCodeTabId, rowData.code ?? '');
-    this.currentCodeBackup = rowData.code ?? '';
-    this.selectedConfigId = rowData.jobPodConfigId ?? '';
-    this.customJobForm.get('customJobName')?.setValue(rowData?.name ?? '');
-    this.customJobForm.get('customJobType')?.setValue(rowData.type);
-    this.findingHandlerForm.get('findingHandlerEnabled')?.setValue(rowData.findingHandlerEnabled ?? false);
-  }
-
-  public async saveCustomJobEdits() {
+  public async save() {
     if (!this.customJobForm.get('customJobName')?.valid || !this.customJobForm.get('customJobName')?.value) {
       this.customJobForm.get('customJobName')?.markAsTouched();
       this.toastr.error($localize`:Empty Name|A job name is required:Name job before submitting`);
       return;
     }
 
-    if (!this.selectedConfigId) {
+    if (!this.customJobForm.value.podSettings) {
       this.toastr.error($localize`:Empty Config|Select a configuration before submitting:Missing pod configurations`);
       return;
     }
@@ -325,66 +338,64 @@ export class CustomJobsComponent implements OnDestroy {
       return;
     }
 
-    const type = this.customJobForm.get('customJobType')?.value;
-
-    let handlerCode = this.codeEditor.getFileTabById(this.handlerCodeTabId)?.content;
-    let handlerEnabled = this.findingHandlerForm.get('findingHandlerEnabled')?.value;
-    let handlerLanguage = this.findingHandlerForm.get('findingHandlerLanguage')?.value;
-    if (!this.typeIsHandlerEnabled(type)) {
-      handlerEnabled = handlerEnabled ? false : handlerEnabled;
-      handlerCode = handlerCode ? '' : handlerCode;
-      handlerLanguage = handlerLanguage ? undefined : handlerLanguage;
-    }
+    const {
+      customJobLanguage,
+      customJobName,
+      customJobType,
+      findingHandlerEnabled,
+      findingHandlerLanguage,
+      podSettings,
+    } = this.customJobForm.value;
 
     const job: CustomJobData = {
-      language: this.customJobForm.get('customJobLanguage')?.value ?? 'python',
-      type: type ?? 'code',
-      name: this.customJobForm.get('customJobName')?.value ?? '',
+      language: customJobLanguage ?? 'python',
+      type: customJobType ?? 'code',
+      name: customJobName ?? '',
       code: code,
-      jobPodConfigId: this.selectedConfigId,
-      findingHandlerEnabled: handlerEnabled === null ? undefined : handlerEnabled,
-      findingHandler: handlerCode,
-      findingHandlerLanguage: handlerLanguage === null ? undefined : handlerLanguage,
+      jobPodConfigId: podSettings,
+      findingHandler: undefined,
+      findingHandlerLanguage: undefined,
+      findingHandlerEnabled: undefined,
     };
 
-    const invalidCustomJob = $localize`:Invalid custom job|Custom job is not in a valid format:Invalid custom job`;
+    if (this.typeAllowsHandler(customJobType)) {
+      job.findingHandler = this.codeEditor.getFileTabById(this.handlerCodeTabId)?.content;
+      job.findingHandlerLanguage = findingHandlerLanguage === null ? undefined : findingHandlerLanguage;
+      job.findingHandlerEnabled = findingHandlerEnabled || false;
+    }
 
-    let newCustomJob: undefined | CustomJob = undefined;
+    const id = await firstValueFrom(this.id$);
     try {
-      if (this.isInNewCustomJobContext) {
-        // create a new subscription
-        newCustomJob = await this.customJobsService.create(job);
+      this.isSaving = true;
+      if (id == null || id === 'create') {
+        // Create a new subscription
+        const newCustomJob = await this.customJobsService.create(job);
         this.toastr.success(
           $localize`:Successfully created custom job|Successfully created custom job:Successfully created custom job`
         );
+
+        this.router.navigate(['/', 'jobs', 'custom', newCustomJob._id]);
       } else {
-        // edit an existing subscription
-        await this.customJobsService.edit(this.currentCustomJobId, job);
+        // Edit an existing subscription
+        await this.customJobsService.edit(id, job);
         this.toastr.success(
           $localize`:Successfully edited custom job|Successfully edited custom job:Successfully edited custom job`
         );
       }
 
-      this.currentCodeBackup = this.codeEditor.getFileTabById(this.customJobCodeTabId)!.content;
-      if (newCustomJob) {
-        this.dataSource.data.push(newCustomJob);
-        this.data.push(newCustomJob);
-        this.selectCustomJob(newCustomJob);
-      }
-
-      this.dataSource$ = this.refreshData();
-    } catch {
-      this.toastr.error(invalidCustomJob);
+      this.hasBeenSaved = true;
+      this.canSave = false;
+      this.hasUnsavedChanges$.next(false);
+    } catch (e) {
+      this.toastr.error($localize`:Invalid custom job|Custom job is not in a valid format:Invalid custom job`);
+    } finally {
+      this.isSaving = false;
     }
   }
 
   public async delete() {
-    if (this.isInNewCustomJobContext) {
-      this.toastr.warning(
-        $localize`:Select a custom job to delete|The user needs to select a custom job to delete:Select a job to delete`
-      );
-      return;
-    }
+    const id = await firstValueFrom(this.id$);
+    if (id == null) throw new Error('Missing id.');
 
     const data: ConfirmDialogData = {
       text: $localize`:Confirm custom job deletion|Confirmation message asking if the user really wants to delete this custom job:Do you really wish to delete this custom job permanently ?`,
@@ -396,16 +407,16 @@ export class CustomJobsComponent implements OnDestroy {
       },
       onDangerButtonClick: async () => {
         try {
-          await this.customJobsService.delete(this.currentCustomJobId);
+          await this.customJobsService.delete(id);
           this.toastr.success(
             $localize`:Successfully deleted subscription|Successfully deleted subscription:Successfully deleted subscription`
           );
-          this.dataSource$ = this.refreshData();
+
+          await this.router.navigate(['/jobs', 'custom']);
         } catch {
           this.toastr.error($localize`:Error while deleting|Error while deleting:Error while deleting`);
         }
         this.dialog.closeAll();
-        this.newCustomJobNext();
       },
     };
 

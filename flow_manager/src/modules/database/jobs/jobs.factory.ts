@@ -30,14 +30,9 @@ export class JobFactory {
     projectId: string = undefined,
     jobPodConfig: JobPodConfiguration = null,
   ): Promise<Job> {
-    const jobDefinition = JobDefinitions.find((jd) => jd.name === jobName);
-
-    if (!jobDefinition) {
-      JobFactory.logger.warn(
-        `Ignoring the call to [${jobName}]: no job definition matches the job name`,
-      );
-      return null;
-    }
+    const jobDefinition = JobDefinitions.find(
+      (jd) => jd.name === CustomJob.name,
+    );
 
     if (
       jobPodConfig &&
@@ -47,19 +42,11 @@ export class JobFactory {
       args = JobFactoryUtils.setupJobPodConfigParameters(args, jobPodConfig);
     }
 
-    if (jobName === CustomJob.name) {
-      await JobFactoryUtils.injectSecretsInParameters(
-        <JobParameter[]>args.find((v) => v.name === customJobParameters).value,
-        secretsService,
-        projectId,
-      );
-    } else {
-      await JobFactoryUtils.injectSecretsInParameters(
-        args,
-        secretsService,
-        projectId,
-      );
-    }
+    await JobFactoryUtils.injectSecretsInParameters(
+      <JobParameter[]>args.find((v) => v.name === customJobParameters).value,
+      secretsService,
+      projectId,
+    );
 
     try {
       return jobDefinition.create(args);

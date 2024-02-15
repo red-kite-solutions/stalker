@@ -1,6 +1,7 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
+import { useContainer } from 'class-validator';
 import { json } from 'express';
 import { AppModule } from './modules/app.module';
 
@@ -24,6 +25,7 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
   await app.listen(3000);
 }
 

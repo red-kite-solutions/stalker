@@ -19,7 +19,7 @@ export class CustomJobEntry {
   public language: string;
 
   @Prop()
-  public source: string;
+  public builtIn?: boolean;
 
   @Prop()
   public parameters: JobParameterDefinition[];
@@ -35,6 +35,9 @@ export class CustomJobEntry {
 
   @Prop()
   public findingHandlerLanguage?: string;
+
+  @Prop()
+  builtInFilePath?: string;
 }
 
 export const CustomJobsSchema = SchemaFactory.createForClass(CustomJobEntry);
