@@ -6,19 +6,15 @@ const FeatureList = [
   {
     title: "Extensibility",
     description: (
-      <>
-        Effortlessly customize our tool to fit your unique needs. Implement your
-        own jobs using the tools you're accustomed to.
-      </>
+      <>Effortlessly customize our tool to fit your unique needs. Implement your own jobs using the tools you're accustomed to.</>
     ),
   },
   {
     title: "Effortless Automation",
     description: (
       <>
-        Streamline tasks. Prioritize strategy, not routine. Simplify your
-        workflow by automating routine security tasks. Our tool takes care of
-        the groundwork, boosting your team's productivity and effectiveness.
+        Streamline tasks. Prioritize strategy, not routine. Simplify your workflow by automating routine security tasks. Our tool takes care
+        of the groundwork, boosting your team's productivity and effectiveness.
       </>
     ),
   },
@@ -26,9 +22,8 @@ const FeatureList = [
     title: "Scalability",
     description: (
       <>
-        Scale your security operations effortlessly as your infrastructure
-        grows, ensuring comprehensive coverage and adaptability to evolving
-        threats.
+        Scale your security operations effortlessly as your infrastructure grows, ensuring comprehensive coverage and adaptability to
+        evolving threats.
       </>
     ),
   },
