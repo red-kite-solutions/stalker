@@ -35,6 +35,7 @@ import { SpinnerButtonComponent } from 'src/app/shared/widget/spinner-button/spi
 import { FindingsModule } from '../../modules/findings/findings.module';
 import { JobExecutionDetailComponent } from '../../modules/jobs/job-executions/job-execution-detail.component';
 import { LaunchJobsComponent } from '../../modules/jobs/launch-jobs/launch-jobs.component';
+import { AvatarComponent } from '../../shared/components/avatar/avatar.component';
 import { JobLogsComponent } from '../../shared/components/job-logs/job-logs.component';
 import { AppHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { PanelSectionModule } from '../../shared/components/panel-section/panel-section.module';
@@ -86,6 +87,7 @@ import { DefaultComponent } from './default.component';
     CodeEditorComponent,
     JobLogsSummaryComponent,
     SpinnerButtonComponent,
+    AvatarComponent,
   ],
   providers: [{ provide: MAT_COLOR_FORMATS, useValue: NGX_MAT_COLOR_FORMATS }],
 })

@@ -30,6 +30,10 @@ export const DEFAULT_JOB_POD_CONFIG: JobPodConfiguration[] = [
   },
 ];
 
+export const DEFAULT_JOB_POD_CONFIG_NAMES = DEFAULT_JOB_POD_CONFIG.map(
+  (j) => j.name,
+);
+
 export const DEFAULT_JOB_POD_FALLBACK_CONFIG: JobPodConfiguration = {
   name: 'Stalker Default Fallback Job Pod Config',
   memoryKbytesLimit: baseMemory * 100,

@@ -33,10 +33,8 @@ name: My custom job subscription
 finding: PortFinding
 cooldown: 82800
 job:
-  name: CustomJob
+  name: CustomJobName
   parameters:
-    - name: CustomJobName
-      value: My custom job
     - name: myCustomParameter
       value: "This is a custom parameter"
     - name: myFindingIpParameter
@@ -46,3 +44,5 @@ job:
     - name: MyParameterName
       value: ${secrets.secretName}
 ```
+
+[Click here to learn more about subscriptions.](./subscriptions.md)
