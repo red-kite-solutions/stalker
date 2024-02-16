@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: stalker-jobs-resource-quota-dev
+  namespace: stalker-jobs
+spec:
+  hard:
+    limits.cpu: "6"
+    limits.memory: 10Gi

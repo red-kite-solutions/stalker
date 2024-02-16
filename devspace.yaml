@@ -7,6 +7,8 @@ vars:
 imports:
   - path: devspace.dev.yaml
     enabled: $(is_equal ${STALKER_ENVIRONMENT} "dev")
+  - path: devspace.prod.yaml
+    enabled: $(is_equal ${STALKER_ENVIRONMENT} "prod")
   - path: devspace.base.yaml
 
 pipelines:
@@ -38,7 +40,7 @@ pipelines:
       wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 300
       wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 300
 
-      create_deployments ui flow-manager orchestrator-service-account orchestrator cron-service --sequential
+      create_deployments ui flow-manager orchestrator-service-account orchestrator --sequential
 
       # Wait for services before applying network policies
       wait_pod --label-selector app.kubernetes.io/component=ui --timeout 300
@@ -94,7 +96,7 @@ pipelines:
   purge:
     run: |-
       stop_dev --all
-      purge_deployments mongo ui flow-manager flow-manager-e2e kafka orchestrator-service-account orchestrator cron-service --sequential
+      purge_deployments mongo ui flow-manager flow-manager-e2e kafka orchestrator-service-account orchestrator cron-service ui-prod --sequential
 
   build-e2e:
     run: build_images ui flow-manager-e2e orchestrator python-job-base nuclei-job-base
@@ -122,10 +124,50 @@ pipelines:
       exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'npm run test:e2e:cicd'
       stop_dev --all
 
+  prod:
+    run: |-
+      create_deployments namespaces
+
+      # Kafka's keystore and keystore password
+      ${DEVSPACE_KUBECTL_EXECUTABLE} delete secret kafka-jks --ignore-not-found -n ${DEVSPACE_NAMESPACE}
+      ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks --from-file=kafka.truststore.jks=./queue/kafka.server.truststore.jks --from-file=kafka.keystore.jks=./queue/kafka-0.keystore.jks -n ${DEVSPACE_NAMESPACE}
+      ${DEVSPACE_KUBECTL_EXECUTABLE} delete secret kafka-jks-password --ignore-not-found -n ${DEVSPACE_NAMESPACE}
+      ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks-password --from-literal=password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=keystore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=truststore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=key-password=${KAFKA_KEYSTORE_PASSWORD} -n ${DEVSPACE_NAMESPACE}
+
+      build_images ui flow-manager orchestrator python-job-base nuclei-job-base cron-service
+      create_deployments mongo kafka --sequential
+
+      # Start mongo and kafka
+      start_dev mongo-prod kafka
+
+      # Wait for kafka and mongo to be ready
+      wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 300
+      wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 300
+
+      create_deployments ui-prod flow-manager orchestrator-service-account orchestrator --sequential
+
+      # Wait for services before applying network policies
+      wait_pod --label-selector app.kubernetes.io/component=ui-prod --timeout 300
+      wait_pod --label-selector app.kubernetes.io/component=flow-manager --timeout 300
+      wait_pod --label-selector app.kubernetes.io/component=orchestrator --timeout 300
+
+
+      create_deployments network-policies
+      create_deployments resource-quotas
+
+      # Start microservices + ui
+      start_dev orchestrator-prod flow-manager-prod ui-prod
+
+      create_deployments cron-service
+
+      wait_pod --label-selector app.kubernetes.io/component=cron-service --timeout 300
+
+      start_dev cron-service-prod
+
 images:
   flow-manager:
     image: flow_manager
-    dockerfile: flow_manager/Dockerfile.dev
+    dockerfile: flow_manager/${DOCKERFILE_NAME}
     context: flow_manager
     rebuildStrategy: default
 
@@ -137,19 +179,19 @@ images:
 
   cron-service:
     image: cron_service
-    dockerfile: cron_service/Dockerfile.dev
+    dockerfile: cron_service/${DOCKERFILE_NAME}
     context: cron_service
     rebuildStrategy: default
 
   ui:
     image: ui
-    dockerfile: stalker_ui/Dockerfile.dev
+    dockerfile: stalker_ui/${DOCKERFILE_NAME}
     context: stalker_ui
     rebuildStrategy: default
 
   orchestrator:
     image: orchestrator
-    dockerfile: orchestrator/Dockerfile.dev
+    dockerfile: orchestrator/${DOCKERFILE_NAME}
     context: orchestrator
     rebuildStrategy: default
 
@@ -201,6 +243,8 @@ deployments:
                 value: ${FM_MONGO_KEY_PASSWORD}
               - name: FM_KAFKA_KEY_PASSWORD
                 value: ${FM_KAFKA_KEY_PASSWORD}
+              - name: STALKER_VERSION
+                value: ${STALKER_VERSION}
 
             image: flow_manager
             name: flow-manager-container
@@ -295,6 +339,21 @@ deployments:
             - containerPort: 4200
               port: 4200
               protocol: TCP
+
+  ui-prod:
+    helm:
+      values:
+        containers:
+          - env: []
+            image: ui
+            name: ui-container
+
+        service:
+          ports:
+            - containerPort: 80
+              port: 8000
+              protocol: TCP
+
   mongo: # volumes location: /var/lib/docker/volumes/minikube/_data/hostpath-provisioner/stalker/
     helm:
       chart:
@@ -514,6 +573,10 @@ dev:
     ports:
       - port: "27017"
 
+  mongo-prod:
+    labelSelector:
+      statefulset.kubernetes.io/pod-name: mongo-mongodb-0
+
   kafka:
     labelSelector:
       app.kubernetes.io/instance: kafka
@@ -531,6 +594,15 @@ dev:
       inject: false
     ports:
       - port: "3000"
+
+  flow-manager-prod:
+    labelSelector:
+      app.kubernetes.io/component: flow-manager
+    container: flow-manager-container
+    logs:
+      enabled: true
+    restartHelper:
+      inject: false
 
   flow-manager-e2e:
     labelSelector:
@@ -562,6 +634,13 @@ dev:
     ports:
       - port: "3001:3000"
 
+  cron-service-prod:
+    labelSelector:
+      app.kubernetes.io/component: cron-service
+    container: cron-service-container
+    restartHelper:
+      inject: false
+
   ui:
     labelSelector:
       app.kubernetes.io/component: ui
@@ -573,6 +652,18 @@ dev:
       inject: false
     ports:
       - port: "4200"
+
+  ui-prod:
+    labelSelector:
+      app.kubernetes.io/component: ui-prod
+    container: ui-container
+    restartHelper:
+      inject: false
+    ports:
+      - port: "8000:80"
+    resources:
+      limits:
+        memory: 1Gi
 
   orchestrator:
     labelSelector:
@@ -588,6 +679,13 @@ dev:
       inject: false
     ports:
       - port: "5135"
+
+  orchestrator-prod:
+    labelSelector:
+      app.kubernetes.io/component: orchestrator
+    container: orchestrator-container
+    restartHelper:
+      inject: false
 
 hooks:
   - events:
@@ -628,6 +726,16 @@ hooks:
     container:
       labelSelector:
         app.kubernetes.io/component: ui
+      containerName: ui-container
+
+  - events:
+      - after:deploy:ui-prod
+    wait:
+      running: true
+      terminatedWithCode: 0
+    container:
+      labelSelector:
+        app.kubernetes.io/component: ui-prod
       containerName: ui-container
 
   - events:

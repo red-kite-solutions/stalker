@@ -2,6 +2,7 @@ version: v2beta1
 name: stalker-vars-base
 
 vars:
+  STALKER_VERSION: "Stalker 0.0.2 alpha"
   MONGO_ROOT_PASSWORD: "123456"
   MONGO_FM_USER: "flowmanager"
   MONGO_FM_USER_E2E: "flowmanagere2e"
@@ -28,10 +29,6 @@ vars:
   FM_URL: "http://flow-manager:3000"
 
   KAFKA_URI: "kafka:9092"
-  FM_KAFKA_USERNAME: "flowuser"
-  FM_KAFKA_PASSWORD: "123456"
-  ORCHESTRATOR_KAFKA_USERNAME: "orchestratoruser"
-  ORCHESTRATOR_KAFKA_PASSWORD: "123456"
 
   STALKER_URL: "http://localhost:4200"
   NETWORK_POLICY: "network-policy.yml"
@@ -43,3 +40,4 @@ vars:
   KAFKA_KEYSTORE_PASSWORD: PSv77KKumghBhBBqLFl8d29e8
   FM_KAFKA_KEY_PASSWORD: GatkfCkonhMFdtMzvTW9qAD6u
   ORCHESTRATOR_KAFKA_KEY_PASSWORD: 7AynOUStEER6xOiZkHVot9sDV
+  DOCKERFILE_NAME: Dockerfile # Change me to Dockerfile.dev in development
