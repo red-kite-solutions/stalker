@@ -93,13 +93,17 @@
           [(code)]="code"
           [language]="language"
           [minimapEnabled]="minimapEnabled"
-          [theme]="theme"
+          [theme]="(theme$ | async) ?? 'vs-dark'"
           [readonly]="readonly"
-          class="tw-flex-1"
+          class="tw-flex-1 mat-elevation-z2"
           [path]="'/launch-jobs/launch-job.yaml'"
         ></app-code-editor>
         <h3 i18n="Output|Output of a job" class="output">Output</h3>
-        <app-job-logs [jobId]="currentStartedJob?.id"></app-job-logs>
+        <app-job-logs
+          [jobId]="currentStartedJob?.id"
+          class="tw-flex-1 mat-elevation-z2"
+          [theme]="(theme$ | async) ?? 'vs-dark'"
+        ></app-job-logs>
       </div>
     </div>
   }

@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 
 export type Theme = 'light' | 'dark';
 export interface ThemeOption {
@@ -36,6 +37,8 @@ export class ThemeService {
     return this.getStoredTheme();
   }
 
+  public theme$ = new BehaviorSubject<Theme>(this.getCurrentTheme());
+
   constructor() {
     this.updateTheme();
 
@@ -59,16 +62,18 @@ export class ThemeService {
   }
 
   private updateTheme() {
-    for (const themeOption of this.themes) {
-      if (themeOption.theme == null) continue;
+    this.clearTheme();
 
-      const themeClass = this.getThemeClassName(themeOption.theme);
-      document.body.classList.remove(themeClass);
-    }
+    const theme = this.getCurrentTheme();
+    this.theme$.next(theme);
+    console.log(theme);
 
-    const theme = this.getStoredTheme() ?? this.getBrowserTheme();
     const themeClass = this.getThemeClassName(theme);
     document.body.classList.add(themeClass);
+  }
+
+  private getCurrentTheme() {
+    return this.getStoredTheme() ?? this.getBrowserTheme();
   }
 
   private getStoredTheme(): Theme | undefined {
@@ -87,5 +92,14 @@ export class ThemeService {
 
   private getThemeClassName(theme: Theme): string {
     return `theme-${theme}`;
+  }
+
+  private clearTheme() {
+    for (const themeOption of this.themes) {
+      if (themeOption.theme == null) continue;
+
+      const themeClass = this.getThemeClassName(themeOption.theme);
+      document.body.classList.remove(themeClass);
+    }
   }
 }
