@@ -82,7 +82,7 @@
 <ng-template #addDomainDialog>
   <h1 mat-dialog-title i18n="Add domains|Add a new domain to a project">Add Domains</h1>
   <mat-dialog-content>
-    <mat-form-field>
+    <mat-form-field appearance="outline">
       <mat-select i18n-placeholder="Project|Project or business" placeholder="Project" [(value)]="selectedProject">
         <mat-option>None</mat-option>
         @for (project of projects$ | async; track project) {
@@ -108,7 +108,12 @@ another.stalker.is"
   </mat-dialog-content>
 
   <mat-dialog-actions>
-    <button mat-flat-button color="primary" (click)="addNewDomains()" i18n="Add domains|Add a new domain to a project">
+    <button
+      mat-stroked-button
+      color="primary"
+      (click)="addNewDomains()"
+      i18n="Add domains|Add a new domain to a project"
+    >
       Add Domains
     </button>
     <button mat-stroked-button color="warn" matDialogClose i18n="Cancel|Cancel an action">Cancel</button>

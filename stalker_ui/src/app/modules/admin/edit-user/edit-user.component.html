@@ -79,7 +79,7 @@
           </button>
         </div>
 
-        <mat-checkbox formControlName="active" class="formfieldblock" color="primary">
+        <mat-checkbox formControlName="active" class="formfieldblock" color="accent">
           {{ userEnabled$ | async }}
         </mat-checkbox>
 
@@ -149,7 +149,7 @@
             i18n="Save|Save the changes done to an item"
             type="button"
             class="button"
-            mat-flat-button
+            mat-stroked-button
             color="primary"
             (click)="onSubmit()"
           >
