@@ -1,4 +1,4 @@
-@mixin app-text-select-menu() {
+@mixin app-text-select-menu($theme) {
   .app-text-select-menu-container {
     // Preventing the menu from taking the whole page
     // !important is required

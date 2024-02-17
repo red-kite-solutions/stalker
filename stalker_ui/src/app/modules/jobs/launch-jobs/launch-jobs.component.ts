@@ -28,6 +28,7 @@ import { NgxFileDropModule } from 'ngx-file-drop';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, map } from 'rxjs';
 import { ThemeService } from 'src/app/services/theme.service';
+import { AvatarComponent } from 'src/app/shared/components/avatar/avatar.component';
 import { JobLogsComponent } from 'src/app/shared/components/job-logs/job-logs.component';
 import { AppHeaderComponent } from 'src/app/shared/components/page-header/page-header.component';
 import { PanelSectionModule } from 'src/app/shared/components/panel-section/panel-section.module';
@@ -83,6 +84,7 @@ import { JobLogsSummaryComponent } from '../job-executions/job-execution-logs-su
     CodeEditorComponent,
     JobLogsSummaryComponent,
     SpinnerButtonComponent,
+    AvatarComponent,
   ],
 })
 export class LaunchJobsComponent {

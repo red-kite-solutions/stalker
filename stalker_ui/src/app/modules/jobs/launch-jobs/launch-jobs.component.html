@@ -45,7 +45,7 @@
     </div>
   </mat-drawer-content>
 
-  <mat-drawer mode="side" position="end" opened>
+  <mat-drawer mode="side" position="end" disableClose="true" opened>
     <div class="tw-flex tw-gap-2 tw-flex-col tw-m-4">
       @if (projects$ | async) {
         <mat-form-field appearance="outline" class="tw-mt-4">
@@ -72,8 +72,28 @@
           </ng-container>
           <!-- Source Column -->
           <ng-container matColumnDef="source">
-            <th mat-header-cell *matHeaderCellDef i18n="Source|Source">Source</th>
-            <td mat-cell *matCellDef="let element">{{ element.source }}</td>
+            <th mat-header-cell *matHeaderCellDef i18n="Source|Source">
+              <span class="tw-text-center tw-block">Source</span>
+            </th>
+            <td mat-cell *matCellDef="let element">
+              @if (!element.builtIn) {
+                <mat-icon
+                  matTooltip="Custom"
+                  i18n-matTooltip="Custom|Custom element"
+                  class="material-symbols-outlined-filled"
+                  >coffee</mat-icon
+                >
+              } @else {
+                <div class="tw-flex tw-justify-center">
+                  <avatar
+                    matTooltip="Stalker"
+                    i18n-matTooltip="Stalker|Stalker, the application's name"
+                    class="tw-block tw-w-8 tw-h-8"
+                    src="assets/red-kite-logo-only-color-circle.png"
+                  ></avatar>
+                </div>
+              }
+            </td>
           </ng-container>
           <tr mat-header-row *matHeaderRowDef="['name', 'source']"></tr>
           <tr

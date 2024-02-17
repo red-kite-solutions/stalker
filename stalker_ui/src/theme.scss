@@ -3,6 +3,17 @@
 
 @include mat.core();
 
+@import 'app/shared/widget/filtered-paginated-table/_filtered-paginated-table.component.scss';
+@import 'app/shared/components/panel-section/_panel-section.component.scss';
+@import 'app/shared/widget/code-editor/_code-editor.component.scss';
+@import 'app/shared/widget/text-select-menu/_text-select-menu.component.scss';
+@import 'app/modules/jobs/custom-jobs/_custom-jobs.component';
+@import 'app/shared/widget/text-menu/_text-menu.component.scss';
+@import 'app/modules/tags/manage-tags/_manage-tags.component.scss';
+@import 'app/shared/widget/pill-tag/_pill-tag.component.scss';
+@import 'app/modules/projects/list-projects/_list-projects.component.scss';
+@import 'app/modules/jobs/launch-jobs/_launch-jobs.component.scss';
+
 :root {
   --density-scale: -2;
   --small-gap-size: calc(16px + var(--density-scale) * 4px);
@@ -61,6 +72,17 @@ $stalker-dark: mat.define-dark-theme(
 @include mat.core-theme($stalker-light);
 @include mat.all-component-themes($stalker-light);
 
+@include app-filtered-paginated-table($stalker-light);
+@include panel-section($stalker-light);
+@include app-code-editor($stalker-light);
+@include app-text-menu($stalker-light);
+@include app-text-select-menu($stalker-light);
+@include app-custom-jobs($stalker-light);
+@include app-manage-tags($stalker-light);
+@include app-pill-tag($stalker-light);
+@include app-list-projects($stalker-light);
+@include app-launch-jobs($stalker-light);
+
 .theme-light {
   --mat-table-background-color-hover: rgb(243, 243, 243);
 
@@ -78,6 +100,17 @@ $stalker-dark: mat.define-dark-theme(
 .theme-dark {
   @include mat.core-theme($stalker-dark);
   @include mat.all-component-themes($stalker-dark);
+
+  @include app-filtered-paginated-table($stalker-dark);
+  @include panel-section($stalker-dark);
+  @include app-code-editor($stalker-dark);
+  @include app-text-menu($stalker-dark);
+  @include app-text-select-menu($stalker-dark);
+  @include app-custom-jobs($stalker-dark);
+  @include app-manage-tags($stalker-dark);
+  @include app-pill-tag($stalker-dark);
+  @include app-list-projects($stalker-dark);
+  @include app-launch-jobs($stalker-dark);
 
   --mat-table-background-color-hover: #4d4d4d;
 

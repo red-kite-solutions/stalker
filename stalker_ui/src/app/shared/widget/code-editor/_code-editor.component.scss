@@ -1,4 +1,4 @@
-@mixin app-code-editor() {
+@mixin app-code-editor($theme) {
   app-code-editor {
     .monaco-editor .overflow-guard,
     .monaco-editor .margin {

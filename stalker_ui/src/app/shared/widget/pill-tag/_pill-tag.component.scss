@@ -1,4 +1,4 @@
-@mixin app-pill-tag() {
+@mixin app-pill-tag($theme) {
   // By default, tags are themed for light theme.
   // We use the tag color as-is for the background and use the luminance
   // for determining whether we should display white text or black text.
