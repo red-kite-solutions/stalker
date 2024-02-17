@@ -63,6 +63,19 @@
 
       <h2 i18n="Configuration|Subscription configuration">Jobs</h2>
 
+      <mat-form-field class="search" appearance="fill" [floatLabel]="'always'">
+        <mat-label i18n="Search filter|Filter your search to get more precise results">Search filter</mat-label>
+
+        <input
+          matInput
+          type="text"
+          i18n-placeholder="New filter|Creating a new filter"
+          placeholder="New filter..."
+          #fulltextInput
+          (keyup)="filterChange$.next(fulltextInput.value)"
+        />
+      </mat-form-field>
+
       @if ((dataSource$ | async) || true) {
         <table mat-table [dataSource]="dataSource">
           <!-- Name Column -->

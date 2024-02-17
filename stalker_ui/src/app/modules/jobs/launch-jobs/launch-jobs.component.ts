@@ -26,7 +26,7 @@ import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { NgxFileDropModule } from 'ngx-file-drop';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, map } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest, map } from 'rxjs';
 import { ThemeService } from 'src/app/services/theme.service';
 import { AvatarComponent } from 'src/app/shared/components/avatar/avatar.component';
 import { JobLogsComponent } from 'src/app/shared/components/job-logs/job-logs.component';
@@ -97,6 +97,8 @@ export class LaunchJobsComponent {
     map((theme) => (theme === 'dark' ? 'vs-dark' : 'vs'))
   );
 
+  public filterChange$ = new BehaviorSubject<string>('');
+
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   dataSource = new MatTableDataSource<JobListEntry>();
 
@@ -131,10 +133,10 @@ export class LaunchJobsComponent {
   }
 
   private refreshData() {
-    return this.jobsService.getJobSummaries().pipe(
-      map((data: JobListEntry[]) => {
-        this.data = data;
-        this.dataSource.data = data;
+    return combineLatest([this.filterChange$, this.jobsService.getJobSummaries()]).pipe(
+      map(([filter, data]) => {
+        this.data = data.filter((x) => this.filterJob(x, filter));
+        this.dataSource.data = this.data;
         this.dataSource.paginator = this.paginator;
       })
     );
@@ -210,5 +212,17 @@ export class LaunchJobsComponent {
         $localize`:Error while starting job|There was an error while starting the job:Error while starting job`
       );
     }
+  }
+
+  private filterJob(entry: JobListEntry, filter: string) {
+    const parts = [entry.name];
+    return this.normalizeString(parts.join(' ')).includes(filter);
+  }
+
+  private normalizeString(str: string) {
+    return str
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
   }
 }
