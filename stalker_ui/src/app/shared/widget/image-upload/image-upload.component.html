@@ -3,6 +3,7 @@
     <div class="upload3">
       @if (!fileSelected) {
         <ngx-file-drop
+          class="tw-text-center"
           dropZoneLabel="Drop files here"
           (onFileDrop)="dropped($event)"
           accept=".png,.jpeg,.jpg"

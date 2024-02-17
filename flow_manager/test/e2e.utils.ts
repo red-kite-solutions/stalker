@@ -1,7 +1,7 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import jwt_decode from 'jwt-decode';
-import { MongoClient } from 'mongodb';
+import { MongoClient, MongoClientOptions } from 'mongodb';
 import request from 'supertest';
 import { FM_ENVIRONMENTS } from '../src/modules/app.constants';
 import { Role } from '../src/modules/auth/constants';
@@ -306,7 +306,18 @@ export async function cleanup() {
 
   const uri = process.env.MONGO_ADDRESS;
   const database = process.env.MONGO_DATABASE_NAME;
-  const client = new MongoClient(uri, {});
+  const opt: MongoClientOptions = {
+    authSource: process.env.MONGO_DATABASE_NAME,
+    replicaSet: process.env.MONGO_REPLICA_SET_NAME,
+    tls: true,
+    tlsAllowInvalidCertificates: false,
+    tlsAllowInvalidHostnames: false,
+    tlsCAFile: '/certs/ca.pem',
+    tlsCertificateFile: '/certs/client-signed.crt',
+    tlsCertificateKeyFile: '/certs/client.key',
+    tlsCertificateKeyFilePassword: process.env.FM_MONGO_KEY_PASSWORD,
+  };
+  const client = new MongoClient(uri, opt);
   await client.connect();
   const db = client.db(database);
 

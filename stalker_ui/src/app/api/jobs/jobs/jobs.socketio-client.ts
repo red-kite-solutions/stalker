@@ -41,6 +41,6 @@ export class JobsSocketioClient {
   }
 
   disconnect() {
-    this.socket.disconnect();
+    return this.socket.disconnect();
   }
 }

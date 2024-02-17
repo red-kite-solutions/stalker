@@ -12,5 +12,9 @@ COPY package-lock.json package-lock.json
 RUN npm ci
 
 COPY . . 
+RUN mkdir -p /certs/
+COPY ca.pem /certs/
+COPY client-signed.crt /certs/
+COPY client.key /certs/
 
 CMD ["npm", "run", "start:debug"]

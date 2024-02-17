@@ -10,6 +10,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -43,9 +44,11 @@ import { FilteredPaginatedTableComponent } from 'src/app/shared/widget/filtered-
     MatMenuModule,
     FilteredPaginatedTableComponent,
     MatDialogModule,
+    MatTooltipModule,
   ],
 })
 export class ListCustomJobsComponent {
+  public noDataMessage = $localize`:No job found|No job was found:No job found`;
   public isLoading$ = new BehaviorSubject(true);
   public selection = new SelectionModel<CustomJob>(true, []);
 
@@ -85,32 +88,50 @@ export class ListCustomJobsComponent {
   }
 
   public async delete() {
-    const data: ConfirmDialogData = {
-      text: $localize`:Confirm custom job deletion|Confirmation message asking if the user really wants to delete this description:Do you really wish to delete this description permanently ?`,
-      title: $localize`:Deleting custom job|Title of a page to delete a custom job:Deleting custom job`,
-      primaryButtonText: $localize`:Cancel|Cancel current action:Cancel`,
-      dangerButtonText: $localize`:Delete permanently|Confirm that the user wants to delete the item permanently:Delete permanently`,
+    let data: ConfirmDialogData = {
+      text: $localize`:Select jobs again|No job was selected so there is nothing to delete:Select the jobs to delete and try again.`,
+      title: $localize`:Nothing to delete|Tried to delete something, but there was nothing to delete:Nothing to delete`,
+      primaryButtonText: $localize`:Ok|Accept or confirm:Ok`,
       onPrimaryButtonClick: () => {
         this.dialog.closeAll();
       },
-      onDangerButtonClick: async () => {
-        for (const customJob of this.selection.selected) {
-          try {
-            await this.customJobsService.delete(customJob._id);
-          } catch {
-            this.toastr.error($localize`:Error while deleting|Error while deleting:Error while deleting`);
-            return;
-          }
-        }
-
-        this.toastr.success(
-          $localize`:Successfully deleted custom job|Successfully deleted custom job:Successfully deleted custom job`
-        );
-
-        this.refreshData$.next();
-        this.dialog.closeAll();
-      },
     };
+
+    const bulletPoints: string[] = Array<string>();
+    this.selection.selected.forEach((cj: CustomJob) => {
+      const bp = cj.name;
+      bulletPoints.push(bp);
+    });
+
+    if (this.selection.selected.length > 0) {
+      data = {
+        text: $localize`:Confirm custom job deletion|Confirmation message asking if the user really wants to delete this job:Do you really wish to delete these jobs permanently ?`,
+        title: $localize`:Deleting custom jobs|Title of a page to delete a custom job:Deleting custom jobs`,
+        primaryButtonText: $localize`:Cancel|Cancel current action:Cancel`,
+        dangerButtonText: $localize`:Delete permanently|Confirm that the user wants to delete the item permanently:Delete permanently`,
+        listElements: bulletPoints,
+        onPrimaryButtonClick: () => {
+          this.dialog.closeAll();
+        },
+        onDangerButtonClick: async () => {
+          for (const customJob of this.selection.selected) {
+            try {
+              await this.customJobsService.delete(customJob._id);
+            } catch {
+              this.toastr.error($localize`:Error while deleting|Error while deleting:Error while deleting`);
+              return;
+            }
+          }
+
+          this.toastr.success(
+            $localize`:Successfully deleted custom job|Successfully deleted custom job:Successfully deleted custom job`
+          );
+
+          this.refreshData$.next();
+          this.dialog.closeAll();
+        },
+      };
+    }
 
     this.dialog.open(ConfirmDialogComponent, {
       data,

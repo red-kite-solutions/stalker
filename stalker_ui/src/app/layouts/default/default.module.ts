@@ -84,6 +84,7 @@ import { DefaultComponent } from './default.component';
     CodeEditorComponent,
     JobLogsSummaryComponent,
     SpinnerButtonComponent,
+    AvatarComponent,
   ],
   providers: [{ provide: MAT_COLOR_FORMATS, useValue: NGX_MAT_COLOR_FORMATS }],
 })

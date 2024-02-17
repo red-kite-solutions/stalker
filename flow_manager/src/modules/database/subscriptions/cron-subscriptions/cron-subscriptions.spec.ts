@@ -126,6 +126,9 @@ describe('Cron Subscriptions Service', () => {
       jest.clearAllMocks();
       jest.resetAllMocks();
       jest.restoreAllMocks();
+
+      //@ts-expect-error
+      subscriptionsService.publishJob = () => {};
     });
 
     // ALL_DOMAINS

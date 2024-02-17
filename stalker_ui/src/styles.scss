@@ -138,3 +138,10 @@ mat-icon {
     margin-top: -5px;
   }
 }
+
+// Removing the background from mat-checkboxes in dark theme
+.theme-dark {
+  .mdc-checkbox__background {
+    background-color: transparent !important;
+  }
+}
