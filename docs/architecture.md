@@ -19,8 +19,7 @@ The following table goes over the main aspects of the graph :
 | Flow Manager (FM) | 3000             | 53 (DNS), 9092 (Kafka), 27017 (Mongo)                                       |
 | Cron Service      | 3000             | 53 (DNS), 3000 (FM), 27017 (Mongo)                                          |
 | Mongo             | 27017            | Deny All                                                                    |
-| Kafka             | 9092, 9093       | 53 (DNS), 2181 (ZK), 2888 (ZK), 3888 (ZK)                                   |
-| Zookeeper (ZK)    | 2181, 2888, 3888 | 53 (DNS), 9092 (Kafka), 9093 (Kafka)                                        |
+| Kafka             | 9092, 9093, 9094 | 53 (DNS), 9092 (Kafka), 9093 (Kafka), 9094 (Kafka)                          |
 | Orchestrator      | 5135             | 53 (DNS), 443 (K8s API), 9092 (Kafka)                                       |
 | Jobs              | Deny All         | 0.0.0.0/0 except 169.254.169.254, 172.16.0.0/12, 192.168.0.0/16, 10.0.0.0/8 |
 
