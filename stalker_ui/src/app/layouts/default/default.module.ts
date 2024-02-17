@@ -30,6 +30,7 @@ import { SettingsComponent } from 'src/app/modules/admin/settings/settings.compo
 import { JobLogsSummaryComponent } from 'src/app/modules/jobs/job-executions/job-execution-logs-summary.component';
 import { EditProjectsComponent } from 'src/app/modules/projects/edit-projects/edit-projects.component';
 import { ProfileComponent } from 'src/app/modules/user/profile/profile.component';
+import { AvatarComponent } from 'src/app/shared/components/avatar/avatar.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { SpinnerButtonComponent } from 'src/app/shared/widget/spinner-button/spinner-button.component';
 import { FindingsModule } from '../../modules/findings/findings.module';
