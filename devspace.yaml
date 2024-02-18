@@ -350,8 +350,8 @@ deployments:
 
         service:
           ports:
-            - containerPort: 80
-              port: 8000
+            - containerPort: 443
+              port: 8443
               protocol: TCP
 
   mongo: # volumes location: /var/lib/docker/volumes/minikube/_data/hostpath-provisioner/stalker/
@@ -660,7 +660,7 @@ dev:
     restartHelper:
       inject: false
     ports:
-      - port: "8000:80"
+      - port: "8443:443"
     resources:
       limits:
         memory: 1Gi

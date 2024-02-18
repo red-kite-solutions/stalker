@@ -1,58 +1,6 @@
 #!/bin/bash
-PASSWORD_LENGTH=35
 
-# mongo_root="$(tr -dc A-Za-z0-9 </dev/urandom | head -c $PASSWORD_LENGTH)"
-# mongo_fm="$(tr -dc A-Za-z0-9 </dev/urandom | head -c $PASSWORD_LENGTH)"
-# mongo_cs="$(tr -dc A-Za-z0-9 </dev/urandom | head -c $PASSWORD_LENGTH)"
-# cron_api_token="$(tr -dc A-Za-z0-9 </dev/urandom | head -c $PASSWORD_LENGTH)"
-# fm_jwt="$(tr -dc A-Za-z0-9 </dev/urandom | head -c $PASSWORD_LENGTH)"
-# fm_refresh="$(tr -dc A-Za-z0-9 </dev/urandom | head -c $PASSWORD_LENGTH)"
-# fm_kafka_password="$(tr -dc A-Za-z0-9 </dev/urandom | head -c $PASSWORD_LENGTH)"
-
-# # Generating the keys for the secrets
-# openssl genrsa -out secrets_private.pem 2048
-# secrets_private_key="$(cat secrets_private.pem | base64 -w 0)"
-# openssl rsa -in secrets_private.pem -outform PEM -pubout -out secrets_public.pem
-# secrets_public_key="$(cat secrets_public.pem | base64 -w 0)"
-# rm secrets_private.pem
-# rm secrets_public.pem
-
-# cat > "devspace.prod.yaml" << EOF
-# version: v2beta1
-# name: stalker-vars-prod
-
-# vars:
-#   NETWORK_POLICY: "network-policy.yml"
-#   RESOURCE_QUOTA: "resource-quota.yml"
-#   MONGO_REPLICA_SET_COUNT:
-#     value: 3
-#   FM_ENVIRONMENT: "prod"
-#   MONGO_ROOT_PASSWORD: $mongo_root
-#   MONGO_FM_PASSWORD: $mongo_fm
-#   MONGO_CRON_SERVICE_PASSWORD: $mongo_cs
-#   STALKER_CRON_API_TOKEN: $cron_api_token
-#   FM_JWT_SECRET: $fm_jwt
-#   FM_REFRESH_SECRET: $fm_refresh
-#   FM_MONGO_ADDRESS: mongodb://\${MONGO_FM_USER}:\${MONGO_FM_PASSWORD}@mongo-mongodb-headless:27017/
-#   CRON_SERVICE_MONGO_ADDRESS: mongodb://\${MONGO_CRON_SERVICE_USER}:\${MONGO_CRON_SERVICE_PASSWORD}@mongo-mongodb-headless:27017/
-#   SECRET_PRIVATE_RSA_KEY: $secrets_private_key
-#   SECRET_PUBLIC_RSA_KEY: $secrets_public_key
-#   STALKER_URL: "http://localhost:4200"
-#   DOCKERFILE_NAME: Dockerfile
-# EOF
-
-cat > "root_ca.cnf" << EOF
-[ ca ]
-default_ca = CA_default
-
-[ CA_default ]
-# The root key and root certificate.
-new_certs_dir     = .
-private_key       = root_ca.key
-certificate       = root_ca.crt
-database          = index.txt
-serial            = serial
-
+cat > "./stalker_ui/nginx-ca-openssl.cnf" << EOF
 # SHA-1 is deprecated, so use SHA-2 instead.
 default_md        = sha256
 
@@ -60,7 +8,7 @@ name_opt          = ca_default
 cert_opt          = ca_default
 default_days      = 375
 preserve          = no
-policy            = policy_strict
+policy            = policy_loose
 
 [ policy_strict ]
 # The root CA should only sign intermediate certificates that match.
@@ -100,12 +48,15 @@ localityName                    = Locality Name
 0.organizationName              = Organization Name
 organizationalUnitName          = Organizational Unit Name
 commonName                      = Common Name
+emailAddress                    = Email Address
 
 # Optionally, specify some defaults.
 countryName_default             = 
 stateOrProvinceName_default     = 
 localityName_default            =
 0.organizationName_default      = Red Kite Solutions
+organizationalUnitName_default  =
+emailAddress_default            =
 
 [ v3_ca ]
 subjectKeyIdentifier = hash
@@ -148,14 +99,23 @@ keyUsage = critical, digitalSignature
 extendedKeyUsage = critical, OCSPSigning
 EOF
 
-echo 1000 > serial
-touch index.txt
-openssl genrsa -aes256 -out ./root_ca.key 4096
-openssl req -config ./root_ca.cnf -key ./root_ca.key -new -x509 -days 7300 -sha256 -extensions v3_ca -out ./root_ca.crt -subj="/CN=Stalker CA/OU=Stalker CA/O=Red Kite Solutions/L=/ST=/C="
+# Generate intermediate ca key
+openssl genrsa -out ./stalker_ui/nginx-ca.key 4096
 
-bash ./setup_ssl.sh
-# bash ./setup_mongo.sh
-# bash ./setup_kafka.sh
+# Generate the intermediate ca csr
+openssl req -config ./stalker_ui/nginx-ca-openssl.cnf -new -sha256 -key ./stalker_ui/nginx-ca.key -out ./stalker_ui/nginx-ca.csr -subj="/CN=Nginx CA/OU=Stalker Nginx CA/O=Red Kite Solutions/L=/ST=/C="
 
+# Signing the intermediate CA csr with the root CA
+openssl ca -batch -config root_ca.cnf -extensions v3_intermediate_ca -days 3650 -notext -md sha256 -in ./stalker_ui/nginx-ca.csr -out ./stalker_ui/nginx-ca.crt
 
-rm root_ca.cnf
+# Create CSR for nginx
+openssl req -new -nodes -days 365 -newkey rsa:2048 -keyout ./stalker_ui/nginx.key -out ./stalker_ui/nginx.csr -subj="/CN=Stalker/OU=Stalker Nginx/O=Red Kite Solutions/L=/ST=/C="
+
+# Signing nginx csr with intermediate ca
+openssl x509 -sha256 -req -days 365 -in ./stalker_ui/nginx.csr -CA ./stalker_ui/nginx-ca.crt -CAkey ./stalker_ui/nginx-ca.key -CAcreateserial -out ./stalker_ui/nginx.crt
+
+cat ./stalker_ui/nginx.crt ./stalker_ui/nginx-ca.crt root_ca.crt > ./stalker_ui/nginx-chain.pem
+
+rm ./stalker_ui/nginx-ca-openssl.cnf 
+rm ./stalker_ui/nginx-ca.csr
+rm ./stalker_ui/nginx.csr
