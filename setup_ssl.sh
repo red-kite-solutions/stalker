@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [[ $# -ne 1 ]] ; then
+    echo 'Incorrect syntax:'
+    echo 'setup_ssl.sh <stalker_hostname>'
+    exit 1
+fi
+
 cat > "./stalker_ui/nginx-ca-openssl.cnf" << EOF
 # SHA-1 is deprecated, so use SHA-2 instead.
 default_md        = sha256
@@ -108,14 +114,37 @@ openssl req -config ./stalker_ui/nginx-ca-openssl.cnf -new -sha256 -key ./stalke
 # Signing the intermediate CA csr with the root CA
 openssl ca -batch -config root_ca.cnf -extensions v3_intermediate_ca -days 3650 -notext -md sha256 -in ./stalker_ui/nginx-ca.csr -out ./stalker_ui/nginx-ca.crt
 
+# Creating conf file for CSR
+cat > "./stalker_ui/nginx-csr.cnf" << EOF
+# OpenSSL node configuration file
+[ req ]
+prompt=no
+distinguished_name = distinguished_name
+req_extensions = extensions
+
+[ distinguished_name ]
+organizationName = Red Kite Solutions
+organizationalUnitName = Stalker Nginx
+commonName = Stalker
+
+[ extensions ]
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = $1
+DNS.2 = localhost
+EOF
+
 # Create CSR for nginx
-openssl req -new -nodes -days 365 -newkey rsa:2048 -keyout ./stalker_ui/nginx.key -out ./stalker_ui/nginx.csr -subj="/CN=Stalker/OU=Stalker Nginx/O=Red Kite Solutions/L=/ST=/C="
+openssl req -new -nodes -newkey rsa:2048 -keyout ./stalker_ui/nginx.key -out ./stalker_ui/nginx.csr -config ./stalker_ui/nginx-csr.cnf
 
 # Signing nginx csr with intermediate ca
-openssl x509 -sha256 -req -days 365 -in ./stalker_ui/nginx.csr -CA ./stalker_ui/nginx-ca.crt -CAkey ./stalker_ui/nginx-ca.key -CAcreateserial -out ./stalker_ui/nginx.crt
+openssl x509 -req -in ./stalker_ui/nginx.csr -CA ./stalker_ui/nginx-ca.crt -CAkey ./stalker_ui/nginx-ca.key -CAcreateserial -out ./stalker_ui/nginx.crt -days 365 -extfile ./stalker_ui/nginx-csr.cnf -extensions extensions
 
+# Making a full certificate chain for nginx
 cat ./stalker_ui/nginx.crt ./stalker_ui/nginx-ca.crt root_ca.crt > ./stalker_ui/nginx-chain.pem
 
 rm ./stalker_ui/nginx-ca-openssl.cnf 
+rm ./stalker_ui/nginx-csr.cnf
 rm ./stalker_ui/nginx-ca.csr
 rm ./stalker_ui/nginx.csr
