@@ -1,5 +1,4 @@
 import { NestApplicationOptions, ValidationPipe } from '@nestjs/common';
-import { HttpsOptions } from '@nestjs/common/interfaces/external/https-options.interface';
 import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import { useContainer } from 'class-validator';
@@ -9,11 +8,6 @@ import { AppModule } from './modules/app.module';
 
 async function bootstrap() {
   const adapter = new ExpressAdapter();
-
-  const httpsOptions: HttpsOptions = {
-    key: readFileSync('/certs/ssl-private.key'),
-    cert: readFileSync('/certs/ssl-certificate-chain.pem'),
-  };
 
   const options: NestApplicationOptions = {
     cors: {
@@ -27,7 +21,10 @@ async function bootstrap() {
     process.env.FM_ENVIRONMENT !== 'tests' &&
     process.env.FM_ENVIRONMENT !== 'dev'
   ) {
-    options.httpsOptions = httpsOptions;
+    options.httpsOptions = {
+      key: readFileSync('/certs/ssl-private.key'),
+      cert: readFileSync('/certs/ssl-certificate-chain.pem'),
+    };
   }
 
   const app = await NestFactory.create(AppModule, adapter, options);
