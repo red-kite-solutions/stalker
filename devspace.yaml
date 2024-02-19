@@ -70,7 +70,7 @@ pipelines:
 
       # Kafka's keystore and keystore password
       ${DEVSPACE_KUBECTL_EXECUTABLE} delete secret kafka-jks --ignore-not-found -n ${DEVSPACE_NAMESPACE}
-      ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks --from-file=kafka.truststore.jks=./queue/kafka.server.truststore.jks --from-file=kafka.keystore.jks=./queue/kafka-0.keystore.jks -n ${DEVSPACE_NAMESPACE}
+      ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks --from-file=kafka.truststore.jks=./queue/kafka.server.truststore.jks.test --from-file=kafka.keystore.jks=./queue/kafka-0.keystore.jks.test -n ${DEVSPACE_NAMESPACE}
       ${DEVSPACE_KUBECTL_EXECUTABLE} delete secret kafka-jks-password --ignore-not-found -n ${DEVSPACE_NAMESPACE}
       ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks-password --from-literal=password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=keystore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=truststore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=key-password=${KAFKA_KEYSTORE_PASSWORD} -n ${DEVSPACE_NAMESPACE}
 
@@ -107,7 +107,7 @@ pipelines:
       create_deployments namespaces
 
       ${DEVSPACE_KUBECTL_EXECUTABLE} delete secret kafka-jks --ignore-not-found -n ${DEVSPACE_NAMESPACE}
-      ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks --from-file=kafka.truststore.jks=./queue/kafka.server.truststore.jks --from-file=kafka.keystore.jks=./queue/kafka-0.keystore.jks -n ${DEVSPACE_NAMESPACE}
+      ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks --from-file=kafka.truststore.jks=./queue/kafka.server.truststore.jks.test --from-file=kafka.keystore.jks=./queue/kafka-0.keystore.jks.test -n ${DEVSPACE_NAMESPACE}
       ${DEVSPACE_KUBECTL_EXECUTABLE} delete secret kafka-jks-password --ignore-not-found -n ${DEVSPACE_NAMESPACE}
       ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks-password --from-literal=password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=keystore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=truststore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=key-password=${KAFKA_KEYSTORE_PASSWORD} -n ${DEVSPACE_NAMESPACE}
 
@@ -289,6 +289,8 @@ deployments:
                 value: ${FM_MONGO_KEY_PASSWORD}
               - name: FM_KAFKA_KEY_PASSWORD
                 value: ${FM_KAFKA_KEY_PASSWORD}
+              - name: STALKER_VERSION
+                value: ${STALKER_VERSION}
 
         service:
           ports:

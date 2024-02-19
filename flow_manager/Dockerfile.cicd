@@ -15,13 +15,13 @@ COPY . .
 RUN mkdir -p /certs/
 
 # Mongo certs
-COPY ca.pem /certs/
-COPY client-signed.crt /certs/
-COPY client.key /certs/
+COPY ca.pem.test /certs/ca.pem
+COPY client-signed.crt.test /certs/client-signed.crt
+COPY client.key.test /certs/client.key
 
 # Kafka certs
-COPY kafka-ca.crt /certs/
-COPY kafka-client-signed.crt /certs/
-COPY kafka-client.key /certs/
+COPY kafka-ca.crt.test /certs/kafka-ca.crt
+COPY kafka-client-signed.crt.test /certs/kafka-client-signed.crt
+COPY kafka-client.key.test /certs/kafka-client.key
 
 CMD ["npm", "run", "start"]
