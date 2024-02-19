@@ -1,6 +1,7 @@
 #!/bin/bash
 
 if ! [ -f ./devspace.prod.yml]; then
+  echo "Initializing Stalker for its first deployment."
   bash ./setup.sh
 fi
 

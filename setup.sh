@@ -16,6 +16,16 @@ fm_jwt="$(tr -dc A-Za-z0-9 </dev/urandom | head -c $PASSWORD_LENGTH)"
 fm_refresh="$(tr -dc A-Za-z0-9 </dev/urandom | head -c $PASSWORD_LENGTH)"
 fm_kafka_password="$(tr -dc A-Za-z0-9 </dev/urandom | head -c $PASSWORD_LENGTH)"
 
+echo "##############################"
+echo "# You will be prompted several times for your root CA key's password."
+echo "# The CA will sign all of Stalker's certificates."
+echo "#" 
+echo "# After deployment, Stalker is configured to listen on:"
+echo "# https://$STALKER_HOSTNAME:$STALKER_PORT/"
+echo "##############################"
+
+read -n 1 -p "Press any key to continue..."
+
 # Generating the keys for the secrets
 openssl genrsa -out secrets_private.pem 2048
 secrets_private_key="$(cat secrets_private.pem | base64 -w 0)"
