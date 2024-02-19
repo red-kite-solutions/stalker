@@ -12,4 +12,10 @@ RUN dotnet dev-certs https -t
 COPY . .
 RUN dotnet restore "./Orchestrator.sln"
 
+RUN mkdir -p /certs/
+# Kafka certs
+COPY kafka-ca.crt /certs/
+COPY kafka-client-signed.crt /certs/
+COPY kafka-client.key /certs/
+
 ENTRYPOINT ["dotnet", "watch", "--project", "Orchestrator", "--no-hot-reload"]

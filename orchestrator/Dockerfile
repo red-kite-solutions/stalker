@@ -19,4 +19,9 @@ RUN dotnet publish -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+RUN mkdir -p /certs/
+# Kafka certs
+COPY kafka-ca.crt /certs/
+COPY kafka-client-signed.crt /certs/
+COPY kafka-client.key /certs/
 ENTRYPOINT ["dotnet", "Orchestrator.dll"]

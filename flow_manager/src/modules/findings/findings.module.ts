@@ -14,6 +14,7 @@ import { ProjectModule } from '../database/reporting/project.module';
 import { SecretsModule } from '../database/secrets/secrets.module';
 import { EventSubscriptionsModule } from '../database/subscriptions/event-subscriptions/event-subscriptions.module';
 import { SubscriptionTriggersModule } from '../database/subscriptions/subscription-triggers/subscription-triggers.module';
+import { kafkaConfig } from '../job-queue/queue.module';
 import { FindingsHandlers } from './commands/findings-commands';
 import { FindingsConsumer } from './findings.consumer';
 import { FindingsController } from './findings.controller';
@@ -49,10 +50,7 @@ export class FindingsModule {
 
   public async onApplicationBootstrap() {
     if (process.env.FM_ENVIRONMENT !== FM_ENVIRONMENTS.tests) {
-      const kafka = new Kafka({
-        clientId: 'flow-manager',
-        brokers: [process.env['KAFKA_URI']],
-      });
+      const kafka = new Kafka(kafkaConfig);
 
       await FindingsConsumer.create(kafka, this.findingsService);
       await JobLogsConsumer.create(kafka, this.jobService);
