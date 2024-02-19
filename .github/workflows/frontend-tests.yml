@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - .github/workflows/frontend.yml
-      - "stalker_ui/**"
+      - "packages/frontend/stalker-app/**"
 
 jobs:
   tests:
@@ -20,11 +20,11 @@ jobs:
           node-version: 18
 
       # FIXME: When we get rid of flex-layout and update the color picker, then we can remove legacy peer-deps.
-      - run: npm ci --legacy-peer-deps
-        working-directory: stalker_ui
+      - run: yarn install --frozen-lockfile
+        working-directory: packages/frontend/stalker
 
       - run: npm run test:cicd
-        working-directory: stalker_ui
+        working-directory: packages/frontend/stalker
 
   prod-build:
     name: Production Build
@@ -39,8 +39,8 @@ jobs:
           node-version: 18
 
       # FIXME: When we get rid of flex-layout and update the color picker, then we can remove legacy peer-deps.
-      - run: npm ci --legacy-peer-deps
-        working-directory: stalker_ui
+      - run: yarn install --frozen-lockfile
+        working-directory: packages/frontend/stalker
 
       - run: npm run build --prod
-        working-directory: stalker_ui
+        working-directory: packages/frontend/stalker

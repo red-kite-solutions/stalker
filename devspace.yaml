@@ -143,8 +143,8 @@ images:
 
   ui:
     image: ui
-    dockerfile: stalker_ui/Dockerfile.dev
-    context: stalker_ui
+    dockerfile: packages/frontend/stalker-app/Dockerfile.dev
+    context: .
     rebuildStrategy: default
 
   orchestrator:
@@ -499,7 +499,7 @@ deployments:
     kubectl:
       manifests:
         - network-policy.yml
-        - stalker_ui/${NETWORK_POLICY}
+        - packages/frontend/stalker-app/${NETWORK_POLICY}
         - database/${NETWORK_POLICY}
         - flow_manager/${NETWORK_POLICY}
         - cron_service/${NETWORK_POLICY}
@@ -567,7 +567,11 @@ dev:
       app.kubernetes.io/component: ui
     container: ui-container
     sync:
-      - path: ./stalker_ui/src/:/app/src/
+      - path: ./packages:/app/packages
+        disableDownload: true
+      - path: ./package.json:/app/package.json
+        disableDownload: true
+      - path: ./yarn.lock:/app/yarn.lock
         disableDownload: true
     restartHelper:
       inject: false

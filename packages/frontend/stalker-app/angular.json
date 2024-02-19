@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "stalker_ui": {
+    "stalker-app": {
       "projectType": "application",
       "i18n": {
         "sourceLocale": "en",
@@ -29,7 +29,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/stalker_ui",
+            "outputPath": "dist/stalker-app",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -44,11 +44,7 @@
                 "output": "assets/monaco-editor"
               }
             ],
-            "styles": [
-              "./src/theme.scss",
-              "src/styles.scss",
-              "node_modules/ngx-toastr/toastr.css"
-            ],
+            "styles": ["./src/theme.scss", "src/styles.scss", "../../../node_modules/ngx-toastr/toastr.css"],
             "scripts": []
           },
           "configurations": {
@@ -89,10 +85,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "stalker_ui:build:production"
+              "buildTarget": "stalker-app:build:production"
             },
             "development": {
-              "buildTarget": "stalker_ui:build:development",
+              "buildTarget": "stalker-app:build:development",
               "hmr": true
             }
           },
@@ -101,7 +97,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "stalker_ui:build"
+            "buildTarget": "stalker-app:build"
           }
         },
         "test": {
