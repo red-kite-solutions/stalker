@@ -144,7 +144,46 @@ openssl x509 -req -in ./stalker_ui/nginx.csr -CA ./stalker_ui/nginx-ca.crt -CAke
 # Making a full certificate chain for nginx
 cat ./stalker_ui/nginx.crt ./stalker_ui/nginx-ca.crt root_ca.crt > ./stalker_ui/nginx-chain.pem
 
+# Adding root ca to the proper folders for trust
+cp root_ca.crt ./cron_service/root_ca.crt
+cp root_ca.crt ./stalker_ui/root_ca.crt
+
+### Creating FM's certificate and key
+# Creating conf file for CSR
+cat > "./flow_manager/ssl-csr.cnf" << EOF
+# OpenSSL node configuration file
+[ req ]
+prompt=no
+distinguished_name = distinguished_name
+req_extensions = extensions
+
+[ distinguished_name ]
+organizationName = Red Kite Solutions
+organizationalUnitName = Stalker Flow Manager
+commonName = Flow Manager API
+
+[ extensions ]
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = flow-manager
+DNS.2 = flow-manager.stalker.svc.cluster.local
+EOF
+
+# Create CSR for flow manager
+openssl req -new -nodes -newkey rsa:2048 -keyout ./flow_manager/ssl-private.key -out ./flow_manager/ssl-certificate.csr -config ./flow_manager/ssl-csr.cnf
+
+# Signing FM's csr with intermediate ca
+openssl x509 -req -in ./flow_manager/ssl-certificate.csr -CA ./stalker_ui/nginx-ca.crt -CAkey ./stalker_ui/nginx-ca.key -CAcreateserial -out ./flow_manager/ssl-certificate.crt -days 365 -extfile ./flow_manager/ssl-csr.cnf -extensions extensions
+
+# Creating FM's certificate chain
+cat ./flow_manager/ssl-certificate.crt ./stalker_ui/nginx-ca.crt root_ca.crt > ./flow_manager/ssl-certificate-chain.pem
+
+
 rm ./stalker_ui/nginx-ca-openssl.cnf 
 rm ./stalker_ui/nginx-csr.cnf
+rm ./flow_manager/ssl-csr.cnf
 rm ./stalker_ui/nginx-ca.csr
 rm ./stalker_ui/nginx.csr
+rm ./flow_manager/ssl-certificate.csr
+

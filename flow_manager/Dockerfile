@@ -23,6 +23,10 @@ COPY kafka-ca.crt /certs/
 COPY kafka-client-signed.crt /certs/
 COPY kafka-client.key /certs/
 
+# API https
+COPY ssl-private.key /certs/
+COPY ssl-certificate-chain.pem /certs/
+
 RUN npm run build --omit=dev
 
 CMD ["npm", "run", "start:prod"]

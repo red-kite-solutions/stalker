@@ -45,8 +45,9 @@ vars:
   SECRET_PRIVATE_RSA_KEY: $secrets_private_key
   SECRET_PUBLIC_RSA_KEY: $secrets_public_key
   STALKER_PORT: $STALKER_PORT
-  STALKER_URL: "http://$STALKER_HOSTNAME:\${STALKER_PORT}"
+  STALKER_URL: "https://$STALKER_HOSTNAME:\${STALKER_PORT}"
   DOCKERFILE_NAME: Dockerfile
+  FM_URL: "https://flow-manager:3000"
 EOF
 
 cat > "root_ca.cnf" << EOF

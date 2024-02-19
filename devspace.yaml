@@ -317,6 +317,8 @@ deployments:
                 value: ${STALKER_CRON_API_TOKEN}
               - name: CRON_SERVICE_MONGO_KEY_PASSWORD
                 value: ${CRON_SERVICE_MONGO_KEY_PASSWORD}
+              - name: NODE_EXTRA_CA_CERTS
+                value: /certs/rks-ca.crt
 
             image: cron_service
             name: cron-service-container

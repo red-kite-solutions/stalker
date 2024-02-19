@@ -25,3 +25,5 @@ RUN mkdir -p /etc/nginx/certs/
 COPY nginx-chain.pem /etc/nginx/certs/
 COPY nginx.key /etc/nginx/certs/
 RUN chmod 400 /etc/nginx/certs/nginx.key; chown root:root /etc/nginx/certs/nginx.key
+COPY root_ca.crt /usr/local/share/ca-certificates/red-kite-solutions.crt
+RUN update-ca-certificates
