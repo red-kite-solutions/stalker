@@ -3,8 +3,8 @@ name: Cron Service
 on:
   pull_request:
     paths:
-      - .github/workflows/cron-service.yml
-      - "packages/backend/cron/**"
+      - .github/workflows/cron.yml
+      - "packages/backend/cron/service/**"
 
 jobs:
   tests:

@@ -32,7 +32,7 @@ pipelines:
       ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks-password --from-literal=password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=keystore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=truststore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=key-password=${KAFKA_KEYSTORE_PASSWORD} -n ${DEVSPACE_NAMESPACE}
 
       build_images stalker-base
-      build_images ui jobs-manager orchestrator python-job-base nuclei-job-base cron-service
+      build_images ui jobs-manager orchestrator python-job-base nuclei-job-base cron
       create_deployments mongo kafka --sequential
 
       # Start mongo and kafka
@@ -42,7 +42,7 @@ pipelines:
       wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 300
       wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 300
 
-      create_deployments ui jobs-manager orchestrator-service-account orchestrator cron-service --sequential
+      create_deployments ui jobs-manager orchestrator-service-account orchestrator cron --sequential
 
       # Wait for services before applying network policies
       wait_pod --label-selector app.kubernetes.io/component=ui --timeout 300
@@ -56,11 +56,11 @@ pipelines:
       # Start microservices + ui
       start_dev orchestrator jobs-manager ui
 
-      create_deployments cron-service
+      create_deployments cron
 
-      wait_pod --label-selector app.kubernetes.io/component=cron-service --timeout 300
+      wait_pod --label-selector app.kubernetes.io/component=cron --timeout 300
 
-      start_dev cron-service
+      start_dev cron
 
   jobs-manager-e2e:
     flags:
@@ -99,7 +99,7 @@ pipelines:
   purge:
     run: |-
       stop_dev --all
-      purge_deployments mongo ui jobs-manager jobs-manager-e2e kafka orchestrator-service-account orchestrator cron-service --sequential
+      purge_deployments mongo ui jobs-manager jobs-manager-e2e kafka orchestrator-service-account orchestrator cron --sequential
 
   build-e2e:
     run: |-
@@ -267,7 +267,7 @@ deployments:
               port: 3000
               protocol: TCP
 
-  cron-service:
+  cron:
     helm:
       values:
         containers:
@@ -573,10 +573,10 @@ dev:
     ports:
       - port: "9229"
 
-  cron-service:
+  cron:
     labelSelector:
-      app.kubernetes.io/component: cron-service
-    container: cron-service-container
+      app.kubernetes.io/component: cron
+    container: cron-container
     logs:
       enabled: true
     sync:
@@ -648,14 +648,14 @@ hooks:
       containerName: jobs-manager-container
 
   - events:
-      - after:deploy:cron-service
+      - after:deploy:cron
     wait:
       running: true
       terminatedWithCode: 0
     container:
       labelSelector:
-        app.kubernetes.io/component: cron-service
-      containerName: cron-service-container
+        app.kubernetes.io/component: cron
+      containerName: cron-container
 
   - events:
       - after:deploy:ui
