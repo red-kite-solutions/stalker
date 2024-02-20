@@ -19,11 +19,11 @@ jobs:
         with:
           node-version: 18
 
-      - run: npm ci
-        working-directory: packages/backend/jobs-manager
+      - run: yarn install --frozen-lockfile
+        working-directory: .
 
-      - run: npm run test:cicd
-        working-directory: packages/backend/jobs-manager
+      - run: yarn workspace @red-kite/jobs-manager test:cicd
+        working-directory: .
 
       - uses: tanmen/jest-reporter@v1
         if: always()
@@ -43,8 +43,7 @@ jobs:
         with:
           node-version: 18
 
-      - run: npm ci
-        working-directory: packages/backend/jobs-manager
+      - run: yarn install --frozen-lockfile
+        working-directory: .
 
-      - run: npm run build
-        working-directory: packages/backend/jobs-manager
+      - run: yarn workspace @red-kite/jobs-manager build
