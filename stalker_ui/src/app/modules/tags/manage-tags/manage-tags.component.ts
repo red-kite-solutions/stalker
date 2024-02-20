@@ -50,6 +50,7 @@ import { FilteredPaginatedTableComponent } from '../../../shared/widget/filtered
   styleUrls: ['./manage-tags.component.scss'],
 })
 export class ManageTagsComponent implements AfterViewInit {
+  exampleTagText = $localize`:Example|Example:Example`;
   selection = new SelectionModel<Tag>(true, []);
   public isLoading$ = new BehaviorSubject(true);
   private filters$ = new BehaviorSubject<string[]>([]);

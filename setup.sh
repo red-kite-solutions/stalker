@@ -8,6 +8,26 @@ STALKER_PORT=8443
 
 PASSWORD_LENGTH=35
 
+# Checking dependencies
+if ! command -v minikube &> /dev/null; then
+  echo "Install minikube before proceeding";
+  exit 1;
+fi
+if ! command -v devspace &> /dev/null; then
+  echo "Install devspace before proceeding";
+  exit 1;
+fi
+if ! command -v openssl &> /dev/null; then
+  echo "Install openssl before proceeding";
+  exit 1;
+fi
+if ! command -v keytool &> /dev/null; then
+  echo "Install keytool before proceeding";
+  exit 1;
+fi
+
+
+
 mongo_root="$(tr -dc A-Za-z0-9 </dev/urandom | head -c $PASSWORD_LENGTH)"
 mongo_fm="$(tr -dc A-Za-z0-9 </dev/urandom | head -c $PASSWORD_LENGTH)"
 mongo_cs="$(tr -dc A-Za-z0-9 </dev/urandom | head -c $PASSWORD_LENGTH)"

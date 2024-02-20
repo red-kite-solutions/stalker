@@ -199,7 +199,7 @@ export class SecretsComponent implements AfterViewInit {
       this.dialog.closeAll();
       this.createSecret$.next([newSecret]);
       this.toastr.success(
-        $localize`Successfully created secret:Successfully created secret:Successfully created secret`
+        $localize`:Successfully created secret|Successfully created secret:Successfully created secret`
       );
     } catch (err) {
       this.toastr.error($localize`:Error creating secret|Error creating secret:Error creating secret`);

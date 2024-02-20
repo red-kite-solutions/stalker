@@ -1,9 +1,11 @@
 #!/bin/bash
 
-if ! [ -f ./devspace.prod.yml]; then
+if [ ! -f "devspace.prod.yaml" ]; then
   echo "Initializing Stalker for its first deployment."
   bash ./setup.sh
 fi
 
-minikube start --driver=docker --memory=16384 --cpus=8
+if ! (minikube status &>/dev/null); then
+  minikube start --driver=docker --memory=16384 --cpus=8
+fi
 devspace --var="STALKER_ENVIRONMENT=prod" run-pipeline prod -n stalker
