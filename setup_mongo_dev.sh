@@ -9,7 +9,7 @@ pass2="$(tr -dc A-Za-z0-9 </dev/urandom | head -c 25)"
 pass3="$(tr -dc A-Za-z0-9 </dev/urandom | head -c 25)"
 
 # Generating the clients' keys and Certificate Signing Requests (CSR)
-openssl req -newkey rsa:4096 -passout pass:$pass1 -out client1.csr -keyout client1.key -subj="/CN=flow-manager/OU=Stalker Mongo Clients/O=Red Kite Solutions/L=/ST=/C="
+openssl req -newkey rsa:4096 -passout pass:$pass1 -out client1.csr -keyout client1.key -subj="/CN=jobs-manager/OU=Stalker Mongo Clients/O=Red Kite Solutions/L=/ST=/C="
 openssl req -newkey rsa:4096 -passout pass:$pass2 -out client2.csr -keyout client2.key -subj="/CN=cron-service/OU=Stalker Mongo Clients/O=Red Kite Solutions/L=/ST=/C="
 openssl req -newkey rsa:4096 -passout pass:$pass3 -out client3.csr -keyout client3.key -subj="/CN=user-client/OU=Stalker Mongo Clients/O=Red Kite Solutions/L=/ST=/C="
 
@@ -30,7 +30,7 @@ ca="$(cat ca.pem | base64 -w 0)"
 key="$(cat ca_private.pem | base64 -w 0)"
 echo "  MONGO_CA_CRT: $ca" >> devspace.dev.yaml
 echo "  MONGO_CA_KEY: $key" >> devspace.dev.yaml
-echo "  FM_MONGO_KEY_PASSWORD: $pass1" >> devspace.dev.yaml
+echo "  JM_MONGO_KEY_PASSWORD: $pass1" >> devspace.dev.yaml
 echo "  CRON_SERVICE_MONGO_KEY_PASSWORD: $pass2" >> devspace.dev.yaml
 
 # Cleanup

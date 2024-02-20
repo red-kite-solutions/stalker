@@ -3,7 +3,7 @@
 # Parameters
 PASSWORD="$(tr -dc A-Za-z0-9 </dev/urandom | head -c 25)"
 VALIDITY=730
-FLOW_MANAGER_USERNAME="flow-manager"
+JOBS_MANAGER_USERNAME="jobs-manager"
 ORCHESTRATOR_USERNAME="orchestrator"
 
 cat > "kafka-ca-openssl.cnf" << EOF
@@ -89,15 +89,15 @@ keyUsage = critical, digitalSignature, keyEncipherment
 extendedKeyUsage = clientAuth, serverAuth
 subjectAltName = @alt_names
 [alt_names]
-DNS.1 = flow-manager
-DNS.2 = flow-manager.stalker.svc.cluster.local
+DNS.1 = jobs-manager
+DNS.2 = jobs-manager.stalker.svc.cluster.local
 EOF
 
 
 # A client's username, in the current Kafka configuration, is the CN value for the OU "Stalker Kafka Clients"
-# ---- Client Flow Manager
+# ---- Client Jobs Manager
 PASS_FM="$(tr -dc A-Za-z0-9 </dev/urandom | head -c 25)"
-openssl req -newkey rsa:4096 -passout pass:$PASS_FM -out client1.csr -keyout client1.key -subj="/CN=$FLOW_MANAGER_USERNAME/OU=Stalker Kafka Clients/O=Red Kite Solutions/L=/ST=/C="
+openssl req -newkey rsa:4096 -passout pass:$PASS_FM -out client1.csr -keyout client1.key -subj="/CN=$JOBS_MANAGER_USERNAME/OU=Stalker Kafka Clients/O=Red Kite Solutions/L=/ST=/C="
 openssl x509 -sha256 -req -days 365 -in client1.csr -CA kafka-ca.crt -CAkey kafka-ca.key -CAcreateserial -out ./flow_manager/kafka-client-signed.crt -extfile extclient.cnf
 cp client1.key ./flow_manager/kafka-client.key
 cp kafka-ca.crt ./flow_manager/kafka-ca.crt
@@ -137,5 +137,5 @@ rm client2.csr
 rm extclient.cnf
 
 echo "  KAFKA_KEYSTORE_PASSWORD: $PASSWORD" >> devspace.dev.yaml
-echo "  FM_KAFKA_KEY_PASSWORD: $PASS_FM" >> devspace.dev.yaml
+echo "  JM_KAFKA_KEY_PASSWORD: $PASS_FM" >> devspace.dev.yaml
 echo "  ORCHESTRATOR_KAFKA_KEY_PASSWORD: $PASS_ORCHESTRATOR" >> devspace.dev.yaml

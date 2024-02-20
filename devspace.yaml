@@ -11,12 +11,15 @@ imports:
 
 pipelines:
   build:
-    run: build_images ui flow-manager orchestrator python-job-base nuclei-job-base
+    run: |-
+      build_images stalker-base
+      build_images ui jobs-manager orchestrator python-job-base nuclei-job-base
 
   deploy:
     run: |-
-      build_images ui flow-manager orchestrator python-job-base nuclei-job-base
-      create_deployments mongo ui flow-manager kafka orchestrator-service-account orchestrator --sequential
+      build_images stalker-base
+      build_images ui jobs-manager orchestrator python-job-base nuclei-job-base
+      create_deployments mongo ui jobs-manager kafka orchestrator-service-account orchestrator --sequential
 
   dev:
     run: |-
@@ -28,7 +31,8 @@ pipelines:
       ${DEVSPACE_KUBECTL_EXECUTABLE} delete secret kafka-jks-password --ignore-not-found -n ${DEVSPACE_NAMESPACE}
       ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks-password --from-literal=password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=keystore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=truststore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=key-password=${KAFKA_KEYSTORE_PASSWORD} -n ${DEVSPACE_NAMESPACE}
 
-      build_images ui flow-manager orchestrator python-job-base nuclei-job-base cron-service
+      build_images stalker-base
+      build_images ui jobs-manager orchestrator python-job-base nuclei-job-base cron-service
       create_deployments mongo kafka --sequential
 
       # Start mongo and kafka
@@ -38,11 +42,11 @@ pipelines:
       wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 300
       wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 300
 
-      create_deployments ui flow-manager orchestrator-service-account orchestrator cron-service --sequential
+      create_deployments ui jobs-manager orchestrator-service-account orchestrator cron-service --sequential
 
       # Wait for services before applying network policies
       wait_pod --label-selector app.kubernetes.io/component=ui --timeout 300
-      wait_pod --label-selector app.kubernetes.io/component=flow-manager --timeout 300
+      wait_pod --label-selector app.kubernetes.io/component=jobs-manager --timeout 300
       wait_pod --label-selector app.kubernetes.io/component=orchestrator --timeout 300
 
 
@@ -50,7 +54,7 @@ pipelines:
       create_deployments resource-quotas
 
       # Start microservices + ui
-      start_dev orchestrator flow-manager ui
+      start_dev orchestrator jobs-manager ui
 
       create_deployments cron-service
 
@@ -58,7 +62,7 @@ pipelines:
 
       start_dev cron-service
 
-  flow-manager-e2e:
+  jobs-manager-e2e:
     flags:
       - name: watch
         short: w
@@ -72,8 +76,9 @@ pipelines:
       ${DEVSPACE_KUBECTL_EXECUTABLE} delete secret kafka-jks-password --ignore-not-found -n ${DEVSPACE_NAMESPACE}
       ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks-password --from-literal=password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=keystore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=truststore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=key-password=${KAFKA_KEYSTORE_PASSWORD} -n ${DEVSPACE_NAMESPACE}
 
-      build_images flow-manager-e2e orchestrator python-job-base nuclei-job-base
-      create_deployments mongo kafka orchestrator-service-account orchestrator flow-manager-e2e --sequential
+      build_images stalker-base
+      build_images jobs-manager-e2e orchestrator python-job-base nuclei-job-base
+      create_deployments mongo kafka orchestrator-service-account orchestrator jobs-manager-e2e --sequential
 
       # Wait for kafka and mongo to be ready
       wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 300
@@ -83,23 +88,25 @@ pipelines:
       if [ $(get_flag "watch") == "true" ]; 
       then
         echo "Running tests in watch mode."
-        start_dev flow-manager-e2e mongo
-        exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'npm run test:e2e:watch'
+        start_dev jobs-manager-e2e mongo
+        exec_container --label-selector app.kubernetes.io/component=jobs-manager-e2e -n stalker -- /bin/sh -c 'npm run test:e2e:watch'
       else
         echo "Running tests in ci mode."
-        start_dev flow-manager-e2e
-        exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'npm run test:e2e:cicd' 2>&1
+        start_dev jobs-manager-e2e
+        exec_container --label-selector app.kubernetes.io/component=jobs-manager-e2e -n stalker -- /bin/sh -c 'npm run test:e2e:cicd' 2>&1
       fi
       stop_dev --all
   purge:
     run: |-
       stop_dev --all
-      purge_deployments mongo ui flow-manager flow-manager-e2e kafka orchestrator-service-account orchestrator cron-service --sequential
+      purge_deployments mongo ui jobs-manager jobs-manager-e2e kafka orchestrator-service-account orchestrator cron-service --sequential
 
   build-e2e:
-    run: build_images ui flow-manager-e2e orchestrator python-job-base nuclei-job-base
+    run: |-
+      build_images stalker-base
+      build_images ui jobs-manager-e2e orchestrator python-job-base nuclei-job-base
 
-  flow-manager-e2e-cicd-deploy:
+  jobs-manager-e2e-cicd-deploy:
     run: |-
       # Running the build pipeline is required before running this
       create_deployments namespaces
@@ -109,30 +116,38 @@ pipelines:
       ${DEVSPACE_KUBECTL_EXECUTABLE} delete secret kafka-jks-password --ignore-not-found -n ${DEVSPACE_NAMESPACE}
       ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks-password --from-literal=password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=keystore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=truststore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=key-password=${KAFKA_KEYSTORE_PASSWORD} -n ${DEVSPACE_NAMESPACE}
 
-      create_deployments mongo kafka orchestrator-service-account orchestrator flow-manager-e2e --sequential
+      create_deployments mongo kafka orchestrator-service-account orchestrator jobs-manager-e2e --sequential
 
       # Wait for kafka and mongo to be ready
       wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 300
       wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 300
 
-  flow-manager-e2e-cicd-run:
+  jobs-manager-e2e-cicd-run:
     run: |-
-      # Running flow-manager-e2e-cicd-deploy pipeline is required before running this
-      start_dev flow-manager-e2e
-      exec_container --label-selector app.kubernetes.io/component=flow-manager-e2e -n stalker -- /bin/sh -c 'npm run test:e2e:cicd'
+      # Running jobs-manager-e2e-cicd-deploy pipeline is required before running this
+      start_dev jobs-manager-e2e
+      exec_container --label-selector app.kubernetes.io/component=jobs-manager-e2e -n stalker -- /bin/sh -c 'npm run test:e2e:cicd'
       stop_dev --all
 
 images:
-  flow-manager:
-    image: flow_manager
-    dockerfile: flow_manager/Dockerfile.dev
-    context: flow_manager
+  stalker-base:
+    image: stalker-base
+    dockerfile: packages/Dockerfile.base
+    context: .
+    rebuildStrategy: default
+    tags:
+      - latest
+
+  jobs-manager:
+    image: jobs-manager
+    dockerfile: packages/backend/jobs-manager/Dockerfile.dev
+    context: .
     rebuildStrategy: default
 
-  flow-manager-e2e:
-    image: flow_manager_e2e
-    dockerfile: flow_manager/Dockerfile.cicd
-    context: flow_manager
+  jobs-manager-e2e:
+    image: jobs-manager-e2e
+    dockerfile: packages/backend/jobs-manager/Dockerfile.cicd
+    context: packages/backend/jobs-manager
     rebuildStrategy: always
 
   cron-service:
@@ -172,38 +187,38 @@ images:
     rebuildStrategy: always
 
 deployments:
-  flow-manager:
+  jobs-manager:
     helm:
       values:
         containers:
           - env:
               - name: MONGO_ADDRESS
-                value: ${FM_MONGO_ADDRESS}
+                value: ${JM_MONGO_ADDRESS}
               - name: MONGO_DATABASE_NAME
-                value: ${FM_MONGO_DATABASE_NAME}
-              - name: FM_JWT_SECRET
-                value: ${FM_JWT_SECRET}
-              - name: FM_REFRESH_SECRET
-                value: ${FM_REFRESH_SECRET}
+                value: ${JM_MONGO_DATABASE_NAME}
+              - name: JM_JWT_SECRET
+                value: ${JM_JWT_SECRET}
+              - name: JM_REFRESH_SECRET
+                value: ${JM_REFRESH_SECRET}
               - name: KAFKA_URI
                 value: ${KAFKA_URI}
               - name: STALKER_URL
                 value: ${STALKER_URL}
               - name: MONGO_REPLICA_SET_NAME
                 value: ${MONGO_REPLICA_SET_NAME}
-              - name: FM_ENVIRONMENT
-                value: ${FM_ENVIRONMENT}
+              - name: JM_ENVIRONMENT
+                value: ${JM_ENVIRONMENT}
               - name: STALKER_CRON_API_TOKEN
                 value: ${STALKER_CRON_API_TOKEN}
               - name: SECRET_PUBLIC_RSA_KEY
                 value: ${SECRET_PUBLIC_RSA_KEY}
-              - name: FM_MONGO_KEY_PASSWORD
-                value: ${FM_MONGO_KEY_PASSWORD}
-              - name: FM_KAFKA_KEY_PASSWORD
-                value: ${FM_KAFKA_KEY_PASSWORD}
+              - name: JM_MONGO_KEY_PASSWORD
+                value: ${JM_MONGO_KEY_PASSWORD}
+              - name: JM_KAFKA_KEY_PASSWORD
+                value: ${JM_KAFKA_KEY_PASSWORD}
 
-            image: flow_manager
-            name: flow-manager-container
+            image: jobs-manager
+            name: jobs-manager-container
 
         service:
           ports:
@@ -211,22 +226,22 @@ deployments:
               port: 3000
               protocol: TCP
 
-  flow-manager-e2e:
+  jobs-manager-e2e:
     helm:
       values:
         containers:
-          - image: flow_manager_e2e
-            name: flow-manager-container-e2e
+          - image: jobs-manager-e2e
+            name: jobs-manager-container-e2e
             env:
               - name: MONGO_ADDRESS
-                value: ${FM_MONGO_ADDRESS_E2E}
+                value: ${JM_MONGO_ADDRESS_E2E}
               - name: MONGO_DATABASE_NAME
-                # value: stalker-flow-manager-e2e
-                value: ${FM_MONGO_DATABASE_NAME}
-              - name: FM_JWT_SECRET
-                value: ${FM_JWT_SECRET}
-              - name: FM_REFRESH_SECRET
-                value: ${FM_REFRESH_SECRET}
+                # value: stalker-jobs-manager-e2e
+                value: ${JM_MONGO_DATABASE_NAME}
+              - name: JM_JWT_SECRET
+                value: ${JM_JWT_SECRET}
+              - name: JM_REFRESH_SECRET
+                value: ${JM_REFRESH_SECRET}
               - name: KAFKA_URI
                 value: ${KAFKA_URI}
               - name: FEATURE_ORCHESTRATOR_ENABLED
@@ -235,16 +250,16 @@ deployments:
                 value: ${STALKER_URL}
               - name: MONGO_REPLICA_SET_NAME
                 value: ${MONGO_REPLICA_SET_NAME}
-              - name: FM_ENVIRONMENT
+              - name: JM_ENVIRONMENT
                 value: "tests"
               - name: STALKER_CRON_API_TOKEN
                 value: ${STALKER_CRON_API_TOKEN}
               - name: SECRET_PUBLIC_RSA_KEY
                 value: ${SECRET_PUBLIC_RSA_KEY}
-              - name: FM_MONGO_KEY_PASSWORD
-                value: ${FM_MONGO_KEY_PASSWORD}
-              - name: FM_KAFKA_KEY_PASSWORD
-                value: ${FM_KAFKA_KEY_PASSWORD}
+              - name: JM_MONGO_KEY_PASSWORD
+                value: ${JM_MONGO_KEY_PASSWORD}
+              - name: JM_KAFKA_KEY_PASSWORD
+                value: ${JM_KAFKA_KEY_PASSWORD}
 
         service:
           ports:
@@ -260,13 +275,13 @@ deployments:
               - name: MONGO_ADDRESS
                 value: ${CRON_SERVICE_MONGO_ADDRESS}
               - name: MONGO_DATABASE_NAME
-                value: ${FM_MONGO_DATABASE_NAME}
+                value: ${JM_MONGO_DATABASE_NAME}
               - name: MONGO_REPLICA_SET_NAME
                 value: ${MONGO_REPLICA_SET_NAME}
               - name: CRON_SERVICE_ENVIRONMENT
-                value: ${FM_ENVIRONMENT} # Follows the same environment as FM since they work together
-              - name: FM_URL
-                value: ${FM_URL}
+                value: ${JM_ENVIRONMENT} # Follows the same environment as FM since they work together
+              - name: JM_URL
+                value: ${JM_URL}
               - name: STALKER_CRON_API_TOKEN
                 value: ${STALKER_CRON_API_TOKEN}
               - name: CRON_SERVICE_MONGO_KEY_PASSWORD
@@ -359,7 +374,7 @@ deployments:
               roles:[]
             }
             db.createRole(flowRole);
-            var flowUser = { user: "${MONGO_FM_USER}", pwd: "${MONGO_FM_PASSWORD}", roles: ["flowrole"] };
+            var flowUser = { user: "${MONGO_JM_USER}", pwd: "${MONGO_JM_PASSWORD}", roles: ["flowrole"] };
             db.createUser(flowUser);
 
             // The next one is used for e2e testing
@@ -377,7 +392,7 @@ deployments:
               roles:[]
             }
             db.createRole(flowRole);
-            var flowUser = { user: "${MONGO_FM_USER_E2E}", pwd: "${MONGO_FM_PASSWORD}", roles: ["flowrolee2e"] };
+            var flowUser = { user: "${MONGO_JM_USER_E2E}", pwd: "${MONGO_JM_PASSWORD}", roles: ["flowrolee2e"] };
             db.createUser(flowUser);
 
   kafka:
@@ -448,14 +463,14 @@ deployments:
                 max.message.bytes: 64000
                 flush.messages: 1
           extraProvisioningCommands: # Setting the ACLs
-            - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:flow-manager --operation read --operation write --operation describe --topic stalker.jobs.findings"
-            - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:flow-manager --operation write --operation describe --topic stalker.jobs.requests"
-            - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:flow-manager --operation read --operation describe --topic stalker.jobs.logs"
+            - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:jobs-manager --operation read --operation write --operation describe --topic stalker.jobs.findings"
+            - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:jobs-manager --operation write --operation describe --topic stalker.jobs.requests"
+            - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:jobs-manager --operation read --operation describe --topic stalker.jobs.logs"
             - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:orchestrator --operation write --operation describe --topic stalker.jobs.findings"
             - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:orchestrator --operation read --operation describe --topic stalker.jobs.requests"
             - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:orchestrator --operation write --operation describe --topic stalker.jobs.logs"
-            - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:flow-manager --operation read --operation describe --group flow-manager"
-            - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:flow-manager --operation read --operation describe --group flow-manager-job-logs"
+            - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:jobs-manager --operation read --operation describe --group jobs-manager"
+            - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:jobs-manager --operation read --operation describe --group jobs-manager-job-logs"
             - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:orchestrator --operation read --operation describe --group stalker"
 
   orchestrator-service-account:
@@ -501,7 +516,7 @@ deployments:
         - network-policy.yml
         - packages/frontend/stalker-app/${NETWORK_POLICY}
         - database/${NETWORK_POLICY}
-        - flow_manager/${NETWORK_POLICY}
+        - packages/backend/jobs-manager/${NETWORK_POLICY}
         - cron_service/${NETWORK_POLICY}
         - queue/${NETWORK_POLICY}
         - orchestrator/${NETWORK_POLICY}
@@ -518,30 +533,30 @@ dev:
     labelSelector:
       app.kubernetes.io/instance: kafka
 
-  flow-manager:
+  jobs-manager:
     labelSelector:
-      app.kubernetes.io/component: flow-manager
-    container: flow-manager-container
+      app.kubernetes.io/component: jobs-manager
+    container: jobs-manager-container
     logs:
       enabled: true
     sync:
-      - path: ./flow_manager/src/:/app/src/
+      - path: ./packages/backend/jobs-manager/src/:/app/packages/backend/jobs-manager/src/
         disableDownload: true
     restartHelper:
       inject: false
     ports:
       - port: "3000"
 
-  flow-manager-e2e:
+  jobs-manager-e2e:
     labelSelector:
-      app.kubernetes.io/component: flow-manager-e2e
-    container: flow-manager-container-e2e
+      app.kubernetes.io/component: jobs-manager-e2e
+    container: jobs-manager-container-e2e
     logs:
       enabled: true
     sync:
-      - path: ./flow_manager/src/:/app/src/
+      - path: ./packages/backend/jobs-manager/src/:/app/packages/backend/jobs-manager/src/
         disableDownload: true
-      - path: ./flow_manager/test/:/app/test/
+      - path: ./packages/backend/jobs-manager/test/:/app/packages/backend/jobs-manager/test/
         disableDownload: true
     restartHelper:
       inject: false
@@ -569,6 +584,8 @@ dev:
     sync:
       - path: ./packages:/app/packages
         disableDownload: true
+        excludePaths:
+          - node_modules
       - path: ./package.json:/app/package.json
         disableDownload: true
       - path: ./yarn.lock:/app/yarn.lock
@@ -605,14 +622,14 @@ hooks:
       containerName: mongo-container
 
   - events:
-      - after:deploy:flow-manager
+      - after:deploy:jobs-manager
     wait:
       running: true
       terminatedWithCode: 0
     container:
       labelSelector:
-        app.kubernetes.io/component: flow-manager
-      containerName: flow-manager-container
+        app.kubernetes.io/component: jobs-manager
+      containerName: jobs-manager-container
 
   - events:
       - after:deploy:cron-service

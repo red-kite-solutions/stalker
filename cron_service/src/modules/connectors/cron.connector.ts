@@ -7,7 +7,7 @@ export class CronConnector {
     const headers = new Headers();
     headers.append('x-stalker-cron', process.env.STALKER_CRON_API_TOKEN);
     await fetch(
-      `${process.env.FM_URL}/cron-subscriptions/${cronSubscriptionId}/notify`,
+      `${process.env.JM_URL}/cron-subscriptions/${cronSubscriptionId}/notify`,
       { method: 'POST', headers: headers },
     );
   }

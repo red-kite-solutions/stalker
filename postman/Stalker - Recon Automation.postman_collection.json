@@ -567,7 +567,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{ \n    \"task\":\"my task name here\",\n    \"id\":\"uuid of the job in the flow manager\",\n    \"priority\":3,\n    \"data\": {\"asdf\":\"asdf\"}\n}",
+              "raw": "{ \n    \"task\":\"my task name here\",\n    \"id\":\"uuid of the job in the jobs manager\",\n    \"priority\":3,\n    \"data\": {\"asdf\":\"asdf\"}\n}",
               "options": {
                 "raw": {
                   "language": "json"

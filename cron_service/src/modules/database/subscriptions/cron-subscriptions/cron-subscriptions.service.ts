@@ -117,7 +117,7 @@ export class CronSubscriptionsService {
                 .catch((reason) => {
                   this.logger.error(reason);
                   this.logger.error(
-                    'Error while notifying the flow manager. Continuing...',
+                    'Error while notifying the jobs manager. Continuing...',
                   );
                 });
             }
