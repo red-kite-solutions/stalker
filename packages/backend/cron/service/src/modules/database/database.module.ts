@@ -14,8 +14,7 @@ import { CronSubscriptionsModule } from './subscriptions/cron-subscriptions/cron
       tlsCAFile: '/certs/ca.pem',
       tlsCertificateFile: '/certs/client-signed.crt',
       tlsCertificateKeyFile: '/certs/client.key',
-      tlsCertificateKeyFilePassword:
-        process.env.CRON_SERVICE_MONGO_KEY_PASSWORD,
+      tlsCertificateKeyFilePassword: process.env.CRON_MONGO_KEY_PASSWORD,
     }),
     CronSubscriptionsModule,
   ],

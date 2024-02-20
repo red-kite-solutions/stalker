@@ -4,8 +4,8 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 export class DevFeatureGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     return (
-      process.env.CRON_SERVICE_ENVIRONMENT === 'tests' ||
-      process.env.CRON_SERVICE_ENVIRONMENT === 'dev'
+      process.env.CRON_ENVIRONMENT === 'tests' ||
+      process.env.CRON_ENVIRONMENT === 'dev'
     );
   }
 }

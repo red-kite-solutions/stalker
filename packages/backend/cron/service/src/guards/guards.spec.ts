@@ -8,13 +8,13 @@ describe('Route guards', () => {
   });
 
   beforeEach(async () => {
-    process.env.CRON_SERVICE_ENVIRONMENT = 'tests';
+    process.env.CRON_ENVIRONMENT = 'tests';
   });
 
   describe('Dev feature guard', () => {
     it('Should not be a valid environment for the dev feature guard (prod)', () => {
       // Arrange
-      process.env.CRON_SERVICE_ENVIRONMENT = 'prod';
+      process.env.CRON_ENVIRONMENT = 'prod';
 
       //Act
       const ca = devFeatureGuard.canActivate(null);
@@ -25,7 +25,7 @@ describe('Route guards', () => {
 
     it('Should not be a valid environment for the dev feature guard (random string)', () => {
       // Arrange
-      process.env.CRON_SERVICE_ENVIRONMENT = 'asdfqwerty';
+      process.env.CRON_ENVIRONMENT = 'asdfqwerty';
 
       //Act
       const ca = devFeatureGuard.canActivate(null);
@@ -36,7 +36,7 @@ describe('Route guards', () => {
 
     it('Should be a valid environment for the dev feature guard (dev)', () => {
       // Arrange
-      process.env.CRON_SERVICE_ENVIRONMENT = 'dev';
+      process.env.CRON_ENVIRONMENT = 'dev';
 
       //Act
       const ca = devFeatureGuard.canActivate(null);
@@ -47,7 +47,7 @@ describe('Route guards', () => {
 
     it('Should not be a valid environment for the dev feature guard (tests)', () => {
       // Arrange
-      process.env.CRON_SERVICE_ENVIRONMENT = 'tests';
+      process.env.CRON_ENVIRONMENT = 'tests';
 
       //Act
       const ca = devFeatureGuard.canActivate(null);
