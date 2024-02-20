@@ -25,7 +25,10 @@ if ! command -v keytool &> /dev/null; then
   echo "Install keytool before proceeding";
   exit 1;
 fi
-
+if ! command -v docker &> /dev/null; then
+  echo "Install docker before proceeding";
+  exit 1;
+fi
 
 
 mongo_root="$(tr -dc A-Za-z0-9 </dev/urandom | head -c $PASSWORD_LENGTH)"

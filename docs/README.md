@@ -22,6 +22,7 @@ Stalker's API can be used by third-party tools for automated consumption.
 
 **Table of content**
 
+* [Installing Stalker](#installing-stalker)
 * [Core concepts](#core-concepts)
   * [Ressources](#ressources)
     * [Projects](#projects)
@@ -33,6 +34,59 @@ Stalker's API can be used by third-party tools for automated consumption.
     * [Findings](#findings)
     * [Subscriptions](#subscriptions)
 * [Acknowledgements](#acknowledgements)
+
+## Installing Stalker
+
+You can use Stalker with your own production ready deployment. Simply follow the few following steps.
+
+Install the dependencies:
+
+* minikube
+* docker
+* devspace
+* keytool
+* openssl
+
+Clone the repository:
+
+```bash
+git clone https://github.com/red-kite-solutions/Stalker && cd Stalker
+```
+
+Optionally edit your url and port in `setup.sh` to the URL and port that you will use to reach Stalker. The defaults are the following:
+
+```bash
+STALKER_HOSTNAME=stalker.lan
+STALKER_PORT=8443
+```
+
+Start Stalker:
+
+> When initializing for the first time, Stalker will prompt you several times for your root CA key's password.
+
+```bash
+chmod +x ./stalker && ./stalker
+```
+
+To prevent SSL errors, you then have to:
+
+* Add the `root_ca.crt` to your browser's accepted certificate authorities.
+* Add your `STALKER_HOSTNAME` to your `/etc/hosts` file.
+
+```text
+# STALKER_HOSTNAME in /etc/hosts
+127.0.0.1       stalker.lan
+```
+
+You are now ready to connect to Stalker at the following URL:
+
+<https://stalker.lan:8443/>
+
+Any time you want to start Stalker again in the future, simply run the start up script again:
+
+```bash
+./stalker
+```
 
 ## Core concepts
 
