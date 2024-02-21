@@ -60,6 +60,12 @@ STALKER_HOSTNAME=stalker.lan
 STALKER_PORT=8443
 ```
 
+You can also set a custom size for your mongodb storage in `setup.sh`. The default size is 32 Gb. You may need more, depending on usage.
+
+```bash
+MONGODB_MAX_SIZE="32Gi"
+```
+
 Start Stalker:
 
 > When initializing for the first time, Stalker will prompt you several times for your root CA key's password.
