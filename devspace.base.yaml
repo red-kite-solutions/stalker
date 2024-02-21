@@ -39,6 +39,6 @@ vars:
   FM_KAFKA_KEY_PASSWORD: HyhzyxQPqwNdW2hFmhJg2Zb9U
   ORCHESTRATOR_KAFKA_KEY_PASSWORD: hx5sfjWaswZtzomZBygclD0cQ
   DOCKERFILE_NAME: Dockerfile.cicd # Change me to Dockerfile.dev in development
-  STALKER_PORT: 8443
+  STALKER_PORT: 4200
   STALKER_URL: "http://localhost:${STALKER_PORT}"
   MONGODB_MAX_SIZE: 8Gi
