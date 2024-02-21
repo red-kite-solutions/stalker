@@ -41,3 +41,4 @@ vars:
   DOCKERFILE_NAME: Dockerfile.cicd # Change me to Dockerfile.dev in development
   STALKER_PORT: 8443
   STALKER_URL: "http://localhost:${STALKER_PORT}"
+  MONGODB_MAX_SIZE: 8Gi

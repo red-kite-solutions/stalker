@@ -369,6 +369,8 @@ deployments:
         replicaCount: ${MONGO_REPLICA_SET_COUNT}
         arbiter:
           enabled: false
+        persistence:
+          size: ${MONGODB_MAX_SIZE}
         externalAccess.enabled: true
         externalAccess.service.type: LoadBalancer
         externalAccess.service.port: 27017

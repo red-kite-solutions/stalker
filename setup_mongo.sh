@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# TODO: Generate mongo CA from root CA
-
 # Generating the Certificate Authority (CA)
 openssl req -new -x509 -days 3650 -nodes -extensions v3_ca -keyout mongo_ca_private.pem -out mongo_ca.pem -subj "/CN=CA/OU=Stalker Mongo/O=Red Kite Solutions/L=/ST=/C="
 

@@ -6,6 +6,11 @@
 STALKER_HOSTNAME=stalker.lan
 STALKER_PORT=8443
 
+# Max database size and replication. Having 3 replicas with 32Gi would mean that 
+# (32 * 3) Gi of space on disk is needed
+MONGODB_MAX_SIZE="32Gi"
+MONGO_REPLICA_SET_COUNT=1
+
 PASSWORD_LENGTH=35
 
 # Checking dependencies
@@ -65,7 +70,7 @@ vars:
   NETWORK_POLICY: "network-policy.yml"
   RESOURCE_QUOTA: "resource-quota.yml"
   MONGO_REPLICA_SET_COUNT:
-    value: 3
+    value: $MONGO_REPLICA_SET_COUNT
   FM_ENVIRONMENT: "prod"
   MONGO_ROOT_PASSWORD: $mongo_root
   MONGO_FM_PASSWORD: $mongo_fm
@@ -81,6 +86,7 @@ vars:
   STALKER_URL: "https://$STALKER_HOSTNAME:\${STALKER_PORT}"
   DOCKERFILE_NAME: Dockerfile
   FM_URL: "https://flow-manager:3000"
+  MONGODB_MAX_SIZE: $MONGODB_MAX_SIZE
 EOF
 
 cat > "root_ca.cnf" << EOF
