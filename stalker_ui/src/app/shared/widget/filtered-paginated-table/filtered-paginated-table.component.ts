@@ -13,12 +13,13 @@ import {
   QueryList,
   ViewChild,
 } from '@angular/core';
-import { FormsModule, ReactiveFormsModule, UntypedFormControl } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, UntypedFormControl } from '@angular/forms';
 import { MatAutocomplete, MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipGrid, MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { MatOptionModule } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
@@ -78,6 +79,8 @@ import { CodeEditorComponent } from '../code-editor/code-editor.component';
     MatOptionModule,
     MatSelectModule,
     FormsModule,
+    MatDatepickerModule,
+    MatTooltipModule,
   ],
 })
 export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implements OnInit {
@@ -117,6 +120,9 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
   @Input() routerLinkPrefix = '/';
   @Input() elementLinkActive = true;
   @Input() queryParamsFunc: (row: T) => {} = () => ({});
+  @Input() dateSearchEnabled = false;
+  @Input() datePickerLabel =
+    $localize`:Default date picker|Date picker label, the first time an item was seen:First seen`;
 
   @Output() pageChange = new EventEmitter<PageEvent>();
   @Output() filtersChange = new EventEmitter<string[]>();
@@ -133,6 +139,11 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
   filterForm = new UntypedFormControl('');
   filteredColumns$: Observable<string[] | null | undefined>;
   masterToggleState = false;
+
+  dateRange = new FormGroup({
+    from: new FormControl(),
+    to: new FormControl(),
+  });
 
   constructor() {
     this.filteredColumns$ = this.filterForm.valueChanges.pipe(
@@ -246,5 +257,9 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
     this.filterInput.nativeElement.focus();
     this.filterInput.nativeElement.selectionStart = 100000;
     this.filterInput.nativeElement.selectionEnd = 100000;
+  }
+
+  clearDates() {
+    this.dateRange.reset();
   }
 }
