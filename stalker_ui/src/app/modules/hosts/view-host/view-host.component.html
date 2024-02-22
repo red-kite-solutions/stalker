@@ -12,6 +12,12 @@
             {{ host.lastSeen | timeAgo }}
           </panel-section-subtitle>
         </panel-section>
+        <panel-section>
+          <panel-section-title i18n="First seen|First seen"> First seen </panel-section-title>
+          <panel-section-subtitle [matTooltip]="host.createdAt | humanizeDate: 'precise'" matTooltipPosition="before">
+            {{ host.createdAt | timeAgo }}
+          </panel-section-subtitle>
+        </panel-section>
       }
 
       @if ((tagsSelectItems$ | async) && mergedTags$ | async; as hostTags) {
