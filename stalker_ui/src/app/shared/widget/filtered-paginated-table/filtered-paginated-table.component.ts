@@ -8,6 +8,7 @@ import {
   ElementRef,
   EventEmitter,
   Input,
+  OnDestroy,
   OnInit,
   Output,
   QueryList,
@@ -19,7 +20,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipGrid, MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { MatOptionModule } from '@angular/material/core';
-import { MatDatepickerModule } from '@angular/material/datepicker';
+import { DateRange, MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
@@ -42,8 +43,9 @@ import {
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
+import { Moment } from 'moment';
 import { NgxFileDropModule } from 'ngx-file-drop';
-import { Observable, map, startWith } from 'rxjs';
+import { Observable, debounceTime, filter, map, startWith } from 'rxjs';
 import { AvatarComponent } from '../../components/avatar/avatar.component';
 import { IdentifiedElement } from '../../types/identified-element.type';
 import { CodeEditorComponent } from '../code-editor/code-editor.component';
@@ -83,7 +85,7 @@ import { CodeEditorComponent } from '../code-editor/code-editor.component';
     MatTooltipModule,
   ],
 })
-export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implements OnInit {
+export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implements OnInit, OnDestroy {
   @ContentChildren(MatHeaderRowDef) headerRowDefs!: QueryList<MatHeaderRowDef>;
   @ContentChildren(MatRowDef) rowDefs!: QueryList<MatRowDef<T>>;
   @ContentChildren(MatColumnDef) columnDefs!: QueryList<MatColumnDef>;
@@ -126,7 +128,7 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
 
   @Output() pageChange = new EventEmitter<PageEvent>();
   @Output() filtersChange = new EventEmitter<string[]>();
-
+  @Output() dateFiltersChange = new EventEmitter<DateRange<Date>>();
   @Output() selectionChange = new EventEmitter<SelectionModel<T>>();
   @Input() selection = new SelectionModel<T>(true, []);
 
@@ -141,9 +143,20 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
   masterToggleState = false;
 
   dateRange = new FormGroup({
-    from: new FormControl(),
-    to: new FormControl(),
+    start: new FormControl<Moment | null>(null),
+    end: new FormControl<Moment | null>(null),
   });
+
+  dateRangeChange$ = this.dateRange.valueChanges
+    .pipe(
+      debounceTime(100),
+      filter(() => {
+        return this.dateRange.valid;
+      })
+    )
+    .subscribe((dr) => {
+      this.dateFiltersChange.emit(new DateRange<Date>(dr.start?.toDate() ?? null, dr.end?.toDate() ?? null));
+    });
 
   constructor() {
     this.filteredColumns$ = this.filterForm.valueChanges.pipe(
@@ -192,6 +205,8 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
     this.headerRowDefs.forEach((headerRowDef) => this.table.addHeaderRowDef(headerRowDef));
     this.table.setNoDataRow(this.noDataRow);
   }
+
+  ngOnDestroy(): void {}
 
   removeFilter(filter: string) {
     const index = this.filters.indexOf(filter);

@@ -341,6 +341,25 @@ export class HostService {
       finalFilter['tags'] = { $all: preppedTagsArray };
     }
 
+    // Filter by createdAt
+    if (dto.firstSeenStartDate || dto.firstSeenEndDate) {
+      let createdAtFilter = {};
+
+      if (dto.firstSeenStartDate && dto.firstSeenEndDate) {
+        createdAtFilter = [
+          { createdAt: { $gte: dto.firstSeenStartDate } },
+          { createdAt: { $lte: dto.firstSeenEndDate } },
+        ];
+        finalFilter['$and'] = createdAtFilter;
+      } else {
+        if (dto.firstSeenStartDate)
+          createdAtFilter = { $gte: dto.firstSeenStartDate };
+        else if (dto.firstSeenEndDate)
+          createdAtFilter = { $lte: dto.firstSeenEndDate };
+        finalFilter['createdAt'] = createdAtFilter;
+      }
+    }
+
     return finalFilter;
   }
 

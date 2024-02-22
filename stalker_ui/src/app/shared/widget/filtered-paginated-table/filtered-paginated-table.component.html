@@ -143,7 +143,7 @@
         matStartDate
         i18n-placeholder="From date|From date in range picker"
         placeholder="From date"
-        formControlName="from"
+        formControlName="start"
         i18n-matTooltip="Date picker format|Date picker format"
         matTooltip="yyyy/mm/dd"
         matTooltipShowDelay="500"
@@ -152,7 +152,7 @@
         matEndDate
         i18n-placeholder="To date|To date in range picker"
         placeholder="To date"
-        formControlName="to"
+        formControlName="end"
         i18n-matTooltip="Date picker format|Date picker format"
         matTooltip="yyyy/mm/dd"
         matTooltipShowDelay="500"
@@ -163,7 +163,7 @@
     </mat-datepicker-toggle>
     <mat-date-range-picker #dateRangePicker></mat-date-range-picker>
     <mat-hint class="tw-flex tw-flex-row-reverse tw-w-full">
-      @if (dateRange.get('from')?.value || dateRange.get('to')?.value || dateRange.invalid) {
+      @if (dateRange.get('start')?.value || dateRange.get('end')?.value || dateRange.invalid) {
         <button i18n="Clear|Clear the curent values" class="tw-pt-1" (click)="clearDates()">Clear</button>
       }
     </mat-hint>

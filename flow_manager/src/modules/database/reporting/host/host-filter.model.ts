@@ -8,4 +8,6 @@ export class HostFilterModel {
   tags?: Array<string>;
   project?: Array<string>;
   host?: Array<string>;
+  firstSeenStartDate?: number;
+  firstSeenEndDate?: number;
 }

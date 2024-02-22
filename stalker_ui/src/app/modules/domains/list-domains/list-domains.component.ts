@@ -5,6 +5,7 @@ import { Component, TemplateRef } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { DateRange } from '@angular/material/datepicker';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -67,6 +68,7 @@ export class ListDomainsComponent {
   currentPage$ = new BehaviorSubject<PageEvent>(this.currentPage);
   count = 0;
   selection = new SelectionModel<Domain>(true, []);
+  currentDateRange: DateRange<Date> = new DateRange<Date>(null, null);
 
   dataSource$ = this.currentPage$.pipe(
     tap((currentPage) => {
@@ -74,7 +76,7 @@ export class ListDomainsComponent {
     }),
     switchMap((currentPage) => {
       const filters = this.buildFilters(this.currentFilters);
-      return this.domainsService.getPage(currentPage.pageIndex, currentPage.pageSize, filters);
+      return this.domainsService.getPage(currentPage.pageIndex, currentPage.pageSize, filters, this.currentDateRange);
     }),
     map((data: Page<Domain>) => {
       this.dataSource = new MatTableDataSource<Domain>(data.items);
@@ -130,6 +132,12 @@ export class ListDomainsComponent {
   pageChange(event: PageEvent) {
     this.dataLoading = true;
     this.currentPage$.next(event);
+  }
+
+  dateRangeFilterChange(range: DateRange<Date>) {
+    this.currentDateRange = range;
+    this.dataLoading = true;
+    this.currentPage$.next(this.currentPage);
   }
 
   constructor(
