@@ -75,8 +75,10 @@ describe('Domain Service', () => {
         tags: null,
         host: null,
         project: c1._id.toString(),
-        page: '0',
-        pageSize: '10',
+        page: 0,
+        pageSize: 10,
+        firstSeenStartDate: undefined,
+        firstSeenEndDate: undefined,
       });
 
       // Act
@@ -122,8 +124,10 @@ describe('Domain Service', () => {
           tags: null,
           project: null,
           host: null,
-          page: '0',
-          pageSize: '10',
+          page: 0,
+          pageSize: 10,
+          firstSeenStartDate: undefined,
+          firstSeenEndDate: undefined,
         });
 
         // Act
@@ -169,8 +173,10 @@ describe('Domain Service', () => {
           tags: null,
           project: null,
           host: hosts,
-          page: '0',
-          pageSize: '10',
+          page: 0,
+          pageSize: 10,
+          firstSeenStartDate: undefined,
+          firstSeenEndDate: undefined,
         });
 
         // Act
@@ -204,8 +210,10 @@ describe('Domain Service', () => {
         tags: [t1._id.toString()],
         project: null,
         host: null,
-        page: '0',
-        pageSize: '10',
+        page: 0,
+        pageSize: 10,
+        firstSeenStartDate: undefined,
+        firstSeenEndDate: undefined,
       });
 
       // Act
