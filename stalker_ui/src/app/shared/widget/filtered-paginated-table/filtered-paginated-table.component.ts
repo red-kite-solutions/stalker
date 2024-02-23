@@ -141,10 +141,10 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
     end: new FormControl<Moment | null>(null),
   });
   @Input() set startDate(date: Date | null) {
-    this.dateRange.get('start')?.setValue(moment(date));
+    if (date) this.dateRange.get('start')?.setValue(moment(date));
   }
   @Input() set endDate(date: Date | null) {
-    this.dateRange.get('end')?.setValue(moment(date));
+    if (date) this.dateRange.get('end')?.setValue(moment(date));
   }
 
   filters: string[] = [];
