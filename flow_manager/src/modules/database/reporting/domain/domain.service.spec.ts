@@ -70,7 +70,8 @@ describe('Domain Service', () => {
       const c2 = await project('my second project');
       const d2 = await domain('project6.example.org', c1);
 
-      const filter = domainService.buildFilters({
+      // Act
+      const allDomains = await domainService.getAll(0, 10, {
         domain: null,
         tags: null,
         host: null,
@@ -80,9 +81,6 @@ describe('Domain Service', () => {
         firstSeenStartDate: undefined,
         firstSeenEndDate: undefined,
       });
-
-      // Act
-      const allDomains = await domainService.getAll(0, 10, filter);
 
       // Assert
       expect(allDomains.length).toBe(2);
@@ -119,7 +117,9 @@ describe('Domain Service', () => {
         const d2 = await domain('bar.foo.project.example.org', c1);
         const d3 = await domain('foo.bar.somethingelse.example.org', c2);
         const d4 = await domain('unrelated.example.org', c2);
-        const filter = domainService.buildFilters({
+
+        // Act
+        const allDomains = await domainService.getAll(0, 10, {
           domain: domains,
           tags: null,
           project: null,
@@ -129,9 +129,6 @@ describe('Domain Service', () => {
           firstSeenStartDate: undefined,
           firstSeenEndDate: undefined,
         });
-
-        // Act
-        const allDomains = await domainService.getAll(0, 10, filter);
 
         // Assert
         expect(allDomains.map((x) => x.name).sort()).toStrictEqual(
@@ -168,7 +165,8 @@ describe('Domain Service', () => {
 
         await domain('unrelated.example.org', c2);
 
-        const filter = domainService.buildFilters({
+        // Act
+        const allDomains = await domainService.getAll(0, 10, {
           domain: null,
           tags: null,
           project: null,
@@ -178,9 +176,6 @@ describe('Domain Service', () => {
           firstSeenStartDate: undefined,
           firstSeenEndDate: undefined,
         });
-
-        // Act
-        const allDomains = await domainService.getAll(0, 10, filter);
 
         // Assert
         expect(allDomains.map((x) => x.name).sort()).toStrictEqual(
@@ -205,7 +200,9 @@ describe('Domain Service', () => {
       await domainService.tagDomain(d1._id.toString(), t1._id.toString(), true);
       await domainService.tagDomain(d4._id.toString(), t1._id.toString(), true);
       await domainService.tagDomain(d2._id.toString(), t2._id.toString(), true);
-      const filter = domainService.buildFilters({
+
+      // Act
+      const allDomains = await domainService.getAll(0, 10, {
         domain: null,
         tags: [t1._id.toString()],
         project: null,
@@ -215,9 +212,6 @@ describe('Domain Service', () => {
         firstSeenStartDate: undefined,
         firstSeenEndDate: undefined,
       });
-
-      // Act
-      const allDomains = await domainService.getAll(0, 10, filter);
 
       // Assert
       expect(allDomains.length).toStrictEqual(2);
