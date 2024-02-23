@@ -18,7 +18,7 @@ import { JobStateComponent } from '../../jobs/job-executions/job-execution-state
         <mat-list-item>
           <span class="tw-flex tw-gap-2 tw-items-center tw-w-full">
             <app-job-state [state]="job.state"></app-job-state>
-            <a [routerLink]="['jobs', 'executions', job.id]">{{ job.task }}</a>
+            <a [routerLink]="['jobs', 'executions', job.id]">{{ job.name }}</a>
             <job-logs-summary class="tw-opacity-50 tw-text-xs" [job]="job"></job-logs-summary>
           </span>
         </mat-list-item>
