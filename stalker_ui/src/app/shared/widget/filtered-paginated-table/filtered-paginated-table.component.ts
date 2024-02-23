@@ -43,6 +43,7 @@ import {
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
+import * as moment from 'moment';
 import { Moment } from 'moment';
 import { NgxFileDropModule } from 'ngx-file-drop';
 import { Observable, debounceTime, filter, map, startWith } from 'rxjs';
@@ -135,17 +136,22 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
   @Input() currentPage = 0;
   @Input() pageSizeOptions: number[] = [10, 25, 50, 100];
   @Input() pageSize = 0;
+  dateRange = new FormGroup({
+    start: new FormControl<Moment | null>(null),
+    end: new FormControl<Moment | null>(null),
+  });
+  @Input() set startDate(date: Date | null) {
+    this.dateRange.get('start')?.setValue(moment(date));
+  }
+  @Input() set endDate(date: Date | null) {
+    this.dateRange.get('end')?.setValue(moment(date));
+  }
 
   filters: string[] = [];
   separatorKeysCodes: number[] = [TAB, ENTER];
   filterForm = new UntypedFormControl('');
   filteredColumns$: Observable<string[] | null | undefined>;
   masterToggleState = false;
-
-  dateRange = new FormGroup({
-    start: new FormControl<Moment | null>(null),
-    end: new FormControl<Moment | null>(null),
-  });
 
   dateRangeChange$ = this.dateRange.valueChanges
     .pipe(

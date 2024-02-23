@@ -32,6 +32,7 @@
         (selectionChange)="selection = $event"
         [noDataMessage]="noDataMessage"
         [dateSearchEnabled]="true"
+        [startDate]="startDate"
       >
         <!-- Domain Column -->
         <ng-container matColumnDef="domain">
@@ -69,9 +70,17 @@
         <ng-container matColumnDef="tags">
           <th mat-header-cell *matHeaderCellDef i18n="Tags|Multiple tags describing somthing">Tags</th>
           <td mat-cell *matCellDef="let element">
-            @for (tag of element.tags; track tag) {
-              <app-pill-tag [color]="(tags | whereId: [tag])?.color">{{ (tags | whereId: [tag])?.text }}</app-pill-tag>
-            }
+            <div class="tw-pt-1 tw-flex tw-flex-wrap tw-gap-x-[2px] tw-gap-y-1">
+              <app-new-pill-tag
+                [createdAtMilliseconds]="element.createdAt"
+                (click)="dateFilter($event)"
+              ></app-new-pill-tag>
+              @for (tag of element.tags; track tag) {
+                <app-pill-tag [color]="(tags | whereId: [tag])?.color">{{
+                  (tags | whereId: [tag])?.text
+                }}</app-pill-tag>
+              }
+            </div>
           </td>
         </ng-container>
         <tr mat-header-row *matHeaderRowDef="displayColumns$ | async"></tr>

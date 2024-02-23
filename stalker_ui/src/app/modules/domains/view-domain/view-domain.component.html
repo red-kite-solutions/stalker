@@ -38,14 +38,18 @@
               ></app-text-select-menu>
             </span>
           </panel-section-title>
-          @if (!domainTags.length) {
+
+          @if (!domainTags.length && !newPillTag.isNew()) {
             <panel-section-subtitle i18n="No tags yet|There are no tags for this item"
               >No tags yet</panel-section-subtitle
             >
           }
-          @for (tag of domainTags; track tag) {
-            <app-pill-tag [color]="(tags | whereId: [tag])?.color">{{ (tags | whereId: [tag])?.text }}</app-pill-tag>
-          }
+          <div class="tw-pt-1 tw-flex tw-flex-wrap tw-gap-x-[2px] tw-gap-y-1">
+            <app-new-pill-tag #newPillTag [createdAtMilliseconds]="domain.createdAt"></app-new-pill-tag>
+            @for (tag of domainTags; track tag) {
+              <app-pill-tag [color]="(tags | whereId: [tag])?.color">{{ (tags | whereId: [tag])?.text }}</app-pill-tag>
+            }
+          </div>
         </panel-section>
       }
       <panel-section>

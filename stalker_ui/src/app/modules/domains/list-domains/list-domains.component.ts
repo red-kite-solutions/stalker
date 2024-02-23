@@ -32,6 +32,7 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from '../../../shared/widget/confirm-dialog/confirm-dialog.component';
+import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.component';
 
 @Component({
   standalone: true,
@@ -69,6 +70,7 @@ export class ListDomainsComponent {
   count = 0;
   selection = new SelectionModel<Domain>(true, []);
   currentDateRange: DateRange<Date> = new DateRange<Date>(null, null);
+  startDate: Date | null = null;
 
   dataSource$ = this.currentPage$.pipe(
     tap((currentPage) => {
@@ -305,5 +307,10 @@ export class ListDomainsComponent {
       data,
       restoreFocus: false,
     });
+  }
+
+  dateFilter(event: MouseEvent) {
+    event.stopPropagation();
+    this.startDate = new Date(Date.now() - defaultNewTimeMs);
   }
 }
