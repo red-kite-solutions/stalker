@@ -15,7 +15,7 @@ export class JobsService {
   constructor(private http: HttpClient) {}
 
   public getJobSummaries(): Observable<JobListEntry[]> {
-    return <Observable<Array<JobListEntry>>>this.http.get(`${environment.fmUrl}/jobs/summaries`);
+    return <Observable<JobListEntry[]>>this.http.get(`${environment.fmUrl}/jobs/summaries`);
   }
 
   public getJobExecutions(

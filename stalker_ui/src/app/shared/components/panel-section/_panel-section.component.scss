@@ -1,4 +1,4 @@
-@mixin panel-section() {
+@mixin panel-section($theme) {
   panel-section {
     .panel-section-link {
       text-decoration: none;
