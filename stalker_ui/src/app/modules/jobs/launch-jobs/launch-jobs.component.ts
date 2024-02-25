@@ -30,7 +30,6 @@ export class LaunchJobsComponent {
 
   public selectedRow: JobListEntry | undefined;
   public currentJobName = '';
-  public currentJobSource = '';
   public data = new Array<JobListEntry>();
 
   public dataSource$ = this.refreshData();
@@ -72,7 +71,6 @@ export class LaunchJobsComponent {
     this.selectedRow = row;
     const rowData = this.data.find((v) => v.name === this.selectedRow?.name);
     if (rowData?.name) this.currentJobName = rowData.name;
-    if (rowData?.source) this.currentJobSource = rowData.source;
     this.code = this.formatYamlFromJob(rowData);
   }
 
@@ -80,8 +78,9 @@ export class LaunchJobsComponent {
     if (!job) return '';
     const jobCopy = <Partial<JobListEntry>>JSON.parse(JSON.stringify(job));
     delete jobCopy.name;
-    delete jobCopy.source;
+    delete jobCopy.builtIn;
     if (!jobCopy.parameters) return '';
+
     jobCopy.parameters = jobCopy.parameters.map((item: JobParameterDefinition) => {
       return { name: item.name, type: item.type, value: item.default === undefined ? 'Change Me' : item.default };
     });
@@ -128,20 +127,11 @@ export class LaunchJobsComponent {
     }
 
     try {
-      if (this.selectedProject) {
-        this.currentStartedJob = await this.jobsService.startJob(
-          this.currentJobName,
-          this.currentJobSource,
-          parameters,
-          this.selectedProject
-        );
-      } else {
-        this.currentStartedJob = await this.jobsService.startJob(
-          this.currentJobName,
-          this.currentJobSource,
-          parameters
-        );
-      }
+      this.currentStartedJob = await this.jobsService.startJob(
+        this.currentJobName,
+        parameters,
+        this.selectedProject ?? undefined
+      );
     } catch {
       this.toastr.error(
         $localize`:Error while starting job|There was an error while starting the job:Error while starting job`

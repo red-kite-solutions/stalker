@@ -19,6 +19,7 @@ export const databaseConfigInitProvider = [
           await jobPodConfigModel.create(c);
         }
       }
+      return DATABASE_INIT;
     },
   },
 ];

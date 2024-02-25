@@ -41,8 +41,7 @@ const config = {
           sidebarPath: "./sidebars.js",
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
-          editUrl:
-            "https://github.com/red-kite-solutions/stalker/tree/main/docs",
+          editUrl: "https://github.com/red-kite-solutions/stalker/tree/main/docs",
         },
         theme: {
           customCss: "./src/css/custom.css",
@@ -54,6 +53,10 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
+      metadata: [
+        { name: "keywords", content: "security, easm, ex" },
+        { name: "twitter:card", content: "summary_large_image" },
+      ],
       algolia: {
         appId: "5KADQNDXQ2",
         apiKey: "b50be46fed93fa3ab8d854d6130f1f9e",
@@ -65,12 +68,12 @@ const config = {
       },
 
       // Replace with your project's social card
-      image: "img/docusaurus-social-card.jpg",
+      image: "img/social-card.png",
       navbar: {
         title: "Stalker",
         logo: {
           alt: "Red Kite Solutions logo",
-          src: "img/favicon-32x32.png",
+          src: "img/logo.svg",
         },
         items: [
           {

@@ -50,6 +50,12 @@ export const validCustomJobTypeDetails: CustomJobTypeDetails[] = [
   },
 ];
 
+export const languageExtensionMapping = {
+  python: 'py',
+  py: 'python',
+  yaml: 'yaml',
+};
+
 @Schema()
 export class CustomJob {
   public task: string;

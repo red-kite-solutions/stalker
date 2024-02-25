@@ -1,28 +1,32 @@
+---
+sidebar_position: 1
+title: Implementing Jobs
+description: How to implement Stalker jobs
+---
+
 # Implementing jobs
 
-This article describes how to implement a job in Stalker. This process involves a few steps, but it is usually quite easy!
-There is currently one type of job: a _python job_.
+This article describes how to implement a job in Stalker. This process involves a few steps, but it is usually quite easy! There is
+currently one type of job: a _python job_.
 
-There are a few ways a job can be started: manually (through user input), or automatically (through configured subscriptions or built-in Stalker automations).
-In any case, when a job needs to be run, the Flow Manager (FM) drops a message on the _Job Requests Queue_. The Orchestrator consumes requests and runs jobs inside
-[Kubernetes Jobs](https://kubernetes.io/docs/concepts/workloads/controllers/job/). The Orchestrator monitors the container standard output; this is how the
-job communicates its _findings_ and more to Stalker.
+There are a few ways a job can be started: manually (through user input), or automatically (through configured subscriptions). In any case,
+when a job needs to be run, the Flow Manager (FM) drops a message on the _Job Requests Queue_. The Orchestrator consumes requests and runs
+jobs inside [Kubernetes Jobs](https://kubernetes.io/docs/concepts/workloads/controllers/job/). The Orchestrator monitors the container
+standard output; this is how the job communicates its _findings_ and more to Stalker.
 
-> This article is a work in progress, it is currently incomplete.
-
-* [Python](#python)
-  * [Setup](#setup)
-* [Making contact with the outside world](#making-contact-with-the-outside-world)
-  * [Producing findings](#producing-findings)
-  * [Producing logs](#producing-logs)
-* [Built-in Jobs](#built-in-jobs)
-* [Custom Jobs](#custom-jobs)
-  * [Custom Job Input](#custom-job-input)
-  * [Custom Job Output](#custom-job-output)
-  * [Types of custom jobs](#types-of-custom-jobs)
-    * [Python Custom Job](#python-custom-job)
-    * [Nuclei Custom Job](#nuclei-custom-job)
-      * [Nuclei Custom Finding Handling](#nuclei-custom-finding-handling)
+- [Python](#python)
+  - [Setup](#setup)
+- [Making contact with the outside world](#making-contact-with-the-outside-world)
+  - [Producing findings](#producing-findings)
+  - [Producing logs](#producing-logs)
+- [Built-in Jobs](#built-in-jobs)
+- [Custom Jobs](#custom-jobs)
+  - [Custom Job Input](#custom-job-input)
+  - [Custom Job Output](#custom-job-output)
+  - [Types of custom jobs](#types-of-custom-jobs)
+    - [Python Custom Job](#python-custom-job)
+    - [Nuclei Custom Job](#nuclei-custom-job)
+      - [Nuclei Custom Finding Handling](#nuclei-custom-finding-handling)
 
 ## Python
 
@@ -30,7 +34,9 @@ The `stalker_job_sdk` provides utilitary functions and classes to help you imple
 
 ### Setup
 
-In order for intellisense to help you, you need to create a virtual environmnet. Vscode's [python](https://marketplace.visualstudio.com/items?itemName=ms-python.python) extension can help you with that: use the "Python: Create environment" command. Then, install the requirements:
+In order for intellisense to help you, you need to create a virtual environmnet. Vscode's
+[python](https://marketplace.visualstudio.com/items?itemName=ms-python.python) extension can help you with that: use the "Python: Create
+environment" command. Then, install the requirements:
 
 ```
 pip install -r requirements.txt
@@ -38,8 +44,9 @@ pip install -r requirements.txt
 
 ## Making contact with the outside world
 
-The goal of jobs is to produce _findings_. A job may also produce logs to inform the outside world whether things are going well or not. Jobs communicate with Stalker through their standard output (STDOUT).
-To differentiate common logs from logs that are pertinent to Stalker, jobs must tag logs with a prefix. Here's a list of supported prefixes.
+The goal of jobs is to produce _findings_. A job may also produce logs to inform the outside world whether things are going well or not.
+Jobs communicate with Stalker through their standard output (STDOUT). To differentiate common logs from logs that are pertinent to Stalker,
+jobs must tag logs with a prefix. Here's a list of supported prefixes.
 
 | Syntax                                     | Description           |
 | ------------------------------------------ | --------------------- |
@@ -50,11 +57,12 @@ To differentiate common logs from logs that are pertinent to Stalker, jobs must 
 
 To give Stalker information about what was found in the job, you need to output findings in the proper format.
 
-To learn more about how to produce findings, [click here](./findings.md).
+To learn more about how to produce findings, [click here](/docs/concepts/findings).
 
 ### Producing logs
 
-Logs let jobs communicate miscellaneous information to the outside world. It could be a progress report, an error log, an inspirational quote, anything works.
+Logs let jobs communicate miscellaneous information to the outside world. It could be a progress report, an error log, an inspirational
+quote, anything works.
 
 To output a log, simply write a string prefixed with `@debug` to the standard output.
 
@@ -75,39 +83,30 @@ There are different log levels available:
 
 ## Built-in Jobs
 
-Built-in jobs, often just called jobs, are implemented within Stalker's source code.
+Built-in jobs, often just called jobs, are implemented within Stalker's source code. They can still be modified by users when Stalker is
+running.
 
-To implement a built-in job, the following files need to be edited :
+To implement a `python` built-in job, the following files need to be created :
 
-| File name                                                       | Service      | Description                                  |
-| --------------------------------------------------------------- | ------------ | -------------------------------------------- |
-| /flow_manager/src/modules/database/jobs/models/jobs.model.ts    | Flow manager | Add the job name in the enum array.          |
-| /flow_manager/src/modules/database/jobs/job-model.module.ts     | Flow manager | Add the job definition to the array.         |
-| /orchestrator/Orchestrator/Jobs/JobFactory.cs                   | Orchestrator | Edit the Create function to add the new job. |
-| /orchestrator/Orchestrator/Jobs/PythonJobTemplateProvider.cs    | Orchestrator | Add the new job to the `PythonJobs` array.   |
-| /orchestrator/Orchestrator/Queue/JobsConsummer/JobSerializer.cs | Orchestrator | Detail how to deserialize to a `JobRequest`. |
+| File name                                                                        | Service      | Description                                                                       |
+| -------------------------------------------------------------------------------- | ------------ | --------------------------------------------------------------------------------- |
+| /flow_manager/src/modules/database/custom-jobs/built-in/code/my-new-job.job.yaml | Flow manager | Create the new job's metadata in yaml based on the `CustomJobMetadata` interface. |
+| /flow_manager/src/modules/database/custom-jobs/built-in/code/code/my-new-job.py  | Flow manager | Create the new job's python code.                                                 |
 
-The following files also need to be created :
+> The name of the python file must match the path given in the metadata file.
 
-| File name                                                                     | Service      | Description                                                        |
-| ----------------------------------------------------------------------------- | ------------ | ------------------------------------------------------------------ |
-| /flow_manager/src/modules/database/jobs/models/my-new-job.model.ts            | Flow manager | Describes the job for the database. Implement the `create` method. |
-| /orchestrator/Orchestrator/Jobs/Commands/MyNewJobCommand.cs                   | Orchestrator | Create the job command.                                            |
-| /orchestrator/Orchestrator/Jobs/JobTemplates/MyNewJobTemplate.cs              | Orchestrator | Create the job template.                                           |
-| /orchestrator/Orchestrator/Queue/JobsConsummer/JobRequests/MyNewJobRequest.cs | Orchestrator | Create the job request.                                            |
-| /orchestrator/PythonJobTemplates/MyNewJob.py                                  | Job          | Create the job itself in python.                                   |
-
-> The name of the python file must match exactly the name of the job's task. The task `MyNewJob` requires a file named `MyNewJob.py`.
-
-Now that this new job has been implemented, it could be called through `subscriptions` or manually. However, for it to be added into the built-in automation process, it needs to be called within a `finding`'s handler.
+Now that this new job has been implemented, the provider can load it in the database. It could then be called through `subscriptions` or
+manually.
 
 ## Custom Jobs
 
-Custom jobs are implemented by a Stalker user or administrator. They are a type of built-in job, but are much more flexible.
+Custom jobs are implemented by a Stalker's user or administrator.
 
-Custom jobs can be run manually as a one time thing, or they can be run within the automation process through [subscriptions](./subscriptions.md#custom-job-example).
+Custom jobs can be run manually as a one time thing, or they can be run within the automation process through
+[subscriptions](/docs/concepts/subscriptions).
 
-Implementing a `CustomJob` is easy. Simply name your new custom job, write your code, and make sure to [output your findings properly](#making-contact-with-the-outside-world).
+Implementing a `CustomJob` is easy. Simply name your new custom job, write your code, and make sure to
+[output your findings properly](#making-contact-with-the-outside-world).
 
 ### Custom Job Input
 
@@ -121,13 +120,16 @@ import os
 var_content = os.environ['myCustomParameter']
 ```
 
-All the parameters given to a job are provided as environment variables. Therefore, parameter names must respect a fixed character set. The following regular expression is used to validate the characters of the parameter names before the creation of the job. Not respecting this regex will result in the job not being created.
+All the parameters given to a job are provided as environment variables. Therefore, parameter names must respect a fixed character set. The
+following regular expression is used to validate the characters of the parameter names before the creation of the job. Not respecting this
+regex will result in the job not being created.
 
 ```javascript
 /^[A-Za-z][A-Za-z0-9_]*$/;
 ```
 
-Also, to avoid conflicts with common os variable names, the following variables must not be set. Naming a parameter with one of these names will result in the job not being created.
+Also, to avoid conflicts with common os variable names, the following variables must not be set. Naming a parameter with one of these names
+will result in the job not being created.
 
 |             |             |           |            |            |
 | ----------- | ----------- | --------- | ---------- | ---------- |
@@ -150,16 +152,18 @@ Also, to avoid conflicts with common os variable names, the following variables 
 
 ### Custom Job Output
 
-Custom jobs communicate in the exact same way as regular jobs. They print to stdout, [respecting the syntax for a @finding or a log](#making-contact-with-the-outside-world).
+Custom jobs communicate in the exact same way as regular jobs. They print to stdout,
+[respecting the syntax for a @finding or a log](#making-contact-with-the-outside-world).
 
 ### Types of custom jobs
 
-Several types of custom jobs are supported in Stalker. These custom job types have several advantages. Some types are more flexible, some are faster to implement.
+Several types of custom jobs are supported in Stalker. These custom job types have several advantages. Some types are more flexible, some
+are faster to implement.
 
 The types of custom jobs:
 
-* [Python custom job](#python-custom-job)
-* [Nuclei custom job](#nuclei-custom-job)
+- [Python custom job](#python-custom-job)
+- [Nuclei custom job](#nuclei-custom-job)
 
 #### Python Custom Job
 
@@ -169,7 +173,7 @@ The types of custom jobs:
 
 A python custom job is the standard way of making a custom job. It gives you full flexibility, but you have to implement it yourself.
 
-The python custom jobs come with a built-in SDK to help you properly [output findings and logs](./findings.md).
+The python custom jobs come with a built-in SDK to help you properly [output findings and logs](/docs/concepts/findings).
 
 #### Nuclei Custom Job
 
@@ -177,7 +181,10 @@ The python custom jobs come with a built-in SDK to help you properly [output fin
 | ------ | -------- |
 | Nuclei | Yaml     |
 
-A Nuclei custom job uses [Project Discovery's Nuclei](https://github.com/projectdiscovery/nuclei) to run Nuclei templates and output findings understandable by Stalker. It comes with a built-in parser, but if it does not suit your needs, you can specify a custom finding handler. This custom finding handler will be responsible for parsing the Nuclei Findings as well as outputing the Stalker compatible findings. It is implemented in python. Don't worry though, a template, a custom class and the python SDK are avalailable to help you.
+A Nuclei custom job uses [Project Discovery's Nuclei](https://github.com/projectdiscovery/nuclei) to run Nuclei templates and output
+findings understandable by Stalker. It comes with a built-in parser, but if it does not suit your needs, you can specify a custom finding
+handler. This custom finding handler will be responsible for parsing the Nuclei Findings as well as outputing the Stalker compatible
+findings. It is implemented in python. Don't worry though, a template, a custom class and the python SDK are avalailable to help you.
 
 To start a Nuclei custom job, a target is always required. You can provide the target with the following job parameter:
 
@@ -194,7 +201,10 @@ To start a Nuclei custom job with the default parser, you must configure the def
 
 ##### Nuclei Custom Finding Handling
 
-The custom finding handler parses every json output line from Nuclei in the `parse_finding` method. To help you in parsing the Nuclei output, the `NucleiFinding` class is provided. The handler then outputs them all in the `publish_findings` method. Everything that is outputted by the `parse_finding` method will be given to the `publish_findings` method in a list. To publish your findings properly, you can refer to [the findings' documentation](./findings.md).
+The custom finding handler parses every json output line from Nuclei in the `parse_finding` method. To help you in parsing the Nuclei
+output, the `NucleiFinding` class is provided. The handler then outputs them all in the `publish_findings` method. Everything that is
+outputted by the `parse_finding` method will be given to the `publish_findings` method in a list. To publish your findings properly, you can
+refer to [the findings' documentation](/docs/concepts/findings).
 
 The custom finding handler template's code:
 
@@ -221,9 +231,11 @@ class FindingHandler:
 
 ```
 
-> You could even pass parameters to the parser from the UI through environment variables, the same way you would pass a job parameter for a [code based custom job](#custom-job-input).
+> You could even pass parameters to the parser from the UI through environment variables, the same way you would pass a job parameter for a
+> [code based custom job](#custom-job-input).
 
-The `NucleiFinding` class will parse the provided finding in its constructor. Most of the time, you should not have to parse the findings yourself. If a value is provided by Nuclei and it fits in one of the variables, it is parsed by the constructor.
+The `NucleiFinding` class will parse the provided finding in its constructor. Most of the time, you should not have to parse the findings
+yourself. If a value is provided by Nuclei and it fits in one of the variables, it is parsed by the constructor.
 
 The `NucleiFinding` class and an overview of its data:
 

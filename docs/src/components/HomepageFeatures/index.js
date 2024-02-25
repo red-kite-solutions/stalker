@@ -1,42 +1,38 @@
-import Heading from '@theme/Heading';
-import clsx from 'clsx';
-import styles from './styles.module.css';
+import Heading from "@theme/Heading";
+import clsx from "clsx";
+import styles from "./styles.module.css";
 
 const FeatureList = [
   {
-    title: 'Easy to Use',
+    title: "Extensibility",
+    description: (
+      <>Effortlessly customize our tool to fit your unique needs. Implement your own jobs using the tools you're accustomed to.</>
+    ),
+  },
+  {
+    title: "Effortless Automation",
     description: (
       <>
-        Docusaurus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
+        Streamline tasks. Prioritize strategy, not routine. Simplify your workflow by automating routine security tasks. Our tool takes care
+        of the groundwork, boosting your team's productivity and effectiveness.
       </>
     ),
   },
   {
-    title: 'Focus on What Matters',
+    title: "Scalability",
     description: (
       <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
-      </>
-    ),
-  },
-  {
-    title: 'Powered by React',
-    description: (
-      <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
+        Scale your security operations effortlessly as your infrastructure grows, ensuring comprehensive coverage and adaptability to
+        evolving threats.
       </>
     ),
   },
 ];
 
-function Feature({title, description}) {
+function Feature({ title, description }) {
   return (
-    <div className={clsx('col col--4')}>
-      <div className="text--center">
-      </div>
+    <div className={clsx("col col--4")}>
+      <div className="text--center"></div>
       <div className="text--center padding-horiz--md">
         <Heading as="h3">{title}</Heading>
         <p>{description}</p>
