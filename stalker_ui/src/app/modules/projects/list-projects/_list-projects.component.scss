@@ -1,4 +1,4 @@
-@mixin app-list-projects() {
+@mixin app-list-projects($theme) {
   app-list-projects {
     .mat-mdc-form-field-infix {
       width: auto;

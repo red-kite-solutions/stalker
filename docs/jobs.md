@@ -1,6 +1,8 @@
 # Jobs
 
-A job is the way for Stalker to find new information. It is started by Stalker and runs in a contained environment. Different jobs will generate different findings. It is possible to reference a Finding's output variable as a job parameter. A job parameter is one of a job's input variables.
+A job is the way for Stalker to find new information. It is started by Stalker and runs in a contained environment. Different jobs will
+generate different findings. It is possible to reference a Finding's output variable as a job parameter. A job parameter is one of a job's
+input variables.
 
 When referencing a Finding's output variable by name (ex: `${domainName}`), the variable name is case insensitive.
 
@@ -8,7 +10,9 @@ A job can generate multiple findings of one or many finding types.
 
 ## Built-in jobs
 
-The built-in jobs come with a fresh Stalker installation. They can be fully modified and also reverted to their original value. They go hand-in-hand with the built-in subscriptions. Keep in mind that altering a built-in job's name may break a built-in subscription. That subscription would need to be adapted to the new name.
+The built-in jobs come with a fresh Stalker installation. They can be fully modified and also reverted to their original value. They go
+hand-in-hand with the built-in subscriptions. Keep in mind that altering a built-in job's name may break a built-in subscription. That
+subscription would need to be adapted to the new name.
 
 | Name                                              | Description                                         |
 | ------------------------------------------------- | --------------------------------------------------- |
@@ -29,7 +33,7 @@ A `DomainNameResolvingJob` takes a domain name and resolves it to one or more IP
 
 **Possible findings generated :**
 
-* HostnameIpFinding
+- HostnameIpFinding
 
 ### TcpPortScanningJob
 
@@ -48,7 +52,7 @@ Scans the TCP ports of a host.
 
 **Possible findings generated :**
 
-* PortFinding
+- PortFinding
 
 ### TcpIpRangeScanningJob
 
@@ -67,8 +71,8 @@ Scans an IP range (ex: `1.2.3.4/24`) for open ports. It discovers hosts that way
 
 **Possible findings generated :**
 
-* HostFinding
-* PortFinding
+- HostFinding
+- PortFinding
 
 ### HttpServerCheckJob
 
@@ -83,4 +87,4 @@ Checks if a host's port runs an HTTP server.
 
 **Possible findings generated :**
 
-* HttpServerCheck
+- HttpServerCheck

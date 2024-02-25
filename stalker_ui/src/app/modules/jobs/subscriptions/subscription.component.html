@@ -31,7 +31,7 @@
     </div>
   </mat-drawer-content>
 
-  <mat-drawer mode="side" position="end" opened>
+  <mat-drawer mode="side" disableClose="true" position="end" opened>
     <div #contextMenu class="tw-flex tw-gap-2 tw-flex-col tw-m-4">
       <h2 i18n="Configuration|Subscription configuration">Configuration</h2>
       @if (projects$ | async) {

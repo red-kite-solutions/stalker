@@ -28,7 +28,7 @@ public class JobSerializer<T> : ISerializer<T>, IDeserializer<T> where T : JobRe
                 _ => default
             } ?? throw new InvalidOperationException();
         }
-        catch(JsonException)
+        catch (JsonException)
         {
             // This part of the code prevents that the orchestrator breaks in case of bad serialization
             // It should be improved with better logging, possibly requeuing the messages with errors, etc.
