@@ -20,6 +20,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import {
   BehaviorSubject,
+  Observable,
   Subscription,
   distinctUntilChanged,
   firstValueFrom,
@@ -28,6 +29,7 @@ import {
   pairwise,
   startWith,
 } from 'rxjs';
+import { ThemeService } from 'src/app/services/theme.service';
 import { AppHeaderComponent } from 'src/app/shared/components/page-header/page-header.component';
 import { PanelSectionModule } from 'src/app/shared/components/panel-section/panel-section.module';
 import { HasUnsavedChanges } from 'src/app/shared/guards/unsaved-changes-can-deactivate.component';
@@ -102,8 +104,9 @@ export class CustomJobsComponent implements OnInit, OnDestroy, HasUnsavedChanges
   public readonly typeDefault: CustomJobType = 'code';
   public readonly languageDefault: CustomJobLanguage = 'python';
   public readonly findingHandlerLanguageDefault: CustomJobFindingHandlerLanguage = 'python';
-  public theme: CodeEditorTheme = 'vs-dark';
-
+  public theme$: Observable<CodeEditorTheme> = this.themeService.theme$.pipe(
+    map((theme) => (theme === 'dark' ? 'vs-dark' : 'vs'))
+  );
   private id$ = this.activatedRoute.paramMap.pipe(map((x) => x.get('id')));
 
   public originalCode: string = '';
@@ -153,7 +156,8 @@ export class CustomJobsComponent implements OnInit, OnDestroy, HasUnsavedChanges
     private settingsService: SettingsService,
     private fb: FormBuilder,
     private router: Router,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private themeService: ThemeService
   ) {
     this.titleService.setTitle($localize`:Custom Jobs|:Custom Jobs`);
   }

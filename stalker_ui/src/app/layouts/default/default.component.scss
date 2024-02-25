@@ -1,7 +1,13 @@
 :host {
   height: 100vh;
   display: grid;
-  grid-template-rows: minmax(var(--mat-toolbar-standard-height), var(--mat-toolbar-standard-height)) auto;
+  grid-template-rows: var(--mat-toolbar-standard-height) auto;
+}
+
+@media screen and (max-width: 600px) {
+  :host {
+    grid-template-rows: var(--mat-toolbar-mobile-height) auto;
+  }
 }
 
 mat-drawer-container {

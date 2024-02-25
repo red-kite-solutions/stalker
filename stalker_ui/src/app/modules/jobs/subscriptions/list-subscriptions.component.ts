@@ -10,6 +10,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -48,6 +49,7 @@ import { subscriptionTypes } from './subscription-templates';
     MatMenuModule,
     FilteredPaginatedTableComponent,
     MatDialogModule,
+    MatTooltipModule,
   ],
 })
 export class ListSubscriptionsComponent {
@@ -90,32 +92,50 @@ export class ListSubscriptionsComponent {
   }
 
   public async delete() {
-    const data: ConfirmDialogData = {
-      text: $localize`:Confirm subscription deletion|Confirmation message asking if the user really wants to delete this description:Do you really wish to delete this description permanently ?`,
-      title: $localize`:Deleting subscription|Title of a page to delete a subscription:Deleting subscription`,
-      primaryButtonText: $localize`:Cancel|Cancel current action:Cancel`,
-      dangerButtonText: $localize`:Delete permanently|Confirm that the user wants to delete the item permanently:Delete permanently`,
+    let data: ConfirmDialogData = {
+      text: $localize`:Select subscriptions again|No subscription was selected so there is nothing to delete:Select the subscriptions to delete and try again.`,
+      title: $localize`:Nothing to delete|Tried to delete something, but there was nothing to delete:Nothing to delete`,
+      primaryButtonText: $localize`:Ok|Accept or confirm:Ok`,
       onPrimaryButtonClick: () => {
         this.dialog.closeAll();
       },
-      onDangerButtonClick: async () => {
-        for (const sub of this.selection.selected) {
-          try {
-            await this.subscriptionsService.delete(sub.type, sub._id);
-          } catch {
-            this.toastr.error($localize`:Error while deleting|Error while deleting:Error while deleting`);
-            return;
-          }
-        }
-
-        this.toastr.success(
-          $localize`:Successfully deleted subscription|Successfully deleted subscription:Successfully deleted subscription`
-        );
-
-        this.refreshData$.next();
-        this.dialog.closeAll();
-      },
     };
+
+    const bulletPoints: string[] = Array<string>();
+    this.selection.selected.forEach((sub: SubscriptionData) => {
+      const bp = sub.name;
+      bulletPoints.push(bp);
+    });
+
+    if (this.selection.selected.length > 0) {
+      data = {
+        text: $localize`:Confirm subscription deletion|Confirmation message asking if the user really wants to delete this subscription:Do you really wish to delete these subscriptions permanently ?`,
+        title: $localize`:Deleting subscriptions|Title of a page to delete a subscription:Deleting subscriptions`,
+        primaryButtonText: $localize`:Cancel|Cancel current action:Cancel`,
+        dangerButtonText: $localize`:Delete permanently|Confirm that the user wants to delete the item permanently:Delete permanently`,
+        listElements: bulletPoints,
+        onPrimaryButtonClick: () => {
+          this.dialog.closeAll();
+        },
+        onDangerButtonClick: async () => {
+          for (const sub of this.selection.selected) {
+            try {
+              await this.subscriptionsService.delete(sub.type, sub._id);
+            } catch {
+              this.toastr.error($localize`:Error while deleting|Error while deleting:Error while deleting`);
+              return;
+            }
+          }
+
+          this.toastr.success(
+            $localize`:Successfully deleted subscription|Successfully deleted subscription:Successfully deleted subscription`
+          );
+
+          this.refreshData$.next();
+          this.dialog.closeAll();
+        },
+      };
+    }
 
     this.dialog.open(ConfirmDialogComponent, {
       data,
@@ -136,7 +156,13 @@ export class ListSubscriptionsComponent {
   private filterSubscription(subscription: EventSubscription | CronSubscription, filters: string[]) {
     const event = subscription as EventSubscription;
     const cron = subscription as CronSubscription;
-    const parts = [subscription?.job?.name, subscription?.name, cron.cronExpression, event.finding];
+    const parts = [
+      subscription?.job?.name,
+      subscription?.name,
+      cron.cronExpression,
+      event.finding,
+      cron.cronExpression ? 'cron' : 'event',
+    ];
     return filters.some((filter) => this.normalizeString(parts.join(' ')).includes(filter));
   }
 

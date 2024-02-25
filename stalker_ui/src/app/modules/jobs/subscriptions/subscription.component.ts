@@ -20,9 +20,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, firstValueFrom, map, timer } from 'rxjs';
+import { BehaviorSubject, Observable, firstValueFrom, map, timer } from 'rxjs';
 import { eventSubscriptionKey } from 'src/app/api/jobs/subscriptions/event-subscriptions.service';
 import { SubscriptionService, SubscriptionType } from 'src/app/api/jobs/subscriptions/subscriptions.service';
+import { ThemeService } from 'src/app/services/theme.service';
 import { AppHeaderComponent } from 'src/app/shared/components/page-header/page-header.component';
 import { PanelSectionModule } from 'src/app/shared/components/panel-section/panel-section.module';
 import { HasUnsavedChanges } from 'src/app/shared/guards/unsaved-changes-can-deactivate.component';
@@ -88,9 +89,11 @@ import { cronSubscriptionTemplate, eventSubscriptionTemplate } from './subscript
 export class SubscriptionComponent implements OnInit, OnDestroy, HasUnsavedChanges {
   public code = '';
   public originalCode = '';
-  public theme: CodeEditorTheme = 'vs-dark';
   public isSaving = false;
   public isInitializing = true;
+  public theme$: Observable<CodeEditorTheme> = this.themeService.theme$.pipe(
+    map((theme) => (theme === 'dark' ? 'vs-dark' : 'vs'))
+  );
 
   public subscription$ = timer(0, 250).pipe(map(() => parse(this.code)));
   private id$ = this.activatedRoute.paramMap.pipe(map((x) => x.get('id')));
@@ -139,7 +142,8 @@ export class SubscriptionComponent implements OnInit, OnDestroy, HasUnsavedChang
     private fb: FormBuilder,
     private activatedRoute: ActivatedRoute,
     private router: Router,
-    private subscriptionService: SubscriptionService
+    private subscriptionService: SubscriptionService,
+    private themeService: ThemeService
   ) {
     this.titleService.setTitle($localize`:Subscriptions list page title|:Subscriptions`);
   }

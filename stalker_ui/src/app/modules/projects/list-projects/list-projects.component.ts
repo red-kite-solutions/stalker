@@ -2,6 +2,7 @@ import { BreakpointObserver, BreakpointState, Breakpoints } from '@angular/cdk/l
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormControl, Validators } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
@@ -30,6 +31,7 @@ import { SpinnerButtonComponent } from 'src/app/shared/widget/spinner-button/spi
     MatInputModule,
     SharedModule,
     ReactiveFormsModule,
+    MatButtonModule,
     FormsModule,
     RouterModule,
     SpinnerButtonComponent,

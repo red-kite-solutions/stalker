@@ -27,6 +27,10 @@
   </mat-card>
 }
 
-<app-job-logs [jobId]="executionId$ | async"></app-job-logs>
+<app-job-logs
+  class="mat-elevation-z2"
+  [jobId]="executionId$ | async"
+  [theme]="(theme$ | async) ?? 'vs-dark'"
+></app-job-logs>
 
 <div class="tw-h-2"></div>

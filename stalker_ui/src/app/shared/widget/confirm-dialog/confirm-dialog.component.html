@@ -19,7 +19,7 @@
       {{ data.primaryButtonText }}
     </app-spinner-button>
   }
-  @if (data.dangerButtonText != '') {
+  @if (data.dangerButtonText && data.dangerButtonText != '') {
     <app-spinner-button (click)="dangerClick()" buttonColor="warn" [loadingState]="dangerLoading">
       {{ data.dangerButtonText }}
     </app-spinner-button>
