@@ -1,6 +1,6 @@
 ---
 sidebar_position: 1
-title: Overview
+title: Overiew
 description: An overview of Stalker
 ---
 
@@ -22,7 +22,82 @@ Stalker's API can be used by third-party tools for automated consumption.
 - [Secrets](/docs/concepts/secrets)
 - [Implementing jobs](/docs/tutorials/implementing-jobs)
 
----
+## Installing Stalker
+
+You can use Stalker with your own production ready deployment. Simply follow the few following steps.
+
+### 1. Install the dependencies
+
+- minikube
+- docker
+- devspace
+- keytool
+- openssl
+
+### 2. Clone the repository
+
+```bash
+git clone https://github.com/red-kite-solutions/Stalker && cd Stalker
+```
+
+### 3. Setup your preferences
+
+Optionally edit your url and port in `setup.sh` to the URL and port that you will use to reach Stalker. The defaults are the following:
+
+```bash
+STALKER_HOSTNAME=stalker.lan
+STALKER_PORT=8443
+```
+
+You can also set a custom size for your mongodb storage in `setup.sh`. The default size is 32 Gb. You may need more, depending on usage.
+
+```bash
+MONGODB_MAX_SIZE="32Gi"
+```
+
+### 4. Make sure your user is in the "docker" group
+
+```sh
+sudo groupadd docker
+sudo usermod -aG docker $USER
+```
+
+### 5. Start Stalker:
+
+> When initializing for the first time, Stalker will prompt you several times for your root CA key's password.
+
+```bash
+chmod +x ./stalker && ./stalker
+```
+
+### 6. Add stalker to your host file
+
+Add your `STALKER_HOSTNAME` to your `/etc/hosts` file.
+
+```text
+# STALKER_HOSTNAME in /etc/hosts
+127.0.0.1       stalker.lan
+```
+
+### 7. Install the root ca
+
+Add the `root_ca.crt` to your browser's accepted certificate authorities.
+
+### 8. Open up Stalker!
+
+You are now ready to connect to Stalker at the following URL:
+
+https://stalker.lan:8443
+
+### Notes
+
+Any time you want to start Stalker again in the future, simply run the start up script again:
+
+```bash
+./stalker
+```
+
+If something went wrong during the install,
 
 ## Core concepts
 

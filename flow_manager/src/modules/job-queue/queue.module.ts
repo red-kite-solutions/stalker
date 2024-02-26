@@ -15,6 +15,11 @@ const certFolder =
   process.env.TEST_TYPE === 'unit'
     ? './'
     : '/certs';
+const certTestExtension =
+  process.env.FM_ENVIRONMENT === FM_ENVIRONMENTS.tests &&
+  process.env.TEST_TYPE === 'unit'
+    ? '.test'
+    : '';
 
 export const kafkaConfig: KafkaConfig = {
   clientId: orchestratorConstants.clientId,
@@ -22,9 +27,17 @@ export const kafkaConfig: KafkaConfig = {
   ssl: {
     rejectUnauthorized: true,
     requestCert: true,
-    ca: [readFileSync(`${certFolder}/kafka-ca.crt`, 'utf-8')],
-    cert: readFileSync(`${certFolder}/kafka-client-signed.crt`, 'utf-8'),
-    key: readFileSync(`${certFolder}/kafka-client.key`, 'utf-8'),
+    ca: [
+      readFileSync(`${certFolder}/kafka-ca.crt${certTestExtension}`, 'utf-8'),
+    ],
+    cert: readFileSync(
+      `${certFolder}/kafka-client-signed.crt${certTestExtension}`,
+      'utf-8',
+    ),
+    key: readFileSync(
+      `${certFolder}/kafka-client.key${certTestExtension}`,
+      'utf-8',
+    ),
     passphrase: process.env.FM_KAFKA_KEY_PASSWORD,
   },
 };

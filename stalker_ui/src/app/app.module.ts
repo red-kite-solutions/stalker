@@ -1,4 +1,4 @@
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { MatPaginatorIntl } from '@angular/material/paginator';
 import { BrowserModule } from '@angular/platform-browser';
@@ -18,7 +18,10 @@ import { JwtInterceptor } from './middlewares/jwt.interceptor';
 import { SharedModule } from './shared/shared.module';
 import { CodeEditorService } from './shared/widget/code-editor/code-editor.service';
 
-const config: SocketIoConfig = { url: environment.fmWsUrl, options: {} };
+const config: SocketIoConfig = {
+  url: environment.fmWsUrl,
+  options: {},
+};
 
 @NgModule({
   declarations: [AppComponent],

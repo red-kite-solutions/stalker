@@ -15,7 +15,23 @@ export class HeaderComponent {
   @Input()
   public showRouting = true;
 
+  public currentLanguageLocale = '';
+
   public email = '';
+
+  public readonly languages: {
+    locale: string;
+    language: string;
+  }[] = [
+    {
+      locale: 'en',
+      language: 'English',
+    },
+    {
+      locale: 'fr',
+      language: 'Français',
+    },
+  ];
 
   constructor(
     private authService: AuthService,
@@ -23,6 +39,7 @@ export class HeaderComponent {
     public themeService: ThemeService
   ) {
     this.email = this.authService.email;
+    this.currentLanguageLocale = window.location.pathname.split('/')[1];
   }
 
   toggleSideBar() {
@@ -40,5 +57,13 @@ export class HeaderComponent {
   logout() {
     this.authService.logout();
     this.router.navigate(['/auth/login']);
+  }
+
+  selectLanguage(locale: string) {
+    if (locale === this.currentLanguageLocale) return;
+
+    const r = new RegExp(`^/${this.currentLanguageLocale}/`);
+
+    window.location.pathname = window.location.pathname.replace(r, `/${locale}/`);
   }
 }

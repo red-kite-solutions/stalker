@@ -12,7 +12,7 @@ import { JobStateComponent } from '../../jobs/job-executions/job-execution-state
   selector: 'latest-jobs',
   imports: [CommonModule, MatListModule, RouterModule, JobStateComponent, JobLogsSummaryComponent],
   styleUrls: ['../metric-styling.scss'],
-  template: `<span class="metric-title">Latest jobs</span>
+  template: `<span class="metric-title" i18n="Latest jobs|Latest jobs that ran">Latest jobs</span>
     <mat-list class="metric-list">
       @for (job of jobs$ | async; track job) {
         <mat-list-item>

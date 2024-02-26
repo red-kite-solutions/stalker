@@ -20,8 +20,8 @@ describe('AppController', () => {
   });
 
   describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+    it('Should return a version string', () => {
+      expect(appController.getVersion()).toBe('a version string');
     });
   });
 });

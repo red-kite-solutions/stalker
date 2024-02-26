@@ -65,7 +65,7 @@ export class FirstComponent {
     private usersService: UsersService,
     private authService: AuthService
   ) {
-    this.titleService.setTitle($localize`Initial setup:Create first user page title|:Initial Setup`);
+    this.titleService.setTitle($localize`:Initial setup|Create first user page title:Initial Setup`);
     this.authService.checkServerSetup();
   }
 

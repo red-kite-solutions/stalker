@@ -1,0 +1,31 @@
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: mongo
+  namespace: stalker
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/component: mongodb
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/component: flow-manager
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/component: cron-service
+      ports:
+        - protocol: TCP
+          port: 27017
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/component: mongodb
+      ports:
+        - protocol: TCP
+          port: 27017

@@ -14,6 +14,26 @@ namespace called `stalker-jobs` to isolate them.
 > A **default deny all** network policy is in place for the `stalker`, `stalker-jobs` and `default` namespaces. Any pod in these namespaces
 > require a custom network policy to allow any connectivity.
 
+## Production
+
+Microsegmentation is implemented throughout the cluster in the production environment following this graph:
+
+![Production Stalker Network Architecture](/img/prod_network_architecture.png)
+
+The following table goes over the main aspects of the graph :
+
+| Pod               | Ingress          | Egress                                                                      |
+| ----------------- | ---------------- | --------------------------------------------------------------------------- |
+| Nginx (UI)        | 80, 443          | 53 (DNS), 3000 (FM)                                                         |
+| Flow Manager (FM) | 3000             | 53 (DNS), 9092 (Kafka), 27017 (Mongo)                                       |
+| Cron Service      | Deny All         | 53 (DNS), 3000 (FM), 27017 (Mongo)                                          |
+| Mongo             | 27017            | Deny All                                                                    |
+| Kafka             | 9092, 9093, 9094 | 53 (DNS), 9092 (Kafka), 9093 (Kafka), 9094 (Kafka)                          |
+| Orchestrator      | Deny All         | 53 (DNS), 443 (K8s API), 9092 (Kafka)                                       |
+| Jobs              | Deny All         | 0.0.0.0/0 except 169.254.169.254, 172.16.0.0/12, 192.168.0.0/16, 10.0.0.0/8 |
+
+> You can access your local production Stalker instance through https://127.0.0.1:8443/
+
 ## Development
 
 Microsegmentation is implemented throughout the cluster in the dev environment following this graph:
