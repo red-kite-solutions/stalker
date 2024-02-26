@@ -18,8 +18,8 @@ async function bootstrap() {
 
   // Setting up https for prod environments
   if (
-    process.env.FM_ENVIRONMENT !== 'tests' &&
-    process.env.FM_ENVIRONMENT !== 'dev'
+    process.env.JM_ENVIRONMENT !== 'tests' &&
+    process.env.JM_ENVIRONMENT !== 'dev'
   ) {
     options.httpsOptions = {
       key: readFileSync('/certs/ssl-private.key'),

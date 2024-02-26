@@ -16,7 +16,7 @@ const certFolder =
     ? './'
     : '/certs';
 const certTestExtension =
-  process.env.FM_ENVIRONMENT === JM_ENVIRONMENTS.tests &&
+  process.env.JM_ENVIRONMENT === JM_ENVIRONMENTS.tests &&
   process.env.TEST_TYPE === 'unit'
     ? '.test'
     : '';

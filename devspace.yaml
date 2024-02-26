@@ -100,7 +100,7 @@ pipelines:
   purge:
     run: |-
       stop_dev --all
-      purge_deployments mongo ui jobs-manager jobs-manager-e2e kafka orchestrator-service-account orchestrator cron-service ui-prod --sequential
+      purge_deployments mongo ui jobs-manager jobs-manager-e2e kafka orchestrator-service-account orchestrator cron ui-prod --sequential
 
   build-e2e:
     run: |-
@@ -140,7 +140,7 @@ pipelines:
       ${DEVSPACE_KUBECTL_EXECUTABLE} delete secret kafka-jks-password --ignore-not-found -n ${DEVSPACE_NAMESPACE}
       ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks-password --from-literal=password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=keystore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=truststore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=key-password=${KAFKA_KEYSTORE_PASSWORD} -n ${DEVSPACE_NAMESPACE}
 
-      build_images ui jobs-manager orchestrator python-job-base nuclei-job-base cron-service
+      build_images ui jobs-manager orchestrator python-job-base nuclei-job-base cron
       create_deployments mongo kafka --sequential
 
       # Start mongo and kafka
@@ -164,11 +164,11 @@ pipelines:
       # Start microservices + ui
       start_dev orchestrator-prod jobs-manager-prod ui-prod
 
-      create_deployments cron-service
+      create_deployments cron
 
-      wait_pod --label-selector app.kubernetes.io/component=cron-service --timeout 300
+      wait_pod --label-selector app.kubernetes.io/component=cron --timeout 300
 
-      start_dev cron-service-prod
+      start_dev cron-prod
 
 images:
   stalker-base:
@@ -181,19 +181,19 @@ images:
 
   jobs-manager:
     image: jobs-manager
-    dockerfile: packages/backend/jobs-manager/${DOCKERFILE_NAME}
+    dockerfile: packages/backend/jobs-manager/service/${DOCKERFILE_NAME}
     context: .
     rebuildStrategy: default
 
   jobs-manager-e2e:
     image: jobs-manager-e2e
-    dockerfile: packages/backend/jobs-manager/Dockerfile.cicd
-    context: packages/backend/jobs-manager
+    dockerfile: packages/backend/jobs-manager/service/Dockerfile.cicd
+    context: .
     rebuildStrategy: always
 
-  cron-service:
-    image: cron_service
-    dockerfile: packages/backend/cron/service//${DOCKERFILE_NAME}
+  cron:
+    image: cron
+    dockerfile: packages/backend/cron/service/${DOCKERFILE_NAME}
     context: .
     rebuildStrategy: default
 
@@ -205,8 +205,8 @@ images:
 
   orchestrator:
     image: orchestrator
-    dockerfile: orchestrator/${DOCKERFILE_NAME}
-    context: orchestrator
+    dockerfile: packages/backend/orchestrator/service/${DOCKERFILE_NAME}
+    context: packages/backend/orchestrator/service
     rebuildStrategy: default
 
   python-job-base:
@@ -579,11 +579,11 @@ deployments:
       manifests:
         - network-policy.yml
         - packages/frontend/stalker-app/${NETWORK_POLICY}
-        - database/${NETWORK_POLICY}
-        - packages/backend/jobs-manager/${NETWORK_POLICY}
+        - packages/backend/jobs-manager/service/${NETWORK_POLICY}
         - packages/backend/cron/service/${NETWORK_POLICY}
+        - packages/backend/orchestrator/service/${NETWORK_POLICY}
+        - database/${NETWORK_POLICY}
         - queue/${NETWORK_POLICY}
-        - orchestrator/${NETWORK_POLICY}
         - jobs/${NETWORK_POLICY}
 
 dev:
@@ -670,10 +670,10 @@ dev:
     ports:
       - port: "3001:3000"
 
-  cron-service-prod:
+  cron-prod:
     labelSelector:
-      app.kubernetes.io/component: cron-service
-    container: cron-service-container
+      app.kubernetes.io/component: cron
+    container: cron-container
     restartHelper:
       inject: false
 
@@ -712,6 +712,14 @@ dev:
       app.kubernetes.io/component: orchestrator
     container: orchestrator-container
     sync:
+      - path: ./package.json:/app/package.json
+        disableDownload: true
+      - path: ./yarn.lock:/app/yarn.lock
+        disableDownload: true
+      - path: ./packages:/app/packages
+        disableDownload: true
+        excludePaths:
+          - node_modules
       - path: ./orchestrator/:/app/
         disableDownload: true
         excludePaths:

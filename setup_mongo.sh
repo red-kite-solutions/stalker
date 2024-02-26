@@ -9,7 +9,7 @@ pass2="$(tr -dc A-Za-z0-9 </dev/urandom | head -c 25)"
 
 # Generating the clients' keys and Certificate Signing Requests (CSR)
 openssl req -newkey rsa:4096 -passout pass:$pass1 -out client1.csr -keyout client1.key -subj="/CN=jobs-manager/OU=Stalker Mongo Clients/O=Red Kite Solutions/L=/ST=/C="
-openssl req -newkey rsa:4096 -passout pass:$pass2 -out client2.csr -keyout client2.key -subj="/CN=cron-service/OU=Stalker Mongo Clients/O=Red Kite Solutions/L=/ST=/C="
+openssl req -newkey rsa:4096 -passout pass:$pass2 -out client2.csr -keyout client2.key -subj="/CN=cron/OU=Stalker Mongo Clients/O=Red Kite Solutions/L=/ST=/C="
 
 # Signing the clients' Certificate Signing Requests (CSR) with the Certificate Authority (CA)
 openssl x509 -sha256 -req -days 365 -in client1.csr -CA mongo_ca.pem -CAkey mongo_ca_private.pem -CAcreateserial -out ./packages/backend/jobs-manager/service/client-signed.crt

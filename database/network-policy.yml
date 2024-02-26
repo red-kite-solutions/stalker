@@ -17,7 +17,7 @@ spec:
               app.kubernetes.io/component: jobs-manager
         - podSelector:
             matchLabels:
-              app.kubernetes.io/component: cron-service
+              app.kubernetes.io/component: cron
       ports:
         - protocol: TCP
           port: 27017

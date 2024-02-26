@@ -2,8 +2,6 @@ FROM stalker-base:latest
 
 WORKDIR /app
 
-
-
 RUN mkdir -p /certs/
 
 # Mongo certs

@@ -1,12 +1,12 @@
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
 metadata:
-  name: cron-service
+  name: cron
   namespace: stalker
 spec:
   podSelector:
     matchLabels:
-      app.kubernetes.io/component: cron-service
+      app.kubernetes.io/component: cron
   policyTypes:
     - Ingress
     - Egress

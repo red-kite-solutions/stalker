@@ -40,9 +40,9 @@ mongo_root="$(tr -dc A-Za-z0-9 </dev/urandom | head -c $PASSWORD_LENGTH)"
 mongo_fm="$(tr -dc A-Za-z0-9 </dev/urandom | head -c $PASSWORD_LENGTH)"
 mongo_cs="$(tr -dc A-Za-z0-9 </dev/urandom | head -c $PASSWORD_LENGTH)"
 cron_api_token="$(tr -dc A-Za-z0-9 </dev/urandom | head -c $PASSWORD_LENGTH)"
-fm_jwt="$(tr -dc A-Za-z0-9 </dev/urandom | head -c $PASSWORD_LENGTH)"
-fm_refresh="$(tr -dc A-Za-z0-9 </dev/urandom | head -c $PASSWORD_LENGTH)"
-fm_kafka_password="$(tr -dc A-Za-z0-9 </dev/urandom | head -c $PASSWORD_LENGTH)"
+jm_jwt="$(tr -dc A-Za-z0-9 </dev/urandom | head -c $PASSWORD_LENGTH)"
+jm_refresh="$(tr -dc A-Za-z0-9 </dev/urandom | head -c $PASSWORD_LENGTH)"
+jm_kafka_password="$(tr -dc A-Za-z0-9 </dev/urandom | head -c $PASSWORD_LENGTH)"
 
 echo "##############################"
 echo "# You will be prompted several times for your root CA key's password."
@@ -71,21 +71,21 @@ vars:
   RESOURCE_QUOTA: "resource-quota.yml"
   MONGO_REPLICA_SET_COUNT:
     value: $MONGO_REPLICA_SET_COUNT
-  FM_ENVIRONMENT: "prod"
+  JM_ENVIRONMENT: "prod"
   MONGO_ROOT_PASSWORD: $mongo_root
-  MONGO_FM_PASSWORD: $mongo_fm
-  MONGO_CRON_SERVICE_PASSWORD: $mongo_cs
+  MONGO_JM_PASSWORD: $mongo_fm
+  MONGO_CRON_PASSWORD: $mongo_cs
   STALKER_CRON_API_TOKEN: $cron_api_token
-  FM_JWT_SECRET: $fm_jwt
-  FM_REFRESH_SECRET: $fm_refresh
-  FM_MONGO_ADDRESS: mongodb://\${MONGO_FM_USER}:\${MONGO_FM_PASSWORD}@mongo-mongodb-headless:27017/
-  CRON_SERVICE_MONGO_ADDRESS: mongodb://\${MONGO_CRON_SERVICE_USER}:\${MONGO_CRON_SERVICE_PASSWORD}@mongo-mongodb-headless:27017/
+  JM_JWT_SECRET: $jm_jwt
+  JM_REFRESH_SECRET: $jm_refresh
+  JM_MONGO_ADDRESS: mongodb://\${MONGO_JM_USER}:\${MONGO_JM_PASSWORD}@mongo-mongodb-headless:27017/
+  CRON_MONGO_ADDRESS: mongodb://\${MONGO_CRON_USER}:\${MONGO_CRON_PASSWORD}@mongo-mongodb-headless:27017/
   SECRET_PRIVATE_RSA_KEY: $secrets_private_key
   SECRET_PUBLIC_RSA_KEY: $secrets_public_key
   STALKER_PORT: $STALKER_PORT
   STALKER_URL: "https://$STALKER_HOSTNAME:\${STALKER_PORT}"
   DOCKERFILE_NAME: Dockerfile
-  FM_URL: "https://jobs-manager:3000"
+  JM_URL: "https://jobs-manager:3000"
   MONGODB_MAX_SIZE: $MONGODB_MAX_SIZE
 EOF
 
