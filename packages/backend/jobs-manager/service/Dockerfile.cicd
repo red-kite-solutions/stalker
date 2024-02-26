@@ -1,0 +1,27 @@
+FROM node:19.6.1-alpine
+
+WORKDIR /app
+
+RUN apk update
+RUN apk add bash
+RUN apk add g++ make py3-pip
+
+COPY package.json package.json
+COPY package-lock.json package-lock.json
+
+RUN npm ci
+
+COPY . .
+RUN mkdir -p /certs/
+
+# Mongo certs
+COPY ca.pem.test /certs/ca.pem
+COPY client-signed.crt.test /certs/client-signed.crt
+COPY client.key.test /certs/client.key
+
+# Kafka certs
+COPY kafka-ca.crt.test /certs/kafka-ca.crt
+COPY kafka-client-signed.crt.test /certs/kafka-client-signed.crt
+COPY kafka-client.key.test /certs/kafka-client.key
+
+CMD ["npm", "run", "start"]

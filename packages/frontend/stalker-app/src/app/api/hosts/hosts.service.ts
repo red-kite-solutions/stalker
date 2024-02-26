@@ -1,5 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { DateRange } from '@angular/material/datepicker';
 import { Observable, firstValueFrom } from 'rxjs';
 import { Host } from 'src/app/shared/types/host/host.interface';
 import { Page } from 'src/app/shared/types/page.type';
@@ -40,10 +41,17 @@ export class HostsService {
     return <Observable<number[]>>this.http.get(`${environment.fmUrl}/hosts/${hostId}/ports?${params.toString()}`);
   }
 
-  public getPage(page: number, pageSize: number, filters: any = undefined): Observable<Page<Host>> {
+  public getPage(
+    page: number,
+    pageSize: number,
+    filters: any = undefined,
+    firstSeenDateRange: DateRange<Date> = new DateRange<Date>(null, null)
+  ): Observable<Page<Host>> {
     let params = filtersToParams(filters);
     params = params.append('page', page);
     params = params.append('pageSize', pageSize);
+    if (firstSeenDateRange.start) params = params.append('firstSeenStartDate', firstSeenDateRange.start.getTime());
+    if (firstSeenDateRange.end) params = params.append('firstSeenEndDate', firstSeenDateRange.end.getTime());
     return this.http.get<Page<Host>>(`${environment.fmUrl}/hosts`, { params });
   }
 

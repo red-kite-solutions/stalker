@@ -98,9 +98,9 @@ EOF
 # ---- Client Jobs Manager
 PASS_FM="$(tr -dc A-Za-z0-9 </dev/urandom | head -c 25)"
 openssl req -newkey rsa:4096 -passout pass:$PASS_FM -out client1.csr -keyout client1.key -subj="/CN=$JOBS_MANAGER_USERNAME/OU=Stalker Kafka Clients/O=Red Kite Solutions/L=/ST=/C="
-openssl x509 -sha256 -req -days 365 -in client1.csr -CA kafka-ca.crt -CAkey kafka-ca.key -CAcreateserial -out ./flow_manager/kafka-client-signed.crt -extfile extclient.cnf
-cp client1.key ./flow_manager/kafka-client.key
-cp kafka-ca.crt ./flow_manager/kafka-ca.crt
+openssl x509 -sha256 -req -days 365 -in client1.csr -CA kafka-ca.crt -CAkey kafka-ca.key -CAcreateserial -out ./packages/backend/jobs-manager/service/kafka-client-signed.crt -extfile extclient.cnf
+cp client1.key ./packages/backend/jobs-manager/service/kafka-client.key
+cp kafka-ca.crt ./packages/backend/jobs-manager/service/kafka-ca.crt
 
 cat > extclient.cnf << EOF
 basicConstraints = CA:FALSE
@@ -117,9 +117,9 @@ EOF
 # ---- Client Orchestrator
 PASS_ORCHESTRATOR="$(tr -dc A-Za-z0-9 </dev/urandom | head -c 25)"
 openssl req -newkey rsa:4096 -passout pass:$PASS_ORCHESTRATOR -out client2.csr -keyout client2.key -subj="/CN=$ORCHESTRATOR_USERNAME/OU=Stalker Kafka Clients/O=Red Kite Solutions/L=/ST=/C="
-openssl x509 -sha256 -req -days 365 -in client2.csr -CA kafka-ca.crt -CAkey kafka-ca.key -CAcreateserial -out ./orchestrator/kafka-client-signed.crt -extfile extclient.cnf
-cp client2.key ./orchestrator/kafka-client.key
-cp kafka-ca.crt ./orchestrator/kafka-ca.crt
+openssl x509 -sha256 -req -days 365 -in client2.csr -CA kafka-ca.crt -CAkey kafka-ca.key -CAcreateserial -out ./packages/backend/orchestrator/service/kafka-client-signed.crt -extfile extclient.cnf
+cp client2.key ./packages/backend/orchestrator/service/kafka-client.key
+cp kafka-ca.crt ./packages/backend/orchestrator/service/kafka-ca.crt
 
 # Moving the keys for safe keeping
 mv kafka-0.keystore.jks ./queue/kafka-0.keystore.jks

@@ -15,6 +15,12 @@
             {{ port.lastSeen | timeAgo }}
           </panel-section-subtitle>
         </panel-section>
+        <panel-section>
+          <panel-section-title i18n="First seen|First seen"> First seen </panel-section-title>
+          <panel-section-subtitle [matTooltip]="port.createdAt | humanizeDate: 'precise'" matTooltipPosition="before">
+            {{ port.createdAt | timeAgo }}
+          </panel-section-subtitle>
+        </panel-section>
       }
 
       @if ((tagsSelectItems$ | async) && mergedTags$ | async; as portTags) {
@@ -35,13 +41,20 @@
               ></app-text-select-menu>
             </span>
           </panel-section-title>
-          @if (!portTags.length) {
-            <panel-section-subtitle i18n="No tags yet|There are no tags for this item"
-              >No tags yet
-            </panel-section-subtitle>
-          }
-          @for (tag of portTags; track tag) {
-            <app-pill-tag [color]="(tags | whereId: [tag])?.color">{{ (tags | whereId: [tag])?.text }}</app-pill-tag>
+          @if (port$ | async; as port) {
+            @if (!portTags.length && !newPillTag.isNew()) {
+              <panel-section-subtitle i18n="No tags yet|There are no tags for this item"
+                >No tags yet
+              </panel-section-subtitle>
+            }
+            <div class="tw-pt-1 tw-flex tw-flex-wrap tw-gap-x-[2px] tw-gap-y-1">
+              <app-new-pill-tag #newPillTag [createdAtMilliseconds]="port.createdAt"></app-new-pill-tag>
+              @for (tag of portTags; track tag) {
+                <app-pill-tag [color]="(tags | whereId: [tag])?.color">{{
+                  (tags | whereId: [tag])?.text
+                }}</app-pill-tag>
+              }
+            </div>
           }
         </panel-section>
       }

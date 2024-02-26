@@ -36,6 +36,10 @@
     <mat-icon>format_paint</mat-icon>
     <label i18n="Theme|Stalker theme">Theme</label>
   </button>
+  <button mat-menu-item [matMenuTriggerFor]="subMenuLanguages">
+    <mat-icon>translate</mat-icon>
+    <label i18n="Language selector|The application's language">Language</label>
+  </button>
   <button mat-menu-item type="button" (click)="logout()">
     <mat-icon>exit_to_app</mat-icon>
     <label i18n="Sign out|Link for a user to log out">Sign out</label>
@@ -60,6 +64,21 @@
           <span class="color-shine"></span>
         </span>
         <span>{{ theme.localizedName }}</span>
+      </span>
+    </button>
+  }
+</mat-menu>
+
+<mat-menu #subMenuLanguages="matMenu">
+  @for (language of languages; track $index) {
+    <button mat-menu-item (click)="selectLanguage(language.locale)">
+      <mat-icon
+        class="check-icon"
+        [style.visibility]="language.locale === this.currentLanguageLocale ? 'visible' : 'hidden'"
+        >check</mat-icon
+      >
+      <span class="tw-flex tw-items-center tw-gap-2">
+        <span>{{ language.language }}</span>
       </span>
     </button>
   }

@@ -1,0 +1,39 @@
+#!/bin/bash
+
+
+if [[ $* == *--help* || $* == *-h* ]]; then
+  echo 'Stalker setup tool'
+  echo ''
+  echo 'Description:'
+  echo 'This tool setups a basic production instance of Stalker, and starts the instance.'
+  echo ''
+  echo 'Usage:'
+  echo './stalker [OPTIONS]'
+  echo ''
+  echo 'Options:'
+  echo '  --force-setup, -f   Forces a setup, ignoring the existing setup.'
+  echo '  --help, -h          Display this help message.'
+  echo ''
+  echo 'Example:'
+  echo '  ./stalker                # Setups and starts Stalker.'
+  echo '  ./stalker --force-setup  # Forces a new setup of Stalker.'
+  exit
+fi
+
+
+if [[ $* == *--force-setup* || $* == *-f* ]]; then
+  echo Force setup flag enabled, cleaning up.
+  rm index.txt* 2> /dev/null
+  rm devspace.prod.yaml 2> /dev/null
+fi
+
+
+if [ ! -f "devspace.prod.yaml" ]; then
+  echo "Initializing Stalker for its first deployment."
+  bash ./setup.sh
+fi
+
+if ! (minikube status &>/dev/null); then
+  minikube start --driver=docker --memory=16384 --cpus=8
+fi
+devspace --var="STALKER_ENVIRONMENT=prod" run-pipeline prod -n stalker

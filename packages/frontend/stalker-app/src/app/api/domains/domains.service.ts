@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { DateRange } from '@angular/material/datepicker';
 import { firstValueFrom, Observable } from 'rxjs';
 import { Domain } from 'src/app/shared/types/domain/domain.interface';
 import { Page } from 'src/app/shared/types/page.type';
@@ -12,11 +13,17 @@ import { filtersToParams } from '../../utils/filters-to-params';
 export class DomainsService {
   constructor(private http: HttpClient) {}
 
-  public getPage(page: number, pageSize: number, filters: any = undefined): Observable<Page<Domain>> {
+  public getPage(
+    page: number,
+    pageSize: number,
+    filters: any = undefined,
+    firstSeenDateRange: DateRange<Date> = new DateRange<Date>(null, null)
+  ): Observable<Page<Domain>> {
     let params = filtersToParams(filters);
     params = params.append('page', page);
     params = params.append('pageSize', pageSize);
-
+    if (firstSeenDateRange.start) params = params.append('firstSeenStartDate', firstSeenDateRange.start.getTime());
+    if (firstSeenDateRange.end) params = params.append('firstSeenEndDate', firstSeenDateRange.end.getTime());
     return this.http.get<Page<Domain>>(`${environment.fmUrl}/domains`, { params });
   }
 

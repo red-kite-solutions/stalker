@@ -9,7 +9,7 @@ import { ProjectAvatarComponent } from 'src/app/shared/components/project-avatar
 @Component({
   standalone: true,
   selector: 'top-projects',
-  template: `<span class="metric-title">Projects</span>
+  template: `<span class="metric-title" i18n="Projects|Projects list">Projects</span>
     <mat-list class="metric-list">
       @for (project of projects$ | async; track project) {
         <mat-list-item>

@@ -1,4 +1,9 @@
 FROM node:18-alpine as node
+
+RUN apk update
+RUN apk add bash
+RUN apk add g++ make py3-pip
+
 WORKDIR /app
 
 COPY .yarn .yarn

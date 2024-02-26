@@ -10,13 +10,13 @@ fi
 root=$(pwd)
 echo "[PRECOMMIT] Using $root as root directory."
 
-for project in "packages/frontend/stalker-app" "packages/backend/jobs-manager" "orchestrator"
+for project in "docs" "packages/frontend/stalker-app" "packages/backend/jobs-manager" "orchestrator"
 do
     cd "$root/$project"
     if [ -f "./.husky/pre-commit" ]; then
-        . "./.husky/pre-commit"
-        if (git diff --staged --name-only | grep --quiet $project) then
+        if [[ `git status --porcelain` ]]; then
             echo "[$project] Found changes. Running toolchain."
+            . "./.husky/pre-commit"
         else
             echo "[$project] No changes found."
         fi
