@@ -6,7 +6,7 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      app.kubernetes.io/component: kafka
+      app.kubernetes.io/component: orchestrator
   policyTypes:
     - Ingress
     - Egress

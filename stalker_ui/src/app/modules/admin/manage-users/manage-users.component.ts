@@ -10,6 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -34,6 +35,7 @@ import { RolesName, rolesName } from '../roles';
     MatInputModule,
     MatCheckboxModule,
     MatPaginatorModule,
+    MatTooltipModule,
   ],
   selector: 'app-manage-users',
   templateUrl: './manage-users.component.html',

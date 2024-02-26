@@ -16,6 +16,7 @@ export class ProfileComponent {
   passwordConfirm = '';
   profileEditValid = true;
   invalidPassword = false;
+  profileBreadCrumbs = $localize`:Profile|Profile:Profile`;
 
   private validatePasswordEquals: Function = (control: UntypedFormControl): ValidationErrors | null => {
     if (control.root.get('newPassword')?.value === control.root.get('passwordConfirm')?.value) {

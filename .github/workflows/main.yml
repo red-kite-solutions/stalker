@@ -45,13 +45,13 @@ jobs:
         run: kubectl create namespace stalker
 
       - name: Build test containers
-        run: devspace run-pipeline build-e2e -n stalker
+        run: devspace --var="STALKER_ENVIRONMENT=tests" run-pipeline build-e2e -n stalker
 
       - name: Deploy test containers
-        run: devspace run-pipeline flow-manager-e2e-cicd-deploy -n stalker
+        run: devspace run-pipeline --var="STALKER_ENVIRONMENT=tests" flow-manager-e2e-cicd-deploy -n stalker
 
       - name: Run tests
-        run: devspace run-pipeline flow-manager-e2e-cicd-run -n stalker
+        run: devspace --var="STALKER_ENVIRONMENT=tests" run-pipeline flow-manager-e2e-cicd-run -n stalker
 
       - name: Diagnosis
         if: always()
@@ -61,9 +61,9 @@ jobs:
       - name: Kafka describe
         if: always()
         run: |-
-          kubectl describe -n stalker pod kafka-0
+          kubectl describe -n stalker pod kafka-controller-0
 
       - name: Kafka logs
         if: always()
         run: |-
-          kubectl logs -n stalker kafka-0
+          kubectl logs -n stalker kafka-controller-0

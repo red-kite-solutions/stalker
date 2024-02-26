@@ -152,8 +152,12 @@ obj
 # test output when run for cicd
 jest-output*.json
 
-# Certificates and keys
+# Certificates and keys and openssl in general
 **/*.pem
 **/*.csr
 **/*.crt
 **/*.key
+**/*.jks
+index.txt*
+serial
+serial.old

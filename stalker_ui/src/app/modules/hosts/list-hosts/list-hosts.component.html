@@ -28,8 +28,11 @@
         [filterOptions]="filterOptions"
         [routerLinkPrefix]="'/hosts/'"
         (filtersChange)="filtersChange($event)"
+        (dateFiltersChange)="dateRangeFilterChange($event)"
         (selectionChange)="selection = $event"
         [noDataMessage]="noDataMessage"
+        [dateSearchEnabled]="true"
+        [startDate]="startDate"
       >
         <!-- Ip Column -->
         <ng-container matColumnDef="ip">
@@ -57,11 +60,19 @@
         </ng-container>
         <!-- Tags Column -->
         <ng-container matColumnDef="tags">
-          <th mat-header-cell *matHeaderCellDef i18n="Tags|Multiple tags describing somthing">Tags</th>
+          <th mat-header-cell *matHeaderCellDef i18n="Tags|Multiple tags describing something">Tags</th>
           <td mat-cell *matCellDef="let element">
-            @for (tag of element.tags; track tag) {
-              <app-pill-tag [color]="(tags | whereId: [tag])?.color">{{ (tags | whereId: [tag])?.text }}</app-pill-tag>
-            }
+            <div class="tw-pt-1 tw-flex tw-flex-wrap tw-gap-x-[2px] tw-gap-y-1">
+              <app-new-pill-tag
+                [createdAtMilliseconds]="element.createdAt"
+                (click)="dateFilter($event)"
+              ></app-new-pill-tag>
+              @for (tag of element.tags; track tag) {
+                <app-pill-tag [color]="(tags | whereId: [tag])?.color">{{
+                  (tags | whereId: [tag])?.text
+                }}</app-pill-tag>
+              }
+            </div>
           </td>
         </ng-container>
         <tr mat-header-row *matHeaderRowDef="displayColumns$ | async"></tr>
@@ -75,7 +86,7 @@
   <h1 mat-dialog-title i18n="Add hosts|Add a new host to a project">Add Hosts</h1>
 
   <mat-dialog-content>
-    <mat-form-field>
+    <mat-form-field appearance="outline">
       <mat-select i18n-placeholder="Project|Project or business" placeholder="Project" [(value)]="selectedProject">
         <mat-option>None</mat-option>
         @for (project of projects$ | async; track project) {
@@ -100,7 +111,7 @@
     </mat-form-field>
   </mat-dialog-content>
   <mat-dialog-actions>
-    <button mat-flat-button color="primary" (click)="addNewHosts()" i18n="Add hosts|Add a new hosts to a project">
+    <button mat-stroked-button color="primary" (click)="addNewHosts()" i18n="Add hosts|Add a new hosts to a project">
       Add hosts
     </button>
     <button mat-stroked-button color="warn" matDialogClose i18n="Cancel|Cancel an action">Cancel</button>

@@ -17,16 +17,6 @@ public abstract class PythonJobTemplate : KubernetesJobTemplate
     /// </summary>
     /// <param name="id"></param>
     /// <param name="config"></param>
-    /// <param name="jobProvider">A PythonJobTemplateProvider that will be used to automatically find the job command</param>
-    public PythonJobTemplate(string? id, IConfiguration config, PythonJobTemplateProvider jobProvider)
-    {
-        Id = Id;
-        Config = config;
-        SetNamespace();
-        var command = jobProvider.GetJobTemplateCode(this.GetType().UnderlyingSystemType);
-        PythonCommand = command;
-    }
-
     public PythonJobTemplate(string? id, IConfiguration config)
     {
         Id = Id;

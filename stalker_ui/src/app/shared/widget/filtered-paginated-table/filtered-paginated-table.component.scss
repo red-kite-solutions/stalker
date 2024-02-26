@@ -23,11 +23,6 @@ table {
   height: 48px;
 }
 
-td {
-  padding-top: 12px;
-  padding-bottom: 12px;
-}
-
 .filter-chip-list {
   width: 100%;
 }
@@ -41,4 +36,14 @@ td {
 mat-progress-bar {
   height: 3px;
   width: auto;
+}
+
+.date-picker-form {
+  min-width: fit-content;
+}
+
+mat-hint {
+  button:hover {
+    text-decoration: underline;
+  }
 }

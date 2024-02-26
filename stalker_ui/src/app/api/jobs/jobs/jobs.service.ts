@@ -15,7 +15,7 @@ export class JobsService {
   constructor(private http: HttpClient) {}
 
   public getJobSummaries(): Observable<JobListEntry[]> {
-    return <Observable<Array<JobListEntry>>>this.http.get(`${environment.fmUrl}/jobs/summaries`);
+    return <Observable<JobListEntry[]>>this.http.get(`${environment.fmUrl}/jobs/summaries`);
   }
 
   public getJobExecutions(
@@ -86,15 +86,9 @@ export class JobsService {
     return 'done';
   }
 
-  public async startJob(
-    jobName: string,
-    source: string,
-    jobParameters: JobParameter[],
-    projectId: string | null = null
-  ) {
+  public async startJob(jobName: string, jobParameters: JobParameter[], projectId: string | null = null) {
     const data = {
       task: jobName,
-      source: source,
       jobParameters: jobParameters,
       projectId: projectId,
     };

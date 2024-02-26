@@ -195,7 +195,7 @@ export class DomainsService {
   ): Promise<DomainDocument[]> {
     let query;
     if (filter) {
-      query = this.domainModel.find(filter);
+      query = this.domainModel.find(this.buildFilters(filter));
     } else {
       query = this.domainModel.find({});
     }
@@ -210,7 +210,7 @@ export class DomainsService {
     if (!filter) {
       return await this.domainModel.estimatedDocumentCount();
     } else {
-      return await this.domainModel.countDocuments(filter);
+      return await this.domainModel.countDocuments(this.buildFilters(filter));
     }
   }
 
@@ -339,6 +339,26 @@ export class DomainsService {
         finalFilter['tags'] = { $all: preppedTagsArray };
       }
     }
+
+    // Filter by createdAt
+    if (dto.firstSeenStartDate || dto.firstSeenEndDate) {
+      let createdAtFilter = {};
+
+      if (dto.firstSeenStartDate && dto.firstSeenEndDate) {
+        createdAtFilter = [
+          { createdAt: { $gte: dto.firstSeenStartDate } },
+          { createdAt: { $lte: dto.firstSeenEndDate } },
+        ];
+        finalFilter['$and'] = createdAtFilter;
+      } else {
+        if (dto.firstSeenStartDate)
+          createdAtFilter = { $gte: dto.firstSeenStartDate };
+        else if (dto.firstSeenEndDate)
+          createdAtFilter = { $lte: dto.firstSeenEndDate };
+        finalFilter['createdAt'] = createdAtFilter;
+      }
+    }
+
     return finalFilter;
   }
 }

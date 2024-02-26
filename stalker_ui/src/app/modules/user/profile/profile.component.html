@@ -1,4 +1,4 @@
-<app-page-header class="tw-w-full" [parts]="['Profile']"></app-page-header>
+<app-page-header class="tw-w-full" [parts]="[profileBreadCrumbs]"></app-page-header>
 
 <mat-card appearance="outlined">
   <mat-card-content>
@@ -121,7 +121,7 @@
       }
 
       <div class="tw-flex tw-justify-center">
-        <button i18n="Save changes|Save the changes done to an item" class="button" mat-flat-button color="primary">
+        <button i18n="Save changes|Save the changes done to an item" class="button" mat-stroked-button color="primary">
           Save Changes
         </button>
       </div>

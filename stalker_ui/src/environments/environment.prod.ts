@@ -2,6 +2,6 @@ import { Environment } from './environment.model';
 
 export const environment: Environment = {
   production: true,
-  fmUrl: 'http://localhost:3000', // change to proper fmUrl
-  fmWsUrl: 'http://localhost:3000', // change to proper fmWsUrl
+  fmUrl: `https://${window.location.hostname}:${window.location.port}/api`,
+  fmWsUrl: `wss://${window.location.hostname}:${window.location.port}`,
 };

@@ -18,11 +18,11 @@
 
       <div class="code-editor-container">
         <app-code-editor
-          class="mat-elevation-z4"
+          class="mat-elevation-z2"
           [(code)]="code"
           [language]="'yaml'"
           [minimapEnabled]="false"
-          [theme]="theme"
+          [theme]="(theme$ | async) ?? 'vs-dark'"
           [readonly]="isInitializing"
           (saveEvent)="forceSave()"
           [path]="'/subcriptions/subscription.yaml'"
@@ -31,7 +31,7 @@
     </div>
   </mat-drawer-content>
 
-  <mat-drawer mode="side" position="end" opened>
+  <mat-drawer mode="side" disableClose="true" position="end" opened>
     <div #contextMenu class="tw-flex tw-gap-2 tw-flex-col tw-m-4">
       <h2 i18n="Configuration|Subscription configuration">Configuration</h2>
       @if (projects$ | async) {

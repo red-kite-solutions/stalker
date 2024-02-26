@@ -2,24 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@import 'app/shared/widget/filtered-paginated-table/_filtered-paginated-table.component.scss';
-@import 'app/shared/components/panel-section/_panel-section.component.scss';
-@import 'app/shared/widget/code-editor/_code-editor.component.scss';
-@import 'app/shared/widget/text-select-menu/_text-select-menu.component.scss';
-@import 'app/modules/jobs/custom-jobs/_custom-jobs.component';
-@import 'app/shared/widget/text-menu/_text-menu.component.scss';
-@import 'app/modules/tags/manage-tags/_manage-tags.component.scss';
-@import 'app/shared/widget/pill-tag/_pill-tag.component.scss';
-
-@include app-filtered-paginated-table();
-@include panel-section();
-@include app-code-editor();
-@include app-text-menu();
-@include app-text-select-menu();
-@include app-custom-jobs();
-@include app-manage-tags();
-@include app-pill-tag();
-
 html,
 body {
   height: 100%;
@@ -54,6 +36,7 @@ button {
 app-image-upload {
   .ngx-file-drop__drop-zone {
     height: 100% !important;
+    padding: 8px;
     .ngx-file-drop__content {
       height: 100% !important;
     }
@@ -133,5 +116,12 @@ mat-icon {
 .mat-mdc-form-field {
   mat-error {
     margin-top: -5px;
+  }
+}
+
+// Removing the background from mat-checkboxes in dark theme
+.theme-dark {
+  .mdc-checkbox__background {
+    background-color: transparent !important;
   }
 }

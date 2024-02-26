@@ -1,13 +1,18 @@
 <div class="table-container tw-flex tw-flex-col">
   <!-- Search filter-->
-  @switch (filterType) {
-    @case ('tokens') {
-      <ng-container *ngTemplateOutlet="tokenSearch"></ng-container>
+  <div class="tw-flex tw-flex-row tw-gap-4">
+    @switch (filterType) {
+      @case ('tokens') {
+        <ng-container *ngTemplateOutlet="tokenSearch"> </ng-container>
+      }
+      @case ('fulltext') {
+        <ng-container *ngTemplateOutlet="fulltextSearch"> </ng-container>
+      }
     }
-    @case ('fulltext') {
-      <ng-container *ngTemplateOutlet="fulltextSearch"></ng-container>
+    @if (dateSearchEnabled) {
+      <ng-container *ngTemplateOutlet="dateSearch"></ng-container>
     }
-  }
+  </div>
 
   <table mat-table [dataSource]="_dataSource" class="tw-flex-1">
     <!-- Checkbox Column -->
@@ -127,5 +132,40 @@
       #fulltextInput
       (keyup)="filtersChange.next([fulltextInput.value])"
     />
+  </mat-form-field>
+</ng-template>
+
+<ng-template #dateSearch>
+  <mat-form-field class="date-picker-form">
+    <mat-label>{{ datePickerLabel }}</mat-label>
+    <mat-date-range-input [formGroup]="dateRange" [rangePicker]="dateRangePicker">
+      <input
+        matStartDate
+        i18n-placeholder="From date|From date in range picker"
+        placeholder="From date"
+        formControlName="start"
+        i18n-matTooltip="Date picker format|Date picker format"
+        matTooltip="yyyy/mm/dd"
+        matTooltipShowDelay="500"
+      />
+      <input
+        matEndDate
+        i18n-placeholder="To date|To date in range picker"
+        placeholder="To date"
+        formControlName="end"
+        i18n-matTooltip="Date picker format|Date picker format"
+        matTooltip="yyyy/mm/dd"
+        matTooltipShowDelay="500"
+      />
+    </mat-date-range-input>
+    <mat-datepicker-toggle matIconSuffix [for]="dateRangePicker">
+      <mat-icon matDatepickerToggleIcon>date_range</mat-icon>
+    </mat-datepicker-toggle>
+    <mat-date-range-picker #dateRangePicker></mat-date-range-picker>
+    <mat-hint class="tw-flex tw-flex-row-reverse tw-w-full">
+      @if (dateRange.get('start')?.value || dateRange.get('end')?.value || dateRange.invalid) {
+        <button i18n="Clear|Clear the curent values" class="tw-pt-1" (click)="clearDates()">Clear</button>
+      }
+    </mat-hint>
   </mat-form-field>
 </ng-template>

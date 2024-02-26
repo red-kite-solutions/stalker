@@ -15,7 +15,12 @@ namespace Orchestrator.Queue
                 BootstrapServers = kafkaUri,
                 GroupId = GroupId,
                 AllowAutoCreateTopics = true,
-                AutoOffsetReset = AutoOffsetReset.Earliest
+                AutoOffsetReset = AutoOffsetReset.Earliest,
+                SslCaLocation = "/certs/kafka-ca.crt",
+                SslCertificateLocation = "/certs/kafka-client-signed.crt",
+                SslKeyLocation = "/certs/kafka-client.key",
+                SslKeyPassword = Environment.GetEnvironmentVariable("ORCHESTRATOR_KAFKA_KEY_PASSWORD"),
+                SecurityProtocol = SecurityProtocol.Ssl
             };
 
             CancellationToken ct = SetupConsumer(ConsumerConfig, deserializer);

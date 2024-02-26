@@ -1,0 +1,56 @@
+name: Documentation / Release
+
+on:
+  push:
+    branches: main
+
+permissions:
+  packages: write
+  id-token: write
+  contents: read
+  pages: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: npm
+
+      - name: Install dependencies
+        working-directory: ./docs
+        run: npm ci
+
+      - name: Build
+        working-directory: ./docs
+        run: npm run build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          # 👇 Specify build output path
+          path: ./docs/build
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
+
+      - name: Update search index
+        uses: algolia/algoliasearch-crawler-github-actions@v1.0.10
+        id: algolia_crawler
+        with: # mandatory parameters
+          crawler-user-id: ${{ secrets.CRAWLER_USER_ID }}
+          crawler-api-key: ${{ secrets.CRAWLER_API_KEY }}
+          algolia-app-id: ${{ secrets.ALGOLIA_APP_ID }}
+          algolia-api-key: ${{ secrets.ALGOLIA_API_KEY }}
+          crawler-name: stalker-red-kite
+          site-url: 'https://wiki.stalker.red-kite.io/docs/intro/'

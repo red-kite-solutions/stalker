@@ -495,12 +495,9 @@ describe('Findings Handler Base', () => {
       sub.projectId = new Types.ObjectId('507f1f77bcf86cd799439011');
       sub.conditions = [];
       sub.finding = 'HostnameFinding';
-      sub.jobName = 'CustomJob';
+      sub.jobName = cjName;
       const customParam = { name: 'custom-job-param', value: 'ASDF' };
-      sub.jobParameters = [
-        { name: 'CustomJobName', value: cjName },
-        customParam,
-      ];
+      sub.jobParameters = [customParam];
 
       // Act
       const jobParams =
@@ -539,11 +536,6 @@ describe('Findings Handler Base', () => {
       ).toStrictEqual(true);
       const param = jobParams.find((p) => p.name === 'customJobParameters');
 
-      expect(
-        (param.value as Array<JobParameter>).some(
-          (p) => p.name === 'CustomJobName' && p.value === cjName,
-        ),
-      ).toStrictEqual(true);
       expect(
         (param.value as Array<JobParameter>).some(
           (p) => p.name === customParam.name && p.value === customParam.value,

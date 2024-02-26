@@ -1,36 +1,109 @@
+import { CommonModule } from '@angular/common';
 import { Component, ViewChild } from '@angular/core';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatTableDataSource } from '@angular/material/table';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatOptionModule } from '@angular/material/core';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatListModule } from '@angular/material/list';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSortModule } from '@angular/material/sort';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
+import { RouterModule } from '@angular/router';
+import { NgxFileDropModule } from 'ngx-file-drop';
 import { ToastrService } from 'ngx-toastr';
-import { map } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest, map } from 'rxjs';
+import { ThemeService } from 'src/app/services/theme.service';
+import { AvatarComponent } from 'src/app/shared/components/avatar/avatar.component';
+import { JobLogsComponent } from 'src/app/shared/components/job-logs/job-logs.component';
+import { AppHeaderComponent } from 'src/app/shared/components/page-header/page-header.component';
+import { PanelSectionModule } from 'src/app/shared/components/panel-section/panel-section.module';
+import { SharedModule } from 'src/app/shared/shared.module';
+import { SpinnerButtonComponent } from 'src/app/shared/widget/spinner-button/spinner-button.component';
 import { parse, parseDocument, stringify } from 'yaml';
 import { AuthService } from '../../../api/auth/auth.service';
 import { JobsService } from '../../../api/jobs/jobs/jobs.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { JobListEntry, JobParameterDefinition, StartedJob } from '../../../shared/types/jobs/job.type';
 import { ProjectSummary } from '../../../shared/types/project/project.summary';
-import { CodeEditorTheme } from '../../../shared/widget/code-editor/code-editor.component';
+import { CodeEditorComponent, CodeEditorTheme } from '../../../shared/widget/code-editor/code-editor.component';
+import { FindingsModule } from '../../findings/findings.module';
+import { JobLogsSummaryComponent } from '../job-executions/job-execution-logs-summary.component';
 
 @Component({
+  standalone: true,
   selector: 'app-launch-jobs',
   templateUrl: './launch-jobs.component.html',
   styleUrls: ['./launch-jobs.component.scss'],
+  imports: [
+    CommonModule,
+    RouterModule,
+    SharedModule,
+    MatSidenavModule,
+    MatDividerModule,
+    MatDialogModule,
+    MatCardModule,
+    FormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    ReactiveFormsModule,
+    MatTableModule,
+    MatCheckboxModule,
+    MatSortModule,
+    MatPaginatorModule,
+    MatTooltipModule,
+    MatSelectModule,
+    MatTabsModule,
+    MatGridListModule,
+    NgxFileDropModule,
+    MatProgressSpinnerModule,
+    MatExpansionModule,
+    MatListModule,
+    MatOptionModule,
+    FindingsModule,
+    PanelSectionModule,
+    MatProgressBarModule,
+    AppHeaderComponent,
+    JobLogsComponent,
+    CodeEditorComponent,
+    JobLogsSummaryComponent,
+    SpinnerButtonComponent,
+    AvatarComponent,
+  ],
 })
 export class LaunchJobsComponent {
   public code = '';
   public language = 'yaml';
   public minimapEnabled = false;
-  public theme: CodeEditorTheme = 'vs-dark';
   public readonly = false;
   public currentStartedJob: StartedJob | undefined;
+  public theme$: Observable<CodeEditorTheme> = this.themeService.theme$.pipe(
+    map((theme) => (theme === 'dark' ? 'vs-dark' : 'vs'))
+  );
+
+  public filterChange$ = new BehaviorSubject<string>('');
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   dataSource = new MatTableDataSource<JobListEntry>();
 
   public selectedRow: JobListEntry | undefined;
   public currentJobName = '';
-  public currentJobSource = '';
   public data = new Array<JobListEntry>();
 
   public dataSource$ = this.refreshData();
@@ -53,16 +126,17 @@ export class LaunchJobsComponent {
     private toastr: ToastrService,
     private projectsService: ProjectsService,
     private titleService: Title,
-    public authService: AuthService
+    public authService: AuthService,
+    private themeService: ThemeService
   ) {
     this.titleService.setTitle($localize`:Launch jobs|:Launch jobs`);
   }
 
   private refreshData() {
-    return this.jobsService.getJobSummaries().pipe(
-      map((data: JobListEntry[]) => {
-        this.data = data;
-        this.dataSource.data = data;
+    return combineLatest([this.filterChange$, this.jobsService.getJobSummaries()]).pipe(
+      map(([filter, data]) => {
+        this.data = data.filter((x) => this.filterJob(x, filter));
+        this.dataSource.data = this.data;
         this.dataSource.paginator = this.paginator;
       })
     );
@@ -72,7 +146,6 @@ export class LaunchJobsComponent {
     this.selectedRow = row;
     const rowData = this.data.find((v) => v.name === this.selectedRow?.name);
     if (rowData?.name) this.currentJobName = rowData.name;
-    if (rowData?.source) this.currentJobSource = rowData.source;
     this.code = this.formatYamlFromJob(rowData);
   }
 
@@ -80,8 +153,9 @@ export class LaunchJobsComponent {
     if (!job) return '';
     const jobCopy = <Partial<JobListEntry>>JSON.parse(JSON.stringify(job));
     delete jobCopy.name;
-    delete jobCopy.source;
+    delete jobCopy.builtIn;
     if (!jobCopy.parameters) return '';
+
     jobCopy.parameters = jobCopy.parameters.map((item: JobParameterDefinition) => {
       return { name: item.name, type: item.type, value: item.default === undefined ? 'Change Me' : item.default };
     });
@@ -128,24 +202,27 @@ export class LaunchJobsComponent {
     }
 
     try {
-      if (this.selectedProject) {
-        this.currentStartedJob = await this.jobsService.startJob(
-          this.currentJobName,
-          this.currentJobSource,
-          parameters,
-          this.selectedProject
-        );
-      } else {
-        this.currentStartedJob = await this.jobsService.startJob(
-          this.currentJobName,
-          this.currentJobSource,
-          parameters
-        );
-      }
+      this.currentStartedJob = await this.jobsService.startJob(
+        this.currentJobName,
+        parameters,
+        this.selectedProject ?? undefined
+      );
     } catch {
       this.toastr.error(
         $localize`:Error while starting job|There was an error while starting the job:Error while starting job`
       );
     }
+  }
+
+  private filterJob(entry: JobListEntry, filter: string) {
+    const parts = [entry.name];
+    return this.normalizeString(parts.join(' ')).includes(filter);
+  }
+
+  private normalizeString(str: string) {
+    return str
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
   }
 }

@@ -16,6 +16,7 @@ import { CodeEditorComponent, CodeEditorTheme } from '../../widget/code-editor/c
   styles: ['app-code-editor { width: 100%; height:100%; border-radius: 0; }'],
   template: ` <mat-progress-bar
       mode="indeterminate"
+      color="accent"
       [ngStyle]="{ display: (isJobInProgress$ | async) ? 'block' : 'none' }"
     ></mat-progress-bar
     ><app-code-editor
@@ -32,7 +33,8 @@ export class JobLogsComponent implements OnChanges {
   @Input() public theme: CodeEditorTheme = 'vs-dark';
   @Input() public jobId: string | null | undefined = undefined;
 
-  private socket = new JobsSocketioClient(this.authService);
+  private socket: JobsSocketioClient | undefined = undefined;
+  private timeout: any | undefined = undefined;
 
   public logs$: Observable<string> | null = null;
   public isJobInProgress$: Observable<boolean> | null = null;
@@ -44,12 +46,15 @@ export class JobLogsComponent implements OnChanges {
 
   ngOnChanges(): void {
     if (this.jobId != null) {
+      if (this.timeout) clearTimeout(this.timeout);
+      this.socket?.disconnect();
+      this.socket = new JobsSocketioClient(this.authService);
       this.logs$ = this.jobsService.getJobLogs(this.jobId).pipe(
         map((initialLogs) =>
           initialLogs.items.map((value) => this.formatLog(value.timestamp, value.level, value.value))
         ),
         concatMap((initialLogs) =>
-          this.socket.jobOutput.pipe(
+          this.socket!.jobOutput.pipe(
             startWith(null),
             scan((acc, value) => {
               console.log(value);
@@ -72,7 +77,7 @@ export class JobLogsComponent implements OnChanges {
         map((update) => {
           switch (update.status) {
             case 'success':
-              setTimeout(() => this.socket?.disconnect(), 5000);
+              this.timeout = setTimeout(() => this.socket?.disconnect(), 5000);
               return false;
 
             case 'started':
@@ -82,7 +87,7 @@ export class JobLogsComponent implements OnChanges {
         })
       );
 
-      this.socket.sendMessage({ jobId: this.jobId });
+      this.socket.sendMessage({ jobId: this.jobId || '' });
     }
   }
 
