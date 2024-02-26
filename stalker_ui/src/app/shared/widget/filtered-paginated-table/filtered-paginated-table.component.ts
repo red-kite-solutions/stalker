@@ -167,10 +167,7 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
       if (endDate) {
         endDateIncludingSelectedDay = new Date(endDate.getTime() + 1000 * 60 * 60 * 24 - 1); // 23:59:59:999
       }
-      if (endDate)
-        this.dateFiltersChange.emit(
-          new DateRange<Date>(dr.start?.toDate() ?? null, endDateIncludingSelectedDay ?? null)
-        );
+      this.dateFiltersChange.emit(new DateRange<Date>(dr.start?.toDate() ?? null, endDateIncludingSelectedDay ?? null));
     });
 
   constructor() {
