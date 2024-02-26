@@ -8,17 +8,19 @@ import {
   ElementRef,
   EventEmitter,
   Input,
+  OnDestroy,
   OnInit,
   Output,
   QueryList,
   ViewChild,
 } from '@angular/core';
-import { FormsModule, ReactiveFormsModule, UntypedFormControl } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, UntypedFormControl } from '@angular/forms';
 import { MatAutocomplete, MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipGrid, MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { MatOptionModule } from '@angular/material/core';
+import { DateRange, MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
@@ -41,8 +43,10 @@ import {
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
+import * as moment from 'moment';
+import { Moment } from 'moment';
 import { NgxFileDropModule } from 'ngx-file-drop';
-import { Observable, map, startWith } from 'rxjs';
+import { Observable, debounceTime, filter, map, startWith } from 'rxjs';
 import { AvatarComponent } from '../../components/avatar/avatar.component';
 import { IdentifiedElement } from '../../types/identified-element.type';
 import { CodeEditorComponent } from '../code-editor/code-editor.component';
@@ -78,9 +82,11 @@ import { CodeEditorComponent } from '../code-editor/code-editor.component';
     MatOptionModule,
     MatSelectModule,
     FormsModule,
+    MatDatepickerModule,
+    MatTooltipModule,
   ],
 })
-export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implements OnInit {
+export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implements OnInit, OnDestroy {
   @ContentChildren(MatHeaderRowDef) headerRowDefs!: QueryList<MatHeaderRowDef>;
   @ContentChildren(MatRowDef) rowDefs!: QueryList<MatRowDef<T>>;
   @ContentChildren(MatColumnDef) columnDefs!: QueryList<MatColumnDef>;
@@ -117,22 +123,46 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
   @Input() routerLinkPrefix = '/';
   @Input() elementLinkActive = true;
   @Input() queryParamsFunc: (row: T) => {} = () => ({});
+  @Input() dateSearchEnabled = false;
+  @Input() datePickerLabel =
+    $localize`:Default date picker|Date picker label, the first time an item was seen:First seen`;
 
   @Output() pageChange = new EventEmitter<PageEvent>();
   @Output() filtersChange = new EventEmitter<string[]>();
-
+  @Output() dateFiltersChange = new EventEmitter<DateRange<Date>>();
   @Output() selectionChange = new EventEmitter<SelectionModel<T>>();
   @Input() selection = new SelectionModel<T>(true, []);
 
   @Input() currentPage = 0;
   @Input() pageSizeOptions: number[] = [10, 25, 50, 100];
   @Input() pageSize = 0;
+  dateRange = new FormGroup({
+    start: new FormControl<Moment | null>(null),
+    end: new FormControl<Moment | null>(null),
+  });
+  @Input() set startDate(date: Date | null) {
+    if (date) this.dateRange.get('start')?.setValue(moment(date));
+  }
+  @Input() set endDate(date: Date | null) {
+    if (date) this.dateRange.get('end')?.setValue(moment(date));
+  }
 
   filters: string[] = [];
   separatorKeysCodes: number[] = [TAB, ENTER];
   filterForm = new UntypedFormControl('');
   filteredColumns$: Observable<string[] | null | undefined>;
   masterToggleState = false;
+
+  dateRangeChange$ = this.dateRange.valueChanges
+    .pipe(
+      debounceTime(100),
+      filter(() => {
+        return this.dateRange.valid;
+      })
+    )
+    .subscribe((dr) => {
+      this.dateFiltersChange.emit(new DateRange<Date>(dr.start?.toDate() ?? null, dr.end?.toDate() ?? null));
+    });
 
   constructor() {
     this.filteredColumns$ = this.filterForm.valueChanges.pipe(
@@ -181,6 +211,8 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
     this.headerRowDefs.forEach((headerRowDef) => this.table.addHeaderRowDef(headerRowDef));
     this.table.setNoDataRow(this.noDataRow);
   }
+
+  ngOnDestroy(): void {}
 
   removeFilter(filter: string) {
     const index = this.filters.indexOf(filter);
@@ -246,5 +278,9 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
     this.filterInput.nativeElement.focus();
     this.filterInput.nativeElement.selectionStart = 100000;
     this.filterInput.nativeElement.selectionEnd = 100000;
+  }
+
+  clearDates() {
+    this.dateRange.reset();
   }
 }

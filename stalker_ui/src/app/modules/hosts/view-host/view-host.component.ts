@@ -34,6 +34,7 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from '../../../shared/widget/confirm-dialog/confirm-dialog.component';
+import { NewPillTagComponent } from '../../../shared/widget/pill-tag/new-pill-tag.component';
 import { SelectItem } from '../../../shared/widget/text-select-menu/text-select-menu.component';
 import { FindingsModule } from '../../findings/findings.module';
 
@@ -67,6 +68,9 @@ import { FindingsModule } from '../../findings/findings.module';
 })
 export class ViewHostComponent implements OnDestroy {
   public menuResizeObserver$?: ResizeObserver;
+
+  @ViewChild('newPillTag', { read: ElementRef, static: false })
+  newPillTag!: NewPillTagComponent;
 
   @ViewChild('managementPanelSection', { read: ElementRef, static: false })
   set managementPanelSection(managementPanelSection: ElementRef) {
@@ -170,7 +174,7 @@ export class ViewHostComponent implements OnDestroy {
    */
   public async itemSelected(item: SelectItem) {
     try {
-      const tagId = <string>item['id'];
+      const tagId = <string>item['_id'];
       if (!this.hostId) return;
       const tagIndex = this.hostTagsCache.findIndex((tag: string) => tag === tagId);
 

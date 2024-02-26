@@ -37,3 +37,13 @@ mat-progress-bar {
   height: 3px;
   width: auto;
 }
+
+.date-picker-form {
+  min-width: fit-content;
+}
+
+mat-hint {
+  button:hover {
+    text-decoration: underline;
+  }
+}

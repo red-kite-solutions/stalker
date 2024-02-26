@@ -12,9 +12,9 @@ export class HumanizeDatePipe implements PipeTransform {
 
   private approximate(milliseconds: number) {
     const date = new Date(milliseconds);
-    const m = date.getMonth();
+    const m = date.getMonth() + 1; // Months start at 0
     const mm = m >= 10 ? m.toString() : '0' + m.toString();
-    const d = date.getDay();
+    const d = date.getDate();
     const dd = d >= 10 ? d.toString() : '0' + d.toString();
 
     return `${date.getFullYear()}-${mm}-${dd}`;

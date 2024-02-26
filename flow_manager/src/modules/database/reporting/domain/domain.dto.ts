@@ -2,10 +2,9 @@ import { Type } from 'class-transformer';
 import {
   IsArray,
   IsFQDN,
+  IsInt,
   IsMongoId,
   IsNotEmpty,
-  IsNumber,
-  IsNumberString,
   IsOptional,
   Max,
   Min,
@@ -14,14 +13,15 @@ import {
 import { Types } from 'mongoose';
 
 export class DomainsPagingDto {
-  @IsNumberString()
-  page: string;
+  @IsInt()
+  @Type(() => Number)
+  page: number;
 
-  @IsNumber()
+  @IsInt()
   @Min(1)
   @Max(100)
   @Type(() => Number)
-  pageSize: string;
+  pageSize: number;
 
   @IsArray()
   @IsOptional()
@@ -39,6 +39,16 @@ export class DomainsPagingDto {
   @IsMongoId()
   @IsOptional()
   project: string;
+
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  firstSeenStartDate: number;
+
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  firstSeenEndDate: number;
 }
 
 export class EditDomainDto {

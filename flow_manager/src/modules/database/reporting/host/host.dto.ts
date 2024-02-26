@@ -69,6 +69,16 @@ export class HostsFilterDto {
   @IsArray()
   @IsOptional()
   host: string[];
+
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  firstSeenStartDate: number;
+
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  firstSeenEndDate: number;
 }
 
 export class DeleteHostsDto {

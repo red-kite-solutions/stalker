@@ -1,8 +1,10 @@
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { APP_INITIALIZER, NgModule } from '@angular/core';
+import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
 import { MatPaginatorIntl } from '@angular/material/paginator';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import 'moment/locale/fr';
 import { SocketIoConfig, SocketIoModule } from 'ngx-socket-io';
 import { ToastrModule } from 'ngx-toastr';
 import { environment } from '../environments/environment';
@@ -21,6 +23,18 @@ import { CodeEditorService } from './shared/widget/code-editor/code-editor.servi
 const config: SocketIoConfig = {
   url: environment.fmWsUrl,
   options: {},
+};
+
+export const MY_FORMATS = {
+  parse: {
+    dateInput: 'YYYY/MM/DD',
+  },
+  display: {
+    dateInput: 'YYYY/MM/DD',
+    monthYearLabel: 'MMM YYYY',
+    dateA11yLabel: 'YYYY/MM/DD',
+    monthYearA11yLabel: 'MMMM YYYY',
+  },
 };
 
 @NgModule({
@@ -58,6 +72,7 @@ const config: SocketIoConfig = {
       multi: true,
       deps: [CodeEditorService],
     },
+    provideMomentDateAdapter(MY_FORMATS),
   ],
   bootstrap: [AppComponent],
 })
