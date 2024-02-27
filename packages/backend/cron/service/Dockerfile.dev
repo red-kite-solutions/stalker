@@ -6,8 +6,8 @@ RUN apk update
 RUN apk add bash
 
 RUN mkdir -p /certs/
-COPY ca.pem /certs/
-COPY client-signed.crt /certs/
-COPY client.key /certs/
+COPY packages/backend/cron/service/ca.pem /certs/
+COPY packages/backend/cron/service/client-signed.crt /certs/
+COPY packages/backend/cron/service/client.key /certs/
 
 CMD ["yarn", "workspace", "@red-kite/cron", "start:debug"]

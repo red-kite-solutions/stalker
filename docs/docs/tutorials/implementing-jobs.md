@@ -88,10 +88,10 @@ running.
 
 To implement a `python` built-in job, the following files need to be created :
 
-| File name                                                                                         | Service      | Description                                                                       |
-| ------------------------------------------------------------------------------------------------- | ------------ | --------------------------------------------------------------------------------- |
-| /packages/backend/jobs-manager/src/modules/database/custom-jobs/built-in/code/my-new-job.job.yaml | Jobs manager | Create the new job's metadata in yaml based on the `CustomJobMetadata` interface. |
-| /packages/backend/jobs-manager/src/modules/database/custom-jobs/built-in/code/code/my-new-job.py  | Jobs manager | Create the new job's python code.                                                 |
+| File name                                                                                                 | Service      | Description                                                                       |
+| --------------------------------------------------------------------------------------------------------- | ------------ | --------------------------------------------------------------------------------- |
+| /packages/backend/jobs-manager/service/src/modules/database/custom-jobs/built-in/code/my-new-job.job.yaml | Jobs manager | Create the new job's metadata in yaml based on the `CustomJobMetadata` interface. |
+| /packages/backend/jobs-manager/service/src/modules/database/custom-jobs/built-in/code/code/my-new-job.py  | Jobs manager | Create the new job's python code.                                                 |
 
 > The name of the python file must match the path given in the metadata file.
 
@@ -102,10 +102,8 @@ manually.
 
 Custom jobs are implemented by a Stalker's user or administrator.
 
-Custom jobs can be run manually as a one time thing, or they can be run within the automation process through <<<<<<<
-HEAD:docs/implementing-jobs.md [subscriptions](./subscriptions.md). ======= [subscriptions](/docs/concepts/subscriptions).
-
-> > > > > > > 4d6bea7b57ce4611b44617c4f349b43c68c4b3f7:docs/docs/tutorials/implementing-jobs.md
+Custom jobs can be run manually as a one time thing, or they can be run within the automation process through
+[subscriptions](/docs/concepts/subscriptions).
 
 Implementing a `CustomJob` is easy. Simply name your new custom job, write your code, and make sure to
 [output your findings properly](#making-contact-with-the-outside-world).
@@ -206,10 +204,7 @@ To start a Nuclei custom job with the default parser, you must configure the def
 The custom finding handler parses every json output line from Nuclei in the `parse_finding` method. To help you in parsing the Nuclei
 output, the `NucleiFinding` class is provided. The handler then outputs them all in the `publish_findings` method. Everything that is
 outputted by the `parse_finding` method will be given to the `publish_findings` method in a list. To publish your findings properly, you can
-<<<<<<< HEAD:docs/implementing-jobs.md refer to [the findings' documentation](./findings.md). ======= refer to
-[the findings' documentation](/docs/concepts/findings).
-
-> > > > > > > 4d6bea7b57ce4611b44617c4f349b43c68c4b3f7:docs/docs/tutorials/implementing-jobs.md
+refer to [the findings' documentation](/docs/concepts/findings).
 
 The custom finding handler template's code:
 

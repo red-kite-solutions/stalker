@@ -229,10 +229,8 @@ An event subscription can contain these main elements :
 > You can reference a Finding's output variable by name in a Job parameter's value or in a condition's operand using the following syntax:
 > `${parameterName}`. The variable name is case insensitive.
 
-> You can inject a secret as a parameter value with the `${secrets.secretName}` syntax. You can <<<<<<< HEAD:docs/subscriptions.md
-> [learn more about secrets here](./secrets.md). ======= [learn more about secrets here](/docs/concepts/secrets).
->
-> > > > > > > 4d6bea7b57ce4611b44617c4f349b43c68c4b3f7:docs/docs/concepts/subscriptions.md
+> You can inject a secret as a parameter value with the `${secrets.secretName}` syntax. You can
+> [learn more about secrets here](/docs/concepts/secrets).
 
 #### Event Subscription Simple Example
 

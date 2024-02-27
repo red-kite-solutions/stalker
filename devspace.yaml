@@ -540,7 +540,7 @@ deployments:
   orchestrator-service-account:
     kubectl:
       manifests:
-        - orchestrator/orchestrator-service-account.yml
+        - packages/backend/orchestrator/service/orchestrator-service-account.yml
 
   orchestrator:
     helm:

@@ -3,13 +3,15 @@
   "version": "1.0.0",
   "packageManager": "yarn@4.1.0",
   "private": true,
+  "workspaces": [
+    "packages/frontend/stalker-app",
+    "packages/backend/jobs-manager/service",
+    "packages/backend/cron/service"
+  ],
   "scripts": {
     "prepare": "husky install",
     "dev": "minikube start && devspace dev -n stalker"
   },
-  "workspaces": [
-    "packages/frontend/stalker-app"
-  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lm-sec/Stalker.git"
@@ -21,5 +23,12 @@
   "homepage": "https://github.com/lm-sec/Stalker#readme",
   "devDependencies": {
     "husky": "^7.0.4"
+  },
+  "resolutions": {
+    "@angular/core@npm:^16.0.0": "17.2.2",
+    "@angular/cdk@npm:^16.0.0": "17.2.1",
+    "@angular/common@npm:^16.0.0": "17.2.1",
+    "@angular/material@npm:^16.0.0": "17.2.0",
+    "@angular/platform-browser@npm:^16.0.0": "17.2.1"
   }
 }
