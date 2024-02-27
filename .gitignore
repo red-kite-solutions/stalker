@@ -140,6 +140,7 @@ dmypy.json
 
 # node stuff
 node_modules
+.yarn/install-state.gz
 
 # Ignore DevSpace cache and log folder
 .devspace/
