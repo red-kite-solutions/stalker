@@ -1,15 +1,24 @@
+---
+sidebar_position: 1
+title: Network Architecture
+description: An overview of Stalker's network architecture
+---
 
 # Network Architecture
 
-The Stalker application is deployed in a Kubernetes cluster on a one instance per cluster basis. [Kubernetes network policies](https://kubernetes.io/docs/concepts/services-networking/network-policies/) are used to segment the different pods. The Stalker jobs, which are [Kubernetes Jobs](https://kubernetes.io/docs/concepts/workloads/controllers/job/), are run in their own namespace called `stalker-jobs` to isolate them.
+The Stalker application is deployed in a Kubernetes cluster on a one instance per cluster basis.
+[Kubernetes network policies](https://kubernetes.io/docs/concepts/services-networking/network-policies/) are used to segment the different
+pods. The Stalker jobs, which are [Kubernetes Jobs](https://kubernetes.io/docs/concepts/workloads/controllers/job/), are run in their own
+namespace called `stalker-jobs` to isolate them.
 
-> A **default deny all** network policy is in place for the `stalker`, `stalker-jobs` and `default` namespaces. Any pod in these namespaces require a custom network policy to allow any connectivity.
+> A **default deny all** network policy is in place for the `stalker`, `stalker-jobs` and `default` namespaces. Any pod in these namespaces
+> require a custom network policy to allow any connectivity.
 
 ## Production
 
 Microsegmentation is implemented throughout the cluster in the production environment following this graph:
 
-![Production Stalker Network Architecture](./ressources/prod_network_architecture.png)
+![Production Stalker Network Architecture](/img/prod_network_architecture.png)
 
 The following table goes over the main aspects of the graph :
 
@@ -29,7 +38,7 @@ The following table goes over the main aspects of the graph :
 
 Microsegmentation is implemented throughout the cluster in the dev environment following this graph:
 
-![Development Stalker Network Architecture](./ressources/stalker_dev_arch.drawio.png)
+![Development Stalker Network Architecture](/img/stalker_dev_arch.drawio.png)
 
 The following table goes over the main aspects of the graph :
 
@@ -43,6 +52,7 @@ The following table goes over the main aspects of the graph :
 | Orchestrator      | 5135             | 53 (DNS), 443 (K8s API), 9092 (Kafka)                                       |
 | Jobs              | Deny All         | 0.0.0.0/0 except 169.254.169.254, 172.16.0.0/12, 192.168.0.0/16, 10.0.0.0/8 |
 
-> The database is accessible from outside the cluster for debugging and development purposes. A production deployment **should not** allow connectivity. The same goes for the cron service on ingress 3000.
+> The database is accessible from outside the cluster for debugging and development purposes. A production deployment **should not** allow
+> connectivity. The same goes for the cron service on ingress 3000.
 
 > To avoid a conflict with the flow manager, in dev, the cron service is exposed on `127.0.0.1:3001`.

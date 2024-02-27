@@ -1,3 +1,9 @@
+---
+sidebar_position: 2
+title: Releasing
+description: Description of Stalker's release process
+---
+
 # Releasing
 
 In this guide, you will be provided with clear instructions on how to release a new version of Stalker.
@@ -9,7 +15,7 @@ added.
 ## Releasing a new version
 
 In order to release a new version of a component, be it a micro-service or a frontend, you must simply push a tag following this specific
-convention: <component>/<version>.
+convention: &lt;component>/&lt;version>.
 
 Here are examples for every component.
 

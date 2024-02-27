@@ -1,4 +1,4 @@
-@mixin app-custom-jobs() {
+@mixin app-custom-jobs($theme) {
   app-custom-jobs {
     .mat-mdc-tab-body-wrapper {
       height: 100%;
