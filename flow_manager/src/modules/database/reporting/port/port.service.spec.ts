@@ -321,12 +321,6 @@ describe('Port Service', () => {
     });
   });
   describe('Get all', () => {
-    // it('Should get the ports with paging', async () => {
-    //   // Arrange
-    //   // Act
-    //   // Assert
-    // });
-
     it.each([
       [
         [
