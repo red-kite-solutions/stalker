@@ -667,6 +667,7 @@ dev:
       inject: false
     ports:
       - port: "${STALKER_PORT}:443"
+        bindAddress: ${STALKER_BIND_ADDRESS}
     resources:
       limits:
         memory: 1Gi
