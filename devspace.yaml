@@ -615,7 +615,11 @@ dev:
       - path: ./packages:/app/packages
         disableDownload: true
         excludePaths:
-          - node_modules
+          - node_modules/
+          - packages/frontend/stalker-app/node_modules/
+          - packages/backend/jobs-manager/service/node_modules/
+          - packages/backend/cron/service/node_modules/
+          - packages/backend/orchestrator/service/node_modules/
     restartHelper:
       inject: false
     ports:
@@ -644,7 +648,11 @@ dev:
       - path: ./packages:/app/packages
         disableDownload: true
         excludePaths:
-          - node_modules
+          - node_modules/
+          - packages/frontend/stalker-app/node_modules/
+          - packages/backend/jobs-manager/service/node_modules/
+          - packages/backend/cron/service/node_modules/
+          - packages/backend/orchestrator/service/node_modules/
     restartHelper:
       inject: false
     ports:
@@ -664,7 +672,11 @@ dev:
       - path: ./packages:/app/packages
         disableDownload: true
         excludePaths:
-          - node_modules
+          - node_modules/
+          - packages/frontend/stalker-app/node_modules/
+          - packages/backend/jobs-manager/service/node_modules/
+          - packages/backend/cron/service/node_modules/
+          - packages/backend/orchestrator/service/node_modules/
     restartHelper:
       inject: false
     ports:
@@ -689,7 +701,11 @@ dev:
       - path: ./packages:/app/packages
         disableDownload: true
         excludePaths:
-          - node_modules
+          - node_modules/
+          - packages/frontend/stalker-app/node_modules/
+          - packages/backend/jobs-manager/service/node_modules/
+          - packages/backend/cron/service/node_modules/
+          - packages/backend/orchestrator/service/node_modules/
     restartHelper:
       inject: false
     ports:
@@ -719,12 +735,16 @@ dev:
       - path: ./packages:/app/packages
         disableDownload: true
         excludePaths:
-          - node_modules
+          - node_modules/
+          - packages/frontend/stalker-app/node_modules/
+          - packages/backend/jobs-manager/service/node_modules/
+          - packages/backend/cron/service/node_modules/
+          - packages/backend/orchestrator/service/node_modules/
       - path: ./orchestrator/:/app/
         disableDownload: true
         excludePaths:
-          - Orchestrator/bin
-          - Orchestrator/obj
+          - packages/backend/orchestrator/service/Orchestrator/bin
+          - packages/backend/orchestrator/service/Orchestrator/obj
     restartHelper:
       inject: false
     ports:

@@ -7,7 +7,7 @@ import { SpinnerButtonComponent } from './spinner-button.component';
   standalone: true,
   selector: 'app-saving-button',
   template: `@if (canSave) {
-      <app-spinner-button [loadingState]="isSaving" (click)="save?.next(null)">
+      <app-spinner-button [loadingState]="isSaving" (click)="save.next(null)">
         @if (!isSaving) {
           <span i18n="Save changes|Save">Save</span>
         } @else {

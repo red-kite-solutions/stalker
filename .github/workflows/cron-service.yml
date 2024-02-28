@@ -19,7 +19,7 @@ jobs:
         with:
           node-version: 18
 
-      - run: yarn install --frozen-lockfile
+      - run: yarn install --immutable
 
       - run: yarn workspace @red-kite/cron test:cicd
 

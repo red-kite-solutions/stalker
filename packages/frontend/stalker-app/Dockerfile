@@ -1,12 +1,12 @@
 FROM node:latest as node
 WORKDIR /app
-RUN yarn set version berry
+RUN yarn set version 4.1.0
 
 COPY package.json package.json
 COPY yarn.lock yarn.lock
 COPY .yarnrc.yml .yarnrc.yml
 
-RUN yarn install --frozen-lockfile
+RUN yarn install --immutable
 
 COPY packages packages
 

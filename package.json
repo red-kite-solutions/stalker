@@ -22,15 +22,7 @@
   },
   "homepage": "https://github.com/lm-sec/Stalker#readme",
   "devDependencies": {
-    "husky": "^7.0.4"
-  },
-  "resolutions": {
-    "@angular/core@npm:^16.0.0": "17.2.2",
-    "@angular/cdk@npm:^16.0.0": "17.2.1",
-    "@angular/forms@npm:^16.0.0": "17.2.1",
-    "@angular/common@npm:^16.0.0": "17.2.1",
-    "@angular/material@npm:^16.0.0": "17.2.0",
-    "@angular/platform-browser@npm:^16.0.0": "17.2.1",
-    "@angular/animations@npm:^16.0.0": "17.2.1"
+    "husky": "^7.0.4",
+    "typescript": "^5.0.0"
   }
 }

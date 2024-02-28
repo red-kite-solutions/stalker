@@ -40,7 +40,7 @@ export class PortFinding extends FindingBase {
   key: 'PortFinding';
   ip: string;
   port: number;
-  fields: [
+  declare fields: [
     {
       type: 'text';
       key: 'protocol';

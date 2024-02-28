@@ -19,7 +19,7 @@ jobs:
         with:
           node-version: 18
 
-      - run: yarn install --frozen-lockfile
+      - run: yarn install --immutable
         working-directory: .
 
       - run: yarn workspace @red-kite/jobs-manager test:cicd
@@ -43,7 +43,7 @@ jobs:
         with:
           node-version: 18
 
-      - run: yarn install --frozen-lockfile
+      - run: yarn install --immutable
         working-directory: .
 
       - run: yarn workspace @red-kite/jobs-manager build

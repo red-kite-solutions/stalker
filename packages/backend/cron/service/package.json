@@ -34,7 +34,8 @@
     "mongoose": "^7.3.2",
     "node-fetch": "^2.7.0",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "webpack": "^5.90.3"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
