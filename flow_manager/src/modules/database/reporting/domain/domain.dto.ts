@@ -1,6 +1,7 @@
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsBooleanString,
   IsFQDN,
   IsInt,
   IsMongoId,
@@ -49,6 +50,10 @@ export class DomainsPagingDto {
   @IsInt()
   @Type(() => Number)
   firstSeenEndDate: number;
+
+  @IsOptional()
+  @IsBooleanString()
+  blocked: 'true' | 'false';
 }
 
 export class EditDomainDto {

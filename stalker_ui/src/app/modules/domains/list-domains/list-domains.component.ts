@@ -60,12 +60,12 @@ import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.c
 export class ListDomainsComponent {
   dataLoading = true;
   displayedColumns: string[] = ['select', 'domain', 'hosts', 'project', 'tags'];
-  filterOptions: string[] = ['host', 'domain', 'project', 'tags'];
+  filterOptions: string[] = ['host', 'domain', 'project', 'tags', 'is'];
   public readonly noDataMessage = $localize`:No domain found|No domain was found:No domain found`;
 
   dataSource = new MatTableDataSource<Domain>();
   currentPage: PageEvent = this.generateFirstPageEvent();
-  currentFilters: string[] = [];
+  currentFilters: string[] = ['-is: blocked'];
   currentPage$ = new BehaviorSubject<PageEvent>(this.currentPage);
   count = 0;
   selection = new SelectionModel<Domain>(true, []);
@@ -162,10 +162,12 @@ export class ListDomainsComponent {
 
   buildFilters(stringFilters: string[]): any {
     const SEPARATOR = ':';
+    const NEGATING_CHAR = '-';
     const filterObject: any = {};
     const tags = [];
     const domains = [];
     const hosts = [];
+    let blocked: boolean | null = null;
 
     for (const filter of stringFilters) {
       if (filter.indexOf(SEPARATOR) === -1) continue;
@@ -174,8 +176,10 @@ export class ListDomainsComponent {
 
       if (keyValuePair.length !== 2) continue;
 
-      const key = keyValuePair[0].trim().toLowerCase();
+      let key = keyValuePair[0].trim().toLowerCase();
       const value = keyValuePair[1].trim().toLowerCase();
+      const negated = key.length > 0 && key[0] === NEGATING_CHAR;
+      if (negated) key = key.substring(1);
 
       if (!key || !value) continue;
 
@@ -202,11 +206,19 @@ export class ListDomainsComponent {
         case 'domain':
           domains.push(value);
           break;
+        case 'is':
+          switch (value) {
+            case 'blocked':
+              blocked = !negated;
+              break;
+          }
+          break;
       }
     }
     if (tags) filterObject['tags'] = tags;
     if (domains) filterObject['domain'] = domains;
     if (hosts) filterObject['host'] = hosts;
+    if (blocked !== null) filterObject['blocked'] = blocked;
     return filterObject;
   }
 

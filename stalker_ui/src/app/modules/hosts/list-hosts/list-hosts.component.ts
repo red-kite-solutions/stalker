@@ -58,12 +58,12 @@ import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.c
 export class ListHostsComponent {
   dataLoading = true;
   displayedColumns: string[] = ['select', 'ip', 'domains', 'project', 'tags'];
-  filterOptions: string[] = ['host', 'domain', 'project', 'tags'];
+  filterOptions: string[] = ['host', 'domain', 'project', 'tags', 'is'];
   public readonly noDataMessage = $localize`:No host found|No host was found:No host found`;
 
   dataSource = new MatTableDataSource<Host>();
   currentPage: PageEvent = this.generateFirstPageEvent();
-  currentFilters: string[] = [];
+  currentFilters: string[] = ['-is: blocked'];
   currentPage$ = new BehaviorSubject<PageEvent>(this.currentPage);
   count = 0;
   selection = new SelectionModel<Host>(true, []);
@@ -160,11 +160,13 @@ export class ListHostsComponent {
 
   buildFilters(stringFilters: string[]): any {
     const SEPARATOR = ':';
+    const NEGATING_CHAR = '-';
     const filterObject: any = {};
     const tags = [];
     const domains = [];
     const hosts = [];
     const projects = [];
+    let blocked: boolean | null = null;
 
     for (const filter of stringFilters) {
       if (filter.indexOf(SEPARATOR) === -1) continue;
@@ -173,8 +175,10 @@ export class ListHostsComponent {
 
       if (keyValuePair.length !== 2) continue;
 
-      const key = keyValuePair[0].trim().toLowerCase();
+      let key = keyValuePair[0].trim().toLowerCase();
       const value = keyValuePair[1].trim().toLowerCase();
+      const negated = key.length > 0 && key[0] === NEGATING_CHAR;
+      if (negated) key = key.substring(1);
 
       if (!key || !value) continue;
 
@@ -201,12 +205,20 @@ export class ListHostsComponent {
         case 'domain':
           domains.push(value);
           break;
+        case 'is':
+          switch (value) {
+            case 'blocked':
+              blocked = !negated;
+              break;
+          }
+          break;
       }
     }
     if (tags?.length) filterObject['tags'] = tags;
     if (domains?.length) filterObject['domain'] = domains;
     if (hosts?.length) filterObject['host'] = hosts;
     if (projects?.length) filterObject['project'] = projects;
+    if (blocked !== null) filterObject['blocked'] = blocked;
     return filterObject;
   }
 
