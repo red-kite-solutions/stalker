@@ -14,10 +14,10 @@ COPY packages packages
 WORKDIR /app/packages/backend/orchestrator/service
 RUN dotnet restore "./Orchestrator.sln"
 
-RUN mkdir -p /certs/
 # Kafka certs
-COPY kafka-ca.crt.test /certs/kafka-ca.crt
-COPY kafka-client-signed.crt.test /certs/kafka-client-signed
-COPY kafka-client.key.test /certs/kafka-client.key
+RUN mkdir -p /certs/
+COPY pakages/backend/orchestrator/service/kafka-ca.crt.test /certs/kafka-ca.crt
+COPY pakages/backend/orchestrator/service/kafka-client-signed.crt.test /certs/kafka-client-signed
+COPY pakages/backend/orchestrator/service/kafka-client.key.test /certs/kafka-client.key
 
 ENTRYPOINT ["dotnet", "watch", "--project", "Orchestrator", "--no-hot-reload"]
