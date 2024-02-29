@@ -11,7 +11,7 @@ export class AppController {
 
   @Get()
   getVersion(): string {
-    return this.appService.getHello();
+    return this.appService.getVersion();
   }
 
   @Roles(Role.ReadOnly)
