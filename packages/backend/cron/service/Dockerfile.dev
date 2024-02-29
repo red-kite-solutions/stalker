@@ -2,9 +2,6 @@ FROM stalker-base:latest
 
 WORKDIR /app
 
-RUN apk update
-RUN apk add bash
-
 RUN mkdir -p /certs/
 COPY packages/backend/cron/service/ca.pem /certs/
 COPY packages/backend/cron/service/client-signed.crt /certs/
