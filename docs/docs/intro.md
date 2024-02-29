@@ -45,7 +45,7 @@ If you ran the script successfully, you can log out and log back in, and then di
 ### 2. Clone the repository
 
 ```bash
-git clone https://github.com/red-kite-solutions/Stalker && cd Stalker
+git clone https://github.com/red-kite-solutions/Stalker && cd stalker
 ```
 
 ### 3. Setup your preferences
@@ -86,6 +86,8 @@ Add your `STALKER_HOSTNAME` to your `/etc/hosts` file.
 # STALKER_HOSTNAME in /etc/hosts
 127.0.0.1       stalker.lan
 ```
+
+> Specify your server's IP if you want to access it from somewhere else than localhost.
 
 ### 7. Install the root ca
 
