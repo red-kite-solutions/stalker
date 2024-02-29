@@ -144,7 +144,7 @@ pipelines:
       wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 300
       wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 300
 
-      create_deployments ui-prod flow-manager orchestrator-service-account orchestrator --sequential
+      create_deployments flow-manager orchestrator-service-account orchestrator ui-prod --sequential
 
       # Wait for services before applying network policies
       wait_pod --label-selector app.kubernetes.io/component=ui-prod --timeout 300
