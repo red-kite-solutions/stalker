@@ -25,7 +25,7 @@ namespace Orchestrator.Queue
 
             CancellationToken ct = SetupConsumer(ConsumerConfig, deserializer);
 
-            Logger.LogDebug("Starting consumer.");
+            Logger.LogInformation("Starting consumer.");
 
             // Fire and forget
             Task.Run(async () =>
@@ -40,7 +40,7 @@ namespace Orchestrator.Queue
 
                         if (message.Message != null && message.Message.Value != null)
                         {
-                            Logger.LogDebug("There is a message on the queue!");
+                            Logger.LogInformation("There is a message on the queue!");
                             try
                             {
                                 await Consume(message.Message.Value);
@@ -52,16 +52,16 @@ namespace Orchestrator.Queue
                         }
                         else
                         {
-                            Logger.LogDebug("Nothing on the queue for now...");
+                            Logger.LogInformation("Nothing on the queue for now...");
                         }
                     }
                     catch (BadImageFormatException ex)
                     {
                         Logger.LogError(ex, "An error occurred while deserializing the message.");
-                        Logger.LogDebug("Time between Consume() calls is likely too high. Recreating Consumer.");
+                        Logger.LogInformation("Time between Consume() calls is likely too high. Recreating Consumer.");
                         Consumer.Dispose();
                         ct = SetupConsumer(ConsumerConfig, deserializer);
-                        Logger.LogDebug("Consumer recreated, continuing with new consumer.");
+                        Logger.LogInformation("Consumer recreated, continuing with new consumer.");
 
                     }
                     catch (Exception ex)
@@ -69,7 +69,7 @@ namespace Orchestrator.Queue
                         Logger.LogError(ex, "An error occurred while deserializing the message.");
                         Consumer.Dispose();
                         ct = SetupConsumer(ConsumerConfig, deserializer);
-                        Logger.LogDebug("Consumer recreated, continuing with new consumer.");
+                        Logger.LogInformation("Consumer recreated, continuing with new consumer.");
                     }
                     await Task.Delay(5);
                 }
@@ -82,7 +82,7 @@ namespace Orchestrator.Queue
                             .SetValueDeserializer(deserializer)
                             .Build();
 
-            Logger.LogDebug($"Starting consumer. Subscribing to topics {string.Join(",", Topics)}");
+            Logger.LogInformation($"Starting consumer. Subscribing to topics {string.Join(",", Topics)}");
             Consumer.Subscribe(Topics);
 
             TokenSource = new CancellationTokenSource();

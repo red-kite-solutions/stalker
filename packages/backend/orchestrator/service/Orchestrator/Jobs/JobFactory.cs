@@ -31,7 +31,7 @@ public class JobFactory : IJobFactory
 
     public JobCommand Create(JobRequest request)
     {
-        Logger.LogDebug(JsonSerializer.Serialize(request));
+        Logger.LogInformation(JsonSerializer.Serialize(request));
 
         return request switch
         {

@@ -17,7 +17,7 @@ public class JobEventsConsumer : KafkaConsumer<JobEventMessage>
 
     protected override Task Consume(JobEventMessage message)
     {
-        Logger.LogDebug(JsonSerializer.Serialize(message));
+        Logger.LogInformation(JsonSerializer.Serialize(message));
         return Task.CompletedTask;
     }
 }

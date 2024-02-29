@@ -75,11 +75,11 @@ public abstract class KubernetesCommand<T> : JobCommand where T : JobRequest
 
     public override async Task Execute()
     {
-        Logger.LogDebug(Request.JobId, "Creating job.");
+        Logger.LogInformation(Request.JobId, "Creating job.");
 
         var job = await Kubernetes.CreateJob(JobTemplate);
         await LogDebug("Job picked up by orchestrator.");
-        Logger.LogDebug(Request.JobId, "Job created, listening for events.");
+        Logger.LogInformation(Request.JobId, "Job created, listening for events.");
 
         await EventsProducer.Produce(new JobEventMessage
         {

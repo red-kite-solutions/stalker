@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - .github/workflows/orchestrator.yml
-      - "orchestrator/**"
+      - "packages/backend/orchestrator/service/**"
 
 jobs:
   tests:
@@ -21,13 +21,13 @@ jobs:
           include-prerelease: true
 
       - name: Build
-        working-directory: orchestrator/Orchestrator
+        working-directory: packages/backend/orchestrator/service/Orchestrator
         run: |-
           dotnet restore
           dotnet build --configuration Release --no-restore
 
       - name: Test
-        working-directory: orchestrator/Orchestrator.Tests
+        working-directory: packages/backend/orchestrator/service/Orchestrator.Tests
         run: |-
           dotnet restore
           dotnet test

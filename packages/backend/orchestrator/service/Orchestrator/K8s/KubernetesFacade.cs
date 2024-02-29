@@ -68,7 +68,7 @@ public class KubernetesFacade : IKubernetesFacade
                 ActiveDeadlineSeconds = jobTemplate.Timeout,
             });
 
-        Logger.LogDebug($"Creating job {jobName} in namespace {jobTemplate.Namespace}");
+        Logger.LogInformation($"Creating job {jobName} in namespace {jobTemplate.Namespace}");
 
         // I think that this call can get a 403 Forbidden from the API if not enough ressources are available
         await client.CreateNamespacedJobAsync(kubernetesJob, jobTemplate.Namespace);
