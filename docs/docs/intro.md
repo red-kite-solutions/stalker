@@ -34,6 +34,14 @@ You can use Stalker with your own production ready deployment. Simply follow the
 - keytool
 - openssl
 
+If you use a `Ubuntu Server`, you can use the provided initialization script. Simply run:
+
+```bash
+curl https://raw.githubusercontent.com/red-kite-solutions/stalker/main/init_ubuntu.sh | bash
+```
+
+If you ran the script successfully, you can log out and log back in, and then directly go to [start stalker](#5-start-stalker).
+
 ### 2. Clone the repository
 
 ```bash
@@ -62,7 +70,7 @@ sudo groupadd docker
 sudo usermod -aG docker $USER
 ```
 
-### 5. Start Stalker:
+### 5. Start Stalker
 
 > When initializing for the first time, Stalker will prompt you several times for your root CA key's password.
 
@@ -97,7 +105,7 @@ Any time you want to start Stalker again in the future, simply run the start up 
 ./stalker
 ```
 
-If something went wrong during the install,
+> If something went wrong during the install, or you simply want to rerun the setup, you can run Stalker with the `--force-setup` flag.
 
 ## Core concepts
 

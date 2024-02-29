@@ -578,6 +578,10 @@ dev:
       statefulset.kubernetes.io/pod-name: mongo-mongodb-0
     ports:
       - port: "27017"
+    resources:
+      limits:
+        memory: 2Gi
+        cpu: 1
 
   mongo-prod:
     labelSelector:
@@ -609,6 +613,10 @@ dev:
       enabled: true
     restartHelper:
       inject: false
+    resources:
+      limits:
+        memory: 2Gi
+        cpu: 1
 
   flow-manager-e2e:
     labelSelector:

@@ -27,7 +27,7 @@ The following table goes over the main aspects of the graph :
 | Nginx (UI)        | 80, 443          | 53 (DNS), 3000 (FM)                                                         |
 | Flow Manager (FM) | 3000             | 53 (DNS), 9092 (Kafka), 27017 (Mongo)                                       |
 | Cron Service      | Deny All         | 53 (DNS), 3000 (FM), 27017 (Mongo)                                          |
-| Mongo             | 27017            | Deny All                                                                    |
+| Mongo             | 27017            | 27017 (Mongo)                                                               |
 | Kafka             | 9092, 9093, 9094 | 53 (DNS), 9092 (Kafka), 9093 (Kafka), 9094 (Kafka)                          |
 | Orchestrator      | Deny All         | 53 (DNS), 443 (K8s API), 9092 (Kafka)                                       |
 | Jobs              | Deny All         | 0.0.0.0/0 except 169.254.169.254, 172.16.0.0/12, 192.168.0.0/16, 10.0.0.0/8 |
