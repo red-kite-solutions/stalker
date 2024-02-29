@@ -9,7 +9,9 @@ ENV DOTNET_WATCH_RESTART_ON_RUDE_EDIT=1
 
 RUN dotnet dev-certs https -t
 
-COPY . .
+COPY packages packages
+
+WORKDIR /app/packages/backend/orchestrator/service
 RUN dotnet restore "./Orchestrator.sln"
 
 RUN mkdir -p /certs/

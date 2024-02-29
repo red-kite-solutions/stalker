@@ -1,10 +1,5 @@
-FROM node:latest as node
+FROM stalker-base:latest
 WORKDIR /app
 
-COPY package.json package.json
 
-RUN npm ci --legacy-peer-deps
-
-COPY . . 
-
-CMD ["npm", "run", "start"]
+CMD ["yarn", "workspace", "@red-kite/stalker-app", "start"]
