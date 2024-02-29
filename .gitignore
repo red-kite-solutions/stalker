@@ -162,3 +162,5 @@ jest-output*.json
 index.txt*
 serial
 serial.old
+
+**/.angular

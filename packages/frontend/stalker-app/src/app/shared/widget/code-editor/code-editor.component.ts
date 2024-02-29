@@ -333,6 +333,7 @@ export class CodeEditorComponent implements AfterContentInit, OnDestroy {
 
   public deleteFileTab(index: number) {
     if (index < 0 || index >= this._fileTabs.length) return;
+    if (!this._editor) return;
 
     const uri = this._fileTabs[index].uri.path;
     const tabId = this.pathTabIdMapping.get(uri);
@@ -362,6 +363,8 @@ export class CodeEditorComponent implements AfterContentInit, OnDestroy {
   }
 
   public deleteAllFileTabs() {
+    if (!this.fileTabs || !this._editor) return;
+
     const tabs = this._fileTabs;
     this._fileTabs = [];
     this._currentFileTabIndex = -1;
