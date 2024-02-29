@@ -6,7 +6,7 @@
   },
   "item": [
     {
-      "name": "Flow Manager",
+      "name": "Jobs Manager",
       "item": [
         {
           "name": "Jobs",
@@ -44,8 +44,8 @@
                   }
                 },
                 "url": {
-                  "raw": "{{FlowManagerAPI}}/jobs/create",
-                  "host": ["{{FlowManagerAPI}}"],
+                  "raw": "{{JobsManagerAPI}}/jobs/create",
+                  "host": ["{{JobsManagerAPI}}"],
                   "path": ["jobs", "create"]
                 }
               },
@@ -84,8 +84,8 @@
                   }
                 },
                 "url": {
-                  "raw": "{{FlowManagerAPI}}/jobs/create",
-                  "host": ["{{FlowManagerAPI}}"],
+                  "raw": "{{JobsManagerAPI}}/jobs/create",
+                  "host": ["{{JobsManagerAPI}}"],
                   "path": ["jobs", "create"]
                 }
               },
@@ -119,8 +119,8 @@
                   "raw": ""
                 },
                 "url": {
-                  "raw": "{{FlowManagerAPI}}/jobs",
-                  "host": ["{{FlowManagerAPI}}"],
+                  "raw": "{{JobsManagerAPI}}/jobs",
+                  "host": ["{{JobsManagerAPI}}"],
                   "path": ["jobs"]
                 }
               },
@@ -152,8 +152,8 @@
                   }
                 },
                 "url": {
-                  "raw": "{{FlowManagerAPI}}/report/program",
-                  "host": ["{{FlowManagerAPI}}"],
+                  "raw": "{{JobsManagerAPI}}/report/program",
+                  "host": ["{{JobsManagerAPI}}"],
                   "path": ["report", "program"]
                 }
               },
@@ -185,8 +185,8 @@
                   }
                 },
                 "url": {
-                  "raw": "{{FlowManagerAPI}}/report/hosts/{{jobId}}",
-                  "host": ["{{FlowManagerAPI}}"],
+                  "raw": "{{JobsManagerAPI}}/report/hosts/{{jobId}}",
+                  "host": ["{{JobsManagerAPI}}"],
                   "path": ["report", "hosts", "{{jobId}}"]
                 }
               },
@@ -213,8 +213,8 @@
                   }
                 },
                 "url": {
-                  "raw": "{{FlowManagerAPI}}/report/domains/{{jobId}}",
-                  "host": ["{{FlowManagerAPI}}"],
+                  "raw": "{{JobsManagerAPI}}/report/domains/{{jobId}}",
+                  "host": ["{{JobsManagerAPI}}"],
                   "path": ["report", "domains", "{{jobId}}"]
                 }
               },
@@ -241,8 +241,8 @@
                   }
                 },
                 "url": {
-                  "raw": "{{FlowManagerAPI}}/report/domains",
-                  "host": ["{{FlowManagerAPI}}"],
+                  "raw": "{{JobsManagerAPI}}/report/domains",
+                  "host": ["{{JobsManagerAPI}}"],
                   "path": ["report", "domains"]
                 }
               },
@@ -272,8 +272,8 @@
                   }
                 },
                 "url": {
-                  "raw": "{{FlowManagerAPI}}/report/domains/index/{{program}}/0",
-                  "host": ["{{FlowManagerAPI}}"],
+                  "raw": "{{JobsManagerAPI}}/report/domains/index/{{program}}/0",
+                  "host": ["{{JobsManagerAPI}}"],
                   "path": ["report", "domains", "index", "{{program}}", "0"]
                 }
               },
@@ -305,8 +305,8 @@
                   }
                 },
                 "url": {
-                  "raw": "{{FlowManagerAPI}}/alert/keybase",
-                  "host": ["{{FlowManagerAPI}}"],
+                  "raw": "{{JobsManagerAPI}}/alert/keybase",
+                  "host": ["{{JobsManagerAPI}}"],
                   "path": ["alert", "keybase"]
                 }
               },
@@ -345,8 +345,8 @@
                   "raw": ""
                 },
                 "url": {
-                  "raw": "{{FlowManagerAPI}}/report/daily",
-                  "host": ["{{FlowManagerAPI}}"],
+                  "raw": "{{JobsManagerAPI}}/report/daily",
+                  "host": ["{{JobsManagerAPI}}"],
                   "path": ["report", "daily"]
                 }
               },
@@ -382,8 +382,8 @@
                   }
                 },
                 "url": {
-                  "raw": "{{FlowManagerAPI}}/report/daily/note",
-                  "host": ["{{FlowManagerAPI}}"],
+                  "raw": "{{JobsManagerAPI}}/report/daily/note",
+                  "host": ["{{JobsManagerAPI}}"],
                   "path": ["report", "daily", "note"]
                 }
               },
@@ -419,8 +419,8 @@
                   }
                 },
                 "url": {
-                  "raw": "{{FlowManagerAPI}}/report/daily/send",
-                  "host": ["{{FlowManagerAPI}}"],
+                  "raw": "{{JobsManagerAPI}}/report/daily/send",
+                  "host": ["{{JobsManagerAPI}}"],
                   "path": ["report", "daily", "send"]
                 }
               },
@@ -461,8 +461,8 @@
                   }
                 },
                 "url": {
-                  "raw": "{{FlowManagerAPI}}/automation/update/ips",
-                  "host": ["{{FlowManagerAPI}}"],
+                  "raw": "{{JobsManagerAPI}}/automation/update/ips",
+                  "host": ["{{JobsManagerAPI}}"],
                   "path": ["automation", "update", "ips"]
                 }
               },
@@ -506,8 +506,8 @@
                       }
                     },
                     "url": {
-                      "raw": "{{FlowManagerAPI}}/admin/config/",
-                      "host": ["{{FlowManagerAPI}}"],
+                      "raw": "{{JobsManagerAPI}}/admin/config/",
+                      "host": ["{{JobsManagerAPI}}"],
                       "path": ["admin", "config", ""]
                     }
                   },
@@ -523,8 +523,8 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{FlowManagerAPI}}/",
-              "host": ["{{FlowManagerAPI}}"],
+              "raw": "{{JobsManagerAPI}}/",
+              "host": ["{{JobsManagerAPI}}"],
               "path": [""]
             }
           },
@@ -542,8 +542,8 @@
               }
             ],
             "url": {
-              "raw": "{{FlowManagerAPI}}/ping",
-              "host": ["{{FlowManagerAPI}}"],
+              "raw": "{{JobsManagerAPI}}/ping",
+              "host": ["{{JobsManagerAPI}}"],
               "path": ["ping"]
             }
           },

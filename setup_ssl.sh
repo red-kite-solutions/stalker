@@ -159,8 +159,8 @@ req_extensions = extensions
 
 [ distinguished_name ]
 organizationName = Red Kite Solutions
-organizationalUnitName = Stalker Flow Manager
-commonName = Flow Manager API
+organizationalUnitName = Stalker Jobs Manager
+commonName = Jobs Manager API
 
 [ extensions ]
 subjectAltName = @alt_names
@@ -170,7 +170,7 @@ DNS.1 = jobs-manager
 DNS.2 = jobs-manager.stalker.svc.cluster.local
 EOF
 
-# Create CSR for flow manager
+# Create CSR for jobs manager
 openssl req -new -nodes -newkey rsa:2048 -keyout ./packages/backend/jobs-manager/service/ssl-private.key -out ./packages/backend/jobs-manager/service/ssl-certificate.csr -config ./packages/backend/jobs-manager/service/ssl-csr.cnf
 
 # Signing FM's csr with intermediate ca
