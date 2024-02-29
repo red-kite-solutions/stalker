@@ -146,6 +146,7 @@ node_modules
 .devspace/
 devspace.*.yaml
 !devspace.base.yaml
+!devspace.tests.yaml
 bin
 .vs
 obj

@@ -1,0 +1,5 @@
+version: v2beta1
+name: stalker-vars-base
+
+vars:
+  DOCKERFILE_NAME: Dockerfile.cicd
