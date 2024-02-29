@@ -16,8 +16,8 @@ RUN dotnet restore "./Orchestrator.sln"
 
 # Kafka certs
 RUN mkdir -p /certs/
-COPY pakages/backend/orchestrator/service/kafka-ca.crt.test /certs/kafka-ca.crt
-COPY pakages/backend/orchestrator/service/kafka-client-signed.crt.test /certs/kafka-client-signed
-COPY pakages/backend/orchestrator/service/kafka-client.key.test /certs/kafka-client.key
+COPY packages/backend/orchestrator/service/kafka-ca.crt.test /certs/kafka-ca.crt
+COPY packages/backend/orchestrator/service/kafka-client-signed.crt.test /certs/kafka-client-signed
+COPY packages/backend/orchestrator/service/kafka-client.key.test /certs/kafka-client.key
 
 ENTRYPOINT ["dotnet", "watch", "--project", "Orchestrator", "--no-hot-reload"]
