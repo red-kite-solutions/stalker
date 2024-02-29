@@ -4,8 +4,8 @@ name: stalker-vars-base
 vars:
   STALKER_VERSION: "Stalker 0.0.2 alpha"
   MONGO_ROOT_PASSWORD: "123456"
-  MONGO_JM_USER: "flowmanager"
-  MONGO_JM_USER_E2E: "flowmanagere2e"
+  MONGO_JM_USER: "jobsmanager"
+  MONGO_JM_USER_E2E: "jobsmanagere2e"
   MONGO_JM_PASSWORD: "123456"
   MONGO_CRON_USER: "cronservice"
   MONGO_CRON_PASSWORD: "123456"
