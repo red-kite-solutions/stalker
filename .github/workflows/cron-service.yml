@@ -27,4 +27,4 @@ jobs:
         if: always()
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          result-file: ./packages/backend/cron/test/jest-output.json
+          result-file: ./packages/backend/cron/service/test/jest-output.json

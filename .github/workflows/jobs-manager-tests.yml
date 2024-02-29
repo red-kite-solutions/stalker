@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - .github/workflows/jobs-manager.yml
-      - "packages/backend/jobs-manager+/**"
+      - "packages/backend/jobs-manager/service/**"
 
 jobs:
   tests:
@@ -29,7 +29,7 @@ jobs:
         if: always()
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          result-file: ./jobs-manager/test/jest-output.json
+          result-file: ./packages/backend/jobs-manager/service/test/jest-output.json
 
   build:
     name: Production Build
