@@ -9,6 +9,8 @@ imports:
     enabled: $(is_equal ${STALKER_ENVIRONMENT} "dev")
   - path: devspace.prod.yaml
     enabled: $(is_equal ${STALKER_ENVIRONMENT} "prod")
+  - path: devspace.tests.yaml
+    enabled: $(is_equal ${STALKER_ENVIRONMENT} "tests")
   - path: devspace.base.yaml
 
 pipelines:
