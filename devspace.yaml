@@ -643,20 +643,20 @@ dev:
     container: jobs-manager-container-e2e
     logs:
       enabled: true
-    sync:
-      - path: ./package.json:/app/package.json
-        disableDownload: true
-      - path: ./yarn.lock:/app/yarn.lock
-        disableDownload: true
-      - path: ./packages:/app/packages
-        disableDownload: true
-        excludePaths:
-          - node_modules/
-          - packages/frontend/stalker-app/.angular/
-          - packages/frontend/stalker-app/node_modules/
-          - packages/backend/jobs-manager/service/node_modules/
-          - packages/backend/cron/service/node_modules/
-          - packages/backend/orchestrator/service/node_modules/
+    # sync:
+    #   - path: ./package.json:/app/package.json
+    #     disableDownload: true
+    #   - path: ./yarn.lock:/app/yarn.lock
+    #     disableDownload: true
+    #   - path: ./packages:/app/packages
+    #     disableDownload: true
+    #     excludePaths:
+    #       - node_modules/
+    #       - packages/frontend/stalker-app/.angular/
+    #       - packages/frontend/stalker-app/node_modules/
+    #       - packages/backend/jobs-manager/service/node_modules/
+    #       - packages/backend/cron/service/node_modules/
+    #       - packages/backend/orchestrator/service/node_modules/
     restartHelper:
       inject: false
     ports:
