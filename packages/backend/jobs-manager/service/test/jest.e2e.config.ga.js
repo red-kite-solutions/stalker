@@ -1,4 +1,4 @@
-const baseConfig = require('./jest.config.e2e');
+const baseConfig = require('./jest.e2e.config');
 
 module.exports = {
   ...baseConfig,
