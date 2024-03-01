@@ -51,6 +51,10 @@ jobs:
           kubectl get all -n stalker
           kubectl describe all -n stalker
 
+      - name: Jobs Manager Logs
+        if: always()
+        run: kubectl logs -n stalker -l app.kubernetes.io/component=jobs-manager-e2e
+
       - name: Diagnosis
         if: always()
         run: |-
