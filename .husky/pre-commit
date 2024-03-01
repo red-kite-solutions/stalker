@@ -14,7 +14,7 @@ for project in "docs" "packages/frontend/stalker-app" "packages/backend/jobs-man
 do
     cd "$root/$project"
     if [ -f "./.husky/pre-commit" ]; then
-        if [ `git status --porcelain` ]; then
+        if [[ `git status --porcelain` ]]; then
             echo "[$project] Found changes. Running toolchain."
             . "./.husky/pre-commit"
         else
