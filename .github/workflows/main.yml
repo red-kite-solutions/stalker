@@ -33,14 +33,6 @@ jobs:
         with:
           kubectl-install: true
 
-      - name: Create test configurations
-        run: |-
-          echo "version: v2beta1" >> devspace.dev.yaml
-          echo "name: stalker-vars-dev" >> devspace.dev.yaml
-          echo "" >> devspace.dev.yaml
-          echo "vars:" >> devspace.dev.yaml
-          echo "  JM_FEATURE_ORCHESTRATOR_ENABLED: true" >> devspace.dev.yaml
-
       - name: Create namespace
         run: kubectl create namespace stalker
 
@@ -52,6 +44,12 @@ jobs:
 
       - name: Run tests
         run: devspace --var="STALKER_ENVIRONMENT=tests" run-pipeline jobs-manager-e2e-cicd-run -n stalker
+
+      - name: Diagnosis
+        if: always()
+        run: |-
+          kubectl get all -n stalker
+          kubectl describe all -n stalker
 
       - name: Diagnosis
         if: always()
