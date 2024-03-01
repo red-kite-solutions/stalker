@@ -1,7 +1,7 @@
 import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { useContainer } from 'class-validator';
-import request from 'supertest';
+import * as request from 'supertest';
 import {
   TestingData,
   checkAuthorizations,
@@ -12,7 +12,7 @@ import {
   patchReq,
   postReq,
   putReq,
-} from 'test/e2e.utils';
+} from '../../../../test/e2e.utils';
 import { AppModule } from '../../../app.module';
 import { Role } from '../../../auth/constants';
 import {

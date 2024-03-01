@@ -14,7 +14,7 @@ import {
   initTesting,
   postReq,
   putReq,
-} from 'test/e2e.utils';
+} from '../../../../test/e2e.utils';
 import { AppModule } from '../../../app.module';
 import { Role } from '../../../auth/constants';
 import { HostService } from './host.service';

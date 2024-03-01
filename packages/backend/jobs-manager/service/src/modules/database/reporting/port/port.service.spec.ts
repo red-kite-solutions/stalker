@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { getName } from '../../../../../test/test.utils';
+import { getName } from '../../../../test/test.utils';
 import { AppModule } from '../../../app.module';
 import { TagsService } from '../../tags/tag.service';
 import { DomainsService } from '../domain/domain.service';

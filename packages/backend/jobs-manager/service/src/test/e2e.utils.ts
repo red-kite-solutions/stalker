@@ -2,10 +2,10 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import jwt_decode from 'jwt-decode';
 import { MongoClient, MongoClientOptions } from 'mongodb';
-import request from 'supertest';
-import { JM_ENVIRONMENTS } from '../src/modules/app.constants';
-import { Role } from '../src/modules/auth/constants';
-import { ProjectDocument } from '../src/modules/database/reporting/project.model';
+import * as request from 'supertest';
+import { JM_ENVIRONMENTS } from '../modules/app.constants';
+import { Role } from '../modules/auth/constants';
+import { ProjectDocument } from '../modules/database/reporting/project.model';
 
 export interface UserTestingData {
   token: string;

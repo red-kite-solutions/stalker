@@ -2,7 +2,7 @@ import { HttpStatus } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
-import { getName } from '../../../../test/test.utils';
+import { getName } from '../../../test/test.utils';
 import { AppModule } from '../../app.module';
 import { Role } from '../../auth/constants';
 import { CreateFirstUserDto } from './users.dto';
