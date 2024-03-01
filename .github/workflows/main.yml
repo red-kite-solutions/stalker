@@ -57,11 +57,7 @@ jobs:
         if: always()
         run: |-
           kubectl get all -n stalker
-
-      - name: Kafka describe
-        if: always()
-        run: |-
-          kubectl describe -n stalker pod kafka-controller-0
+          kubectl describe all -n stalker
 
       - name: Kafka logs
         if: always()
