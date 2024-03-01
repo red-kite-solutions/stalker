@@ -92,11 +92,11 @@ pipelines:
       then
         echo "Running tests in watch mode."
         start_dev jobs-manager-e2e mongo
-        exec_container --label-selector app.kubernetes.io/component=jobs-manager-e2e -n stalker -- /bin/sh -c 'npm run test:e2e:watch'
+        exec_container --label-selector app.kubernetes.io/component=jobs-manager-e2e -n stalker -- /bin/sh -c 'yarn workspace @red-kite/jobs-manager test:e2e:watch'
       else
         echo "Running tests in ci mode."
         start_dev jobs-manager-e2e
-        exec_container --label-selector app.kubernetes.io/component=jobs-manager-e2e -n stalker -- /bin/sh -c 'npm run test:e2e:cicd' 2>&1
+        exec_container --label-selector app.kubernetes.io/component=jobs-manager-e2e -n stalker -- /bin/sh -c 'yarn workspace @red-kite/jobs-manager test:e2e:cicd' 2>&1
       fi
       stop_dev --all
   purge:
@@ -129,7 +129,7 @@ pipelines:
     run: |-
       # Running jobs-manager-e2e-cicd-deploy pipeline is required before running this
       start_dev jobs-manager-e2e
-      exec_container --label-selector app.kubernetes.io/component=jobs-manager-e2e -n stalker -- /bin/sh -c 'npm run test:e2e:cicd'
+      exec_container --label-selector app.kubernetes.io/component=jobs-manager-e2e -n stalker -- /bin/sh -c 'yarn workspace @red-kite/jobs-manager test:e2e:cicd'
       stop_dev --all
 
   prod:
