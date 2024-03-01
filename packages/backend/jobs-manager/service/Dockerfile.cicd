@@ -14,4 +14,6 @@ COPY packages/backend/jobs-manager/service/kafka-ca.crt.test /certs/kafka-ca.crt
 COPY packages/backend/jobs-manager/service/kafka-client-signed.crt.test /certs/kafka-client-signed.crt
 COPY packages/backend/jobs-manager/service/kafka-client.key.test /certs/kafka-client.key
 
-CMD ["yarn", "workspace", "@red-kite/jobs-manager", "start"]
+RUN yarn workspace @red-kite/jobs-manager build
+
+CMD ["yarn", "workspace", "@red-kite/jobs-manager", "start:debug"]
