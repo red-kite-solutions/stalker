@@ -85,19 +85,37 @@ export class DomainsService {
       newDomains.push(domain.name);
     }
 
-    const findings: HostnameFinding[] = [];
-    // For each new domain name found, a finding is created
-    newDomains.forEach((domain) => {
+    this.publishHostnameFindings(newDomains, projectId);
+
+    return insertedDomains;
+  }
+
+  /**
+   * For each new domain name found, a finding is created
+   * We submit them by batch to hopefully better support large loads
+   * @param newDomains New domains for which to create HostnameFindings
+   * @param projectId The project associated with the domains/findings
+   */
+  private async publishHostnameFindings(
+    newDomains: string[],
+    projectId: string,
+  ) {
+    const batchSize = 100;
+
+    let findings: HostnameFinding[] = [];
+    for (let i = 0; i < newDomains.length; ++i) {
       findings.push({
         type: 'HostnameFinding',
         key: 'HostnameFinding',
-        domainName: domain,
+        domainName: newDomains[i],
         projectId: projectId,
       });
-    });
+      if (i % batchSize === 0) {
+        await this.findingsQueue.publish(...findings);
+        findings = [];
+      }
+    }
     this.findingsQueue.publish(...findings);
-
-    return insertedDomains;
   }
 
   /**
