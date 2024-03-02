@@ -33,12 +33,12 @@ pipelines:
       build_images ui flow-manager orchestrator python-job-base nuclei-job-base cron-service
       create_deployments mongo kafka --sequential
 
-      # Start mongo and kafka
-      start_dev mongo kafka
-
       # Wait for kafka and mongo to be ready
       wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 300
       wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 300
+
+      # Start mongo and kafka
+      start_dev mongo kafka
 
       create_deployments ui flow-manager orchestrator-service-account orchestrator --sequential
 
@@ -575,17 +575,13 @@ deployments:
 dev:
   mongo:
     labelSelector:
-      statefulset.kubernetes.io/pod-name: mongo-mongodb-0
+      app.kubernetes.io/component: mongodb
     ports:
       - port: "27017"
-    resources:
-      limits:
-        memory: 2Gi
-        cpu: 1
 
   mongo-prod:
     labelSelector:
-      statefulset.kubernetes.io/pod-name: mongo-mongodb-0
+      app.kubernetes.io/component: mongodb
 
   kafka:
     labelSelector:

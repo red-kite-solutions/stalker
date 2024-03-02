@@ -1,4 +1,6 @@
 ﻿using Confluent.Kafka;
+using k8s.Models;
+using Orchestrator.K8s;
 
 namespace Orchestrator.Queue
 {

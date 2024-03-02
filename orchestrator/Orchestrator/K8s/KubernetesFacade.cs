@@ -11,7 +11,7 @@ public class KubernetesFacade : IKubernetesFacade
     /// Gets or sets the Kubernetes configuration.
     /// </summary>
     //// private KubernetesClientConfiguration KubernetesConfiguration => KubernetesClientConfiguration.BuildConfigFromConfigFile(Environment.GetEnvironmentVariable("KUBECONFIG"));
-    private KubernetesClientConfiguration KubernetesConfiguration => KubernetesClientConfiguration.InClusterConfig();
+    private static KubernetesClientConfiguration KubernetesConfiguration => KubernetesClientConfiguration.InClusterConfig();
 
     public KubernetesFacade(ILogger<KubernetesFacade> logger)
     {
@@ -118,5 +118,16 @@ public class KubernetesFacade : IKubernetesFacade
             return false;
 
         return pods.Items.FirstOrDefault()?.Status?.Phase == "Succeeded" || pods.Items.FirstOrDefault()?.Status?.Phase == "Failed";
+    }
+
+    /// <summary>
+    /// Allows to query a namespace for its memory and CPU limit and usage
+    /// </summary>
+    /// <param name="jobNamespace">The Kubernetes namespace's name</param>
+    /// <returns>A list of the Resource Quotas applied to the namespace</returns>
+    public static V1ResourceQuotaList GetJobNamespaceResources(string jobNamespace = "default")
+    {
+        using var client = new Kubernetes(KubernetesConfiguration);
+        return client.ListNamespacedResourceQuota(jobNamespace); ;
     }
 }
