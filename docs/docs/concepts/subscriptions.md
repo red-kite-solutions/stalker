@@ -23,16 +23,16 @@ dropdown menu.
 
 **Table of content**
 
-- [Cron Subscriptions](#cron-subscriptions)
-  - [Cron Subscription Syntax](#cron-subscription-syntax)
-    - [Cron Subscription Simple Example](#cron-subscription-simple-example)
-    - [Input variable](#input-variable)
-- [Event Subscriptions](#event-subscriptions)
-  - [Event Subscription Syntax](#event-subscription-syntax)
-    - [Event Subscription Simple Example](#event-subscription-simple-example)
-    - [Event Subscription Complex Example](#event-subscription-complex-example)
-  - [Findings](#findings)
-  - [Conditions](#conditions)
+* [Cron Subscriptions](#cron-subscriptions)
+  * [Cron Subscription Syntax](#cron-subscription-syntax)
+    * [Cron Subscription Simple Example](#cron-subscription-simple-example)
+    * [Input variable](#input-variable)
+* [Event Subscriptions](#event-subscriptions)
+  * [Event Subscription Syntax](#event-subscription-syntax)
+    * [Event Subscription Simple Example](#event-subscription-simple-example)
+    * [Event Subscription Complex Example](#event-subscription-complex-example)
+  * [Findings](#findings)
+  * [Conditions](#conditions)
 
 ## Cron Subscriptions
 
@@ -320,17 +320,18 @@ parameter when referenced using the syntax `${paramName}`.
 The primitive type of the parameters must match together and must match with the operator for the condition to return `true`. The allowed
 types of an operand are `string`, `number` or `boolean`. If all the condtions return true, then the specified job will be started.
 
-| Operator     | Accepted Operand Types  | Description                                                                   |
-| ------------ | ----------------------- | ----------------------------------------------------------------------------- |
-| gte          | number                  | `lhs >= rhs`                                                                  |
-| gt           | number                  | `lhs > rhs`                                                                   |
-| lte          | number                  | `lhs <= rhs`                                                                  |
-| lt           | number                  | `lhs < rhs`                                                                   |
-| equals       | string, number, boolean | `lhs == rhs`                                                                  |
-| equals_i     | string                  | Case insensitive, `lhs == rhs`                                                |
-| contains     | string                  | Validates if the `lhs` string contains the `rhs` string.                      |
-| contains_i   | string                  | Validates if the `lhs` string contains the `rhs` string. Case insensitive.    |
-| startsWith   | string                  | Validates if the `lhs` string starts with the `rhs` string.                   |
-| startsWith_i | string                  | Validates if the `lhs` string starts with the `rhs` string. Case insensitive. |
-| endsWith     | string                  | Validates if the `lhs` string ends with the `rhs` string.                     |
-| endsWith_i   | string                  | Validates if the `lhs` string ends with the `rhs` string. Case insensitive.   |
+| Operator     | Accepted Operand Types  | Description                                                                                                                                        |
+| ------------ | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| gte          | number                  | `lhs >= rhs`                                                                                                                                       |
+| gt           | number                  | `lhs > rhs`                                                                                                                                        |
+| lte          | number                  | `lhs <= rhs`                                                                                                                                       |
+| lt           | number                  | `lhs < rhs`                                                                                                                                        |
+| equals       | string, number, boolean | `lhs == rhs`                                                                                                                                       |
+| equals_i     | string                  | Case insensitive, `lhs == rhs`                                                                                                                     |
+| contains     | string                  | Validates if the `lhs` string contains the `rhs` string.                                                                                           |
+| contains_i   | string                  | Validates if the `lhs` string contains the `rhs` string. Case insensitive.                                                                         |
+| startsWith   | string                  | Validates if the `lhs` string starts with the `rhs` string.                                                                                        |
+| startsWith_i | string                  | Validates if the `lhs` string starts with the `rhs` string. Case insensitive.                                                                      |
+| endsWith     | string                  | Validates if the `lhs` string ends with the `rhs` string.                                                                                          |
+| endsWith_i   | string                  | Validates if the `lhs` string ends with the `rhs` string. Case insensitive.                                                                        |
+| not_         | string, number, boolean | Prefix `not_` to another operator to have the result negated. For instance, `not_equals` would be true when two operands are not considered equal. |
