@@ -7,7 +7,7 @@ EXPOSE 7135
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 
-COPY packages packages
+COPY packages/backend/orchestrator/service packages/backend/orchestrator/service
 WORKDIR /app/packages/backend/orchestrator/service
 
 RUN dotnet restore "./Orchestrator.sln"
