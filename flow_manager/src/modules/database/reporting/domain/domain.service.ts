@@ -100,7 +100,7 @@ export class DomainsService {
     newDomains: string[],
     projectId: string,
   ) {
-    const batchSize = 100;
+    const batchSize = 30;
 
     let findings: HostnameFinding[] = [];
     for (let i = 0; i < newDomains.length; ++i) {
