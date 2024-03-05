@@ -1,8 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { DeleteResult, UpdateResult } from 'mongodb';
+import { DeleteResult } from 'mongodb';
 import { Model, Types } from 'mongoose';
 import { JobSummary } from '../../../types/job-summary.type';
+import { JobCodeQueue } from '../../job-queue/job-code-queue';
 import { CustomJobDto } from './custom-jobs.dto';
 import { CustomJobEntry, CustomJobsDocument } from './custom-jobs.model';
 
@@ -13,6 +14,7 @@ export class CustomJobsService {
   constructor(
     @InjectModel('customJobs')
     private readonly customJobModel: Model<CustomJobEntry>,
+    private readonly jobCodeQueue: JobCodeQueue,
   ) {}
 
   public async create(dto: CustomJobDto) {
@@ -27,7 +29,9 @@ export class CustomJobsService {
       findingHandlerLanguage: dto.findingHandlerLanguage ?? undefined,
       parameters: [],
     };
-    return await this.customJobModel.create(job);
+    const r = await this.customJobModel.create(job);
+    this.jobCodeQueue.publish(r);
+    return r;
   }
 
   public async getAll() {
@@ -44,7 +48,10 @@ export class CustomJobsService {
       .select(['-_id', 'name', 'parameters', 'builtIn']);
   }
 
-  public async edit(id: string, dto: CustomJobDto): Promise<UpdateResult> {
+  public async edit(
+    id: string,
+    dto: CustomJobDto,
+  ): Promise<CustomJobsDocument> {
     const job: Partial<CustomJobEntry> = {
       name: dto.name,
       code: dto.code,
@@ -55,12 +62,15 @@ export class CustomJobsService {
       findingHandler: dto.findingHandler ?? undefined,
       findingHandlerLanguage: dto.findingHandlerLanguage ?? undefined,
     };
-    return await this.customJobModel.updateOne(
+    const r = await this.customJobModel.findOneAndUpdate(
       {
         _id: { $eq: new Types.ObjectId(id) },
       },
       job,
+      { returnDocument: 'after' },
     );
+    this.jobCodeQueue.publish(r);
+    return r;
   }
 
   public async delete(id: string): Promise<DeleteResult> {

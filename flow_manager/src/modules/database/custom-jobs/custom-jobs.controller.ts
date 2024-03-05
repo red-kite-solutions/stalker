@@ -9,7 +9,7 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { DeleteResult, UpdateResult } from 'mongodb';
+import { DeleteResult } from 'mongodb';
 import {
   HttpConflictException,
   HttpServerErrorException,
@@ -64,7 +64,7 @@ export class CustomJobsController {
   async editCustomJob(
     @Param() IdDto: MongoIdDto,
     @Body() dto: CustomJobDto,
-  ): Promise<UpdateResult> {
+  ): Promise<CustomJobsDocument> {
     try {
       return await this.customJobsService.edit(IdDto.id, dto);
     } catch (err) {
