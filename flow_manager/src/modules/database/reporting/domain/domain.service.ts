@@ -10,6 +10,7 @@ import escapeStringRegexp from '../../../../utils/escape-string-regexp';
 import { HostnameFinding } from '../../../findings/findings.service';
 import { FindingsQueue } from '../../../job-queue/findings-queue';
 import { ConfigService } from '../../admin/config/config.service';
+import { MONGO_DUPLICATE_ERROR } from '../../database.constants';
 import { JobsService } from '../../jobs/jobs.service';
 import { TagsService } from '../../tags/tag.service';
 import { CorrelationKeyUtils } from '../correlation.utils';
@@ -194,10 +195,18 @@ export class DomainsService {
     domainId: string,
     hostSummaries: HostSummary[],
   ): Promise<UpdateResult> {
-    return this.domainModel.updateOne(
-      { _id: { $eq: domainId } },
-      { $addToSet: { hosts: { $each: hostSummaries } } },
-    );
+    try {
+      return this.domainModel.updateOne(
+        { _id: { $eq: domainId } },
+        { $addToSet: { hosts: { $each: hostSummaries } } },
+      );
+    } catch (err) {
+      // Duplicates are expected a host always try to link
+      // $addToSet is used to prevent duplicates
+      if (err.code !== MONGO_DUPLICATE_ERROR) {
+        throw err;
+      }
+    }
   }
 
   public async deleteAllForProject(projectId: string): Promise<DeleteResult> {
