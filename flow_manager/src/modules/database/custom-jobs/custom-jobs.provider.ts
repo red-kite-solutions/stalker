@@ -1,7 +1,7 @@
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { lstatSync, readdirSync } from 'node:fs';
-import { JobCodeQueue } from '../../job-queue/job-code-queue';
+import { JobModelUpdateQueue } from '../../job-queue/job-model-update-queue';
 import { DATABASE_INIT } from '../admin/config/config.provider';
 import { JobPodConfiguration } from '../admin/config/job-pod-config/job-pod-config.model';
 import { ALL_FILE_PATHS as ALL_JOB_FILE_PATHS } from './custom-jobs.constants';
@@ -16,13 +16,13 @@ export const jobsInitProvider = [
     inject: [
       getModelToken('customJobs'),
       getModelToken('jobPodConfig'),
-      JobCodeQueue,
+      JobModelUpdateQueue,
       { token: DATABASE_INIT, optional: false },
     ],
     useFactory: async (
       customJobModel: Model<CustomJobEntry>,
       jpcModel: Model<JobPodConfiguration>,
-      jobCodeQueue: JobCodeQueue,
+      jobCodeQueue: JobModelUpdateQueue,
     ) => {
       const anyJob = await customJobModel.findOne({});
       if (!anyJob) {
@@ -33,12 +33,10 @@ export const jobsInitProvider = [
             if (lstatSync(fp + file).isDirectory()) continue;
             const j = await CustomJobsUtils.getCustomJob(fp, file, jpcModel);
             if (!j) continue;
-            customJobModel.create(j);
+            const created = await customJobModel.create(j);
+            jobCodeQueue.publish(created);
           }
         }
-      } else {
-        const allJobs = await customJobModel.find();
-        jobCodeQueue.publish(...allJobs);
       }
     },
   },

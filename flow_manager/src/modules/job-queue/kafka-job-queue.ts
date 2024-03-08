@@ -10,11 +10,11 @@ export class KafkaJobQueue implements JobQueue {
   constructor(private producer: Producer) {}
 
   public async publish(...jobs: any[]) {
-    if (process.env.STALKER_ENVIRONMENT === 'tests') return;
-
     this.logger.debug(
       `Publishing ${jobs.length} jobs. Topic: ${orchestratorConstants.topics.jobRequests}.`,
     );
+
+    this.logger.debug(JSON.stringify(jobs));
 
     await this.producer.send({
       topic: orchestratorConstants.topics.jobRequests,

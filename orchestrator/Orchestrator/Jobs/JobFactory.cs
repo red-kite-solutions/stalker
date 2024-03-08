@@ -1,5 +1,6 @@
 ﻿using Orchestrator.Events;
 using Orchestrator.Jobs.Commands;
+using Orchestrator.Jobs.JobModelCache;
 using Orchestrator.K8s;
 using Orchestrator.Queue;
 using Orchestrator.Queue.JobsConsumer;
@@ -42,18 +43,22 @@ public class JobFactory : IJobFactory
 
     private JobCommand CreateCustomJobCommand(CustomJobRequest request)
     {
-        if (request.Type?.ToLower() == "code")
+        if (request.JobModelId == null) throw new InvalidOperationException();
+
+        var model = JobModelCache.JobModelCache.Get(request.JobModelId);
+
+        if (model.Type?.ToLower() == "code")
         {
-            return request.Language?.ToLower() switch
+            return model.Language?.ToLower() switch
             {
-                "python" => new PythonCustomJobCommand(request, Kubernetes, EventsProducer, JobLogsProducer, Parser, LoggerFactory.CreateLogger<PythonCustomJobCommand>(), Config),
+                "python" => new PythonCustomJobCommand(request, model, Kubernetes, EventsProducer, JobLogsProducer, Parser, LoggerFactory.CreateLogger<PythonCustomJobCommand>(), Config),
                 _ => throw new InvalidOperationException(),
             };
         }
 
-        if (request.Type?.ToLower() == "nuclei")
+        if (model.Type?.ToLower() == "nuclei")
         {
-            return new NucleiCustomJobCommand(request, Kubernetes, EventsProducer, JobLogsProducer, Parser, LoggerFactory.CreateLogger<NucleiCustomJobCommand>(), Config);
+            return new NucleiCustomJobCommand(request, model, Kubernetes, EventsProducer, JobLogsProducer, Parser, LoggerFactory.CreateLogger<NucleiCustomJobCommand>(), Config);
         }
 
         throw new InvalidOperationException();

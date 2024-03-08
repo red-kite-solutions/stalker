@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { DeleteResult } from 'mongodb';
 import { Model, Types } from 'mongoose';
 import { JobSummary } from '../../../types/job-summary.type';
-import { JobCodeQueue } from '../../job-queue/job-code-queue';
+import { JobModelUpdateQueue } from '../../job-queue/job-model-update-queue';
 import { CustomJobDto } from './custom-jobs.dto';
 import { CustomJobEntry, CustomJobsDocument } from './custom-jobs.model';
 
@@ -14,7 +14,7 @@ export class CustomJobsService {
   constructor(
     @InjectModel('customJobs')
     private readonly customJobModel: Model<CustomJobEntry>,
-    private readonly jobCodeQueue: JobCodeQueue,
+    private readonly jobCodeQueue: JobModelUpdateQueue,
   ) {}
 
   public async create(dto: CustomJobDto) {
@@ -40,6 +40,13 @@ export class CustomJobsService {
 
   public async get(id: string) {
     return await this.customJobModel.findById(id);
+  }
+
+  public async getPick<K extends keyof CustomJobsDocument>(
+    id: string,
+    projection: string[],
+  ): Promise<Pick<CustomJobsDocument, K>> {
+    return await this.customJobModel.findById(id, projection);
   }
 
   public async getAllSummaries(): Promise<JobSummary[]> {
@@ -81,5 +88,15 @@ export class CustomJobsService {
 
   public async getByName(name: string): Promise<CustomJobsDocument> {
     return await this.customJobModel.findOne({ name: { $eq: name } });
+  }
+
+  public async getPickByName<K extends keyof CustomJobsDocument>(
+    name: string,
+    projection: string[],
+  ): Promise<Pick<CustomJobsDocument, K>> {
+    return await this.customJobModel.findOne(
+      { name: { $eq: name } },
+      projection,
+    );
   }
 }

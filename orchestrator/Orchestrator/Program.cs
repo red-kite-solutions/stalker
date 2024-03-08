@@ -5,6 +5,7 @@ using Orchestrator.Events;
 using Orchestrator.Jobs;
 using Orchestrator.K8s;
 using Orchestrator.Queue;
+using Orchestrator.Queue.JobModelsConsumer;
 using Orchestrator.Queue.JobsConsumer;
 
 // Configure app
@@ -34,7 +35,8 @@ var adminConfig = new AdminClientConfig
     var expectedTopics = new[]
     {
         new TopicSpecification { Name = Constants.JobRequestsTopic, },
-        new TopicSpecification { Name = Constants.JobFindingsTopic, }
+        new TopicSpecification { Name = Constants.JobFindingsTopic, },
+        new TopicSpecification { Name = Constants.JobModelsTopic, },
     };
 
     try
@@ -65,6 +67,7 @@ var adminConfig = new AdminClientConfig
 
 // Start consumer
 app.Services.GetService<JobsConsumer>();
+app.Services.GetService<JobModelsConsumer>();
 app.MapGet("/version", () => "V1");
 app.MapFallback(() => "V1");
 app.Run();
@@ -80,6 +83,7 @@ void ConfigureServices(IServiceCollection services)
     services
         .AddResponseCompression()
         .AddSingleton<JobsConsumer>()
+        .AddSingleton<JobModelsConsumer>()
         .AddSingleton<IMessagesProducer<JobEventMessage>, JobEventsProducer>()
         .AddSingleton<IMessagesProducer<JobLogMessage>, JobLogsProducer>()
         .AddTransient<IKubernetesFacade, KubernetesFacade>()

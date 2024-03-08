@@ -2,7 +2,8 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import {
   isArray,
   isEmpty,
-  isIn,
+  isMongoId,
+  isNotEmpty,
   isNumber,
   isPositive,
   isString,
@@ -67,16 +68,7 @@ export class CustomJob {
   public endTime: number;
 
   @Prop()
-  public name!: string;
-
-  @Prop()
-  public type!: CustomJobType;
-
-  @Prop()
-  public code!: string;
-
-  @Prop()
-  public language!: CustomJobLanguage;
+  public name: string;
 
   @Prop()
   public customJobParameters!: JobParameter[];
@@ -91,10 +83,7 @@ export class CustomJob {
   public jobPodMemoryKbLimit: number;
 
   @Prop()
-  public findingHandler?: string;
-
-  @Prop()
-  public findingHandlerLanguage?: CustomJobFindingHandlerLanguage;
+  public jobModelId: string;
 
   constructor() {}
 
@@ -105,95 +94,46 @@ export class CustomJob {
   public static create(args: JobParameter[]): Job {
     let params = {};
     params['projectid'] = undefined;
-    params['name'] = undefined;
-    params['type'] = undefined;
-    params['code'] = undefined;
-    params['language'] = undefined;
     params['jobpodmillicpulimit'] = undefined;
     params['jobpodmemorykblimit'] = undefined;
     params['customjobparameters'] = undefined;
-    params['findinghandlerenabled'] = undefined;
-    params['findinghandler'] = undefined;
-    params['findinghandlerlanguage'] = undefined;
+    params['jobmodelid'] = undefined;
+    params['name'] = undefined;
 
-    const optionalKeys = [
-      'findinghandlerenabled',
-      'findinghandler',
-      'findinghandlerlanguage',
-    ];
+    console.log(args);
 
-    params = JobFactoryUtils.bindFunctionArguments(params, args, optionalKeys);
+    params = JobFactoryUtils.bindFunctionArguments(params, args);
 
     return CustomJob.createCustomJob(
       params['projectid'],
-      params['name'],
-      params['type'],
-      params['code'],
-      params['language'],
       params['jobpodmillicpulimit'],
       params['jobpodmemorykblimit'],
       params['customjobparameters'],
-      params['findinghandlerenabled'],
-      params['findinghandler'],
-      params['findinghandlerlanguage'],
+      params['jobmodelid'],
+      params['name'],
     );
   }
 
   private static createCustomJob(
     projectId: string,
-    name: string,
-    type: CustomJobType,
-    code: string,
-    language: CustomJobLanguage,
     jobPodMilliCpuLimit: number,
     jobPodMemoryKbLimit: number,
     customJobParameters: JobParameter[],
-    findingHandlerEnabled: boolean,
-    findingHandler: string,
-    findingHandlerLanguage: CustomJobFindingHandlerLanguage,
+    jobModelId: string,
+    name: string,
   ) {
     const job = new CustomJob();
     job.task = CustomJob.name;
     job.projectId = projectId;
     job.priority = 3;
-    job.name = name;
-    job.code = code;
-    job.type = type;
-    job.language = language;
     job.jobPodMilliCpuLimit = jobPodMilliCpuLimit;
     job.jobPodMemoryKbLimit = jobPodMemoryKbLimit;
+    job.jobModelId = jobModelId;
     job.customJobParameters = customJobParameters;
-    if (findingHandlerEnabled) {
-      job.findingHandler = findingHandler;
-      job.findingHandlerLanguage = findingHandlerLanguage;
-    }
+    job.name = name;
 
     if (!isProjectId(job.projectId)) {
       throw new JobParameterValueException('projectId', job.projectId);
-    }
-
-    if (!isString(job.name) || isEmpty(job.name)) {
-      throw new JobParameterValueException('name', job.name);
-    }
-
-    if (
-      !isString(job.type) ||
-      isEmpty(job.type) ||
-      !isIn(job.type, customJobTypes)
-    ) {
-      throw new JobParameterValueException('type', job.type);
-    }
-
-    if (!isString(job.code) || isEmpty(job.code)) {
-      throw new JobParameterValueException('code', job.code);
-    }
-
-    if (
-      !isString(job.language) ||
-      isEmpty(job.language) ||
-      !isIn(job.language, customJobLanguages)
-    ) {
-      throw new JobParameterValueException('language', job.language);
     }
 
     if (
@@ -233,41 +173,12 @@ export class CustomJob {
       );
     }
 
-    if (job.findingHandler && !isString(job.findingHandler)) {
-      throw new JobParameterValueException(
-        'findingHandler',
-        job.findingHandler,
-      );
+    if (!isMongoId(job.jobModelId)) {
+      throw new JobParameterValueException('jobModelId', job.jobModelId);
     }
 
-    if (job.findingHandlerLanguage && !isString(job.findingHandlerLanguage)) {
-      throw new JobParameterValueException(
-        'findingHandlerLanguage',
-        job.findingHandlerLanguage,
-      );
-    }
-
-    if (!job.findingHandlerLanguage && job.findingHandler) {
-      throw new JobParameterValueException(
-        'findingHandlerLanguage',
-        'If a findingHandler is provided, a findingHandlerLanguage is required',
-      );
-    }
-
-    if (
-      job.findingHandler &&
-      !validCustomJobTypeDetails.some((value) => {
-        return (
-          value.language === job.language &&
-          value.type === job.type &&
-          value.handlerLanguage === job.findingHandlerLanguage
-        );
-      })
-    ) {
-      throw new JobParameterValueException(
-        'language, type and findingHandlerLanguage',
-        `invalid combination of language ${job.language}, type ${job.type} and findingHandlerLanguage ${job.findingHandlerLanguage}`,
-      );
+    if (!isString(job.name) || !isNotEmpty(job.name)) {
+      throw new JobParameterValueException('name', job.name);
     }
 
     return job;

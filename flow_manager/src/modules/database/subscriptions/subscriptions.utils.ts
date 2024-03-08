@@ -42,9 +42,9 @@ export class SubscriptionsUtils {
       return undefined;
     }
 
-    const customJobEntry = await customJobsService.getByName(
-      customJobNameParam,
-    );
+    const customJobEntry = await customJobsService.getPickByName<
+      '_id' | 'jobPodConfigId' | 'name'
+    >(customJobNameParam, ['_id', 'jobPodConfigId', 'name']);
 
     if (!customJobEntry) {
       logger.error(
