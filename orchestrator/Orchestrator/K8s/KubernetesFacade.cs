@@ -1,5 +1,6 @@
 ﻿using k8s;
 using k8s.Models;
+using System.Diagnostics;
 
 namespace Orchestrator.K8s;
 
@@ -71,7 +72,7 @@ public class KubernetesFacade : IKubernetesFacade
         Logger.LogDebug($"Creating job {jobName} in namespace {jobTemplate.Namespace}");
 
         // I think that this call can get a 403 Forbidden from the API if not enough ressources are available
-        await client.CreateNamespacedJobAsync(kubernetesJob, jobTemplate.Namespace);
+        await RetryableCall(()=> client.CreateNamespacedJobAsync(kubernetesJob, jobTemplate.Namespace));
 
         return new KubernetesJob
         {
@@ -90,11 +91,11 @@ public class KubernetesFacade : IKubernetesFacade
         do
         {
             Thread.Sleep(100);
-            pods = await client.ListNamespacedPodAsync(labelSelector: $"job-name={jobName}", limit: 1, namespaceParameter: jobNamespace);
+            pods = await RetryableCall(() => client.ListNamespacedPodAsync(labelSelector: $"job-name={jobName}", limit: 1, namespaceParameter: jobNamespace));
 
         } while (pods?.Items == null || pods.Items.Count < 1 || pods.Items.FirstOrDefault()?.Status?.Phase == "Pending");
 
-        return await client.ReadNamespacedPodLogAsync(pods.Items.FirstOrDefault().Metadata.Name, jobNamespace, follow: true);
+        return await RetryableCall(() => client.ReadNamespacedPodLogAsync(pods.Items.FirstOrDefault().Metadata.Name, jobNamespace, follow: true));
     }
 
     /// <summary>
@@ -103,7 +104,7 @@ public class KubernetesFacade : IKubernetesFacade
     public async Task DeleteJob(string jobName, string jobNamespace = "default")
     {
         using var client = new Kubernetes(KubernetesConfiguration);
-        await client.DeleteCollectionNamespacedJobAsync(jobNamespace, fieldSelector: $"metadata.name={jobName}", propagationPolicy: "Foreground");
+        await RetryableCall(() => client.DeleteCollectionNamespacedJobAsync(jobNamespace, fieldSelector: $"metadata.name={jobName}", propagationPolicy: "Foreground"));
     }
 
     /// <summary>
@@ -112,7 +113,7 @@ public class KubernetesFacade : IKubernetesFacade
     public async Task<bool> IsJobPodFinished(string jobName, string jobNamespace = "default")
     {
         using var client = new Kubernetes(KubernetesConfiguration);
-        V1PodList pods = await client.ListNamespacedPodAsync(labelSelector: $"job-name={jobName}", limit: 1, namespaceParameter: jobNamespace);
+        V1PodList pods = await RetryableCall(async () => await client.ListNamespacedPodAsync(labelSelector: $"job-name={jobName}", limit: 1, namespaceParameter: jobNamespace));
 
         if (pods.Items == null || pods.Items.Count < 1)
             return false;
@@ -128,6 +129,51 @@ public class KubernetesFacade : IKubernetesFacade
     public static V1ResourceQuotaList GetJobNamespaceResources(string jobNamespace = "default")
     {
         using var client = new Kubernetes(KubernetesConfiguration);
-        return client.ListNamespacedResourceQuota(jobNamespace); ;
+        return RetryableCall(() => client.ListNamespacedResourceQuota(jobNamespace));
+    }
+
+    /// <summary>
+    /// Sleeps the thread for a random time in seconds between min and max. This method is useful when, for instance, 
+    /// you overload the Kubernetes API and wish to retry without all threads retrying at the same time. Retrying at 
+    /// different times will spread the load on the API
+    /// </summary>
+    /// <param name="minSeconds">Minimal time in seconds to wait (default 10)</param>
+    /// <param name="maxSeconds">Maximal time in seconds to wait (default 100)</param>
+    public static void RandomWait(int minSeconds = 10, int maxSeconds = 100)
+    {
+        var time = new Random().Next(minSeconds, maxSeconds + 1);
+        Thread.Sleep(time);
+    }
+
+    /// <summary>
+    /// Retry a call to a function a number of times. It protects against the HttpOperationExceptions thrown by kubernetes
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="call">A function in the form () => myFunction(param1, param2, paramN)</param>
+    /// <param name="maxRetry"></param>
+    /// <returns></returns>
+    /// <exception cref="AggregateException"></exception>
+    private static T RetryableCall<T>(Func<T> call, int maxRetry = 10)
+    {
+        var exceptions = new List<Exception>();
+        int retryCount = 0;
+        do
+        {
+            try
+            {
+                return call();
+            }
+            catch (k8s.Autorest.HttpOperationException e)
+            {
+                exceptions.Add(e);
+            }
+            finally
+            {
+                RandomWait();
+                retryCount++;
+            }
+        } while (retryCount < maxRetry);
+
+        throw new AggregateException(exceptions);
     }
 }
