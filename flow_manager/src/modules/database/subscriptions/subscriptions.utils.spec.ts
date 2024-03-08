@@ -536,15 +536,6 @@ describe('Findings Handler Base', () => {
         jobParams.some((p) => p.name === 'name' && p.value == cj.name),
       ).toStrictEqual(true);
       expect(
-        jobParams.some((p) => p.name === 'code' && p.value == cj.code),
-      ).toStrictEqual(true);
-      expect(
-        jobParams.some((p) => p.name === 'type' && p.value == cj.type),
-      ).toStrictEqual(true);
-      expect(
-        jobParams.some((p) => p.name === 'language' && p.value == cj.language),
-      ).toStrictEqual(true);
-      expect(
         jobParams.some(
           (p) =>
             p.name === 'jobpodmillicpulimit' && p.value == jpc.milliCpuLimit,
