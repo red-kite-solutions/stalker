@@ -64,7 +64,7 @@ export class UsersService {
       await session.withTransaction(async () => {
         const u = await this.userModel.findOne({}, undefined, { session });
         if (u) throw new HttpForbiddenException(err);
-        await this.userModel.create(userToCreate, { session });
+        await this.userModel.create([userToCreate], { session });
       });
     } finally {
       await session.endSession();

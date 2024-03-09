@@ -59,11 +59,13 @@ export class SubscriptionTriggersService {
           }
         } else {
           await this.subscriptionTriggerModel.create(
-            {
-              subscriptionId: subId,
-              correlationKey: correlationKey,
-              lastTrigger: now,
-            },
+            [
+              {
+                subscriptionId: subId,
+                correlationKey: correlationKey,
+                lastTrigger: now,
+              },
+            ],
             { session },
           );
           triggerSuccess = true;
