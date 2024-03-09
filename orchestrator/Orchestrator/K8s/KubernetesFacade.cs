@@ -72,13 +72,13 @@ public class KubernetesFacade : IKubernetesFacade
         Logger.LogDebug($"Creating job {jobName} in namespace {jobTemplate.Namespace}");
 
         // I think that this call can get a 403 Forbidden from the API if not enough ressources are available
-        await RetryableCall(()=> client.CreateNamespacedJobAsync(kubernetesJob, jobTemplate.Namespace));
+        await RetryableCall(() => client.CreateNamespacedJobAsync(kubernetesJob, jobTemplate.Namespace));
 
-        return new KubernetesJob
+        return RetryableCall(() => new KubernetesJob
         {
             Name = jobName,
             Namespace = jobTemplate.Namespace,
-        };
+        });
     }
 
     /// <summary>
@@ -113,12 +113,12 @@ public class KubernetesFacade : IKubernetesFacade
     public async Task<bool> IsJobPodFinished(string jobName, string jobNamespace = "default")
     {
         using var client = new Kubernetes(KubernetesConfiguration);
-        V1PodList pods = await RetryableCall(async () => await client.ListNamespacedPodAsync(labelSelector: $"job-name={jobName}", limit: 1, namespaceParameter: jobNamespace));
+        V1PodList pods = await RetryableCall(() => client.ListNamespacedPodAsync(labelSelector: $"job-name={jobName}", limit: 1, namespaceParameter: jobNamespace));
 
         if (pods.Items == null || pods.Items.Count < 1)
             return false;
 
-        return pods.Items.FirstOrDefault()?.Status?.Phase == "Succeeded" || pods.Items.FirstOrDefault()?.Status?.Phase == "Failed";
+        return RetryableCall(() => pods.Items.FirstOrDefault()?.Status?.Phase == "Succeeded" || pods.Items.FirstOrDefault()?.Status?.Phase == "Failed");
     }
 
     /// <summary>

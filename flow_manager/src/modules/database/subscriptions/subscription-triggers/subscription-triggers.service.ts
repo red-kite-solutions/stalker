@@ -40,24 +40,32 @@ export class SubscriptionTriggersService {
 
     try {
       await session.withTransaction(async () => {
-        const s = await this.subscriptionTriggerModel.findOne({
-          subscriptionId: subId,
-          correlationKey: correlationKey,
-        });
+        const s = await this.subscriptionTriggerModel.findOne(
+          {
+            subscriptionId: subId,
+            correlationKey: correlationKey,
+          },
+          undefined,
+          { session },
+        );
         if (s) {
           if (now - s.lastTrigger >= subscriptionCooldownMilliseconds) {
             await this.subscriptionTriggerModel.findOneAndUpdate(
               { _id: { $eq: s._id } },
               { lastTrigger: now },
+              { session },
             );
             triggerSuccess = true;
           }
         } else {
-          await this.subscriptionTriggerModel.create({
-            subscriptionId: subId,
-            correlationKey: correlationKey,
-            lastTrigger: now,
-          });
+          await this.subscriptionTriggerModel.create(
+            {
+              subscriptionId: subId,
+              correlationKey: correlationKey,
+              lastTrigger: now,
+            },
+            { session },
+          );
           triggerSuccess = true;
         }
       });
