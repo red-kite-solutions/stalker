@@ -1,6 +1,8 @@
 using Confluent.Kafka;
 using Confluent.Kafka.Admin;
+using Microsoft.Extensions.DependencyInjection;
 using Orchestrator;
+using Orchestrator.Controllers;
 using Orchestrator.Events;
 using Orchestrator.Jobs;
 using Orchestrator.K8s;
@@ -70,6 +72,11 @@ app.Services.GetService<JobsConsumer>();
 app.Services.GetService<JobModelsConsumer>();
 app.MapGet("/version", () => "V1");
 app.MapFallback(() => "V1");
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Jobs}/{action=Index}/");
+
 app.Run();
 
 void ConfigureApp(WebApplication app)
@@ -88,5 +95,6 @@ void ConfigureServices(IServiceCollection services)
         .AddSingleton<IMessagesProducer<JobLogMessage>, JobLogsProducer>()
         .AddTransient<IKubernetesFacade, KubernetesFacade>()
         .AddTransient<IJobFactory, JobFactory>()
-        .AddTransient<IFindingsParser, FindingsParser>();
+        .AddTransient<IFindingsParser, FindingsParser>()
+        .AddControllers();
 }

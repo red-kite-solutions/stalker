@@ -3,19 +3,21 @@ from json import loads
 from os import environ
 from subprocess import CompletedProcess, run
 
-from stalker_job_sdk import (IpFinding, PortFinding, TextField, is_valid_ip,
-                             is_valid_port, log_error, log_finding, log_info,
-                             log_warning)
+from stalker_job_sdk import (IpFinding, JobStatus, PortFinding, TextField,
+                             is_valid_ip, is_valid_port, log_error,
+                             log_finding, log_info, log_status, log_warning)
 
 
 def validate_ip(ip: str, name: str):
     if not is_valid_ip(ip):
         log_error(f"{name} parameter is invalid: {ip}")
+        log_status(JobStatus.FAILED)
         exit()
         
 def validate_port(port: int, name: str):
     if not is_valid_port(port):
         log_error(f"Invalid port {str(port)} in {name}")
+        log_status(JobStatus.FAILED)
         exit()
         
 def main():
@@ -34,6 +36,7 @@ def main():
     validate_ip(TARGET_IP, 'targetIp')
     if not isinstance(TARGET_MASK, int) or TARGET_MASK < 0 or TARGET_MASK > 32:
         log_error(f"Invalid mask parameter: {str(TARGET_MASK)}")
+        log_status(JobStatus.FAILED)
         exit()
     
     if not isinstance(RATE, int) or RATE < 0:
@@ -52,6 +55,7 @@ def main():
         ports_set: set = set(ports_list)
     except Exception:
         log_error(f"ports parameter is invalid: {PORTS}")
+        log_status(JobStatus.FAILED)
         exit()
 
     validate_port(PORT_MIN, 'portMin')
@@ -67,6 +71,7 @@ def main():
 
     if not ports_str:
         log_error('No ports provided, exiting')
+        log_status(JobStatus.FAILED)
         exit()
 
     log_info(f'Start of the IP range scanning {TARGET_IP}/{str(TARGET_MASK)} (rate: {RATE}, ports: {ports_str}). It may take a while.')
@@ -131,5 +136,7 @@ def main():
 if __name__ == "__main__":
     try:
         main()
+        log_status(JobStatus.SUCCESS)
     except Exception as err:
         log_error(err)
+        log_status(JobStatus.FAILED)

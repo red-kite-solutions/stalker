@@ -11,6 +11,13 @@ spec:
     - Ingress
     - Egress
   egress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: stalker-jobs
+      ports:
+        - protocol: TCP
+          port: 5135
     - to:
         - podSelector:
             matchLabels:

@@ -9,9 +9,16 @@
             return JobCache[jobId];
         }
 
-        public static void Add(string jobId, JobModel job)
+        public static void AddOrUpdate(string jobId, JobModel job)
         {
-            JobCache.Add(jobId, job);
+            if(JobCache.ContainsKey(jobId))
+            {
+                JobCache[jobId] = job;
+            }
+            else
+            {
+                JobCache.Add(jobId, job);
+            }
         }
     }
 }

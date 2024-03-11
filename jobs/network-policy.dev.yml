@@ -11,6 +11,16 @@ spec:
   ingress: []
   egress:
     - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: stalker
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/component: orchestrator
+      ports:
+        - protocol: TCP
+          port: 5135
+    - to:
         - ipBlock:
             cidr: 0.0.0.0/0
             except:

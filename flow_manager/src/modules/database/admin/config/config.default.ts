@@ -5,7 +5,7 @@ const baseMemory = 1024;
 export const DEFAULT_JOB_POD_CONFIG: JobPodConfiguration[] = [
   {
     name: 'XS',
-    memoryKbytesLimit: baseMemory * 10,
+    memoryKbytesLimit: baseMemory * 30,
     milliCpuLimit: 10,
   },
   {

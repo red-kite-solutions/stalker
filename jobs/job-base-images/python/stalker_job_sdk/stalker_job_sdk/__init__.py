@@ -2,6 +2,9 @@ import json
 import sys
 from abc import ABC
 from ipaddress import ip_address
+from os import getenv
+
+import httpx
 
 
 class Field(ABC):
@@ -87,6 +90,10 @@ class DomainFinding(Finding):
         self.domainName = domainName
 
 
+class JobStatus:
+    SUCCESS = "Success"
+    FAILED = "Failed"
+
 def log_finding(*findings: list[Finding]):
     data = {"findings": findings}
     _log("@finding", json.dumps(data, default=vars))
@@ -109,9 +116,32 @@ def log_error(message: str):
     
 
 def _log(prefix: str, message: str):
-    print(f"{prefix} {message}")
-    sys.stdout.flush()
+    jobId = getenv('StalkerJobId')
+    output = f"{prefix} {message}"
+    if(not jobId):
+        print(output)
+        sys.stdout.flush()
+        return
+    
+    with httpx.Client(verify=False, http2=True) as client:
+        client.post("http://orchestrator.stalker:5135/Jobs/Finding", json={ "JobId": jobId, "Finding": output})
 
+def log_status(status: str):
+    """Reports the status to the orchestrator. Reporting a status will eventually clean up the job. Status can be Success of Failed."""
+    if status != JobStatus.SUCCESS and JobStatus.FAILED:
+        return
+    
+    jobId = getenv('StalkerJobId')
+    
+    if(not jobId):
+        print(f"Status: {status}")
+        sys.stdout.flush()
+        return
+    
+    with httpx.Client(verify=False, http2=True) as client:
+        client.post("http://orchestrator.stalker:5135/Jobs/Status", json={ "JobId": jobId, "Status": status})
+
+    
 def is_valid_ip(ip: str):
     """Validates an IP address. Returns false if the IP is invalid, true otherwise."""
     try:

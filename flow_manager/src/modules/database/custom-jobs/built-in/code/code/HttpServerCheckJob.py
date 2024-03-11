@@ -4,14 +4,16 @@ import random
 from ipaddress import ip_address
 
 import httpx
-from stalker_job_sdk import (PortFinding, is_valid_ip, is_valid_port,
-                             log_error, log_finding, log_info)
+from stalker_job_sdk import (JobStatus, PortFinding, is_valid_ip,
+                             is_valid_port, log_error, log_finding, log_info,
+                             log_status)
 
 TARGET_IP: str = os.environ["targetIp"]  # IP to scan
 PORTS = os.environ["ports"]  # expects a json array of numbers, ex: [ 80, 443, 3389 ].
 
 if not is_valid_ip(TARGET_IP):
     log_error(f"targetIp parameter is invalid: {TARGET_IP}")
+    log_status(JobStatus.FAILED)
     exit()
 
 ports_list:list = []
@@ -22,10 +24,12 @@ try:
     for p in ports_list:
         if not is_valid_port(p):
             log_error(f"Invalid port {str(p)} of the ports list {str(ports_list)}")
+            log_status(JobStatus.FAILED)
             exit()
     ports_set: set = set(ports_list)
 except Exception:
     log_error(f"ports parameter is invalid: {PORTS}")
+    log_status(JobStatus.FAILED)
     exit()
 
 ports_list = list(ports_set)
@@ -44,8 +48,7 @@ with httpx.Client(verify=False, http2=True) as client:
                     "HttpServerCheck", TARGET_IP, port, "tcp", "This port runs an HTTPS server"
                 )
             )
-
-            exit()
+            continue
 
         except Exception as e:
             a = "retrying with http"
@@ -58,7 +61,9 @@ with httpx.Client(verify=False, http2=True) as client:
                     "HttpServerCheck", TARGET_IP, port, "tcp", "This port runs an HTTP server"
                 )
             )
-            exit()
+            continue
 
         except Exception as e:
             log_info(f"Port {port} is not http(s)")
+
+log_status(JobStatus.SUCCESS)

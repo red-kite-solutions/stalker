@@ -88,30 +88,6 @@ public abstract class KubernetesCommand<T> : JobCommand where T : JobRequest
             Timestamp = CurrentTimeMs(),
         });
 
-        using var logs = await Kubernetes.GetJobLogs(job.Name, job.Namespace);
-        using var streamReader = new StreamReader(logs);
-
-        int i = 0;
-        do
-        {
-            await ReadLogs();
-            ScalingSleep(i);
-            ++i;
-
-        } while (!await Kubernetes.IsJobPodFinished(job.Name, job.Namespace));
-        await ReadLogs();
-
-        // When we are done publishing findings, we publish that the job is done
-        await EventsProducer.Produce(new JobEventMessage
-        {
-            JobId = Request.JobId,
-            FindingsJson = "{ \"findings\": [{ \"type\": \"JobStatusFinding\", \"status\": \"Success\" }]}",
-            Timestamp = CurrentTimeMs(),
-        });
-
-        await Kubernetes.DeleteJob(job.Name, job.Namespace);
-        await LogDebug("Job cleaned up by orchestrator.");
-
         // Local functions
         async Task LogDebug(string message)
         {
@@ -120,44 +96,6 @@ public abstract class KubernetesCommand<T> : JobCommand where T : JobRequest
                 JobId = Request.JobId,
                 Log = message,
                 LogLevel = Events.LogLevel.Debug,
-                Timestamp = CurrentTimeMs()
-            });
-        }
-
-        async Task ReadLogs()
-        {
-            while (!streamReader.EndOfStream)
-            {
-                var line = await streamReader.ReadLineAsync();
-                if (line == null) continue;
-
-                var evt = Parser.Parse(line);
-
-                if (evt == null) continue;
-                await HandleEvent(evt);
-            }
-        }
-    }
-
-    private async Task HandleEvent(EventModel evt)
-    {
-        if (evt is JobLogModel jobLog)
-        {
-            await LogsProducer.Produce(new JobLogMessage()
-            {
-                JobId = Request.JobId,
-                Log = jobLog.data,
-                LogLevel = jobLog.LogType,
-                Timestamp = CurrentTimeMs()
-            });
-        }
-
-        if (evt is FindingsEventModel)
-        {
-            await EventsProducer.Produce(new JobEventMessage
-            {
-                JobId = Request.JobId,
-                FindingsJson = evt.data,
                 Timestamp = CurrentTimeMs()
             });
         }

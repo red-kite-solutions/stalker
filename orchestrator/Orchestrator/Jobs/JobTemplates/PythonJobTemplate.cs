@@ -19,10 +19,11 @@ public abstract class PythonJobTemplate : KubernetesJobTemplate
     /// <param name="config"></param>
     public PythonJobTemplate(string? id, IConfiguration config)
     {
-        Id = Id;
+        Id = id!;
         Config = config;
         SetNamespace();
         PythonCommand = "";
+        EnvironmentVariable["StalkerJobId"] = Id;
     }
 
     private void SetNamespace()

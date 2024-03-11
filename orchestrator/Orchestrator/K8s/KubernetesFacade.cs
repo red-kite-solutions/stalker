@@ -59,7 +59,7 @@ public class KubernetesFacade : IKubernetesFacade
                                     Image = jobTemplate.Image,
                                     Command = jobTemplate.Command,
                                     Env = jobTemplate.EnvironmentVariable.Select(x => new V1EnvVar(x.Key, x.Value)).ToList(),
-                                    Resources = resources
+                                    Resources = resources,
                                 }
                         },
                         RestartPolicy = "Never",
@@ -67,6 +67,7 @@ public class KubernetesFacade : IKubernetesFacade
                 },
                 BackoffLimit = jobTemplate.MaxRetries,
                 ActiveDeadlineSeconds = jobTemplate.Timeout,
+                TtlSecondsAfterFinished = 5
             });
 
         Logger.LogDebug($"Creating job {jobName} in namespace {jobTemplate.Namespace}");

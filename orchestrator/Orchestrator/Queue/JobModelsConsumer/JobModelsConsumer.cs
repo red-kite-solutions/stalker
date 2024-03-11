@@ -61,7 +61,7 @@ namespace Orchestrator.Queue.JobModelsConsumer
                     FindingHandler = request.Model.FindingHandler,
                     FindingHandlerLanguage = request.Model.FindingHandlerLanguage
                 };
-                JobModelCache.Add(request.Id, jm);
+                JobModelCache.AddOrUpdate(request.Id, jm);
             }
             catch (Exception ex)
             {
