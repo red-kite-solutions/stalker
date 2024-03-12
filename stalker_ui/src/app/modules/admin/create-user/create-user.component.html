@@ -1,8 +1,8 @@
-<app-page-header [parts]="['Create user']"> </app-page-header>
+<app-page-header class="tw-w-full" [parts]="['Create user']"> </app-page-header>
 
 <mat-card appearance="outlined">
   <mat-card-content>
-    <form [formGroup]="form" class="tw-flex tw-flex-col">
+    <form [formGroup]="form" class="tw-flex tw-flex-col tw-gap">
       <h4 i18n="Profile information|Details of a user in a form">Profile Information</h4>
 
       <div class="tw-w-full tw-flex tw-gap">
@@ -79,9 +79,7 @@
         {{ userEnabled$ | async }}
       </mat-checkbox>
 
-      <br />
       <mat-divider></mat-divider>
-      <br />
 
       <h4 i18n="Set password|Title of a subsection of a form to set the user's password">Set Password</h4>
 
@@ -111,11 +109,8 @@
       </mat-form-field>
     </form>
 
-    <br />
-    <mat-divider></mat-divider>
-    <br />
-
-    <form #profileForm="ngForm" [formGroup]="currentPasswordForm" class="tw-flex tw-flex-col">
+    <form #profileForm="ngForm" [formGroup]="currentPasswordForm" class="tw-flex tw-flex-col tw-gap">
+      <mat-divider></mat-divider>
       <h4 i18n="Validate identity|Asking the user to validate their identity by providing their password">
         Validate Identity
       </h4>
