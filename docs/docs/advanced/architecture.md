@@ -49,7 +49,7 @@ The following table goes over the main aspects of the graph :
 | Cron Service      | 3000             | 53 (DNS), 3000 (FM), 27017 (Mongo)                                          |
 | Mongo             | 27017            | Deny All                                                                    |
 | Kafka             | 9092, 9093, 9094 | 53 (DNS), 9092 (Kafka), 9093 (Kafka), 9094 (Kafka)                          |
-| Orchestrator      | 5135             | 53 (DNS), 443 (K8s API), 9092 (Kafka)                                       |
+| Orchestrator      | 80               | 53 (DNS), 443 (K8s API), 9092 (Kafka)                                       |
 | Jobs              | Deny All         | 0.0.0.0/0 except 169.254.169.254, 172.16.0.0/12, 192.168.0.0/16, 10.0.0.0/8 |
 
 > The database is accessible from outside the cluster for debugging and development purposes. A production deployment **should not** allow

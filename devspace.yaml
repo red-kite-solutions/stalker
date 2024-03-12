@@ -554,8 +554,8 @@ deployments:
 
         service:
           ports:
-            - containerPort: 5135
-              port: 5135
+            - containerPort: 80
+              port: 80
               protocol: TCP
 
   namespaces:
@@ -697,7 +697,7 @@ dev:
     restartHelper:
       inject: false
     ports:
-      - port: "5135"
+      - port: "5135:80"
 
   orchestrator-prod:
     labelSelector:
