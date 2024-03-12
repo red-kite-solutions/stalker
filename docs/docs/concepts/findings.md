@@ -6,17 +6,17 @@ description: What are findings and how to use them
 
 # Findings
 
-- [HostnameFinding](#hostnamefinding)
-- [IpFinding](#ipfinding)
-- [IpRangeFinding](#iprangefinding)
-- [HostnameIpFinding](#hostnameipfinding)
-- [PortFinding](#portfinding)
-- [CustomFinding](#customfinding)
-  - [Dynamic fields](#dynamic-fields)
-    - [Text field](#text-field)
-    - [Image field](#image-field)
+* [HostnameFinding](#hostnamefinding)
+* [IpFinding](#ipfinding)
+* [IpRangeFinding](#iprangefinding)
+* [HostnameIpFinding](#hostnameipfinding)
+* [PortFinding](#portfinding)
+* [CustomFinding](#customfinding)
+  * [Dynamic fields](#dynamic-fields)
+    * [Text field](#text-field)
+    * [Image field](#image-field)
 
-Findings are pieces of information attached to a project and a core entity like a domain, a host or a port.
+Findings are pieces of information attached to a project and a core entity like a domain, a host or a port. They are reported by the jobs to the Orchestrator using Stalker's software development kit (SDK).
 
 Findings come in different shapes and forms. Some findings will create new core entities, others may simply add data to existing ones.
 
@@ -64,12 +64,6 @@ log_finding(
 )
 ```
 
-Which is roughly equivalent to the following python code, but with more metadata:
-
-```python
-print('@finding { "findings": [{ "key": "HostnameFinding", "type": "HostnameFinding","domainName": "example.com"}]}')
-```
-
 ## IpFinding
 
 An ip finding creates a new host. IP addresses are in the IPv4 format.
@@ -98,12 +92,6 @@ log_finding(
         "IpFinding", ip, "New ip", [], "IpFinding"
     )
 )
-```
-
-Which is roughly equivalent to the following python code, but with more metadata:
-
-```python
-print('@finding { "findings": [{ "key": "IpFinding", "type": "IpFinding","ip": "0.0.0.0"}]}')
 ```
 
 ## IpRangeFinding
@@ -143,10 +131,6 @@ log_finding(
 
 Which is equivalent to the following python code, but with more metadata:
 
-```python
-print('@finding { "findings": [{ "key": "IpRangeFinding", "type": "IpRangeFinding","ip": "0.0.0.0", "mask":16 }]}')
-```
-
 ## HostnameIpFinding
 
 The `HostnameIpFinding` is usually the result of resolving a hostname to an ip address. The hostname, `domainName`, must resolve to the IP
@@ -180,12 +164,6 @@ log_finding(
         "HostnameIpFinding", hostname, ip, "New ip", [], "HostnameIpFinding"
     )
 )
-```
-
-Which is roughly equivalent to the following python code, but with more metadata:
-
-```python
-print('@finding { "findings": [{ "key": "HostnameIpFinding", "type": "HostnameIpFinding","ip": "0.0.0.0", "domainName": "example.com"}]}')
 ```
 
 ## PortFinding
@@ -229,12 +207,6 @@ log_finding(
         "PortFinding",
     )
 )
-```
-
-Which is roughly equivalent to the following python code:
-
-```python
-print('@finding { "findings": [{"key":"PortFinding","type":"PortFinding","name":"New port","fields":[{"key":"protocol","type":"text","label":"This is a TCP port","data":"tcp"}],"ip":"0.0.0.0","port":80,"protocol":"tcp"}]}')
 ```
 
 ## CustomFinding

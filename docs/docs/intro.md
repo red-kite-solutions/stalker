@@ -20,7 +20,7 @@ Stalker's API can be used by third-party tools for automated consumption.
 - [Findings](/docs/concepts/findings)
 - [Subscriptions](/docs/concepts/subscriptions)
 - [Secrets](/docs/concepts/secrets)
-- [Implementing jobs](/docs/tutorials/implementing-jobs)
+- [Jobs](/docs/concepts/jobs)
 
 ## Installing Stalker
 
