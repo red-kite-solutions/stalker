@@ -1,9 +1,20 @@
 // import { Type } from 'class-transformer';
 import { Type } from 'class-transformer';
-import { IsIn, IsInt, IsMongoId, IsNotEmpty, Max, Min } from 'class-validator';
+import {
+  IsArray,
+  IsIn,
+  IsInt,
+  IsMongoId,
+  IsNotEmpty,
+  IsOptional,
+  IsPort,
+  IsString,
+  Max,
+  Min,
+} from 'class-validator';
 
 export class GetPortsDto {
-  @IsNotEmpty()
+  @IsOptional()
   @IsIn(['tcp', 'udp'])
   protocol: string = 'tcp';
 
@@ -26,10 +37,47 @@ export class GetPortsDto {
 
   @IsInt()
   @Min(1)
-  @Max(65535)
+  @Max(100)
   @Type(() => Number)
   pageSize: number = 10;
 
   @IsMongoId()
+  @IsOptional()
   hostId: string;
+
+  @IsOptional()
+  @IsString({ each: true })
+  @IsArray()
+  host: string[];
+
+  @IsOptional()
+  @IsMongoId({ each: true })
+  @IsArray()
+  project: string[];
+
+  @IsOptional()
+  @IsMongoId({ each: true })
+  @IsArray()
+  tags: string[];
+
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  firstSeenStartDate: number;
+
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  firstSeenEndDate: number;
+
+  @IsOptional()
+  @IsPort({ each: true })
+  @IsArray()
+  ports: number[];
+}
+
+export class DeleteManyPortsDto {
+  @IsMongoId({ each: true })
+  @IsArray()
+  portIds: string[];
 }

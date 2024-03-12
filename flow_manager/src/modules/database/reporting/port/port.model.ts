@@ -1,13 +1,14 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { MONGO_TIMESTAMP_SCHEMA_CONFIG } from '../../database.constants';
+import { HostSummary, HostSummaryType } from '../host/host.summary';
 
 export type PortDocument = Port & Document;
 
 @Schema(MONGO_TIMESTAMP_SCHEMA_CONFIG)
 export class Port {
-  @Prop({ index: true })
-  public hostId?: Types.ObjectId;
+  @Prop({ type: HostSummaryType })
+  public host: HostSummary;
 
   @Prop()
   public projectId?: Types.ObjectId;
@@ -45,4 +46,7 @@ export class Port {
 
 export const PortSchema = SchemaFactory.createForClass(Port);
 // The project id is not included here as the hostId-projectId combination is already unique
-PortSchema.index({ hostId: 1, port: 1, layer4Protocol: 1 }, { unique: true });
+PortSchema.index(
+  { 'host.id': 1, port: 1, layer4Protocol: 1 },
+  { unique: true },
+);

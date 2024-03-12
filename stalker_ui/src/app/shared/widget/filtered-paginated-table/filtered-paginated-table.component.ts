@@ -121,6 +121,7 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
   @Input() isLoading = false;
   @Input() length: number | null = 0;
   @Input() routerLinkPrefix = '/';
+  @Input() routerLinkBuilder: ((row: T) => string | any[] | null | undefined) | undefined = undefined;
   @Input() elementLinkActive = true;
   @Input() queryParamsFunc: (row: T) => {} = () => ({});
   @Input() dateSearchEnabled = false;
@@ -161,7 +162,12 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
       })
     )
     .subscribe((dr) => {
-      this.dateFiltersChange.emit(new DateRange<Date>(dr.start?.toDate() ?? null, dr.end?.toDate() ?? null));
+      let endDate = dr.end?.toDate();
+      let endDateIncludingSelectedDay: Date | null = null;
+      if (endDate) {
+        endDateIncludingSelectedDay = new Date(endDate.getTime() + 1000 * 60 * 60 * 24 - 1); // 23:59:59:999
+      }
+      this.dateFiltersChange.emit(new DateRange<Date>(dr.start?.toDate() ?? null, endDateIncludingSelectedDay ?? null));
     });
 
   constructor() {

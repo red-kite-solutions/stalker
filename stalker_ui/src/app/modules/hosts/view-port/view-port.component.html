@@ -1,6 +1,6 @@
 @if (host$ | async; as host) {
   <app-page-header
-    [backRoute]="['..', '..']"
+    [backRoute]="['../..']"
     [parts]="[(projects$ | async | whereId: [host?.projectId])?.name, host.ip, (port$ | async)?.port]"
   ></app-page-header>
   <div class="content-wrapper">

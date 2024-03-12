@@ -44,7 +44,7 @@
         mat-row
         *matRowDef="let row; columns: columns"
         routerLinkActive="list-item-active"
-        [routerLink]="[routerLinkPrefix, row._id ? row._id : row.id]"
+        [routerLink]="routerLinkBuilder ? routerLinkBuilder(row) : [routerLinkPrefix, row._id ? row._id : row.id]"
         [queryParams]="queryParamsFunc != null ? queryParamsFunc(row) : undefined"
         class="rows"
       ></tr>

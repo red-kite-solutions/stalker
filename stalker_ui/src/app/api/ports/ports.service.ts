@@ -1,8 +1,11 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { firstValueFrom, Observable } from 'rxjs';
+import { DateRange } from '@angular/material/datepicker';
+import { Observable, firstValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { Page } from '../../shared/types/page.type';
 import { Port, PortNumber } from '../../shared/types/ports/port.interface';
+import { filtersToParams } from '../../utils/filters-to-params';
 
 @Injectable({
   providedIn: 'root',
@@ -35,6 +38,20 @@ export class PortsService {
     return <Observable<PortNumber[]>>this.http.get(`${environment.fmUrl}/ports/?${params.toString()}`);
   }
 
+  public getPage(
+    page: number,
+    pageSize: number,
+    filters: any = undefined,
+    firstSeenDateRange: DateRange<Date> = new DateRange<Date>(null, null)
+  ) {
+    let params = filtersToParams(filters);
+    params = params.append('page', page);
+    params = params.append('pageSize', pageSize);
+    if (firstSeenDateRange.start) params = params.append('firstSeenStartDate', firstSeenDateRange.start.getTime());
+    if (firstSeenDateRange.end) params = params.append('firstSeenEndDate', firstSeenDateRange.end.getTime());
+    return this.http.get<Page<Port>>(`${environment.fmUrl}/ports`, { params });
+  }
+
   public async tagPort(portId: string, tagId: string, isTagged: boolean) {
     return await firstValueFrom(
       this.http.put(`${environment.fmUrl}/ports/${portId}/tags`, { tagId: tagId, isTagged: isTagged })
@@ -47,5 +64,9 @@ export class PortsService {
 
   public async delete(portId: string) {
     return await firstValueFrom(this.http.delete(`${environment.fmUrl}/ports/${portId}`));
+  }
+
+  public async deleteMany(portIds: string[]) {
+    return await firstValueFrom(this.http.delete(`${environment.fmUrl}/ports/`, { body: { portIds: portIds } }));
   }
 }
