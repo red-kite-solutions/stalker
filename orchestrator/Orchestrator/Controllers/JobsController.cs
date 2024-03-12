@@ -55,9 +55,6 @@ namespace Orchestrator.Controllers
         [HttpPost]
         public async Task<ActionResult> Finding([FromBody]JobFindingDto dto)
         {
-            Console.WriteLine("Finding got called!!");
-            Console.WriteLine("Finding: " + dto.Finding);
-            Console.WriteLine("Job Id: " + dto.JobId);
             var evt = Parser.Parse(dto.Finding);
 
             if (evt == null) return BadRequest("Invalid finding");
@@ -70,9 +67,6 @@ namespace Orchestrator.Controllers
         [HttpPost]
         public async Task<ActionResult> Status([FromBody]StatusUpdateDto status)
         {
-            Console.WriteLine("Status got called!!");
-            Console.WriteLine("Status: " + status.Status);
-            Console.WriteLine("Job Id: " + status.JobId);
             if (status.Status != "Success" && status.Status != "Failed")
             {
                 return BadRequest("Status should be Success or Failed");

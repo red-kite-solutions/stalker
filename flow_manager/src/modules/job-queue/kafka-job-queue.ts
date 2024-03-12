@@ -14,8 +14,6 @@ export class KafkaJobQueue implements JobQueue {
       `Publishing ${jobs.length} jobs. Topic: ${orchestratorConstants.topics.jobRequests}.`,
     );
 
-    this.logger.debug(JSON.stringify(jobs));
-
     await this.producer.send({
       topic: orchestratorConstants.topics.jobRequests,
       messages: jobs,
