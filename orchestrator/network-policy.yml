@@ -15,10 +15,10 @@ spec:
         - namespaceSelector:
             matchLabels:
               kubernetes.io/metadata.name: stalker-jobs
-  egress:
       ports:
         - protocol: TCP
           port: 5135
+  egress:
     - to:
         - podSelector:
             matchLabels:
