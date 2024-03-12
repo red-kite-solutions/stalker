@@ -24,6 +24,7 @@ export class SidebarComponent {
   launchJobs = $localize`:Launch jobs|Launch jobs:Launch jobs`;
   jobExecutions = $localize`:Job executions|Job executions:Job executions`;
   secrets = $localize`:Secrets|Secrets to inject in jobs:Secrets`;
+  ports = $localize`:Ports|Host's ports:Ports`;
 
   isSmallScreen$ = this.responsive
     .observe([Breakpoints.XSmall, Breakpoints.Small])

@@ -180,7 +180,7 @@ export class CronSubscriptionsService {
       createdAt: { $lte: now },
     };
     const tcpPortFilter: FilterQuery<Port> = {
-      hostId: { $eq: '' },
+      'host.id': { $eq: '' },
       layer4Protocol: 'tcp',
       createdAt: { $lte: now },
     };
@@ -214,7 +214,7 @@ export class CronSubscriptionsService {
           for (const host of hosts) {
             let portPage = 0;
             do {
-              tcpPortFilter.hostId = { $eq: host._id };
+              tcpPortFilter['host.id'] = { $eq: host._id };
               ports = await this.portsService.getPortNumbers(
                 portPage,
                 pageSize,

@@ -46,6 +46,10 @@ const routes: Routes = [
         loadChildren: () => import('./modules/hosts/hosts.module').then((m) => m.HostsListModule),
       },
       {
+        path: 'ports',
+        loadChildren: () => import('./modules/ports/ports.module').then((m) => m.PortsListModule),
+      },
+      {
         path: 'tags',
         loadChildren: () => import('./modules/tags/tags.module').then((m) => m.TagsModule),
       },

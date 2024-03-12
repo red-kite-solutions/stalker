@@ -72,6 +72,20 @@
       mat-list-item
       routerLinkActive="list-item-active"
       [routerLinkActiveOptions]="{ exact: false }"
+      routerLink="/ports"
+      [matTooltip]="expanded ? '' : ports"
+      [matTooltipShowDelay]="700"
+      matTooltipPosition="right"
+    >
+      <mat-icon>fingerprints</mat-icon>
+      @if (expanded) {
+        <span>{{ ports }}</span>
+      }
+    </a>
+    <a
+      mat-list-item
+      routerLinkActive="list-item-active"
+      [routerLinkActiveOptions]="{ exact: false }"
       routerLink="/tags"
       [matTooltip]="expanded ? '' : tags"
       [matTooltipShowDelay]="700"

@@ -1,3 +1,5 @@
+import { HostSummary } from '../host/host.summary';
+
 export interface PortNumber {
   _id: string;
   port: number;
@@ -7,6 +9,7 @@ export interface PortNumber {
 
 export interface Port extends PortNumber {
   projectId: string;
+  host: HostSummary;
   tags?: string[];
   lastSeen: number;
   createdAt: number;

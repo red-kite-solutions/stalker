@@ -7,11 +7,13 @@ import {
   HttpNotFoundException,
   HttpNotImplementedException,
 } from '../../../../exceptions/http.exceptions';
+import escapeStringRegexp from '../../../../utils/escape-string-regexp';
 import { getTopTcpPorts } from '../../../../utils/ports.utils';
 import { MONGO_DUPLICATE_ERROR } from '../../database.constants';
 import { TagsService } from '../../tags/tag.service';
 import { CorrelationKeyUtils } from '../correlation.utils';
-import { Host } from '../host/host.model';
+import { Host, HostDocument } from '../host/host.model';
+import { GetPortsDto } from './port.dto';
 import { Port, PortDocument } from './port.model';
 
 @Injectable()
@@ -41,10 +43,13 @@ export class PortService {
     portNumber: number,
     protocol: 'tcp' | 'udp',
   ) {
-    const host = await this.hostModel.findOne({
-      ip: { $eq: ip },
-      projectId: { $eq: new Types.ObjectId(projectId) },
-    });
+    const host: Pick<HostDocument, '_id' | 'ip'> = await this.hostModel.findOne(
+      {
+        ip: { $eq: ip },
+        projectId: { $eq: new Types.ObjectId(projectId) },
+      },
+      '_id ip',
+    );
     if (!host) throw new HttpNotFoundException(this.hostNotFoundError);
     const correlationKey = CorrelationKeyUtils.portCorrelationKey(
       projectId,
@@ -53,7 +58,7 @@ export class PortService {
       protocol,
     );
     return this.addPortToValidProjectHost(
-      host._id.toString(),
+      host,
       projectId,
       portNumber,
       protocol,
@@ -75,10 +80,13 @@ export class PortService {
     portNumber: number,
     protocol: 'tcp' | 'udp',
   ) {
-    const host = await this.hostModel.findOne({
-      _id: { $eq: new Types.ObjectId(hostId) },
-      projectId: { $eq: new Types.ObjectId(projectId) },
-    });
+    const host: Pick<HostDocument, '_id' | 'ip'> = await this.hostModel.findOne(
+      {
+        _id: { $eq: new Types.ObjectId(hostId) },
+        projectId: { $eq: new Types.ObjectId(projectId) },
+      },
+      '_id ip',
+    );
     if (!host) throw new HttpNotFoundException(this.hostNotFoundError);
     const correlationKey = CorrelationKeyUtils.portCorrelationKey(
       projectId,
@@ -87,7 +95,7 @@ export class PortService {
       protocol,
     );
     return await this.addPortToValidProjectHost(
-      hostId,
+      host,
       projectId,
       portNumber,
       protocol,
@@ -96,7 +104,7 @@ export class PortService {
   }
 
   private async addPortToValidProjectHost(
-    validHostId: string,
+    validHost: Pick<HostDocument, '_id' | 'ip'>,
     validProjectId: string,
     portNumber: number,
     protocol: string,
@@ -111,7 +119,10 @@ export class PortService {
     const port = new Port();
     port.port = portNumber;
     port.projectId = new Types.ObjectId(validProjectId);
-    port.hostId = new Types.ObjectId(validHostId);
+    port.host = {
+      id: new Types.ObjectId(validHost._id),
+      ip: validHost.ip,
+    };
     port.layer4Protocol = protocol;
     port.correlationKey = correlationKey;
     port.lastSeen = Date.now();
@@ -123,7 +134,7 @@ export class PortService {
     // Updating the lastSeen timestamp as, when we see a port, we see its host
     this.hostModel
       .updateOne(
-        { _id: { $eq: new Types.ObjectId(validHostId) } },
+        { _id: { $eq: new Types.ObjectId(validHost._id) } },
         { lastSeen: Date.now() },
       )
       .exec();
@@ -252,6 +263,12 @@ export class PortService {
     });
   }
 
+  public async deleteMany(portIds: string[]): Promise<DeleteResult> {
+    return await this.portsModel.deleteMany({
+      _id: { $in: portIds.map((pid) => new Types.ObjectId(pid)) },
+    });
+  }
+
   public async tagPort(
     portId: string,
     tagId: string,
@@ -274,5 +291,109 @@ export class PortService {
         { $addToSet: { tags: new Types.ObjectId(tagId) } },
       );
     }
+  }
+
+  public async getAll(
+    page: number = null,
+    pageSize: number = null,
+    filter: any = null,
+  ): Promise<PortDocument[]> {
+    let query;
+    if (filter) {
+      query = this.portsModel.find(await this.buildFilters(filter));
+    } else {
+      query = this.portsModel.find({});
+    }
+
+    if (page != null && pageSize != null) {
+      query = query.skip(page * pageSize).limit(pageSize);
+    }
+    return await query;
+  }
+
+  public async count(filter: GetPortsDto = null) {
+    if (!filter) {
+      return await this.portsModel.estimatedDocumentCount();
+    } else {
+      return await this.portsModel.countDocuments(this.buildFilters(filter));
+    }
+  }
+
+  public async buildFilters(dto: GetPortsDto) {
+    const finalFilter = {};
+
+    // Filter by host
+    if (dto.host) {
+      const hostsRegex = dto.host
+        .filter((x) => x)
+        .map((x) => x.toLowerCase().trim())
+        .map((x) => escapeStringRegexp(x))
+        .map((x) => new RegExp(`.*${x}.*`));
+
+      if (hostsRegex.length > 0) {
+        const hosts = await this.hostModel.find(
+          { ip: { $in: hostsRegex } },
+          '_id',
+        );
+        if (hosts) finalFilter['host.id'] = { $in: hosts.map((h) => h._id) };
+      }
+    }
+
+    // Filter by project
+    if (dto.project) {
+      const projectIds = dto.project
+        .filter((x) => x)
+        .map((x) => new Types.ObjectId(x));
+
+      if (projectIds.length > 0) {
+        finalFilter['projectId'] = { $in: projectIds };
+      }
+    }
+
+    // Filter by tag
+    if (dto.tags) {
+      const preppedTagsArray = dto.tags
+        .filter((x) => x)
+        .map((x) => x.toLowerCase())
+        .map((x) => new Types.ObjectId(x));
+
+      if (preppedTagsArray.length > 0) {
+        finalFilter['tags'] = {
+          $all: preppedTagsArray.map((t) => new Types.ObjectId(t)),
+        };
+      }
+    }
+
+    // Filter by createdAt
+    if (dto.firstSeenStartDate || dto.firstSeenEndDate) {
+      let createdAtFilter = {};
+
+      if (dto.firstSeenStartDate && dto.firstSeenEndDate) {
+        createdAtFilter = [
+          { createdAt: { $gte: dto.firstSeenStartDate } },
+          { createdAt: { $lte: dto.firstSeenEndDate } },
+        ];
+        finalFilter['$and'] = createdAtFilter;
+      } else {
+        if (dto.firstSeenStartDate)
+          createdAtFilter = { $gte: dto.firstSeenStartDate };
+        else if (dto.firstSeenEndDate)
+          createdAtFilter = { $lte: dto.firstSeenEndDate };
+        finalFilter['createdAt'] = createdAtFilter;
+      }
+    }
+
+    // Filter by port
+    if (dto.ports) {
+      const validPorts = dto.ports.filter((x) => x);
+      finalFilter['port'] = { $in: validPorts };
+    }
+
+    // Filter by protocol
+    if (dto.protocol) {
+      finalFilter['layer4Protocol'] = { $eq: dto.protocol };
+    }
+
+    return finalFilter;
   }
 }
