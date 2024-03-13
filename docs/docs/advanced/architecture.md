@@ -55,4 +55,4 @@ The following table goes over the main aspects of the graph :
 > The database is accessible from outside the cluster for debugging and development purposes. A production deployment **should not** allow
 > connectivity. The same goes for the cron service on ingress 3000.
 
-> To avoid a conflict with the flow manager, in dev, the cron service is exposed on `127.0.0.1:3001`.
+> To avoid a conflict with the jobs manager, in dev, the cron service is exposed on `127.0.0.1:3001`.

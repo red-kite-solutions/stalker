@@ -80,7 +80,7 @@ export const kafkaConfig: KafkaConfig = {
     {
       provide: JobModelUpdateQueue,
       useFactory: async () => {
-        if (process.env.FM_ENVIRONMENT === FM_ENVIRONMENTS.tests)
+        if (process.env.JM_ENVIRONMENT === JM_ENVIRONMENTS.tests)
           return new NullJobModelUpdateQueue();
 
         const kafka = new Kafka(kafkaConfig);
