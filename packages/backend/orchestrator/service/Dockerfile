@@ -7,12 +7,11 @@ EXPOSE 7135
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 
-COPY packages/backend/orchestrator/service packages/backend/orchestrator/service
+COPY packages/backend/orchestrator/service /app/packages/backend/orchestrator/service
 WORKDIR /app/packages/backend/orchestrator/service
 
+RUN ls -lr
 RUN dotnet restore "./Orchestrator.sln"
-
-WORKDIR "/src/."
 RUN dotnet build "Orchestrator.sln" -c Release -o /app/build
 
 FROM build AS publish
@@ -20,12 +19,12 @@ RUN dotnet publish -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
-COPY --from=publish /app/packages/backend/orchestrator/service/publish .
+COPY --from=publish /app/publish .
 
 # Kafka certs
 RUN mkdir -p /certs/
-COPY packages/backend/orchestrator/service/kafka-ca.crt /certs/
-COPY packages/backend/orchestrator/service/kafka-client-signed.crt /certs/
-COPY packages/backend/orchestrator/service/kafka-client.key /certs/
+COPY --from=build /app/packages/backend/orchestrator/service/kafka-ca.crt /certs/
+COPY --from=build /app/packages/backend/orchestrator/service/kafka-client-signed.crt /certs/
+COPY --from=build /app/packages/backend/orchestrator/service/kafka-client.key /certs/
 
 ENTRYPOINT ["dotnet", "Orchestrator.dll"]

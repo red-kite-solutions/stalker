@@ -22,4 +22,5 @@ obj
 **/*.cmd
 **/*.sh
 .husky
-dist
+**/dist/
+**/build/
