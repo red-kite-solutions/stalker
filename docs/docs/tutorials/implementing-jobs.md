@@ -66,7 +66,7 @@ Example:
 ```python
 from stalker_job_sdk import log_debug
 
-log_debug("@debug Hello world!")
+log_debug("Hello world!")
 ```
 
 There are different log levels available:
