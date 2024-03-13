@@ -68,7 +68,8 @@ describe('Port Controller (e2e)', () => {
 
       // Assert
       expect(r.statusCode).toBe(HttpStatus.OK);
-      expect(r.body.length).toStrictEqual(0);
+      expect(r.body.items.length).toStrictEqual(0);
+      expect(r.body.totalRecords).toStrictEqual(0);
     });
   });
 
