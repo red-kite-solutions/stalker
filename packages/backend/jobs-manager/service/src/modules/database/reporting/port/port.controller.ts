@@ -8,15 +8,15 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { HttpNotImplementedException } from '../../../../exceptions/http.exceptions';
 import { MongoIdDto } from '../../../../types/dto/mongo-id.dto';
 import { TagItemDto } from '../../../../types/dto/tag-item.dto';
+import { Page } from '../../../../types/page.type';
 import { Role } from '../../../auth/constants';
 import { Roles } from '../../../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../auth/guards/role.guard';
-import { GetPortsDto } from './port.dto';
-import { Port } from './port.model';
+import { DeleteManyPortsDto, GetPortsDto } from './port.dto';
+import { Port, PortDocument } from './port.model';
 import { PortService } from './port.service';
 
 @Controller('ports')
@@ -26,8 +26,12 @@ export class PortController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ReadOnly)
   @Get()
-  async getHostTopTcpPorts(@Query() dto: GetPortsDto): Promise<Port[]> {
+  async getHostTopTcpPorts(
+    @Query() dto: GetPortsDto,
+  ): Promise<Port[] | Page<PortDocument>> {
+    // TODO: rework with guards?
     if (
+      dto.hostId &&
       dto.sortOrder === 'ascending' &&
       dto.detailsLevel === 'number' &&
       dto.protocol === 'tcp' &&
@@ -41,8 +45,15 @@ export class PortController {
       );
 
       return ports.sort((a, b) => a.port - b.port); // ascending order
+    } else {
+      const totalRecords = await this.portsService.count(dto);
+      const items = await this.portsService.getAll(dto.page, dto.pageSize, dto);
+
+      return {
+        items,
+        totalRecords,
+      };
     }
-    throw new HttpNotImplementedException();
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -61,6 +72,13 @@ export class PortController {
   @Get(':id')
   async getPort(@Param() idDto: MongoIdDto) {
     return await this.portsService.getPort(idDto.id);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User)
+  @Delete()
+  async deletePorts(@Body() dto: DeleteManyPortsDto) {
+    return await this.portsService.deleteMany(dto.portIds);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

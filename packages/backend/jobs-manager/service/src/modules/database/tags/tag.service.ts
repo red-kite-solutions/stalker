@@ -5,7 +5,7 @@ import { Model, Types } from 'mongoose';
 import { Domain } from '../reporting/domain/domain.model';
 import { Host } from '../reporting/host/host.model';
 import { Port } from '../reporting/port/port.model';
-import { Tag } from './tag.model';
+import { Tag, TagsDocument } from './tag.model';
 
 @Injectable()
 export class TagsService {
@@ -22,7 +22,7 @@ export class TagsService {
     return await this.tagsModel.create({ text: text, color: color });
   }
 
-  public async getAll() {
+  public async getAll(): Promise<TagsDocument[]> {
     return await this.tagsModel.find();
   }
 

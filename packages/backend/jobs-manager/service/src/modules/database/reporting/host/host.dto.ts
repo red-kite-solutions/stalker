@@ -3,7 +3,6 @@ import { Type } from 'class-transformer';
 import {
   IsArray,
   IsIP,
-  IsIn,
   IsInt,
   IsMongoId,
   IsNotEmpty,
@@ -12,35 +11,6 @@ import {
   Min,
 } from 'class-validator';
 import { Types } from 'mongoose';
-
-export class PortsDto {
-  @IsNotEmpty()
-  @IsIn(['tcp', 'udp'])
-  protocol: string = 'tcp';
-
-  @IsNotEmpty()
-  @IsIn(['full', 'summary', 'number'])
-  detailsLevel: string = 'number';
-
-  @IsNotEmpty()
-  @IsIn(['popularity', 'port'])
-  sortType: string = 'port';
-
-  @IsNotEmpty()
-  @IsIn(['ascending', 'descending'])
-  sortOrder: string = 'ascending';
-
-  @IsInt()
-  @Min(0)
-  @Type(() => Number)
-  page: number = 0;
-
-  @IsInt()
-  @Min(1)
-  @Max(65535)
-  @Type(() => Number)
-  pageSize: number = 10;
-}
 
 export class HostsFilterDto {
   @IsInt()
