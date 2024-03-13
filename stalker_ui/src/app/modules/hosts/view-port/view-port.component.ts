@@ -134,7 +134,6 @@ export class ViewPortComponent implements OnDestroy {
   public portPage$ = new BehaviorSubject(-1);
   public ports$ = combineLatest([this.host$, this.portPage$]).pipe(
     concatMap(([host, page]) => {
-      console.log(page);
       const size = page >= 0 ? 100 : 5;
       page = page < 0 ? 0 : page;
 

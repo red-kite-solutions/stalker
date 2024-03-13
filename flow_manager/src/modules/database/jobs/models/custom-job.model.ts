@@ -100,8 +100,6 @@ export class CustomJob {
     params['jobmodelid'] = undefined;
     params['name'] = undefined;
 
-    console.log(args);
-
     params = JobFactoryUtils.bindFunctionArguments(params, args);
 
     return CustomJob.createCustomJob(

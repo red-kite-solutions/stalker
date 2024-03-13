@@ -47,7 +47,7 @@ describe('Port Controller (e2e)', () => {
   });
 
   describe("GET a host's ports /ports", () => {
-    it('Should get the top 10 TCP ports of a host without ports (GET /ports/)', async () => {
+    it('Should get the TCP ports of a host without ports (GET /ports/)', async () => {
       // Arrange
       const project = await createProject(app, testData, getName());
       const domain = 'www.example.org';
@@ -63,7 +63,7 @@ describe('Port Controller (e2e)', () => {
       const r = await getReq(
         app,
         testData.admin.token,
-        `/ports/?sortType=popularity&hostId=${hostId}&page=0&pageSize=10&protocol=tcp`,
+        `/ports/?hostId=${hostId}&page=0&pageSize=10&protocol=tcp`,
       );
 
       // Assert
