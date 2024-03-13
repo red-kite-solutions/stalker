@@ -17,7 +17,7 @@ secret.
 To inject a secret while launching a job or in a subscription, simply use the `${{ secrets.secretName }}` notation, where `secretName` is
 the name of the secret you want to inject. Secrets, when injecting, always need to be prefixed with the `secrets.` scope information.
 
-> Secrets are encrypted by the `flow manager` using asymmetric encryption, and only the `orchestrator` can decrypt them.
+> Secrets are encrypted by the `jobs manager` using asymmetric encryption, and only the `orchestrator` can decrypt them.
 
 ## Injecting while launching a job
 

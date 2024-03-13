@@ -25,7 +25,7 @@ The following table goes over the main aspects of the graph :
 | Pod               | Ingress          | Egress                                                                                         |
 | ----------------- | ---------------- | ---------------------------------------------------------------------------------------------- |
 | Nginx (UI)        | 80, 443          | 53 (DNS), 3000 (FM)                                                                            |
-| Flow Manager (FM) | 3000             | 53 (DNS), 9092 (Kafka), 27017 (Mongo)                                                          |
+| Jobs Manager (FM) | 3000             | 53 (DNS), 9092 (Kafka), 27017 (Mongo)                                                          |
 | Cron Service      | Deny All         | 53 (DNS), 3000 (FM), 27017 (Mongo)                                                             |
 | Mongo             | 27017            | 27017 (Mongo)                                                                                  |
 | Kafka             | 9092, 9093, 9094 | 53 (DNS), 9092 (Kafka), 9093 (Kafka), 9094 (Kafka)                                             |
@@ -45,7 +45,7 @@ The following table goes over the main aspects of the graph :
 | Pod               | Ingress          | Egress                                                                                         |
 | ----------------- | ---------------- | ---------------------------------------------------------------------------------------------- |
 | UI                | 4200             | Deny All                                                                                       |
-| Flow Manager (FM) | 3000             | 53 (DNS), 9092 (Kafka), 27017 (Mongo)                                                          |
+| Jobs Manager (FM) | 3000             | 53 (DNS), 9092 (Kafka), 27017 (Mongo)                                                          |
 | Cron Service      | 3000             | 53 (DNS), 3000 (FM), 27017 (Mongo)                                                             |
 | Mongo             | 27017            | 27017 (Mongo)                                                                                  |
 | Kafka             | 9092, 9093, 9094 | 53 (DNS), 9092 (Kafka), 9093 (Kafka), 9094 (Kafka)                                             |

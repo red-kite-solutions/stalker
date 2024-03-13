@@ -54,7 +54,7 @@ The output should look something like this.
 
 By default, Stalker uses the variables from _[devspace.base.yaml](./devspace.base.yaml)_. To ensure a smooth experience, you must first create a copy of _[devspace.dev.yaml.template](./devspace.dev.yaml.template)_ and rename it as _devspace.dev.yaml_. This file will hold your personal configurations. Any variables defined in this file will override the ones found in _devspace.base.yaml_.
 
-For instance, overwriting the `FM_ENVIRONMENT` variable with the value `dev` instead of the default `prod` will create a default account with the following credentials at startup.
+For instance, overwriting the `JM_ENVIRONMENT` variable with the value `dev` instead of the default `prod` will create a default account with the following credentials at startup.
 
 Some of these environment variables are certificates and keys for the different connections in the cluster.
 
@@ -90,7 +90,7 @@ Once all the containers have started, you're all set to access the application b
 
 If you launched Stalker with the default configuration, Stalker will prompt you to create your first admin user.
 
-If you have launched Stalker with the `FM_ENVIRONMENT` variable set to `dev`, then you can use the following credentials:
+If you have launched Stalker with the `JM_ENVIRONMENT` variable set to `dev`, then you can use the following credentials:
 
 ```text
 Username: admin@stalker.is

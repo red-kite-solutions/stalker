@@ -10,7 +10,7 @@ This article describes how to implement a job in Stalker. This process involves 
 currently one type of job: a _python job_.
 
 There are a few ways a job can be started: manually (through user input), or automatically (through configured subscriptions). In any case,
-when a job needs to be run, the Flow Manager (FM) drops a message on the _Job Requests Queue_. The Orchestrator consumes requests and runs
+when a job needs to be run, the Jobs Manager (JM) drops a message on the _Job Requests Queue_. The Orchestrator consumes requests and runs
 jobs inside [Kubernetes Jobs](https://kubernetes.io/docs/concepts/workloads/controllers/job/). The Orchestrator monitors the container
 standard output; this is how the job communicates its _findings_ and more to Stalker.
 
@@ -102,10 +102,10 @@ running.
 
 To implement a `python` built-in job, the following files need to be created :
 
-| File name                                                                        | Service      | Description                                                                       |
-| -------------------------------------------------------------------------------- | ------------ | --------------------------------------------------------------------------------- |
-| /flow_manager/src/modules/database/custom-jobs/built-in/code/my-new-job.job.yaml | Flow manager | Create the new job's metadata in yaml based on the `CustomJobMetadata` interface. |
-| /flow_manager/src/modules/database/custom-jobs/built-in/code/code/my-new-job.py  | Flow manager | Create the new job's python code.                                                 |
+| File name                                                                                                 | Service      | Description                                                                       |
+| --------------------------------------------------------------------------------------------------------- | ------------ | --------------------------------------------------------------------------------- |
+| /packages/backend/jobs-manager/service/src/modules/database/custom-jobs/built-in/code/my-new-job.job.yaml | Jobs manager | Create the new job's metadata in yaml based on the `CustomJobMetadata` interface. |
+| /packages/backend/jobs-manager/service/src/modules/database/custom-jobs/built-in/code/code/my-new-job.py  | Jobs manager | Create the new job's python code.                                                 |
 
 > The name of the python file must match the path given in the metadata file.
 
