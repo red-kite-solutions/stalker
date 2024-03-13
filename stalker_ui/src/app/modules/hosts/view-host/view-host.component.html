@@ -39,17 +39,18 @@
             </span>
           </panel-section-title>
 
-          @if (!hostTags.length && !newPillTag.isNew()) {
-            <panel-section-subtitle i18n="No tags yet|There are no tags for this item"
-              >No tags yet
-            </panel-section-subtitle>
-          }
           <div class="tw-pt-1 tw-flex tw-flex-wrap tw-gap-x-[2px] tw-gap-y-1">
             <app-new-pill-tag #newPillTag [createdAtMilliseconds]="host.createdAt"></app-new-pill-tag>
             @for (tag of hostTags; track tag) {
               <app-pill-tag [color]="(tags | whereId: [tag])?.color">{{ (tags | whereId: [tag])?.text }}</app-pill-tag>
             }
           </div>
+
+          @if (!hostTags.length && !newPillTag.isNew()) {
+            <panel-section-subtitle i18n="No tags yet|There are no tags for this item"
+              >No tags yet
+            </panel-section-subtitle>
+          }
         </panel-section>
       }
 
@@ -68,7 +69,7 @@
         }
 
         @if (((shownDomainsCount$ | async) ?? 0) < (host?.domains?.length ?? 0)) {
-          <button panel-load-more (click)="shownDomainsCount$.next(1000)">
+          <button panel-load-more (click)="shownDomainsCount$.next(shownDomainsCount$.value + 100)">
             Show more ({{ host?.domains?.length }})
           </button>
         }
@@ -76,18 +77,20 @@
       @if (ports$ | async; as ports) {
         <panel-section>
           <panel-section-title i18n="Ports|An IP's related ports">Ports</panel-section-title>
-          @if (!ports.length) {
+          @if (!ports.items.length) {
             <panel-section-subtitle i18n="No ports yet|There are no ports for this item"
               >No ports yet</panel-section-subtitle
             >
           }
-          @for (port of ports$ | async; track port) {
+          @for (port of (ports$ | async)?.items; track port) {
             <div>
               <a [routerLink]="['.', 'ports', port.port]">{{ port.port }}</a>
             </div>
           }
-          @if (((shownPortsCount$ | async) ?? 0) < (ports?.length ?? 0)) {
-            <button panel-load-more (click)="shownPortsCount$.next(1000)">Show more ({{ ports.length }})</button>
+          @if (ports.items.length < (ports?.totalRecords ?? 0)) {
+            <button panel-load-more (click)="portPage$.next(portPage$.value + 1)">
+              Show more ({{ ports?.totalRecords }})
+            </button>
           }
         </panel-section>
       }
