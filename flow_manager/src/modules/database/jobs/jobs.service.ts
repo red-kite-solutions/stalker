@@ -182,6 +182,9 @@ export class JobsService {
           'debug',
         );
         return await this.jobModel.updateOne(select, { endTime: timestamp });
+      case 'failed':
+        await this.addJobOutputLine(jobId, timestamp, 'Job failed.', 'debug');
+        return await this.jobModel.updateOne(select, { endTime: timestamp });
       default:
         return null;
     }

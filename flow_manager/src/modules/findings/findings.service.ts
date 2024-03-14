@@ -252,6 +252,13 @@ export class FindingsService {
         );
       } else {
         // If it was only a status update, no need to do the whole findings' logic
+        if (!finding.status || typeof finding.status !== 'string') {
+          this.logger.error(
+            `Ignoring job status update. Got status: ${finding.status}`,
+          );
+          return;
+        }
+
         this.jobsService.updateJobStatus(jobId, finding.status, timestamp);
         return;
       }

@@ -390,7 +390,6 @@ export class CodeEditorComponent implements AfterContentInit, OnDestroy {
     this._language = fileTabs[fileTabFocusIndex].language;
     this.path = fileTabs[fileTabFocusIndex].uri;
     this._editor.setModel(this._fileTabs[this._currentFileTabIndex]);
-    this._editor.focus();
   }
 
   public getAllFileTabs(): FileTab[] {
