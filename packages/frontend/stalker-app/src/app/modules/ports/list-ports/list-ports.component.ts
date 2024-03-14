@@ -75,7 +75,13 @@ export class ListPortsComponent {
     }),
     switchMap((currentPage) => {
       const filters = this.buildFilters(this.currentFilters);
-      return this.portsService.getPage(currentPage.pageIndex, currentPage.pageSize, filters, this.currentDateRange);
+      return this.portsService.getPage<Port>(
+        currentPage.pageIndex,
+        currentPage.pageSize,
+        filters,
+        this.currentDateRange,
+        'full'
+      );
     }),
     map((data: Page<Port>) => {
       this.dataSource = new MatTableDataSource<Port>(data.items);

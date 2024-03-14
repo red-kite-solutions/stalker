@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { DateRange } from '@angular/material/datepicker';
 import { Observable, firstValueFrom } from 'rxjs';
@@ -13,43 +13,22 @@ import { filtersToParams } from '../../utils/filters-to-params';
 export class PortsService {
   constructor(private http: HttpClient) {}
 
-  public getPorts(
-    hostId: string,
-    page: number,
-    pageSize: number,
-    options: {
-      protocol?: 'tcp' | 'udp' | null;
-      detailsLevel?: 'full' | 'summary' | 'number' | null;
-      sortType?: 'popularity' | 'port' | null;
-      sortOrder?: 'ascending' | 'descending' | null;
-    } | null = null
-  ): Observable<PortNumber[]> {
-    let params = new HttpParams();
-    if (options) {
-      if (options.protocol) params = params.set('protocol', options.protocol);
-      if (options.detailsLevel) params = params.set('detailsLevel', options.detailsLevel);
-      if (options.sortOrder) params = params.set('sortOrder', options.sortOrder);
-      if (options.sortType) params = params.set('sortType', options.sortType);
-    }
-    params = params.set('hostId', hostId);
-    params = params.set('page', page);
-    params = params.set('pageSize', pageSize);
-
-    return <Observable<PortNumber[]>>this.http.get(`${environment.fmUrl}/ports/?${params.toString()}`);
-  }
-
-  public getPage(
+  public getPage<T extends Port | PortNumber>(
     page: number,
     pageSize: number,
     filters: any = undefined,
-    firstSeenDateRange: DateRange<Date> = new DateRange<Date>(null, null)
-  ) {
+    firstSeenDateRange: DateRange<Date> = new DateRange<Date>(null, null),
+    detailsLevel: 'full' | 'summary' | 'number' = 'full'
+  ): Observable<Page<T>> {
     let params = filtersToParams(filters);
     params = params.append('page', page);
     params = params.append('pageSize', pageSize);
+
+    params = params.append('detailsLevel', detailsLevel);
     if (firstSeenDateRange.start) params = params.append('firstSeenStartDate', firstSeenDateRange.start.getTime());
     if (firstSeenDateRange.end) params = params.append('firstSeenEndDate', firstSeenDateRange.end.getTime());
-    return this.http.get<Page<Port>>(`${environment.fmUrl}/ports`, { params });
+
+    return this.http.get<Page<T>>(`${environment.fmUrl}/ports`, { params });
   }
 
   public async tagPort(portId: string, tagId: string, isTagged: boolean) {

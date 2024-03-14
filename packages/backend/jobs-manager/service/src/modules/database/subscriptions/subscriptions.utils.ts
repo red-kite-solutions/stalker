@@ -20,6 +20,21 @@ import {
 import { Subscription } from './subscriptions.type';
 
 export class SubscriptionsUtils {
+  public static readonly conditionOperators = [
+    'equals',
+    'gte',
+    'gt',
+    'lte',
+    'lt',
+    'contains',
+    'contains_i',
+    'startsWith',
+    'startsWith_i',
+    'endsWith',
+    'endsWith_i',
+    'equals_i',
+  ].flatMap((v) => [v, `not_${v}`]);
+
   public static async getParametersForCustomJobSubscription(
     sub: Subscription,
     logger: Logger,

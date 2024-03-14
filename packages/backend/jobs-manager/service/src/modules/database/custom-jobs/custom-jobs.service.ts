@@ -92,7 +92,7 @@ export class CustomJobsService {
 
   public async getPickByName<K extends keyof CustomJobsDocument>(
     name: string,
-    projection: string[],
+    projection: (keyof CustomJobsDocument)[],
   ): Promise<Pick<CustomJobsDocument, K>> {
     return await this.customJobModel.findOne(
       { name: { $eq: name } },

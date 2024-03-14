@@ -181,8 +181,14 @@ export class DomainsService {
     return this.domainModel.findById(id);
   }
 
-  public async getDomainByName(name: string): Promise<DomainDocument> {
-    return this.domainModel.findOne({ name: { $eq: name } });
+  public async getDomainByName(
+    name: string,
+    projectId: string,
+  ): Promise<DomainDocument> {
+    return this.domainModel.findOne({
+      name: { $eq: name },
+      projectId: { $eq: new Types.ObjectId(projectId) },
+    });
   }
 
   /**

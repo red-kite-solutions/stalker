@@ -16,7 +16,19 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, Observable, Subject, combineLatest, map, merge, shareReplay, switchMap, tap } from 'rxjs';
+import {
+  BehaviorSubject,
+  Observable,
+  Subject,
+  combineLatest,
+  concatMap,
+  map,
+  merge,
+  scan,
+  shareReplay,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { HostsService } from 'src/app/api/hosts/hosts.service';
 import { ProjectsService } from 'src/app/api/projects/projects.service';
 import { TagsService } from 'src/app/api/tags/tags.service';
@@ -30,6 +42,7 @@ import { PortsService } from '../../../api/ports/ports.service';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PanelSectionModule } from '../../../shared/components/panel-section/panel-section.module';
 import { SharedModule } from '../../../shared/shared.module';
+import { Page } from '../../../shared/types/page.type';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
@@ -118,9 +131,26 @@ export class ViewPortComponent implements OnDestroy {
 
   public host$ = this.hostId$.pipe(switchMap((hostId) => this.hostsService.get(hostId)));
 
-  public shownPortsCount$ = new BehaviorSubject(5);
-  public ports$ = combineLatest([this.host$, this.shownPortsCount$]).pipe(
-    switchMap(([host, size]) => this.portsService.getPorts(host._id, 0, size, { sortType: 'popularity' }))
+  public portPage$ = new BehaviorSubject(-1);
+  public ports$ = combineLatest([this.host$, this.portPage$]).pipe(
+    concatMap(([host, page]) => {
+      const size = page >= 0 ? 100 : 5;
+      page = page < 0 ? 0 : page;
+
+      return this.portsService.getPage(page, size, { hostId: host._id }, undefined, 'number');
+    }),
+    scan((acc: Page<PortNumber>, value: Page<PortNumber>) => {
+      const found = new Set<number>();
+
+      const uniq = acc.items.concat(value.items).filter((port) => {
+        const alreadyFound = found.has(port.port);
+        if (!alreadyFound) found.add(port.port);
+        return !alreadyFound;
+      });
+
+      return { items: uniq, totalRecords: value.totalRecords };
+    }),
+    shareReplay(1)
   );
 
   public portTitle$ = combineLatest([this.portNumber$, this.host$]).pipe(
@@ -133,7 +163,7 @@ export class ViewPortComponent implements OnDestroy {
 
   public portId = '';
   public port$ = combineLatest([this.ports$, this.portTitle$]).pipe(
-    map(([ports, portNumber]) => ports.find((p) => p.port === +portNumber)),
+    map(([ports, portNumber]) => ports.items.find((p) => p.port === +portNumber)),
     switchMap((port: PortNumber | undefined) => {
       if (port) {
         this.portId = port._id;

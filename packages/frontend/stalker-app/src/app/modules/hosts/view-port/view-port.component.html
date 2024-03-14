@@ -67,13 +67,15 @@
       @if (ports$ | async; as ports) {
         <panel-section>
           <panel-section-title i18n="Ports|An IP's related ports">Host Ports</panel-section-title>
-          @for (port of ports$ | async; track port) {
+          @for (port of (ports$ | async)?.items; track port) {
             <div>
               <a [routerLink]="['../..', 'ports', port.port]">{{ port.port }}</a>
             </div>
           }
-          @if (((shownPortsCount$ | async) ?? 0) < (ports?.length ?? 0)) {
-            <button panel-load-more (click)="shownPortsCount$.next(1000)">Show more ({{ ports.length }})</button>
+          @if (ports.items.length < ports.totalRecords) {
+            <button panel-load-more (click)="portPage$.next(portPage$.value + 1)">
+              Show more ({{ ports.totalRecords }})
+            </button>
           }
         </panel-section>
       }
