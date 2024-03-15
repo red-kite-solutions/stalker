@@ -25,7 +25,7 @@ The following table goes over the main aspects of the graph :
 | Pod               | Ingress          | Egress                                                                      |
 | ----------------- | ---------------- | --------------------------------------------------------------------------- |
 | Nginx (UI)        | 80, 443          | 53 (DNS), 3000 (FM)                                                         |
-| Flow Manager (FM) | 3000             | 53 (DNS), 9092 (Kafka), 27017 (Mongo)                                       |
+| Jobs Manager (FM) | 3000             | 53 (DNS), 9092 (Kafka), 27017 (Mongo)                                       |
 | Cron Service      | Deny All         | 53 (DNS), 3000 (FM), 27017 (Mongo)                                          |
 | Mongo             | 27017            | Deny All                                                                    |
 | Kafka             | 9092, 9093, 9094 | 53 (DNS), 9092 (Kafka), 9093 (Kafka), 9094 (Kafka)                          |
@@ -45,7 +45,7 @@ The following table goes over the main aspects of the graph :
 | Pod               | Ingress          | Egress                                                                      |
 | ----------------- | ---------------- | --------------------------------------------------------------------------- |
 | UI                | 4200             | Deny All                                                                    |
-| Flow Manager (FM) | 3000             | 53 (DNS), 9092 (Kafka), 27017 (Mongo)                                       |
+| Jobs Manager (FM) | 3000             | 53 (DNS), 9092 (Kafka), 27017 (Mongo)                                       |
 | Cron Service      | 3000             | 53 (DNS), 3000 (FM), 27017 (Mongo)                                          |
 | Mongo             | 27017            | Deny All                                                                    |
 | Kafka             | 9092, 9093, 9094 | 53 (DNS), 9092 (Kafka), 9093 (Kafka), 9094 (Kafka)                          |
@@ -55,4 +55,4 @@ The following table goes over the main aspects of the graph :
 > The database is accessible from outside the cluster for debugging and development purposes. A production deployment **should not** allow
 > connectivity. The same goes for the cron service on ingress 3000.
 
-> To avoid a conflict with the flow manager, in dev, the cron service is exposed on `127.0.0.1:3001`.
+> To avoid a conflict with the jobs manager, in dev, the cron service is exposed on `127.0.0.1:3001`.

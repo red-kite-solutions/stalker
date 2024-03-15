@@ -1,0 +1,23 @@
+FROM mcr.microsoft.com/dotnet/sdk:7.0
+WORKDIR /app
+
+EXPOSE 5135
+EXPOSE 7135
+
+# Always restart on rude edit
+ENV DOTNET_WATCH_RESTART_ON_RUDE_EDIT=1
+
+RUN dotnet dev-certs https -t
+
+COPY packages packages
+WORKDIR /app/packages/backend/orchestrator/service
+
+RUN dotnet restore "./Orchestrator.sln"
+
+# Kafka certs
+RUN mkdir -p /certs/
+COPY packages/backend/orchestrator/service/kafka-ca.crt /certs/
+COPY packages/backend/orchestrator/service/kafka-client-signed.crt /certs/
+COPY packages/backend/orchestrator/service/kafka-client.key /certs/
+
+ENTRYPOINT ["dotnet", "watch", "--project", "Orchestrator", "--no-hot-reload"]

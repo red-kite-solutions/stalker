@@ -1,0 +1,24 @@
+FROM node:18-alpine as node
+
+RUN apk update && \
+  apk add bash && \
+  apk add g++ make py3-pip
+
+WORKDIR /app
+
+COPY .yarn .yarn
+RUN ls .yarn/releases
+RUN yarn set version 4.1.0
+
+COPY yarn.lock yarn.lock
+COPY package.json package.json
+COPY packages/frontend/stalker-app/package.json packages/frontend/stalker-app/package.json 
+COPY packages/backend/jobs-manager/service/package.json packages/backend/jobs-manager/service/package.json 
+COPY packages/backend/cron/service/package.json packages/backend/cron/service/package.json 
+COPY packages/backend/orchestrator/service/package.json packages/backend/orchestrator/service/package.json 
+COPY .yarnrc.yml .yarnrc.yml
+
+RUN yarn install --immutable
+
+COPY packages packages
+

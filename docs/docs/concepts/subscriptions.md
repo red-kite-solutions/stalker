@@ -39,7 +39,7 @@ dropdown menu.
 Cron subscriptions are started based on a cron expression. They are the most simple subscriptions and only require the information necessary
 to start a job.
 
-Cron subscriptions can be reliably triggered as often as every twenty (20) seconds. The cron service, who is in charge of notifying the flow
+Cron subscriptions can be reliably triggered as often as every twenty (20) seconds. The cron service, who is in charge of notifying the jobs
 manager when a cron subscription triggers, checks its local cache of cron subscriptions every 10 seconds. The local cache is synchronized
 with the subscriptions database every 60 seconds. A new cron subscription added from the UI will therefore be up and running at the latest
 one 1 minute 20 seconds after the save.

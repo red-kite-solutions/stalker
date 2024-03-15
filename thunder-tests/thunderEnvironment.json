@@ -8,7 +8,7 @@
     "modified": "2022-07-24T22:31:54.493Z",
     "data": [
       {
-        "name": "FlowManagerAPI",
+        "name": "JobsManagerAPI",
         "value": "http://localhost:3000"
       },
       {

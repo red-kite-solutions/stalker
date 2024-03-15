@@ -1,9 +1,0 @@
-#!/bin/sh
-
-if [ ! -d "/path/to/dir" ] 
-then
-  npm ci
-  dotnet tool install --global dotnet-format --version 5.1.250801
-fi
-
-npm run lint-staged
