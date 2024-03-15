@@ -128,7 +128,7 @@ def _log(prefix: str, message: str):
 
 def log_status(status: str):
     """Reports the status to the orchestrator. Reporting a status will eventually clean up the job. Status can be Success of Failed."""
-    if status != JobStatus.SUCCESS and JobStatus.FAILED:
+    if status != JobStatus.SUCCESS and status != JobStatus.FAILED:
         return
     
     jobId = getenv('StalkerJobId')

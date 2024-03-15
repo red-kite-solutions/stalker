@@ -191,7 +191,7 @@ export class ListDomainsComponent {
         case 'host':
           if (value) hosts.push(value.trim().toLowerCase());
           break;
-        case 'host':
+        case 'tags':
           const tag = this.tags.find((t) => t.text.trim().toLowerCase() === value.trim().toLowerCase());
           if (tag) tags.push(tag._id);
           else

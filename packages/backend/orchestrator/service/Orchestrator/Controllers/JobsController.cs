@@ -2,6 +2,7 @@
 using Orchestrator.Controllers.dto;
 using Orchestrator.Events;
 using Orchestrator.Queue;
+using System.Text.RegularExpressions;
 
 namespace Orchestrator.Controllers
 {
@@ -18,6 +19,18 @@ namespace Orchestrator.Controllers
                 DateTimeOffset dto = new DateTimeOffset(DateTime.Now.ToUniversalTime());
                 return dto.ToUnixTimeMilliseconds();
             } 
+        }
+
+        /// <summary>
+        /// Validates that a string is a valid Mongodb Id by ensuring that it is 24 hexadecimal characters long
+        /// </summary>
+        /// <param name="jobId"></param>
+        /// <returns></returns>
+        private static bool IsValidJobId(string jobId)
+        {
+            if(jobId == null) return false;
+            if (!Regex.IsMatch(jobId, @"^[a-f0-9]{24}$")) return false;
+            return true;
         }
 
         public JobsController(IMessagesProducer<JobEventMessage> eventsProducer, IMessagesProducer<JobLogMessage> jobLogsProducer, IFindingsParser parser) 
@@ -55,28 +68,38 @@ namespace Orchestrator.Controllers
         [HttpPost]
         public async Task<ActionResult> Finding([FromBody]JobFindingDto dto)
         {
-            var evt = Parser.Parse(dto.Finding);
+            if (!IsValidJobId(dto.JobId)) return BadRequest("JobId is invalid");
+            try
+            {
+                var evt = Parser.Parse(dto.Finding);
 
-            if (evt == null) return BadRequest("Invalid finding");
-            await HandleEvent(evt, dto.JobId);
+                if (evt == null) return BadRequest("Invalid finding");
+                await HandleEvent(evt, dto.JobId);
+            }
+            catch (Exception)
+            {
+                return BadRequest("Error while handling finding. Finding is likely invalid.");
+            }
 
             return Ok();
         }
 
         // POST /Jobs/Status
         [HttpPost]
-        public async Task<ActionResult> Status([FromBody]StatusUpdateDto status)
+        public async Task<ActionResult> Status([FromBody]StatusUpdateDto dto)
         {
-            if (status.Status != "Success" && status.Status != "Failed")
+            if (dto.Status != "Success" && dto.Status != "Failed")
             {
+                Console.WriteLine("bad status");
                 return BadRequest("Status should be Success or Failed");
             }
 
-            // Eventually support Failed jobs
+            if (!IsValidJobId(dto.JobId)) return BadRequest("JobId is invalid");
+            
             await EventsProducer.Produce(new JobEventMessage
             {
-                JobId = status.JobId,
-                FindingsJson = "{ \"findings\": [{ \"type\": \"JobStatusFinding\", \"status\": \"Success\" }]}",
+                JobId = dto.JobId,
+                FindingsJson = $"{{ \"findings\": [{{ \"type\": \"JobStatusFinding\", \"status\": \"{dto.Status}\" }}]}}",
                 Timestamp = CurrentTimeMs,
             });
 
