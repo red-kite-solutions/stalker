@@ -38,7 +38,7 @@
         <ng-container matColumnDef="domain">
           <th mat-header-cell *matHeaderCellDef i18n="Domain|A domain name">Domain</th>
           <td mat-cell *matCellDef="let element">
-            <a [href]="'/domains/' + element._id">{{ element.name }}</a>
+            <a [routerLink]="'/domains/' + element._id" (click)="$event.stopPropagation()">{{ element.name }}</a>
           </td>
         </ng-container>
         <!-- Hosts Column -->
@@ -48,7 +48,7 @@
             @for (host of element.hosts; track host; let i = $index; let last = $last) {
               @if (i <= 5) {
                 <span
-                  ><a [href]="'/hosts/' + host.id">{{ host.ip }}</a></span
+                  ><a [routerLink]="'/hosts/' + host.id" (click)="$event.stopPropagation()">{{ host.ip }}</a></span
                 >
               }
               @if (!last && i <= 4) {

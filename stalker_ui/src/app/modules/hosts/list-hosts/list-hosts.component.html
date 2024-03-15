@@ -38,7 +38,7 @@
         <ng-container matColumnDef="ip">
           <th mat-header-cell *matHeaderCellDef i18n="Ip|An Ip address">Ip</th>
           <td mat-cell *matCellDef="let element">
-            <a [href]="'/hosts/' + element._id">{{ element.ip }}</a>
+            <a [routerLink]="'/hosts/' + element._id" (click)="$event.stopPropagation()">{{ element.ip }}</a>
           </td>
         </ng-container>
 
@@ -47,7 +47,7 @@
           <th mat-header-cell *matHeaderCellDef i18n="Domain|A domain name">Domain</th>
           <td mat-cell *matCellDef="let element">
             @for (domain of element.domains; track domain; let last = $last) {
-              <a [href]="'/domains/' + domain.id"> {{ domain.name }}</a
+              <a [routerLink]="'/domains/' + domain.id" (click)="$event.stopPropagation()"> {{ domain.name }}</a
               >{{ !last ? ', ' : '' }}
             }
           </td>

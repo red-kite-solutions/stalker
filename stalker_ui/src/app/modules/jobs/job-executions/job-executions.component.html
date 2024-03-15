@@ -25,7 +25,11 @@
                 <div class="name-cell">
                   <app-job-state [state]="element.state"></app-job-state>
                   <div>
-                    <div>{{ element.name }}</div>
+                    <div>
+                      <a [routerLink]="'/jobs/executions/' + element._id" (click)="$event.stopPropagation()">{{
+                        element.name
+                      }}</a>
+                    </div>
                     <div class="execution-info"><job-logs-summary [job]="element"></job-logs-summary></div>
                   </div>
                 </div>

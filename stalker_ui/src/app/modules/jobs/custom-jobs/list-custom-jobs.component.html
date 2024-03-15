@@ -33,7 +33,9 @@
       <!-- Name Column -->
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef i18n="Name|Name of an item">Name</th>
-        <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+        <td mat-cell *matCellDef="let element">
+          <a [routerLink]="'/jobs/custom/' + element._id" (click)="$event.stopPropagation()">{{ element.name }}</a>
+        </td>
       </ng-container>
 
       <!-- Type -->
