@@ -58,6 +58,7 @@ import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.c
   styleUrls: ['./list-hosts.component.scss'],
 })
 export class ListHostsComponent {
+  maxDomainsPerHost = 35;
   dataLoading = true;
   displayedColumns: string[] = ['select', 'ip', 'domains', 'project', 'tags'];
   filterOptions: string[] = ['host', 'domain', 'project', 'tags'];
