@@ -6,7 +6,7 @@ if [[ $# -ne 1 ]] ; then
     exit 1
 fi
 
-cat > "./stalker_ui/nginx-ca-openssl.cnf" << EOF
+cat > "./packages/frontend/stalker-app/nginx-ca-openssl.cnf" << EOF
 # SHA-1 is deprecated, so use SHA-2 instead.
 default_md        = sha256
 
@@ -106,16 +106,16 @@ extendedKeyUsage = critical, OCSPSigning
 EOF
 
 # Generate intermediate ca key
-openssl genrsa -out ./stalker_ui/nginx-ca.key 4096
+openssl genrsa -out ./packages/frontend/stalker-app/nginx-ca.key 4096
 
 # Generate the intermediate ca csr
-openssl req -config ./stalker_ui/nginx-ca-openssl.cnf -new -sha256 -key ./stalker_ui/nginx-ca.key -out ./stalker_ui/nginx-ca.csr -subj="/CN=Nginx CA/OU=Stalker Nginx CA/O=Red Kite Solutions/L=/ST=/C="
+openssl req -config ./packages/frontend/stalker-app/nginx-ca-openssl.cnf -new -sha256 -key ./packages/frontend/stalker-app/nginx-ca.key -out ./packages/frontend/stalker-app/nginx-ca.csr -subj="/CN=Nginx CA/OU=Stalker Nginx CA/O=Red Kite Solutions/L=/ST=/C="
 
 # Signing the intermediate CA csr with the root CA
-openssl ca -batch -config root_ca.cnf -extensions v3_intermediate_ca -days 3650 -notext -md sha256 -in ./stalker_ui/nginx-ca.csr -out ./stalker_ui/nginx-ca.crt
+openssl ca -batch -config root_ca.cnf -extensions v3_intermediate_ca -days 3650 -notext -md sha256 -in ./packages/frontend/stalker-app/nginx-ca.csr -out ./packages/frontend/stalker-app/nginx-ca.crt
 
 # Creating conf file for CSR
-cat > "./stalker_ui/nginx-csr.cnf" << EOF
+cat > "./packages/frontend/stalker-app/nginx-csr.cnf" << EOF
 # OpenSSL node configuration file
 [ req ]
 prompt=no
@@ -136,21 +136,21 @@ DNS.2 = localhost
 EOF
 
 # Create CSR for nginx
-openssl req -new -nodes -newkey rsa:2048 -keyout ./stalker_ui/nginx.key -out ./stalker_ui/nginx.csr -config ./stalker_ui/nginx-csr.cnf
+openssl req -new -nodes -newkey rsa:2048 -keyout ./packages/frontend/stalker-app/nginx.key -out ./packages/frontend/stalker-app/nginx.csr -config ./packages/frontend/stalker-app/nginx-csr.cnf
 
 # Signing nginx csr with intermediate ca
-openssl x509 -req -in ./stalker_ui/nginx.csr -CA ./stalker_ui/nginx-ca.crt -CAkey ./stalker_ui/nginx-ca.key -CAcreateserial -out ./stalker_ui/nginx.crt -days 365 -extfile ./stalker_ui/nginx-csr.cnf -extensions extensions
+openssl x509 -req -in ./packages/frontend/stalker-app/nginx.csr -CA ./packages/frontend/stalker-app/nginx-ca.crt -CAkey ./packages/frontend/stalker-app/nginx-ca.key -CAcreateserial -out ./packages/frontend/stalker-app/nginx.crt -days 365 -extfile ./packages/frontend/stalker-app/nginx-csr.cnf -extensions extensions
 
 # Making a full certificate chain for nginx
-cat ./stalker_ui/nginx.crt ./stalker_ui/nginx-ca.crt root_ca.crt > ./stalker_ui/nginx-chain.pem
+cat ./packages/frontend/stalker-app/nginx.crt ./packages/frontend/stalker-app/nginx-ca.crt root_ca.crt > ./packages/frontend/stalker-app/nginx-chain.pem
 
 # Adding root ca to the proper folders for trust
-cp root_ca.crt ./cron_service/root_ca.crt
-cp root_ca.crt ./stalker_ui/root_ca.crt
+cp root_ca.crt ./packages/backend/cron/service/root_ca.crt
+cp root_ca.crt ./packages/frontend/stalker-app/root_ca.crt
 
 ### Creating FM's certificate and key
 # Creating conf file for CSR
-cat > "./flow_manager/ssl-csr.cnf" << EOF
+cat > "./packages/backend/jobs-manager/service/ssl-csr.cnf" << EOF
 # OpenSSL node configuration file
 [ req ]
 prompt=no
@@ -159,31 +159,31 @@ req_extensions = extensions
 
 [ distinguished_name ]
 organizationName = Red Kite Solutions
-organizationalUnitName = Stalker Flow Manager
-commonName = Flow Manager API
+organizationalUnitName = Stalker Jobs Manager
+commonName = Jobs Manager API
 
 [ extensions ]
 subjectAltName = @alt_names
 
 [alt_names]
-DNS.1 = flow-manager
-DNS.2 = flow-manager.stalker.svc.cluster.local
+DNS.1 = jobs-manager
+DNS.2 = jobs-manager.stalker.svc.cluster.local
 EOF
 
-# Create CSR for flow manager
-openssl req -new -nodes -newkey rsa:2048 -keyout ./flow_manager/ssl-private.key -out ./flow_manager/ssl-certificate.csr -config ./flow_manager/ssl-csr.cnf
+# Create CSR for jobs manager
+openssl req -new -nodes -newkey rsa:2048 -keyout ./packages/backend/jobs-manager/service/ssl-private.key -out ./packages/backend/jobs-manager/service/ssl-certificate.csr -config ./packages/backend/jobs-manager/service/ssl-csr.cnf
 
 # Signing FM's csr with intermediate ca
-openssl x509 -req -in ./flow_manager/ssl-certificate.csr -CA ./stalker_ui/nginx-ca.crt -CAkey ./stalker_ui/nginx-ca.key -CAcreateserial -out ./flow_manager/ssl-certificate.crt -days 365 -extfile ./flow_manager/ssl-csr.cnf -extensions extensions
+openssl x509 -req -in ./packages/backend/jobs-manager/service/ssl-certificate.csr -CA ./packages/frontend/stalker-app/nginx-ca.crt -CAkey ./packages/frontend/stalker-app/nginx-ca.key -CAcreateserial -out ./packages/backend/jobs-manager/service/ssl-certificate.crt -days 365 -extfile ./packages/backend/jobs-manager/service/ssl-csr.cnf -extensions extensions
 
 # Creating FM's certificate chain
-cat ./flow_manager/ssl-certificate.crt ./stalker_ui/nginx-ca.crt root_ca.crt > ./flow_manager/ssl-certificate-chain.pem
+cat ./packages/backend/jobs-manager/service/ssl-certificate.crt ./packages/frontend/stalker-app/nginx-ca.crt root_ca.crt > ./packages/backend/jobs-manager/service/ssl-certificate-chain.pem
 
 
-rm ./stalker_ui/nginx-ca-openssl.cnf 
-rm ./stalker_ui/nginx-csr.cnf
-rm ./flow_manager/ssl-csr.cnf
-rm ./stalker_ui/nginx-ca.csr
-rm ./stalker_ui/nginx.csr
-rm ./flow_manager/ssl-certificate.csr
+rm ./packages/frontend/stalker-app/nginx-ca-openssl.cnf 
+rm ./packages/frontend/stalker-app/nginx-csr.cnf
+rm ./packages/backend/jobs-manager/service/ssl-csr.cnf
+rm ./packages/frontend/stalker-app/nginx-ca.csr
+rm ./packages/frontend/stalker-app/nginx.csr
+rm ./packages/backend/jobs-manager/service/ssl-certificate.csr
 

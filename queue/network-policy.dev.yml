@@ -25,7 +25,7 @@ spec:
     - from:
         - podSelector:
             matchLabels:
-              app.kubernetes.io/component: flow-manager
+              app.kubernetes.io/component: jobs-manager
       ports:
         - protocol: TCP
           port: 9092
