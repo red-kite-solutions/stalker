@@ -36,7 +36,7 @@ public class JobsConsumer : KafkaConsumer<JobRequest>
         // The following logic prevents flooding Kubernetes with jobs requests by checking if enough resources are available to run the job
         NextResourceCheckCounter--;
 
-        if (NextResourceCheckCounter <= 0) 
+        if (NextResourceCheckCounter <= 0)
         {
             bool waitForResources;
             do
