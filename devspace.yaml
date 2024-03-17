@@ -626,11 +626,8 @@ dev:
         disableDownload: true
         excludePaths:
           - node_modules/
-          - packages/frontend/stalker-app/.angular/
-          - packages/frontend/stalker-app/node_modules/
-          - packages/backend/jobs-manager/service/node_modules/
-          - packages/backend/cron/service/node_modules/
-          - packages/backend/orchestrator/service/node_modules/
+          - "**/.angular/**/*"
+          - "**/node_modules/**/*"
     restartHelper:
       inject: false
     ports:
@@ -689,11 +686,8 @@ dev:
         disableDownload: true
         excludePaths:
           - node_modules/
-          - packages/frontend/stalker-app/.angular/
-          - packages/frontend/stalker-app/node_modules/
-          - packages/backend/jobs-manager/service/node_modules/
-          - packages/backend/cron/service/node_modules/
-          - packages/backend/orchestrator/service/node_modules/
+          - "**/.angular/**/*"
+          - "**/node_modules/**/*"
     restartHelper:
       inject: false
     ports:
@@ -719,11 +713,8 @@ dev:
         disableDownload: true
         excludePaths:
           - node_modules/
-          - packages/frontend/stalker-app/.angular/
-          - packages/frontend/stalker-app/node_modules/
-          - packages/backend/jobs-manager/service/node_modules/
-          - packages/backend/cron/service/node_modules/
-          - packages/backend/orchestrator/service/node_modules/
+          - "**/.angular/**/*"
+          - "**/node_modules/**/*"
     restartHelper:
       inject: false
     ports:
@@ -755,13 +746,10 @@ dev:
         disableDownload: true
         excludePaths:
           - node_modules/
-          - packages/frontend/stalker-app/.angular/
-          - packages/frontend/stalker-app/node_modules/
-          - packages/backend/jobs-manager/service/node_modules/
-          - packages/backend/cron/service/node_modules/
-          - packages/backend/orchestrator/service/node_modules/
-          - packages/backend/orchestrator/service/Orchestrator/bin
-          - packages/backend/orchestrator/service/Orchestrator/obj
+          - "**/.angular/**/*"
+          - "**/node_modules/**/*"
+          - backend/orchestrator/**/bin/**/*
+          - backend/orchestrator/**/obj/**/*
     restartHelper:
       inject: false
     ports:
