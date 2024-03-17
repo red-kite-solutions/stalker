@@ -1,7 +1,7 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-if (git rev-parse -q --verify MERGE_HEAD> /dev/null)
+if (git rev-parse -q --verify MERGE_HEAD > /dev/null)
 then
   echo "[PRECOMMIT] MERGE_HEAD exists. Skipping toolchains."
   exit 0
@@ -10,7 +10,7 @@ fi
 root=$(pwd)
 echo "[PRECOMMIT] Using $root as root directory."
 
-for project in "docs" "flow_manager" "orchestrator" 
+for project in "docs" "packages/frontend/stalker-app" "packages/backend/jobs-manager/service" "packages/backend/orchestrator/service"
 do
     cd "$root/$project"
     if [ -f "./.husky/pre-commit" ]; then

@@ -1,0 +1,12 @@
+mat-card {
+  overflow: hidden;
+}
+
+mat-dialog-content {
+  display: flex;
+  flex-direction: column;
+}
+
+mat-dialog-actions {
+  justify-content: center;
+}

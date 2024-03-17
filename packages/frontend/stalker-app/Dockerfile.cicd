@@ -1,0 +1,5 @@
+FROM stalker-base:latest
+WORKDIR /app
+
+
+CMD ["yarn", "workspace", "@red-kite/stalker-app", "start"]

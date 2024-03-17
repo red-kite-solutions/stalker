@@ -1,6 +1,13 @@
 {
   "name": "stalker",
   "version": "1.0.0",
+  "packageManager": "yarn@4.1.0",
+  "private": true,
+  "workspaces": [
+    "packages/frontend/stalker-app",
+    "packages/backend/jobs-manager/service",
+    "packages/backend/cron/service"
+  ],
   "scripts": {
     "prepare": "husky install",
     "dev": "minikube start && devspace dev -n stalker"
@@ -15,6 +22,7 @@
   },
   "homepage": "https://github.com/lm-sec/Stalker#readme",
   "devDependencies": {
-    "husky": "^7.0.4"
+    "husky": "^7.0.4",
+    "typescript": "^5.0.0"
   }
 }
