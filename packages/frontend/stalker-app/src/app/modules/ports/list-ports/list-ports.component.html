@@ -29,11 +29,15 @@
         [dateSearchEnabled]="true"
         [startDate]="startDate"
       >
-        <!-- Domain Column -->
+        <!-- Port Column -->
         <ng-container matColumnDef="port">
           <th mat-header-cell *matHeaderCellDef i18n="Port|Port number">Port</th>
           <td mat-cell *matCellDef="let element">
-            {{ element.port }}
+            <a
+              [routerLink]="'/hosts/' + element.host.id + '/ports/' + element.port"
+              (click)="$event.stopPropagation()"
+              >{{ element.port }}</a
+            >
           </td>
         </ng-container>
 
@@ -41,7 +45,7 @@
         <ng-container matColumnDef="ip">
           <th mat-header-cell *matHeaderCellDef i18n="Host|host">Host</th>
           <td mat-cell *matCellDef="let element">
-            {{ element.host.ip }}
+            <a [routerLink]="'/hosts/' + element.host.id" (click)="$event.stopPropagation()">{{ element.host.ip }}</a>
           </td>
         </ng-container>
 

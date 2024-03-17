@@ -34,7 +34,14 @@
       <!-- Name Column -->
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef i18n="Name|Name of an item">Name</th>
-        <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+        <td mat-cell *matCellDef="let element">
+          <a
+            [routerLink]="'/jobs/subscriptions/' + element._id"
+            [queryParams]="{ type: element.type }"
+            (click)="$event.stopPropagation()"
+            >{{ element.name }}</a
+          >
+        </td>
       </ng-container>
 
       <!-- Subscription trigger (Cron or Finding) -->
