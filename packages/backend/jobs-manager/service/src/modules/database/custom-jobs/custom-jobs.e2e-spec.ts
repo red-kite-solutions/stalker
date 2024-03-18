@@ -350,4 +350,15 @@ describe('Custom Jobs Controller (e2e)', () => {
     );
     expect(success).toBe(true);
   });
+
+  it('Should have proper authorizations (POST /custom-jobs/sync)', async () => {
+    const success = await checkAuthorizations(
+      testData,
+      Role.Admin,
+      async (givenToken: string) => {
+        return await deleteReq(app, givenToken, `/custom-jobs/sync`);
+      },
+    );
+    expect(success).toBe(true);
+  });
 });
