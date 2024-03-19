@@ -356,7 +356,7 @@ describe('Custom Jobs Controller (e2e)', () => {
       testData,
       Role.Admin,
       async (givenToken: string) => {
-        return await deleteReq(app, givenToken, `/custom-jobs/sync`);
+        return await postReq(app, givenToken, `/custom-jobs/sync`);
       },
     );
     expect(success).toBe(true);
