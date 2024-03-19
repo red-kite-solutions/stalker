@@ -148,7 +148,7 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
     if (date) this.dateRange.get('end')?.setValue(moment(date));
   }
 
-  filters: string[] = [];
+  @Input() filters: string[] = [];
   separatorKeysCodes: number[] = [TAB, ENTER];
   filterForm = new UntypedFormControl('');
   filteredColumns$: Observable<string[] | null | undefined>;

@@ -2,6 +2,7 @@
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsBooleanString,
   IsIn,
   IsInt,
   IsMongoId,
@@ -67,6 +68,10 @@ export class GetPortsDto {
   @IsPort({ each: true })
   @IsArray()
   ports: number[];
+
+  @IsOptional()
+  @IsBooleanString()
+  blocked: 'true' | 'false';
 }
 
 export class DeleteManyPortsDto {

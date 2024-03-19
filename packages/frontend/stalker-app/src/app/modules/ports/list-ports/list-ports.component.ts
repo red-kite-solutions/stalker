@@ -59,12 +59,12 @@ import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.c
 export class ListPortsComponent {
   dataLoading = true;
   displayedColumns: string[] = ['select', 'port', 'ip', 'project', 'tags'];
-  filterOptions: string[] = ['host', 'port', 'project', 'tags'];
+  filterOptions: string[] = ['host', 'port', 'project', 'tags', 'is'];
   public readonly noDataMessage = $localize`:No port found|No port was found:No port found`;
 
   dataSource = new MatTableDataSource<Port>();
   currentPage: PageEvent = this.generateFirstPageEvent();
-  currentFilters: string[] = [];
+  currentFilters: string[] = ['-is: blocked'];
   currentPage$ = new BehaviorSubject<PageEvent>(this.currentPage);
   count = 0;
   selection = new SelectionModel<Port>(true, []);
@@ -163,11 +163,13 @@ export class ListPortsComponent {
 
   buildFilters(stringFilters: string[]): any {
     const SEPARATOR = ':';
+    const NEGATING_CHAR = '-';
     const filterObject: any = {};
     const tags = [];
     const ports = [];
     const hosts = [];
     const projects = [];
+    let blocked: boolean | null = null;
 
     for (const filter of stringFilters) {
       if (filter.indexOf(SEPARATOR) === -1) continue;
@@ -176,8 +178,10 @@ export class ListPortsComponent {
 
       if (keyValuePair.length !== 2) continue;
 
-      const key = keyValuePair[0].trim().toLowerCase();
+      let key = keyValuePair[0].trim().toLowerCase();
       const value = keyValuePair[1].trim().toLowerCase();
+      const negated = key.length > 0 && key[0] === NEGATING_CHAR;
+      if (negated) key = key.substring(1);
 
       if (!key || !value) continue;
 
@@ -204,12 +208,20 @@ export class ListPortsComponent {
         case 'port':
           ports.push(value);
           break;
+        case 'is':
+          switch (value) {
+            case 'blocked':
+              blocked = !negated;
+              break;
+          }
+          break;
       }
     }
     if (tags?.length) filterObject['tags'] = tags;
     if (ports?.length) filterObject['ports'] = ports;
     if (hosts?.length) filterObject['host'] = hosts;
     if (projects?.length) filterObject['project'] = projects;
+    if (blocked !== null) filterObject['blocked'] = blocked;
     return filterObject;
   }
 

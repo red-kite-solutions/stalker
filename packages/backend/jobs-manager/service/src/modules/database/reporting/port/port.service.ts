@@ -373,6 +373,16 @@ export class PortService {
       finalFilter['layer4Protocol'] = { $eq: dto.protocol };
     }
 
+    // Filter by blocked
+    if (dto.blocked === 'false') {
+      finalFilter['$or'] = [
+        { blocked: { $exists: false } },
+        { blocked: { $eq: false } },
+      ];
+    } else if (dto.blocked === 'true') {
+      finalFilter['blocked'] = { $eq: true };
+    }
+
     return finalFilter;
   }
 }
