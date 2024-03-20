@@ -17,7 +17,7 @@ import { CorrelationKeyUtils } from '../correlation.utils';
 import { HostService } from '../host/host.service';
 import { HostSummary } from '../host/host.summary';
 import { Project } from '../project.model';
-import { DomainsPagingDto } from './domain.dto';
+import { BatchEditDomainsDto, DomainsPagingDto } from './domain.dto';
 import { Domain, DomainDocument } from './domain.model';
 
 @Injectable()
@@ -403,5 +403,25 @@ export class DomainsService {
     }
 
     return finalFilter;
+  }
+
+  public async batchEdit(dto: BatchEditDomainsDto) {
+    const update: Partial<Domain> = {};
+    if (dto.block || dto.block === false) update.blocked = dto.block;
+    if (dto.block) update.blockedAt = Date.now();
+
+    return await this.domainModel.updateMany(
+      { _id: { $in: dto.domainIds.map((v) => new Types.ObjectId(v)) } },
+      update,
+    );
+  }
+
+  public async keyIsBlocked(correlationKey: string): Promise<boolean> {
+    const d = await this.domainModel.findOne(
+      { correlationKey: { $eq: correlationKey } },
+      'blocked',
+    );
+
+    return d && d.blocked;
   }
 }

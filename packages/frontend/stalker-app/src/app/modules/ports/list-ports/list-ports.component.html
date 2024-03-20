@@ -4,6 +4,11 @@
       <mat-card-title class="tw-flex-1" i18n="Ports|Ports">Ports</mat-card-title>
 
       <div class="tw-flex tw-gap-sm tw-pb-4">
+        <button mat-stroked-button (click)="block()">
+          <mat-icon>block</mat-icon>
+          <label i18n="Block|Block an item">Block</label>
+        </button>
+
         <button mat-stroked-button color="warn" class="left-action-button" (click)="deletePorts()">
           <mat-icon>delete_outline</mat-icon>
           <label i18n="Delete|Delete an item">Delete</label>
@@ -21,6 +26,7 @@
         [length]="count"
         [columns]="displayColumns$ | async"
         [filterOptions]="filterOptions"
+        [negatableFilterOptions]="['is']"
         [routerLinkBuilder]="routerLinkBuilder"
         (filtersChange)="filtersChange($event)"
         (dateFiltersChange)="dateRangeFilterChange($event)"

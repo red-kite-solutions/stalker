@@ -275,13 +275,19 @@ export class ListHostsComponent {
     }
   }
 
-  public deleteHosts() {
+  private getSelectionAsBulletPoints(): string[] {
     const bulletPoints: string[] = Array<string>();
     this.selection.selected.forEach((host: Host) => {
       const projectName = this.projects.find((d) => d._id === host.projectId)?.name;
       const bp = projectName ? `${host.ip} (${projectName})` : `${host.ip}`;
       bulletPoints.push(bp);
     });
+    return bulletPoints;
+  }
+
+  public deleteHosts() {
+    const bulletPoints = this.getSelectionAsBulletPoints();
+
     let data: ConfirmDialogData;
     if (bulletPoints.length > 0) {
       data = {
@@ -324,5 +330,59 @@ export class ListHostsComponent {
   dateFilter(event: MouseEvent) {
     event.stopPropagation();
     this.startDate = new Date(Date.now() - defaultNewTimeMs);
+  }
+
+  block() {
+    const bulletPoints = this.getSelectionAsBulletPoints();
+
+    let data: ConfirmDialogData;
+    if (bulletPoints.length > 0) {
+      const block = async (block: boolean) => {
+        try {
+          await this.hostsService.block(
+            this.selection.selected.map((s) => s._id),
+            block
+          );
+          this.selection.clear();
+          this.toastr.success(
+            block
+              ? $localize`:Hosts blocked|Blocked a host:Hosts blocked successfully`
+              : $localize`:Hosts unblocked|Unblocked a host:Hosts unblocked successfully`
+          );
+          this.currentPage$.next(this.currentPage);
+          this.dialog.closeAll();
+        } catch {
+          this.toastr.error($localize`:Error blocking|Error while blocking a host:Error blocking hosts`);
+        }
+      };
+
+      data = {
+        text: $localize`:Confirm block hosts|Confirmation message asking if the user wants to block the selected hosts:Do you wish to block or unblock these hosts?`,
+        title: $localize`:Blocking hosts|Title of a page to block selected hosts:Blocking hosts`,
+        primaryButtonText: $localize`:Unblock|Unblock an item:Unblock`,
+        dangerButtonText: $localize`:Block|Block an item:Block`,
+        listElements: bulletPoints,
+        enableCancelButton: true,
+        onPrimaryButtonClick: async () => {
+          await block(false);
+        },
+        onDangerButtonClick: async () => {
+          await block(true);
+        },
+      };
+    } else {
+      data = {
+        text: $localize`:Select hosts again|No hosts were selected so there is nothing to delete:Select the hosts to block and try again.`,
+        title: $localize`:Nothing to block|Tried to block something, but there was nothing to delete:Nothing to block`,
+        primaryButtonText: $localize`:Ok|Accept or confirm:Ok`,
+        onPrimaryButtonClick: () => {
+          this.dialog.closeAll();
+        },
+      };
+    }
+    this.dialog.open(ConfirmDialogComponent, {
+      data,
+      restoreFocus: false,
+    });
   }
 }

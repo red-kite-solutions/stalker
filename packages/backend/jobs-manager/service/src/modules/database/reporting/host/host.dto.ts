@@ -2,6 +2,7 @@
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsBooleanString,
   IsIP,
   IsInt,
@@ -70,4 +71,14 @@ export class SubmitHostsDto {
 
   @IsMongoId()
   projectId: string;
+}
+
+export class BatchEditHostsDto {
+  @IsArray()
+  @IsMongoId({ each: true })
+  hostIds: Types.ObjectId[];
+
+  @IsOptional()
+  @IsBoolean()
+  block: boolean;
 }

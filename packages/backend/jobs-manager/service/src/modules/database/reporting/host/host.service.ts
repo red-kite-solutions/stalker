@@ -14,6 +14,7 @@ import { DomainSummary } from '../domain/domain.summary';
 import { PortService } from '../port/port.service';
 import { Project } from '../project.model';
 import { HostFilterModel } from './host-filter.model';
+import { BatchEditHostsDto } from './host.dto';
 import { Host, HostDocument } from './host.model';
 import { HostSummary } from './host.summary';
 
@@ -67,6 +68,15 @@ export class HostService {
       query = query.skip(page * pageSize).limit(pageSize);
     }
     return await query;
+  }
+
+  public async keyIsBlocked(correlationKey: string): Promise<boolean> {
+    const h = await this.hostModel.findOne(
+      { correlationKey: { $eq: correlationKey } },
+      'blocked',
+    );
+
+    return h && h.blocked;
   }
 
   public async count(filter: HostFilterModel = null) {
@@ -398,5 +408,16 @@ export class HostService {
         { $addToSet: { tags: new Types.ObjectId(tagId) } },
       );
     }
+  }
+
+  public async batchEdit(dto: BatchEditHostsDto) {
+    const update: Partial<Host> = {};
+    if (dto.block || dto.block === false) update.blocked = dto.block;
+    if (dto.block) update.blockedAt = Date.now();
+
+    return await this.hostModel.updateMany(
+      { _id: { $in: dto.hostIds.map((v) => new Types.ObjectId(v)) } },
+      update,
+    );
   }
 }

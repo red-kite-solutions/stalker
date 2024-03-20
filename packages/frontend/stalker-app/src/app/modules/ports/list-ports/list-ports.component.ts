@@ -225,13 +225,19 @@ export class ListPortsComponent {
     return filterObject;
   }
 
-  public deletePorts() {
+  private getSelectionAsBulletPoints() {
     const bulletPoints: string[] = Array<string>();
     this.selection.selected.forEach((port: Port) => {
       const projectName = this.projects.find((p) => p._id === port.projectId)?.name;
       const bp = projectName ? `${port.host.ip}:${port.port} (${projectName})` : `${port.host.ip}:${port.port}`;
       bulletPoints.push(bp);
     });
+    return bulletPoints;
+  }
+
+  public deletePorts() {
+    const bulletPoints = this.getSelectionAsBulletPoints();
+
     let data: ConfirmDialogData;
     if (bulletPoints.length > 0) {
       data = {
@@ -278,5 +284,59 @@ export class ListPortsComponent {
 
   routerLinkBuilder(row: Port): string[] {
     return ['/hosts', row.host.id, 'ports', row.port.toString()];
+  }
+
+  block() {
+    const bulletPoints = this.getSelectionAsBulletPoints();
+
+    let data: ConfirmDialogData;
+    if (bulletPoints.length > 0) {
+      const block = async (block: boolean) => {
+        try {
+          await this.portsService.block(
+            this.selection.selected.map((s) => s._id),
+            block
+          );
+          this.selection.clear();
+          this.toastr.success(
+            block
+              ? $localize`:Ports blocked|Blocked a port:Ports blocked successfully`
+              : $localize`:Ports unblocked|Unblocked a port:Ports unblocked successfully`
+          );
+          this.currentPage$.next(this.currentPage);
+          this.dialog.closeAll();
+        } catch {
+          this.toastr.error($localize`:Error blocking|Error while blocking a port:Error blocking ports`);
+        }
+      };
+
+      data = {
+        text: $localize`:Confirm block ports|Confirmation message asking if the user wants to block the selected ports:Do you wish to block or unblock these ports?`,
+        title: $localize`:Blocking ports|Title of a page to block selected ports:Blocking ports`,
+        primaryButtonText: $localize`:Unblock|Unblock an item:Unblock`,
+        dangerButtonText: $localize`:Block|Block an item:Block`,
+        listElements: bulletPoints,
+        enableCancelButton: true,
+        onPrimaryButtonClick: async () => {
+          await block(false);
+        },
+        onDangerButtonClick: async () => {
+          await block(true);
+        },
+      };
+    } else {
+      data = {
+        text: $localize`:Select ports again|No ports were selected so there is nothing to delete:Select the ports to block and try again.`,
+        title: $localize`:Nothing to block|Tried to block something, but there was nothing to delete:Nothing to block`,
+        primaryButtonText: $localize`:Ok|Accept or confirm:Ok`,
+        onPrimaryButtonClick: () => {
+          this.dialog.closeAll();
+        },
+      };
+    }
+    this.dialog.open(ConfirmDialogComponent, {
+      data,
+      restoreFocus: false,
+    });
   }
 }

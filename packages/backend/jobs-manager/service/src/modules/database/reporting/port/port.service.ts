@@ -12,7 +12,7 @@ import { MONGO_DUPLICATE_ERROR } from '../../database.constants';
 import { TagsService } from '../../tags/tag.service';
 import { CorrelationKeyUtils } from '../correlation.utils';
 import { Host, HostDocument } from '../host/host.model';
-import { GetPortsDto } from './port.dto';
+import { BatchEditPortsDto, GetPortsDto } from './port.dto';
 import { Port, PortDocument } from './port.model';
 
 @Injectable()
@@ -384,5 +384,25 @@ export class PortService {
     }
 
     return finalFilter;
+  }
+
+  public async batchEdit(dto: BatchEditPortsDto) {
+    const update: Partial<Host> = {};
+    if (dto.block || dto.block === false) update.blocked = dto.block;
+    if (dto.block) update.blockedAt = Date.now();
+
+    return await this.portsModel.updateMany(
+      { _id: { $in: dto.portIds.map((v) => new Types.ObjectId(v)) } },
+      update,
+    );
+  }
+
+  public async keyIsBlocked(correlationKey: string): Promise<boolean> {
+    const p = await this.portsModel.findOne(
+      { correlationKey: { $eq: correlationKey } },
+      'blocked',
+    );
+
+    return p && p.blocked;
   }
 }
