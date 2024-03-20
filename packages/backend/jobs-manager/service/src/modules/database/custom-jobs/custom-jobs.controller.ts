@@ -82,4 +82,11 @@ export class CustomJobsController {
   async deleteCustomJob(@Param() IdDto: MongoIdDto): Promise<DeleteResult> {
     return await this.customJobsService.delete(IdDto.id);
   }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin)
+  @Post('sync')
+  async syncCache(): Promise<void> {
+    return await this.customJobsService.syncCache();
+  }
 }

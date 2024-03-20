@@ -29,4 +29,8 @@ export class CustomJobsService {
   public async delete(id: string) {
     return await firstValueFrom(this.http.delete(`${environment.fmUrl}/custom-jobs/${id}`));
   }
+
+  public async syncCache() {
+    return await firstValueFrom(this.http.post(`${environment.fmUrl}/custom-jobs/sync`, undefined));
+  }
 }

@@ -186,6 +186,7 @@ export class EditUserComponent {
       lastName: this.form.controls['lastName'].value,
       email: this.form.controls['email'].value,
       active: this.form.controls['active'].value,
+      role: this.form.controls['role'].value.name,
     };
 
     this.currentPasswordForm.controls['password'].setErrors(null);

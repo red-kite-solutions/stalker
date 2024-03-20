@@ -99,4 +99,11 @@ export class CustomJobsService {
       projection,
     );
   }
+
+  public async syncCache() {
+    const jobs = await this.customJobModel.find({});
+    for (const job of jobs) {
+      await this.jobCodeQueue.publish(job);
+    }
+  }
 }
