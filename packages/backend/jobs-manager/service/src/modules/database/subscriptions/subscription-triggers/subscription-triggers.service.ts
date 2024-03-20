@@ -29,7 +29,7 @@ export class SubscriptionTriggersService {
 
     switch (serviceName) {
       case 'PortService':
-        return await this.domainsService.keyIsBlocked(correlationKey);
+        return await this.portsService.keyIsBlocked(correlationKey);
       case 'DomainsService':
         return await this.domainsService.keyIsBlocked(correlationKey);
       case 'HostService':
