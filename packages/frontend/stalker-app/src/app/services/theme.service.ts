@@ -66,7 +66,6 @@ export class ThemeService {
 
     const theme = this.getCurrentTheme();
     this.theme$.next(theme);
-    console.log(theme);
 
     const themeClass = this.getThemeClassName(theme);
     document.body.classList.add(themeClass);

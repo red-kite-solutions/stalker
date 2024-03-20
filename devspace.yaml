@@ -627,6 +627,7 @@ dev:
         excludePaths:
           - node_modules/
           - "**/.angular/**/*"
+          - "**/dist/**/*"
           - "**/node_modules/**/*"
     restartHelper:
       inject: false
@@ -687,6 +688,7 @@ dev:
         excludePaths:
           - node_modules/
           - "**/.angular/**/*"
+          - "**/dist/**/*"
           - "**/node_modules/**/*"
     restartHelper:
       inject: false
@@ -714,6 +716,7 @@ dev:
         excludePaths:
           - node_modules/
           - "**/.angular/**/*"
+          - "**/dist/**/*"
           - "**/node_modules/**/*"
     restartHelper:
       inject: false
@@ -747,6 +750,7 @@ dev:
         excludePaths:
           - node_modules/
           - "**/.angular/**/*"
+          - "**/dist/**/*"
           - "**/node_modules/**/*"
           - backend/orchestrator/**/bin/**/*
           - backend/orchestrator/**/obj/**/*

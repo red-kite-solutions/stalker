@@ -46,14 +46,6 @@ export class HeaderComponent {
     this.toggleSideBarEvent.emit();
   }
 
-  search() {
-    console.log('searching...');
-  }
-
-  focus() {
-    console.log('focus');
-  }
-
   logout() {
     this.authService.logout();
     this.router.navigate(['/auth/login']);
