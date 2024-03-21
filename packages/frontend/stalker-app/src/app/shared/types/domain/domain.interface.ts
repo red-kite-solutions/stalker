@@ -11,4 +11,6 @@ export interface Domain {
   lastSeen: number;
   createdAt: number;
   updatedAt: number;
+  blocked: boolean;
+  blockedAt: number;
 }
