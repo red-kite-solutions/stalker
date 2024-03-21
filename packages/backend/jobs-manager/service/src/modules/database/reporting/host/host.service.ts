@@ -51,6 +51,13 @@ export class HostService {
     return await query;
   }
 
+  /**
+   *
+   * @param page
+   * @param pageSize
+   * @param filter A mongodb filter
+   * @returns
+   */
   public async getIps(
     page: number = null,
     pageSize: number = null,
@@ -59,7 +66,7 @@ export class HostService {
     let query;
     const projection = '_id ip';
     if (filter) {
-      query = this.hostModel.find(this.buildFilters(filter), projection);
+      query = this.hostModel.find(filter, projection);
     } else {
       query = this.hostModel.find({}, projection);
     }

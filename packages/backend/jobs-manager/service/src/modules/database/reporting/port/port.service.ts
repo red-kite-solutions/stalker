@@ -5,7 +5,6 @@ import { FilterQuery, Model, Types } from 'mongoose';
 import {
   HttpBadRequestException,
   HttpNotFoundException,
-  HttpNotImplementedException,
 } from '../../../../exceptions/http.exceptions';
 import escapeStringRegexp from '../../../../utils/escape-string-regexp';
 import { MONGO_DUPLICATE_ERROR } from '../../database.constants';
@@ -192,7 +191,7 @@ export class PortService {
     pageSize: number = null,
     filter: FilterQuery<Port> = null,
   ): Promise<PortDocument[]> {
-    const projection = 'port layer4Protocol';
+    const projection = 'port layer4Protocol host';
     let query = this.portsModel.find(filter, projection);
     if (page != null && pageSize != null) {
       query = query.skip(page * pageSize).limit(pageSize);
@@ -202,15 +201,6 @@ export class PortService {
 
   public async getPort(portId: string) {
     return await this.portsModel.findById(portId);
-  }
-
-  private getDetailsFilter(detailsLevel: string) {
-    const portsLevelFilter = { port: 1, layer4Protocol: 1, correlationKey: 1 };
-    if (detailsLevel === 'full') return {};
-    else if (detailsLevel === 'number') return portsLevelFilter;
-    else if (detailsLevel === 'summary')
-      throw new HttpNotImplementedException();
-    return portsLevelFilter;
   }
 
   public async deleteAllForProject(projectId: string): Promise<DeleteResult> {
