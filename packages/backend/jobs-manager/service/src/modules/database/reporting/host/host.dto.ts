@@ -76,7 +76,7 @@ export class SubmitHostsDto {
 export class BatchEditHostsDto {
   @IsArray()
   @IsMongoId({ each: true })
-  hostIds: Types.ObjectId[];
+  hostIds: string[];
 
   @IsOptional()
   @IsBoolean()

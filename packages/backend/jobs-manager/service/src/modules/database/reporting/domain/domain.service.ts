@@ -125,7 +125,10 @@ export class DomainsService {
    * @param domainName The domain name to add
    * @param projectId The domain's project
    */
-  public async addDomain(domainName: string, projectId: string) {
+  public async addDomain(
+    domainName: string,
+    projectId: string,
+  ): Promise<DomainDocument> {
     const project = await this.projectModel.findById(projectId);
     if (!project) {
       this.logger.debug(`Could not find the project (projectId=${projectId})`);
@@ -147,7 +150,7 @@ export class DomainsService {
           projectId: projectIdObject,
         },
       },
-      { upsert: true },
+      { upsert: true, new: true },
     );
   }
 

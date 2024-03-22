@@ -270,14 +270,14 @@ export class HostService {
         lastSeen: Date.now(),
         $setOnInsert: {
           ip: host,
-          correlationKey: CorrelationKeyUtils.domainCorrelationKey(
+          correlationKey: CorrelationKeyUtils.hostCorrelationKey(
             projectId,
             host,
           ),
           projectId: projectIdObject,
         },
       },
-      { upsert: true },
+      { upsert: true, new: true },
     );
   }
 

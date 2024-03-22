@@ -1,10 +1,13 @@
 ---
-sidebar_position: 3
+sidebar_position: 5
 title: Secrets
 description: What are secrets and how to use them
 ---
 
 # Secrets
+
+* [Injecting while launching a job](#injecting-while-launching-a-job)
+* [Injecting in a subscription](#injecting-in-a-subscription)
 
 Secrets are encrypted variables that can be given to jobs as parameters. The secrets are decrypted right before being given to the job. They
 can then be used to connect to third-party services.

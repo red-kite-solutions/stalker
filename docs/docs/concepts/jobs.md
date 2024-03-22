@@ -1,10 +1,16 @@
 ---
-sidebar_position: 1
+sidebar_position: 2
 title: Jobs
 description: What are jobs and how to use them
 ---
 
 # Jobs
+
+* [Built-in jobs](#built-in-jobs)
+  * [DomainNameResolvingJob](#domainnameresolvingjob)
+  * [TcpPortScanningJob](#tcpportscanningjob)
+  * [TcpIpRangeScanningJob](#tcpiprangescanningjob)
+  * [HttpServerCheckJob](#httpservercheckjob)
 
 A job is the way for Stalker to find new information. It is started by Stalker and runs in a contained environment. Different jobs will
 generate different findings. It is possible to reference a Finding's output variable as a job parameter. A job parameter is one of a job's
