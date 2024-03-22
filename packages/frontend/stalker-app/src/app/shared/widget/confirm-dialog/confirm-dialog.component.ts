@@ -1,5 +1,5 @@
 import { Component, Inject, Input } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 
 export interface ConfirmDialogData {
   title?: string;
@@ -7,6 +7,7 @@ export interface ConfirmDialogData {
   primaryButtonText?: string;
   dangerButtonText?: string;
   listElements?: string[];
+  enableCancelButton?: boolean;
   onPrimaryButtonClick?: () => unknown | (() => Promise<unknown>);
   onDangerButtonClick?: () => unknown | (() => Promise<unknown>);
 }
@@ -23,7 +24,10 @@ export class ConfirmDialogComponent {
   public primaryLoading = false;
   public dangerLoading = false;
 
-  constructor(@Inject(MAT_DIALOG_DATA) public data: ConfirmDialogData) {
+  constructor(
+    @Inject(MAT_DIALOG_DATA) public data: ConfirmDialogData,
+    public dialog: MatDialog
+  ) {
     if (data.listElements && data.listElements.length > this.maxListLength + 1) {
       const restCount = data.listElements.length - this.maxListLength;
       const total = data.listElements.length;
@@ -54,5 +58,9 @@ export class ConfirmDialogComponent {
     } finally {
       this.dangerLoading = false;
     }
+  }
+
+  public cancel() {
+    this.dialog.closeAll();
   }
 }

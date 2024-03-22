@@ -62,13 +62,13 @@ import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.c
 export class ListDomainsComponent {
   dataLoading = true;
   displayedColumns: string[] = ['select', 'domain', 'hosts', 'project', 'tags'];
-  filterOptions: string[] = ['host', 'domain', 'project', 'tags'];
+  filterOptions: string[] = ['host', 'domain', 'project', 'tags', 'is'];
   public readonly noDataMessage = $localize`:No domain found|No domain was found:No domain found`;
 
   maxHostsPerLine = 5;
   dataSource = new MatTableDataSource<Domain>();
   currentPage: PageEvent = this.generateFirstPageEvent();
-  currentFilters: string[] = [];
+  currentFilters: string[] = ['-is: blocked'];
   currentPage$ = new BehaviorSubject<PageEvent>(this.currentPage);
   count = 0;
   selection = new SelectionModel<Domain>(true, []);
@@ -165,10 +165,12 @@ export class ListDomainsComponent {
 
   buildFilters(stringFilters: string[]): any {
     const SEPARATOR = ':';
+    const NEGATING_CHAR = '-';
     const filterObject: any = {};
     const tags = [];
     const domains = [];
     const hosts = [];
+    let blocked: boolean | null = null;
 
     for (const filter of stringFilters) {
       if (filter.indexOf(SEPARATOR) === -1) continue;
@@ -177,8 +179,10 @@ export class ListDomainsComponent {
 
       if (keyValuePair.length !== 2) continue;
 
-      const key = keyValuePair[0].trim().toLowerCase();
+      let key = keyValuePair[0].trim().toLowerCase();
       const value = keyValuePair[1].trim().toLowerCase();
+      const negated = key.length > 0 && key[0] === NEGATING_CHAR;
+      if (negated) key = key.substring(1);
 
       if (!key || !value) continue;
 
@@ -205,11 +209,19 @@ export class ListDomainsComponent {
         case 'domain':
           domains.push(value);
           break;
+        case 'is':
+          switch (value) {
+            case 'blocked':
+              blocked = !negated;
+              break;
+          }
+          break;
       }
     }
     if (tags) filterObject['tags'] = tags;
     if (domains) filterObject['domain'] = domains;
     if (hosts) filterObject['host'] = hosts;
+    if (blocked !== null) filterObject['blocked'] = blocked;
     return filterObject;
   }
 
@@ -265,13 +277,19 @@ export class ListDomainsComponent {
     }
   }
 
-  public deleteDomains() {
+  private getSelectionAsBulletPoints() {
     const bulletPoints: string[] = Array<string>();
     this.selection.selected.forEach((domain: Domain) => {
       const projectName = this.projects.find((d) => d._id === domain.projectId)?.name;
       const bp = projectName ? `${domain.name} (${projectName})` : `${domain.name}`;
       bulletPoints.push(bp);
     });
+    return bulletPoints;
+  }
+
+  public deleteDomains() {
+    const bulletPoints = this.getSelectionAsBulletPoints();
+
     let data: ConfirmDialogData;
     if (bulletPoints.length > 0) {
       data = {
@@ -315,5 +333,59 @@ export class ListDomainsComponent {
   dateFilter(event: MouseEvent) {
     event.stopPropagation();
     this.startDate = new Date(Date.now() - defaultNewTimeMs);
+  }
+
+  block() {
+    const bulletPoints = this.getSelectionAsBulletPoints();
+
+    let data: ConfirmDialogData;
+    if (bulletPoints.length > 0) {
+      const block = async (block: boolean) => {
+        try {
+          await this.domainsService.block(
+            this.selection.selected.map((s) => s._id),
+            block
+          );
+          this.selection.clear();
+          this.toastr.success(
+            block
+              ? $localize`:Domains blocked|Blocked a domain:Domains blocked successfully`
+              : $localize`:Domains unblocked|Unblocked a domain:Domains unblocked successfully`
+          );
+          this.currentPage$.next(this.currentPage);
+          this.dialog.closeAll();
+        } catch {
+          this.toastr.error($localize`:Error blocking|Error while blocking a domain:Error blocking domains`);
+        }
+      };
+
+      data = {
+        text: $localize`:Confirm block domains|Confirmation message asking if the user wants to block the selected domains:Do you wish to block or unblock these domains?`,
+        title: $localize`:Blocking domains|Title of a page to block selected domains:Blocking domains`,
+        primaryButtonText: $localize`:Unblock|Unblock an item:Unblock`,
+        dangerButtonText: $localize`:Block|Block an item:Block`,
+        listElements: bulletPoints,
+        enableCancelButton: true,
+        onPrimaryButtonClick: async () => {
+          await block(false);
+        },
+        onDangerButtonClick: async () => {
+          await block(true);
+        },
+      };
+    } else {
+      data = {
+        text: $localize`:Select domains again|No domains were selected so there is nothing to delete:Select the domains to block and try again.`,
+        title: $localize`:Nothing to block|Tried to block something, but there was nothing to delete:Nothing to block`,
+        primaryButtonText: $localize`:Ok|Accept or confirm:Ok`,
+        onPrimaryButtonClick: () => {
+          this.dialog.closeAll();
+        },
+      };
+    }
+    this.dialog.open(ConfirmDialogComponent, {
+      data,
+      restoreFocus: false,
+    });
   }
 }

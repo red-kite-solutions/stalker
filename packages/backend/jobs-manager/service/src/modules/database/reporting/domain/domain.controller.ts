@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Put,
   Query,
@@ -19,6 +20,7 @@ import { Roles } from '../../../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../auth/guards/role.guard';
 import {
+  BatchEditDomainsDto,
   DeleteDomainsDto,
   DomainsPagingDto,
   EditDomainDto,
@@ -62,6 +64,13 @@ export class DomainsController {
       tagDto.tagId,
       tagDto.isTagged,
     );
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User)
+  @Patch()
+  async batchEdit(@Body() dto: BatchEditDomainsDto) {
+    return await this.domainsService.batchEdit(dto);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

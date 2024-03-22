@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Put,
   Query,
   UseGuards,
@@ -16,7 +17,7 @@ import { Role } from '../../../auth/constants';
 import { Roles } from '../../../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../auth/guards/role.guard';
-import { DeleteManyPortsDto, GetPortsDto } from './port.dto';
+import { BatchEditPortsDto, DeleteManyPortsDto, GetPortsDto } from './port.dto';
 import { Port, PortDocument } from './port.model';
 import { PortService } from './port.service';
 
@@ -71,5 +72,12 @@ export class PortController {
   @Delete(':id')
   async deletePort(@Param() idDto: MongoIdDto) {
     return await this.portsService.delete(idDto.id);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User)
+  @Patch()
+  async batchEdit(@Body() dto: BatchEditPortsDto) {
+    return await this.portsService.batchEdit(dto);
   }
 }

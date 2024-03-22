@@ -40,6 +40,12 @@ export class Host {
 
   @Prop()
   public lastSeen: number;
+
+  @Prop()
+  blocked?: boolean;
+
+  @Prop()
+  blockedAt?: number;
 }
 
 export const HostSchema = SchemaFactory.createForClass(Host);

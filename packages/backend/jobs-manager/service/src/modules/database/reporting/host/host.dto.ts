@@ -2,6 +2,8 @@
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
+  IsBooleanString,
   IsIP,
   IsInt,
   IsMongoId,
@@ -49,6 +51,10 @@ export class HostsFilterDto {
   @IsInt()
   @Type(() => Number)
   firstSeenEndDate: number;
+
+  @IsOptional()
+  @IsBooleanString()
+  blocked: 'true' | 'false';
 }
 
 export class DeleteHostsDto {
@@ -65,4 +71,14 @@ export class SubmitHostsDto {
 
   @IsMongoId()
   projectId: string;
+}
+
+export class BatchEditHostsDto {
+  @IsArray()
+  @IsMongoId({ each: true })
+  hostIds: string[];
+
+  @IsOptional()
+  @IsBoolean()
+  block: boolean;
 }

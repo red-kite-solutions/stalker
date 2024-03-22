@@ -1,6 +1,8 @@
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
+  IsBooleanString,
   IsFQDN,
   IsInt,
   IsMongoId,
@@ -49,6 +51,10 @@ export class DomainsPagingDto {
   @IsInt()
   @Type(() => Number)
   firstSeenEndDate: number;
+
+  @IsOptional()
+  @IsBooleanString()
+  blocked: 'true' | 'false';
 }
 
 export class EditDomainDto {
@@ -70,4 +76,14 @@ export class SubmitDomainsDto {
 
   @IsMongoId()
   projectId: string;
+}
+
+export class BatchEditDomainsDto {
+  @IsArray()
+  @IsMongoId({ each: true })
+  domainIds: Types.ObjectId[];
+
+  @IsOptional()
+  @IsBoolean()
+  block: boolean;
 }
