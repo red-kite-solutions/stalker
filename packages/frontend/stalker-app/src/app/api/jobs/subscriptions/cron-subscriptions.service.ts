@@ -82,6 +82,10 @@ export class CronSubscriptionsService implements GenericSubscriptionService<Cron
     await firstValueFrom(this.http.patch(`${environment.fmUrl}/cron-subscriptions/${id}?revert=true`, {}));
   }
 
+  public async updateIsEnabled(id: string, isEnabled: boolean) {
+    await firstValueFrom(this.http.patch(`${environment.fmUrl}/cron-subscriptions/${id}?isEnabled=${isEnabled}`, {}));
+  }
+
   private toCronSubscriptionModel(data: any): CronSubscription {
     const sub: CronSubscription = {
       type: cronSubscriptionKey,

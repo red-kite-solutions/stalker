@@ -27,5 +27,9 @@ export class PatchSubscriptionDto {
   @Equals(true)
   @IsBoolean()
   @Type(() => Boolean)
-  revert: boolean;
+  revert?: boolean;
+
+  @IsBoolean()
+  @Type(() => Boolean)
+  isEnabled?: boolean;
 }

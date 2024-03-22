@@ -53,13 +53,23 @@ export class CronSubscriptionsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
   @Patch(':id')
-  async revertSubscription(
+  async patch(
     @Param() idDto: MongoIdDto,
     @Query() queryParams: PatchSubscriptionDto,
-  ): Promise<UpdateResult> {
-    if (queryParams.revert)
-      return await this.subscriptionsService.revertToDefaults(idDto.id);
-    else throw new HttpBadRequestException();
+  ): Promise<void> {
+    if (queryParams == null) throw new HttpBadRequestException();
+
+    const { revert, isEnabled } = queryParams;
+    if (isEnabled == null && revert == null)
+      throw new HttpBadRequestException();
+
+    if (revert) {
+      await this.subscriptionsService.revertToDefaults(idDto.id);
+    }
+
+    if (isEnabled != null) {
+      await this.subscriptionsService.updateEnabled(idDto.id, isEnabled);
+    }
   }
 
   @UseGuards(CronApiTokenGuard)

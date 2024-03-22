@@ -24,6 +24,7 @@ export class EventSubscriptionsService {
   public async create(dto: EventSubscriptionDto) {
     const sub: EventSubscription = {
       projectId: dto.projectId ? new Types.ObjectId(dto.projectId) : null,
+      isEnabled: true,
       name: dto.name,
       finding: dto.finding,
       jobName: dto.jobName,
@@ -32,6 +33,17 @@ export class EventSubscriptionsService {
       cooldown: dto.cooldown,
     };
     return await this.subscriptionModel.create(sub);
+  }
+
+  public async updateEnabled(id: string, enabled: boolean) {
+    const subUpdate: Partial<EventSubscription> = {
+      isEnabled: enabled,
+    };
+
+    return await this.subscriptionModel.updateOne<EventSubscription>(
+      { _id: { $eq: new Types.ObjectId(id) } },
+      subUpdate,
+    );
   }
 
   public async get(id: string) {

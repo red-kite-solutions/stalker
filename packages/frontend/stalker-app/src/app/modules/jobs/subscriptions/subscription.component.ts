@@ -303,6 +303,27 @@ export class SubscriptionComponent implements OnInit, OnDestroy, HasUnsavedChang
       restoreFocus: false,
     });
   }
+
+  public async updateEnabled(isEnabled: boolean) {
+    try {
+      const id = await firstValueFrom(this.id$);
+      const type = await firstValueFrom(this.type$);
+      if (id == null) throw new Error('Id is null.');
+
+      await this.subscriptionService.updateIsEnabled(type, id, isEnabled);
+
+      const message = isEnabled
+        ? $localize`:Subscription enabled|The subscription has been enabled:Subscription successfully enabled`
+        : $localize`:Subscription disabled|The subscription has been disabled:Subscription successfully disabled`;
+
+      this.toastr.success(message);
+      this.dialog.closeAll();
+    } catch (err) {
+      const errorDeleting = $localize`:Error while toggling subscription state|Error while toggling subscription state:Error while toggling subscription state`;
+      this.toastr.error(errorDeleting);
+    }
+  }
+
   public async revertToOriginal() {
     const data: ConfirmDialogData = {
       text: $localize`:Confirm revert to original|Confirmation message asking if the user really wants to revert the subscription to the original configuraton:Do you really wish to revert this subscription to its original configuration?`,

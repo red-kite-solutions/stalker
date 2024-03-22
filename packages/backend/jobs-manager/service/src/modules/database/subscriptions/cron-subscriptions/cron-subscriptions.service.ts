@@ -56,6 +56,7 @@ export class CronSubscriptionsService {
   public async create(dto: CronSubscriptionDto) {
     const sub: CronSubscription = {
       projectId: dto.projectId ? new Types.ObjectId(dto.projectId) : null,
+      isEnabled: true,
       name: dto.name,
       input: dto.input ? dto.input : null,
       cronExpression: dto.cronExpression,
@@ -64,6 +65,17 @@ export class CronSubscriptionsService {
       conditions: dto.conditions,
     };
     return await this.subscriptionModel.create(sub);
+  }
+
+  public async updateEnabled(id: string, enabled: boolean) {
+    const subUpdate: Partial<CronSubscription> = {
+      isEnabled: enabled,
+    };
+
+    return await this.subscriptionModel.updateOne<CronSubscription>(
+      { _id: { $eq: new Types.ObjectId(id) } },
+      subUpdate,
+    );
   }
 
   public async getAll() {
@@ -313,7 +325,13 @@ export class CronSubscriptionsService {
     finding: Finding,
     projectId: string,
   ) {
-    if (!SubscriptionsUtils.shouldExecuteFromFinding(sub.conditions, finding))
+    if (
+      !SubscriptionsUtils.shouldExecuteFromFinding(
+        sub.isEnabled,
+        sub.conditions,
+        finding,
+      )
+    )
       return;
 
     const parametersCopy: JobParameter[] = JSON.parse(

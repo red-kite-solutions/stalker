@@ -17,6 +17,7 @@ import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, debounceTime, map, shareReplay, switchMap, tap } from 'rxjs';
 import { SubscriptionService } from 'src/app/api/jobs/subscriptions/subscriptions.service';
 import { AvatarComponent } from 'src/app/shared/components/avatar/avatar.component';
+import { SharedModule } from 'src/app/shared/shared.module';
 import {
   CronSubscription,
   EventSubscription,
@@ -50,6 +51,7 @@ import { subscriptionTypes } from './subscription-templates';
     FilteredPaginatedTableComponent,
     MatDialogModule,
     MatTooltipModule,
+    SharedModule,
   ],
 })
 export class ListSubscriptionsComponent {

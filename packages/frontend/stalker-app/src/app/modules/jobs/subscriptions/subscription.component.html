@@ -63,6 +63,16 @@
               </button>
             }
 
+            @if ((subscription$ | async)?.enabled === false) {
+              <button mat-stroked-button color="primary" class="tw-w-full" (click)="updateEnabled(true)">
+                <label i18n="Enable|Enables a subscription">Enable</label>
+              </button>
+            } @else {
+              <button mat-stroked-button color="primary" class="tw-w-full" (click)="updateEnabled(false)">
+                <label i18n="Disable|Disables a subscription">Disable</label>
+              </button>
+            }
+
             <button mat-stroked-button color="warn" class="tw-w-full" (click)="deleteSubscription()">
               <label i18n="Delete|Delete an item">Delete</label>
             </button>

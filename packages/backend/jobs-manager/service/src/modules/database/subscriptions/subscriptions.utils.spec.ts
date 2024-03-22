@@ -51,6 +51,36 @@ describe('Findings Handler Base', () => {
     await moduleFixture.close();
   });
 
+  describe('Enabled flag', () => {
+    it.each([
+      [true, true],
+      [true, undefined],
+      [false, false],
+    ])(
+      'Should return %s when enabled is %s',
+      (expected: boolean, isEnabled: boolean) => {
+        // Arrange
+        const hnFinding = new HostnameFinding();
+        hnFinding.domainName = 'stalker.is';
+        const hnCommand = new HostnameCommand(
+          '',
+          HostnameCommand.name,
+          hnFinding,
+        );
+
+        // Act
+        const shouldExecute = SubscriptionsUtils.shouldExecute(
+          isEnabled,
+          [],
+          hnCommand,
+        );
+
+        // Assert
+        expect(shouldExecute).toBe(expected);
+      },
+    );
+  });
+
   describe('Validate conditions for execution', () => {
     it.each([
       [
@@ -184,6 +214,7 @@ describe('Findings Handler Base', () => {
 
         // Act
         const shouldExecute = SubscriptionsUtils.shouldExecute(
+          true,
           conditions,
           hnCommand,
         );
@@ -226,6 +257,7 @@ describe('Findings Handler Base', () => {
 
         // Act
         const shouldExecute = SubscriptionsUtils.shouldExecute(
+          true,
           conditions,
           customFindingCommand,
         );
@@ -371,7 +403,11 @@ describe('Findings Handler Base', () => {
 
         // Act
         for (const c of conditions) {
-          shouldExecute = SubscriptionsUtils.shouldExecute([c], hnCommand);
+          shouldExecute = SubscriptionsUtils.shouldExecute(
+            true,
+            [c],
+            hnCommand,
+          );
           if (shouldExecute) {
             atLeastOneError = true;
             console.log(

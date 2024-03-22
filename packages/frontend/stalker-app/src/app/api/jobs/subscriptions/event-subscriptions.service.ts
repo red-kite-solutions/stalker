@@ -83,6 +83,10 @@ export class EventSubscriptionsService implements GenericSubscriptionService<Eve
     await firstValueFrom(this.http.patch(`${environment.fmUrl}/event-subscriptions/${id}?revert=true`, {}));
   }
 
+  public async updateIsEnabled(id: string, isEnabled: boolean) {
+    await firstValueFrom(this.http.patch(`${environment.fmUrl}/event-subscriptions/${id}?isEnabled=${isEnabled}`, {}));
+  }
+
   private toEventSubscriptionModel(data: any): EventSubscription {
     const sub: EventSubscription = {
       type: eventSubscriptionKey,

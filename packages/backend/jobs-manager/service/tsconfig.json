@@ -7,7 +7,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "ESNext",
+    "target": "ES5",
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
