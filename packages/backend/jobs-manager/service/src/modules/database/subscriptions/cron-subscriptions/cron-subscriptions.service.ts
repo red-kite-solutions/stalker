@@ -178,15 +178,16 @@ export class CronSubscriptionsService {
     const filter = {
       projectId: new Types.ObjectId(projectId),
       createdAt: { $lte: now },
+      blocked: { $ne: true },
     };
     const tcpPortFilter: FilterQuery<Port> = {
-      'host.id': { $eq: '' },
+      projectId: new Types.ObjectId(projectId),
       layer4Protocol: 'tcp',
       createdAt: { $lte: now },
+      blocked: { $ne: true },
     };
 
     let page = 0;
-    let hosts: Pick<HostDocument, '_id' | 'ip'>[];
     switch (sub.input) {
       case 'ALL_DOMAINS':
         let domains: Pick<Domain, 'name'>[];
@@ -201,6 +202,7 @@ export class CronSubscriptionsService {
         } while (domains.length >= pageSize);
         break;
       case 'ALL_HOSTS':
+        let hosts: Pick<HostDocument, '_id' | 'ip'>[];
         do {
           hosts = await this.hostsService.getIps(page, pageSize, filter);
           this.publishJobsFromHostsPage(sub, hosts, projectId);
@@ -208,24 +210,16 @@ export class CronSubscriptionsService {
         } while (hosts.length >= pageSize);
         break;
       case 'ALL_TCP_PORTS':
+        let ports: Pick<Port, 'port' | 'layer4Protocol' | 'host'>[];
         do {
-          let ports: Pick<Port, 'port' | 'layer4Protocol'>[];
-          hosts = await this.hostsService.getIps(page, pageSize, filter);
-          for (const host of hosts) {
-            let portPage = 0;
-            do {
-              tcpPortFilter['host.id'] = { $eq: host._id };
-              ports = await this.portsService.getPortNumbers(
-                portPage,
-                pageSize,
-                tcpPortFilter,
-              );
-              this.publishJobsFromPortsPage(sub, ports, host.ip, projectId);
-              portPage++;
-            } while (ports.length >= pageSize);
-          }
+          ports = await this.portsService.getPortNumbers(
+            page,
+            pageSize,
+            tcpPortFilter,
+          );
+          this.publishJobsFromPortsPage(sub, ports, projectId);
           page++;
-        } while (hosts.length >= pageSize);
+        } while (ports.length >= pageSize);
         break;
       case 'ALL_IP_RANGES':
         const ranges = await this.projectService.getIpRanges(projectId);
@@ -288,13 +282,12 @@ export class CronSubscriptionsService {
 
   private publishJobsFromPortsPage(
     sub: CronSubscription,
-    ports: Pick<Port, 'port' | 'layer4Protocol'>[],
-    ip: string,
+    ports: Pick<Port, 'port' | 'layer4Protocol' | 'host'>[],
     projectId: string,
   ) {
     for (const port of ports) {
       const finding = new PortFinding();
-      finding.ip = ip;
+      finding.ip = port.host.ip;
       finding.port = port.port;
       finding.fields = [
         {

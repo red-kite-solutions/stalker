@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
@@ -8,7 +8,18 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, combineLatest, concatMap, map, merge, scan, shareReplay, switchMap, tap } from 'rxjs';
+import {
+  BehaviorSubject,
+  combineLatest,
+  concatMap,
+  firstValueFrom,
+  map,
+  merge,
+  scan,
+  shareReplay,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { DomainsService } from 'src/app/api/domains/domains.service';
 import { ProjectsService } from 'src/app/api/projects/projects.service';
 import { TagsService } from 'src/app/api/tags/tags.service';
@@ -86,6 +97,7 @@ export class ViewDomainComponent implements OnDestroy {
   );
 
   public domainId = '';
+  public domain!: Domain;
   public domainTagsCache: string[] = [];
   public domain$ = this.route.params.pipe(
     switchMap((params) => {
@@ -95,6 +107,7 @@ export class ViewDomainComponent implements OnDestroy {
     tap((domain: Domain) => {
       this.titleService.setTitle($localize`:Domain page title|:Domains · ${domain.name}`);
       this.domainTagsCache = domain.tags;
+      this.domain = domain;
     }),
     shareReplay(1)
   );
@@ -234,6 +247,46 @@ export class ViewDomainComponent implements OnDestroy {
     });
   }
 
+  public blockDomain(block: boolean) {
+    const errorBlocking = $localize`:Error while blocking|Error while blocking an item:Error while blocking`;
+    if (!this.domainId) {
+      this.toastr.error(errorBlocking);
+    }
+
+    let data = {
+      text: block
+        ? $localize`:Confirm block domain|Confirmation message asking if the user wants to block the domain:Do you really wish to block this domain?`
+        : $localize`:Confirm unblock domain|Confirmation message asking if the user wants to unblock the domain:Do you really wish to unblock this domain?`,
+      title: block
+        ? $localize`:Blocking domain|Title of a page to block a domain:Blocking domain`
+        : $localize`:Unblocking domain|Title of a page to unblock a domain:Unblocking domain`,
+      primaryButtonText: block ? $localize`:Block|Block an item:Block` : $localize`:Unblock|Unblock an item:Unblock`,
+      enableCancelButton: true,
+      onPrimaryButtonClick: async () => {
+        try {
+          await this.domainsService.block([this.domainId], block);
+          this.toastr.success(
+            block
+              ? $localize`:Domain blocked|Blocked a domain:Domain blocked successfully`
+              : $localize`:Domain unblocked|Unblocked a domain:Domain unblocked successfully`
+          );
+          const d = await firstValueFrom(this.domainsService.get(this.domainId));
+          this.domain.blocked = d.blocked;
+          this.domain.blockedAt = d.blockedAt;
+          this.cdr.markForCheck();
+          this.dialog.closeAll();
+        } catch {
+          this.toastr.error(errorBlocking);
+        }
+      },
+    };
+
+    this.dialog.open(ConfirmDialogComponent, {
+      data,
+      restoreFocus: false,
+    });
+  }
+
   constructor(
     private route: ActivatedRoute,
     private domainsService: DomainsService,
@@ -243,6 +296,7 @@ export class ViewDomainComponent implements OnDestroy {
     private toastr: ToastrService,
     private portsService: PortsService,
     private router: Router,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private cdr: ChangeDetectorRef
   ) {}
 }

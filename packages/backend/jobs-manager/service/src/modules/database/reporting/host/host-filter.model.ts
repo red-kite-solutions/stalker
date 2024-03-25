@@ -10,4 +10,5 @@ export class HostFilterModel {
   host?: Array<string>;
   firstSeenStartDate?: number;
   firstSeenEndDate?: number;
+  blocked?: 'true' | 'false';
 }

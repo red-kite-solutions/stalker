@@ -14,4 +14,6 @@ export interface Port extends PortNumber {
   lastSeen: number;
   createdAt: number;
   updatedAt: number;
+  blocked: boolean;
+  blockedAt: number;
 }

@@ -24,4 +24,8 @@
       {{ data.dangerButtonText }}
     </app-spinner-button>
   }
+
+  @if (data.enableCancelButton) {
+    <app-spinner-button i18n="Cancel|Cancel action" (click)="cancel()"> Cancel </app-spinner-button>
+  }
 </div>

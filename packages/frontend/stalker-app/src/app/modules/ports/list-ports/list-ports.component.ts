@@ -59,12 +59,12 @@ import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.c
 export class ListPortsComponent {
   dataLoading = true;
   displayedColumns: string[] = ['select', 'port', 'ip', 'project', 'tags'];
-  filterOptions: string[] = ['host', 'port', 'project', 'tags'];
+  filterOptions: string[] = ['host', 'port', 'project', 'tags', 'is'];
   public readonly noDataMessage = $localize`:No port found|No port was found:No port found`;
 
   dataSource = new MatTableDataSource<Port>();
   currentPage: PageEvent = this.generateFirstPageEvent();
-  currentFilters: string[] = [];
+  currentFilters: string[] = ['-is: blocked'];
   currentPage$ = new BehaviorSubject<PageEvent>(this.currentPage);
   count = 0;
   selection = new SelectionModel<Port>(true, []);
@@ -163,11 +163,13 @@ export class ListPortsComponent {
 
   buildFilters(stringFilters: string[]): any {
     const SEPARATOR = ':';
+    const NEGATING_CHAR = '-';
     const filterObject: any = {};
     const tags = [];
     const ports = [];
     const hosts = [];
     const projects = [];
+    let blocked: boolean | null = null;
 
     for (const filter of stringFilters) {
       if (filter.indexOf(SEPARATOR) === -1) continue;
@@ -176,8 +178,10 @@ export class ListPortsComponent {
 
       if (keyValuePair.length !== 2) continue;
 
-      const key = keyValuePair[0].trim().toLowerCase();
+      let key = keyValuePair[0].trim().toLowerCase();
       const value = keyValuePair[1].trim().toLowerCase();
+      const negated = key.length > 0 && key[0] === NEGATING_CHAR;
+      if (negated) key = key.substring(1);
 
       if (!key || !value) continue;
 
@@ -204,22 +208,36 @@ export class ListPortsComponent {
         case 'port':
           ports.push(value);
           break;
+        case 'is':
+          switch (value) {
+            case 'blocked':
+              blocked = !negated;
+              break;
+          }
+          break;
       }
     }
     if (tags?.length) filterObject['tags'] = tags;
     if (ports?.length) filterObject['ports'] = ports;
     if (hosts?.length) filterObject['host'] = hosts;
     if (projects?.length) filterObject['project'] = projects;
+    if (blocked !== null) filterObject['blocked'] = blocked;
     return filterObject;
   }
 
-  public deletePorts() {
+  private getSelectionAsBulletPoints() {
     const bulletPoints: string[] = Array<string>();
     this.selection.selected.forEach((port: Port) => {
       const projectName = this.projects.find((p) => p._id === port.projectId)?.name;
       const bp = projectName ? `${port.host.ip}:${port.port} (${projectName})` : `${port.host.ip}:${port.port}`;
       bulletPoints.push(bp);
     });
+    return bulletPoints;
+  }
+
+  public deletePorts() {
+    const bulletPoints = this.getSelectionAsBulletPoints();
+
     let data: ConfirmDialogData;
     if (bulletPoints.length > 0) {
       data = {
@@ -266,5 +284,59 @@ export class ListPortsComponent {
 
   routerLinkBuilder(row: Port): string[] {
     return ['/hosts', row.host.id, 'ports', row.port.toString()];
+  }
+
+  block() {
+    const bulletPoints = this.getSelectionAsBulletPoints();
+
+    let data: ConfirmDialogData;
+    if (bulletPoints.length > 0) {
+      const block = async (block: boolean) => {
+        try {
+          await this.portsService.block(
+            this.selection.selected.map((s) => s._id),
+            block
+          );
+          this.selection.clear();
+          this.toastr.success(
+            block
+              ? $localize`:Ports blocked|Blocked a port:Ports blocked successfully`
+              : $localize`:Ports unblocked|Unblocked a port:Ports unblocked successfully`
+          );
+          this.currentPage$.next(this.currentPage);
+          this.dialog.closeAll();
+        } catch {
+          this.toastr.error($localize`:Error blocking|Error while blocking a port:Error blocking ports`);
+        }
+      };
+
+      data = {
+        text: $localize`:Confirm block ports|Confirmation message asking if the user wants to block the selected ports:Do you wish to block or unblock these ports?`,
+        title: $localize`:Blocking ports|Title of a page to block selected ports:Blocking ports`,
+        primaryButtonText: $localize`:Unblock|Unblock an item:Unblock`,
+        dangerButtonText: $localize`:Block|Block an item:Block`,
+        listElements: bulletPoints,
+        enableCancelButton: true,
+        onPrimaryButtonClick: async () => {
+          await block(false);
+        },
+        onDangerButtonClick: async () => {
+          await block(true);
+        },
+      };
+    } else {
+      data = {
+        text: $localize`:Select ports again|No ports were selected so there is nothing to delete:Select the ports to block and try again.`,
+        title: $localize`:Nothing to block|Tried to block something, but there was nothing to delete:Nothing to block`,
+        primaryButtonText: $localize`:Ok|Accept or confirm:Ok`,
+        onPrimaryButtonClick: () => {
+          this.dialog.closeAll();
+        },
+      };
+    }
+    this.dialog.open(ConfirmDialogComponent, {
+      data,
+      restoreFocus: false,
+    });
   }
 }

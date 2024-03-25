@@ -1,27 +1,10 @@
 ---
-sidebar_position: 2
+sidebar_position: 4
 title: Subscriptions
 description: What are subscriptions and how to use them
 ---
 
 # Subscriptions
-
-Subscriptions are used in Stalker to start jobs based on either a cron expression (cron subscriptions) or a finding (event subscription).
-They are used to expand Stalker's automation workflow.
-
-A subscription can belong to a project, in which case, they will only take effect on the mentionned project. If a project is not specified
-for a subscription, it will take effect on all the projects.
-
-Some subscriptions come built-in Stalker. These subscriptions are marked as such, but they can still be modified by the users. When a
-built-in subscription is altered, it can be reverted back to its original state. Built-in subscriptions can even be deleted, but be sure to
-know what you are doing.
-
-A subscription is written in `yaml` format in the front-end. The project for which to apply the subscription can also be chosen using the
-dropdown menu.
-
-> A subscription belongning to a project will be deleted automatically if the project is deleted.
-
-**Table of content**
 
 * [Cron Subscriptions](#cron-subscriptions)
   * [Cron Subscription Syntax](#cron-subscription-syntax)
@@ -33,6 +16,23 @@ dropdown menu.
     * [Event Subscription Complex Example](#event-subscription-complex-example)
   * [Findings](#findings)
   * [Conditions](#conditions)
+
+Subscriptions are used in Stalker to start jobs based on either a cron expression (cron subscriptions) or a finding (event subscription).
+They are used to expand Stalker's automation workflow.
+
+A subscription can belong to a project, in which case, they will only take effect on the mentionned project. If a project is not specified
+for a subscription, it will take effect on all the projects.
+
+Some subscriptions come built-in Stalker. These subscriptions are marked as such, but they can still be modified by the users. When a
+built-in subscription is altered, it can be reverted back to its original state. Built-in subscriptions can even be deleted, but be sure to
+know what you are doing.
+
+A susbcription, cron or event, will not trigger on a blocked resource.
+
+A subscription is written in `yaml` format in the front-end. The project for which to apply the subscription can also be chosen using the
+dropdown menu.
+
+> A subscription belongning to a project will be deleted automatically if the project is deleted.
 
 ## Cron Subscriptions
 

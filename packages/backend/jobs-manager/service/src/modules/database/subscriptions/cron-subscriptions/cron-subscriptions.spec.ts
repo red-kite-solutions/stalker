@@ -607,6 +607,41 @@ describe('Cron Subscriptions Service', () => {
       expect(spy).not.toHaveBeenCalled();
     });
 
+    it('Should not publish a job from input ALL_DOMAINS (blocked domain)', async () => {
+      // Arrange
+      const c = await project('Test project');
+      allDomainsCronSub.projectId = c._id;
+      allDomainsCronSub.jobParameters = [
+        {
+          name: 'domainName',
+          value: '${domainName}',
+        },
+        {
+          name: 'projectId',
+          value: c._id.toString(),
+        },
+      ];
+
+      const d1 = await domain('asdf.example.com', c._id.toString(), true);
+
+      const spy = jest //@ts-expect-error
+        .spyOn(subscriptionsService, 'publishJob') //@ts-expect-error
+        .mockImplementation(() => {});
+
+      // Act
+      //@ts-expect-error
+      await subscriptionsService.publishJobsFromInput(
+        <CronSubscription>{
+          ...allDomainsCronSub,
+          name: 'randomname',
+        },
+        c._id.toString(),
+      );
+
+      // Assert
+      expect(spy).not.toHaveBeenCalled();
+    });
+
     // ALL_HOSTS
     const tcpPortScanningJobParams: JobParameter[] = [
       {
@@ -1071,6 +1106,37 @@ describe('Cron Subscriptions Service', () => {
       expect(spy).toHaveBeenCalled();
     });
 
+    it('Should not publish job from input ALL_HOSTS (blocked host)', async () => {
+      // Arrange
+      const c = await project('Test project');
+      allHostsCronSub.projectId = c._id;
+      allHostsCronSub.jobParameters = tcpPortScanningJobParams.concat([
+        {
+          name: 'projectId',
+          value: c._id.toString(),
+        },
+        { name: 'targetIp', value: '${ip}' },
+      ]);
+
+      const h1 = await host('1.1.1.1', c._id.toString(), true);
+
+      const spy = jest //@ts-expect-error
+        .spyOn(subscriptionsService, 'publishJob') //@ts-expect-error
+        .mockImplementation(() => {});
+
+      // Act
+      //@ts-expect-error
+      await subscriptionsService.publishJobsFromInput(
+        <CronSubscription>{
+          ...allHostsCronSub,
+        },
+        c._id.toString(),
+      );
+
+      // Assert
+      expect(spy).not.toHaveBeenCalled();
+    });
+
     // ALL_TCP_PORTS
     const allTcpPortsCronSub: Partial<CronSubscription> = {
       name: 'test subscription all tcp ports',
@@ -1349,6 +1415,35 @@ describe('Cron Subscriptions Service', () => {
       );
     });
 
+    it('Should not publish a job from input ALL_TCP_PORTS (blocked port)', async () => {
+      // Arrange
+      const c = await project('Test project');
+      allTcpPortsCronSub.projectId = c._id;
+      allTcpPortsCronSub.jobParameters = [
+        { name: 'projectId', value: c._id.toString() },
+        { name: 'targetIp', value: '${ip}' },
+        { name: 'ports', value: ['${port}'] },
+        { name: 'protocol', value: '${protocol}' },
+      ];
+
+      const h1 = await host('1.1.1.1', c._id.toString());
+      const p1 = await port(80, h1[0]._id.toString(), c._id.toString(), true);
+
+      const spy = jest //@ts-expect-error
+        .spyOn(subscriptionsService, 'publishJob') //@ts-expect-error
+        .mockImplementation(() => {});
+
+      // Act
+      //@ts-expect-error
+      await subscriptionsService.publishJobsFromInput(
+        <CronSubscription>allTcpPortsCronSub,
+        c._id.toString(),
+      );
+
+      // Assert
+      expect(spy).not.toHaveBeenCalled();
+    });
+
     // ALL_IP_RANGES
     const ipRangeScanCronSub: Partial<CronSubscription> = {
       name: 'test subscription scan ranges',
@@ -1619,15 +1714,48 @@ describe('Cron Subscriptions Service', () => {
     return await subscriptionsService.create(subscription);
   }
 
-  async function domain(name: string, projectId: string) {
-    return await domainsService.addDomains([name], projectId);
+  async function domain(
+    name: string,
+    projectId: string,
+    blocked: boolean = false,
+  ) {
+    const d = await domainsService.addDomains([name], projectId);
+    if (blocked) {
+      await domainsService.batchEdit({
+        domainIds: [d[0]._id.toString()],
+        block: true,
+      });
+      d[0].blocked = true;
+    }
+    return d;
   }
 
-  async function host(ip: string, projectId: string) {
-    return await hostsService.addHosts([ip], projectId);
+  async function host(ip: string, projectId: string, blocked: boolean = false) {
+    const h = await hostsService.addHosts([ip], projectId);
+    if (blocked) {
+      await hostsService.batchEdit({
+        hostIds: [h[0]._id.toString()],
+        block: true,
+      });
+      h[0].blocked = true;
+    }
+    return h;
   }
 
-  async function port(port: number, hostId: string, projectId: string) {
-    return await portsService.addPort(hostId, projectId, port, 'tcp');
+  async function port(
+    port: number,
+    hostId: string,
+    projectId: string,
+    blocked: boolean = false,
+  ) {
+    const p = await portsService.addPort(hostId, projectId, port, 'tcp');
+    if (blocked) {
+      await portsService.batchEdit({
+        portIds: [p._id.toString()],
+        block: true,
+      });
+      p.blocked = true;
+    }
+    return p;
   }
 });

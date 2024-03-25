@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Put,
   Query,
@@ -17,7 +18,12 @@ import { Role } from '../../../auth/constants';
 import { Roles } from '../../../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../auth/guards/role.guard';
-import { DeleteHostsDto, HostsFilterDto, SubmitHostsDto } from './host.dto';
+import {
+  BatchEditHostsDto,
+  DeleteHostsDto,
+  HostsFilterDto,
+  SubmitHostsDto,
+} from './host.dto';
 import { HostDocument } from './host.model';
 import { HostService } from './host.service';
 
@@ -30,6 +36,13 @@ export class HostController {
   @Post('')
   async submitHosts(@Body() dto: SubmitHostsDto) {
     return await this.hostsService.addHosts(dto.ips, dto.projectId);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User)
+  @Patch()
+  async batchEdit(@Body() dto: BatchEditHostsDto) {
+    return await this.hostsService.batchEdit(dto);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

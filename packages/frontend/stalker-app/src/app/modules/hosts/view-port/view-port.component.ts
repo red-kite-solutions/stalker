@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -22,6 +22,7 @@ import {
   Subject,
   combineLatest,
   concatMap,
+  firstValueFrom,
   map,
   merge,
   scan,
@@ -128,6 +129,7 @@ export class ViewPortComponent implements OnDestroy {
     })
   );
   public portNumber$ = this.route.params.pipe(map((params) => params['port'] as string));
+  public port!: Port;
 
   public host$ = this.hostId$.pipe(switchMap((hostId) => this.hostsService.get(hostId)));
 
@@ -171,7 +173,8 @@ export class ViewPortComponent implements OnDestroy {
       }
       throw new Error('Error getting the port');
     }),
-    shareReplay(1)
+    shareReplay(1),
+    tap((p: Port) => (this.port = p))
   );
 
   public portTagsCache: string[] = [];
@@ -276,6 +279,46 @@ export class ViewPortComponent implements OnDestroy {
     });
   }
 
+  public blockPort(block: boolean) {
+    const errorBlocking = $localize`:Error while blocking|Error while blocking an item:Error while blocking`;
+    if (!this.portId) {
+      this.toastr.error(errorBlocking);
+    }
+
+    let data = {
+      text: block
+        ? $localize`:Confirm block port|Confirmation message asking if the user wants to block the port:Do you really wish to block this port?`
+        : $localize`:Confirm unblock port|Confirmation message asking if the user wants to unblock the port:Do you really wish to unblock this port?`,
+      title: block
+        ? $localize`:Blocking port|Title of a page to block a port:Blocking port`
+        : $localize`:Unblocking port|Title of a page to unblock a port:Unblocking port`,
+      primaryButtonText: block ? $localize`:Block|Block an item:Block` : $localize`:Unblock|Unblock an item:Unblock`,
+      enableCancelButton: true,
+      onPrimaryButtonClick: async () => {
+        try {
+          await this.portsService.block([this.portId], block);
+          this.toastr.success(
+            block
+              ? $localize`:Port blocked|Blocked a port:Port blocked successfully`
+              : $localize`:Port unblocked|Unblocked a port:Port unblocked successfully`
+          );
+          const p = await firstValueFrom(this.portsService.getPort(this.portId));
+          this.port.blocked = p.blocked;
+          this.port.blockedAt = p.blockedAt;
+          this.cdr.markForCheck();
+          this.dialog.closeAll();
+        } catch {
+          this.toastr.error(errorBlocking);
+        }
+      },
+    };
+
+    this.dialog.open(ConfirmDialogComponent, {
+      data,
+      restoreFocus: false,
+    });
+  }
+
   constructor(
     private route: ActivatedRoute,
     private projectsService: ProjectsService,
@@ -285,6 +328,7 @@ export class ViewPortComponent implements OnDestroy {
     private portsService: PortsService,
     private toastr: ToastrService,
     private router: Router,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private cdr: ChangeDetectorRef
   ) {}
 }

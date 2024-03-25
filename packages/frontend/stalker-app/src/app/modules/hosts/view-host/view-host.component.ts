@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -22,6 +22,7 @@ import {
   Subject,
   combineLatest,
   concatMap,
+  firstValueFrom,
   map,
   merge,
   scan,
@@ -42,6 +43,7 @@ import { PortsService } from '../../../api/ports/ports.service';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PanelSectionModule } from '../../../shared/components/panel-section/panel-section.module';
 import { SharedModule } from '../../../shared/shared.module';
+import { Host } from '../../../shared/types/host/host.interface';
 import { Page } from '../../../shared/types/page.type';
 import {
   ConfirmDialogComponent,
@@ -123,14 +125,17 @@ export class ViewHostComponent implements OnDestroy {
 
   public hostId$ = this.route.params.pipe(map((params) => params['id'] as string));
   public hostId = '';
+  public host!: Host;
 
   public hostTagsCache: string[] = [];
+
   public host$ = this.hostId$.pipe(
     switchMap((hostId) => {
       this.hostId = hostId;
       return this.hostsService.get(hostId);
     }),
     tap((host) => {
+      this.host = host;
       this.titleService.setTitle($localize`:Hosts page title|:Hosts · ${host.ip}`);
       this.hostTagsCache = host.tags;
     })
@@ -263,6 +268,46 @@ export class ViewHostComponent implements OnDestroy {
     });
   }
 
+  public blockHost(block: boolean) {
+    const errorBlocking = $localize`:Error while blocking|Error while blocking an item:Error while blocking`;
+    if (!this.hostId) {
+      this.toastr.error(errorBlocking);
+    }
+
+    let data = {
+      text: block
+        ? $localize`:Confirm block host|Confirmation message asking if the user wants to block the host:Do you really wish to block this host?`
+        : $localize`:Confirm unblock host|Confirmation message asking if the user wants to unblock the host:Do you really wish to unblock this host?`,
+      title: block
+        ? $localize`:Blocking host|Title of a page to block a host:Blocking host`
+        : $localize`:Unblocking host|Title of a page to unblock a host:Unblocking host`,
+      primaryButtonText: block ? $localize`:Block|Block an item:Block` : $localize`:Unblock|Unblock an item:Unblock`,
+      enableCancelButton: true,
+      onPrimaryButtonClick: async () => {
+        try {
+          await this.hostsService.block([this.hostId], block);
+          this.toastr.success(
+            block
+              ? $localize`:Host blocked|Blocked a host:Host blocked successfully`
+              : $localize`:Host unblocked|Unblocked a host:Host unblocked successfully`
+          );
+          const h = await firstValueFrom(this.hostsService.get(this.hostId));
+          this.host.blocked = h.blocked;
+          this.host.blockedAt = h.blockedAt;
+          this.cdr.markForCheck();
+          this.dialog.closeAll();
+        } catch {
+          this.toastr.error(errorBlocking);
+        }
+      },
+    };
+
+    this.dialog.open(ConfirmDialogComponent, {
+      data,
+      restoreFocus: false,
+    });
+  }
+
   constructor(
     private route: ActivatedRoute,
     private projectsService: ProjectsService,
@@ -272,6 +317,7 @@ export class ViewHostComponent implements OnDestroy {
     private toastr: ToastrService,
     private portsService: PortsService,
     private router: Router,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private cdr: ChangeDetectorRef
   ) {}
 }

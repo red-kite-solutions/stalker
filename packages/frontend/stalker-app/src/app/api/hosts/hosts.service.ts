@@ -48,4 +48,8 @@ export class HostsService {
   public async deleteMany(hostIds: string[]) {
     return await firstValueFrom(this.http.delete(`${environment.fmUrl}/hosts/`, { body: { hostIds: hostIds } }));
   }
+
+  public async block(hostIds: string[], block: boolean) {
+    return await firstValueFrom(this.http.patch(`${environment.fmUrl}/hosts/`, { hostIds, block }));
+  }
 }

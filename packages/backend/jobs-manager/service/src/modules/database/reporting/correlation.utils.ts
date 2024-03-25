@@ -103,4 +103,30 @@ export class CorrelationKeyUtils {
 
     return correlationKey;
   }
+
+  /**
+   * Gets the proper service name from a correlation key
+   * @param correlationKey A valid correlation key
+   * @returns
+   */
+  public static getResourceServiceName(
+    correlationKey: string,
+  ): 'PortService' | 'DomainsService' | 'HostService' | null {
+    // Host match
+    if (correlationKey.match(/^project\:[a-f0-9]{24}\;host\:.+/)?.length > 0) {
+      // Port match
+      if (
+        correlationKey.match(/.+\;port\:\d{1,5}\;protocol:(tcp|udp)$/)?.length >
+        0
+      )
+        return 'PortService';
+      else return 'HostService';
+    }
+
+    // Domain match
+    if (correlationKey.match(/^project\:[a-f0-9]{24}\;domain\:.+$/)?.length > 0)
+      return 'DomainsService';
+
+    return null;
+  }
 }

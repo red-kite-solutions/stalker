@@ -37,6 +37,12 @@ export class Domain {
 
   @Prop()
   public lastSeen: number;
+
+  @Prop()
+  blocked?: boolean;
+
+  @Prop()
+  blockedAt?: number;
 }
 
 export const DomainSchema = SchemaFactory.createForClass(Domain);

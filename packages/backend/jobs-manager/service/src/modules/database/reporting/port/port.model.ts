@@ -42,6 +42,12 @@ export class Port {
 
   @Prop()
   public lastSeen: number;
+
+  @Prop()
+  blocked?: boolean;
+
+  @Prop()
+  blockedAt?: number;
 }
 
 export const PortSchema = SchemaFactory.createForClass(Port);

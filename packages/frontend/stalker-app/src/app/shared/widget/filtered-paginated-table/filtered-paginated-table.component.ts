@@ -118,6 +118,7 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
   @Input() filterType: 'tokens' | 'fulltext' = 'tokens';
   @Input() columns!: string[] | null;
   @Input() filterOptions!: string[] | null;
+  @Input() negatableFilterOptions = this.filterOptions;
   @Input() isLoading = false;
   @Input() length: number | null = 0;
   @Input() routerLinkPrefix = '/';
@@ -148,7 +149,7 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
     if (date) this.dateRange.get('end')?.setValue(moment(date));
   }
 
-  filters: string[] = [];
+  @Input() filters: string[] = [];
   separatorKeysCodes: number[] = [TAB, ENTER];
   filterForm = new UntypedFormControl('');
   filteredColumns$: Observable<string[] | null | undefined>;
@@ -179,8 +180,19 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
 
   private autocompleteFilter(value: string) {
     if (!value) return this.filterOptions?.filter((col) => col !== 'select');
-    const filterValue = value.toLowerCase();
-    return this.filterOptions?.filter((col) => col.toLowerCase().includes(filterValue) && col !== 'select');
+    let filterValue = value.toLowerCase();
+    const filterIsNegated = filterValue.length > 0 && filterValue[0];
+    filterValue = filterIsNegated === '-' ? filterValue.slice(1) : filterValue;
+    return this.filterOptions?.filter((col) => {
+      const columnIncludesFilter = col.toLowerCase().includes(filterValue) && col !== 'select';
+      if (filterIsNegated) {
+        return (
+          columnIncludesFilter &&
+          (!this.negatableFilterOptions || this.negatableFilterOptions.findIndex((v) => v === col) !== -1)
+        );
+      }
+      return columnIncludesFilter;
+    });
   }
 
   pageChanged(event: PageEvent) {
@@ -235,7 +247,8 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
 
   addFilter(event: MatChipInputEvent) {
     const option = this.autocomplete.options.find((x) => x.active);
-    const value = option ? option.viewValue.trim() : event.value;
+    let value = option ? option.viewValue.trim() : event.value;
+    if (event.value.length > 0 && event.value[0] === '-' && value[0] !== '-') value = '-' + value;
 
     this.addComplexFilter(value);
   }

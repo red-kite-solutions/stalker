@@ -10,6 +10,7 @@ import {
   deleteReq,
   getReq,
   initTesting,
+  patchReq,
   postReq,
   putReq,
 } from '../../../../test/e2e.utils';
@@ -144,6 +145,17 @@ describe('Port Controller (e2e)', () => {
       Role.User,
       async (givenToken) => {
         return await deleteReq(app, givenToken, `/ports/`, {});
+      },
+    );
+    expect(success).toBe(true);
+  });
+
+  it('Should have proper authorizations (PATCH /ports/)', async () => {
+    const success = await checkAuthorizations(
+      testData,
+      Role.User,
+      async (givenToken) => {
+        return await patchReq(app, givenToken, `/ports/`, {});
       },
     );
     expect(success).toBe(true);
