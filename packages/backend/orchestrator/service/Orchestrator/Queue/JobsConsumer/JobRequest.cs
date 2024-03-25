@@ -7,4 +7,7 @@ public abstract class JobRequest
     public string? JobId { get; init; }
 
     public string? ProjectId { get; init; }
+
+    public int JobPodMilliCpuLimit { get; init; }
+    public ulong JobPodMemoryKbLimit { get; init; }
 }

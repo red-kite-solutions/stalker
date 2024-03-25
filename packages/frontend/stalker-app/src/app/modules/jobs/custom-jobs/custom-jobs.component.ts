@@ -56,6 +56,7 @@ import {
   validCustomJobTypeDetails,
 } from '../../../shared/types/jobs/custom-job.type';
 import { CodeEditorComponent, CodeEditorTheme } from '../../../shared/widget/code-editor/code-editor.component';
+import { nucleiFindingHandlerTemplate } from './nuclei-finding-handler-template';
 
 @Component({
   standalone: true,
@@ -233,12 +234,15 @@ export class CustomJobsComponent implements OnInit, OnDestroy, HasUnsavedChanges
         const hasHandlerStatusChanged = oldFormValues?.findingHandlerEnabled != formValues.findingHandlerEnabled;
 
         if (hasNameChanged || hasTypeChanged || hasHandlerStatusChanged) {
-          this.initializeFileTabs({
-            name: customJobName!,
-            language: customJobLanguage!,
-            handlerEnabled: (this.typeAllowsHandler(customJobType) && findingHandlerEnabled) || false,
-            handlerLanguage: findingHandlerLanguage,
-          });
+          this.initializeFileTabs(
+            {
+              name: customJobName!,
+              language: customJobLanguage!,
+              handlerEnabled: (this.typeAllowsHandler(customJobType) && findingHandlerEnabled) || false,
+              handlerLanguage: findingHandlerLanguage,
+            },
+            hasHandlerStatusChanged
+          );
         }
       });
 
@@ -252,12 +256,15 @@ export class CustomJobsComponent implements OnInit, OnDestroy, HasUnsavedChanges
     });
   }
 
-  private initializeFileTabs(customJob: {
-    name: string;
-    language: CustomJobLanguage;
-    handlerEnabled?: boolean;
-    handlerLanguage?: CustomJobFindingHandlerLanguage | null;
-  }) {
+  private initializeFileTabs(
+    customJob: {
+      name: string;
+      language: CustomJobLanguage;
+      handlerEnabled?: boolean;
+      handlerLanguage?: CustomJobFindingHandlerLanguage | null;
+    },
+    hasHandlerStatusChanged = false
+  ) {
     const { name, language, handlerEnabled, handlerLanguage } = customJob;
 
     const currentCode = this.codeEditor.getFileTabById(this.customJobCodeTabId)?.content ?? '';
@@ -274,13 +281,10 @@ export class CustomJobsComponent implements OnInit, OnDestroy, HasUnsavedChanges
     const fileTabs: FileTab[] = [this.getFileTab(this.customJobCodeTabId, fileName, language, this.originalCode)];
 
     if (handlerEnabled) {
+      const handlerCode =
+        hasHandlerStatusChanged && !this.originalHandlerCode ? nucleiFindingHandlerTemplate : this.originalHandlerCode;
       fileTabs.push(
-        this.getFileTab(
-          this.handlerCodeTabId,
-          `${fileName}_handler`,
-          handlerLanguage ?? 'python',
-          this.originalHandlerCode
-        )
+        this.getFileTab(this.handlerCodeTabId, `${fileName}_handler`, handlerLanguage ?? 'python', handlerCode)
       );
     }
 

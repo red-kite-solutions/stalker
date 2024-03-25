@@ -11,9 +11,13 @@ spec:
     - Ingress
     - Egress
   ingress:
-    - ports:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: stalker-jobs
+      ports:
         - protocol: TCP
-          port: 5135
+          port: 80
 
   egress:
     - to:

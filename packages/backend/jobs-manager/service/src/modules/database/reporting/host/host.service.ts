@@ -83,7 +83,10 @@ export class HostService {
     projectId: string,
     tagsIds: string[] = [],
   ) {
-    const domain = await this.domainService.getDomainByName(domainName);
+    const domain = await this.domainService.getDomainByName(
+      domainName,
+      projectId,
+    );
     if (!domain) {
       this.logger.debug(`Could not find the domain (domainName=${domainName})`);
       throw new HttpNotFoundException(`domainName=${domainName})`);

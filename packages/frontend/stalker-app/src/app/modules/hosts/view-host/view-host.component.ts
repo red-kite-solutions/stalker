@@ -16,13 +16,25 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, Observable, Subject, combineLatest, map, merge, switchMap, tap } from 'rxjs';
+import {
+  BehaviorSubject,
+  Observable,
+  Subject,
+  combineLatest,
+  concatMap,
+  map,
+  merge,
+  scan,
+  shareReplay,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { HostsService } from 'src/app/api/hosts/hosts.service';
 import { ProjectsService } from 'src/app/api/projects/projects.service';
 import { TagsService } from 'src/app/api/tags/tags.service';
 import { Domain } from 'src/app/shared/types/domain/domain.interface';
 import { DomainSummary } from 'src/app/shared/types/domain/domain.summary';
-import { Port } from 'src/app/shared/types/ports/port.interface';
+import { Port, PortNumber } from 'src/app/shared/types/ports/port.interface';
 import { ProjectSummary } from 'src/app/shared/types/project/project.summary';
 import { Tag } from 'src/app/shared/types/tag.type';
 import { TextMenuComponent } from 'src/app/shared/widget/text-menu/text-menu.component';
@@ -30,6 +42,7 @@ import { PortsService } from '../../../api/ports/ports.service';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PanelSectionModule } from '../../../shared/components/panel-section/panel-section.module';
 import { SharedModule } from '../../../shared/shared.module';
+import { Page } from '../../../shared/types/page.type';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
@@ -163,9 +176,26 @@ export class ViewHostComponent implements OnDestroy {
     map(([host, size]) => host.domains.slice(0, size))
   );
 
-  public shownPortsCount$ = new BehaviorSubject(5);
-  public ports$ = combineLatest([this.host$, this.shownPortsCount$]).pipe(
-    switchMap(([host, size]) => this.portsService.getPorts(host._id, 0, size, { sortType: 'popularity' }))
+  public portPage$ = new BehaviorSubject(-1);
+  public ports$ = combineLatest([this.host$, this.portPage$]).pipe(
+    concatMap(([host, page]) => {
+      const size = page >= 0 ? 100 : 5;
+      page = page < 0 ? 0 : page;
+
+      return this.portsService.getPage(page, size, { hostId: host._id }, undefined, 'number');
+    }),
+    scan((acc: Page<PortNumber>, value: Page<PortNumber>) => {
+      const found = new Set<number>();
+
+      const uniq = acc.items.concat(value.items).filter((port) => {
+        const alreadyFound = found.has(port.port);
+        if (!alreadyFound) found.add(port.port);
+        return !alreadyFound;
+      });
+
+      return { items: uniq, totalRecords: value.totalRecords };
+    }),
+    shareReplay(1)
   );
 
   /**

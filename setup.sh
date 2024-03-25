@@ -6,6 +6,11 @@
 STALKER_HOSTNAME=stalker.lan
 STALKER_PORT=8443
 
+# Bind address indicates from where Stalker will accept connections
+# 0.0.0.0 means from everywhere
+# 127.0.0.1 means only from localhost
+STALKER_BIND_ADDRESS="0.0.0.0"
+
 # Max database size and replication. Having 3 replicas with 32Gi would mean that 
 # (32 * 3) Gi of space on disk is needed
 MONGODB_MAX_SIZE="32Gi"
@@ -87,6 +92,7 @@ vars:
   DOCKERFILE_NAME: Dockerfile
   JM_URL: "https://jobs-manager:3000"
   MONGODB_MAX_SIZE: $MONGODB_MAX_SIZE
+  STALKER_BIND_ADDRESS: $STALKER_BIND_ADDRESS
 EOF
 
 cat > "root_ca.cnf" << EOF

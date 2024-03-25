@@ -14,6 +14,7 @@ import { PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
+import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, map, switchMap, tap } from 'rxjs';
 import { ProjectsService } from 'src/app/api/projects/projects.service';
@@ -50,12 +51,14 @@ import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.c
     MatInputModule,
     ProjectCellComponent,
     FilteredPaginatedTableComponent,
+    RouterModule,
   ],
   selector: 'app-list-hosts',
   templateUrl: './list-hosts.component.html',
   styleUrls: ['./list-hosts.component.scss'],
 })
 export class ListHostsComponent {
+  maxDomainsPerHost = 35;
   dataLoading = true;
   displayedColumns: string[] = ['select', 'ip', 'domains', 'project', 'tags'];
   filterOptions: string[] = ['host', 'domain', 'project', 'tags'];

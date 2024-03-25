@@ -10,6 +10,7 @@ import escapeStringRegexp from '../../../../utils/escape-string-regexp';
 import { HostnameFinding } from '../../../findings/findings.service';
 import { FindingsQueue } from '../../../job-queue/findings-queue';
 import { ConfigService } from '../../admin/config/config.service';
+import { MONGO_DUPLICATE_ERROR } from '../../database.constants';
 import { JobsService } from '../../jobs/jobs.service';
 import { TagsService } from '../../tags/tag.service';
 import { CorrelationKeyUtils } from '../correlation.utils';
@@ -85,19 +86,37 @@ export class DomainsService {
       newDomains.push(domain.name);
     }
 
-    const findings: HostnameFinding[] = [];
-    // For each new domain name found, a finding is created
-    newDomains.forEach((domain) => {
+    this.publishHostnameFindings(newDomains, projectId);
+
+    return insertedDomains;
+  }
+
+  /**
+   * For each new domain name found, a finding is created
+   * We submit them by batch to hopefully better support large loads
+   * @param newDomains New domains for which to create HostnameFindings
+   * @param projectId The project associated with the domains/findings
+   */
+  private async publishHostnameFindings(
+    newDomains: string[],
+    projectId: string,
+  ) {
+    const batchSize = 30;
+
+    let findings: HostnameFinding[] = [];
+    for (let i = 0; i < newDomains.length; ++i) {
       findings.push({
         type: 'HostnameFinding',
         key: 'HostnameFinding',
-        domainName: domain,
+        domainName: newDomains[i],
         projectId: projectId,
       });
-    });
+      if (i % batchSize === 0) {
+        await this.findingsQueue.publish(...findings);
+        findings = [];
+      }
+    }
     this.findingsQueue.publish(...findings);
-
-    return insertedDomains;
   }
 
   /**
@@ -162,8 +181,14 @@ export class DomainsService {
     return this.domainModel.findById(id);
   }
 
-  public async getDomainByName(name: string): Promise<DomainDocument> {
-    return this.domainModel.findOne({ name: { $eq: name } });
+  public async getDomainByName(
+    name: string,
+    projectId: string,
+  ): Promise<DomainDocument> {
+    return this.domainModel.findOne({
+      name: { $eq: name },
+      projectId: { $eq: new Types.ObjectId(projectId) },
+    });
   }
 
   /**
@@ -176,10 +201,18 @@ export class DomainsService {
     domainId: string,
     hostSummaries: HostSummary[],
   ): Promise<UpdateResult> {
-    return this.domainModel.updateOne(
-      { _id: { $eq: domainId } },
-      { $addToSet: { hosts: { $each: hostSummaries } } },
-    );
+    try {
+      return this.domainModel.updateOne(
+        { _id: { $eq: domainId } },
+        { $addToSet: { hosts: { $each: hostSummaries } } },
+      );
+    } catch (err) {
+      // Duplicates are expected a host always try to link
+      // $addToSet is used to prevent duplicates
+      if (err.code !== MONGO_DUPLICATE_ERROR) {
+        throw err;
+      }
+    }
   }
 
   public async deleteAllForProject(projectId: string): Promise<DeleteResult> {

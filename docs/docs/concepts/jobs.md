@@ -1,3 +1,9 @@
+---
+sidebar_position: 1
+title: Jobs
+description: What are jobs and how to use them
+---
+
 # Jobs
 
 A job is the way for Stalker to find new information. It is started by Stalker and runs in a contained environment. Different jobs will

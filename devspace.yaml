@@ -39,12 +39,12 @@ pipelines:
       build_images ui jobs-manager orchestrator python-job-base nuclei-job-base cron
       create_deployments mongo kafka --sequential
 
-      # Start mongo and kafka
-      start_dev mongo kafka
-
       # Wait for kafka and mongo to be ready
       wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 300
       wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 300
+
+      # Start mongo and kafka
+      start_dev mongo kafka
 
       create_deployments ui jobs-manager orchestrator-service-account orchestrator --sequential
 
@@ -153,7 +153,7 @@ pipelines:
       wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 300
       wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 300
 
-      create_deployments ui-prod jobs-manager orchestrator-service-account orchestrator --sequential
+      create_deployments jobs-manager orchestrator-service-account orchestrator ui-prod --sequential
 
       # Wait for services before applying network policies
       wait_pod --label-selector app.kubernetes.io/component=ui-prod --timeout 300
@@ -529,17 +529,24 @@ deployments:
               config:
                 max.message.bytes: 64000
                 flush.messages: 1
+            - name: stalker.jobs.models
+              partitions: 1
+              replicationFactor: 1
+              config:
+                max.message.bytes: 64000
+                flush.messages: 1
           extraProvisioningCommands: # Setting the ACLs
             - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:jobs-manager --operation read --operation write --operation describe --topic stalker.jobs.findings"
             - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:jobs-manager --operation write --operation describe --topic stalker.jobs.requests"
             - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:jobs-manager --operation read --operation describe --topic stalker.jobs.logs"
+            - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:jobs-manager --operation read --operation write --operation describe --topic stalker.jobs.models"
             - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:orchestrator --operation write --operation describe --topic stalker.jobs.findings"
             - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:orchestrator --operation read --operation describe --topic stalker.jobs.requests"
             - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:orchestrator --operation write --operation describe --topic stalker.jobs.logs"
+            - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:orchestrator --operation read --operation describe --topic stalker.jobs.models"
             - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:jobs-manager --operation read --operation describe --group jobs-manager"
             - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:jobs-manager --operation read --operation describe --group jobs-manager-job-logs"
             - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:orchestrator --operation read --operation describe --group stalker"
-
   orchestrator-service-account:
     kubectl:
       manifests:
@@ -563,8 +570,8 @@ deployments:
 
         service:
           ports:
-            - containerPort: 5135
-              port: 5135
+            - containerPort: 80
+              port: 80
               protocol: TCP
 
   namespaces:
@@ -592,13 +599,13 @@ deployments:
 dev:
   mongo:
     labelSelector:
-      statefulset.kubernetes.io/pod-name: mongo-mongodb-0
+      app.kubernetes.io/component: mongodb
     ports:
       - port: "27017"
 
   mongo-prod:
     labelSelector:
-      statefulset.kubernetes.io/pod-name: mongo-mongodb-0
+      app.kubernetes.io/component: mongodb
 
   kafka:
     labelSelector:
@@ -619,11 +626,9 @@ dev:
         disableDownload: true
         excludePaths:
           - node_modules/
-          - packages/frontend/stalker-app/.angular/
-          - packages/frontend/stalker-app/node_modules/
-          - packages/backend/jobs-manager/service/node_modules/
-          - packages/backend/cron/service/node_modules/
-          - packages/backend/orchestrator/service/node_modules/
+          - "**/.angular/**/*"
+          - "**/dist/**/*"
+          - "**/node_modules/**/*"
     restartHelper:
       inject: false
     ports:
@@ -637,6 +642,10 @@ dev:
       enabled: true
     restartHelper:
       inject: false
+    resources:
+      limits:
+        memory: 2Gi
+        cpu: 1
 
   jobs-manager-e2e:
     labelSelector:
@@ -678,11 +687,9 @@ dev:
         disableDownload: true
         excludePaths:
           - node_modules/
-          - packages/frontend/stalker-app/.angular/
-          - packages/frontend/stalker-app/node_modules/
-          - packages/backend/jobs-manager/service/node_modules/
-          - packages/backend/cron/service/node_modules/
-          - packages/backend/orchestrator/service/node_modules/
+          - "**/.angular/**/*"
+          - "**/dist/**/*"
+          - "**/node_modules/**/*"
     restartHelper:
       inject: false
     ports:
@@ -708,11 +715,9 @@ dev:
         disableDownload: true
         excludePaths:
           - node_modules/
-          - packages/frontend/stalker-app/.angular/
-          - packages/frontend/stalker-app/node_modules/
-          - packages/backend/jobs-manager/service/node_modules/
-          - packages/backend/cron/service/node_modules/
-          - packages/backend/orchestrator/service/node_modules/
+          - "**/.angular/**/*"
+          - "**/dist/**/*"
+          - "**/node_modules/**/*"
     restartHelper:
       inject: false
     ports:
@@ -726,6 +731,7 @@ dev:
       inject: false
     ports:
       - port: "${STALKER_PORT}:443"
+        bindAddress: ${STALKER_BIND_ADDRESS}
     resources:
       limits:
         memory: 1Gi
@@ -743,17 +749,15 @@ dev:
         disableDownload: true
         excludePaths:
           - node_modules/
-          - packages/frontend/stalker-app/.angular/
-          - packages/frontend/stalker-app/node_modules/
-          - packages/backend/jobs-manager/service/node_modules/
-          - packages/backend/cron/service/node_modules/
-          - packages/backend/orchestrator/service/node_modules/
-          - packages/backend/orchestrator/service/Orchestrator/bin
-          - packages/backend/orchestrator/service/Orchestrator/obj
+          - "**/.angular/**/*"
+          - "**/dist/**/*"
+          - "**/node_modules/**/*"
+          - backend/orchestrator/**/bin/**/*
+          - backend/orchestrator/**/obj/**/*
     restartHelper:
       inject: false
     ports:
-      - port: "5135"
+      - port: "5135:80"
 
   orchestrator-prod:
     labelSelector:

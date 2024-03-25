@@ -9,7 +9,7 @@ public class NucleiCustomJobTemplate : KubernetesJobTemplate
     public override string Image => "nuclei-job-base:v1";
     protected IConfiguration Config { get; init; }
 
-    public NucleiCustomJobTemplate(string? id, IConfiguration config, JobParameter[]? jobParameters, string? code, int? jobPodMilliCpuLimit, int? jobPodMemoryKbLimit, string? findingHandler)
+    public NucleiCustomJobTemplate(string? id, IConfiguration config, JobParameter[]? jobParameters, string? code, int? jobPodMilliCpuLimit, ulong? jobPodMemoryKbLimit, string? findingHandler)
     {
         Id = id;
         Config = config;

@@ -14,6 +14,7 @@ import { PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
+import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, map, switchMap, tap } from 'rxjs';
 import { ProjectsService } from 'src/app/api/projects/projects.service';
@@ -49,6 +50,7 @@ import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.c
     MatInputModule,
     ProjectCellComponent,
     FilteredPaginatedTableComponent,
+    RouterModule,
   ],
   selector: 'app-list-ports',
   templateUrl: './list-ports.component.html',
@@ -75,7 +77,13 @@ export class ListPortsComponent {
     }),
     switchMap((currentPage) => {
       const filters = this.buildFilters(this.currentFilters);
-      return this.portsService.getPage(currentPage.pageIndex, currentPage.pageSize, filters, this.currentDateRange);
+      return this.portsService.getPage<Port>(
+        currentPage.pageIndex,
+        currentPage.pageSize,
+        filters,
+        this.currentDateRange,
+        'full'
+      );
     }),
     map((data: Page<Port>) => {
       this.dataSource = new MatTableDataSource<Port>(data.items);

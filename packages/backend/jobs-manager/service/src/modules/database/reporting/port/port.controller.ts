@@ -8,6 +8,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { HttpNotImplementedException } from '../../../../exceptions/http.exceptions';
 import { MongoIdDto } from '../../../../types/dto/mongo-id.dto';
 import { TagItemDto } from '../../../../types/dto/tag-item.dto';
 import { Page } from '../../../../types/page.type';
@@ -29,31 +30,15 @@ export class PortController {
   async getHostTopTcpPorts(
     @Query() dto: GetPortsDto,
   ): Promise<Port[] | Page<PortDocument>> {
-    // TODO: rework with guards?
-    if (
-      dto.hostId &&
-      dto.sortOrder === 'ascending' &&
-      dto.detailsLevel === 'number' &&
-      dto.protocol === 'tcp' &&
-      dto.sortType === 'popularity'
-    ) {
-      const ports = await this.portsService.getHostTopTcpPorts(
-        dto.hostId,
-        dto.page,
-        dto.pageSize,
-        dto.detailsLevel,
-      );
+    if (dto.detailsLevel === 'summary') throw new HttpNotImplementedException();
 
-      return ports.sort((a, b) => a.port - b.port); // ascending order
-    } else {
-      const totalRecords = await this.portsService.count(dto);
-      const items = await this.portsService.getAll(dto.page, dto.pageSize, dto);
+    const totalRecords = await this.portsService.count(dto);
+    const items = await this.portsService.getAll(dto.page, dto.pageSize, dto);
 
-      return {
-        items,
-        totalRecords,
-      };
-    }
+    return {
+      items,
+      totalRecords,
+    };
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

@@ -172,7 +172,7 @@ export class CronSubscriptionsService {
   private async publishJobsFromInput(
     sub: CronSubscription,
     projectId: string,
-    pageSize: number = 100,
+    pageSize: number = 30,
   ) {
     const now = Date.now();
     const filter = {

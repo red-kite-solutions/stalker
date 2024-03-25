@@ -14,6 +14,7 @@ import { PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
+import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, map, switchMap, tap } from 'rxjs';
 import { DomainsService } from 'src/app/api/domains/domains.service';
@@ -52,6 +53,7 @@ import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.c
     FormsModule,
     ProjectCellComponent,
     FilteredPaginatedTableComponent,
+    RouterModule,
   ],
   selector: 'app-list-domains',
   templateUrl: './list-domains.component.html',
@@ -63,6 +65,7 @@ export class ListDomainsComponent {
   filterOptions: string[] = ['host', 'domain', 'project', 'tags'];
   public readonly noDataMessage = $localize`:No domain found|No domain was found:No domain found`;
 
+  maxHostsPerLine = 5;
   dataSource = new MatTableDataSource<Domain>();
   currentPage: PageEvent = this.generateFirstPageEvent();
   currentFilters: string[] = [];
@@ -191,7 +194,7 @@ export class ListDomainsComponent {
         case 'host':
           if (value) hosts.push(value.trim().toLowerCase());
           break;
-        case 'host':
+        case 'tags':
           const tag = this.tags.find((t) => t.text.trim().toLowerCase() === value.trim().toLowerCase());
           if (tag) tags.push(tag._id);
           else

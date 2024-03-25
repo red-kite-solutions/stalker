@@ -1,4 +1,6 @@
 ﻿using Confluent.Kafka;
+using k8s.Models;
+using Orchestrator.K8s;
 
 namespace Orchestrator.Queue
 {
@@ -6,7 +8,7 @@ namespace Orchestrator.Queue
     {
         protected readonly ILogger<KafkaConsumer<T>> Logger;
 
-        public KafkaConsumer(IConfiguration config, IDeserializer<T> deserializer, ILogger<KafkaConsumer<T>> logger)
+        public KafkaConsumer(IConfiguration config, IDeserializer<T> deserializer, ILogger<KafkaConsumer<T>> logger, AutoOffsetReset autoOffsetReset = AutoOffsetReset.Latest)
         {
             var kafkaUri = config.GetSection("JobsQueue").GetValue<string>("QueueUri");
             Logger = logger;
@@ -15,12 +17,12 @@ namespace Orchestrator.Queue
                 BootstrapServers = kafkaUri,
                 GroupId = GroupId,
                 AllowAutoCreateTopics = true,
-                AutoOffsetReset = AutoOffsetReset.Earliest,
+                AutoOffsetReset = autoOffsetReset,
                 SslCaLocation = "/certs/kafka-ca.crt",
                 SslCertificateLocation = "/certs/kafka-client-signed.crt",
                 SslKeyLocation = "/certs/kafka-client.key",
                 SslKeyPassword = Environment.GetEnvironmentVariable("ORCHESTRATOR_KAFKA_KEY_PASSWORD"),
-                SecurityProtocol = SecurityProtocol.Ssl
+                SecurityProtocol = SecurityProtocol.Ssl,
             };
 
             CancellationToken ct = SetupConsumer(ConsumerConfig, deserializer);
@@ -37,6 +39,7 @@ namespace Orchestrator.Queue
                     try
                     {
                         var message = Consumer.Consume();
+
 
                         if (message.Message != null && message.Message.Value != null)
                         {
@@ -76,7 +79,7 @@ namespace Orchestrator.Queue
             }, TokenSource.Token);
         }
 
-        private CancellationToken SetupConsumer(ConsumerConfig consumerConfig, IDeserializer<T> deserializer)
+        protected virtual CancellationToken SetupConsumer(ConsumerConfig consumerConfig, IDeserializer<T> deserializer)
         {
             Consumer = new ConsumerBuilder<Ignore, T>(ConsumerConfig)
                             .SetValueDeserializer(deserializer)
@@ -95,11 +98,11 @@ namespace Orchestrator.Queue
 
         protected abstract string[] Topics { get; }
 
-        private CancellationTokenSource TokenSource { get; set; }
+        protected CancellationTokenSource TokenSource { get; set; }
 
-        private ConsumerConfig ConsumerConfig { get; }
+        protected ConsumerConfig ConsumerConfig { get; }
 
-        private IConsumer<Ignore, T> Consumer { get; set; }
+        protected IConsumer<Ignore, T> Consumer { get; set; }
 
         protected abstract Task Consume(T message);
 

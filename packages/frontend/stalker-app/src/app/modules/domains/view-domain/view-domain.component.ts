@@ -8,7 +8,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, combineLatest, map, merge, shareReplay, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, combineLatest, concatMap, map, merge, scan, shareReplay, switchMap, tap } from 'rxjs';
 import { DomainsService } from 'src/app/api/domains/domains.service';
 import { ProjectsService } from 'src/app/api/projects/projects.service';
 import { TagsService } from 'src/app/api/tags/tags.service';
@@ -20,6 +20,7 @@ import { AppHeaderComponent } from '../../../shared/components/page-header/page-
 import { PanelSectionModule } from '../../../shared/components/panel-section/panel-section.module';
 import { SharedModule } from '../../../shared/shared.module';
 import { Domain } from '../../../shared/types/domain/domain.interface';
+import { Page } from '../../../shared/types/page.type';
 import { PortNumber } from '../../../shared/types/ports/port.interface';
 import {
   ConfirmDialogComponent,
@@ -139,7 +140,7 @@ export class ViewDomainComponent implements OnDestroy {
     map(([domain, size]) =>
       domain.hosts
         .map((h) => {
-          const ports$ = this.getTopPorts(h.id);
+          const ports$ = this.getPorts(h.id);
           return {
             ...h,
             portsSubset$: ports$.pipe(map((p) => p.slice(0, 12))),
@@ -151,10 +152,20 @@ export class ViewDomainComponent implements OnDestroy {
     )
   );
 
-  private getTopPorts(hostId: string) {
-    return this.portsService.getPorts(hostId, 0, 65535, { sortType: 'popularity' }).pipe(
-      map((ports: PortNumber[]) => ports.sort((a, b) => a.port - b.port)),
-      shareReplay(1)
+  private getPorts(hostId: string) {
+    const pageSize = 100;
+    const page$ = new BehaviorSubject<number>(0);
+    return page$.pipe(
+      concatMap((page: number) => {
+        return this.portsService.getPage(page, pageSize, { hostId: hostId }, undefined, 'number');
+      }),
+      scan((acc: Page<PortNumber>, value: Page<PortNumber>) => {
+        return { items: acc.items.concat(value.items), totalRecords: value.totalRecords };
+      }),
+      tap((ports: Page<PortNumber>) => {
+        if (ports.items.length < ports.totalRecords) page$.next(page$.value + 1);
+      }),
+      map((ports: Page<PortNumber>) => ports.items.sort((a, b) => a.port - b.port))
     );
   }
 

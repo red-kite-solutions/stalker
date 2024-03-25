@@ -8,7 +8,6 @@ import {
   HttpNotImplementedException,
 } from '../../../../exceptions/http.exceptions';
 import escapeStringRegexp from '../../../../utils/escape-string-regexp';
-import { getTopTcpPorts } from '../../../../utils/ports.utils';
 import { MONGO_DUPLICATE_ERROR } from '../../database.constants';
 import { TagsService } from '../../tags/tag.service';
 import { CorrelationKeyUtils } from '../correlation.utils';
@@ -150,37 +149,6 @@ export class PortService {
   }
 
   /**
-   * Gets the top TCP ports for a host according to nmap's top ports list.
-   * Prioritizes up to 100 ports and then returns the requested slice. Returns up to 100 ports.
-   *
-   * Most likely slower than `getHostPorts`, so if port priority is not important,
-   * do not use this function, use `getHostPorts` instead
-   * @param hostId
-   * @param page
-   * @param pageSize
-   * @param detailsLevel
-   * @returns A list of max 100 ordered ports by usage statistics
-   */
-  public async getHostTopTcpPorts(
-    hostId: string,
-    page: number,
-    pageSize: number,
-    detailsLevel: string,
-  ) {
-    const detailsFilter = this.getDetailsFilter(detailsLevel);
-    let ports = await this.portsModel.find(
-      {
-        hostId: { $eq: new Types.ObjectId(hostId) },
-        layer4Protocol: 'tcp',
-      },
-      detailsFilter,
-    );
-    const max = page * pageSize + pageSize;
-    const topPorts: Port[] = getTopTcpPorts(ports, max);
-    return topPorts.slice(page * pageSize, max);
-  }
-
-  /**
    * Gets all the ports of a host in an undefined order.
    * @param hostId
    * @param page
@@ -296,13 +264,18 @@ export class PortService {
   public async getAll(
     page: number = null,
     pageSize: number = null,
-    filter: any = null,
+    filter: Partial<GetPortsDto> = null,
   ): Promise<PortDocument[]> {
+    const projection =
+      filter.detailsLevel === 'number'
+        ? '_id port layer4Protocol correlationKey'
+        : undefined;
+
     let query;
     if (filter) {
-      query = this.portsModel.find(await this.buildFilters(filter));
+      query = this.portsModel.find(await this.buildFilters(filter), projection);
     } else {
-      query = this.portsModel.find({});
+      query = this.portsModel.find({}, projection);
     }
 
     if (page != null && pageSize != null) {
@@ -315,15 +288,21 @@ export class PortService {
     if (!filter) {
       return await this.portsModel.estimatedDocumentCount();
     } else {
-      return await this.portsModel.countDocuments(this.buildFilters(filter));
+      return await this.portsModel.countDocuments(
+        await this.buildFilters(filter),
+      );
     }
   }
 
-  public async buildFilters(dto: GetPortsDto) {
+  public async buildFilters(dto: Partial<GetPortsDto>) {
     const finalFilter = {};
+    // Filter by host id
+    if (dto.hostId) {
+      finalFilter['host.id'] = { $eq: new Types.ObjectId(dto.hostId) };
+    }
 
-    // Filter by host
-    if (dto.host) {
+    // Filter by host ip
+    if (dto.host && !dto.hostId) {
       const hostsRegex = dto.host
         .filter((x) => x)
         .map((x) => x.toLowerCase().trim())

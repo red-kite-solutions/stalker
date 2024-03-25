@@ -3,9 +3,9 @@ namespace Orchestrator.K8s;
 public class KubernetesJobTemplate
 {
     private readonly int MaxCpu = 2000;
-    private readonly int MaxMemory = 2048 * 1024;
+    private readonly ulong MaxMemory = 2048 * 1024;
     private readonly int DefaultCpu = 100;
-    private readonly int DefaultMemory = 300 * 1024;
+    private readonly ulong DefaultMemory = 300 * 1024;
 
     public string Id { get; init; }
 
@@ -54,7 +54,7 @@ public class KubernetesJobTemplate
         }
     }
 
-    private int? _MemoryKiloBytesLimit;
+    private ulong? _MemoryKiloBytesLimit;
 
     /// <summary>
     /// Specifies the limit amount of memory (RAM) that will be dedicated for a job pod, in kilobytes. 
@@ -63,7 +63,7 @@ public class KubernetesJobTemplate
     /// The suffix used is the power of two, Ki
     /// Additional info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
     /// </summary>
-    public int? MemoryKiloBytesLimit
+    public ulong? MemoryKiloBytesLimit
     {
         get
         {

@@ -23,6 +23,8 @@ import {
   ConfirmDialogData,
 } from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
 import { FilteredPaginatedTableComponent } from 'src/app/shared/widget/filtered-paginated-table/filtered-paginated-table.component';
+import { AuthService } from '../../../api/auth/auth.service';
+import { AuthModule } from '../../auth/auth.module';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -45,6 +47,7 @@ import { FilteredPaginatedTableComponent } from 'src/app/shared/widget/filtered-
     FilteredPaginatedTableComponent,
     MatDialogModule,
     MatTooltipModule,
+    AuthModule,
   ],
 })
 export class ListCustomJobsComponent {
@@ -82,7 +85,8 @@ export class ListCustomJobsComponent {
     private customJobsService: CustomJobsService,
     private toastr: ToastrService,
     private titleService: Title,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    public authService: AuthService
   ) {
     this.titleService.setTitle($localize`:Custom jobs list page title|:Custom jobs`);
   }
@@ -155,5 +159,32 @@ export class ListCustomJobsComponent {
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .toLowerCase();
+  }
+
+  public async syncCache() {
+    let data = {
+      text: $localize`:Confirm orchestrator cache sync|Confirmation message asking if the user really wants to sync the orchestrator cache:Do you really wish to sync the Orchestrator's cache? It will send the jobs' latest version to the Orchestrator.`,
+      title: $localize`:Syncing the orchestrator cache|Title of a page to sync the orchestrator's cache:Syncing the Orchestrator cache`,
+      primaryButtonText: $localize`:Sync|Sync:Sync`,
+      dangerButtonText: $localize`:Cancel|Cancel current action:Cancel`,
+      onPrimaryButtonClick: async () => {
+        try {
+          await this.customJobsService.syncCache();
+        } catch {
+          this.toastr.error($localize`:Error while syncing|Error while syncing:Error while syncing`);
+          return;
+        }
+        this.toastr.success($localize`:Cache synced|Cache synced:Cache synced`);
+        this.dialog.closeAll();
+      },
+      onDangerButtonClick: () => {
+        this.dialog.closeAll();
+      },
+    };
+
+    this.dialog.open(ConfirmDialogComponent, {
+      data,
+      restoreFocus: false,
+    });
   }
 }

@@ -6,19 +6,21 @@ import socket
 import threading
 from ipaddress import ip_address
 
-from stalker_job_sdk import (PortFinding, TextField, is_valid_ip,
-                             is_valid_port, log_error, log_finding,
+from stalker_job_sdk import (JobStatus, PortFinding, TextField, is_valid_ip,
+                             is_valid_port, log_error, log_finding, log_status,
                              log_warning)
 
 
 def validate_ip(ip: str, name: str):
     if not is_valid_ip(ip):
         log_error(f"{name} parameter is invalid: {ip}")
+        log_status(JobStatus.FAILED)
         exit()
         
 def validate_port(port: int, name: str):
     if not is_valid_port(port):
         log_error(f"Invalid port {str(port)} in {name}")
+        log_status(JobStatus.FAILED)
         exit()
 
 class PortScanThread(threading.Thread):
@@ -75,6 +77,7 @@ try:
     ports_set: set = set(ports_list)
 except Exception:
     log_error(f"ports parameter is invalid: {PORTS}")
+    log_status(JobStatus.FAILED)
     exit()
 
 validate_port(PORT_MIN, 'portMin')
@@ -152,3 +155,5 @@ for port in open_ports_output:
             "PortFinding",
         )
     )
+
+log_status(JobStatus.SUCCESS)

@@ -20,6 +20,21 @@ import {
 import { Subscription } from './subscriptions.type';
 
 export class SubscriptionsUtils {
+  public static readonly conditionOperators = [
+    'equals',
+    'gte',
+    'gt',
+    'lte',
+    'lt',
+    'contains',
+    'contains_i',
+    'startsWith',
+    'startsWith_i',
+    'endsWith',
+    'endsWith_i',
+    'equals_i',
+  ].flatMap((v) => [v, `not_${v}`]);
+
   public static async getParametersForCustomJobSubscription(
     sub: Subscription,
     logger: Logger,
@@ -42,8 +57,9 @@ export class SubscriptionsUtils {
       return undefined;
     }
 
-    const customJobEntry =
-      await customJobsService.getByName(customJobNameParam);
+    const customJobEntry = await customJobsService.getPickByName<
+      '_id' | 'jobPodConfigId' | 'name'
+    >(customJobNameParam, ['_id', 'jobPodConfigId', 'name']);
 
     if (!customJobEntry) {
       logger.error(
@@ -140,46 +156,63 @@ export class SubscriptionsUtils {
       rhs = rhs.toLowerCase();
       operator = operator.substring(0, operator.length - 2);
     }
+    let negate = false;
+    if (operator.startsWith('not_')) {
+      operator = operator.substring(4);
+      negate = true;
+    }
+
+    let result = false;
 
     // equals are soft to allow for easier type match for the users
     // no support for regex as I did not find an easy way to prevent ReDoS
     // https://owasp.org/www-community/attacks/Regular_expression_Denial_of_Service_-_ReDoS
     switch (operator) {
       case 'equals': {
-        return lhs == rhs;
+        result = lhs == rhs;
+        break;
       }
       case 'gte': {
         if (typeof lhs !== 'number' || typeof rhs !== 'number') return false;
-        return lhs >= rhs;
+        result = lhs >= rhs;
+        break;
       }
       case 'gt': {
         if (typeof lhs !== 'number' || typeof rhs !== 'number') return false;
-        return lhs > rhs;
+        result = lhs > rhs;
+        break;
       }
       case 'lte': {
         if (typeof lhs !== 'number' || typeof rhs !== 'number') return false;
-        return lhs <= rhs;
+        result = lhs <= rhs;
+        break;
       }
       case 'lt': {
         if (typeof lhs !== 'number' || typeof rhs !== 'number') return false;
-        return lhs < rhs;
+        result = lhs < rhs;
+        break;
       }
       case 'contains': {
         if (typeof lhs !== 'string' || typeof rhs !== 'string') return false;
-        return lhs.includes(rhs);
+        result = lhs.includes(rhs);
+        break;
       }
       case 'startsWith': {
         if (typeof lhs !== 'string' || typeof rhs !== 'string') return false;
-        return lhs.startsWith(rhs);
+        result = lhs.startsWith(rhs);
+        break;
       }
       case 'endsWith': {
         if (typeof lhs !== 'string' || typeof rhs !== 'string') return false;
-        return lhs.endsWith(rhs);
+        result = lhs.endsWith(rhs);
+        break;
       }
       default: {
         return false;
       }
     }
+
+    return negate ? !result : result;
   }
 
   /**

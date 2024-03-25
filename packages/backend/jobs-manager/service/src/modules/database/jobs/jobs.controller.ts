@@ -24,7 +24,6 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/role.guard';
 import { ConfigService } from '../admin/config/config.service';
 import { JobPodConfiguration } from '../admin/config/job-pod-config/job-pod-config.model';
-import { CustomJobsDocument } from '../custom-jobs/custom-jobs.model';
 import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
 import { SecretsService } from '../secrets/secrets.service';
 import { JobParameter } from '../subscriptions/event-subscriptions/event-subscriptions.model';
@@ -92,8 +91,9 @@ export class JobsController {
         'The task parameter is not a valid string',
       );
 
-    const customJob: CustomJobsDocument =
-      await this.customJobsService.getByName(dto.task);
+    const customJob = await this.customJobsService.getPickByName<
+      '_id' | 'jobPodConfigId' | 'name'
+    >(dto.task, ['_id', 'jobPodConfigId', 'name']);
     if (!customJob) throw new HttpNotFoundException();
 
     jpConfig = await JobFactoryUtils.getCustomJobPodConfig(

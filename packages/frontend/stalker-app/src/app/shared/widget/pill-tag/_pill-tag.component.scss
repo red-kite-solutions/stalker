@@ -35,17 +35,18 @@
       calc(var(--pill-border-color-s) * 100%),
       calc(var(--pill-border-color-l) * 100%),
       0.25
-    );
+    ) !important;
 
     border-color: hsl(
       calc(var(--pill-border-color-h) * 360),
       calc(var(--pill-border-color-s) * 90%),
       max(calc(var(--pill-border-color-l) * 110%), 40%)
-    );
+    ) !important;
+
     color: hsl(
       calc(var(--pill-border-color-h) * 360),
       calc(var(--pill-border-color-s) * 100%),
-      max(calc(var(--pill-border-color-l) * 150%), 85%)
-    );
+      max(calc(var(--pill-border-color-l) * 170%), 90%)
+    ) !important;
   }
 }

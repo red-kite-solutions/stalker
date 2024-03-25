@@ -160,6 +160,16 @@ describe('Findings Handler Base', () => {
           },
         ],
       ],
+      [
+        [
+          { lhs: '', operator: 'not_equals_i', rhs: 'asdf' },
+          { lhs: 'aSDf', operator: 'not_startsWith', rhs: 'ASDf' },
+          { lhs: 'AsdF', operator: 'not_endsWith', rhs: 'DF' },
+          { lhs: 1, operator: 'not_equals', rhs: 2 },
+          { lhs: 0, operator: 'not_gt', rhs: 0 },
+          { lhs: 0, operator: 'not_lt', rhs: 0 },
+        ],
+      ],
     ])(
       'Hostname finding - Should be valid for execution',
       (conditions: JobCondition[]) => {
@@ -331,6 +341,19 @@ describe('Findings Handler Base', () => {
           { lhs: 1, operator: 'equals_i', rhs: true },
           { lhs: 'AsdF', operator: 'equals_i', rhs: 'qwerty' },
           { lhs: 'qwerty', operator: 'equals_i', rhs: 'qwerty1' },
+        ],
+      ],
+      [
+        [
+          { lhs: '', operator: 'not_equals_i', rhs: '' },
+          { lhs: 'aSDf', operator: 'not_equals_i', rhs: 'aSDf' },
+          { lhs: 'AsdF', operator: 'not_equals_i', rhs: 'aSDf' },
+          { lhs: 'qwerty', operator: 'not_equals_i', rhs: 'qwerty' },
+          {
+            lhs: '${   domainName   }',
+            operator: 'not_equals_i',
+            rhs: '  ${DoMAinnAmE  }',
+          },
         ],
       ],
     ])(
@@ -511,15 +534,6 @@ describe('Findings Handler Base', () => {
       // Assert
       expect(
         jobParams.some((p) => p.name === 'name' && p.value == cj.name),
-      ).toStrictEqual(true);
-      expect(
-        jobParams.some((p) => p.name === 'code' && p.value == cj.code),
-      ).toStrictEqual(true);
-      expect(
-        jobParams.some((p) => p.name === 'type' && p.value == cj.type),
-      ).toStrictEqual(true);
-      expect(
-        jobParams.some((p) => p.name === 'language' && p.value == cj.language),
       ).toStrictEqual(true);
       expect(
         jobParams.some(

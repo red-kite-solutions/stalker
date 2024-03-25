@@ -89,7 +89,7 @@ describe('Host Service', () => {
       const d1 = await domain('project5.example.org', c1);
 
       const c2 = await project('my second project');
-      const d2 = await domain('project6.example.org', c1);
+      const d2 = await domain('project6.example.org', c2);
 
       await host(d1, c1, [], '8.8.8.8', '1.2.3.4');
       await host(d2, c2, [], '2.3.4.5', '6.7.8.9');

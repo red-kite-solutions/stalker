@@ -14,6 +14,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { Title } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, Subject, combineLatest, debounceTime, map, scan, shareReplay, switchMap, tap } from 'rxjs';
 import { ProjectsService } from '../../api/projects/projects.service';
@@ -123,8 +124,11 @@ export class SecretsComponent implements AfterViewInit {
     private projectsService: ProjectsService,
     private dialog: MatDialog,
     private fb: FormBuilder,
-    private toastr: ToastrService
-  ) {}
+    private toastr: ToastrService,
+    private titleService: Title
+  ) {
+    this.titleService.setTitle($localize`:Secrets|:Secrets`);
+  }
 
   ngAfterViewInit(): void {
     const firstPage = new PageEvent();

@@ -57,7 +57,6 @@ export class JobLogsComponent implements OnChanges {
           this.socket!.jobOutput.pipe(
             startWith(null),
             scan((acc, value) => {
-              console.log(value);
               if (value == null) return acc;
 
               return acc.concat(this.formatLog(value.timestamp, value.level, value.value));
@@ -66,7 +65,6 @@ export class JobLogsComponent implements OnChanges {
         ),
         map((logs) => {
           const result = logs.sort((a, b) => a.timestamp - b.timestamp).reduce((acc, x) => acc + x.log + '\n', '');
-          console.log(result);
           return result;
         }),
         debounceTime(100), // Prevents furious redrawing

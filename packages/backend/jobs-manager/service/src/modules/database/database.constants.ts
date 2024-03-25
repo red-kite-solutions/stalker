@@ -8,3 +8,6 @@ export const MONGO_TIMESTAMP_SCHEMA_CONFIG: SchemaOptions = {
     updatedAt: true,
   },
 };
+
+export const detailsLevel = ['full', 'summary', 'number'] as const;
+export type DetailsLevel = (typeof detailsLevel)[number];

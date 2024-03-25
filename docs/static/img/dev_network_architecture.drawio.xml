@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" modified="2024-02-14T03:25:10.757Z" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" etag="0hY9kC6eynNXj4hCMU6M" version="23.1.1" type="device">
+<mxfile host="app.diagrams.net" modified="2024-03-12T22:46:37.404Z" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" etag="3WWNZ5CGKrIrQB-kbS0c" version="24.0.5" type="device">
   <diagram id="11_K7q0N4OWN30xibyBS" name="Page-1">
-    <mxGraphModel dx="2514" dy="2094" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="1510" dy="1543" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -113,6 +113,9 @@
             </Array>
           </mxGeometry>
         </mxCell>
+        <mxCell id="IvoOIwAVw7Ie7XBlqJ-g-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="8CN0HJ1yQs-gCxdUufj0-16" target="8CN0HJ1yQs-gCxdUufj0-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
         <mxCell id="8CN0HJ1yQs-gCxdUufj0-16" value="Job1" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="220" y="720" width="120" height="60" as="geometry" />
         </mxCell>
@@ -135,6 +138,9 @@
             </Array>
           </mxGeometry>
         </mxCell>
+        <mxCell id="IvoOIwAVw7Ie7XBlqJ-g-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="8CN0HJ1yQs-gCxdUufj0-17" target="8CN0HJ1yQs-gCxdUufj0-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
         <mxCell id="8CN0HJ1yQs-gCxdUufj0-17" value="Job2" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="353.5" y="720" width="120" height="60" as="geometry" />
         </mxCell>
@@ -153,6 +159,9 @@
             </Array>
           </mxGeometry>
         </mxCell>
+        <mxCell id="IvoOIwAVw7Ie7XBlqJ-g-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="8CN0HJ1yQs-gCxdUufj0-18" target="8CN0HJ1yQs-gCxdUufj0-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
         <mxCell id="8CN0HJ1yQs-gCxdUufj0-18" value="..." style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="490" y="720" width="120" height="60" as="geometry" />
         </mxCell>
@@ -170,6 +179,9 @@
               <mxPoint x="1020" y="410" />
             </Array>
           </mxGeometry>
+        </mxCell>
+        <mxCell id="IvoOIwAVw7Ie7XBlqJ-g-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="8CN0HJ1yQs-gCxdUufj0-19" target="8CN0HJ1yQs-gCxdUufj0-9">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="8CN0HJ1yQs-gCxdUufj0-19" value="JobN" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="630" y="720" width="120" height="60" as="geometry" />
@@ -241,13 +253,14 @@
         <mxCell id="8CN0HJ1yQs-gCxdUufj0-68" value="9092" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
           <mxGeometry x="430" y="430" width="60" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="8CN0HJ1yQs-gCxdUufj0-71" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0;exitDx=170;exitDy=75;exitPerimeter=0;dashed=1;dashPattern=1 1;startArrow=none;startFill=0;endArrow=none;endFill=0;" parent="1" source="8CN0HJ1yQs-gCxdUufj0-69" edge="1">
+        <mxCell id="8CN0HJ1yQs-gCxdUufj0-71" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=1 1;startArrow=none;startFill=0;endArrow=none;endFill=0;exitX=0.997;exitY=0.798;exitDx=0;exitDy=0;exitPerimeter=0;" parent="1" source="8CN0HJ1yQs-gCxdUufj0-69" edge="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="490" y="325" as="targetPoint" />
+            <mxPoint y="330" as="sourcePoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="8CN0HJ1yQs-gCxdUufj0-69" value="The Jobs Manager publishes new jobs and fetches new findings and job logs.&lt;br&gt;Jobs Manager also publishes user given findings for himself" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;" parent="1" vertex="1">
-          <mxGeometry x="-180" y="250" width="170" height="130" as="geometry" />
+        <mxCell id="8CN0HJ1yQs-gCxdUufj0-69" value="The Jobs Manager publishes new jobs and fetches new findings and job logs.&lt;br&gt;Jobs Manager also publishes user given findings for himself.&lt;br&gt;&lt;br&gt;Jobs Manager gives job model updates to the Orchestrator. The Orchestrator keeps a cache of the possible jobs." style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;" parent="1" vertex="1">
+          <mxGeometry x="-180" y="110" width="170" height="270" as="geometry" />
         </mxCell>
         <mxCell id="8CN0HJ1yQs-gCxdUufj0-74" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0;exitDx=170;exitDy=65;exitPerimeter=0;dashed=1;dashPattern=1 1;startArrow=none;startFill=0;endArrow=none;endFill=0;" parent="1" source="8CN0HJ1yQs-gCxdUufj0-70" edge="1">
           <mxGeometry relative="1" as="geometry">
@@ -270,7 +283,7 @@
             <mxPoint x="180" y="750" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="8CN0HJ1yQs-gCxdUufj0-77" value="The jobs are spawned by k8s, following the information given by the Orchestrator" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;" parent="1" vertex="1">
+        <mxCell id="8CN0HJ1yQs-gCxdUufj0-77" value="The jobs are spawned by k8s, following the information given by the Orchestrator. They publish their findings to the Orchestrator&#39;s API." style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;" parent="1" vertex="1">
           <mxGeometry x="-170" y="710" width="210" height="100" as="geometry" />
         </mxCell>
         <mxCell id="8CN0HJ1yQs-gCxdUufj0-79" value="The ports 3000 and 4200 will be different in production as the servers will not be development servers. The port 27017 on the database is only open for development purposes and will be closed in production. Same for the port 3000 on the cron service." style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;" parent="1" vertex="1">
@@ -300,6 +313,9 @@
         </mxCell>
         <mxCell id="37xlcVp9jwFYObAwoHpa-6" value="3000" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
           <mxGeometry x="360" y="100" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="IvoOIwAVw7Ie7XBlqJ-g-16" value="80" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="480" y="585" width="60" height="30" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

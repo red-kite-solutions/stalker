@@ -4,6 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
+import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, map, switchMap, tap } from 'rxjs';
 import { ProjectCellComponent } from 'src/app/shared/components/project-cell/project-cell.component';
@@ -31,6 +32,7 @@ import { JobStateComponent } from './job-execution-state.component';
     MatTableModule,
     ProjectCellComponent,
     FilteredPaginatedTableComponent,
+    RouterModule,
   ],
 })
 export class JobExecutionsComponent {

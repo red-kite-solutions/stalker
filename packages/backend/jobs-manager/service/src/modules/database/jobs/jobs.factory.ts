@@ -126,40 +126,19 @@ export class JobFactoryUtils {
   }
 
   public static setupCustomJobParameters(
-    customJob: CustomJobEntry | CustomJobsDocument,
+    customJob: Pick<CustomJobsDocument, '_id' | 'name'>,
     currentParameters: JobParameter[],
   ): JobParameter[] {
     const customJobParams = JSON.parse(JSON.stringify(currentParameters));
     const jobParameters = [];
+
     jobParameters.push({ name: 'name', value: customJob.name });
-    jobParameters.push({ name: 'code', value: customJob.code });
-    jobParameters.push({ name: 'type', value: customJob.type });
-    jobParameters.push({
-      name: 'language',
-      value: customJob.language,
-    });
     jobParameters.push({
       name: customJobParameters,
       value: customJobParams,
     });
-    if (customJob.findingHandlerEnabled) {
-      jobParameters.push({
-        name: 'findinghandlerenabled',
-        value: customJob.findingHandlerEnabled,
-      });
-    }
-    if (customJob.findingHandler) {
-      jobParameters.push({
-        name: 'findinghandler',
-        value: customJob.findingHandler,
-      });
-    }
-    if (customJob.findingHandlerLanguage) {
-      jobParameters.push({
-        name: 'findinghandlerlanguage',
-        value: customJob.findingHandlerLanguage,
-      });
-    }
+
+    jobParameters.push({ name: 'jobModelId', value: customJob._id.toString() });
 
     return jobParameters;
   }

@@ -4,9 +4,9 @@ from subprocess import CompletedProcess, run
 from types import ModuleType
 
 from nuclei_finding import NucleiFinding
-from stalker_job_sdk import (DomainFinding, Field, IpFinding, PortFinding,
-                             TextField, log_error, log_finding, log_info,
-                             log_warning)
+from stalker_job_sdk import (DomainFinding, Field, IpFinding, JobStatus,
+                             PortFinding, TextField, log_error, log_finding,
+                             log_info, log_status, log_warning)
 
 
 def handle_port_finding(finding: NucleiFinding, all_fields: 'list[Field]', output_finding_name: str):
@@ -129,18 +129,22 @@ def main():
 
     if not target:
         log_error(f'{nuclei_target_str} is required.')
+        log_status(JobStatus.FAILED)
         exit()
 
     if not custom_parser_code and not output_finding_name:
         log_error(f'{output_finding_name_str} is required when no custom finding handler is provided')
+        log_status(JobStatus.FAILED)
         exit()
     
     if not custom_parser_code and not expected_output_type:
         log_error(f'{stalker_output_type_str} is required when no custom finding handler is provided')
+        log_status(JobStatus.FAILED)
         exit()
 
     if not custom_parser_code and expected_output_type != 'domain' and expected_output_type != 'host' and expected_output_type != 'port':
         log_error(f'{stalker_output_type_str} has to be either domain, host or port')
+        log_status(JobStatus.FAILED)
         exit()
 
     with open(template_file, 'w') as f:
@@ -168,7 +172,7 @@ def main():
         ],
         text=True, capture_output=True
     )
-    print("after")
+
 
     if len(nuclei_process.stderr) > 0:
         log_error(nuclei_process.stderr)
@@ -178,9 +182,7 @@ def main():
     custom_parser_findings: list = []
 
     try:
-        print("before open")
         with open(output_file, 'r') as f:
-            print("opened")
             for line in f:
                 try:
                     if custom_parser:
@@ -195,6 +197,7 @@ def main():
                     log_warning(line)
     except Exception:
         log_error("Error while reading the Nuclei output file")
+        log_status(JobStatus.FAILED)
         exit()
 
     if custom_parser:
@@ -212,5 +215,7 @@ def main():
 if __name__ == "__main__":
     try:
         main()
+        log_status(JobStatus.SUCCESS)
     except Exception as err:
         log_error(err)
+        log_status(JobStatus.FAILED)

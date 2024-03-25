@@ -5,9 +5,9 @@ import { JM_ENVIRONMENTS } from '../../app.constants';
 export const EVENT_SUBSCRIPTIONS_FILES_PATH =
   process.env.JM_ENVIRONMENT === JM_ENVIRONMENTS.prod
     ? '/server/dist/src/modules/database/subscriptions/event-subscriptions/built-in/'
-    : './src/modules/database/subscriptions/cron-subscriptions/built-in/';
+    : './src/modules/database/subscriptions/event-subscriptions/built-in/';
 
 export const CRON_SUBSCRIPTIONS_FILES_PATH =
   process.env.JM_ENVIRONMENT === JM_ENVIRONMENTS.prod
     ? '/server/dist/src/modules/database/subscriptions/cron-subscriptions/built-in/'
-    : './src/modules/database/subscriptions/event-subscriptions/built-in/';
+    : './src/modules/database/subscriptions/cron-subscriptions/built-in/';

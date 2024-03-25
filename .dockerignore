@@ -11,10 +11,13 @@ LICENSE
 .vs
 bin
 obj
-**/bin/
-**/obj/
-**/out/
-**/.devspace/
+**/bin
+**/obj
+**/out
+**/bin/**/*
+**/obj/**/*
+**/out/**/*
+**/.devspace/**/*
 **/.vs/
 **/*.trx
 **/*.md

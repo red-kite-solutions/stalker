@@ -16,3 +16,22 @@ job:
       value: 65535
     - name: ports
       value: []
+conditions:
+  - lhs: ${ip}
+    operator: not_startsWith
+    rhs: '127.'
+  - lhs: ${ip}
+    operator: not_startsWith
+    rhs: '192.168.'
+  - lhs: ${ip}
+    operator: not_startsWith
+    rhs: '10.'
+  - lhs: ${ip}
+    operator: not_startsWith
+    rhs: '169.254.'
+  - lhs: ${ip}
+    operator: not_equals
+    rhs: '255.255.255.255'
+  - lhs: ${ip}
+    operator: not_startsWith
+    rhs: '0.'

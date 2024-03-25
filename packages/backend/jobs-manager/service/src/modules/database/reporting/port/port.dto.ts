@@ -12,6 +12,7 @@ import {
   Max,
   Min,
 } from 'class-validator';
+import { DetailsLevel, detailsLevel } from '../../database.constants';
 
 export class GetPortsDto {
   @IsOptional()
@@ -19,16 +20,8 @@ export class GetPortsDto {
   protocol: string = 'tcp';
 
   @IsNotEmpty()
-  @IsIn(['full', 'summary', 'number'])
-  detailsLevel: string = 'number';
-
-  @IsNotEmpty()
-  @IsIn(['popularity', 'port'])
-  sortType: string = 'port';
-
-  @IsNotEmpty()
-  @IsIn(['ascending', 'descending'])
-  sortOrder: string = 'ascending';
+  @IsIn(detailsLevel)
+  detailsLevel: DetailsLevel = 'full';
 
   @IsInt()
   @Min(0)
@@ -41,14 +34,14 @@ export class GetPortsDto {
   @Type(() => Number)
   pageSize: number = 10;
 
-  @IsMongoId()
-  @IsOptional()
-  hostId: string;
-
   @IsOptional()
   @IsString({ each: true })
   @IsArray()
   host: string[];
+
+  @IsOptional()
+  @IsMongoId()
+  hostId: string;
 
   @IsOptional()
   @IsMongoId({ each: true })

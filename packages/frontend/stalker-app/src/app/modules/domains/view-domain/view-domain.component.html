@@ -39,17 +39,18 @@
             </span>
           </panel-section-title>
 
-          @if (!domainTags.length && !newPillTag.isNew()) {
-            <panel-section-subtitle i18n="No tags yet|There are no tags for this item"
-              >No tags yet</panel-section-subtitle
-            >
-          }
-          <div class="tw-pt-1 tw-flex tw-flex-wrap tw-gap-x-[2px] tw-gap-y-1">
+          <div class="tw-pt-1 tw-flex tw-flex-wrap tw-gap-x-2 tw-gap-y-1">
             <app-new-pill-tag #newPillTag [createdAtMilliseconds]="domain.createdAt"></app-new-pill-tag>
             @for (tag of domainTags; track tag) {
               <app-pill-tag [color]="(tags | whereId: [tag])?.color">{{ (tags | whereId: [tag])?.text }}</app-pill-tag>
             }
           </div>
+
+          @if (!domainTags.length && !newPillTag.isNew()) {
+            <panel-section-subtitle i18n="No tags yet|There are no tags for this item"
+              >No tags yet</panel-section-subtitle
+            >
+          }
         </panel-section>
       }
       <panel-section>
@@ -83,7 +84,10 @@
           </div>
         }
         @if (((ipAddressesDataSourceShowCount$ | async) ?? 0) < (domain?.hosts?.length ?? 0)) {
-          <button panel-load-more (click)="ipAddressesDataSourceShowCount$.next(1000)">
+          <button
+            panel-load-more
+            (click)="ipAddressesDataSourceShowCount$.next(ipAddressesDataSourceShowCount$.value + 100)"
+          >
             Show more ({{ domain?.hosts?.length }})
           </button>
         }

@@ -40,7 +40,9 @@ export class JobsService {
       { sort: { startTime: -1 } },
     );
     if (dto.page != null && dto.pageSize != null) {
-      itemsQuery = itemsQuery.skip(+dto.page).limit(+dto.pageSize);
+      itemsQuery = itemsQuery
+        .skip(+dto.page * +dto.pageSize)
+        .limit(+dto.pageSize);
     }
 
     const items = await itemsQuery;
@@ -181,6 +183,9 @@ export class JobsService {
           'Job ended successfully.',
           'debug',
         );
+        return await this.jobModel.updateOne(select, { endTime: timestamp });
+      case 'failed':
+        await this.addJobOutputLine(jobId, timestamp, 'Job failed.', 'debug');
         return await this.jobModel.updateOne(select, { endTime: timestamp });
       default:
         return null;

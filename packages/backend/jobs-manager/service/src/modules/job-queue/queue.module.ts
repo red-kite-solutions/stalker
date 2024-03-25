@@ -4,10 +4,13 @@ import { readFileSync } from 'node:fs';
 import { JM_ENVIRONMENTS } from '../app.constants';
 import { orchestratorConstants } from '../auth/constants';
 import { FindingsQueue } from './findings-queue';
+import { JobModelUpdateQueue } from './job-model-update-queue';
 import { JobQueue } from './job-queue';
 import { KafkaFindingsQueue } from './kafka-findings-queue';
+import { KafkaJobModelUpdateQueue } from './kafka-job-model-update-queue';
 import { KafkaJobQueue } from './kafka-job-queue';
 import { NullFindingsQueue } from './null-findings-queue';
+import { NullJobModelUpdateQueue } from './null-job-model-update-queue';
 import { NullJobQueue } from './null-job-queue';
 
 const certFolder =
@@ -74,8 +77,22 @@ export const kafkaConfig: KafkaConfig = {
         return new KafkaFindingsQueue(producer);
       },
     },
+    {
+      provide: JobModelUpdateQueue,
+      useFactory: async () => {
+        if (process.env.JM_ENVIRONMENT === JM_ENVIRONMENTS.tests)
+          return new NullJobModelUpdateQueue();
+
+        const kafka = new Kafka(kafkaConfig);
+
+        const producer = kafka.producer();
+        await producer.connect();
+
+        return new KafkaJobModelUpdateQueue(producer);
+      },
+    },
   ],
-  exports: [JobQueue, FindingsQueue],
+  exports: [JobQueue, FindingsQueue, JobModelUpdateQueue],
 })
 export class QueueModule {
   public constructor() {}

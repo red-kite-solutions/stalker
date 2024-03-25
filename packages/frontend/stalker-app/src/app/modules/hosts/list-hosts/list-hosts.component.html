@@ -38,7 +38,7 @@
         <ng-container matColumnDef="ip">
           <th mat-header-cell *matHeaderCellDef i18n="Ip|An Ip address">Ip</th>
           <td mat-cell *matCellDef="let element">
-            {{ element.ip }}
+            <a [routerLink]="'/hosts/' + element._id" (click)="$event.stopPropagation()">{{ element.ip }}</a>
           </td>
         </ng-container>
 
@@ -46,8 +46,17 @@
         <ng-container matColumnDef="domains">
           <th mat-header-cell *matHeaderCellDef i18n="Domain|A domain name">Domain</th>
           <td mat-cell *matCellDef="let element">
-            @for (domain of element.domains; track domain; let last = $last) {
-              {{ domain.name }}{{ !last ? ', ' : '' }}
+            @for (domain of element.domains; track domain; let i = $index; let last = $last) {
+              @if (i < maxDomainsPerHost) {
+                <a [routerLink]="'/domains/' + domain.id" (click)="$event.stopPropagation()"> {{ domain.name }}</a
+                >{{ !last ? ', ' : '' }}
+              }
+              @if (i === maxDomainsPerHost && maxDomainsPerHost + 1 === element.domains.length) {
+                <a [routerLink]="'/domains/' + domain.id" (click)="$event.stopPropagation()"> {{ domain.name }}</a>
+              }
+              @if (i === maxDomainsPerHost && maxDomainsPerHost + 1 !== element.domains.length) {
+                <span i18n="total ellipsis|total elements">... ({{ element.domains.length }} total)</span>
+              }
             }
           </td>
         </ng-container>
@@ -62,7 +71,7 @@
         <ng-container matColumnDef="tags">
           <th mat-header-cell *matHeaderCellDef i18n="Tags|Multiple tags describing something">Tags</th>
           <td mat-cell *matCellDef="let element">
-            <div class="tw-pt-1 tw-flex tw-flex-wrap tw-gap-x-[2px] tw-gap-y-1">
+            <div class="tw-pt-1 tw-flex tw-flex-wrap tw-gap-x-2 tw-gap-y-1">
               <app-new-pill-tag
                 [createdAtMilliseconds]="element.createdAt"
                 (click)="dateFilter($event)"

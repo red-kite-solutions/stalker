@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" modified="2024-02-20T20:27:50.802Z" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" etag="8ZdWwY7PAtBcAbEb6rhC" version="23.1.5" type="device">
+<mxfile host="app.diagrams.net" modified="2024-03-12T22:33:47.742Z" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" etag="_6WsikgyQ5k37DXaB4m3" version="23.1.5" type="device">
   <diagram name="Page-1" id="NgmtZgFtDOgiEoRsDzdS">
-    <mxGraphModel dx="2261" dy="2048" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="1816" dy="1711" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -97,6 +97,9 @@
             </Array>
           </mxGeometry>
         </mxCell>
+        <mxCell id="5TLCfPYBXIdna1w2jPTT-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="1gjuzAvfYbdJJjTT-Os5-26" target="1gjuzAvfYbdJJjTT-Os5-18">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
         <mxCell id="1gjuzAvfYbdJJjTT-Os5-26" value="Job1" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="220" y="720" width="120" height="60" as="geometry" />
         </mxCell>
@@ -119,6 +122,9 @@
             </Array>
           </mxGeometry>
         </mxCell>
+        <mxCell id="5TLCfPYBXIdna1w2jPTT-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="1gjuzAvfYbdJJjTT-Os5-29" target="1gjuzAvfYbdJJjTT-Os5-18">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
         <mxCell id="1gjuzAvfYbdJJjTT-Os5-29" value="Job2" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="353.5" y="720" width="120" height="60" as="geometry" />
         </mxCell>
@@ -137,6 +143,9 @@
             </Array>
           </mxGeometry>
         </mxCell>
+        <mxCell id="5TLCfPYBXIdna1w2jPTT-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="1gjuzAvfYbdJJjTT-Os5-32" target="1gjuzAvfYbdJJjTT-Os5-18">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
         <mxCell id="1gjuzAvfYbdJJjTT-Os5-32" value="..." style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="490" y="720" width="120" height="60" as="geometry" />
         </mxCell>
@@ -154,6 +163,9 @@
               <mxPoint x="1020" y="410" />
             </Array>
           </mxGeometry>
+        </mxCell>
+        <mxCell id="5TLCfPYBXIdna1w2jPTT-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="1gjuzAvfYbdJJjTT-Os5-35" target="1gjuzAvfYbdJJjTT-Os5-18">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="1gjuzAvfYbdJJjTT-Os5-35" value="JobN" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="630" y="720" width="120" height="60" as="geometry" />
@@ -203,13 +215,13 @@
         <mxCell id="1gjuzAvfYbdJJjTT-Os5-52" value="9092, mTLS" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
           <mxGeometry x="384" y="430" width="96" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="1gjuzAvfYbdJJjTT-Os5-53" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0;exitDx=170;exitDy=75;exitPerimeter=0;dashed=1;dashPattern=1 1;startArrow=none;startFill=0;endArrow=none;endFill=0;" parent="1" source="1gjuzAvfYbdJJjTT-Os5-54" edge="1">
+        <mxCell id="1gjuzAvfYbdJJjTT-Os5-53" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.741;exitDx=0;exitDy=0;exitPerimeter=0;dashed=1;dashPattern=1 1;startArrow=none;startFill=0;endArrow=none;endFill=0;" parent="1" source="1gjuzAvfYbdJJjTT-Os5-54" edge="1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="490" y="325" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="1gjuzAvfYbdJJjTT-Os5-54" value="The Jobs Manager publishes new jobs and fetches new findings and job logs.&lt;br&gt;Jobs Manager also publishes user given findings for himself" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;" parent="1" vertex="1">
-          <mxGeometry x="-180" y="250" width="170" height="130" as="geometry" />
+        <mxCell id="1gjuzAvfYbdJJjTT-Os5-54" value="The Jobs Manager publishes new jobs and fetches new findings and job logs.&lt;br&gt;Jobs Manager also publishes user given findings for himself.&lt;br&gt;&lt;br&gt;Jobs Manager gives job model updates to the Orchestrator. The Orchestrator keeps a cache of the possible jobs." style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;" parent="1" vertex="1">
+          <mxGeometry x="-180" y="170" width="170" height="210" as="geometry" />
         </mxCell>
         <mxCell id="1gjuzAvfYbdJJjTT-Os5-55" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0;exitDx=170;exitDy=65;exitPerimeter=0;dashed=1;dashPattern=1 1;startArrow=none;startFill=0;endArrow=none;endFill=0;" parent="1" source="1gjuzAvfYbdJJjTT-Os5-56" edge="1">
           <mxGeometry relative="1" as="geometry">
@@ -232,11 +244,11 @@
             <mxPoint x="180" y="750" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="1gjuzAvfYbdJJjTT-Os5-60" value="The jobs are spawned by k8s, following the information given by the Orchestrator" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;" parent="1" vertex="1">
+        <mxCell id="1gjuzAvfYbdJJjTT-Os5-60" value="The jobs are spawned by k8s, following the information given by the Orchestrator. They publish their findings to the Orchestrator&#39;s API." style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;" parent="1" vertex="1">
           <mxGeometry x="-170" y="710" width="210" height="100" as="geometry" />
         </mxCell>
         <mxCell id="1gjuzAvfYbdJJjTT-Os5-61" value="/api/ is for the FM API&lt;br&gt;/socket.io/ is for websockets&lt;br&gt;&lt;br&gt;/fr/ for french&lt;br&gt;/en/ for english" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;" parent="1" vertex="1">
-          <mxGeometry x="340" y="-100" width="170" height="120" as="geometry" />
+          <mxGeometry x="320" y="-100" width="190" height="120" as="geometry" />
         </mxCell>
         <mxCell id="1gjuzAvfYbdJJjTT-Os5-62" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="1gjuzAvfYbdJJjTT-Os5-65" target="1gjuzAvfYbdJJjTT-Os5-38" edge="1">
           <mxGeometry relative="1" as="geometry">
@@ -282,7 +294,7 @@
         <mxCell id="1gjuzAvfYbdJJjTT-Os5-72" value="80, 443, TLS" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
           <mxGeometry x="596" y="40" width="104" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="gxtnDYn6mX-JJENzuLt1-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=0;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="1gjuzAvfYbdJJjTT-Os5-38" target="1gjuzAvfYbdJJjTT-Os5-38">
+        <mxCell id="gxtnDYn6mX-JJENzuLt1-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=0;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" parent="1" source="1gjuzAvfYbdJJjTT-Os5-38" target="1gjuzAvfYbdJJjTT-Os5-38" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="290" y="220" />
@@ -290,8 +302,11 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="gxtnDYn6mX-JJENzuLt1-3" value="27017, mTLS" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+        <mxCell id="gxtnDYn6mX-JJENzuLt1-3" value="27017, mTLS" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
           <mxGeometry x="230" y="190" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="5TLCfPYBXIdna1w2jPTT-7" value="80" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="454" y="585" width="96" height="30" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
