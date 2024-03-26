@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { Equals, IsBoolean, IsIn, IsString } from 'class-validator';
+import { Equals, IsBoolean, IsIn, IsOptional, IsString } from 'class-validator';
 import { IsTypeIn } from '../../../validators/is-type-in.validator';
 import { SubscriptionsUtils } from './subscriptions.utils';
 
@@ -27,9 +27,11 @@ export class PatchSubscriptionDto {
   @Equals(true)
   @IsBoolean()
   @Type(() => Boolean)
+  @IsOptional()
   revert?: boolean;
 
   @IsBoolean()
   @Type(() => Boolean)
+  @IsOptional()
   isEnabled?: boolean;
 }

@@ -7,6 +7,10 @@
           [backRoute]="['/jobs/subscriptions']"
         ></app-page-header>
 
+        @if ((isEnabled$ | async) === false) {
+          <app-disabled-pill-tag class="tw-mt-[9px]"></app-disabled-pill-tag>
+        }
+
         <app-saving-button
           class="tw-mt-[9px]"
           [isSaving]="isSaving"
@@ -58,22 +62,26 @@
         >
           <div class="tw-flex tw-flex-col tw-gap-2">
             @if ((subscription$ | async)?.builtIn) {
-              <button mat-stroked-button class="tw-w-full" (click)="revertToOriginal()">
+              <button mat-menu-item class="tw-w-full" (click)="revertToOriginal()">
+                <mat-icon>settings_backup_restore</mat-icon>
                 <label i18n="Revert to original|Revert to original subscription">Revert to original</label>
               </button>
             }
 
-            @if ((subscription$ | async)?.enabled === false) {
-              <button mat-stroked-button color="primary" class="tw-w-full" (click)="updateEnabled(true)">
+            @if ((isEnabled$ | async) === false) {
+              <button mat-menu-item color="primary" class="tw-w-full" (click)="updateEnabled(true)">
+                <mat-icon>play_arrow</mat-icon>
                 <label i18n="Enable|Enables a subscription">Enable</label>
               </button>
             } @else {
-              <button mat-stroked-button color="primary" class="tw-w-full" (click)="updateEnabled(false)">
+              <button mat-menu-item color="primary" class="tw-w-full" (click)="updateEnabled(false)">
+                <mat-icon>pause</mat-icon>
                 <label i18n="Disable|Disables a subscription">Disable</label>
               </button>
             }
 
-            <button mat-stroked-button color="warn" class="tw-w-full" (click)="deleteSubscription()">
+            <button mat-menu-item color="warn" class="tw-w-full" (click)="deleteSubscription()">
+              <mat-icon>delete</mat-icon>
               <label i18n="Delete|Delete an item">Delete</label>
             </button>
           </div>

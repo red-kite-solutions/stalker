@@ -85,6 +85,7 @@ export class SubscriptionService {
     delete copy._id;
     delete copy.type;
     delete copy.projectId;
+    delete copy.isEnabled;
     if (copy.job?.parameters?.length === 0) {
       delete copy.job.parameters;
     }

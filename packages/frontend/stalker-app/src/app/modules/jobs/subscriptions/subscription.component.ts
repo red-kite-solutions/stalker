@@ -9,6 +9,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
@@ -20,7 +21,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, Observable, firstValueFrom, map, timer } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest, filter, firstValueFrom, map, of, switchMap, timer } from 'rxjs';
 import { eventSubscriptionKey } from 'src/app/api/jobs/subscriptions/event-subscriptions.service';
 import { SubscriptionService, SubscriptionType } from 'src/app/api/jobs/subscriptions/subscriptions.service';
 import { ThemeService } from 'src/app/services/theme.service';
@@ -33,6 +34,7 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
+import { DisabledPillTagComponent } from 'src/app/shared/widget/pill-tag/disabled-pill-tag.component';
 import { SavingButtonComponent } from 'src/app/shared/widget/spinner-button/saving-button.component';
 import { SpinnerButtonComponent } from 'src/app/shared/widget/spinner-button/spinner-button.component';
 import { TextMenuComponent } from 'src/app/shared/widget/text-menu/text-menu.component';
@@ -75,6 +77,7 @@ import { cronSubscriptionTemplate, eventSubscriptionTemplate } from './subscript
     MatOptionModule,
     MatIconModule,
     MatPaginatorModule,
+    MatMenuModule,
     MatSidenavModule,
     MatTabsModule,
     MatTooltipModule,
@@ -84,6 +87,7 @@ import { cronSubscriptionTemplate, eventSubscriptionTemplate } from './subscript
     PanelSectionModule,
     MatDividerModule,
     SavingButtonComponent,
+    DisabledPillTagComponent,
   ],
 })
 export class SubscriptionComponent implements OnInit, OnDestroy, HasUnsavedChanges {
@@ -98,6 +102,21 @@ export class SubscriptionComponent implements OnInit, OnDestroy, HasUnsavedChang
   public subscription$ = timer(0, 250).pipe(map(() => parse(this.code)));
   private id$ = this.activatedRoute.paramMap.pipe(map((x) => x.get('id')));
   private type$ = this.activatedRoute.queryParamMap.pipe(map((x) => x.get('type') as SubscriptionType));
+
+  /** Used before a subscription is saved. */
+  public temporaryIsEnabled$ = new BehaviorSubject(false);
+  private refreshIsEnabled$ = new BehaviorSubject(true);
+  public isEnabled$ = combineLatest([this.id$, this.type$, this.temporaryIsEnabled$, this.refreshIsEnabled$]).pipe(
+    filter(([id]) => id != null),
+    switchMap(([id, type, temporaryIsEnabled]) => {
+      if (id === 'create') {
+        return of({ isEnabled: temporaryIsEnabled });
+      } else {
+        return this.subscriptionService.get(type, id!);
+      }
+    }),
+    map((x) => x?.isEnabled)
+  );
 
   public selectedRow: Subscription | undefined;
   public tempSelectedRow: Subscription | undefined;
@@ -148,32 +167,6 @@ export class SubscriptionComponent implements OnInit, OnDestroy, HasUnsavedChang
     this.titleService.setTitle($localize`:Subscriptions list page title|:Subscriptions`);
   }
 
-  private validateCurrentChanges(next: Function) {
-    if (this.code === this.originalCode) {
-      next();
-      return;
-    }
-
-    const data: ConfirmDialogData = {
-      text: $localize`:Unsaved subscription changes|Unsaved subscription changes:There are unsaved changes to the current finding event subscription.`,
-      title: $localize`:Unsaved Changes Detected|There are unsaved changes that the user may want to save:Unsaved Changes Detected`,
-      primaryButtonText: $localize`:Cancel|Cancel current action:Cancel`,
-      dangerButtonText: $localize`:Discard|Confirm that the user wants to leave despite losing changes:Discard`,
-      onPrimaryButtonClick: () => {
-        this.dialog.closeAll();
-      },
-      onDangerButtonClick: () => {
-        next();
-        this.dialog.closeAll();
-      },
-    };
-
-    this.dialog.open(ConfirmDialogComponent, {
-      data,
-      restoreFocus: false,
-    });
-  }
-
   public async forceSave() {
     this.hasConfigChanged = true;
     await this.save();
@@ -213,6 +206,7 @@ export class SubscriptionComponent implements OnInit, OnDestroy, HasUnsavedChang
       const type = await firstValueFrom(this.type$);
 
       if (id === 'create') {
+        sub.isEnabled = await firstValueFrom(this.temporaryIsEnabled$);
         const newSub = await this.subscriptionService.create(type, sub);
         this.router.navigate(['/jobs', 'subscriptions', newSub._id], { queryParams: { type } });
       } else {
@@ -285,11 +279,10 @@ export class SubscriptionComponent implements OnInit, OnDestroy, HasUnsavedChang
 
           await this.subscriptionService.delete(type, id);
 
-          this.router.navigate(['/', 'jobs', 'subscriptions']);
           this.toastr.success(
             $localize`:Subscription deleted|The subscription has been deleted:Subscription successfully deleted`
           );
-          this.router.navigate(['/hosts/']);
+          this.router.navigate(['/', 'jobs', 'subscriptions']);
           this.dialog.closeAll();
         } catch (err) {
           const errorDeleting = $localize`:Error while deleting|Error while deleting an item:Error while deleting`;
@@ -305,22 +298,27 @@ export class SubscriptionComponent implements OnInit, OnDestroy, HasUnsavedChang
   }
 
   public async updateEnabled(isEnabled: boolean) {
-    try {
-      const id = await firstValueFrom(this.id$);
-      const type = await firstValueFrom(this.type$);
-      if (id == null) throw new Error('Id is null.');
+    const id = await firstValueFrom(this.id$);
+    const type = await firstValueFrom(this.type$);
+    if (id === null) return;
 
-      await this.subscriptionService.updateIsEnabled(type, id, isEnabled);
+    if (id === 'create') {
+      this.temporaryIsEnabled$.next(isEnabled);
+    } else {
+      try {
+        await this.subscriptionService.updateIsEnabled(type, id, isEnabled);
 
-      const message = isEnabled
-        ? $localize`:Subscription enabled|The subscription has been enabled:Subscription successfully enabled`
-        : $localize`:Subscription disabled|The subscription has been disabled:Subscription successfully disabled`;
+        const message = isEnabled
+          ? $localize`:Subscription enabled|The subscription has been enabled:Subscription successfully enabled`
+          : $localize`:Subscription disabled|The subscription has been disabled:Subscription successfully disabled`;
 
-      this.toastr.success(message);
-      this.dialog.closeAll();
-    } catch (err) {
-      const errorDeleting = $localize`:Error while toggling subscription state|Error while toggling subscription state:Error while toggling subscription state`;
-      this.toastr.error(errorDeleting);
+        this.refreshIsEnabled$.next(true);
+        this.toastr.success(message);
+        this.dialog.closeAll();
+      } catch (err) {
+        const errorDeleting = $localize`:Error while toggling subscription state|Error while toggling subscription state:Error while toggling subscription state`;
+        this.toastr.error(errorDeleting);
+      }
     }
   }
 

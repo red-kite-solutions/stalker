@@ -56,7 +56,7 @@ export class CronSubscriptionsService {
   public async create(dto: CronSubscriptionDto) {
     const sub: CronSubscription = {
       projectId: dto.projectId ? new Types.ObjectId(dto.projectId) : null,
-      isEnabled: true,
+      isEnabled: dto.isEnabled == null ? dto.isEnabled : true,
       name: dto.name,
       input: dto.input ? dto.input : null,
       cronExpression: dto.cronExpression,

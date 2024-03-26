@@ -17,7 +17,6 @@ import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, debounceTime, map, shareReplay, switchMap, tap } from 'rxjs';
 import { SubscriptionService } from 'src/app/api/jobs/subscriptions/subscriptions.service';
 import { AvatarComponent } from 'src/app/shared/components/avatar/avatar.component';
-import { SharedModule } from 'src/app/shared/shared.module';
 import {
   CronSubscription,
   EventSubscription,
@@ -28,6 +27,7 @@ import {
   ConfirmDialogData,
 } from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
 import { FilteredPaginatedTableComponent } from 'src/app/shared/widget/filtered-paginated-table/filtered-paginated-table.component';
+import { DisabledPillTagComponent } from 'src/app/shared/widget/pill-tag/disabled-pill-tag.component';
 import { subscriptionTypes } from './subscription-templates';
 
 @Component({
@@ -51,7 +51,7 @@ import { subscriptionTypes } from './subscription-templates';
     FilteredPaginatedTableComponent,
     MatDialogModule,
     MatTooltipModule,
-    SharedModule,
+    DisabledPillTagComponent,
   ],
 })
 export class ListSubscriptionsComponent {

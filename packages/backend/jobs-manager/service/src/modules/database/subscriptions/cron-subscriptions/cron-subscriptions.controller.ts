@@ -7,7 +7,6 @@ import {
   Patch,
   Post,
   Put,
-  Query,
   UseGuards,
 } from '@nestjs/common';
 import { DeleteResult, UpdateResult } from 'mongodb';
@@ -55,11 +54,11 @@ export class CronSubscriptionsController {
   @Patch(':id')
   async patch(
     @Param() idDto: MongoIdDto,
-    @Query() queryParams: PatchSubscriptionDto,
+    @Body() body: PatchSubscriptionDto,
   ): Promise<void> {
-    if (queryParams == null) throw new HttpBadRequestException();
+    if (body == null) throw new HttpBadRequestException();
 
-    const { revert, isEnabled } = queryParams;
+    const { revert, isEnabled } = body;
     if (isEnabled == null && revert == null)
       throw new HttpBadRequestException();
 

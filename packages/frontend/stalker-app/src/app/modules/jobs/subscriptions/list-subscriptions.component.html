@@ -42,10 +42,8 @@
             >{{ element.name }}</a
           >
 
-          @if (element.enabled === false) {
-            <app-pill-tag color="#aaaaaa" class="tw-mx-2" i18n="Disabled|Indicated a subscription is disabled"
-              >Disabled</app-pill-tag
-            >
+          @if (element.isEnabled === false) {
+            <app-disabled-pill-tag class="tw-mx-2"></app-disabled-pill-tag>
           }
         </td>
       </ng-container>
