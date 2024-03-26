@@ -66,7 +66,6 @@ export class EventSubscriptionsController {
     }
 
     if (isEnabled != null) {
-      console.log(body);
       await this.subscriptionsService.updateEnabled(idDto.id, isEnabled);
     }
   }

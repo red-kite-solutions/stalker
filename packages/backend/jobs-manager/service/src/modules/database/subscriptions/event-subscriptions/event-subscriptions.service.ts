@@ -36,15 +36,12 @@ export class EventSubscriptionsService {
   }
 
   public async updateEnabled(id: string, isEnabled: boolean) {
-    console.log(isEnabled);
     const subUpdate: Partial<EventSubscription> = { isEnabled };
 
-    const foo = await this.subscriptionModel.updateOne<EventSubscription>(
+    await this.subscriptionModel.updateOne<EventSubscription>(
       { _id: { $eq: new Types.ObjectId(id) } },
       subUpdate,
     );
-
-    console.log(foo);
   }
 
   public async get(id: string) {
