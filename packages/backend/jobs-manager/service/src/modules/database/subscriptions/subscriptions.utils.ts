@@ -240,8 +240,9 @@ export class SubscriptionsUtils {
     jobConditions: JobCondition[],
     finding: Finding,
   ) {
-    // If isEnabled is undefined, we consider it enabled. This is for
-    // backward compatibility reasons; the enabled flag did not initially exist.
+    // For backward compatibility, if isEnabled is undefined, we consider it enabled.
+    // This accommodates legacy models where the 'isEnabled' flag, absent initially,
+    // is represented by 'undefined' instead of 'true'.
     if (isEnabled === false) return false;
 
     let allConditionsMatch = true;
