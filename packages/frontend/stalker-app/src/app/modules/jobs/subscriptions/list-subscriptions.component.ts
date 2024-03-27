@@ -27,6 +27,7 @@ import {
   ConfirmDialogData,
 } from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
 import { FilteredPaginatedTableComponent } from 'src/app/shared/widget/filtered-paginated-table/filtered-paginated-table.component';
+import { DisabledPillTagComponent } from 'src/app/shared/widget/pill-tag/disabled-pill-tag.component';
 import { subscriptionTypes } from './subscription-templates';
 
 @Component({
@@ -50,6 +51,7 @@ import { subscriptionTypes } from './subscription-templates';
     FilteredPaginatedTableComponent,
     MatDialogModule,
     MatTooltipModule,
+    DisabledPillTagComponent,
   ],
 })
 export class ListSubscriptionsComponent {
@@ -157,11 +159,12 @@ export class ListSubscriptionsComponent {
     const event = subscription as EventSubscription;
     const cron = subscription as CronSubscription;
     const parts = [
-      subscription?.job?.name,
-      subscription?.name,
+      subscription.job?.name,
+      subscription.name,
       cron.cronExpression,
       event.finding,
       cron.cronExpression ? 'cron' : 'event',
+      subscription.isEnabled === false ? 'disabled' : 'enabled',
     ];
     return filters.some((filter) => this.normalizeString(parts.join(' ')).includes(filter));
   }

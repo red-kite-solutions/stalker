@@ -49,10 +49,13 @@
                 @if (element.endTime) {
                   <div>
                     <div i18n="Started|Started x days ago">Started {{ element.startTime | timeAgo }}</div>
-                    <div i18n="Took|Took x seconds">Took {{ element.endTime - element.startTime | humanize }}</div>
+                    <div i18n="Took|Took x seconds" class="tw-opacity-80">
+                      Took {{ element.endTime - element.startTime | humanize }}
+                    </div>
                   </div>
                 } @else {
                   <div i18n="Started|Started x days ago">Started {{ element.startTime | timeAgo }}</div>
+                  <div i18n="Currently running|This job is still running" class="tw-opacity-80">Currently running</div>
                 }
               </td>
             </ng-container>

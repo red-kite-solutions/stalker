@@ -1,6 +1,7 @@
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsIn,
   IsMongoId,
   IsNotEmpty,
@@ -17,6 +18,10 @@ export class CronSubscriptionDto {
   @IsString()
   @IsNotEmpty()
   public name!: string;
+
+  @IsBoolean()
+  @IsOptional()
+  public isEnabled?: boolean;
 
   @IsMongoId()
   @IsOptional()

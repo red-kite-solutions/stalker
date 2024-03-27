@@ -7,7 +7,6 @@ import {
   Patch,
   Post,
   Put,
-  Query,
   UseGuards,
 } from '@nestjs/common';
 import { DeleteResult, UpdateResult } from 'mongodb';
@@ -53,13 +52,23 @@ export class CronSubscriptionsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
   @Patch(':id')
-  async revertSubscription(
+  async patch(
     @Param() idDto: MongoIdDto,
-    @Query() queryParams: PatchSubscriptionDto,
-  ): Promise<UpdateResult> {
-    if (queryParams.revert)
-      return await this.subscriptionsService.revertToDefaults(idDto.id);
-    else throw new HttpBadRequestException();
+    @Body() body: PatchSubscriptionDto,
+  ): Promise<void> {
+    if (body == null) throw new HttpBadRequestException();
+
+    const { revert, isEnabled } = body;
+    if (isEnabled == null && revert == null)
+      throw new HttpBadRequestException();
+
+    if (revert) {
+      await this.subscriptionsService.revertToDefaults(idDto.id);
+    }
+
+    if (isEnabled != null) {
+      await this.subscriptionsService.updateEnabled(idDto.id, isEnabled);
+    }
   }
 
   @UseGuards(CronApiTokenGuard)

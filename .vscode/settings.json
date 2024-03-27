@@ -1,5 +1,9 @@
 {
-  "eslint.workingDirectories": ["./flow_manager", "./stalker_ui"],
+  "eslint.workingDirectories": [
+    "./packages/frontend/stalker-app",
+    "./packages/backend/jobs-manager/service",
+    "./packages/backend/cron/service"
+  ],
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
     "source.organizeImports": "explicit"

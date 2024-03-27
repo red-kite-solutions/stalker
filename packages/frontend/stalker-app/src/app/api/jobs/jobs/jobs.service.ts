@@ -69,8 +69,8 @@ export class JobsService {
       state: this.toStartedJobState(job),
       startTimestamp: job.startTime,
       endTimestamp: job.endTime,
-      startTime: new Date(job.startTime),
-      endTime: new Date(job.endTime),
+      startTime: job.startTime != null ? new Date(job.startTime) : undefined,
+      endTime: job.endTime != null ? new Date(job.endTime) : undefined,
     };
   }
 

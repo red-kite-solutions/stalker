@@ -224,19 +224,27 @@ export class SubscriptionsUtils {
    * @returns true if all the subscription's conditions matched
    */
   public static shouldExecute<T extends FindingCommand>(
+    isEnabled: boolean,
     jobConditions: JobCondition[],
     command: T,
   ) {
     return SubscriptionsUtils.shouldExecuteFromFinding(
+      isEnabled,
       jobConditions,
       command.finding,
     );
   }
 
   public static shouldExecuteFromFinding(
+    isEnabled: boolean,
     jobConditions: JobCondition[],
     finding: Finding,
   ) {
+    // For backward compatibility, if isEnabled is undefined, we consider it enabled.
+    // This accommodates legacy models where the 'isEnabled' flag, absent initially,
+    // is represented by 'undefined' instead of 'true'.
+    if (isEnabled === false) return false;
+
     let allConditionsMatch = true;
     for (const condition of jobConditions ?? []) {
       condition.lhs = SubscriptionsUtils.replaceValueIfReferingToFinding<
@@ -334,6 +342,7 @@ export class SubscriptionsUtils {
 
     const sub: CronSubscription = {
       name: subYamlJson.name,
+      isEnabled: true,
       input: subYamlJson.input ? subYamlJson.input : null,
       cronExpression: subYamlJson.cronExpression,
       builtIn: true,
@@ -367,6 +376,7 @@ export class SubscriptionsUtils {
 
     const sub: EventSubscription = {
       name: subYamlJson.name,
+      isEnabled: true,
       finding: subYamlJson.finding,
       jobName: subYamlJson.job.name,
       cooldown: subYamlJson.cooldown,

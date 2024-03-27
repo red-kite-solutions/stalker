@@ -41,6 +41,10 @@
             (click)="$event.stopPropagation()"
             >{{ element.name }}</a
           >
+
+          @if (element.isEnabled === false) {
+            <app-disabled-pill-tag class="tw-mx-2"></app-disabled-pill-tag>
+          }
         </td>
       </ng-container>
 

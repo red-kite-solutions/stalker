@@ -20,6 +20,9 @@ export class EventSubscription {
   public name!: string;
 
   @Prop()
+  public isEnabled!: boolean;
+
+  @Prop()
   public projectId?: Types.ObjectId;
 
   @Prop()

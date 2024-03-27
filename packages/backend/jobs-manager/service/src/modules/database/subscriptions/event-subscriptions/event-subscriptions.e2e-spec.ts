@@ -163,7 +163,7 @@ describe('Event Subscriptions Controller (e2e)', () => {
     expect(foundSubscription).toBe(true);
   });
 
-  it('Should revert a built-in event subscription (PATCH /event-subscriptions/{id}?revert=true)', async () => {
+  it('Should revert a built-in event subscription (PATCH /event-subscriptions/{id})', async () => {
     // Arrange
     let r = await getReq(app, testData.user.token, '/event-subscriptions');
     let builtInSub: EventSubscriptionsDocument;
@@ -178,12 +178,13 @@ describe('Event Subscriptions Controller (e2e)', () => {
     r = await patchReq(
       app,
       testData.user.token,
-      `/event-subscriptions/${builtInSub._id}?revert=true`,
+      `/event-subscriptions/${builtInSub._id}`,
       {
         ...builtInSub,
         _id: null,
         builtIn: null,
         name: changedName,
+        revert: true,
       },
     );
 
@@ -191,8 +192,8 @@ describe('Event Subscriptions Controller (e2e)', () => {
     r = await patchReq(
       app,
       testData.user.token,
-      `/event-subscriptions/${builtInSub._id}?revert=true`,
-      {},
+      `/event-subscriptions/${builtInSub._id}`,
+      { revert: true },
     );
 
     // Assert
@@ -264,7 +265,7 @@ describe('Event Subscriptions Controller (e2e)', () => {
     expect(success).toBe(true);
   });
 
-  it('Should have proper authorizations (PATCH /event-subscriptions/{id}?revert=true)', async () => {
+  it('Should have proper authorizations (PATCH /event-subscriptions/{id})', async () => {
     const success = await checkAuthorizations(
       testData,
       Role.User,
@@ -272,8 +273,11 @@ describe('Event Subscriptions Controller (e2e)', () => {
         return await patchReq(
           app,
           givenToken,
-          `/event-subscriptions/${subscriptionId}?revert=true`,
-          {},
+          `/event-subscriptions/${subscriptionId}`,
+          {
+            revert: true,
+            isEnabled: false,
+          },
         );
       },
     );

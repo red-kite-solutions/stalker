@@ -26,6 +26,7 @@ export interface CronSubscriptionData extends SubscriptionData {
 export interface SubscriptionData {
   type: 'cron' | 'event';
   name: string;
+  isEnabled: boolean;
   projectId: string;
   job: {
     name: string;
