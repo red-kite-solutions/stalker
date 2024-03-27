@@ -159,11 +159,12 @@ export class ListSubscriptionsComponent {
     const event = subscription as EventSubscription;
     const cron = subscription as CronSubscription;
     const parts = [
-      subscription?.job?.name,
-      subscription?.name,
+      subscription.job?.name,
+      subscription.name,
       cron.cronExpression,
       event.finding,
       cron.cronExpression ? 'cron' : 'event',
+      subscription.isEnabled === false ? 'disabled' : 'enabled',
     ];
     return filters.some((filter) => this.normalizeString(parts.join(' ')).includes(filter));
   }

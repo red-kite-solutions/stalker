@@ -601,6 +601,7 @@ describe('Findings Handler Base', () => {
         name: 'Yaml to parse',
         file: 'not a file.yaml',
         builtIn: true,
+        isEnabled: true,
         cronExpression: '*/30 * * * * *',
         jobName: 'HostnameResolvingJob',
         jobParameters: [{ name: 'domainName', value: 'example.com' }],
@@ -636,6 +637,7 @@ describe('Findings Handler Base', () => {
         file: 'not a file.yaml',
         cooldown: 82800,
         builtIn: true,
+        isEnabled: true,
         finding: 'PortFinding',
         jobName: 'HttpServerCheckJob',
         jobParameters: [
