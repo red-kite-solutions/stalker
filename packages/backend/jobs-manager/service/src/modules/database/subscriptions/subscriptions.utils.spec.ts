@@ -53,12 +53,12 @@ describe('Findings Handler Base', () => {
 
   describe('Enabled flag', () => {
     it.each([
-      [true, true],
-      [true, undefined],
-      [false, false],
+      { isEnabled: true, expected: true },
+      { isEnabled: undefined, expected: true },
+      { isEnabled: false, expected: false },
     ])(
-      'Should return %s when enabled is %s',
-      (expected: boolean, isEnabled: boolean) => {
+      'Should return $expected when enabled is $isEnabled',
+      ({ expected, isEnabled }) => {
         // Arrange
         const hnFinding = new HostnameFinding();
         hnFinding.domainName = 'stalker.is';
