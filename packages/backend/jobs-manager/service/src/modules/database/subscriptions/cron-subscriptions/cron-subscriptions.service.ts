@@ -324,8 +324,12 @@ export class CronSubscriptionsService {
         sub.conditions,
         finding,
       )
-    )
+    ) {
+      this.logger.debug(
+        `Skipping job publication for ${sub.name}; conditions not met or subscription is disabled.`,
+      );
       return;
+    }
 
     const parametersCopy: JobParameter[] = JSON.parse(
       JSON.stringify(sub.jobParameters),

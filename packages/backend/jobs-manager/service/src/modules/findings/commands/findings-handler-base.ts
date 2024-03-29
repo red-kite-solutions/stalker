@@ -44,9 +44,12 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
           sub.conditions,
           command,
         )
-      )
+      ) {
+        this.logger.debug(
+          `Skipping job publication for ${sub.name}; conditions not met or subscription is disabled.`,
+        );
         continue;
-
+      }
       // This loop ensures that all parameters refering to a finding's output
       // (ex: ${ip} for refering to an ip parameter of a finding) is replaced with the
       // proper value. The check for the variable name is case insensitive.
