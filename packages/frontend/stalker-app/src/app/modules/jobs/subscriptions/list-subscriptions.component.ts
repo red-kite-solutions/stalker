@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -13,9 +13,8 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, debounceTime, map, shareReplay, switchMap, tap } from 'rxjs';
-import { SubscriptionService } from 'src/app/api/jobs/subscriptions/subscriptions.service';
+import { SubscriptionService, SubscriptionType } from 'src/app/api/jobs/subscriptions/subscriptions.service';
 import { AvatarComponent } from 'src/app/shared/components/avatar/avatar.component';
 import {
   CronSubscription,
@@ -23,11 +22,11 @@ import {
   SubscriptionData,
 } from 'src/app/shared/types/subscriptions/subscription.type';
 import {
-  ConfirmDialogComponent,
-  ConfirmDialogData,
-} from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
-import { FilteredPaginatedTableComponent } from 'src/app/shared/widget/filtered-paginated-table/filtered-paginated-table.component';
+  ElementMenuItems,
+  FilteredPaginatedTableComponent,
+} from 'src/app/shared/widget/filtered-paginated-table/filtered-paginated-table.component';
 import { DisabledPillTagComponent } from 'src/app/shared/widget/pill-tag/disabled-pill-tag.component';
+import { SubscriptionInteractionService } from './subscription-interaction.service';
 import { subscriptionTypes } from './subscription-templates';
 
 @Component({
@@ -86,63 +85,24 @@ export class ListSubscriptionsComponent {
 
   constructor(
     private subscriptionsService: SubscriptionService,
-    private toastr: ToastrService,
     private titleService: Title,
-    private dialog: MatDialog
+    private subscriptionInteractor: SubscriptionInteractionService
   ) {
     this.titleService.setTitle($localize`:Subscriptions list page title|:Subscriptions`);
   }
 
-  public async delete() {
-    let data: ConfirmDialogData = {
-      text: $localize`:Select subscriptions again|No subscription was selected so there is nothing to delete:Select the subscriptions to delete and try again.`,
-      title: $localize`:Nothing to delete|Tried to delete something, but there was nothing to delete:Nothing to delete`,
-      primaryButtonText: $localize`:Ok|Accept or confirm:Ok`,
-      onPrimaryButtonClick: () => {
-        this.dialog.closeAll();
-      },
-    };
-
-    const bulletPoints: string[] = Array<string>();
-    this.selection.selected.forEach((sub: SubscriptionData) => {
-      const bp = sub.name;
-      bulletPoints.push(bp);
-    });
-
-    if (this.selection.selected.length > 0) {
-      data = {
-        text: $localize`:Confirm subscription deletion|Confirmation message asking if the user really wants to delete this subscription:Do you really wish to delete these subscriptions permanently ?`,
-        title: $localize`:Deleting subscriptions|Title of a page to delete a subscription:Deleting subscriptions`,
-        primaryButtonText: $localize`:Cancel|Cancel current action:Cancel`,
-        dangerButtonText: $localize`:Delete permanently|Confirm that the user wants to delete the item permanently:Delete permanently`,
-        listElements: bulletPoints,
-        onPrimaryButtonClick: () => {
-          this.dialog.closeAll();
-        },
-        onDangerButtonClick: async () => {
-          for (const sub of this.selection.selected) {
-            try {
-              await this.subscriptionsService.delete(sub.type, sub._id);
-            } catch {
-              this.toastr.error($localize`:Error while deleting|Error while deleting:Error while deleting`);
-              return;
-            }
-          }
-
-          this.toastr.success(
-            $localize`:Successfully deleted subscription|Successfully deleted subscription:Successfully deleted subscription`
-          );
-
-          this.refreshData$.next();
-          this.dialog.closeAll();
-        },
-      };
+  public async deleteBatch(subscriptions: (CronSubscription | EventSubscription)[]) {
+    const result = await this.subscriptionInteractor.deleteBatch(subscriptions);
+    if (result) {
+      this.refreshData$.next();
     }
+  }
 
-    this.dialog.open(ConfirmDialogComponent, {
-      data,
-      restoreFocus: false,
-    });
+  public async updateEnabled(id: string, type: SubscriptionType, isEnabled: boolean) {
+    const result = await this.subscriptionInteractor.updateIsEnabled(id, type, isEnabled);
+    if (result) {
+      this.refreshData$.next();
+    }
   }
 
   public revertToDefault() {}
@@ -175,4 +135,32 @@ export class ListSubscriptionsComponent {
       .replace(/[\u0300-\u036f]/g, '')
       .toLowerCase();
   }
+
+  public generateMenuItem = (element: CronSubscription | EventSubscription): ElementMenuItems[] => {
+    if (!element) return [];
+    const menuItems: ElementMenuItems[] = [];
+
+    const { _id, type } = element;
+    if (element.isEnabled) {
+      menuItems.push({
+        icon: 'pause',
+        label: $localize`:Disable|Disables a subscription:Disable`,
+        action: () => this.updateEnabled(_id, type, false),
+      });
+    } else {
+      menuItems.push({
+        icon: 'play_arrow',
+        label: $localize`:Enable|Enables a subscription:Enable`,
+        action: () => this.updateEnabled(_id, type, true),
+      });
+    }
+
+    menuItems.push({
+      action: () => this.deleteBatch([element]),
+      icon: 'delete',
+      label: $localize`:Delete subscription|Delete subscription:Delete`,
+    });
+
+    return menuItems;
+  };
 }

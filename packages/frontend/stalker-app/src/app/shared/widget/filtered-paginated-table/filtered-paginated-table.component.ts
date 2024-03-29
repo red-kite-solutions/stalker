@@ -51,6 +51,12 @@ import { AvatarComponent } from '../../components/avatar/avatar.component';
 import { IdentifiedElement } from '../../types/identified-element.type';
 import { CodeEditorComponent } from '../code-editor/code-editor.component';
 
+export interface ElementMenuItems {
+  label: string;
+  icon: string;
+  action: () => Promise<unknown> | void;
+}
+
 @Component({
   standalone: true,
   selector: 'app-filtered-paginated-table',
@@ -126,6 +132,7 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
   @Input() elementLinkActive = true;
   @Input() queryParamsFunc: (row: T) => {} = () => ({});
   @Input() dateSearchEnabled = false;
+  @Input() menuFactory?: (element: T) => ElementMenuItems[];
   @Input() datePickerLabel =
     $localize`:Default date picker|Date picker label, the first time an item was seen:First seen`;
 
