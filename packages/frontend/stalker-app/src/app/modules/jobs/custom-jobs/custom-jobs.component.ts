@@ -36,10 +36,6 @@ import { PanelSectionModule } from 'src/app/shared/components/panel-section/pane
 import { HasUnsavedChanges } from 'src/app/shared/guards/unsaved-changes-can-deactivate.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { FileTab } from 'src/app/shared/widget/code-editor/code-editor.type';
-import {
-  ConfirmDialogComponent,
-  ConfirmDialogData,
-} from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
 import { SavingButtonComponent } from 'src/app/shared/widget/spinner-button/saving-button.component';
 import { SpinnerButtonComponent } from 'src/app/shared/widget/spinner-button/spinner-button.component';
 import { TextMenuComponent } from 'src/app/shared/widget/text-menu/text-menu.component';
@@ -57,6 +53,7 @@ import {
   validCustomJobTypeDetails,
 } from '../../../shared/types/jobs/custom-job.type';
 import { CodeEditorComponent, CodeEditorTheme } from '../../../shared/widget/code-editor/code-editor.component';
+import { CustomJobsInteractionService } from './custom-jobs-interaction.service';
 import { nucleiFindingHandlerTemplate } from './nuclei-finding-handler-template';
 
 @Component({
@@ -154,6 +151,7 @@ export class CustomJobsComponent implements OnInit, OnDestroy, HasUnsavedChanges
   constructor(
     private dialog: MatDialog,
     private customJobsService: CustomJobsService,
+    private customJobsInteractor: CustomJobsInteractionService,
     private toastr: ToastrService,
     private titleService: Title,
     private settingsService: SettingsService,
@@ -405,34 +403,13 @@ export class CustomJobsComponent implements OnInit, OnDestroy, HasUnsavedChanges
 
   public async delete() {
     const id = await firstValueFrom(this.id$);
-    if (id == null) throw new Error('Missing id.');
-
-    const data: ConfirmDialogData = {
-      text: $localize`:Confirm custom job deletion|Confirmation message asking if the user really wants to delete this custom job:Do you really wish to delete this custom job permanently ?`,
-      title: $localize`:Deleting Custom Job|Title of a page to delete a custom job:Deleting custom job`,
-      primaryButtonText: $localize`:Cancel|Cancel current action:Cancel`,
-      dangerButtonText: $localize`:Delete permanently|Confirm that the user wants to delete the item permanently:Delete permanently`,
-      onPrimaryButtonClick: () => {
-        this.dialog.closeAll();
+    const result = await this.customJobsInteractor.delete([
+      {
+        _id: id!,
+        name: this.customJobName!,
       },
-      onDangerButtonClick: async () => {
-        try {
-          await this.customJobsService.delete(id);
-          this.toastr.success(
-            $localize`:Successfully deleted subscription|Successfully deleted subscription:Successfully deleted subscription`
-          );
+    ]);
 
-          await this.router.navigate(['/jobs', 'custom']);
-        } catch {
-          this.toastr.error($localize`:Error while deleting|Error while deleting:Error while deleting`);
-        }
-        this.dialog.closeAll();
-      },
-    };
-
-    this.dialog.open(ConfirmDialogComponent, {
-      data,
-      restoreFocus: false,
-    });
+    if (result) await this.router.navigate(['/jobs', 'custom']);
   }
 }
