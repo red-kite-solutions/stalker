@@ -1,8 +1,15 @@
 @if (host$ | async; as host) {
-  <app-page-header
-    [backRoute]="['../..']"
-    [parts]="[(projects$ | async | whereId: [host?.projectId])?.name, host.ip, (port$ | async)?.port]"
-  ></app-page-header>
+  <div class="tw-flex tw-items-center tw-px-4 tw-gap">
+    <app-page-header
+      [backRoute]="['../..']"
+      [parts]="[(projects$ | async | whereId: [host?.projectId])?.name, host.ip, (port$ | async)?.port]"
+    ></app-page-header>
+
+    @if (port.blocked) {
+      <app-blocked-pill-tag class="tw-mt-[9px]"></app-blocked-pill-tag>
+    }
+  </div>
+
   <div class="content-wrapper">
     <div class="content">
       <findings-list [correlationKey]="(port$ | async)?.correlationKey"></findings-list>
