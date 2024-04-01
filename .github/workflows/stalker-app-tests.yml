@@ -1,0 +1,46 @@
+name: Stalker App
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/frontend.yml
+      - "packages/frontend/stalker-app/**"
+
+jobs:
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      # FIXME: When we get rid of flex-layout and update the color picker, then we can remove legacy peer-deps.
+      - run: yarn install --immutable
+        working-directory: packages/frontend/stalker-app
+
+      - run: npm run test:cicd
+        working-directory: packages/frontend/stalker-app
+
+  prod-build:
+    name: Production Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      # FIXME: When we get rid of flex-layout and update the color picker, then we can remove legacy peer-deps.
+      - run: yarn install --immutable
+        working-directory: packages/frontend/stalker-app
+
+      - run: npm run build --prod
+        working-directory: packages/frontend/stalker-app

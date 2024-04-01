@@ -10,23 +10,24 @@ This article describes how to implement a job in Stalker. This process involves 
 currently one type of job: a _python job_.
 
 There are a few ways a job can be started: manually (through user input), or automatically (through configured subscriptions). In any case,
-when a job needs to be run, the Flow Manager (FM) drops a message on the _Job Requests Queue_. The Orchestrator consumes requests and runs
+when a job needs to be run, the Jobs Manager (JM) drops a message on the _Job Requests Queue_. The Orchestrator consumes requests and runs
 jobs inside [Kubernetes Jobs](https://kubernetes.io/docs/concepts/workloads/controllers/job/). The Orchestrator monitors the container
 standard output; this is how the job communicates its _findings_ and more to Stalker.
 
-- [Python](#python)
-  - [Setup](#setup)
-- [Making contact with the outside world](#making-contact-with-the-outside-world)
-  - [Producing findings](#producing-findings)
-  - [Producing logs](#producing-logs)
-- [Built-in Jobs](#built-in-jobs)
-- [Custom Jobs](#custom-jobs)
-  - [Custom Job Input](#custom-job-input)
-  - [Custom Job Output](#custom-job-output)
-  - [Types of custom jobs](#types-of-custom-jobs)
-    - [Python Custom Job](#python-custom-job)
-    - [Nuclei Custom Job](#nuclei-custom-job)
-      - [Nuclei Custom Finding Handling](#nuclei-custom-finding-handling)
+* [Python](#python)
+  * [Setup](#setup)
+* [Making contact with the outside world](#making-contact-with-the-outside-world)
+  * [Producing findings](#producing-findings)
+  * [Producing logs](#producing-logs)
+  * [Updating the job's status](#updating-the-jobs-status)
+* [Built-in Jobs](#built-in-jobs)
+* [Custom Jobs](#custom-jobs)
+  * [Custom Job Input](#custom-job-input)
+  * [Custom Job Output](#custom-job-output)
+  * [Types of custom jobs](#types-of-custom-jobs)
+    * [Python Custom Job](#python-custom-job)
+    * [Nuclei Custom Job](#nuclei-custom-job)
+      * [Nuclei Custom Finding Handling](#nuclei-custom-finding-handling)
 
 ## Python
 
@@ -45,13 +46,7 @@ pip install -r requirements.txt
 ## Making contact with the outside world
 
 The goal of jobs is to produce _findings_. A job may also produce logs to inform the outside world whether things are going well or not.
-Jobs communicate with Stalker through their standard output (STDOUT). To differentiate common logs from logs that are pertinent to Stalker,
-jobs must tag logs with a prefix. Here's a list of supported prefixes.
-
-| Syntax                                     | Description           |
-| ------------------------------------------ | --------------------- |
-| @finding \<[finding](#producing-findings)> | Produces a finding.   |
-| @debug \<[message](#producing-logs)>       | Logs a debug message. |
+Jobs communicate with Stalker through the orchestrator's API.
 
 ### Producing findings
 
@@ -64,22 +59,41 @@ To learn more about how to produce findings, [click here](/docs/concepts/finding
 Logs let jobs communicate miscellaneous information to the outside world. It could be a progress report, an error log, an inspirational
 quote, anything works.
 
-To output a log, simply write a string prefixed with `@debug` to the standard output.
+To output a log, simply send a string with a log level to the Orchestrator by using Stalker's python SDK.
 
 Example:
 
 ```python
-print("@debug Hello world!")
+from stalker_job_sdk import log_debug
+
+log_debug("Hello world!")
 ```
 
 There are different log levels available:
 
-| Level         | Prefix   |
-| ------------- | -------- |
-| Debugging     | @debug   |
-| Informational | @info    |
-| Warning       | @warning |
-| Error         | @error   |
+| Level         | function    |
+| ------------- | ----------- |
+| Debugging     | log_debug   |
+| Informational | log_info    |
+| Warning       | log_warning |
+| Error         | log_error   |
+
+### Updating the job's status
+
+Before exiting, a job must update it's status to the orchestrator. Otherwise, it will never be marked as finished.
+
+To update the status, simply use the SDK:
+
+```python
+from stalker_job_sdk import log_status, JobStatus
+
+# If the job succeeded
+log_status(JobStatus.SUCCESS)
+# or, if the job failed
+log_status(JobStatus.FAILED)
+```
+
+Updating the status should be the last thing done by your job before exiting.
 
 ## Built-in Jobs
 
@@ -88,10 +102,10 @@ running.
 
 To implement a `python` built-in job, the following files need to be created :
 
-| File name                                                                        | Service      | Description                                                                       |
-| -------------------------------------------------------------------------------- | ------------ | --------------------------------------------------------------------------------- |
-| /flow_manager/src/modules/database/custom-jobs/built-in/code/my-new-job.job.yaml | Flow manager | Create the new job's metadata in yaml based on the `CustomJobMetadata` interface. |
-| /flow_manager/src/modules/database/custom-jobs/built-in/code/code/my-new-job.py  | Flow manager | Create the new job's python code.                                                 |
+| File name                                                                                                 | Service      | Description                                                                       |
+| --------------------------------------------------------------------------------------------------------- | ------------ | --------------------------------------------------------------------------------- |
+| /packages/backend/jobs-manager/service/src/modules/database/custom-jobs/built-in/code/my-new-job.job.yaml | Jobs manager | Create the new job's metadata in yaml based on the `CustomJobMetadata` interface. |
+| /packages/backend/jobs-manager/service/src/modules/database/custom-jobs/built-in/code/code/my-new-job.py  | Jobs manager | Create the new job's python code.                                                 |
 
 > The name of the python file must match the path given in the metadata file.
 

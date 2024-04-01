@@ -20,7 +20,7 @@ Stalker's API can be used by third-party tools for automated consumption.
 - [Findings](/docs/concepts/findings)
 - [Subscriptions](/docs/concepts/subscriptions)
 - [Secrets](/docs/concepts/secrets)
-- [Implementing jobs](/docs/tutorials/implementing-jobs)
+- [Jobs](/docs/concepts/jobs)
 
 ## Installing Stalker
 
@@ -34,10 +34,18 @@ You can use Stalker with your own production ready deployment. Simply follow the
 - keytool
 - openssl
 
+If you use a `Ubuntu Server`, you can use the provided initialization script. Simply run:
+
+```bash
+curl https://raw.githubusercontent.com/red-kite-solutions/stalker/main/init_ubuntu.sh | bash
+```
+
+If you ran the script successfully, you can log out and log back in, and then directly go to [start stalker](#5-start-stalker).
+
 ### 2. Clone the repository
 
 ```bash
-git clone https://github.com/red-kite-solutions/Stalker && cd Stalker
+git clone https://github.com/red-kite-solutions/Stalker && cd stalker
 ```
 
 ### 3. Setup your preferences
@@ -62,7 +70,7 @@ sudo groupadd docker
 sudo usermod -aG docker $USER
 ```
 
-### 5. Start Stalker:
+### 5. Start Stalker
 
 > When initializing for the first time, Stalker will prompt you several times for your root CA key's password.
 
@@ -78,6 +86,8 @@ Add your `STALKER_HOSTNAME` to your `/etc/hosts` file.
 # STALKER_HOSTNAME in /etc/hosts
 127.0.0.1       stalker.lan
 ```
+
+> Specify your server's IP if you want to access it from somewhere else than localhost.
 
 ### 7. Install the root ca
 
@@ -97,7 +107,7 @@ Any time you want to start Stalker again in the future, simply run the start up 
 ./stalker
 ```
 
-If something went wrong during the install,
+> If something went wrong during the install, or you simply want to rerun the setup, you can run Stalker with the `--force-setup` flag.
 
 ## Core concepts
 

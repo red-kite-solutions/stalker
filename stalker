@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Minikube resources
+MINIKUBE_RAM=16384
+MINIKUBE_CPU=8
 
 if [[ $* == *--help* || $* == *-h* ]]; then
   echo 'Stalker setup tool'
@@ -34,6 +37,6 @@ if [ ! -f "devspace.prod.yaml" ]; then
 fi
 
 if ! (minikube status &>/dev/null); then
-  minikube start --driver=docker --memory=16384 --cpus=8
+  minikube start --driver=docker --memory=$MINIKUBE_RAM --cpus=$MINIKUBE_CPU
 fi
 devspace --var="STALKER_ENVIRONMENT=prod" run-pipeline prod -n stalker

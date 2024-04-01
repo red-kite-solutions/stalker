@@ -1,0 +1,110 @@
+:host {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding-top: 0;
+  align-items: center;
+}
+
+.content {
+  height: calc(100% - 64px);
+}
+
+mat-drawer {
+  width: 312px;
+}
+
+app-job-logs {
+  border-radius: 4px;
+  display: block;
+  overflow: hidden;
+}
+
+.container {
+  margin-right: 20px;
+}
+
+table {
+  margin: 0 -16px -16px -16px;
+  width: calc(100% + 32px);
+}
+
+.rows:hover {
+  background-color: var(--mat-table-background-color-hover);
+}
+
+.rows {
+  cursor: pointer;
+}
+
+mat-divider {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  margin-left: -16px;
+  margin-right: -16px;
+}
+
+h3 {
+  opacity: 0.7;
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+h3.output {
+  margin-top: 10px;
+}
+
+.choose-job {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  top: 64px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+
+  h1 {
+    margin-top: -64px;
+    position: relative;
+    z-index: 10000;
+    font-size: 1.5em;
+    opacity: 0.9;
+  }
+
+  mat-icon {
+    width: 82px;
+    height: 82px;
+    font-size: 6em;
+    margin-left: -12px;
+  }
+
+  &::before {
+    content: '';
+    background-color: var(--mat-sidenav-content-background-color);
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    top: 0;
+    z-index: 1000;
+    opacity: 0.65;
+  }
+}
+
+.search {
+  margin-bottom: -24px;
+  margin-left: -16px;
+  margin-right: -16px;
+}
+
+.center-text {
+  text-align: center;
+}
