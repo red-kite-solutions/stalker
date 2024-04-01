@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -26,6 +25,7 @@ import { ProjectsService } from 'src/app/api/projects/projects.service';
 import { TagsService } from 'src/app/api/tags/tags.service';
 import { ProjectSummary } from 'src/app/shared/types/project/project.summary';
 import { Tag } from 'src/app/shared/types/tag.type';
+import { BlockedPillTagComponent } from 'src/app/shared/widget/pill-tag/blocked-pill-tag.component';
 import { TextMenuComponent } from 'src/app/shared/widget/text-menu/text-menu.component';
 import { PortsService } from '../../../api/ports/ports.service';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
@@ -34,13 +34,10 @@ import { SharedModule } from '../../../shared/shared.module';
 import { Domain } from '../../../shared/types/domain/domain.interface';
 import { Page } from '../../../shared/types/page.type';
 import { PortNumber } from '../../../shared/types/ports/port.interface';
-import {
-  ConfirmDialogComponent,
-  ConfirmDialogData,
-} from '../../../shared/widget/confirm-dialog/confirm-dialog.component';
 import { NewPillTagComponent } from '../../../shared/widget/pill-tag/new-pill-tag.component';
 import { SelectItem } from '../../../shared/widget/text-select-menu/text-select-menu.component';
 import { FindingsModule } from '../../findings/findings.module';
+import { DomainsInteractionsService } from '../domains-interactions.service';
 
 @Component({
   standalone: true,
@@ -57,6 +54,7 @@ import { FindingsModule } from '../../findings/findings.module';
     MatTooltipModule,
     MatMenuModule,
     TextMenuComponent,
+    BlockedPillTagComponent,
   ],
   selector: 'app-view-domain',
   templateUrl: './view-domain.component.html',
@@ -191,7 +189,6 @@ export class ViewDomainComponent implements OnDestroy {
   }
 
   /**
-   *
    * @param item A SelectItem, but contains all the attributes of a Tag.
    */
   public async itemSelected(item: SelectItem) {
@@ -216,89 +213,35 @@ export class ViewDomainComponent implements OnDestroy {
   }
 
   public async deleteDomain() {
-    const errorDeleting = $localize`:Error while deleting|Error while deleting an item:Error while deleting`;
-    if (!this.domainId) {
-      this.toastr.error(errorDeleting);
+    const domain = await firstValueFrom(this.domain$);
+    const result = await this.domainsInteractor.deleteBatch([domain], this.projects);
+
+    if (result) {
+      this.router.navigate(['/domains/']);
     }
-
-    const data: ConfirmDialogData = {
-      text: $localize`:Confirm domain deletion|Confirmation message asking if the user really wants to delete the domain:Do you really wish to delete this domain permanently ?`,
-      title: $localize`:Deleting domain|Title of a page to delete a domain:Deleting domain`,
-      primaryButtonText: $localize`:Cancel|Cancel current action:Cancel`,
-      dangerButtonText: $localize`:Delete permanently|Confirm that the user wants to delete the item permanently:Delete permanently`,
-      onPrimaryButtonClick: () => {
-        this.dialog.closeAll();
-      },
-      onDangerButtonClick: async () => {
-        try {
-          await this.domainsService.delete(this.domainId);
-          this.toastr.success(
-            $localize`:Domain deleted|The domain has been successfully deleted:Domain successfully deleted`
-          );
-          this.router.navigate(['/hosts/']);
-          this.dialog.closeAll();
-        } catch (err) {
-          this.toastr.error(errorDeleting);
-        }
-      },
-    };
-
-    this.dialog.open(ConfirmDialogComponent, {
-      data,
-      restoreFocus: false,
-    });
   }
 
-  public blockDomain(block: boolean) {
-    const errorBlocking = $localize`:Error while blocking|Error while blocking an item:Error while blocking`;
-    if (!this.domainId) {
-      this.toastr.error(errorBlocking);
+  public async blockDomain(block: boolean) {
+    const result = await this.domainsInteractor.block(this.domainId, block);
+    if (result) {
+      const d = await firstValueFrom(this.domainsService.get(this.domainId));
+      this.domain.blocked = d.blocked;
+      this.domain.blockedAt = d.blockedAt;
+
+      this.cdr.markForCheck();
     }
-
-    let data = {
-      text: block
-        ? $localize`:Confirm block domain|Confirmation message asking if the user wants to block the domain:Do you really wish to block this domain?`
-        : $localize`:Confirm unblock domain|Confirmation message asking if the user wants to unblock the domain:Do you really wish to unblock this domain?`,
-      title: block
-        ? $localize`:Blocking domain|Title of a page to block a domain:Blocking domain`
-        : $localize`:Unblocking domain|Title of a page to unblock a domain:Unblocking domain`,
-      primaryButtonText: block ? $localize`:Block|Block an item:Block` : $localize`:Unblock|Unblock an item:Unblock`,
-      enableCancelButton: true,
-      onPrimaryButtonClick: async () => {
-        try {
-          await this.domainsService.block([this.domainId], block);
-          this.toastr.success(
-            block
-              ? $localize`:Domain blocked|Blocked a domain:Domain blocked successfully`
-              : $localize`:Domain unblocked|Unblocked a domain:Domain unblocked successfully`
-          );
-          const d = await firstValueFrom(this.domainsService.get(this.domainId));
-          this.domain.blocked = d.blocked;
-          this.domain.blockedAt = d.blockedAt;
-          this.cdr.markForCheck();
-          this.dialog.closeAll();
-        } catch {
-          this.toastr.error(errorBlocking);
-        }
-      },
-    };
-
-    this.dialog.open(ConfirmDialogComponent, {
-      data,
-      restoreFocus: false,
-    });
   }
 
   constructor(
     private route: ActivatedRoute,
     private domainsService: DomainsService,
+    private domainsInteractor: DomainsInteractionsService,
     private projectsService: ProjectsService,
     private tagsService: TagsService,
     private titleService: Title,
     private toastr: ToastrService,
     private portsService: PortsService,
     private router: Router,
-    public dialog: MatDialog,
     private cdr: ChangeDetectorRef
   ) {}
 }
