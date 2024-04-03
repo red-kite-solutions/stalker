@@ -207,7 +207,7 @@ export class CustomJobsComponent implements OnInit, OnDestroy, HasUnsavedChanges
           code: '',
           jobPodConfigId: settingOptions[0]._id,
           language: 'python',
-          name: 'New job',
+          name: $localize`:New job|A job's name when creating a new job:New job`,
           type: 'code',
         };
       }
