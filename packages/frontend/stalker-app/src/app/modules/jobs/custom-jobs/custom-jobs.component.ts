@@ -193,7 +193,9 @@ export class CustomJobsComponent implements OnInit, OnDestroy, HasUnsavedChanges
           code: template.code,
           jobPodConfigId: template.jobPodConfigId ?? settingOptions[0]._id,
           language: template.language,
-          name: `Template: ${template.name}`,
+          name:
+            $localize`:Template|Prefixing with Template when creating a new job from a template:Template` +
+            `: ${template.name}`,
           type: template.type,
           findingHandler: template.findingHandler ?? undefined,
           findingHandlerEnabled: template.findingHandlerEnabled ?? undefined,
