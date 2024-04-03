@@ -21,3 +21,4 @@ parameters:
     default: [3000, 3389, 8000, 8080, 8443]
 jobPodConfigName: XL
 codeFilePath: code/TcpPortScanningJob.py
+templateOrdering: '/built-in/python'

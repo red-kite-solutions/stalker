@@ -42,8 +42,10 @@ import {
 import { SavingButtonComponent } from 'src/app/shared/widget/spinner-button/saving-button.component';
 import { SpinnerButtonComponent } from 'src/app/shared/widget/spinner-button/spinner-button.component';
 import { TextMenuComponent } from 'src/app/shared/widget/text-menu/text-menu.component';
+import { CustomJobTemplatesService } from '../../../api/jobs/custom-job-templates/custom-job-templates.service';
 import { CustomJobsService } from '../../../api/jobs/custom-jobs/custom-jobs.service';
 import { SettingsService } from '../../../api/settings/settings.service';
+import { CustomJobTemplate } from '../../../shared/types/jobs/custom-job-template.type';
 import {
   CustomJob,
   CustomJobData,
@@ -158,7 +160,8 @@ export class CustomJobsComponent implements OnInit, OnDestroy, HasUnsavedChanges
     private fb: FormBuilder,
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private themeService: ThemeService
+    private themeService: ThemeService,
+    private templateService: CustomJobTemplatesService
   ) {
     this.titleService.setTitle($localize`:Custom Jobs|:Custom Jobs`);
   }
@@ -172,15 +175,40 @@ export class CustomJobsComponent implements OnInit, OnDestroy, HasUnsavedChanges
 
     let customJob: CustomJob | undefined = undefined;
     if (id == null || id === 'create') {
+      const templateId = this.activatedRoute.snapshot.queryParamMap.get('templateId');
+      let template: CustomJobTemplate | undefined = undefined;
+      if (templateId) {
+        try {
+          template = await firstValueFrom(this.templateService.get(templateId));
+        } catch {
+          template = undefined;
+        }
+      }
+
       const settingOptions = await firstValueFrom(this.podSettingOptions$);
-      customJob = {
-        _id: undefined!,
-        code: '',
-        jobPodConfigId: settingOptions[0]._id,
-        language: 'python',
-        name: 'New job',
-        type: 'code',
-      };
+
+      if (template) {
+        customJob = {
+          _id: undefined!,
+          code: template.code,
+          jobPodConfigId: template.jobPodConfigId ?? settingOptions[0]._id,
+          language: template.language,
+          name: `Template: ${template.name}`,
+          type: template.type,
+          findingHandler: template.findingHandler ?? undefined,
+          findingHandlerEnabled: template.findingHandlerEnabled ?? undefined,
+          findingHandlerLanguage: template.findingHandlerLanguage ?? undefined,
+        };
+      } else {
+        customJob = {
+          _id: undefined!,
+          code: '',
+          jobPodConfigId: settingOptions[0]._id,
+          language: 'python',
+          name: 'New job',
+          type: 'code',
+        };
+      }
     } else {
       customJob = await firstValueFrom(this.customJobsService.get(id));
     }

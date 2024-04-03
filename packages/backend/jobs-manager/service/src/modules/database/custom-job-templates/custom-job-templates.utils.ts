@@ -1,67 +1,70 @@
 import { Logger } from '@nestjs/common';
-import { existsSync, readFileSync } from 'fs';
 import { Model } from 'mongoose';
+import { existsSync, readFileSync } from 'node:fs';
 import { basename } from 'path';
 import { parse } from 'yaml';
 import { JobPodConfiguration } from '../admin/config/job-pod-config/job-pod-config.model';
-import { validCustomJobTypeDetails } from '../jobs/models/custom-job.model';
-import { CustomJobMetadata } from './custom-job-metadata.type';
+import { CustomJobMetadata } from '../custom-jobs/custom-job-metadata.type';
 import {
   CODE_JOB_FILES_PATH,
   NUCLEI_JOB_FILES_PATH,
-} from './custom-jobs.constants';
-import { CustomJobEntry } from './custom-jobs.model';
+} from '../custom-jobs/custom-jobs.constants';
+import { CustomJobsUtils } from '../custom-jobs/custom-jobs.utils';
+import { validCustomJobTypeDetails } from '../jobs/models/custom-job.model';
+import {
+  CODE_JOB_TEMPLATE_FILES_PATH,
+  NUCLEI_JOB_TEMPLATE_FILES_PATH,
+} from './custom-job-templates.constants';
+import { CustomJobTemplate } from './custom-job-templates.model';
 
-export class CustomJobsUtils {
-  private static logger = new Logger(CustomJobsUtils.name);
-
-  public static validateCustomJobPathInformation(
-    path: string,
-    fileName: string,
-  ): boolean {
-    const fileSplit = fileName.split('.');
-    if (fileSplit.length <= 1) return false;
-
-    const ext = fileSplit[fileSplit.length - 1].toLowerCase();
-    if (ext !== 'yml' && ext !== 'yaml') return false;
-
-    if (!existsSync(path + fileName)) return false;
-
-    return true;
-  }
+export class CustomJobTemplateUtils {
+  private static logger = new Logger(CustomJobTemplateUtils.name);
 
   public static async getCustomJob(
     path: string,
     fileName: string,
+    templateSource: 'custom jobs' | 'templates',
     jobPodConfigModel: Model<JobPodConfiguration>,
-  ): Promise<CustomJobEntry | null> {
+  ): Promise<CustomJobTemplate | null> {
     const baseName = basename(fileName);
 
     if (!CustomJobsUtils.validateCustomJobPathInformation(path, baseName)) {
-      CustomJobsUtils.logger.debug(
+      CustomJobTemplateUtils.logger.debug(
         `invalid path to load a job: ${path + baseName}`,
       );
       return null;
     }
 
-    let job: CustomJobEntry | null = null;
+    let job: CustomJobTemplate | null = null;
     try {
       const jobMetadata = <CustomJobMetadata>(
         parse(readFileSync(path + baseName).toString())
       );
       let codePath = '';
       let handlerPath = '';
+      let p = '';
+
       switch (jobMetadata.type) {
         case 'code':
-          codePath = CODE_JOB_FILES_PATH + jobMetadata.codeFilePath;
-          handlerPath = CODE_JOB_FILES_PATH + jobMetadata.handlerFilePath;
+          p =
+            templateSource === 'custom jobs'
+              ? CODE_JOB_FILES_PATH
+              : CODE_JOB_TEMPLATE_FILES_PATH;
+          codePath = p + jobMetadata.codeFilePath;
+          handlerPath = p + jobMetadata.handlerFilePath;
           break;
         case 'nuclei':
+          p =
+            templateSource === 'custom jobs'
+              ? NUCLEI_JOB_FILES_PATH
+              : NUCLEI_JOB_TEMPLATE_FILES_PATH;
           codePath = NUCLEI_JOB_FILES_PATH + jobMetadata.codeFilePath;
           handlerPath = NUCLEI_JOB_FILES_PATH + jobMetadata.handlerFilePath;
           break;
         default:
-          CustomJobsUtils.logger.debug(`Invalid type: ${jobMetadata.type}`);
+          CustomJobTemplateUtils.logger.debug(
+            `Invalid type: ${jobMetadata.type}`,
+          );
           return null;
       }
 
@@ -73,14 +76,16 @@ export class CustomJobsUtils {
             c.handlerLanguage === jobMetadata.findingHandlerLanguage,
         )
       ) {
-        CustomJobsUtils.logger.debug(
+        CustomJobTemplateUtils.logger.debug(
           'metadata type, language and handler language not matching',
         );
         return null;
       }
 
       if (!existsSync(codePath)) {
-        CustomJobsUtils.logger.debug(`code path does not exist ${codePath}`);
+        CustomJobTemplateUtils.logger.debug(
+          `code path does not exist ${codePath}`,
+        );
         return null;
       }
 
@@ -89,7 +94,7 @@ export class CustomJobsUtils {
       });
 
       if (!jpc) {
-        CustomJobsUtils.logger.debug(
+        CustomJobTemplateUtils.logger.debug(
           `Job pod config not found: ${jobMetadata.jobPodConfigName}`,
         );
         return null;
@@ -103,6 +108,7 @@ export class CustomJobsUtils {
         builtIn: true,
         builtInFilePath: baseName,
         parameters: jobMetadata.parameters,
+        templateOrdering: jobMetadata.templateOrdering,
         jobPodConfigId: jpc._id,
       };
 
@@ -112,7 +118,7 @@ export class CustomJobsUtils {
         job.findingHandlerLanguage = jobMetadata.findingHandlerLanguage;
       }
     } catch (err) {
-      CustomJobsUtils.logger.debug(err);
+      CustomJobTemplateUtils.logger.debug(err);
     }
     return job;
   }

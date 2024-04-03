@@ -9,3 +9,4 @@ parameters:
     default: [80, 443]
 jobPodConfigName: S
 codeFilePath: code/HttpServerCheckJob.py
+templateOrdering: '/built-in/python'
