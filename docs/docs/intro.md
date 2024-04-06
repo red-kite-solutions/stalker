@@ -1,6 +1,6 @@
 ---
 sidebar_position: 1
-title: Overiew
+title: Overview
 description: An overview of Stalker
 ---
 
