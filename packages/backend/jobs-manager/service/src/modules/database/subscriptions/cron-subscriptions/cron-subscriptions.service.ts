@@ -132,7 +132,14 @@ export class CronSubscriptionsService {
 
     if (!sub) {
       this.logger.warn(
-        `Cron subscription id '${id}' does not exist. Could not launch a job from non-existant cron subscription`,
+        `Cron subscription id "${id}" does not exist. Could not launch a job from non-existant cron subscription`,
+      );
+      return;
+    }
+
+    if (sub.isEnabled === false) {
+      this.logger.warn(
+        `Skipping cron subscription "${sub.id}" because it is disabled.`,
       );
       return;
     }

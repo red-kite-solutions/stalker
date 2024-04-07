@@ -26,7 +26,7 @@ job:
 conditions:
   - lhs: string
     operator: contains
-    rhs: string
+    rhs: ring
 `;
 
 export const cronSubscriptionTemplate = `name: My new cron subscription

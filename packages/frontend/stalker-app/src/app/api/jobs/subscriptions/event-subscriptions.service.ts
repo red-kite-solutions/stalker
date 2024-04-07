@@ -38,7 +38,7 @@ export class EventSubscriptionsService implements GenericSubscriptionService<Eve
     const parsedSub: EventSubscription = {
       type: eventSubscriptionKey,
       _id: newSub._id,
-      builtIn: subscription.isEnabled,
+      builtIn: subscription.builtIn,
       isEnabled: subscription.isEnabled,
       name: newSub.name,
       finding: newSub.finding,
