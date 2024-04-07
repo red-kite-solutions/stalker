@@ -1,8 +1,15 @@
 @if (host$ | async; as host) {
-  <app-page-header
-    [backRoute]="['../..']"
-    [parts]="[(projects$ | async | whereId: [host?.projectId])?.name, host.ip, (port$ | async)?.port]"
-  ></app-page-header>
+  <div class="tw-flex tw-items-center tw-px-4 tw-gap">
+    <app-page-header
+      [backRoute]="['../..']"
+      [parts]="[(projects$ | async | whereId: [host?.projectId])?.name, host.ip, (port$ | async)?.port]"
+    ></app-page-header>
+
+    @if (port.blocked) {
+      <app-blocked-pill-tag class="tw-mt-[9px]"></app-blocked-pill-tag>
+    }
+  </div>
+
   <div class="content-wrapper">
     <div class="content">
       <findings-list [correlationKey]="(port$ | async)?.correlationKey"></findings-list>
@@ -94,7 +101,7 @@
         <app-text-menu [buttonText]="managePortText" [iconName]="'settings'" [xPosition]="'before'">
           <div class="tw-h-full tw-w-full tw-grid tw-gap-y-1">
             <button mat-menu-item class="tw-w-full" (click)="blockPort(!port.blocked)">
-              <mat-icon>{{ port.blocked ? 'check_circle' : 'block' }}</mat-icon>
+              <mat-icon>{{ port.blocked ? 'thumb_up' : 'block' }}</mat-icon>
               @if (port.blocked) {
                 <label i18n="Unblock|Unblock an item">Unblock</label>
               } @else {

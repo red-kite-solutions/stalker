@@ -1,5 +1,12 @@
 @if (host$ | async) {
-  <app-page-header [parts]="[(projects$ | async | whereId: [host.projectId])?.name, host.ip]"> </app-page-header>
+  <div class="tw-flex tw-items-center tw-px-4 tw-gap">
+    <app-page-header [parts]="[(projects$ | async | whereId: [host.projectId])?.name, host.ip]"> </app-page-header>
+
+    @if (host.blocked) {
+      <app-blocked-pill-tag class="tw-mt-[9px]"></app-blocked-pill-tag>
+    }
+  </div>
+
   <div class="content-wrapper">
     <div class="content">
       <findings-list [correlationKey]="host.correlationKey"></findings-list>
@@ -107,7 +114,7 @@
         <app-text-menu [buttonText]="manageHostText" [iconName]="'settings'" [xPosition]="'before'">
           <div class="tw-h-full tw-w-full tw-grid tw-gap-y-1">
             <button mat-menu-item class="tw-w-full" (click)="blockHost(!host.blocked)">
-              <mat-icon>{{ host.blocked ? 'check_circle' : 'block' }}</mat-icon>
+              <mat-icon>{{ host.blocked ? 'thumb_up' : 'block' }}</mat-icon>
               @if (host.blocked) {
                 <label i18n="Unblock|Unblock an item">Unblock</label>
               } @else {
