@@ -34,9 +34,11 @@ export class CronSubscriptionsService implements GenericSubscriptionService<Cron
     const data: any = this.parseSubscription(subscription);
     const newSub: any = await firstValueFrom(this.http.post(`${environment.fmUrl}/cron-subscriptions/`, data));
     if (newSub.__v) delete newSub.__v;
+
     const parsedSub: CronSubscription = {
       type: cronSubscriptionKey,
       _id: newSub._id,
+      isEnabled: subscription.isEnabled,
       builtIn: false,
       name: newSub.name,
       cronExpression: newSub.cronExpression,
@@ -79,13 +81,18 @@ export class CronSubscriptionsService implements GenericSubscriptionService<Cron
   }
 
   public async revert(id: string) {
-    await firstValueFrom(this.http.patch(`${environment.fmUrl}/cron-subscriptions/${id}?revert=true`, {}));
+    await firstValueFrom(this.http.patch(`${environment.fmUrl}/cron-subscriptions/${id}`, { revert: true }));
+  }
+
+  public async updateIsEnabled(id: string, isEnabled: boolean) {
+    await firstValueFrom(this.http.patch(`${environment.fmUrl}/cron-subscriptions/${id}`, { isEnabled }));
   }
 
   private toCronSubscriptionModel(data: any): CronSubscription {
     const sub: CronSubscription = {
       type: cronSubscriptionKey,
       _id: data._id,
+      isEnabled: data.isEnabled,
       name: data.name,
       cronExpression: data.cronExpression,
       input: data.input ?? undefined,

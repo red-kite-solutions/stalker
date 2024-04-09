@@ -9,6 +9,9 @@ export class CronSubscription {
   public name!: string;
 
   @Prop()
+  public isEnabled!: boolean;
+
+  @Prop()
   public cronExpression!: string;
 }
 

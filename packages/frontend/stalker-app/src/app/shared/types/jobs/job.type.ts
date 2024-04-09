@@ -33,9 +33,9 @@ export interface StartedJobViewModel {
   id: string;
   publishTime: number;
   startTimestamp: number;
-  startTime: Date;
+  startTime: Date | undefined;
   endTimestamp: number;
-  endTime: Date;
+  endTime: Date | undefined;
   task: string;
   name: string;
   projectId: string;

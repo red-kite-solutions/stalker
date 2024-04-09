@@ -24,16 +24,17 @@ import { ProjectCellComponent } from 'src/app/shared/components/project-cell/pro
 import { Domain } from 'src/app/shared/types/domain/domain.interface';
 import { HttpStatus } from 'src/app/shared/types/http-status.type';
 import { Page } from 'src/app/shared/types/page.type';
-import { Project } from 'src/app/shared/types/project/project.interface';
+import { ProjectSummary } from 'src/app/shared/types/project/project.summary';
 import { Tag } from 'src/app/shared/types/tag.type';
-import { FilteredPaginatedTableComponent } from 'src/app/shared/widget/filtered-paginated-table/filtered-paginated-table.component';
+import {
+  ElementMenuItems,
+  FilteredPaginatedTableComponent,
+} from 'src/app/shared/widget/filtered-paginated-table/filtered-paginated-table.component';
+import { BlockedPillTagComponent } from 'src/app/shared/widget/pill-tag/blocked-pill-tag.component';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { SharedModule } from '../../../shared/shared.module';
-import {
-  ConfirmDialogComponent,
-  ConfirmDialogData,
-} from '../../../shared/widget/confirm-dialog/confirm-dialog.component';
 import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.component';
+import { DomainsInteractionsService } from '../domains-interactions.service';
 
 @Component({
   standalone: true,
@@ -54,6 +55,7 @@ import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.c
     ProjectCellComponent,
     FilteredPaginatedTableComponent,
     RouterModule,
+    BlockedPillTagComponent,
   ],
   selector: 'app-list-domains',
   templateUrl: './list-domains.component.html',
@@ -61,7 +63,7 @@ import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.c
 })
 export class ListDomainsComponent {
   dataLoading = true;
-  displayedColumns: string[] = ['select', 'domain', 'hosts', 'project', 'tags'];
+  displayedColumns: string[] = ['select', 'domain', 'hosts', 'project', 'tags', 'menu'];
   filterOptions: string[] = ['host', 'domain', 'project', 'tags', 'is'];
   public readonly noDataMessage = $localize`:No domain found|No domain was found:No domain found`;
 
@@ -91,8 +93,8 @@ export class ListDomainsComponent {
     })
   );
 
-  projects: Project[] = [];
-  projects$ = this.projectsService.getAll().pipe(tap((x) => (this.projects = x)));
+  projects: ProjectSummary[] = [];
+  projects$ = this.projectsService.getAllSummaries().pipe(tap((x) => (this.projects = x)));
 
   tags: Tag[] = [];
   tags$ = this.tagsService.getTags().pipe(
@@ -127,9 +129,9 @@ export class ListDomainsComponent {
 
   public displayColumns$ = this.screenSize$.pipe(
     map((screen: BreakpointState) => {
-      if (screen.breakpoints[Breakpoints.XSmall]) return ['select', 'domain', 'project'];
-      else if (screen.breakpoints[Breakpoints.Small]) return ['select', 'domain', 'project', 'tags'];
-      else if (screen.breakpoints[Breakpoints.Medium]) return ['select', 'domain', 'hosts', 'project', 'tags'];
+      if (screen.breakpoints[Breakpoints.XSmall]) return ['select', 'domain', 'project', 'menu'];
+      else if (screen.breakpoints[Breakpoints.Small]) return ['select', 'domain', 'project', 'tags', 'menu'];
+      else if (screen.breakpoints[Breakpoints.Medium]) return ['select', 'domain', 'hosts', 'project', 'tags', 'menu'];
       return this.displayedColumns;
     })
   );
@@ -149,6 +151,7 @@ export class ListDomainsComponent {
     private bpObserver: BreakpointObserver,
     private projectsService: ProjectsService,
     private domainsService: DomainsService,
+    private domainsInteractor: DomainsInteractionsService,
     private toastr: ToastrService,
     private tagsService: TagsService,
     public dialog: MatDialog,
@@ -189,7 +192,7 @@ export class ListDomainsComponent {
       switch (key) {
         case 'project':
           const project = this.projects.find((c) => c.name.trim().toLowerCase() === value.trim().toLowerCase());
-          if (project) filterObject['project'] = project._id;
+          if (project) filterObject['project'] = project.id;
           else
             this.toastr.warning(
               $localize`:Project does not exist|The given project name is not known to the application:Project name not recognized`
@@ -277,57 +280,28 @@ export class ListDomainsComponent {
     }
   }
 
-  private getSelectionAsBulletPoints() {
-    const bulletPoints: string[] = Array<string>();
-    this.selection.selected.forEach((domain: Domain) => {
-      const projectName = this.projects.find((d) => d._id === domain.projectId)?.name;
-      const bp = projectName ? `${domain.name} (${projectName})` : `${domain.name}`;
-      bulletPoints.push(bp);
-    });
-    return bulletPoints;
+  public async deleteBatch(domains: Domain[]) {
+    const result = await this.domainsInteractor.deleteBatch(domains, this.projects);
+    if (result) {
+      this.selection.clear();
+      this.currentPage$.next(this.currentPage);
+    }
   }
 
-  public deleteDomains() {
-    const bulletPoints = this.getSelectionAsBulletPoints();
-
-    let data: ConfirmDialogData;
-    if (bulletPoints.length > 0) {
-      data = {
-        text: $localize`:Confirm delete domains|Confirmation message asking if the user really wants to delete the selected domains:Do you really wish to delete these domains permanently ?`,
-        title: $localize`:Deleting domains|Title of a page to delete selected domains:Deleting domains`,
-        primaryButtonText: $localize`:Cancel|Cancel current action:Cancel`,
-        dangerButtonText: $localize`:Delete permanently|Confirm that the user wants to delete the item permanently:Delete permanently`,
-        listElements: bulletPoints,
-        onPrimaryButtonClick: () => {
-          this.dialog.closeAll();
-        },
-        onDangerButtonClick: async () => {
-          const ids = this.selection.selected.map((d: Domain) => {
-            return d._id;
-          });
-          await this.domainsService.deleteMany(ids);
-          this.selection.clear();
-          this.toastr.success(
-            $localize`:Domains deleted|Confirm the successful deletion of a Domain:Domains deleted successfully`
-          );
-          this.currentPage$.next(this.currentPage);
-          this.dialog.closeAll();
-        },
-      };
-    } else {
-      data = {
-        text: $localize`:Select domains again|No domains were selected so there is nothing to delete:Select the domains to delete and try again.`,
-        title: $localize`:Nothing to delete|Tried to delete something, but there was nothing to delete:Nothing to delete`,
-        primaryButtonText: $localize`:Ok|Accept or confirm:Ok`,
-        onPrimaryButtonClick: () => {
-          this.dialog.closeAll();
-        },
-      };
+  public async blockBatch(domains: Domain[]) {
+    const result = await this.domainsInteractor.blockBatch(domains, this.projects);
+    if (result) {
+      this.selection.clear();
+      this.currentPage$.next(this.currentPage);
     }
-    this.dialog.open(ConfirmDialogComponent, {
-      data,
-      restoreFocus: false,
-    });
+  }
+
+  public async block(domainId: string, block: boolean) {
+    const result = await this.domainsInteractor.block(domainId, block);
+    if (result) {
+      this.selection.clear();
+      this.currentPage$.next(this.currentPage);
+    }
   }
 
   dateFilter(event: MouseEvent) {
@@ -335,57 +309,24 @@ export class ListDomainsComponent {
     this.startDate = new Date(Date.now() - defaultNewTimeMs);
   }
 
-  block() {
-    const bulletPoints = this.getSelectionAsBulletPoints();
+  public generateMenuItem = (element: Domain): ElementMenuItems[] => {
+    if (!element) return [];
+    const menuItems: ElementMenuItems[] = [];
 
-    let data: ConfirmDialogData;
-    if (bulletPoints.length > 0) {
-      const block = async (block: boolean) => {
-        try {
-          await this.domainsService.block(
-            this.selection.selected.map((s) => s._id),
-            block
-          );
-          this.selection.clear();
-          this.toastr.success(
-            block
-              ? $localize`:Domains blocked|Blocked a domain:Domains blocked successfully`
-              : $localize`:Domains unblocked|Unblocked a domain:Domains unblocked successfully`
-          );
-          this.currentPage$.next(this.currentPage);
-          this.dialog.closeAll();
-        } catch {
-          this.toastr.error($localize`:Error blocking|Error while blocking a domain:Error blocking domains`);
-        }
-      };
-
-      data = {
-        text: $localize`:Confirm block domains|Confirmation message asking if the user wants to block the selected domains:Do you wish to block or unblock these domains?`,
-        title: $localize`:Blocking domains|Title of a page to block selected domains:Blocking domains`,
-        primaryButtonText: $localize`:Unblock|Unblock an item:Unblock`,
-        dangerButtonText: $localize`:Block|Block an item:Block`,
-        listElements: bulletPoints,
-        enableCancelButton: true,
-        onPrimaryButtonClick: async () => {
-          await block(false);
-        },
-        onDangerButtonClick: async () => {
-          await block(true);
-        },
-      };
-    } else {
-      data = {
-        text: $localize`:Select domains again|No domains were selected so there is nothing to delete:Select the domains to block and try again.`,
-        title: $localize`:Nothing to block|Tried to block something, but there was nothing to delete:Nothing to block`,
-        primaryButtonText: $localize`:Ok|Accept or confirm:Ok`,
-        onPrimaryButtonClick: () => {
-          this.dialog.closeAll();
-        },
-      };
-    }
-    this.dialog.open(ConfirmDialogComponent, {
-      data,
-      restoreFocus: false,
+    menuItems.push({
+      action: () => this.block(element._id, !element.blocked),
+      icon: element.blocked ? 'thumb_up ' : 'block',
+      label: element.blocked
+        ? $localize`:Unblock domain|Unblock domain:Unblock`
+        : $localize`:Block domain|Block domain:Block`,
     });
-  }
+
+    menuItems.push({
+      action: () => this.deleteBatch([element]),
+      icon: 'delete',
+      label: $localize`:Delete domain|Delete domain:Delete`,
+    });
+
+    return menuItems;
+  };
 }

@@ -51,6 +51,7 @@ export class Port {
 }
 
 export const PortSchema = SchemaFactory.createForClass(Port);
+
 // The project id is not included here as the hostId-projectId combination is already unique
 PortSchema.index(
   { 'host.id': 1, port: 1, layer4Protocol: 1 },

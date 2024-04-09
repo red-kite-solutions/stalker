@@ -56,6 +56,7 @@ export class CronSubscriptionsService {
   public async create(dto: CronSubscriptionDto) {
     const sub: CronSubscription = {
       projectId: dto.projectId ? new Types.ObjectId(dto.projectId) : null,
+      isEnabled: dto.isEnabled == null ? dto.isEnabled : true,
       name: dto.name,
       input: dto.input ? dto.input : null,
       cronExpression: dto.cronExpression,
@@ -64,6 +65,17 @@ export class CronSubscriptionsService {
       conditions: dto.conditions,
     };
     return await this.subscriptionModel.create(sub);
+  }
+
+  public async updateEnabled(id: string, enabled: boolean) {
+    const subUpdate: Partial<CronSubscription> = {
+      isEnabled: enabled,
+    };
+
+    return await this.subscriptionModel.updateOne<CronSubscription>(
+      { _id: { $eq: new Types.ObjectId(id) } },
+      subUpdate,
+    );
   }
 
   public async getAll() {
@@ -120,7 +132,14 @@ export class CronSubscriptionsService {
 
     if (!sub) {
       this.logger.warn(
-        `Cron subscription id '${id}' does not exist. Could not launch a job from non-existant cron subscription`,
+        `Cron subscription id "${id}" does not exist. Could not launch a job from non-existant cron subscription`,
+      );
+      return;
+    }
+
+    if (sub.isEnabled === false) {
+      this.logger.warn(
+        `Skipping cron subscription "${sub.id}" because it is disabled.`,
       );
       return;
     }
@@ -306,8 +325,18 @@ export class CronSubscriptionsService {
     finding: Finding,
     projectId: string,
   ) {
-    if (!SubscriptionsUtils.shouldExecuteFromFinding(sub.conditions, finding))
+    if (
+      !SubscriptionsUtils.shouldExecuteFromFinding(
+        sub.isEnabled,
+        sub.conditions,
+        finding,
+      )
+    ) {
+      this.logger.debug(
+        `Skipping job publication for ${sub.name}; conditions not met or subscription is disabled.`,
+      );
       return;
+    }
 
     const parametersCopy: JobParameter[] = JSON.parse(
       JSON.stringify(sub.jobParameters),
