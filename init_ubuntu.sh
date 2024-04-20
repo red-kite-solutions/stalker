@@ -44,7 +44,7 @@ echo 'PATH="$NPM_PACKAGES/bin:$PATH"' >> ${DOCKER_USER_HOME}/.bashrc
 PATH="$NPM_PACKAGES/bin:$PATH"
 
 # Install devspace
-npm install -g devspace > /dev/null
+npm install -g devspace@^6.3.0 > /dev/null
 echo "Installed devspace"
 
 # Cloning Stalker repository

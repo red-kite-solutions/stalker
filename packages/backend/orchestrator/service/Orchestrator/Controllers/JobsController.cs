@@ -28,7 +28,7 @@ namespace Orchestrator.Controllers
         /// <returns></returns>
         private static bool IsValidJobId(string jobId)
         {
-            if(jobId == null) return false;
+            if(string.IsNullOrEmpty(jobId)) return false;
             if (!Regex.IsMatch(jobId, @"^[a-f0-9]{24}$")) return false;
             return true;
         }
@@ -66,15 +66,15 @@ namespace Orchestrator.Controllers
 
         // POST /Jobs/Finding
         [HttpPost]
-        public async Task<ActionResult> Finding([FromBody]JobFindingDto dto)
+        public async Task<ActionResult> Finding([FromBody]JobFindingDto dto, string id = "")
         {
-            if (!IsValidJobId(dto.JobId)) return BadRequest("JobId is invalid");
+            if (!IsValidJobId(id)) return BadRequest("Job id is invalid");
             try
             {
                 var evt = Parser.Parse(dto.Finding);
 
                 if (evt == null) return BadRequest("Invalid finding");
-                await HandleEvent(evt, dto.JobId);
+                await HandleEvent(evt, id);
             }
             catch (Exception)
             {
@@ -86,7 +86,7 @@ namespace Orchestrator.Controllers
 
         // POST /Jobs/Status
         [HttpPost]
-        public async Task<ActionResult> Status([FromBody]StatusUpdateDto dto)
+        public async Task<ActionResult> Status([FromBody]StatusUpdateDto dto, string id = "")
         {
             if (dto.Status != "Success" && dto.Status != "Failed")
             {
@@ -94,11 +94,11 @@ namespace Orchestrator.Controllers
                 return BadRequest("Status should be Success or Failed");
             }
 
-            if (!IsValidJobId(dto.JobId)) return BadRequest("JobId is invalid");
+            if (!IsValidJobId(id)) return BadRequest("Job id is invalid");
             
             await EventsProducer.Produce(new JobEventMessage
             {
-                JobId = dto.JobId,
+                JobId = id,
                 FindingsJson = $"{{ \"findings\": [{{ \"type\": \"JobStatusFinding\", \"status\": \"{dto.Status}\" }}]}}",
                 Timestamp = CurrentTimeMs,
             });

@@ -124,10 +124,10 @@ def _log(prefix: str, message: str):
         return
     
     with httpx.Client(verify=False, http2=True) as client:
-        client.post("http://orchestrator.stalker:80/Jobs/Finding", json={ "JobId": jobId, "Finding": output})
+        client.post(f"http://orchestrator.stalker:80/Jobs/{jobId}/Finding", json={ "Finding": output})
 
 def log_status(status: str):
-    """Reports the status to the orchestrator. Reporting a status will eventually clean up the job. Status can be Success of Failed."""
+    """Reports the status to the orchestrator. Status can be Success of Failed."""
     if status != JobStatus.SUCCESS and status != JobStatus.FAILED:
         return
     
@@ -139,7 +139,7 @@ def log_status(status: str):
         return
     
     with httpx.Client(verify=False, http2=True) as client:
-        client.post("http://orchestrator.stalker:80/Jobs/Status", json={ "JobId": jobId, "Status": status})
+        client.post(f"http://orchestrator.stalker:80/Jobs/{jobId}/Status", json={ "Status": status})
 
     
 def is_valid_ip(ip: str):
