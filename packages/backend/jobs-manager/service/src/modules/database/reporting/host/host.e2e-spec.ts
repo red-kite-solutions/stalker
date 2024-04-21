@@ -12,6 +12,7 @@ import {
   deleteReq,
   getReq,
   initTesting,
+  patchReq,
   postReq,
   putReq,
 } from '../../../../test/e2e.utils';
@@ -365,6 +366,18 @@ describe('Host Controller (e2e)', () => {
       Role.User,
       async (givenToken) => {
         return await deleteReq(app, givenToken, `/hosts/`, []);
+      },
+    );
+    expect(success).toBe(true);
+  });
+
+  it('Should have proper authorizations (PATCH /hosts/)', async () => {
+    // Arrange & Act
+    const success = await checkAuthorizations(
+      testData,
+      Role.User,
+      async (givenToken) => {
+        return await patchReq(app, givenToken, `/hosts/`, {});
       },
     );
     expect(success).toBe(true);

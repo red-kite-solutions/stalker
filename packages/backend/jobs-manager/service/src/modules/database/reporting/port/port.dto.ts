@@ -1,7 +1,8 @@
 // import { Type } from 'class-transformer';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsIn,
   IsInt,
   IsMongoId,
@@ -12,6 +13,8 @@ import {
   Max,
   Min,
 } from 'class-validator';
+import { Types } from 'mongoose';
+import { booleanStringToBoolean } from '../../../../utils/boolean-string-to-boolean';
 import { DetailsLevel, detailsLevel } from '../../database.constants';
 
 export class GetPortsDto {
@@ -67,10 +70,25 @@ export class GetPortsDto {
   @IsPort({ each: true })
   @IsArray()
   ports: number[];
+
+  @IsOptional()
+  @IsBoolean()
+  @Transform(booleanStringToBoolean)
+  blocked: boolean;
 }
 
 export class DeleteManyPortsDto {
   @IsMongoId({ each: true })
   @IsArray()
   portIds: string[];
+}
+
+export class BatchEditPortsDto {
+  @IsArray()
+  @IsMongoId({ each: true })
+  portIds: Types.ObjectId[];
+
+  @IsOptional()
+  @IsBoolean()
+  block: boolean;
 }

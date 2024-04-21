@@ -50,4 +50,8 @@ export class DomainsService {
   public async deleteMany(domainIds: string[]) {
     return await firstValueFrom(this.http.delete(`${environment.fmUrl}/domains/`, { body: { domainIds: domainIds } }));
   }
+
+  public async block(domainIds: string[], block: boolean) {
+    return await firstValueFrom(this.http.patch(`${environment.fmUrl}/domains/`, { domainIds, block }));
+  }
 }

@@ -1,6 +1,7 @@
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsFQDN,
   IsInt,
   IsMongoId,
@@ -11,6 +12,7 @@ import {
   ValidateIf,
 } from 'class-validator';
 import { Types } from 'mongoose';
+import { booleanStringToBoolean } from '../../../../utils/boolean-string-to-boolean';
 
 export class DomainsPagingDto {
   @IsInt()
@@ -49,6 +51,11 @@ export class DomainsPagingDto {
   @IsInt()
   @Type(() => Number)
   firstSeenEndDate: number;
+
+  @IsOptional()
+  @IsBoolean()
+  @Transform(booleanStringToBoolean)
+  blocked: boolean;
 }
 
 export class EditDomainDto {
@@ -70,4 +77,14 @@ export class SubmitDomainsDto {
 
   @IsMongoId()
   projectId: string;
+}
+
+export class BatchEditDomainsDto {
+  @IsArray()
+  @IsMongoId({ each: true })
+  domainIds: Types.ObjectId[];
+
+  @IsOptional()
+  @IsBoolean()
+  block: boolean;
 }

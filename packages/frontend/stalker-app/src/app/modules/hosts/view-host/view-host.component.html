@@ -1,24 +1,37 @@
-@if (host$ | async; as host) {
-  <app-page-header [parts]="[(projects$ | async | whereId: [host?.projectId])?.name, host.ip]"> </app-page-header>
+@if (host$ | async) {
+  <div class="tw-flex tw-items-center tw-px-4 tw-gap">
+    <app-page-header [parts]="[(projects$ | async | whereId: [host.projectId])?.name, host.ip]"> </app-page-header>
+
+    @if (host.blocked) {
+      <app-blocked-pill-tag class="tw-mt-[9px]"></app-blocked-pill-tag>
+    }
+  </div>
+
   <div class="content-wrapper">
     <div class="content">
       <findings-list [correlationKey]="host.correlationKey"></findings-list>
     </div>
     <div #contextPanel class="context">
-      @if (host) {
+      @if (host.blocked) {
         <panel-section>
-          <panel-section-title i18n="Last seen|Last seen"> Last seen </panel-section-title>
-          <panel-section-subtitle [matTooltip]="host.lastSeen | humanizeDate: 'precise'" matTooltipPosition="before">
-            {{ host.lastSeen | timeAgo }}
-          </panel-section-subtitle>
-        </panel-section>
-        <panel-section>
-          <panel-section-title i18n="First seen|First seen"> First seen </panel-section-title>
-          <panel-section-subtitle [matTooltip]="host.createdAt | humanizeDate: 'precise'" matTooltipPosition="before">
-            {{ host.createdAt | timeAgo }}
+          <panel-section-title i18n="Blocked|Blocked">Blocked</panel-section-title>
+          <panel-section-subtitle [matTooltip]="host.blockedAt | humanizeDate: 'precise'" matTooltipPosition="before">
+            {{ host.blockedAt | timeAgo }}
           </panel-section-subtitle>
         </panel-section>
       }
+      <panel-section>
+        <panel-section-title i18n="Last seen|Last seen"> Last seen </panel-section-title>
+        <panel-section-subtitle [matTooltip]="host.lastSeen | humanizeDate: 'precise'" matTooltipPosition="before">
+          {{ host.lastSeen | timeAgo }}
+        </panel-section-subtitle>
+      </panel-section>
+      <panel-section>
+        <panel-section-title i18n="First seen|First seen"> First seen </panel-section-title>
+        <panel-section-subtitle [matTooltip]="host.createdAt | humanizeDate: 'precise'" matTooltipPosition="before">
+          {{ host.createdAt | timeAgo }}
+        </panel-section-subtitle>
+      </panel-section>
 
       @if ((tagsSelectItems$ | async) && mergedTags$ | async; as hostTags) {
         <panel-section>
@@ -40,10 +53,10 @@
           </panel-section-title>
 
           <div class="tw-pt-1 tw-flex tw-flex-wrap tw-gap-x-2 tw-gap-y-1">
-            <app-new-pill-tag #newPillTag [createdAtMilliseconds]="host.createdAt"></app-new-pill-tag>
             @for (tag of hostTags; track tag) {
               <app-pill-tag [color]="(tags | whereId: [tag])?.color">{{ (tags | whereId: [tag])?.text }}</app-pill-tag>
             }
+            <app-new-pill-tag #newPillTag [createdAtMilliseconds]="host.createdAt"></app-new-pill-tag>
           </div>
 
           @if (!hostTags.length && !newPillTag.isNew()) {
@@ -56,7 +69,7 @@
 
       <panel-section>
         <panel-section-title i18n="Domains|An IP's related domains">Domains</panel-section-title>
-        @if (!host?.domains?.length) {
+        @if (!host.domains.length) {
           <panel-section-subtitle i18n="No domains yet|There are no domains for this item"
             >No domains yet</panel-section-subtitle
           >
@@ -68,9 +81,9 @@
           </div>
         }
 
-        @if (((shownDomainsCount$ | async) ?? 0) < (host?.domains?.length ?? 0)) {
+        @if (((shownDomainsCount$ | async) ?? 0) < host.domains.length) {
           <button panel-load-more (click)="shownDomainsCount$.next(shownDomainsCount$.value + 100)">
-            Show more ({{ host?.domains?.length }})
+            Show more ({{ host.domains.length }})
           </button>
         }
       </panel-section>
@@ -99,9 +112,21 @@
 
       <panel-section class="tw-opacity-60" #managementPanelSection>
         <app-text-menu [buttonText]="manageHostText" [iconName]="'settings'" [xPosition]="'before'">
-          <button mat-stroked-button color="warn" class="tw-w-full" (click)="deleteHost()">
-            <label i18n="Delete|Delete an item">Delete</label>
-          </button>
+          <div class="tw-h-full tw-w-full tw-grid tw-gap-y-1">
+            <button mat-menu-item class="tw-w-full" (click)="blockHost(!host.blocked)">
+              <mat-icon>{{ host.blocked ? 'thumb_up' : 'block' }}</mat-icon>
+              @if (host.blocked) {
+                <label i18n="Unblock|Unblock an item">Unblock</label>
+              } @else {
+                <label i18n="Block|Block an item">Block</label>
+              }
+            </button>
+
+            <button mat-menu-item color="warn" class="tw-w-full" (click)="deleteHost()">
+              <mat-icon>delete</mat-icon>
+              <label i18n="Delete|Delete an item">Delete</label>
+            </button>
+          </div>
         </app-text-menu>
       </panel-section>
     </div>

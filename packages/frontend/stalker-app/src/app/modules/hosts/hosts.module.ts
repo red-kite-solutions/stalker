@@ -4,7 +4,7 @@ import { RouterModule, Routes } from '@angular/router';
 const routes: Routes = [
   {
     path: ':id/ports/:port',
-    loadComponent: () => import('./view-port/view-port.component').then((m) => m.ViewPortComponent),
+    loadComponent: () => import('../ports/view-port/view-port.component').then((m) => m.ViewPortComponent),
   },
   {
     path: ':id',

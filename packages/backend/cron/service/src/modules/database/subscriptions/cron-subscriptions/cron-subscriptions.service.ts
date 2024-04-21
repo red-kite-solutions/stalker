@@ -94,33 +94,10 @@ export class CronSubscriptionsService {
 
     try {
       await this.cacheMutex.runExclusive(async () => {
-        const currentRunStart = Date.now();
+        const now = Date.now();
         for (const subscription of this.cronSubscriptionsCache) {
-          if (!subscription) {
-            this.logger.error(
-              'Failed to run the cron subscription as it is falsy',
-            );
-            continue;
-          }
-
           try {
-            if (
-              CronSubscriptionsService.cronShouldRun(
-                subscription.cronExpression,
-                this.lastJobLaunchStart,
-                currentRunStart,
-              )
-            ) {
-              // Fire and forget
-              this.cronConnector
-                .notify(subscription._id.toString())
-                .catch((reason) => {
-                  this.logger.error(reason);
-                  this.logger.error(
-                    'Error while notifying the jobs manager. Continuing...',
-                  );
-                });
-            }
+            this.notifyCronJob(subscription, now);
           } catch (e) {
             this.logger.error(e);
             this.logger.error(
@@ -129,7 +106,7 @@ export class CronSubscriptionsService {
           }
         }
 
-        this.lastJobLaunchStart = currentRunStart;
+        this.lastJobLaunchStart = now;
       });
     } catch (e) {
       if (e === E_TIMEOUT) {
@@ -139,5 +116,38 @@ export class CronSubscriptionsService {
     } finally {
       this.jobLaunchRunning = false;
     }
+  }
+
+  private notifyCronJob(subscription: CronSubscriptionsDocument, now: number) {
+    if (!subscription) {
+      this.logger.error('Failed to run the cron subscription as it is falsy');
+      return;
+    }
+
+    const { _id, cronExpression, isEnabled, name } = subscription;
+
+    const cronShouldRun = CronSubscriptionsService.cronShouldRun(
+      cronExpression,
+      this.lastJobLaunchStart,
+      now,
+    );
+    if (!cronShouldRun) {
+      return;
+    }
+
+    if (!isEnabled) {
+      this.logger.debug(
+        `Skipping execution for "${name}" because it is disabled.`,
+      );
+      return;
+    }
+
+    // Fire and forget
+    this.cronConnector.notify(_id.toString()).catch((reason) => {
+      this.logger.error(reason);
+      this.logger.error(
+        'Error while notifying the jobs manager. Continuing...',
+      );
+    });
   }
 }
