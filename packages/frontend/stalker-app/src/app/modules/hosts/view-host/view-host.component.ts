@@ -8,6 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -38,6 +39,7 @@ import { DomainSummary } from 'src/app/shared/types/domain/domain.summary';
 import { Port, PortNumber } from 'src/app/shared/types/ports/port.interface';
 import { ProjectSummary } from 'src/app/shared/types/project/project.summary';
 import { Tag } from 'src/app/shared/types/tag.type';
+import { BlockedPillTagComponent } from 'src/app/shared/widget/pill-tag/blocked-pill-tag.component';
 import { TextMenuComponent } from 'src/app/shared/widget/text-menu/text-menu.component';
 import { PortsService } from '../../../api/ports/ports.service';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
@@ -45,13 +47,10 @@ import { PanelSectionModule } from '../../../shared/components/panel-section/pan
 import { SharedModule } from '../../../shared/shared.module';
 import { Host } from '../../../shared/types/host/host.interface';
 import { Page } from '../../../shared/types/page.type';
-import {
-  ConfirmDialogComponent,
-  ConfirmDialogData,
-} from '../../../shared/widget/confirm-dialog/confirm-dialog.component';
 import { NewPillTagComponent } from '../../../shared/widget/pill-tag/new-pill-tag.component';
 import { SelectItem } from '../../../shared/widget/text-select-menu/text-select-menu.component';
 import { FindingsModule } from '../../findings/findings.module';
+import { HostsInteractionsService } from '../hosts-interactions.service';
 
 @Component({
   standalone: true,
@@ -68,12 +67,14 @@ import { FindingsModule } from '../../findings/findings.module';
     MatButtonModule,
     MatInputModule,
     MatProgressSpinnerModule,
+    MatMenuModule,
     FormsModule,
     FindingsModule,
     RouterModule,
     PanelSectionModule,
     AppHeaderComponent,
     MatTooltipModule,
+    BlockedPillTagComponent,
     TextMenuComponent,
   ],
   selector: 'app-view-host',
@@ -235,83 +236,27 @@ export class ViewHostComponent implements OnDestroy {
   }
 
   public async deleteHost() {
-    const errorDeleting = $localize`:Error while deleting|Error while deleting an item:Error while deleting`;
-    if (!this.hostId) {
-      this.toastr.error(errorDeleting);
+    const result = await this.hostsInteractor.deleteBatch([this.host], this.projects);
+    if (result) {
+      this.router.navigate(['/hosts/']);
     }
-
-    const data: ConfirmDialogData = {
-      text: $localize`:Confirm host deletion|Confirmation message asking if the user really wants to delete the host:Do you really wish to delete this host permanently ?`,
-      title: $localize`:Deleting host|Title of a page to delete a host:Deleting host`,
-      primaryButtonText: $localize`:Cancel|Cancel current action:Cancel`,
-      dangerButtonText: $localize`:Delete permanently|Confirm that the user wants to delete the item permanently:Delete permanently`,
-      onPrimaryButtonClick: () => {
-        this.dialog.closeAll();
-      },
-      onDangerButtonClick: async () => {
-        try {
-          await this.hostsService.delete(this.hostId);
-          this.toastr.success(
-            $localize`:Host deleted|The host has been successfully deleted:Host successfully deleted`
-          );
-          this.router.navigate(['/hosts/']);
-          this.dialog.closeAll();
-        } catch (err) {
-          this.toastr.error(errorDeleting);
-        }
-      },
-    };
-
-    this.dialog.open(ConfirmDialogComponent, {
-      data,
-      restoreFocus: false,
-    });
   }
 
-  public blockHost(block: boolean) {
-    const errorBlocking = $localize`:Error while blocking|Error while blocking an item:Error while blocking`;
-    if (!this.hostId) {
-      this.toastr.error(errorBlocking);
+  public async blockHost(block: boolean) {
+    const result = await this.hostsInteractor.block(this.hostId, block);
+    if (result) {
+      const h = await firstValueFrom(this.hostsService.get(this.hostId));
+      this.host.blocked = h.blocked;
+      this.host.blockedAt = h.blockedAt;
+      this.cdr.markForCheck();
     }
-
-    let data = {
-      text: block
-        ? $localize`:Confirm block host|Confirmation message asking if the user wants to block the host:Do you really wish to block this host?`
-        : $localize`:Confirm unblock host|Confirmation message asking if the user wants to unblock the host:Do you really wish to unblock this host?`,
-      title: block
-        ? $localize`:Blocking host|Title of a page to block a host:Blocking host`
-        : $localize`:Unblocking host|Title of a page to unblock a host:Unblocking host`,
-      primaryButtonText: block ? $localize`:Block|Block an item:Block` : $localize`:Unblock|Unblock an item:Unblock`,
-      enableCancelButton: true,
-      onPrimaryButtonClick: async () => {
-        try {
-          await this.hostsService.block([this.hostId], block);
-          this.toastr.success(
-            block
-              ? $localize`:Host blocked|Blocked a host:Host blocked successfully`
-              : $localize`:Host unblocked|Unblocked a host:Host unblocked successfully`
-          );
-          const h = await firstValueFrom(this.hostsService.get(this.hostId));
-          this.host.blocked = h.blocked;
-          this.host.blockedAt = h.blockedAt;
-          this.cdr.markForCheck();
-          this.dialog.closeAll();
-        } catch {
-          this.toastr.error(errorBlocking);
-        }
-      },
-    };
-
-    this.dialog.open(ConfirmDialogComponent, {
-      data,
-      restoreFocus: false,
-    });
   }
 
   constructor(
     private route: ActivatedRoute,
     private projectsService: ProjectsService,
     private hostsService: HostsService,
+    private hostsInteractor: HostsInteractionsService,
     private tagsService: TagsService,
     private titleService: Title,
     private toastr: ToastrService,

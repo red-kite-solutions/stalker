@@ -7,7 +7,6 @@ import {
   Patch,
   Post,
   Put,
-  Query,
   UseGuards,
 } from '@nestjs/common';
 import { DeleteResult, UpdateResult } from 'mongodb';
@@ -46,20 +45,29 @@ export class EventSubscriptionsController {
   async getSubscription(
     @Param() IdDto: MongoIdDto,
   ): Promise<EventSubscriptionsDocument> {
-    // TODO 162: TEST
     return await this.subscriptionsService.get(IdDto.id);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.User)
   @Patch(':id')
-  async revertSubscription(
-    @Param() IdDto: MongoIdDto,
-    @Query() queryParams: PatchSubscriptionDto,
-  ): Promise<UpdateResult> {
-    if (queryParams.revert)
-      return await this.subscriptionsService.revertToDefaults(IdDto.id);
-    else throw new HttpBadRequestException();
+  async patch(
+    @Param() idDto: MongoIdDto,
+    @Body() body: PatchSubscriptionDto,
+  ): Promise<void> {
+    if (body == null) throw new HttpBadRequestException();
+
+    const { revert, isEnabled } = body;
+    if (isEnabled == null && revert == null)
+      throw new HttpBadRequestException();
+
+    if (revert) {
+      await this.subscriptionsService.revertToDefaults(idDto.id);
+    }
+
+    if (isEnabled != null) {
+      await this.subscriptionsService.updateEnabled(idDto.id, isEnabled);
+    }
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

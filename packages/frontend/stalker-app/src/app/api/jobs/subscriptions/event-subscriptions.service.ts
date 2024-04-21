@@ -34,10 +34,12 @@ export class EventSubscriptionsService implements GenericSubscriptionService<Eve
     const data: any = this.parseSubscription(subscription);
     const newSub: any = await firstValueFrom(this.http.post(`${environment.fmUrl}/event-subscriptions/`, data));
     if (newSub.__v) delete newSub.__v;
+
     const parsedSub: EventSubscription = {
       type: eventSubscriptionKey,
       _id: newSub._id,
-      builtIn: false,
+      builtIn: subscription.builtIn,
+      isEnabled: subscription.isEnabled,
       name: newSub.name,
       finding: newSub.finding,
       cooldown: newSub.cooldown,
@@ -63,6 +65,7 @@ export class EventSubscriptionsService implements GenericSubscriptionService<Eve
   private parseSubscription(subscription: EventSubscriptionData) {
     const data: any = {
       name: subscription.name,
+      isEnabled: subscription.isEnabled,
       finding: subscription.finding,
       cooldown: subscription.cooldown,
       jobName: subscription.job.name,
@@ -80,13 +83,18 @@ export class EventSubscriptionsService implements GenericSubscriptionService<Eve
   }
 
   public async revert(id: string) {
-    await firstValueFrom(this.http.patch(`${environment.fmUrl}/event-subscriptions/${id}?revert=true`, {}));
+    await firstValueFrom(this.http.patch(`${environment.fmUrl}/event-subscriptions/${id}`, { revert: true }));
+  }
+
+  public async updateIsEnabled(id: string, isEnabled: boolean) {
+    await firstValueFrom(this.http.patch(`${environment.fmUrl}/event-subscriptions/${id}`, { isEnabled }));
   }
 
   private toEventSubscriptionModel(data: any): EventSubscription {
     const sub: EventSubscription = {
       type: eventSubscriptionKey,
       _id: data._id,
+      isEnabled: data.isEnabled,
       name: data.name,
       finding: data.finding,
       projectId: data.projectId ? data.projectId : allProjectsSubscriptions,

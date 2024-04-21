@@ -9,7 +9,7 @@
           <label i18n="New subscription|Button to create a new subscription">New subscription</label>
         </button>
 
-        <button mat-stroked-button color="warn" class="left-action-button" (click)="delete()">
+        <button mat-stroked-button color="warn" class="left-action-button" (click)="deleteBatch(selection.selected)">
           <mat-icon>delete_outline</mat-icon>
           <label i18n="Delete|Delete an item">Delete</label>
         </button>
@@ -23,13 +23,14 @@
       (pageChange)="pageChange($event)"
       [isLoading]="(isLoading$ | async) || false"
       [length]="(subscriptions$ | async)?.length || 0"
-      [columns]="['select', 'name', 'trigger', 'job', 'source']"
+      [columns]="['select', 'name', 'trigger', 'job', 'source', 'menu']"
       [routerLinkPrefix]="'/jobs/subscriptions/'"
       [queryParamsFunc]="getSubscriptionQueryParams"
       [filterType]="'fulltext'"
       (filtersChange)="filterChange($event)"
       [noDataMessage]="noDataMessage"
       (selectionChange)="selection = $event"
+      [menuFactory]="generateMenuItem"
     >
       <!-- Name Column -->
       <ng-container matColumnDef="name">
@@ -41,6 +42,10 @@
             (click)="$event.stopPropagation()"
             >{{ element.name }}</a
           >
+
+          @if (element.isEnabled === false) {
+            <app-disabled-pill-tag class="tw-mx-2"></app-disabled-pill-tag>
+          }
         </td>
       </ng-container>
 
@@ -83,7 +88,7 @@
         </td>
       </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="['select', 'name', 'trigger', 'job', 'source']"></tr>
+      <tr mat-header-row *matHeaderRowDef="['select', 'name', 'trigger', 'job', 'source', 'menu']"></tr>
     </app-filtered-paginated-table>
   </mat-card-content>
 </mat-card>

@@ -33,6 +33,12 @@ table {
   overflow: visible;
 }
 
+.mat-column-menu {
+  width: 64px;
+  max-width: 64px;
+  overflow: visible;
+}
+
 mat-progress-bar {
   height: 3px;
   width: auto;

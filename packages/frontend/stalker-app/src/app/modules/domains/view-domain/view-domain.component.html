@@ -1,5 +1,12 @@
 @if (domain$ | async) {
-  <app-page-header [parts]="[(projects$ | async | whereId: [domain?.projectId])?.name, domain.name]"> </app-page-header>
+  <div class="tw-flex tw-items-center tw-px-4 tw-gap">
+    <app-page-header [parts]="[(projects$ | async | whereId: [domain?.projectId])?.name, domain.name]">
+    </app-page-header>
+
+    @if (domain.blocked) {
+      <app-blocked-pill-tag class="tw-mt-[9px]"></app-blocked-pill-tag>
+    }
+  </div>
 
   <div class="content-wrapper">
     <div class="content">
@@ -103,14 +110,16 @@
       <panel-section class="tw-opacity-60" #managementPanelSection>
         <app-text-menu [buttonText]="manageDomainText" [iconName]="'settings'" [xPosition]="'before'">
           <div class="tw-h-full tw-w-full tw-grid tw-gap-y-1">
-            <button mat-stroked-button class="tw-w-full" (click)="blockDomain(!domain.blocked)">
+            <button mat-menu-item class="tw-w-full" (click)="blockDomain(!domain.blocked)">
+              <mat-icon>{{ domain.blocked ? 'thumb_up' : 'block' }}</mat-icon>
               @if (domain.blocked) {
                 <label i18n="Unblock|Unblock an item">Unblock</label>
               } @else {
                 <label i18n="Block|Block an item">Block</label>
               }
             </button>
-            <button mat-stroked-button color="warn" class="tw-w-full" (click)="deleteDomain()">
+            <button mat-menu-item color="warn" class="tw-w-full" (click)="deleteDomain()">
+              <mat-icon>delete</mat-icon>
               <label i18n="Delete|Delete an item">Delete</label>
             </button>
           </div>

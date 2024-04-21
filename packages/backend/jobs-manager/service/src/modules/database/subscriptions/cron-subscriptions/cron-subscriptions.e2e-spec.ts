@@ -122,7 +122,7 @@ describe('Cron Subscriptions Controller (e2e)', () => {
     expect(foundSubscription).toBe(true);
   });
 
-  it('Should revert a built-in cron subscription (PATCH /cron-subscriptions/{id}?revert=true)', async () => {
+  it('Should revert a built-in cron subscription (PATCH /cron-subscriptions/{id})', async () => {
     // Arrange
     let r = await getReq(app, testData.user.token, '/cron-subscriptions');
     let builtInSub: CronSubscriptionsDocument;
@@ -137,12 +137,13 @@ describe('Cron Subscriptions Controller (e2e)', () => {
     r = await patchReq(
       app,
       testData.user.token,
-      `/cron-subscriptions/${builtInSub._id}?revert=true`,
+      `/cron-subscriptions/${builtInSub._id}`,
       {
         ...builtInSub,
         _id: null,
         builtIn: null,
         name: changedName,
+        revert: true,
       },
     );
 
@@ -150,8 +151,8 @@ describe('Cron Subscriptions Controller (e2e)', () => {
     r = await patchReq(
       app,
       testData.user.token,
-      `/cron-subscriptions/${builtInSub._id}?revert=true`,
-      {},
+      `/cron-subscriptions/${builtInSub._id}`,
+      { revert: true },
     );
 
     // Assert
@@ -238,7 +239,7 @@ describe('Cron Subscriptions Controller (e2e)', () => {
     expect(success).toBe(true);
   });
 
-  it('Should have proper authorizations (PATCH /cron-subscriptions/{id}?revert=true)', async () => {
+  it('Should have proper authorizations (PATCH /cron-subscriptions/{id})', async () => {
     const success = await checkAuthorizations(
       testData,
       Role.User,
@@ -246,8 +247,11 @@ describe('Cron Subscriptions Controller (e2e)', () => {
         return await patchReq(
           app,
           givenToken,
-          `/cron-subscriptions/${subscriptionId}?revert=true`,
-          {},
+          `/cron-subscriptions/${subscriptionId}`,
+          {
+            revert: true,
+            isEnabled: false,
+          },
         );
       },
     );
