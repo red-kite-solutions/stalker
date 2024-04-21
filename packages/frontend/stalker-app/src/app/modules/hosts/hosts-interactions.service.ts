@@ -71,8 +71,8 @@ export class HostsInteractionsService {
           );
           this.toastr.success(
             block
-              ? $localize`:Hosts blocked|Blocked a host:Hosts blocked successfully`
-              : $localize`:Hosts unblocked|Unblocked a host:Hosts unblocked successfully`
+              ? $localize`:Hosts blocked|Blocked a host:Hosts successfully blocked`
+              : $localize`:Hosts unblocked|Unblocked a host:Hosts successfully unblocked`
           );
           close(true);
         } catch {
@@ -130,8 +130,8 @@ export class HostsInteractionsService {
           await this.hostsService.block([hostId], block);
           this.toastr.success(
             block
-              ? $localize`:Host blocked|Blocked a host:Host blocked successfully`
-              : $localize`:Host unblocked|Unblocked a host:Host unblocked successfully`
+              ? $localize`:Host blocked|Blocked a host:Host successfully blocked`
+              : $localize`:Host unblocked|Unblocked a host:Host successfully unblocked`
           );
 
           close(true);

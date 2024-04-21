@@ -71,8 +71,8 @@ export class DomainsInteractionsService {
           );
           this.toastr.success(
             block
-              ? $localize`:Domains blocked|Blocked a domain:Domains blocked successfully`
-              : $localize`:Domains unblocked|Unblocked a domain:Domains unblocked successfully`
+              ? $localize`:Domains blocked|Blocked a domain:Domains successfully blocked`
+              : $localize`:Domains unblocked|Unblocked a domain:Domains successfully unblocked`
           );
           close(true);
         } catch {
@@ -130,8 +130,8 @@ export class DomainsInteractionsService {
           await this.domainsService.block([domainId], block);
           this.toastr.success(
             block
-              ? $localize`:Domain blocked|Blocked a domain:Domain blocked successfully`
-              : $localize`:Domain unblocked|Unblocked a domain:Domain unblocked successfully`
+              ? $localize`:Domain blocked|Blocked a domain:Domain successfully blocked`
+              : $localize`:Domain unblocked|Unblocked a domain:Domain successfully unblocked`
           );
 
           close(true);

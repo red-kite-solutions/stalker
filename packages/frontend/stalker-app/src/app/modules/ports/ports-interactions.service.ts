@@ -71,8 +71,8 @@ export class PortsInteractionsService {
           );
           this.toastr.success(
             block
-              ? $localize`:Ports blocked|Blocked a port:Ports blocked successfully`
-              : $localize`:Ports unblocked|Unblocked a port:Ports unblocked successfully`
+              ? $localize`:Ports blocked|Blocked a port:Ports successfully blocked`
+              : $localize`:Ports unblocked|Unblocked a port:Ports successfully unblocked`
           );
           close(true);
         } catch {
@@ -130,8 +130,8 @@ export class PortsInteractionsService {
           await this.portsService.block([portId], block);
           this.toastr.success(
             block
-              ? $localize`:Port blocked|Blocked a port:Port blocked successfully`
-              : $localize`:Port unblocked|Unblocked a port:Port unblocked successfully`
+              ? $localize`:Port blocked|Blocked a port:Port successfully blocked`
+              : $localize`:Port unblocked|Unblocked a port:Port successfully unblocked`
           );
 
           close(true);
