@@ -1,6 +1,6 @@
 # Stalker
 
-Stalker is an Attack Surface Management (ASM) tool with a big focus on extendability. It streamlines and automates reconnaissance operations while giving you the flexibility to expand its functionalities. Its web interface enables easy data access and sharing with all stakeholders.
+Stalker is an Attack Surface Management (ASM) tool with a big focus on extensibility. It streamlines and automates reconnaissance operations while giving you the flexibility to expand its functionalities. Its web interface enables easy data access and sharing with all stakeholders.
 
 Stalker is powered by Kubernetes, enabling virtually infinite horizontal scaling. Combined with its flexibility, it makes it the ideal tool for hands-on security professionals committed to staying in full control while getting a clear picture of their attack surface.
 
