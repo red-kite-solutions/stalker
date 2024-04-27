@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -8,6 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -22,6 +23,7 @@ import {
   Subject,
   combineLatest,
   concatMap,
+  firstValueFrom,
   map,
   merge,
   scan,
@@ -37,19 +39,17 @@ import { DomainSummary } from 'src/app/shared/types/domain/domain.summary';
 import { Port, PortNumber } from 'src/app/shared/types/ports/port.interface';
 import { ProjectSummary } from 'src/app/shared/types/project/project.summary';
 import { Tag } from 'src/app/shared/types/tag.type';
+import { BlockedPillTagComponent } from 'src/app/shared/widget/pill-tag/blocked-pill-tag.component';
 import { TextMenuComponent } from 'src/app/shared/widget/text-menu/text-menu.component';
 import { PortsService } from '../../../api/ports/ports.service';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PanelSectionModule } from '../../../shared/components/panel-section/panel-section.module';
 import { SharedModule } from '../../../shared/shared.module';
 import { Page } from '../../../shared/types/page.type';
-import {
-  ConfirmDialogComponent,
-  ConfirmDialogData,
-} from '../../../shared/widget/confirm-dialog/confirm-dialog.component';
 import { NewPillTagComponent } from '../../../shared/widget/pill-tag/new-pill-tag.component';
 import { SelectItem } from '../../../shared/widget/text-select-menu/text-select-menu.component';
 import { FindingsModule } from '../../findings/findings.module';
+import { PortsInteractionsService } from '../ports-interactions.service';
 
 @Component({
   standalone: true,
@@ -66,6 +66,7 @@ import { FindingsModule } from '../../findings/findings.module';
     MatButtonModule,
     MatInputModule,
     MatProgressSpinnerModule,
+    MatMenuModule,
     FormsModule,
     FindingsModule,
     RouterModule,
@@ -73,6 +74,7 @@ import { FindingsModule } from '../../findings/findings.module';
     AppHeaderComponent,
     MatTooltipModule,
     TextMenuComponent,
+    BlockedPillTagComponent,
   ],
   selector: 'app-view-port',
   templateUrl: './view-port.component.html',
@@ -128,6 +130,7 @@ export class ViewPortComponent implements OnDestroy {
     })
   );
   public portNumber$ = this.route.params.pipe(map((params) => params['port'] as string));
+  public port!: Port;
 
   public host$ = this.hostId$.pipe(switchMap((hostId) => this.hostsService.get(hostId)));
 
@@ -171,7 +174,8 @@ export class ViewPortComponent implements OnDestroy {
       }
       throw new Error('Error getting the port');
     }),
-    shareReplay(1)
+    shareReplay(1),
+    tap((p: Port) => (this.port = p))
   );
 
   public portTagsCache: string[] = [];
@@ -243,37 +247,21 @@ export class ViewPortComponent implements OnDestroy {
   }
 
   public async deletePort() {
-    const errorDeleting = $localize`:Error while deleting|Error while deleting an item:Error while deleting`;
-    if (!this.portId) {
-      this.toastr.error(errorDeleting);
+    const result = await this.portsInteractor.deleteBatch([this.port], this.projects);
+    if (result) {
+      this.router.navigate([`/hosts/${this.hostId}`]);
     }
+  }
 
-    const data: ConfirmDialogData = {
-      text: $localize`:Confirm port deletion|Confirmation message asking if the user really wants to delete the port:Do you really wish to delete this port permanently ?`,
-      title: $localize`:Deleting port|Title of a page to delete a port:Deleting port`,
-      primaryButtonText: $localize`:Cancel|Cancel current action:Cancel`,
-      dangerButtonText: $localize`:Delete permanently|Confirm that the user wants to delete the item permanently:Delete permanently`,
-      onPrimaryButtonClick: () => {
-        this.dialog.closeAll();
-      },
-      onDangerButtonClick: async () => {
-        try {
-          await this.portsService.delete(this.portId);
-          this.toastr.success(
-            $localize`:Port deleted|The port has been successfully deleted:Port successfully deleted`
-          );
-          this.router.navigate([`/hosts/${this.hostId}`]);
-          this.dialog.closeAll();
-        } catch (err) {
-          this.toastr.error(errorDeleting);
-        }
-      },
-    };
-
-    this.dialog.open(ConfirmDialogComponent, {
-      data,
-      restoreFocus: false,
-    });
+  public async blockPort(block: boolean) {
+    const result = await this.portsInteractor.block(this.portId, block);
+    if (result) {
+      const p = await firstValueFrom(this.portsService.getPort(this.portId));
+      this.port.blocked = p.blocked;
+      this.port.blockedAt = p.blockedAt;
+      this.cdr.markForCheck();
+      this.dialog.closeAll();
+    }
   }
 
   constructor(
@@ -283,8 +271,10 @@ export class ViewPortComponent implements OnDestroy {
     private tagsService: TagsService,
     private titleService: Title,
     private portsService: PortsService,
+    private portsInteractor: PortsInteractionsService,
     private toastr: ToastrService,
     private router: Router,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private cdr: ChangeDetectorRef
   ) {}
 }

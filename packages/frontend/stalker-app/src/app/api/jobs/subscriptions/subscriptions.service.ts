@@ -66,6 +66,10 @@ export class SubscriptionService {
     return this.getService(type).revert(id);
   }
 
+  updateIsEnabled(type: SubscriptionType, id: string, isEnabled: boolean): Promise<void> {
+    return this.getService(type).updateIsEnabled(id, isEnabled);
+  }
+
   private getService(type: 'cron'): CronSubscriptionsService;
   private getService(type: 'event'): EventSubscriptionsService;
   private getService(type: SubscriptionType): CronSubscriptionsService | EventSubscriptionsService;
@@ -81,6 +85,7 @@ export class SubscriptionService {
     delete copy._id;
     delete copy.type;
     delete copy.projectId;
+    delete copy.isEnabled;
     if (copy.job?.parameters?.length === 0) {
       delete copy.job.parameters;
     }

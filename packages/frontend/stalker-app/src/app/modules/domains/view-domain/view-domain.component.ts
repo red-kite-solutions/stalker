@@ -1,19 +1,31 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, combineLatest, concatMap, map, merge, scan, shareReplay, switchMap, tap } from 'rxjs';
+import {
+  BehaviorSubject,
+  combineLatest,
+  concatMap,
+  firstValueFrom,
+  map,
+  merge,
+  scan,
+  shareReplay,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { DomainsService } from 'src/app/api/domains/domains.service';
 import { ProjectsService } from 'src/app/api/projects/projects.service';
 import { TagsService } from 'src/app/api/tags/tags.service';
 import { ProjectSummary } from 'src/app/shared/types/project/project.summary';
 import { Tag } from 'src/app/shared/types/tag.type';
+import { BlockedPillTagComponent } from 'src/app/shared/widget/pill-tag/blocked-pill-tag.component';
 import { TextMenuComponent } from 'src/app/shared/widget/text-menu/text-menu.component';
 import { PortsService } from '../../../api/ports/ports.service';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
@@ -22,13 +34,10 @@ import { SharedModule } from '../../../shared/shared.module';
 import { Domain } from '../../../shared/types/domain/domain.interface';
 import { Page } from '../../../shared/types/page.type';
 import { PortNumber } from '../../../shared/types/ports/port.interface';
-import {
-  ConfirmDialogComponent,
-  ConfirmDialogData,
-} from '../../../shared/widget/confirm-dialog/confirm-dialog.component';
 import { NewPillTagComponent } from '../../../shared/widget/pill-tag/new-pill-tag.component';
 import { SelectItem } from '../../../shared/widget/text-select-menu/text-select-menu.component';
 import { FindingsModule } from '../../findings/findings.module';
+import { DomainsInteractionsService } from '../domains-interactions.service';
 
 @Component({
   standalone: true,
@@ -43,7 +52,9 @@ import { FindingsModule } from '../../findings/findings.module';
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
+    MatMenuModule,
     TextMenuComponent,
+    BlockedPillTagComponent,
   ],
   selector: 'app-view-domain',
   templateUrl: './view-domain.component.html',
@@ -86,6 +97,7 @@ export class ViewDomainComponent implements OnDestroy {
   );
 
   public domainId = '';
+  public domain!: Domain;
   public domainTagsCache: string[] = [];
   public domain$ = this.route.params.pipe(
     switchMap((params) => {
@@ -95,6 +107,7 @@ export class ViewDomainComponent implements OnDestroy {
     tap((domain: Domain) => {
       this.titleService.setTitle($localize`:Domain page title|:Domains · ${domain.name}`);
       this.domainTagsCache = domain.tags;
+      this.domain = domain;
     }),
     shareReplay(1)
   );
@@ -176,7 +189,6 @@ export class ViewDomainComponent implements OnDestroy {
   }
 
   /**
-   *
    * @param item A SelectItem, but contains all the attributes of a Tag.
    */
   public async itemSelected(item: SelectItem) {
@@ -201,48 +213,35 @@ export class ViewDomainComponent implements OnDestroy {
   }
 
   public async deleteDomain() {
-    const errorDeleting = $localize`:Error while deleting|Error while deleting an item:Error while deleting`;
-    if (!this.domainId) {
-      this.toastr.error(errorDeleting);
+    const domain = await firstValueFrom(this.domain$);
+    const result = await this.domainsInteractor.deleteBatch([domain], this.projects);
+
+    if (result) {
+      this.router.navigate(['/domains/']);
     }
+  }
 
-    const data: ConfirmDialogData = {
-      text: $localize`:Confirm domain deletion|Confirmation message asking if the user really wants to delete the domain:Do you really wish to delete this domain permanently ?`,
-      title: $localize`:Deleting domain|Title of a page to delete a domain:Deleting domain`,
-      primaryButtonText: $localize`:Cancel|Cancel current action:Cancel`,
-      dangerButtonText: $localize`:Delete permanently|Confirm that the user wants to delete the item permanently:Delete permanently`,
-      onPrimaryButtonClick: () => {
-        this.dialog.closeAll();
-      },
-      onDangerButtonClick: async () => {
-        try {
-          await this.domainsService.delete(this.domainId);
-          this.toastr.success(
-            $localize`:Domain deleted|The domain has been successfully deleted:Domain successfully deleted`
-          );
-          this.router.navigate(['/hosts/']);
-          this.dialog.closeAll();
-        } catch (err) {
-          this.toastr.error(errorDeleting);
-        }
-      },
-    };
+  public async blockDomain(block: boolean) {
+    const result = await this.domainsInteractor.block(this.domainId, block);
+    if (result) {
+      const d = await firstValueFrom(this.domainsService.get(this.domainId));
+      this.domain.blocked = d.blocked;
+      this.domain.blockedAt = d.blockedAt;
 
-    this.dialog.open(ConfirmDialogComponent, {
-      data,
-      restoreFocus: false,
-    });
+      this.cdr.markForCheck();
+    }
   }
 
   constructor(
     private route: ActivatedRoute,
     private domainsService: DomainsService,
+    private domainsInteractor: DomainsInteractionsService,
     private projectsService: ProjectsService,
     private tagsService: TagsService,
     private titleService: Title,
     private toastr: ToastrService,
     private portsService: PortsService,
     private router: Router,
-    public dialog: MatDialog
+    private cdr: ChangeDetectorRef
   ) {}
 }

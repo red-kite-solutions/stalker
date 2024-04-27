@@ -1,6 +1,6 @@
 ---
 sidebar_position: 1
-title: Overiew
+title: Overview
 description: An overview of Stalker
 ---
 
@@ -17,10 +17,10 @@ Stalker's API can be used by third-party tools for automated consumption.
 
 **Quick Links**
 
+- [Resources](/docs/concepts/resources)
+- [Jobs](/docs/concepts/jobs)
 - [Findings](/docs/concepts/findings)
 - [Subscriptions](/docs/concepts/subscriptions)
-- [Secrets](/docs/concepts/secrets)
-- [Jobs](/docs/concepts/jobs)
 
 ## Installing Stalker
 
