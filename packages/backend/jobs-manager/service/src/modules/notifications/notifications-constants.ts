@@ -20,5 +20,3 @@ export const EMAIL_RECIPIENTS_FILTER_LIST_MODE =
 
 export const MAILJET_API_KEY = process.env.MAILJET_API_KEY;
 export const MAILJET_API_SECRET = process.env.MAILJET_API_SECRET;
-
-console.log(process.env);

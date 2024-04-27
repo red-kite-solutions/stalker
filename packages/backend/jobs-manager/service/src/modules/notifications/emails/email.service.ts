@@ -39,25 +39,29 @@ export class EmailService {
     body: string,
     recipients: EmailRecipient[],
   ) {
-    await this.client.post('send', { version: 'v3.1' }).request({
-      Messages: [
-        {
-          From: {
-            Email: 'aboisiermichaud@gmail.com',
-          },
-          To: [
-            {
+    const filteredRecipients = this.filterRecipients(recipients);
+    try {
+      await this.client.post('send', { version: 'v3.1' }).request({
+        Messages: [
+          {
+            From: {
               Email: 'aboisiermichaud@gmail.com',
             },
-          ],
-          Subject: subject,
-          HTMLPart: body,
-        },
-      ],
-    });
+            To: filteredRecipients.map((x) => ({
+              Email: x.email,
+              Name: x.name,
+            })),
+            Subject: subject,
+            HTMLPart: body,
+          },
+        ],
+      });
+    } catch (e) {
+      this.logger.error(e);
+    }
   }
 
-  private async filterRecipients(recipients: EmailRecipient[]) {
+  private filterRecipients(recipients: EmailRecipient[]) {
     if (recipients == null) return [];
 
     switch (this.filterMode) {

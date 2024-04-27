@@ -2,3 +2,4 @@ version: v2beta1
 name: stalker-vars-dev
 
 vars:
+  STALKER_APP_BASE_URL: https://your-base-url

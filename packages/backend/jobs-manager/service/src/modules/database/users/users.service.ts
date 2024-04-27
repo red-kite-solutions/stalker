@@ -7,10 +7,13 @@ import {
   HttpForbiddenException,
   HttpNotFoundException,
 } from '../../../exceptions/http.exceptions';
-import { Role } from '../../auth/constants';
+import { Role, resetPasswordConstants } from '../../auth/constants';
 import { hashPassword, passwordEquals } from '../../auth/utils/auth.utils';
 import { CreateFirstUserDto } from './users.dto';
 
+import { randomBytes } from 'crypto';
+import { EmailService } from 'src/modules/notifications/emails/email.service';
+import { MagicLinkToken } from './magic-link-token.model';
 import { User } from './users.model';
 import { USER_INIT } from './users.provider';
 
@@ -22,7 +25,10 @@ export class UsersService {
 
   constructor(
     @InjectModel('users') private readonly userModel: Model<User>,
+    @InjectModel('magicLinkTokens')
+    private readonly uniqueTokenModel: Model<MagicLinkToken>,
     @Inject(USER_INIT) userProvider,
+    private emailService: EmailService,
   ) {}
 
   /**
@@ -270,6 +276,22 @@ export class UsersService {
     }
   }
 
+  public async validateIdentityUsingUniqueToken(token: string): Promise<User> {
+    const existingToken = await this.uniqueTokenModel.findOne({
+      token,
+      expirationDate: { $gt: Date.now() },
+    });
+
+    if (!existingToken) return;
+
+    const user = await this.findOneById(existingToken.userId);
+
+    // We override with limited permissions until.
+    // We could eventually implement support for specifying permissions within magic tokens.
+    user.role = Role.UserResetPassword;
+    return user;
+  }
+
   public async setRefreshToken(
     refreshToken: string,
     userId: string,
@@ -333,5 +355,42 @@ export class UsersService {
   public async isUserActive(userId: string): Promise<boolean> {
     const user = await this.findOneById(userId);
     return user?.active;
+  }
+
+  public async createPasswordResetRequest(email: string) {
+    // If the user does not exist, we gracefully end the request.
+    const user = await this.userModel.findOne({ email });
+    if (!user) return;
+
+    // We fire-and-forget the password reset link task
+    void new Promise((res) => {
+      const ttl = resetPasswordConstants.expirationTimeSeconds * 1000;
+      const token = randomBytes(64).toString('hex');
+      const now = new Date();
+      const expirationDate = new Date(now.getTime() + ttl);
+
+      // Save the token, keep the 5 most recent
+      this.uniqueTokenModel.create({
+        token,
+        userId: user.id,
+        expirationDate: expirationDate.getTime(),
+      });
+
+      const link = `${process.env.STALKER_APP_BASE_URL}/auth/reset?token=${token}`;
+      this.emailService.sendResetPassword(
+        {
+          link,
+          validHours: ttl / 1000 / 60 / 60,
+        },
+        [
+          {
+            email,
+            name: [user.firstName, user.lastName]
+              .filter((x) => x && x.trim() != '')
+              .join(' '),
+          },
+        ],
+      );
+    });
   }
 }

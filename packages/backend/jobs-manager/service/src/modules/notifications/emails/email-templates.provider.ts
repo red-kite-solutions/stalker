@@ -24,7 +24,6 @@ export class EmailTemplatesProvider {
   private getHtml(fileName: string, context: unknown) {
     const template = this.getMjml(fileName);
     const interpolatedTemplate = this.replaceValues(template, context);
-    console.log(mjml2html);
     return mjml2html(interpolatedTemplate).html;
   }
 

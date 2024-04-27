@@ -13,6 +13,7 @@ import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import JwtRefreshGuard from './guards/jwt-refresh.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
+import { MagicLinkAuthGuard } from './guards/magic-link.guard';
 
 @Controller('/auth')
 export class AuthController {
@@ -21,18 +22,13 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Request() req) {
-    const accessToken = await this.authService.createAccessToken({
-      email: req.user.email,
-      id: req.user._id,
-      role: req.user.role,
-    });
-    const refreshToken: string = await this.authService.createRefreshToken(
-      req.user._id,
-    );
-    return {
-      access_token: accessToken,
-      refresh_token: refreshToken,
-    };
+    return await this.loginCore(req);
+  }
+
+  @UseGuards(MagicLinkAuthGuard)
+  @Post('login-magic-link')
+  async loginMagicLink(@Request() req) {
+    return await this.loginCore(req);
   }
 
   @UseGuards(JwtRefreshGuard)
@@ -59,10 +55,24 @@ export class AuthController {
   /**
    * This function is left without authorizations on purpose
    * It is used to anonymously know if the platform was properly initialized
-   * @returns
    */
   @Get('setup')
   async getIsSetup(): Promise<any> {
     return { isSetup: await this.authService.isAuthenticationSetup() };
+  }
+
+  private async loginCore(req: any) {
+    const accessToken = await this.authService.createAccessToken({
+      email: req.user.email,
+      id: req.user._id,
+      role: req.user.role,
+    });
+    const refreshToken: string = await this.authService.createRefreshToken(
+      req.user._id,
+    );
+    return {
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    };
   }
 }
