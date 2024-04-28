@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
 import { JM_ENVIRONMENTS } from '../app.constants';
 import { EmailTemplatesProvider } from './emails/email-templates.provider';
-import { EmailService, MailJetEmailService } from './emails/email.service';
-import { MockedEmailService as NullEmailService } from './emails/null-email.service';
+import { EmailService } from './emails/email.service';
+import { MailJetEmailService } from './emails/mailjet-email.service';
+import { NullEmailService } from './emails/null-email.service';
 
 @Module({
   imports: [],

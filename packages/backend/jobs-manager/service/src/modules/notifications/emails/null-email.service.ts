@@ -1,7 +1,7 @@
 import { EmailRecipient, EmailService } from './email.service';
 import { ResetPasswordContext } from './templates/reset-password-context';
 
-export class MockedEmailService implements EmailService {
+export class NullEmailService implements EmailService {
   public sendResetPassword(
     context: ResetPasswordContext,
     recipients: EmailRecipient[],
