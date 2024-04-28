@@ -12,7 +12,7 @@ import { hashPassword, passwordEquals } from '../../auth/utils/auth.utils';
 import { CreateFirstUserDto } from './users.dto';
 
 import { randomBytes } from 'crypto';
-import { EmailService } from 'src/modules/notifications/emails/email.service';
+import { EmailService } from '../../notifications/emails/email.service';
 import { MagicLinkToken } from './magic-link-token.model';
 import { User } from './users.model';
 import { USER_INIT } from './users.provider';

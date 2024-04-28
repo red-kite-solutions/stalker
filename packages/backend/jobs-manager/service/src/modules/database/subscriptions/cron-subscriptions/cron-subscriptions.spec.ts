@@ -36,6 +36,7 @@ describe('Cron Subscriptions Service', () => {
     moduleFixture = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
+
     projectService = moduleFixture.get(ProjectService);
     subscriptionsService = moduleFixture.get(CronSubscriptionsService);
     domainsService = moduleFixture.get(DomainsService);

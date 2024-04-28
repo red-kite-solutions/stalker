@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { NotificationsModule } from 'src/modules/notifications/notifications.module';
+import { NotificationsModule } from '../../notifications/notifications.module';
 import { FirstUserController } from './first-user.controller';
 import { MagicLinkTokenSchema } from './magic-link-token.model';
 import {
