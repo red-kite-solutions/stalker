@@ -2,7 +2,7 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { randomUUID } from 'crypto';
 import jwt_decode from 'jwt-decode';
-import * as request from 'supertest';
+import request from 'supertest';
 import {
   admin,
   createUser,

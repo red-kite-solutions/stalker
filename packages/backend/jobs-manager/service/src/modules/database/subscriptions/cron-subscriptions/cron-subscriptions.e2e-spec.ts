@@ -1,7 +1,7 @@
 import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { useContainer } from 'class-validator';
-import * as request from 'supertest';
+import request from 'supertest';
 import {
   TestingData,
   checkAuthorizations,
