@@ -73,7 +73,7 @@ export class LoginComponent {
 
       const encodedUrl = await firstValueFrom(this.route.queryParamMap.pipe(map((x) => x.get('returnUrl'))));
       const returnUrl = encodedUrl != null ? decodeURI(encodedUrl) : null;
-      this.router.navigateByUrl(returnUrl ?? '/');
+      await this.router.navigateByUrl(returnUrl ?? '/');
     } finally {
       this.isSubmitting.set(false);
     }

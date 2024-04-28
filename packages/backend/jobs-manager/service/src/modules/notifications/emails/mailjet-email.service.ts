@@ -44,7 +44,7 @@ export class MailJetEmailService extends EmailService {
         Messages: [
           {
             From: {
-              Email: 'aboisiermichaud@gmail.com',
+              Email: 'foobar@gmail.com',
             },
             To: filteredRecipients.map((x) => ({
               Email: x.email,

@@ -1,16 +1,20 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
+import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { randomUUID } from 'crypto';
 import jwt_decode from 'jwt-decode';
+import { Model, Types } from 'mongoose';
 import request from 'supertest';
 import {
   admin,
   createUser,
   deleteReq,
   login,
+  loginMagicLinkToken,
   putReq,
 } from '../../test/e2e.utils';
 import { AppModule } from '../app.module';
+import { MagicLinkToken } from '../database/users/magic-link-token.model';
 import { Role } from './constants';
 
 describe('Auth Controller (e2e)', () => {
@@ -81,6 +85,46 @@ describe('Auth Controller (e2e)', () => {
 
     token = r.body.access_token;
     refresh = r.body.refresh_token;
+  });
+
+  it('Should connect as the magic link user (POST /auth/login-magic-link)', async () => {
+    // Arrange
+    const magicLinkToken = app.get<Model<MagicLinkToken>>(
+      getModelToken('magicLinkTokens'),
+    );
+
+    await magicLinkToken.create({
+      expirationDate: new Date().getTime() + 100000,
+      token: '1234',
+      userId: new Types.ObjectId(testAdmin.id),
+    });
+
+    // Act
+    const r = await loginMagicLinkToken(app, '1234');
+
+    // Assert
+    expect(r.statusCode).toBe(HttpStatus.CREATED);
+    expect(r.body.access_token).toBeTruthy();
+    expect(r.body.refresh_token).toBeTruthy();
+    const decodedToken: any = jwt_decode(r.body.access_token);
+    const decodedRefresh: any = jwt_decode(r.body.refresh_token);
+    expect(decodedToken.id).toBeTruthy();
+    expect(decodedToken.email).toBe(testAdmin.email);
+    expect(decodedToken.role).toBe(testAdmin.role);
+    expect(decodedRefresh.id).toBeTruthy();
+    expect(decodedToken.exp < decodedRefresh.exp).toBeTruthy();
+
+    token = r.body.access_token;
+    refresh = r.body.refresh_token;
+  });
+
+  it('Should connect as the magic link user (POST /auth/login-magic-link)', async () => {
+    // Arrange
+    // Act
+    const r = await loginMagicLinkToken(app, 'iamnotvalid');
+
+    // Assert
+    expect(r.statusCode).toBe(HttpStatus.UNAUTHORIZED);
   });
 
   it('Should provide an access token with a valid refresh token (PUT /auth/refresh)', async () => {

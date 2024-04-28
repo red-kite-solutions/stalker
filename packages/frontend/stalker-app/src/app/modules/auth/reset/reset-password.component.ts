@@ -66,10 +66,11 @@ export class ResetPasswordComponent {
   }
 
   public onSubmit = async () => {
-    this.isSubmitting.set(true);
     this.form.markAllAsTouched();
+    if (!this.form.valid) return;
 
     try {
+      this.isSubmitting.set(true);
       const { password } = this.form.value;
       if (!password) return;
 

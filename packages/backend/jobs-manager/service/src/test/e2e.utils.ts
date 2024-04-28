@@ -62,6 +62,18 @@ export async function login(
     });
 }
 
+export async function loginMagicLinkToken(
+  app: INestApplication,
+  token: string,
+) {
+  return await request(app.getHttpServer())
+    .post('/auth/login-magic-link')
+    .set('Content-Type', 'application/json')
+    .send({
+      token,
+    });
+}
+
 export async function createUser(
   app: INestApplication,
   token: string,
