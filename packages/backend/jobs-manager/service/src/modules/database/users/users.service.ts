@@ -282,7 +282,9 @@ export class UsersService {
       expirationDate: { $gt: Date.now() },
     });
 
-    if (!existingToken) return;
+    if (!existingToken) return undefined;
+
+    await this.uniqueTokenModel.deleteOne({ _id: existingToken._id });
 
     const user = await this.findOneById(existingToken.userId);
 
@@ -372,7 +374,7 @@ export class UsersService {
       // Save the token, keep the 5 most recent
       this.uniqueTokenModel.create({
         token,
-        userId: user.id,
+        userId: user._id,
         expirationDate: expirationDate.getTime(),
       });
 
