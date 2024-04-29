@@ -110,7 +110,7 @@ describe('Auth Controller (e2e)', () => {
     const decodedRefresh: any = jwt_decode(r.body.refresh_token);
     expect(decodedToken.id).toBeTruthy();
     expect(decodedToken.email).toBe(testAdmin.email);
-    expect(decodedToken.role).toBe(testAdmin.role);
+    expect(decodedToken.role).toBe(Role.UserResetPassword);
     expect(decodedRefresh.id).toBeTruthy();
     expect(decodedToken.exp < decodedRefresh.exp).toBeTruthy();
 
