@@ -70,7 +70,7 @@ export class RequestResetPasswordComponent {
 
       await this.usersService.requestResetPassword(email);
 
-      const retryDelayMilliseconds = 5 * 1000;
+      const retryDelayMilliseconds = 60 * 1000;
       let retryAt = new Date(new Date().getTime() + retryDelayMilliseconds);
 
       this.retryCountdown$ = timer(0, 1000).pipe(
