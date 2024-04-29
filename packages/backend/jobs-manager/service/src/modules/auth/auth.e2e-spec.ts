@@ -89,37 +89,6 @@ describe('Auth Controller (e2e)', () => {
 
   it('Should connect as the magic link user (POST /auth/login-magic-link)', async () => {
     // Arrange
-    const magicLinkToken = app.get<Model<MagicLinkToken>>(
-      getModelToken('magicLinkTokens'),
-    );
-
-    await magicLinkToken.create({
-      expirationDate: new Date().getTime() + 100000,
-      token: '1234',
-      userId: new Types.ObjectId(testAdmin.id),
-    });
-
-    // Act
-    const r = await loginMagicLinkToken(app, '1234');
-
-    // Assert
-    expect(r.statusCode).toBe(HttpStatus.CREATED);
-    expect(r.body.access_token).toBeTruthy();
-    expect(r.body.refresh_token).toBeTruthy();
-    const decodedToken: any = jwt_decode(r.body.access_token);
-    const decodedRefresh: any = jwt_decode(r.body.refresh_token);
-    expect(decodedToken.id).toBeTruthy();
-    expect(decodedToken.email).toBe(testAdmin.email);
-    expect(decodedToken.role).toBe(Role.UserResetPassword);
-    expect(decodedRefresh.id).toBeTruthy();
-    expect(decodedToken.exp < decodedRefresh.exp).toBeTruthy();
-
-    token = r.body.access_token;
-    refresh = r.body.refresh_token;
-  });
-
-  it('Should connect as the magic link user (POST /auth/login-magic-link)', async () => {
-    // Arrange
     // Act
     const r = await loginMagicLinkToken(app, 'iamnotvalid');
 
@@ -173,6 +142,37 @@ describe('Auth Controller (e2e)', () => {
   it('Should not be able to login with an inactive user (POST /auth/login)', async () => {
     const r = await login(app, inactiveUser.email, inactiveUser.password);
     expect(r.statusCode).toBe(HttpStatus.UNAUTHORIZED);
+  });
+
+  it('Should connect as the magic link user (POST /auth/login-magic-link)', async () => {
+    // Arrange
+    const magicLinkToken = app.get<Model<MagicLinkToken>>(
+      getModelToken('magicLinkTokens'),
+    );
+
+    await magicLinkToken.create({
+      expirationDate: new Date().getTime() + 100000,
+      token: '1234',
+      userId: new Types.ObjectId(testAdmin.id),
+    });
+
+    // Act
+    const r = await loginMagicLinkToken(app, '1234');
+
+    // Assert
+    expect(r.statusCode).toBe(HttpStatus.CREATED);
+    expect(r.body.access_token).toBeTruthy();
+    expect(r.body.refresh_token).toBeTruthy();
+    const decodedToken: any = jwt_decode(r.body.access_token);
+    const decodedRefresh: any = jwt_decode(r.body.refresh_token);
+    expect(decodedToken.id).toBeTruthy();
+    expect(decodedToken.email).toBe(testAdmin.email);
+    expect(decodedToken.role).toBe(Role.UserResetPassword);
+    expect(decodedRefresh.id).toBeTruthy();
+    expect(decodedToken.exp < decodedRefresh.exp).toBeTruthy();
+
+    token = r.body.access_token;
+    refresh = r.body.refresh_token;
   });
 
   it("Should not be able to get an access token with a deactivated user's refresh token (PUT /auth/refresh)", async () => {

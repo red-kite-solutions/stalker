@@ -4,6 +4,7 @@ import { Client } from 'node-mailjet';
 import {
   EMAIL_RECIPIENTS_FILTER_LIST,
   EMAIL_RECIPIENTS_FILTER_LIST_MODE,
+  EMAIL_SENDER,
   MAILJET_API_KEY,
   MAILJET_API_SECRET,
 } from '../notifications-constants';
@@ -44,7 +45,7 @@ export class MailJetEmailService extends EmailService {
         Messages: [
           {
             From: {
-              Email: 'foobar@gmail.com',
+              Email: EMAIL_SENDER,
             },
             To: filteredRecipients.map((x) => ({
               Email: x.email,
