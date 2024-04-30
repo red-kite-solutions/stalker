@@ -87,15 +87,6 @@ describe('Auth Controller (e2e)', () => {
     refresh = r.body.refresh_token;
   });
 
-  it('Should connect as the magic link user (POST /auth/login-magic-link)', async () => {
-    // Arrange
-    // Act
-    const r = await loginMagicLinkToken(app, 'iamnotvalid');
-
-    // Assert
-    expect(r.statusCode).toBe(HttpStatus.UNAUTHORIZED);
-  });
-
   it('Should provide an access token with a valid refresh token (PUT /auth/refresh)', async () => {
     const r = await request(app.getHttpServer())
       .put('/auth/refresh')
@@ -144,6 +135,37 @@ describe('Auth Controller (e2e)', () => {
     expect(r.statusCode).toBe(HttpStatus.UNAUTHORIZED);
   });
 
+  it("Should not be able to get an access token with a deactivated user's refresh token (PUT /auth/refresh)", async () => {
+    await putReq(app, token, `/users/${inactiveUser.id}`, {
+      email: inactiveUser.email,
+      firstName: inactiveUser.firstName,
+      lastName: inactiveUser.lastName,
+      active: true,
+      currentPassword: testAdmin.password,
+    });
+    const inactiveTokens = (
+      await login(app, inactiveUser.email, inactiveUser.password)
+    ).body;
+
+    expect(inactiveTokens.access_token).toBeTruthy();
+
+    await putReq(app, token, `/users/${inactiveUser.id}`, {
+      email: inactiveUser.email,
+      firstName: inactiveUser.firstName,
+      lastName: inactiveUser.lastName,
+      active: false,
+      currentPassword: testAdmin.password,
+    });
+    const r = await request(app.getHttpServer())
+      .put('/auth/refresh')
+      .set('Content-Type', 'application/json')
+      .send({
+        refresh_token: inactiveTokens.refresh_token,
+      });
+
+    expect(r.statusCode).toBe(HttpStatus.UNAUTHORIZED);
+  });
+
   it('Should connect as the magic link user (POST /auth/login-magic-link)', async () => {
     // Arrange
     const magicLinkToken = app.get<Model<MagicLinkToken>>(
@@ -175,34 +197,12 @@ describe('Auth Controller (e2e)', () => {
     refresh = r.body.refresh_token;
   });
 
-  it("Should not be able to get an access token with a deactivated user's refresh token (PUT /auth/refresh)", async () => {
-    await putReq(app, token, `/users/${inactiveUser.id}`, {
-      email: inactiveUser.email,
-      firstName: inactiveUser.firstName,
-      lastName: inactiveUser.lastName,
-      active: true,
-      currentPassword: testAdmin.password,
-    });
-    const inactiveTokens = (
-      await login(app, inactiveUser.email, inactiveUser.password)
-    ).body;
+  it('Should connect as the magic link user (POST /auth/login-magic-link)', async () => {
+    // Arrange
+    // Act
+    const r = await loginMagicLinkToken(app, 'iamnotvalid');
 
-    expect(inactiveTokens.access_token).toBeTruthy();
-
-    await putReq(app, token, `/users/${inactiveUser.id}`, {
-      email: inactiveUser.email,
-      firstName: inactiveUser.firstName,
-      lastName: inactiveUser.lastName,
-      active: false,
-      currentPassword: testAdmin.password,
-    });
-    const r = await request(app.getHttpServer())
-      .put('/auth/refresh')
-      .set('Content-Type', 'application/json')
-      .send({
-        refresh_token: inactiveTokens.refresh_token,
-      });
-
+    // Assert
     expect(r.statusCode).toBe(HttpStatus.UNAUTHORIZED);
   });
 
