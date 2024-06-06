@@ -1,6 +1,6 @@
-import { CronSubscriptionsService } from './cron-subscriptions.service';
+import { cronShouldRun } from './cron.utils';
 
-describe('CronSubscriptionsService', () => {
+describe('CronUtils', () => {
   // Here are timestamp (ms) examples of a check every 10 seconds
   // for a cron that should start every 30 seconds
   //          */30 * * * * ?
@@ -22,11 +22,7 @@ describe('CronSubscriptionsService', () => {
     const startTime = 1701305999999;
 
     //Act
-    const result = CronSubscriptionsService.cronShouldRun(
-      cronExpression,
-      lastRunTime,
-      startTime,
-    );
+    const result = cronShouldRun(cronExpression, lastRunTime, startTime);
 
     //Assert
     expect(result).toStrictEqual(false);
@@ -39,11 +35,7 @@ describe('CronSubscriptionsService', () => {
     let startTime = 1701306000000;
 
     //Act
-    let result = CronSubscriptionsService.cronShouldRun(
-      cronExpression,
-      lastRunTime,
-      startTime,
-    );
+    let result = cronShouldRun(cronExpression, lastRunTime, startTime);
 
     //Assert
     expect(result).toStrictEqual(false);
@@ -53,11 +45,7 @@ describe('CronSubscriptionsService', () => {
     startTime = 1701306010000;
 
     //Act
-    result = CronSubscriptionsService.cronShouldRun(
-      cronExpression,
-      lastRunTime,
-      startTime,
-    );
+    result = cronShouldRun(cronExpression, lastRunTime, startTime);
 
     //Assert
     expect(result).toStrictEqual(true);
@@ -70,11 +58,7 @@ describe('CronSubscriptionsService', () => {
     const startTime = 1701306000001;
 
     //Act
-    const result = CronSubscriptionsService.cronShouldRun(
-      cronExpression,
-      lastRunTime,
-      startTime,
-    );
+    const result = cronShouldRun(cronExpression, lastRunTime, startTime);
 
     //Assert
     expect(result).toStrictEqual(true);

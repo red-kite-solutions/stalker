@@ -7,6 +7,7 @@ import {
   HttpNotFoundException,
 } from '../../../../exceptions/http.exceptions';
 import { ProjectUnassigned } from '../../../../validators/is-project-id.validator';
+import { SubscriptionTriggersService } from '../subscription-triggers/subscription-triggers.service';
 import { EVENT_SUBSCRIPTIONS_FILES_PATH } from '../subscriptions.constants';
 import { SubscriptionsUtils } from '../subscriptions.utils';
 import { EventSubscriptionDto } from './event-subscriptions.dto';
@@ -19,6 +20,7 @@ export class EventSubscriptionsService {
   constructor(
     @InjectModel('eventSubscriptions')
     private readonly subscriptionModel: Model<EventSubscription>,
+    private readonly triggerService: SubscriptionTriggersService,
   ) {}
 
   public async create(dto: EventSubscriptionDto) {
@@ -102,6 +104,7 @@ export class EventSubscriptionsService {
   }
 
   public async delete(id: string): Promise<DeleteResult> {
+    await this.triggerService.deleteAllForSubscription(id);
     return await this.subscriptionModel.deleteOne({
       _id: { $eq: new Types.ObjectId(id) },
     });
@@ -120,6 +123,7 @@ export class EventSubscriptionsService {
   }
 
   public async deleteAllForProject(projectId: string): Promise<DeleteResult> {
+    // The triggers will be deleted by the project, so no need to delete them here
     return await this.subscriptionModel.deleteMany({
       projectId: { $eq: new Types.ObjectId(projectId) },
     });

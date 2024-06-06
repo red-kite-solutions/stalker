@@ -1,11 +1,15 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { TimestampedString } from '../../../../types/timestamped-string.type';
+import { MONGO_TIMESTAMP_FUNCTION } from '../../database.constants';
 import { CustomJob } from './custom-job.model';
 
 export type JobDocument = Job & Document;
 
-@Schema({ discriminatorKey: 'task' })
+@Schema({
+  discriminatorKey: 'task',
+  timestamps: { currentTime: MONGO_TIMESTAMP_FUNCTION, createdAt: true },
+})
 export class Job {
   @Prop({
     type: String,
@@ -31,6 +35,9 @@ export class Job {
 
   @Prop()
   public endTime: number;
+
+  @Prop()
+  public createdAt: number;
 }
 
 export const JobSchema = SchemaFactory.createForClass(Job);

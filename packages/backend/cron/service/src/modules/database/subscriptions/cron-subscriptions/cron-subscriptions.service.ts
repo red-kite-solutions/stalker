@@ -2,8 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { E_TIMEOUT, Mutex, withTimeout } from 'async-mutex';
-import { parseExpression } from 'cron-parser';
 import { Model } from 'mongoose';
+import { cronShouldRun } from '../../../../utils/cron.utils';
 import { CronConnector } from '../../../connectors/cron.connector';
 import {
   CronSubscription,
@@ -40,7 +40,7 @@ export class CronSubscriptionsService {
   public async getCronSubscriptions() {
     return await this.cronSubscriptionsModel
       .find({})
-      .select('_id name cronExpression');
+      .select('_id name cronExpression isEnabled');
   }
 
   @Cron(CronExpression.EVERY_MINUTE, {
@@ -70,18 +70,6 @@ export class CronSubscriptionsService {
     }
   }
 
-  public static cronShouldRun(
-    cronExpression: string,
-    lastRunStart: number,
-    currentRunStart: number,
-  ): boolean {
-    const parsedCron = parseExpression(cronExpression, {
-      currentDate: new Date(currentRunStart),
-    });
-    const prevCronTime = parsedCron.prev().getTime();
-    return lastRunStart <= prevCronTime && prevCronTime < currentRunStart;
-  }
-
   @Cron(CronExpression.EVERY_10_SECONDS, {
     name: 'Notify cron jobs',
   })
@@ -101,7 +89,7 @@ export class CronSubscriptionsService {
           } catch (e) {
             this.logger.error(e);
             this.logger.error(
-              `Failed to run cron subscription with id '${subscription.id}', cron expression '${subscription.cronExpression}'`,
+              `Failed to run cron subscription with id '${subscription._id}', cron expression '${subscription.cronExpression}'`,
             );
           }
         }
@@ -126,12 +114,12 @@ export class CronSubscriptionsService {
 
     const { _id, cronExpression, isEnabled, name } = subscription;
 
-    const cronShouldRun = CronSubscriptionsService.cronShouldRun(
+    const shouldRun = cronShouldRun(
       cronExpression,
       this.lastJobLaunchStart,
       now,
     );
-    if (!cronShouldRun) {
+    if (!shouldRun) {
       return;
     }
 

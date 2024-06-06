@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CustomJobNameExistsRule } from '../../../../validators/custom-job-name-exists.validator';
 import { CustomJobsModule } from '../../custom-jobs/custom-jobs.module';
+import { SubscriptionTriggersModule } from '../subscription-triggers/subscription-triggers.module';
 import { EventSubscriptionsController } from './event-subscriptions.controller';
 import { EventSubscriptionsSchema } from './event-subscriptions.model';
 import { eventSubscriptionsInitProvider } from './event-subscriptions.provider';
@@ -16,6 +17,7 @@ import { EventSubscriptionsService } from './event-subscriptions.service';
       },
     ]),
     CustomJobsModule,
+    SubscriptionTriggersModule,
   ],
   controllers: [EventSubscriptionsController],
   providers: [
