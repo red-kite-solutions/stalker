@@ -10,9 +10,6 @@ export class Config {
 
   @Prop()
   findingRetentionTimeSeconds: number;
-
-  @Prop()
-  subscriptionTriggerRetentionTimeSeconds: number;
 }
 
 export const ConfigSchema = SchemaFactory.createForClass(Config);

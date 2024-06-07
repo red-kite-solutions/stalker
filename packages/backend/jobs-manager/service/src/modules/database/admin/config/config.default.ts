@@ -44,5 +44,4 @@ export const DEFAULT_JOB_POD_FALLBACK_CONFIG: JobPodConfiguration = {
 export const DEFAULT_GENERAL_CONFIG: Config = {
   findingRetentionTimeSeconds: 60 * 60 * 24 * 365, // ~1 year
   jobRunRetentionTimeSeconds: 60 * 60 * 24 * 14, // 14 days
-  subscriptionTriggerRetentionTimeSeconds: 60 * 60 * 24 * 365, // ~1 year
 };
