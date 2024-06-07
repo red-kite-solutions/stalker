@@ -1,4 +1,4 @@
-name: Cron / Release
+name: Cron Service / Release
 
 on:
   push:
