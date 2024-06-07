@@ -53,7 +53,8 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          context: ./packages/backend/orchestrator/service
+          context: ./
+          file: ./packages/backend/orchestrator/service/Dockerfile
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
