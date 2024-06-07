@@ -1,9 +1,9 @@
-name: Jobs Manager / Release
+name: Stalker Base / Release
 
 on:
   push:
     tags:
-      - jobs-manager/v*
+      - stalker-base/v*
 
 permissions:
   packages: write
@@ -34,7 +34,7 @@ jobs:
         uses: actions/github-script@v6
         id: version
         with:
-          script: return context.ref.substr('refs/tags/jobs-manager/'.length)
+          script: return context.ref.substr('refs/tags/stalker-base/'.length)
           result-encoding: string
 
       - name: Docker meta
@@ -42,7 +42,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ghcr.io/red-kite-solutions/stalker-jobs-manager
+            ghcr.io/red-kite-solutions/stalker-base
           tags: |
             type=semver,pattern={{version}},value=${{steps.version.outputs.result}}
             type=semver,pattern={{major}}.{{minor}},value=${{steps.version.outputs.result}}
@@ -54,7 +54,7 @@ jobs:
         with:
           push: true
           context: ./
-          file: ./packages/backend/jobs-manager/service
+          file: ./packages/Dockerfile.base
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |

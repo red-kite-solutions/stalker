@@ -53,7 +53,8 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          context: ./packages/frontend/stalker-app
+          context: ./
+          file: ./packages/frontend/stalker-app/Dockerfile
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
