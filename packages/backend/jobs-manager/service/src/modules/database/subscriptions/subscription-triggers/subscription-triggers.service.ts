@@ -2,6 +2,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DeleteResult } from 'mongodb';
 import { Model, Types } from 'mongoose';
+import { CorrelationKeyUtils } from '../../reporting/correlation.utils';
+import { DomainsService } from '../../reporting/domain/domain.service';
+import { HostService } from '../../reporting/host/host.service';
+import { PortService } from '../../reporting/port/port.service';
 import {
   SubscriptionTrigger,
   SubscriptionTriggerDocument,
@@ -14,7 +18,26 @@ export class SubscriptionTriggersService {
   constructor(
     @InjectModel('subscriptionTriggers')
     private readonly subscriptionTriggerModel: Model<SubscriptionTrigger>,
+    private readonly hostsService: HostService,
+    private readonly domainsService: DomainsService,
+    private readonly portsService: PortService,
   ) {}
+
+  public async isTriggerBlocked(correlationKey: string): Promise<boolean> {
+    const serviceName =
+      CorrelationKeyUtils.getResourceServiceName(correlationKey);
+
+    switch (serviceName) {
+      case 'PortService':
+        return await this.portsService.keyIsBlocked(correlationKey);
+      case 'DomainsService':
+        return await this.domainsService.keyIsBlocked(correlationKey);
+      case 'HostService':
+        return await this.hostsService.keyIsBlocked(correlationKey);
+      default:
+        return false;
+    }
+  }
 
   /**
    * The function attempts to trigger a `SubscriptionTrigger`. It will succeed if the interval since the last trigger is
@@ -31,6 +54,8 @@ export class SubscriptionTriggersService {
     correlationKey: string,
     subscriptionCooldown: number,
   ): Promise<boolean> {
+    if (await this.isTriggerBlocked(correlationKey)) return false;
+
     const subId = new Types.ObjectId(subscriptionId);
 
     let triggerSuccess = false;

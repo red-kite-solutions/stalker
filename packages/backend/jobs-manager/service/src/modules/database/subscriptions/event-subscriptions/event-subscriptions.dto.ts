@@ -1,6 +1,7 @@
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsInt,
   IsMongoId,
   IsNotEmpty,
@@ -16,6 +17,10 @@ export class EventSubscriptionDto {
   @IsString()
   @IsNotEmpty()
   public name!: string;
+
+  @IsBoolean()
+  @IsOptional()
+  public isEnabled?: boolean;
 
   @IsMongoId()
   @IsOptional()

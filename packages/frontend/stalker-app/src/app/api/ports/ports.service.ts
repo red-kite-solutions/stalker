@@ -48,4 +48,8 @@ export class PortsService {
   public async deleteMany(portIds: string[]) {
     return await firstValueFrom(this.http.delete(`${environment.fmUrl}/ports/`, { body: { portIds: portIds } }));
   }
+
+  public async block(portIds: string[], block: boolean) {
+    return await firstValueFrom(this.http.patch(`${environment.fmUrl}/ports/`, { portIds, block }));
+  }
 }

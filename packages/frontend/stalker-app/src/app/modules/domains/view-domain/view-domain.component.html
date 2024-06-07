@@ -1,25 +1,39 @@
-@if (domain$ | async; as domain) {
-  <app-page-header [parts]="[(projects$ | async | whereId: [domain?.projectId])?.name, domain.name]"> </app-page-header>
+@if (domain$ | async) {
+  <div class="tw-flex tw-items-center tw-px-4 tw-gap">
+    <app-page-header [parts]="[(projects$ | async | whereId: [domain?.projectId])?.name, domain.name]">
+    </app-page-header>
+
+    @if (domain.blocked) {
+      <app-blocked-pill-tag class="tw-mt-[9px]"></app-blocked-pill-tag>
+    }
+  </div>
 
   <div class="content-wrapper">
     <div class="content">
       <findings-list [correlationKey]="domain.correlationKey"></findings-list>
     </div>
     <div #contextPanel class="context">
-      @if (domain) {
+      @if (domain.blocked) {
         <panel-section>
-          <panel-section-title i18n="Last seen|Last seen"> Last seen </panel-section-title>
-          <panel-section-subtitle [matTooltip]="domain.lastSeen | humanizeDate: 'precise'" matTooltipPosition="before">
-            {{ domain.lastSeen | timeAgo }}
-          </panel-section-subtitle>
-        </panel-section>
-        <panel-section>
-          <panel-section-title i18n="First seen|First seen"> First seen </panel-section-title>
-          <panel-section-subtitle [matTooltip]="domain.createdAt | humanizeDate: 'precise'" matTooltipPosition="before">
-            {{ domain.createdAt | timeAgo }}
+          <panel-section-title i18n="Blocked|Blocked">Blocked</panel-section-title>
+          <panel-section-subtitle [matTooltip]="domain.blockedAt | humanizeDate: 'precise'" matTooltipPosition="before">
+            {{ domain.blockedAt | timeAgo }}
           </panel-section-subtitle>
         </panel-section>
       }
+      <panel-section>
+        <panel-section-title i18n="Last seen|Last seen"> Last seen </panel-section-title>
+        <panel-section-subtitle [matTooltip]="domain.lastSeen | humanizeDate: 'precise'" matTooltipPosition="before">
+          {{ domain.lastSeen | timeAgo }}
+        </panel-section-subtitle>
+      </panel-section>
+      <panel-section>
+        <panel-section-title i18n="First seen|First seen"> First seen </panel-section-title>
+        <panel-section-subtitle [matTooltip]="domain.createdAt | humanizeDate: 'precise'" matTooltipPosition="before">
+          {{ domain.createdAt | timeAgo }}
+        </panel-section-subtitle>
+      </panel-section>
+
       @if ((tagsSelectItems$ | async) && mergedTags$ | async; as domainTags) {
         <panel-section>
           <panel-section-title i18n="Tags|The tags of an item"
@@ -40,10 +54,10 @@
           </panel-section-title>
 
           <div class="tw-pt-1 tw-flex tw-flex-wrap tw-gap-x-2 tw-gap-y-1">
-            <app-new-pill-tag #newPillTag [createdAtMilliseconds]="domain.createdAt"></app-new-pill-tag>
             @for (tag of domainTags; track tag) {
               <app-pill-tag [color]="(tags | whereId: [tag])?.color">{{ (tags | whereId: [tag])?.text }}</app-pill-tag>
             }
+            <app-new-pill-tag #newPillTag [createdAtMilliseconds]="domain.createdAt"></app-new-pill-tag>
           </div>
 
           @if (!domainTags.length && !newPillTag.isNew()) {
@@ -83,21 +97,32 @@
             }
           </div>
         }
-        @if (((ipAddressesDataSourceShowCount$ | async) ?? 0) < (domain?.hosts?.length ?? 0)) {
+        @if (((ipAddressesDataSourceShowCount$ | async) ?? 0) < domain.hosts.length) {
           <button
             panel-load-more
             (click)="ipAddressesDataSourceShowCount$.next(ipAddressesDataSourceShowCount$.value + 100)"
           >
-            Show more ({{ domain?.hosts?.length }})
+            Show more ({{ domain.hosts.length }})
           </button>
         }
       </panel-section>
       <mat-divider></mat-divider>
       <panel-section class="tw-opacity-60" #managementPanelSection>
         <app-text-menu [buttonText]="manageDomainText" [iconName]="'settings'" [xPosition]="'before'">
-          <button mat-stroked-button color="warn" class="tw-w-full" (click)="deleteDomain()">
-            <label i18n="Delete|Delete an item">Delete</label>
-          </button>
+          <div class="tw-h-full tw-w-full tw-grid tw-gap-y-1">
+            <button mat-menu-item class="tw-w-full" (click)="blockDomain(!domain.blocked)">
+              <mat-icon>{{ domain.blocked ? 'thumb_up' : 'block' }}</mat-icon>
+              @if (domain.blocked) {
+                <label i18n="Unblock|Unblock an item">Unblock</label>
+              } @else {
+                <label i18n="Block|Block an item">Block</label>
+              }
+            </button>
+            <button mat-menu-item color="warn" class="tw-w-full" (click)="deleteDomain()">
+              <mat-icon>delete</mat-icon>
+              <label i18n="Delete|Delete an item">Delete</label>
+            </button>
+          </div>
         </app-text-menu>
       </panel-section>
     </div>

@@ -38,8 +38,18 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
     for (const sub of subs) {
       // Validate that, according to the conditions, the job should be executed.
       // If not, then we go straight for the other subscription
-      if (!SubscriptionsUtils.shouldExecute(sub.conditions, command)) continue;
-
+      if (
+        !SubscriptionsUtils.shouldExecute(
+          sub.isEnabled,
+          sub.conditions,
+          command,
+        )
+      ) {
+        this.logger.debug(
+          `Skipping job publication for ${sub.name}; conditions not met or subscription is disabled.`,
+        );
+        continue;
+      }
       // This loop ensures that all parameters refering to a finding's output
       // (ex: ${ip} for refering to an ip parameter of a finding) is replaced with the
       // proper value. The check for the variable name is case insensitive.

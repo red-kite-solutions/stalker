@@ -21,17 +21,18 @@ import { ProjectsService } from 'src/app/api/projects/projects.service';
 import { TagsService } from 'src/app/api/tags/tags.service';
 import { ProjectCellComponent } from 'src/app/shared/components/project-cell/project-cell.component';
 import { Page } from 'src/app/shared/types/page.type';
-import { Project } from 'src/app/shared/types/project/project.interface';
+import { ProjectSummary } from 'src/app/shared/types/project/project.summary';
 import { Tag } from 'src/app/shared/types/tag.type';
-import { FilteredPaginatedTableComponent } from 'src/app/shared/widget/filtered-paginated-table/filtered-paginated-table.component';
+import {
+  ElementMenuItems,
+  FilteredPaginatedTableComponent,
+} from 'src/app/shared/widget/filtered-paginated-table/filtered-paginated-table.component';
+import { BlockedPillTagComponent } from 'src/app/shared/widget/pill-tag/blocked-pill-tag.component';
 import { PortsService } from '../../../api/ports/ports.service';
 import { SharedModule } from '../../../shared/shared.module';
 import { Port } from '../../../shared/types/ports/port.interface';
-import {
-  ConfirmDialogComponent,
-  ConfirmDialogData,
-} from '../../../shared/widget/confirm-dialog/confirm-dialog.component';
 import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.component';
+import { PortsInteractionsService } from '../ports-interactions.service';
 
 @Component({
   standalone: true,
@@ -51,6 +52,7 @@ import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.c
     ProjectCellComponent,
     FilteredPaginatedTableComponent,
     RouterModule,
+    BlockedPillTagComponent,
   ],
   selector: 'app-list-ports',
   templateUrl: './list-ports.component.html',
@@ -58,13 +60,13 @@ import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.c
 })
 export class ListPortsComponent {
   dataLoading = true;
-  displayedColumns: string[] = ['select', 'port', 'ip', 'project', 'tags'];
-  filterOptions: string[] = ['host', 'port', 'project', 'tags'];
+  displayedColumns: string[] = ['select', 'port', 'ip', 'project', 'tags', 'menu'];
+  filterOptions: string[] = ['host', 'port', 'project', 'tags', 'is'];
   public readonly noDataMessage = $localize`:No port found|No port was found:No port found`;
 
   dataSource = new MatTableDataSource<Port>();
   currentPage: PageEvent = this.generateFirstPageEvent();
-  currentFilters: string[] = [];
+  currentFilters: string[] = ['-is: blocked'];
   currentPage$ = new BehaviorSubject<PageEvent>(this.currentPage);
   count = 0;
   selection = new SelectionModel<Port>(true, []);
@@ -93,8 +95,8 @@ export class ListPortsComponent {
     })
   );
 
-  projects: Project[] = [];
-  projects$ = this.projectsService.getAll().pipe(tap((x) => (this.projects = x)));
+  projects: ProjectSummary[] = [];
+  projects$ = this.projectsService.getAllSummaries().pipe(tap((x) => (this.projects = x)));
 
   tags: Tag[] = [];
   tags$ = this.tagsService.getTags().pipe(
@@ -125,9 +127,9 @@ export class ListPortsComponent {
 
   public displayColumns$ = this.screenSize$.pipe(
     map((screen: BreakpointState) => {
-      if (screen.breakpoints[Breakpoints.XSmall]) return ['select', 'port', 'ip', 'project'];
-      else if (screen.breakpoints[Breakpoints.Small]) return ['select', 'port', 'ip', 'project', 'tags'];
-      else if (screen.breakpoints[Breakpoints.Medium]) return ['select', 'port', 'ip', 'project', 'tags'];
+      if (screen.breakpoints[Breakpoints.XSmall]) return ['select', 'port', 'ip', 'project', 'menu'];
+      else if (screen.breakpoints[Breakpoints.Small]) return ['select', 'port', 'ip', 'project', 'tags', 'menu'];
+      else if (screen.breakpoints[Breakpoints.Medium]) return ['select', 'port', 'ip', 'project', 'tags', 'menu'];
       return this.displayedColumns;
     })
   );
@@ -141,6 +143,7 @@ export class ListPortsComponent {
     private bpObserver: BreakpointObserver,
     private projectsService: ProjectsService,
     private portsService: PortsService,
+    private portsInteractor: PortsInteractionsService,
     private toastr: ToastrService,
     private tagsService: TagsService,
     public dialog: MatDialog,
@@ -163,11 +166,13 @@ export class ListPortsComponent {
 
   buildFilters(stringFilters: string[]): any {
     const SEPARATOR = ':';
+    const NEGATING_CHAR = '-';
     const filterObject: any = {};
     const tags = [];
     const ports = [];
     const hosts = [];
     const projects = [];
+    let blocked: boolean | null = null;
 
     for (const filter of stringFilters) {
       if (filter.indexOf(SEPARATOR) === -1) continue;
@@ -176,15 +181,17 @@ export class ListPortsComponent {
 
       if (keyValuePair.length !== 2) continue;
 
-      const key = keyValuePair[0].trim().toLowerCase();
+      let key = keyValuePair[0].trim().toLowerCase();
       const value = keyValuePair[1].trim().toLowerCase();
+      const negated = key.length > 0 && key[0] === NEGATING_CHAR;
+      if (negated) key = key.substring(1);
 
       if (!key || !value) continue;
 
       switch (key) {
         case 'project':
           const project = this.projects.find((c) => c.name.trim().toLowerCase() === value.trim().toLowerCase());
-          if (project) projects.push(project._id);
+          if (project) projects.push(project.id);
           else
             this.toastr.warning(
               $localize`:Project does not exist|The given project name is not known to the application:Project name not recognized`
@@ -204,61 +211,23 @@ export class ListPortsComponent {
         case 'port':
           ports.push(value);
           break;
+        case 'is':
+          switch (value) {
+            case 'blocked':
+              blocked = !negated;
+              break;
+          }
+          break;
       }
     }
     if (tags?.length) filterObject['tags'] = tags;
     if (ports?.length) filterObject['ports'] = ports;
     if (hosts?.length) filterObject['host'] = hosts;
     if (projects?.length) filterObject['project'] = projects;
+    if (blocked !== null) filterObject['blocked'] = blocked;
     return filterObject;
   }
 
-  public deletePorts() {
-    const bulletPoints: string[] = Array<string>();
-    this.selection.selected.forEach((port: Port) => {
-      const projectName = this.projects.find((p) => p._id === port.projectId)?.name;
-      const bp = projectName ? `${port.host.ip}:${port.port} (${projectName})` : `${port.host.ip}:${port.port}`;
-      bulletPoints.push(bp);
-    });
-    let data: ConfirmDialogData;
-    if (bulletPoints.length > 0) {
-      data = {
-        text: $localize`:Confirm delete ports|Confirmation message asking if the user really wants to delete the selected ports:Do you really wish to delete these ports permanently ?`,
-        title: $localize`:Deleting ports|Title of a page to delete selected ports:Deleting ports`,
-        primaryButtonText: $localize`:Cancel|Cancel current action:Cancel`,
-        dangerButtonText: $localize`:Delete permanently|Confirm that the user wants to delete the item permanently:Delete permanently`,
-        listElements: bulletPoints,
-        onPrimaryButtonClick: () => {
-          this.dialog.closeAll();
-        },
-        onDangerButtonClick: async () => {
-          const ids = this.selection.selected.map((p: Port) => {
-            return p._id;
-          });
-          await this.portsService.deleteMany(ids);
-          this.selection.clear();
-          this.toastr.success(
-            $localize`:Ports deleted|Confirm the successful deletion of a Domain:Ports deleted successfully`
-          );
-          this.currentPage$.next(this.currentPage);
-          this.dialog.closeAll();
-        },
-      };
-    } else {
-      data = {
-        text: $localize`:Select ports again|No ports were selected so there is nothing to delete:Select the ports to delete and try again.`,
-        title: $localize`:Nothing to delete|Tried to delete something, but there was nothing to delete:Nothing to delete`,
-        primaryButtonText: $localize`:Ok|Accept or confirm:Ok`,
-        onPrimaryButtonClick: () => {
-          this.dialog.closeAll();
-        },
-      };
-    }
-    this.dialog.open(ConfirmDialogComponent, {
-      data,
-      restoreFocus: false,
-    });
-  }
   dateFilter(event: MouseEvent) {
     event.stopPropagation();
     this.startDate = new Date(Date.now() - defaultNewTimeMs);
@@ -267,4 +236,47 @@ export class ListPortsComponent {
   routerLinkBuilder(row: Port): string[] {
     return ['/hosts', row.host.id, 'ports', row.port.toString()];
   }
+
+  public async deleteBatch(domains: Port[]) {
+    const result = await this.portsInteractor.deleteBatch(domains, this.projects);
+    if (result) {
+      this.selection.clear();
+      this.currentPage$.next(this.currentPage);
+    }
+  }
+
+  public async blockBatch(domains: Port[]) {
+    const result = await this.portsInteractor.blockBatch(domains, this.projects);
+    if (result) {
+      this.selection.clear();
+      this.currentPage$.next(this.currentPage);
+    }
+  }
+
+  public async block(domainId: string, block: boolean) {
+    const result = await this.portsInteractor.block(domainId, block);
+    if (result) {
+      this.selection.clear();
+      this.currentPage$.next(this.currentPage);
+    }
+  }
+
+  public generateMenuItem = (element: Port): ElementMenuItems[] => {
+    if (!element) return [];
+    const menuItems: ElementMenuItems[] = [];
+
+    menuItems.push({
+      action: () => this.block(element._id, !element.blocked),
+      icon: element.blocked ? 'thumb_up ' : 'block',
+      label: element.blocked ? $localize`:Unblock port|Unblock port:Unblock` : $localize`:Block port|Block port:Block`,
+    });
+
+    menuItems.push({
+      action: () => this.deleteBatch([element]),
+      icon: 'delete',
+      label: $localize`:Delete port|Delete port:Delete`,
+    });
+
+    return menuItems;
+  };
 }

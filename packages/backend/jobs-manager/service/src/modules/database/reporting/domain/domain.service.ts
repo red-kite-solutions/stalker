@@ -17,7 +17,7 @@ import { CorrelationKeyUtils } from '../correlation.utils';
 import { HostService } from '../host/host.service';
 import { HostSummary } from '../host/host.summary';
 import { Project } from '../project.model';
-import { DomainsPagingDto } from './domain.dto';
+import { BatchEditDomainsDto, DomainsPagingDto } from './domain.dto';
 import { Domain, DomainDocument } from './domain.model';
 
 @Injectable()
@@ -125,7 +125,10 @@ export class DomainsService {
    * @param domainName The domain name to add
    * @param projectId The domain's project
    */
-  public async addDomain(domainName: string, projectId: string) {
+  public async addDomain(
+    domainName: string,
+    projectId: string,
+  ): Promise<DomainDocument> {
     const project = await this.projectModel.findById(projectId);
     if (!project) {
       this.logger.debug(`Could not find the project (projectId=${projectId})`);
@@ -147,7 +150,7 @@ export class DomainsService {
           projectId: projectIdObject,
         },
       },
-      { upsert: true },
+      { upsert: true, new: true },
     );
   }
 
@@ -392,6 +395,36 @@ export class DomainsService {
       }
     }
 
+    // Filter by blocked
+    if (dto.blocked === false) {
+      finalFilter['$or'] = [
+        { blocked: { $exists: false } },
+        { blocked: { $eq: false } },
+      ];
+    } else if (dto.blocked === true) {
+      finalFilter['blocked'] = { $eq: true };
+    }
+
     return finalFilter;
+  }
+
+  public async batchEdit(dto: BatchEditDomainsDto) {
+    const update: Partial<Domain> = {};
+    if (dto.block || dto.block === false) update.blocked = dto.block;
+    if (dto.block) update.blockedAt = Date.now();
+
+    return await this.domainModel.updateMany(
+      { _id: { $in: dto.domainIds.map((v) => new Types.ObjectId(v)) } },
+      update,
+    );
+  }
+
+  public async keyIsBlocked(correlationKey: string): Promise<boolean> {
+    const d = await this.domainModel.findOne(
+      { correlationKey: { $eq: correlationKey } },
+      'blocked',
+    );
+
+    return d && d.blocked;
   }
 }

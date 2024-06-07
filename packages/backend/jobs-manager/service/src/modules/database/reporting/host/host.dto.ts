@@ -1,7 +1,8 @@
 // import { Type } from 'class-transformer';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsIP,
   IsInt,
   IsMongoId,
@@ -11,6 +12,7 @@ import {
   Min,
 } from 'class-validator';
 import { Types } from 'mongoose';
+import { booleanStringToBoolean } from '../../../../utils/boolean-string-to-boolean';
 
 export class HostsFilterDto {
   @IsInt()
@@ -49,6 +51,11 @@ export class HostsFilterDto {
   @IsInt()
   @Type(() => Number)
   firstSeenEndDate: number;
+
+  @IsOptional()
+  @IsBoolean()
+  @Transform(booleanStringToBoolean)
+  blocked: boolean;
 }
 
 export class DeleteHostsDto {
@@ -65,4 +72,14 @@ export class SubmitHostsDto {
 
   @IsMongoId()
   projectId: string;
+}
+
+export class BatchEditHostsDto {
+  @IsArray()
+  @IsMongoId({ each: true })
+  hostIds: string[];
+
+  @IsOptional()
+  @IsBoolean()
+  block: boolean;
 }

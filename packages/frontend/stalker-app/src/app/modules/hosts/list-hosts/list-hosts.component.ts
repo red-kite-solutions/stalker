@@ -21,18 +21,19 @@ import { ProjectsService } from 'src/app/api/projects/projects.service';
 import { TagsService } from 'src/app/api/tags/tags.service';
 import { ProjectCellComponent } from 'src/app/shared/components/project-cell/project-cell.component';
 import { Page } from 'src/app/shared/types/page.type';
-import { Project } from 'src/app/shared/types/project/project.interface';
+import { ProjectSummary } from 'src/app/shared/types/project/project.summary';
 import { Tag } from 'src/app/shared/types/tag.type';
-import { FilteredPaginatedTableComponent } from 'src/app/shared/widget/filtered-paginated-table/filtered-paginated-table.component';
+import {
+  ElementMenuItems,
+  FilteredPaginatedTableComponent,
+} from 'src/app/shared/widget/filtered-paginated-table/filtered-paginated-table.component';
+import { BlockedPillTagComponent } from 'src/app/shared/widget/pill-tag/blocked-pill-tag.component';
 import { HostsService } from '../../../api/hosts/hosts.service';
 import { SharedModule } from '../../../shared/shared.module';
 import { Host } from '../../../shared/types/host/host.interface';
 import { HttpStatus } from '../../../shared/types/http-status.type';
-import {
-  ConfirmDialogComponent,
-  ConfirmDialogData,
-} from '../../../shared/widget/confirm-dialog/confirm-dialog.component';
 import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.component';
+import { HostsInteractionsService } from '../hosts-interactions.service';
 
 @Component({
   standalone: true,
@@ -51,6 +52,7 @@ import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.c
     MatInputModule,
     ProjectCellComponent,
     FilteredPaginatedTableComponent,
+    BlockedPillTagComponent,
     RouterModule,
   ],
   selector: 'app-list-hosts',
@@ -60,13 +62,13 @@ import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.c
 export class ListHostsComponent {
   maxDomainsPerHost = 35;
   dataLoading = true;
-  displayedColumns: string[] = ['select', 'ip', 'domains', 'project', 'tags'];
-  filterOptions: string[] = ['host', 'domain', 'project', 'tags'];
+  displayedColumns: string[] = ['select', 'ip', 'domains', 'project', 'tags', 'menu'];
+  filterOptions: string[] = ['host', 'domain', 'project', 'tags', 'is'];
   public readonly noDataMessage = $localize`:No host found|No host was found:No host found`;
 
   dataSource = new MatTableDataSource<Host>();
   currentPage: PageEvent = this.generateFirstPageEvent();
-  currentFilters: string[] = [];
+  currentFilters: string[] = ['-is: blocked'];
   currentPage$ = new BehaviorSubject<PageEvent>(this.currentPage);
   count = 0;
   selection = new SelectionModel<Host>(true, []);
@@ -89,8 +91,8 @@ export class ListHostsComponent {
     })
   );
 
-  projects: Project[] = [];
-  projects$ = this.projectsService.getAll().pipe(tap((x) => (this.projects = x)));
+  projects: ProjectSummary[] = [];
+  projects$ = this.projectsService.getAllSummaries().pipe(tap((x) => (this.projects = x)));
 
   tags: Tag[] = [];
   tags$ = this.tagsService.getTags().pipe(
@@ -125,9 +127,9 @@ export class ListHostsComponent {
 
   public displayColumns$ = this.screenSize$.pipe(
     map((screen: BreakpointState) => {
-      if (screen.breakpoints[Breakpoints.XSmall]) return ['select', 'ip', 'project'];
-      else if (screen.breakpoints[Breakpoints.Small]) return ['select', 'ip', 'project', 'tags'];
-      else if (screen.breakpoints[Breakpoints.Medium]) return ['select', 'ip', 'domains', 'project', 'tags'];
+      if (screen.breakpoints[Breakpoints.XSmall]) return ['select', 'ip', 'project', 'menu'];
+      else if (screen.breakpoints[Breakpoints.Small]) return ['select', 'ip', 'project', 'tags', 'menu'];
+      else if (screen.breakpoints[Breakpoints.Medium]) return ['select', 'ip', 'domains', 'project', 'tags', 'menu'];
       return this.displayedColumns;
     })
   );
@@ -141,6 +143,7 @@ export class ListHostsComponent {
     private bpObserver: BreakpointObserver,
     private projectsService: ProjectsService,
     private hostsService: HostsService,
+    private hostsInteractor: HostsInteractionsService,
     private toastr: ToastrService,
     private tagsService: TagsService,
     public dialog: MatDialog,
@@ -163,11 +166,13 @@ export class ListHostsComponent {
 
   buildFilters(stringFilters: string[]): any {
     const SEPARATOR = ':';
+    const NEGATING_CHAR = '-';
     const filterObject: any = {};
     const tags = [];
     const domains = [];
     const hosts = [];
     const projects = [];
+    let blocked: boolean | null = null;
 
     for (const filter of stringFilters) {
       if (filter.indexOf(SEPARATOR) === -1) continue;
@@ -176,15 +181,17 @@ export class ListHostsComponent {
 
       if (keyValuePair.length !== 2) continue;
 
-      const key = keyValuePair[0].trim().toLowerCase();
+      let key = keyValuePair[0].trim().toLowerCase();
       const value = keyValuePair[1].trim().toLowerCase();
+      const negated = key.length > 0 && key[0] === NEGATING_CHAR;
+      if (negated) key = key.substring(1);
 
       if (!key || !value) continue;
 
       switch (key) {
         case 'project':
           const project = this.projects.find((c) => c.name.trim().toLowerCase() === value.trim().toLowerCase());
-          if (project) projects.push(project._id);
+          if (project) projects.push(project.id);
           else
             this.toastr.warning(
               $localize`:Project does not exist|The given project name is not known to the application:Project name not recognized`
@@ -204,12 +211,20 @@ export class ListHostsComponent {
         case 'domain':
           domains.push(value);
           break;
+        case 'is':
+          switch (value) {
+            case 'blocked':
+              blocked = !negated;
+              break;
+          }
+          break;
       }
     }
     if (tags?.length) filterObject['tags'] = tags;
     if (domains?.length) filterObject['domain'] = domains;
     if (hosts?.length) filterObject['host'] = hosts;
     if (projects?.length) filterObject['project'] = projects;
+    if (blocked !== null) filterObject['blocked'] = blocked;
     return filterObject;
   }
 
@@ -263,54 +278,61 @@ export class ListHostsComponent {
     }
   }
 
-  public deleteHosts() {
+  private getSelectionAsBulletPoints(): string[] {
     const bulletPoints: string[] = Array<string>();
     this.selection.selected.forEach((host: Host) => {
-      const projectName = this.projects.find((d) => d._id === host.projectId)?.name;
+      const projectName = this.projects.find((d) => d.id === host.projectId)?.name;
       const bp = projectName ? `${host.ip} (${projectName})` : `${host.ip}`;
       bulletPoints.push(bp);
     });
-    let data: ConfirmDialogData;
-    if (bulletPoints.length > 0) {
-      data = {
-        text: $localize`:Confirm delete hosts|Confirmation message asking if the user really wants to delete the selected hosts:Do you really wish to delete these hosts permanently ?`,
-        title: $localize`:Deleting hosts|Title of a page to delete selected hosts:Deleting hosts`,
-        primaryButtonText: $localize`:Cancel|Cancel current action:Cancel`,
-        dangerButtonText: $localize`:Delete permanently|Confirm that the user wants to delete the item permanently:Delete permanently`,
-        listElements: bulletPoints,
-        onPrimaryButtonClick: () => {
-          this.dialog.closeAll();
-        },
-        onDangerButtonClick: async () => {
-          const ids = this.selection.selected.map((h: Host) => {
-            return h._id;
-          });
-          await this.hostsService.deleteMany(ids);
-          this.selection.clear();
-          this.toastr.success(
-            $localize`:Hosts deleted|Confirm the successful deletion of a Domain:Hosts deleted successfully`
-          );
-          this.currentPage$.next(this.currentPage);
-          this.dialog.closeAll();
-        },
-      };
-    } else {
-      data = {
-        text: $localize`:Select hosts again|No hosts were selected so there is nothing to delete:Select the hosts to delete and try again.`,
-        title: $localize`:Nothing to delete|Tried to delete something, but there was nothing to delete:Nothing to delete`,
-        primaryButtonText: $localize`:Ok|Accept or confirm:Ok`,
-        onPrimaryButtonClick: () => {
-          this.dialog.closeAll();
-        },
-      };
-    }
-    this.dialog.open(ConfirmDialogComponent, {
-      data,
-      restoreFocus: false,
-    });
+    return bulletPoints;
   }
+
   dateFilter(event: MouseEvent) {
     event.stopPropagation();
     this.startDate = new Date(Date.now() - defaultNewTimeMs);
   }
+
+  public async deleteBatch(hosts: Host[]) {
+    const result = await this.hostsInteractor.deleteBatch(hosts, this.projects);
+    if (result) {
+      this.selection.clear();
+      this.currentPage$.next(this.currentPage);
+    }
+  }
+
+  public async blockBatch(hosts: Host[]) {
+    const result = await this.hostsInteractor.blockBatch(hosts, this.projects);
+    if (result) {
+      this.selection.clear();
+      this.currentPage$.next(this.currentPage);
+    }
+  }
+
+  public async block(hostId: string, block: boolean) {
+    const result = await this.hostsInteractor.block(hostId, block);
+    if (result) {
+      this.selection.clear();
+      this.currentPage$.next(this.currentPage);
+    }
+  }
+
+  public generateMenuItem = (element: Host): ElementMenuItems[] => {
+    if (!element) return [];
+    const menuItems: ElementMenuItems[] = [];
+
+    menuItems.push({
+      action: () => this.block(element._id, !element.blocked),
+      icon: element.blocked ? 'thumb_up ' : 'block',
+      label: element.blocked ? $localize`:Unblock host|Unblock host:Unblock` : $localize`:Block host|Block host:Block`,
+    });
+
+    menuItems.push({
+      action: () => this.deleteBatch([element]),
+      icon: 'delete',
+      label: $localize`:Delete host|Delete host:Delete`,
+    });
+
+    return menuItems;
+  };
 }

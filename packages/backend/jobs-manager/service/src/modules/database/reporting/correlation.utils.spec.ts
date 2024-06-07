@@ -44,4 +44,50 @@ describe('Finding utils', () => {
       `project:507f1f77bcf86cd799439011;domain:www.stalker.is`,
     );
   });
+
+  describe('Key to service name mapping', () => {
+    it('Host findings key', () => {
+      // Arrange
+      const correlationKey = CorrelationKeyUtils.hostCorrelationKey(
+        '507f1f77bcf86cd799439011',
+        '1.2.3.4',
+      );
+
+      // Act
+      const name = CorrelationKeyUtils.getResourceServiceName(correlationKey);
+
+      // Assert
+      expect(name).toBe('HostService');
+    });
+
+    it('Port findings key', () => {
+      // Arrange
+      const correlationKey = CorrelationKeyUtils.portCorrelationKey(
+        '507f1f77bcf86cd799439011',
+        '1.2.3.4',
+        443,
+        'tcp',
+      );
+
+      // Act
+      const name = CorrelationKeyUtils.getResourceServiceName(correlationKey);
+
+      // Assert
+      expect(name).toBe('PortService');
+    });
+
+    it('Domain findings key', () => {
+      // Arrange
+      const correlationKey = CorrelationKeyUtils.domainCorrelationKey(
+        '507f1f77bcf86cd799439011',
+        'www.stalker.is',
+      );
+
+      // Act
+      const name = CorrelationKeyUtils.getResourceServiceName(correlationKey);
+
+      // Assert
+      expect(name).toBe('DomainsService');
+    });
+  });
 });
