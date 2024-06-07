@@ -130,10 +130,20 @@ export async function getReq(
   app: INestApplication,
   token: string,
   path: string,
+  headers: { header: string; value: string }[] = [
+    { header: 'Content-Type', value: 'application/json' },
+  ],
+  authenticate: boolean = true,
 ) {
-  return await request(app.getHttpServer())
-    .get(path)
-    .set('Authorization', `Bearer ${token}`);
+  return await testRequest(
+    'get',
+    app,
+    token,
+    path,
+    null,
+    headers,
+    authenticate,
+  );
 }
 
 export async function postReq(
@@ -141,12 +151,20 @@ export async function postReq(
   token: string,
   path: string,
   data?: any,
+  headers: { header: string; value: string }[] = [
+    { header: 'Content-Type', value: 'application/json' },
+  ],
+  authenticate: boolean = true,
 ) {
-  return await request(app.getHttpServer())
-    .post(path)
-    .set('Content-Type', 'application/json')
-    .set('Authorization', `Bearer ${token}`)
-    .send(data);
+  return await testRequest(
+    'post',
+    app,
+    token,
+    path,
+    data,
+    headers,
+    authenticate,
+  );
 }
 
 export async function putReq(
@@ -154,12 +172,20 @@ export async function putReq(
   token: string,
   path: string,
   data: any,
+  headers: { header: string; value: string }[] = [
+    { header: 'Content-Type', value: 'application/json' },
+  ],
+  authenticate: boolean = true,
 ) {
-  return await request(app.getHttpServer())
-    .put(path)
-    .set('Content-Type', 'application/json')
-    .set('Authorization', `Bearer ${token}`)
-    .send(data);
+  return await testRequest(
+    'put',
+    app,
+    token,
+    path,
+    data,
+    headers,
+    authenticate,
+  );
 }
 
 export async function patchReq(
@@ -167,12 +193,20 @@ export async function patchReq(
   token: string,
   path: string,
   data: any,
+  headers: { header: string; value: string }[] = [
+    { header: 'Content-Type', value: 'application/json' },
+  ],
+  authenticate: boolean = true,
 ) {
-  return await request(app.getHttpServer())
-    .patch(path)
-    .set('Content-Type', 'application/json')
-    .set('Authorization', `Bearer ${token}`)
-    .send(data);
+  return await testRequest(
+    'patch',
+    app,
+    token,
+    path,
+    data,
+    headers,
+    authenticate,
+  );
 }
 
 export async function deleteReq(
@@ -180,18 +214,65 @@ export async function deleteReq(
   token: string,
   path: string,
   data: any = null,
+  headers: { header: string; value: string }[] = [
+    { header: 'Content-Type', value: 'application/json' },
+  ],
+  authenticate: boolean = true,
 ) {
-  if (data === null)
-    return await request(app.getHttpServer())
-      .delete(path)
-      .set('Content-Type', 'application/json')
-      .set('Authorization', `Bearer ${token}`);
+  return await testRequest(
+    'put',
+    app,
+    token,
+    path,
+    data,
+    headers,
+    authenticate,
+  );
+}
 
-  return await request(app.getHttpServer())
-    .delete(path)
-    .set('Content-Type', 'application/json')
-    .set('Authorization', `Bearer ${token}`)
-    .send(data);
+async function testRequest(
+  verb: 'get' | 'post' | 'put' | 'patch' | 'delete',
+  app: INestApplication,
+  token: string,
+  path: string,
+  data: any = null,
+  headers: { header: string; value: string }[] = [
+    { header: 'Content-Type', value: 'application/json' },
+  ],
+  authenticate: boolean = true,
+) {
+  let r: request.Test;
+  const server = request(app.getHttpServer());
+
+  switch (verb) {
+    case 'get':
+      r = server.get(path);
+      break;
+    case 'post':
+      r = server.post(path);
+      break;
+    case 'put':
+      r = server.put(path);
+      break;
+    case 'patch':
+      r = server.patch(path);
+      break;
+    case 'delete':
+      r = server.delete(path);
+      break;
+    default:
+      throw new Error();
+  }
+
+  for (const h of headers) {
+    r.set(h.header, h.value);
+  }
+
+  if (authenticate) {
+    r.set('Authorization', `Bearer ${token}`);
+  }
+
+  return await r.send(data);
 }
 
 /**
@@ -242,6 +323,45 @@ export async function checkAuthorizations(
   }
 
   return true;
+}
+
+export async function checkAuthorizationsCronApiKey(
+  data: TestingData,
+  call: (
+    token: string,
+    headers: { header: string; value: string }[],
+    authenticate: boolean,
+  ) => Promise<request.Response>,
+) {
+  let r = await call(data.admin.token, undefined, undefined);
+  if (r.statusCode !== HttpStatus.FORBIDDEN) return false;
+
+  r = await call(data.user.token, undefined, undefined);
+  if (r.statusCode !== HttpStatus.FORBIDDEN) return false;
+
+  r = await call(data.readonly.token, undefined, undefined);
+  if (r.statusCode !== HttpStatus.FORBIDDEN) return false;
+
+  r = await call('', undefined, undefined);
+  if (r.statusCode !== HttpStatus.FORBIDDEN) return false;
+
+  const cronHeaderName = 'x-stalker-cron';
+  const headers = [{ header: 'Content-Type', value: 'application/json' }];
+  r = await call(
+    null,
+    headers.concat([{ header: cronHeaderName, value: 'asdf' }]),
+    false,
+  );
+  if (r.statusCode !== HttpStatus.FORBIDDEN) return false;
+
+  r = await call(
+    null,
+    headers.concat([
+      { header: cronHeaderName, value: process.env.STALKER_CRON_API_TOKEN },
+    ]),
+    false,
+  );
+  if (r.statusCode === HttpStatus.FORBIDDEN) return false;
 }
 
 export async function createProject(

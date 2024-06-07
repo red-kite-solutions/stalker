@@ -9,6 +9,7 @@ export type JobDocument = Job & Document;
 @Schema({
   discriminatorKey: 'task',
   timestamps: { currentTime: MONGO_TIMESTAMP_FUNCTION, createdAt: true },
+  capped: { max: 300000 },
 })
 export class Job {
   @Prop({
