@@ -220,7 +220,7 @@ export async function deleteReq(
   authenticate: boolean = true,
 ) {
   return await testRequest(
-    'put',
+    'delete',
     app,
     token,
     path,
