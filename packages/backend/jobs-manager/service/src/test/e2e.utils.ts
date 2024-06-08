@@ -326,6 +326,14 @@ export async function checkAuthorizations(
   return true;
 }
 
+/**
+ * Automatically runs a test with the different valid authorization levels and
+ * returns true if the authorizations were properly checked. Used to check authorizations
+ * on a controller endpoint that uses the `CronApiTokenGuard`
+ * @param data The test data that includes valid user tokens.
+ * @param call The function to call to test the endpoint. Takes a bearer token as parameter, headers and if it should be authenticated. Returns a supertest Response
+ * @returns true if authorization is valid only for the cron API token, false otherwise
+ */
 export async function checkAuthorizationsCronApiKey(
   data: TestingData,
   call: (
