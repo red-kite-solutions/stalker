@@ -272,7 +272,8 @@ async function testRequest(
     r.set('Authorization', `Bearer ${token}`);
   }
 
-  return await r.send(data);
+  if (data) return await r.send(data);
+  return await r;
 }
 
 /**
