@@ -272,7 +272,7 @@ async function testRequest(
     r.set('Authorization', `Bearer ${token}`);
   }
 
-  if (data) return await r.send(data);
+  if (data !== null && data !== undefined) return await r.send(data);
   return await r;
 }
 
@@ -363,6 +363,7 @@ export async function checkAuthorizationsCronApiKey(
     false,
   );
   if (r.statusCode === HttpStatus.FORBIDDEN) return false;
+  return true;
 }
 
 export async function createProject(
