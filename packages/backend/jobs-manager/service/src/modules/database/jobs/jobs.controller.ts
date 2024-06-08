@@ -139,7 +139,7 @@ export class JobsController {
   @UseGuards(CronApiTokenGuard)
   @Post('cleanup')
   async cleanup() {
-    this.jobsService.cleanup();
+    await this.jobsService.cleanup();
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

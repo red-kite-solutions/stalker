@@ -23,7 +23,7 @@ export class FindingsController {
   @UseGuards(CronApiTokenGuard)
   @Post('cleanup')
   async cleanup() {
-    this.findingsService.cleanup();
+    await this.findingsService.cleanup();
   }
 
   @Roles(Role.ReadOnly)

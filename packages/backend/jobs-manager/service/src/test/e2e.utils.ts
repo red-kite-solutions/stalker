@@ -140,7 +140,7 @@ export async function getReq(
     app,
     token,
     path,
-    null,
+    undefined,
     headers,
     authenticate,
   );
