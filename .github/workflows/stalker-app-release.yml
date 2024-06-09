@@ -41,6 +41,8 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
+          flavor: |
+            prefix=v,onlatest=false
           images: |
             ghcr.io/red-kite-solutions/stalker-app
           tags: |
