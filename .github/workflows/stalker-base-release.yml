@@ -43,7 +43,9 @@ jobs:
         with:
           images: |
             ghcr.io/red-kite-solutions/stalker-base
+          # TODO REPLACE FEATURE/RELEASE-IMAGES BY MAIN
           tags: |
+            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'feature/release-images') }}
             type=semver,pattern={{version}},value=${{steps.version.outputs.result}}
             type=semver,pattern={{major}}.{{minor}},value=${{steps.version.outputs.result}}
             type=semver,pattern={{major}},value=${{steps.version.outputs.result}}
