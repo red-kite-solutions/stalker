@@ -1,4 +1,4 @@
-FROM stalker-base:latest
+FROM ghcr.io/red-kite-solutions/stalker-base:latest
 
 WORKDIR /app
 

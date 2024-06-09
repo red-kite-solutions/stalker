@@ -1,4 +1,4 @@
-FROM stalker-base:latest AS build
+FROM ghcr.io/red-kite-solutions/stalker-base:latest AS build
 
 WORKDIR /app
 RUN yarn workspace @red-kite/jobs-manager build:prod

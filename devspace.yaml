@@ -175,7 +175,7 @@ pipelines:
 
 images:
   stalker-base:
-    image: stalker-base
+    image: ghcr.io/red-kite-solutions/stalker-base
     dockerfile: packages/Dockerfile.base
     context: .
     rebuildStrategy: default
@@ -183,7 +183,7 @@ images:
       - latest
 
   jobs-manager:
-    image: jobs-manager
+    image: ghcr.io/red-kite-solutions/stalker-jobs-manager
     dockerfile: packages/backend/jobs-manager/service/${DOCKERFILE_NAME}
     context: .
     rebuildStrategy: default
@@ -195,25 +195,25 @@ images:
     rebuildStrategy: always
 
   cron:
-    image: cron
+    image: ghcr.io/red-kite-solutions/stalker-cron
     dockerfile: packages/backend/cron/service/${DOCKERFILE_NAME}
     context: .
     rebuildStrategy: default
 
   ui:
-    image: ui
+    image: ghcr.io/red-kite-solutions/stalker-frontend
     dockerfile: packages/frontend/stalker-app/${DOCKERFILE_NAME}
     context: .
     rebuildStrategy: default
 
   orchestrator:
-    image: orchestrator
+    image: ghcr.io/red-kite-solutions/stalker-orchestrator
     dockerfile: packages/backend/orchestrator/service/${DOCKERFILE_NAME}
     context: .
     rebuildStrategy: default
 
   python-job-base:
-    image: python-job-base
+    image: ghcr.io/red-kite-solutions/stalker-python-job-base
     dockerfile: jobs/job-base-images/python/Dockerfile
     tags:
       - "latest"
@@ -222,7 +222,7 @@ images:
     rebuildStrategy: always
 
   nuclei-job-base:
-    image: nuclei-job-base
+    image: ghcr.io/red-kite-solutions/stalker-nuclei-job-base
     dockerfile: jobs/job-base-images/python/Dockerfile.nuclei
     tags:
       - "latest"
@@ -263,7 +263,7 @@ deployments:
               - name: STALKER_VERSION
                 value: ${STALKER_VERSION}
 
-            image: jobs-manager
+            image: ghcr.io/red-kite-solutions/stalker-jobs-manager
             name: jobs-manager-container
 
         service:
@@ -337,7 +337,7 @@ deployments:
               - name: NODE_EXTRA_CA_CERTS
                 value: /certs/rks-ca.crt
 
-            image: cron
+            image: ghcr.io/red-kite-solutions/stalker-cron
             name: cron-container
 
         service:
@@ -352,7 +352,7 @@ deployments:
         containers:
           - env:
 
-            image: ui
+            image: ghcr.io/red-kite-solutions/stalker-frontend
             name: ui-container
 
         service:
@@ -366,7 +366,7 @@ deployments:
       values:
         containers:
           - env: []
-            image: ui
+            image: ghcr.io/red-kite-solutions/stalker-frontend
             name: ui-container
 
         service:
@@ -565,7 +565,7 @@ deployments:
               - name: ORCHESTRATOR_KAFKA_KEY_PASSWORD
                 value: ${ORCHESTRATOR_KAFKA_KEY_PASSWORD}
 
-            image: orchestrator
+            image: ghcr.io/red-kite-solutions/stalker-orchestrator
             name: orchestrator-container
 
         service:
