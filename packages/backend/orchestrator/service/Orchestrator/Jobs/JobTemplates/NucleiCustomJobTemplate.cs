@@ -6,7 +6,7 @@ namespace Orchestrator.Jobs.JobTemplates;
 
 public class NucleiCustomJobTemplate : KubernetesJobTemplate
 {
-    public override string Image => "ghcr.io/red-kite-solutions/stalker-nuclei-job-base:v1";
+    public override string Image => "ghcr.io/red-kite-solutions/stalker-nuclei-job-base:1";
     protected IConfiguration Config { get; init; }
 
     public NucleiCustomJobTemplate(string? id, IConfiguration config, JobParameter[]? jobParameters, string? code, int? jobPodMilliCpuLimit, ulong? jobPodMemoryKbLimit, string? findingHandler)

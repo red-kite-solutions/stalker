@@ -217,7 +217,7 @@ images:
     dockerfile: jobs/job-base-images/python/Dockerfile
     tags:
       - "latest"
-      - "v1"
+      - "1"
     context: jobs/job-base-images/python
     rebuildStrategy: always
 
@@ -226,7 +226,7 @@ images:
     dockerfile: jobs/job-base-images/python/Dockerfile.nuclei
     tags:
       - "latest"
-      - "v1"
+      - "1"
     context: jobs/job-base-images/python/
     rebuildStrategy: always
 
