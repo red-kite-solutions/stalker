@@ -10,7 +10,7 @@ import { CustomJobTemplateUtils } from './custom-job-templates.utils';
 
 export const JOBS_INIT = 'JOBS_INIT';
 
-export const jobTemplatessInitProvider = [
+export const jobTemplatesInitProvider = [
   {
     provide: JOBS_INIT,
     inject: [
@@ -22,33 +22,35 @@ export const jobTemplatessInitProvider = [
       templateModel: Model<CustomJobTemplate>,
       jpcModel: Model<JobPodConfiguration>,
     ) => {
-      const anyTemplate = await templateModel.findOne({});
+      const initTemplates = async (
+        paths: string[],
+        source: 'custom jobs' | 'templates',
+      ) => {
+        for (const fp of paths) {
+          const files = readdirSync(fp);
 
-      if (!anyTemplate) {
-        const initTemplates = async (
-          paths: string[],
-          source: 'custom jobs' | 'templates',
-        ) => {
-          for (const fp of paths) {
-            const files = readdirSync(fp);
+          for (const file of files) {
+            if (lstatSync(fp + file).isDirectory()) continue;
+            const j = await CustomJobTemplateUtils.getCustomJob(
+              fp,
+              file,
+              source,
+              jpcModel,
+            );
 
-            for (const file of files) {
-              if (lstatSync(fp + file).isDirectory()) continue;
-              const j = await CustomJobTemplateUtils.getCustomJob(
-                fp,
-                file,
-                source,
-                jpcModel,
-              );
-              if (!j) continue;
-              await templateModel.create(j);
-            }
+            console.log(JSON.stringify(j));
+            if (!j) continue;
+            await templateModel.findOneAndUpdate(
+              { builtInFilePath: j.builtInFilePath },
+              j,
+              { upsert: true },
+            );
           }
-        };
+        }
+      };
 
-        await initTemplates(ALL_TEMPLATE_FILE_PATHS, 'templates');
-        await initTemplates(ALL_JOB_FILE_PATHS, 'custom jobs');
-      }
+      await initTemplates(ALL_TEMPLATE_FILE_PATHS, 'templates');
+      await initTemplates(ALL_JOB_FILE_PATHS, 'custom jobs');
     },
   },
 ];

@@ -42,19 +42,19 @@ export class CustomJobTemplateUtils {
       );
       let codePath = '';
       let handlerPath = '';
-      let p = '';
+      let jobsDirectoryPath = '';
 
       switch (jobMetadata.type) {
         case 'code':
-          p =
+          jobsDirectoryPath =
             templateSource === 'custom jobs'
               ? CODE_JOB_FILES_PATH
               : CODE_JOB_TEMPLATE_FILES_PATH;
-          codePath = p + jobMetadata.codeFilePath;
-          handlerPath = p + jobMetadata.handlerFilePath;
+          codePath = jobsDirectoryPath + jobMetadata.codeFilePath;
+          handlerPath = jobsDirectoryPath + jobMetadata.handlerFilePath;
           break;
         case 'nuclei':
-          p =
+          jobsDirectoryPath =
             templateSource === 'custom jobs'
               ? NUCLEI_JOB_FILES_PATH
               : NUCLEI_JOB_TEMPLATE_FILES_PATH;
