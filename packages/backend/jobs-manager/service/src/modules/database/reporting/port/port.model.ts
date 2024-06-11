@@ -48,6 +48,9 @@ export class Port {
 
   @Prop()
   blockedAt?: number;
+
+  @Prop()
+  service: string;
 }
 
 export const PortSchema = SchemaFactory.createForClass(Port);
