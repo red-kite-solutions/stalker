@@ -6,3 +6,4 @@ parameters:
     type: string
 jobPodConfigName: XS
 codeFilePath: code/DomainNameResolvingJob.py
+templateOrdering: '/built-in/python'
