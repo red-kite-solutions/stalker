@@ -2,7 +2,8 @@ FROM node:18-alpine as node
 
 RUN apk update && \
   apk add bash && \
-  apk add g++ make py3-pip
+  apk add g++ make py3-pip && \
+  apk add ca-certificates
 
 WORKDIR /app
 

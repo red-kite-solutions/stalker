@@ -73,6 +73,7 @@ name: stalker-vars-prod
 
 vars:
   NETWORK_POLICY: "network-policy.yml"
+  CERTIFICATES: "certificates.yml"
   RESOURCE_QUOTA: "resource-quota.yml"
   MONGO_REPLICA_SET_COUNT:
     value: $MONGO_REPLICA_SET_COUNT

@@ -46,6 +46,7 @@ pipelines:
       # Start mongo and kafka
       start_dev mongo kafka
 
+      create_deployments certificates
       create_deployments ui jobs-manager orchestrator-service-account orchestrator --sequential
 
       # Wait for services before applying network policies
@@ -318,6 +319,14 @@ deployments:
   cron:
     helm:
       values:
+        volumes:
+          - name: certs
+            secret:
+              secretName: cron-certs
+          - name: ca-certificate
+            secret:
+              secretName: cron-ca-certificate
+
         containers:
           - env:
               - name: MONGO_ADDRESS
@@ -336,6 +345,22 @@ deployments:
                 value: ${CRON_MONGO_KEY_PASSWORD}
               - name: NODE_EXTRA_CA_CERTS
                 value: /certs/rks-ca.crt
+
+            volumeMounts:
+              - containerPath: /certs
+                volume:
+                  name: certs
+                  readOnly: false
+
+              - containerPath: /usr/local/share/ca-certificates/
+                volume:
+                  name: ca-certificate
+                  readOnly: false
+
+            lifecycle:
+              postStart:
+                exec:
+                  command: ["/bin/sh", "-c", "update-ca-certificates"]
 
             image: ghcr.io/red-kite-solutions/stalker-cron
             name: cron-container
@@ -595,6 +620,11 @@ deployments:
         - database/${NETWORK_POLICY}
         - queue/${NETWORK_POLICY}
         - jobs/${NETWORK_POLICY}
+
+  certificates:
+    kubectl:
+      manifests:
+        - packages/backend/cron/service/${CERTIFICATES}
 
 dev:
   mongo:
