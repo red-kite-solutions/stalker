@@ -135,6 +135,7 @@ index.txt*
 serial
 serial.old
 **/.angular
+**/*.srl
 # IDEs and editors
 /.idea
 .project
