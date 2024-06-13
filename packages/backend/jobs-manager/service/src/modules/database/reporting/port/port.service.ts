@@ -153,7 +153,7 @@ export class PortService {
         $set: setter,
         $setOnInsert: port,
       },
-      { upsert: true },
+      { upsert: true, new: true },
     );
 
     return res;
