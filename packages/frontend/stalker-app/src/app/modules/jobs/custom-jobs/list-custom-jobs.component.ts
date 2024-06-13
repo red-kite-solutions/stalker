@@ -11,7 +11,7 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { BehaviorSubject, debounceTime, map, shareReplay, switchMap, tap } from 'rxjs';
 import { CustomJobsService } from 'src/app/api/jobs/custom-jobs/custom-jobs.service';
 import { AvatarComponent } from 'src/app/shared/components/avatar/avatar.component';
@@ -21,6 +21,7 @@ import {
   FilteredPaginatedTableComponent,
 } from 'src/app/shared/widget/filtered-paginated-table/filtered-paginated-table.component';
 import { AuthService } from '../../../api/auth/auth.service';
+import { CustomJobTemplatesService } from '../../../api/jobs/custom-job-templates/custom-job-templates.service';
 import { AuthModule } from '../../auth/auth.module';
 import { CustomJobsInteractionService } from './custom-jobs-interaction.service';
 
@@ -80,8 +81,10 @@ export class ListCustomJobsComponent {
 
   constructor(
     private customJobsService: CustomJobsService,
-    private customJobsInteractor: CustomJobsInteractionService,
+    public customJobsInteractor: CustomJobsInteractionService,
     private titleService: Title,
+    public templateService: CustomJobTemplatesService,
+    public router: Router,
     public authService: AuthService
   ) {
     this.titleService.setTitle($localize`:Custom jobs list page title|:Custom jobs`);

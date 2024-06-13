@@ -9,6 +9,7 @@ parameters:
     default: [22, 80, 443]
   - name: nmapOptions
     type: string
-    default: "-oX output.xml -sV --open -Pn --max-rtt-timeout 3 --version-intensity 9"
+    default: '-oX output.xml -sV --open -Pn --max-rtt-timeout 3 --version-intensity 9'
 jobPodConfigName: M
 codeFilePath: code/BannerGrabbingJob.py
+templateOrdering: '/built-in/python'
