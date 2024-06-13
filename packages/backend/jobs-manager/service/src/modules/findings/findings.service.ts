@@ -56,7 +56,7 @@ export class CreateCustomFinding extends FindingBase {
   domainName?: string;
   ip?: string;
   port?: number;
-  protocol?: string;
+  protocol?: 'tcp' | 'udp';
   name: string;
 }
 

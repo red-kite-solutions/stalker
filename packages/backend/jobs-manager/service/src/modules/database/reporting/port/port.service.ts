@@ -7,7 +7,6 @@ import {
   HttpNotFoundException,
 } from '../../../../exceptions/http.exceptions';
 import escapeStringRegexp from '../../../../utils/escape-string-regexp';
-import { MONGO_DUPLICATE_ERROR } from '../../database.constants';
 import { TagsService } from '../../tags/tag.service';
 import { CorrelationKeyUtils } from '../correlation.utils';
 import { Host, HostDocument } from '../host/host.model';
@@ -40,6 +39,7 @@ export class PortService {
     projectId: string,
     portNumber: number,
     protocol: 'tcp' | 'udp',
+    service: string = undefined,
   ) {
     const host: Pick<HostDocument, '_id' | 'ip'> = await this.hostModel.findOne(
       {
@@ -61,6 +61,7 @@ export class PortService {
       portNumber,
       protocol,
       correlationKey,
+      service,
     );
   }
 
@@ -107,6 +108,7 @@ export class PortService {
     portNumber: number,
     protocol: string,
     correlationKey: string,
+    service: string = undefined,
   ) {
     if (!(protocol === 'tcp' || protocol === 'udp'))
       throw new HttpBadRequestException(this.badProtocolError);
@@ -123,7 +125,6 @@ export class PortService {
     };
     port.layer4Protocol = protocol;
     port.correlationKey = correlationKey;
-    port.lastSeen = Date.now();
     port.tags = [];
 
     let res: PortDocument = null;
@@ -137,13 +138,24 @@ export class PortService {
       )
       .exec();
 
-    try {
-      res = await this.portsModel.create(port);
-    } catch (err) {
-      if (err.code !== MONGO_DUPLICATE_ERROR) {
-        throw err;
-      }
-    }
+    let setter =
+      service === undefined
+        ? { lastSeen: Date.now() }
+        : { lastSeen: Date.now(), service: service };
+
+    res = await this.portsModel.findOneAndUpdate(
+      {
+        port: { $eq: port.port },
+        'host.id': { $eq: port.host.id },
+        layer4Protocol: { $eq: port.layer4Protocol },
+      },
+      {
+        $set: setter,
+        $setOnInsert: port,
+      },
+      { upsert: true },
+    );
+
     return res;
   }
 

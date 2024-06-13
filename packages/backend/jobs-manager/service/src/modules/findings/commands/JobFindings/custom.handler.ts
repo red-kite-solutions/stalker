@@ -1,5 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { CommandHandler } from '@nestjs/cqrs';
+import { PortService } from 'src/modules/database/reporting/port/port.service';
 import { ConfigService } from '../../../database/admin/config/config.service';
 import { CustomJobsService } from '../../../database/custom-jobs/custom-jobs.service';
 import { JobsService } from '../../../database/jobs/jobs.service';
@@ -22,6 +23,7 @@ export class CustomFindingHandler extends JobFindingHandlerBase<CustomFindingCom
     configService: ConfigService,
     subscriptionTriggersService: SubscriptionTriggersService,
     secretsService: SecretsService,
+    private portService: PortService,
   ) {
     super(
       jobService,
@@ -34,6 +36,30 @@ export class CustomFindingHandler extends JobFindingHandlerBase<CustomFindingCom
   }
 
   protected async executeCore(command: CustomFindingCommand) {
+    switch (command.finding.key) {
+      case 'PortServiceFinding':
+        try {
+          let service: string = undefined;
+          for (const f of command.finding.fields) {
+            if (f.key === 'serviceName') service = f.data;
+          }
+
+          this.portService.addPortByIp(
+            command.finding.ip,
+            command.projectId,
+            command.finding.port,
+            command.finding.protocol,
+            service.trim(),
+          );
+        } catch (err) {
+          this.logger.error("Error happened while adding a port's service");
+          this.logger.error(err);
+        }
+        break;
+      default:
+        break;
+    }
+
     this.findingsService.save(
       command.projectId,
       command.jobId,

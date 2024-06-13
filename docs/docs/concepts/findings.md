@@ -6,16 +6,6 @@ description: What are findings and how to use them
 
 # Findings
 
-* [HostnameFinding](#hostnamefinding)
-* [IpFinding](#ipfinding)
-* [IpRangeFinding](#iprangefinding)
-* [HostnameIpFinding](#hostnameipfinding)
-* [PortFinding](#portfinding)
-* [CustomFinding](#customfinding)
-  * [Dynamic fields](#dynamic-fields)
-    * [Text field](#text-field)
-    * [Image field](#image-field)
-
 Findings are pieces of information attached to a project and a core entity like a domain, a host or a port. They are reported by the jobs to the Orchestrator using Stalker's software development kit (SDK).
 
 Findings come in different shapes and forms. Some findings will create new core entities, others may simply add data to existing ones.
@@ -32,6 +22,7 @@ The finding object must contain the `type` field. Here is a list of available ty
 | [HostnameIpFinding](#hostnameipfinding) | Creates a new host, attaches it to a given domain. |
 | [PortFinding](#portfinding)             | Creates a new port, attaches it to the given host. |
 | [CustomFinding](#customfinding)         | Attaches custom finding data to a given entity.    |
+|                                         |
 
 ## HostnameFinding
 
@@ -52,7 +43,7 @@ Example:
 }
 ```
 
-Using the python sdk, you can emit this finding with the following code:
+Using the python SDK, you can emit this finding with the following code:
 
 ```python
 from stalker_job_sdk import DomainFinding, log_finding
@@ -82,7 +73,7 @@ Example:
 }
 ```
 
-Using the python sdk, you can emit this finding with the following code:
+Using the python SDK, you can emit this finding with the following code:
 
 ```python
 from stalker_job_sdk import IpFinding, log_finding
@@ -114,7 +105,7 @@ Example:
 }
 ```
 
-Using the python sdk, you can emit this finding with the following code:
+Using the python SDK, you can emit this finding with the following code:
 
 ```python
 from stalker_job_sdk import IpFinding, log_finding
@@ -153,7 +144,7 @@ Example:
 }
 ```
 
-Using the python sdk, you can emit this finding with the following code:
+Using the python SDK, you can emit this finding with the following code:
 
 ```python
 from stalker_job_sdk import DomainFinding, log_finding
@@ -190,7 +181,7 @@ Example:
 }
 ```
 
-Using the python sdk, you can emit this finding with the following code:
+Using the python SDK, you can emit this finding with the following code:
 
 ```python
 from stalker_job_sdk import PortFinding, log_finding
@@ -244,13 +235,13 @@ Examples:
     {
       "type": "text",
       "label": "Domain greatness level",
-      "content": "This domain is great, would recommend"
+      "data": "This domain is great, would recommend"
     }
   ]
 }
 ```
 
-Here is an example of a custom finding for a port with the python sdk. In this example, the port will show the custom information _This port
+Here is an example of a custom finding for a port with the python SDK. In this example, the port will show the custom information _This port
 runs an HTTP server_:
 
 ```python
@@ -281,7 +272,7 @@ Example:
 {
   "type": "text",
   "label": "Top 3 keywords found in web page",
-  "content": "Potato, celery, transformers"
+  "data": "Potato, celery, transformers"
 }
 ```
 
@@ -295,3 +286,38 @@ Example:
   "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII"
 }
 ```
+
+
+## PortServiceFinding
+
+A `PortServiceFinding` is type of `CustomFinding` that fills a port's `service` database field with the `serviceName` text field label. It will then be shown in the interface under the `Service` field.
+
+| Field      | Description                                                      |
+| ---------- | ---------------------------------------------------------------- |
+| `protocol` | The protocol, either 'tcp' or 'udp'                              |
+| `ip`       | The ip                                                           |
+| `port`     | The port number                                                  |
+| `fields`   | A list of [fields](#dynamic-fields). Must include `serviceName`. |
+
+Using the python SDK, you can emit this finding with the following code.
+
+```python
+from stalker_job_sdk import PortFinding, log_finding, TextField
+
+ip = '0.0.0.0'
+port = 22
+protocol = 'tcp'
+service_name = 'ssh'
+
+fields = [
+  TextField("serviceName", "Service name", service_name)
+]
+
+log_finding(
+    PortFinding(
+        "PortServiceFinding", ip, port, protocol, f"Found service {service_name}", fields
+    )
+)
+```
+
+Upon receiving this finding, the backend will set the service database field of the TCP port 22 for the `0.0.0.0` IP to `ssh`.
