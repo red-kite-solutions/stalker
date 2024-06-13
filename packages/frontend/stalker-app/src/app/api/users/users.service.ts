@@ -49,7 +49,7 @@ export class UsersService {
     );
   }
 
-  public async changeUserPassword(userId: string, newPassword: string, currentPassword: string): Promise<void> {
+  public async changeUserPassword(userId: string, newPassword: string, currentPassword?: string): Promise<void> {
     await firstValueFrom(
       this.http.put(`${environment.fmUrl}/users/${userId}/password`, {
         newPassword: newPassword,
@@ -67,5 +67,9 @@ export class UsersService {
         lastName: lastName,
       })
     );
+  }
+
+  public async requestResetPassword(email: string) {
+    await firstValueFrom(this.http.post(`${environment.fmUrl}/users/reset-password-requests`, { email }));
   }
 }

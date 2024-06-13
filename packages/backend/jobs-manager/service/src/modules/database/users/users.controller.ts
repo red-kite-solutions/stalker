@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -22,6 +23,7 @@ import { Roles } from '../../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/role.guard';
 import { MONGO_DUPLICATE_ERROR } from '../database.constants';
+import { ResetPasswordRequestDto } from './reset-password-request.dto';
 import { ChangePasswordDto, CreateUserDto, EditUserDto } from './users.dto';
 import { User, UserDocument } from './users.model';
 import { UsersService } from './users.service';
@@ -145,7 +147,7 @@ export class UsersController {
     }
   }
 
-  @Roles(Role.ReadOnly)
+  @Roles(Role.UserResetPassword)
   @Put(':id/password')
   public async editUserPassword(
     @Request() req,
@@ -156,17 +158,20 @@ export class UsersController {
       throw new HttpForbiddenException();
     }
 
-    const valid: boolean | null = await this.usersService.validateIdentity(
-      req.user.email,
-      dto.currentPassword,
-    );
+    // When the user role is not UserResetPassword, we require the user to validate their password.
+    if (req.user.role !== Role.UserResetPassword) {
+      const valid: boolean | null = await this.usersService.validateIdentity(
+        req.user.email,
+        dto.currentPassword,
+      );
 
-    if (valid === null) {
-      throw new HttpServerErrorException();
-    }
+      if (valid === null) {
+        throw new HttpServerErrorException();
+      }
 
-    if (!valid) {
-      throw new HttpForbiddenException();
+      if (!valid) {
+        throw new HttpForbiddenException();
+      }
     }
 
     try {
@@ -186,5 +191,25 @@ export class UsersController {
       this.logger.error(err);
       throw new HttpServerErrorException();
     }
+  }
+}
+
+@Controller('/users')
+export class UnprotectedUsersController {
+  private logger = new Logger(UnprotectedUsersController.name);
+
+  constructor(private readonly usersService: UsersService) {}
+
+  /**
+   * This route is unprotected on purpose. It allows users to update their password.
+   */
+  @Post('reset-password-requests')
+  async requestPasswordReset(
+    @Request() request: any,
+    @Body() dto: ResetPasswordRequestDto,
+  ) {
+    if (!dto.email) throw new BadRequestException();
+
+    await this.usersService.createPasswordResetRequest(dto.email);
   }
 }

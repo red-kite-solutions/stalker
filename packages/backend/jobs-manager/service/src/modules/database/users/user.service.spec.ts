@@ -5,6 +5,8 @@ import { Model } from 'mongoose';
 import { getName } from '../../../test/test.utils';
 import { AppModule } from '../../app.module';
 import { Role } from '../../auth/constants';
+import { EmailService } from '../../notifications/emails/email.service';
+import { MagicLinkToken } from './magic-link-token.model';
 import { CreateFirstUserDto } from './users.dto';
 import { User, UserDocument } from './users.model';
 import { UsersService } from './users.service';
@@ -13,6 +15,8 @@ describe('Users Service', () => {
   let moduleFixture: TestingModule;
   let userService: UsersService;
   let userModel: Model<User>;
+  let magicLinkToken: Model<MagicLinkToken>;
+  let emailService: EmailService;
   const prefix = 'user-service';
 
   beforeAll(async () => {
@@ -21,6 +25,10 @@ describe('Users Service', () => {
     }).compile();
     userService = moduleFixture.get(UsersService);
     userModel = moduleFixture.get<Model<User>>(getModelToken('users'));
+    magicLinkToken = moduleFixture.get<Model<MagicLinkToken>>(
+      getModelToken('magicLinkTokens'),
+    );
+    emailService = moduleFixture.get(EmailService);
   });
 
   beforeEach(async () => {
@@ -327,6 +335,72 @@ describe('Users Service', () => {
       // Assert
       const u2Ng = await userService.findOneById(u2._id.toString());
       expect(u2Ng.active).toStrictEqual(false);
+    });
+  });
+
+  describe('Magic link', () => {
+    it('Should create magic link and send email', async () => {
+      // Arrange
+      const sendEmailSpy = jest.spyOn(emailService, 'sendResetPassword');
+      const u = await user();
+
+      // Act
+      await userService.createPasswordResetRequest(u.email);
+      await new Promise(process.nextTick); // Wait for all promises to finish
+
+      // Assert
+      const userMagicLinks = await magicLinkToken.find({ userId: u._id });
+      expect(userMagicLinks.length).toBe(1);
+      expect(sendEmailSpy).toHaveBeenCalled();
+    });
+
+    it('Should return user with limited permissions and delete token when magic token is valid', async () => {
+      // Arrange
+      const u = await user({ role: Role.Admin });
+      await magicLinkToken.create({
+        expirationDate: new Date().getTime() + 100000,
+        token: '1234',
+        userId: u._id,
+      });
+
+      // Act
+      const authenticatedUser =
+        await userService.validateIdentityUsingUniqueToken('1234');
+
+      // Assert
+      expect(authenticatedUser).toBeDefined();
+      expect(authenticatedUser.email).toBe(u.email);
+      expect(authenticatedUser.role).toBe(Role.UserResetPassword);
+
+      const token = await magicLinkToken.findOne({ userId: u._id });
+      expect(token).toBeNull();
+    });
+
+    it('Should return access token when magic token is expired', async () => {
+      // Arrange
+      const u = await user({ role: Role.Admin });
+      await magicLinkToken.create({
+        expirationDate: new Date().getTime() - 1,
+        token: '1234',
+        userId: u._id,
+      });
+
+      // Act
+      const authenticatedUser =
+        await userService.validateIdentityUsingUniqueToken('1234');
+
+      // Assert
+      expect(authenticatedUser).toBeUndefined();
+    });
+
+    it('Should return access token when magic token does not exist', async () => {
+      // Arrange
+      // Act
+      const authenticatedUser =
+        await userService.validateIdentityUsingUniqueToken('idontexist');
+
+      // Assert
+      expect(authenticatedUser).toBeUndefined();
     });
   });
 

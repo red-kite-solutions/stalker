@@ -8,6 +8,7 @@ import { jwtConstants } from './constants';
 import { JwtSocketioStrategy } from './strategies/jwt-socketio.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
+import { MagicLinkStrategy } from './strategies/magic-link.strategy';
 import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
 
 @Module({
@@ -23,6 +24,7 @@ import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
   providers: [
     AuthService,
     LocalStrategy,
+    MagicLinkStrategy,
     JwtStrategy,
     RefreshTokenStrategy,
     JwtSocketioStrategy,

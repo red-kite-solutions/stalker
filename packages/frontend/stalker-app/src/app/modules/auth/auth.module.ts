@@ -9,12 +9,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterModule } from '@angular/router';
-import { LoginComponent } from 'src/app/modules/auth/login/login.component';
 import { AuthComponent } from './auth.component';
-import { FirstComponent } from './first/first.component';
 
 @NgModule({
-  declarations: [AuthComponent, LoginComponent, FirstComponent],
+  declarations: [AuthComponent],
   imports: [
     CommonModule,
     RouterModule,
