@@ -18,4 +18,5 @@ export interface CustomJobMetadata {
   builtIn?: boolean;
   codeFilePath: string;
   handlerFilePath?: string;
+  templateOrdering?: string;
 }

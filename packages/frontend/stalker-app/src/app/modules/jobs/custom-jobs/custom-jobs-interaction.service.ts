@@ -1,20 +1,28 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { firstValueFrom } from 'rxjs';
+import { Observable, firstValueFrom, map } from 'rxjs';
 import { CustomJobsService } from 'src/app/api/jobs/custom-jobs/custom-jobs.service';
 import { CustomJob } from 'src/app/shared/types/jobs/custom-job.type';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
+import { CustomJobTemplatesService } from '../../../api/jobs/custom-job-templates/custom-job-templates.service';
+import { PickerData, PickerDialogComponent } from '../../../shared/components/picker-dialog/picker-dialog.component';
+import { CodePickerData, PickerOption } from '../../../shared/components/picker-dialog/picker-dialog.type';
+import { CustomJobTemplateSummary } from '../../../shared/types/jobs/custom-job-template.type';
+import { FileTab } from '../../../shared/widget/code-editor/code-editor.type';
 
 @Injectable({ providedIn: 'root' })
 export class CustomJobsInteractionService {
   constructor(
     private customJobsService: CustomJobsService,
     private dialog: MatDialog,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    public router: Router,
+    public templateService: CustomJobTemplatesService
   ) {}
 
   public async delete(jobs: Pick<CustomJob, '_id' | 'name'>[]): Promise<boolean> {
@@ -86,6 +94,112 @@ export class CustomJobsInteractionService {
     };
 
     this.dialog.open(ConfirmDialogComponent, {
+      data,
+      restoreFocus: false,
+    });
+  }
+
+  public selectTemplate() {
+    let data: PickerData = {
+      title: $localize`:Job templates|Job templates:Job templates`,
+      text: $localize`:Job template text|Job template picker text:Select a job template from the left panel to get started, or continue without a template.`,
+      onSelection: async (option: PickerOption) => {
+        console.log(option.name);
+        this.router.navigateByUrl(`/jobs/custom/create?templateId=${option.id}`);
+        this.dialog.closeAll();
+      },
+      pickerOptionsProvider: (): Observable<PickerOption[]> => {
+        return this.templateService.getAllSummaries().pipe(
+          map((templateSummaries: CustomJobTemplateSummary[]) => {
+            const sortedTemplates = templateSummaries.sort((a, b) => {
+              const aOrdering = a.templateOrdering ? a.templateOrdering.toLowerCase() : '/';
+              const bOrdering = b.templateOrdering ? b.templateOrdering.toLowerCase() : '/';
+              return aOrdering.localeCompare(bOrdering);
+            });
+            const optionsTree: PickerOption[] = [];
+
+            let i = 0;
+            const createOptions = (
+              options: PickerOption[],
+              parentFolders: string[] = [],
+              currentFolder: string = '',
+              depth: number = 0
+            ) => {
+              while (i < sortedTemplates.length) {
+                let folders = sortedTemplates[i].templateOrdering?.split('/') ?? [''];
+                folders = folders.filter((s, j) => j === 0 || s.length);
+
+                let arr: string[] = [];
+
+                // our new leaf is less deep, return
+                if (
+                  depth + 1 > folders.length ||
+                  folders.slice(0, depth + 1).join('/') !== arr.concat(parentFolders).concat(currentFolder).join('/')
+                ) {
+                  parentFolders.pop();
+                  return;
+                }
+
+                // our new leaf is deeper, create folder and go deeper
+                if (depth + 1 < folders.length) {
+                  options.push({
+                    id: '',
+                    name: folders[depth + 1],
+                    options: [],
+                  });
+                  parentFolders.push(currentFolder);
+                  createOptions(options[options.length - 1].options!, parentFolders, folders[depth + 1], depth + 1);
+                }
+
+                // our new leaf is in the current folder, create and go to the next leaf
+                if (depth + 1 === folders.length) {
+                  options.push({
+                    id: sortedTemplates[i]._id,
+                    name: sortedTemplates[i].name,
+                    options: undefined,
+                  });
+                  i++;
+                }
+              }
+            };
+
+            createOptions(optionsTree);
+
+            for (let j = 0; j < optionsTree.length; ++j) {
+              if (optionsTree[j].name === 'built-in') {
+                optionsTree[j].lessImportant = true;
+                optionsTree.push(optionsTree.splice(j, 1)[0]);
+                break;
+              }
+            }
+
+            return optionsTree;
+          })
+        );
+      },
+      extendedData: new CodePickerData(async (option: PickerOption) => {
+        const template = await firstValueFrom(this.templateService.get(option.id));
+        const tabs: FileTab[] = [
+          {
+            id: template._id,
+            content: template.code,
+            language: template.language,
+            uri: `/custom-job-templates/${template.name}`,
+          },
+        ];
+
+        return {
+          id: option.id,
+          tabs: tabs,
+        };
+      }),
+      continueWithoutTemplate: () => {
+        this.router.navigate(['/jobs/custom/create']);
+        this.dialog.closeAll();
+      },
+    };
+
+    this.dialog.open(PickerDialogComponent, {
       data,
       restoreFocus: false,
     });

@@ -1,0 +1,117 @@
+.options-tree-invisible {
+  display: none;
+}
+
+.options-tree ul,
+.options-tree li {
+  margin-top: 0;
+  margin-bottom: 0;
+  list-style-type: none;
+}
+
+.options-tree .mat-nested-tree-node div[role='group'] {
+  padding-left: 15px;
+}
+
+.options-tree div[role='group'] > .mat-tree-node {
+  padding-left: 10px;
+}
+
+.options-tree {
+  .mat-tree-node {
+    cursor: pointer;
+    padding-left: 10px;
+    padding-right: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    border-bottom: 1px solid var(--mat-table-row-item-outline-color);
+    .node-text {
+      white-space: nowrap;
+      max-width: 500px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+  .selected-option {
+    background-color: var(--mat-table-background-color-hover);
+    font-weight: 500;
+  }
+  .mat-tree-node:hover {
+    background-color: var(--mat-table-background-color-hover);
+  }
+}
+
+.main-content {
+  .grid-container {
+    display: grid;
+    grid-template-columns: 1fr 5fr;
+    grid-template-rows: 1fr 9fr;
+    width: calc(var(--mat-dialog-container-max-width) - 48px);
+    height: calc(65vh - 20px);
+
+    .grid-explain {
+      grid-column-start: 1;
+      grid-column-end: 3;
+      grid-row-start: 1;
+      grid-row-end: 2;
+    }
+
+    .grid-options {
+      grid-column-start: 1;
+      grid-column-end: 2;
+      grid-row-start: 2;
+      grid-row-end: 3;
+      box-sizing: border-box;
+      border: 2px solid var(--mat-table-row-item-outline-color);
+      border-radius: 4px;
+      display: block;
+      height: 100%;
+      overflow: scroll;
+
+      .grid-options-overflow {
+        overflow-x: scroll;
+        width: fit-content;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow-y: scroll;
+        min-width: 100%;
+
+        .search {
+          flex: 0 0 auto;
+          width: 100%;
+        }
+
+        .grid-options-only {
+          flex: 1 1 auto;
+          width: fit-content;
+          min-width: 100%;
+          overflow-y: scroll;
+          max-height: 100%;
+
+          .grid-options-content {
+            width: fit-content;
+            min-width: 100%;
+            overflow-y: scroll;
+          }
+        }
+      }
+    }
+
+    .grid-code {
+      grid-column-start: 2;
+      grid-column-end: 2;
+      grid-row-start: 2;
+      grid-row-end: 3;
+    }
+  }
+}
+
+.less-important {
+  color: var(--mdc-outlined-button-disabled-label-text-color);
+}
+
+.pad-x {
+  padding: var(--mat-dialog-with-actions-content-padding, 20px 24px);
+  padding-top: 0px;
+}
