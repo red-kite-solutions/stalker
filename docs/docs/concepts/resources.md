@@ -6,15 +6,6 @@ description: What are resources
 
 # Resources
 
-* [Types of resources](#types-of-resources)
-  * [Domains](#domains)
-  * [Hosts](#hosts)
-  * [Ports](#ports)
-* [Interacting with resources](#interacting-with-resources)
-  * [Tagging a resource](#tagging-a-resource)
-  * [Deleting a resource](#deleting-a-resource)
-  * [Blocking a resource](#blocking-a-resource)
-
 Resources represent the core entities of an exposed network. They are used to store and show the data found by [Stalker's jobs](/docs/concepts/jobs). A resource can also often be created through the user interface and the API.
 
 All the resources belong to projects, and the resources are unique on a per-project basis. Deleting a project results in the deletion of its resources.

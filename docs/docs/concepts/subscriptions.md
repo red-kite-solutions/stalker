@@ -6,17 +6,6 @@ description: What are subscriptions and how to use them
 
 # Subscriptions
 
-* [Cron Subscriptions](#cron-subscriptions)
-  * [Cron Subscription Syntax](#cron-subscription-syntax)
-    * [Cron Subscription Simple Example](#cron-subscription-simple-example)
-    * [Input variable](#input-variable)
-* [Event Subscriptions](#event-subscriptions)
-  * [Event Subscription Syntax](#event-subscription-syntax)
-    * [Event Subscription Simple Example](#event-subscription-simple-example)
-    * [Event Subscription Complex Example](#event-subscription-complex-example)
-  * [Findings](#findings)
-  * [Conditions](#conditions)
-
 Subscriptions are used in Stalker to start jobs based on either a cron expression (cron subscriptions) or a finding (event subscription).
 They are used to expand Stalker's automation workflow.
 
