@@ -14,15 +14,15 @@ To produce a finding, the job must create an object containing the necessary inf
 
 The finding object must contain the `type` field. Here is a list of available types.
 
-| Type                                    | Description                                        |
-| --------------------------------------- | -------------------------------------------------- |
-| [HostnameFinding](#hostnamefinding)     | Creates a new domain.                              |
-| [IpFinding](#ipfinding)                 | Creates a new host.                                |
-| [IpRangeFinding](#iprangefinding)       | Creates a new IP range.                            |
-| [HostnameIpFinding](#hostnameipfinding) | Creates a new host, attaches it to a given domain. |
-| [PortFinding](#portfinding)             | Creates a new port, attaches it to the given host. |
-| [CustomFinding](#customfinding)         | Attaches custom finding data to a given entity.    |
-|                                         |
+| Type                                      | Description                                        |
+| ----------------------------------------- | -------------------------------------------------- |
+| [HostnameFinding](#hostnamefinding)       | Creates a new domain.                              |
+| [IpFinding](#ipfinding)                   | Creates a new host.                                |
+| [IpRangeFinding](#iprangefinding)         | Creates a new IP range.                            |
+| [HostnameIpFinding](#hostnameipfinding)   | Creates a new host, attaches it to a given domain. |
+| [PortFinding](#portfinding)               | Creates a new port, attaches it to the given host. |
+| [CustomFinding](#customfinding)           | Attaches custom finding data to a given entity.    |
+| [PortServiceFinding](#portservicefinding) | Fills the `service` field of a port.               |
 
 ## HostnameFinding
 
@@ -264,12 +264,26 @@ Dynamic fields give flexiblity to jobs so they can output complex data. Here is 
 | Text  | A label with some text |
 | Image | An image               |
 
+Each field consist of at least a `key`, a `type` and `data`. The type is generally automatically populated by the SDK, and the `key` is used like a variable name, and the `data` should contain the interesting values extracted by the job.
+
+> The `key` field can be used to inject the content of `data` as an input to a new job in an event subscription.
+
 #### Text field
 
-Example:
+Create an `TextField` with the python SDK:
+
+```python
+key = 'topthreekeywords'
+label = 'Top 3 keywords found in web page'
+data = 'Potato, celery, transformers'
+field = TextField(key, label, data)
+```
+
+It will result in a json like the following:
 
 ```json
 {
+  "key": "topthreekeywords",
   "type": "text",
   "label": "Top 3 keywords found in web page",
   "data": "Potato, celery, transformers"
@@ -278,15 +292,23 @@ Example:
 
 #### Image field
 
-Example:
+Create an `ImageField` with the python SDK:
+
+```python
+key = 'myImageField'
+image_data = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII'
+field = ImageField(key, image_data)
+```
+
+It will result in a json like the following:
 
 ```json
 {
+  "key": "myImageField",
   "type": "image",
   "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII"
 }
 ```
-
 
 ## PortServiceFinding
 
