@@ -14,6 +14,7 @@ import { HostService } from './host/host.service';
 import { PortService } from './port/port.service';
 import { CreateProjectDto } from './project.dto';
 import { Project, ProjectDocument } from './project.model';
+import { WebsiteService } from './websites/website.service';
 
 @Injectable()
 export class ProjectService {
@@ -29,6 +30,7 @@ export class ProjectService {
     private readonly findingModel: Model<CustomFinding>,
     private readonly portsService: PortService,
     private readonly secretsService: SecretsService,
+    private readonly websiteService: WebsiteService,
   ) {}
 
   public async getAll(
@@ -97,6 +99,7 @@ export class ProjectService {
     await this.jobsService.deleteAllForProject(id);
     await this.subscriptionsService.deleteAllForProject(id);
     await this.portsService.deleteAllForProject(id);
+    await this.websiteService.deleteAllForProject(id);
     await this.findingModel.deleteMany({
       projectId: { $eq: new Types.ObjectId(id) },
     });

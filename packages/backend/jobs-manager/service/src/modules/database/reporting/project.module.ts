@@ -10,6 +10,7 @@ import { HostModule } from './host/host.module';
 import { PortModule } from './port/port.module';
 import { ProjectController } from './project.controller';
 import { ProjectService } from './project.service';
+import { WebsiteModule } from './websites/website.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ProjectService } from './project.service';
     PortModule,
     ConfigModule,
     SecretsModule,
+    WebsiteModule,
   ],
   controllers: [ProjectController],
   providers: [ProjectService],

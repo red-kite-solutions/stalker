@@ -130,7 +130,6 @@ describe('Findings Service Spec', () => {
     [undefined, undefined, undefined],
     ['example.org', undefined, 80],
     ['example.org', '1.1.1.1', undefined],
-    ['example.org', '1.1.1.1', 80],
     [undefined, undefined, 1],
   ])(
     'Save - Invalid finding correlation information - Throws',

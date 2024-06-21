@@ -6,6 +6,7 @@ import { CorrelationKeyUtils } from '../../reporting/correlation.utils';
 import { DomainsService } from '../../reporting/domain/domain.service';
 import { HostService } from '../../reporting/host/host.service';
 import { PortService } from '../../reporting/port/port.service';
+import { WebsiteService } from '../../reporting/websites/website.service';
 import {
   SubscriptionTrigger,
   SubscriptionTriggerDocument,
@@ -21,6 +22,7 @@ export class SubscriptionTriggersService {
     private readonly hostsService: HostService,
     private readonly domainsService: DomainsService,
     private readonly portsService: PortService,
+    private readonly websiteService: WebsiteService,
   ) {}
 
   public async isTriggerBlocked(correlationKey: string): Promise<boolean> {
@@ -34,6 +36,8 @@ export class SubscriptionTriggersService {
         return await this.domainsService.keyIsBlocked(correlationKey);
       case 'HostService':
         return await this.hostsService.keyIsBlocked(correlationKey);
+      case 'WebsiteService':
+        return await this.websiteService.keyIsBlocked(correlationKey);
       default:
         return false;
     }

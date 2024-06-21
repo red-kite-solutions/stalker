@@ -47,6 +47,39 @@ export class CorrelationKeyUtils {
     );
   }
 
+  public static websiteCorrelationKey(
+    projectId: string,
+    ip: string,
+    port: number,
+    domainName: string = '',
+    path: string = '/',
+  ) {
+    return CorrelationKeyUtils.buildCorrelationKey(
+      CorrelationKeyUtils.portCorrelationKey(projectId, ip, port, 'tcp'),
+      `domain:${domainName}`,
+      `path:${path}`,
+    );
+  }
+
+  /**
+   * Valid combinations are:
+   *
+   * - domain correlation key: [domainName]
+   * - host correlation key: [ip]
+   * - ip range correlation key: [ip,mask]
+   * - port correlation key: [ip,port,protocol]
+   * - website correlation key: [ip,port,domainName,path]
+   *
+   * For a website correlation key, the domain name can be an empty string
+   * @param projectId
+   * @param domainName
+   * @param ip
+   * @param port
+   * @param protocol
+   * @param mask
+   * @param path For a website. Should always start with a /
+   * @returns A correlation key that corresponds to the resource
+   */
   public static generateCorrelationKey(
     projectId: string,
     domainName?: string,
@@ -54,6 +87,7 @@ export class CorrelationKeyUtils {
     port?: number,
     protocol?: string,
     mask?: number,
+    path?: string,
   ): string {
     if (!projectId) {
       throw new HttpBadRequestException(
@@ -63,15 +97,27 @@ export class CorrelationKeyUtils {
 
     let correlationKey = null;
     const ambiguousRequest =
-      'Ambiguous request; must provide a domainName, an ip, an ip and mask or a combination of ip, port and protocol.';
-    if (domainName) {
-      if (ip || port || protocol)
-        throw new HttpBadRequestException(ambiguousRequest);
+      'Ambiguous request for correlation key; Valid combinations are: [domainName], [ip], [ip,mask], [ip,port,protocol] and [ip,port,domainName,path]';
+    if (domainName || domainName === '') {
+      if (ip || port || protocol) {
+        if (!ip || !port) throw new HttpBadRequestException(ambiguousRequest);
 
-      correlationKey = CorrelationKeyUtils.domainCorrelationKey(
-        projectId,
-        domainName,
-      );
+        path = path ? path : '/';
+        domainName = domainName ?? '';
+
+        correlationKey = CorrelationKeyUtils.websiteCorrelationKey(
+          projectId,
+          ip,
+          port,
+          domainName,
+          path,
+        );
+      } else if (domainName) {
+        correlationKey = CorrelationKeyUtils.domainCorrelationKey(
+          projectId,
+          domainName,
+        );
+      }
     } else if (ip) {
       if (port && protocol && !mask) {
         correlationKey = CorrelationKeyUtils.portCorrelationKey(
@@ -111,16 +157,26 @@ export class CorrelationKeyUtils {
    */
   public static getResourceServiceName(
     correlationKey: string,
-  ): 'PortService' | 'DomainsService' | 'HostService' | null {
+  ):
+    | 'PortService'
+    | 'DomainsService'
+    | 'HostService'
+    | 'WebsiteService'
+    | null {
     // Host match
     if (correlationKey.match(/^project\:[a-f0-9]{24}\;host\:.+/)?.length > 0) {
       // Port match
       if (
-        correlationKey.match(/.+\;port\:\d{1,5}\;protocol:(tcp|udp)$/)?.length >
-        0
-      )
-        return 'PortService';
-      else return 'HostService';
+        correlationKey.match(/.+\;port\:\d{1,5}\;protocol\:(tcp|udp)(\;.+)?$/)
+          ?.length > 0
+      ) {
+        // Website match
+        if (correlationKey.match(/.+\;domain\:.*\;path\:\/.*$/)?.length > 0) {
+          return 'WebsiteService';
+        } else {
+          return 'PortService';
+        }
+      } else return 'HostService';
     }
 
     // Domain match

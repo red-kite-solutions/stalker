@@ -11,7 +11,7 @@ export class Port {
   public host: HostSummary;
 
   @Prop()
-  public projectId?: Types.ObjectId;
+  public projectId: Types.ObjectId;
 
   /**
    * A pseudo-unique key identifying this entity. Used for findings.

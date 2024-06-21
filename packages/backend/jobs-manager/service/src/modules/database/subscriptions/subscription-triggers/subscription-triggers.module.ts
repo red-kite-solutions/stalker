@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { DomainsModule } from '../../reporting/domain/domain.module';
 import { HostModule } from '../../reporting/host/host.module';
 import { PortModule } from '../../reporting/port/port.module';
+import { WebsiteModule } from '../../reporting/websites/website.module';
 import { SubscriptionTriggersController } from './subscription-triggers.controller';
 import { SubscriptionTriggerSchema } from './subscription-triggers.model';
 import { SubscriptionTriggersService } from './subscription-triggers.service';
@@ -18,6 +19,7 @@ import { SubscriptionTriggersService } from './subscription-triggers.service';
     HostModule,
     DomainsModule,
     PortModule,
+    WebsiteModule,
   ],
   controllers: [SubscriptionTriggersController],
   providers: [SubscriptionTriggersService],
