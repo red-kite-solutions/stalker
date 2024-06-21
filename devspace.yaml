@@ -235,6 +235,15 @@ deployments:
   jobs-manager:
     helm:
       values:
+        volumes:
+          - name: certs
+            secret:
+              secretName: jm-certs
+
+          - name: ca-certificate
+            secret:
+              secretName: jm-ca-certificate
+
         containers:
           - env:
               - name: MONGO_ADDRESS
@@ -263,6 +272,22 @@ deployments:
                 value: ${JM_KAFKA_KEY_PASSWORD}
               - name: STALKER_VERSION
                 value: ${STALKER_VERSION}
+
+            volumeMounts:
+              - containerPath: /certs
+                volume:
+                  name: certs
+                  readOnly: false
+
+              - containerPath: /usr/local/share/ca-certificates/
+                volume:
+                  name: ca-certificate
+                  readOnly: false
+
+            lifecycle:
+              postStart:
+                exec:
+                  command: ["/bin/sh", "-c", "update-ca-certificates"]
 
             image: ghcr.io/red-kite-solutions/stalker-jobs-manager
             name: jobs-manager-container
@@ -580,6 +605,11 @@ deployments:
   orchestrator:
     helm:
       values:
+        volumes:
+          - name: certs
+            secret:
+              secretName: orchestrator-kafka-certs
+
         serviceAccountName: orchestrator-service-account
         containers:
           - env:
@@ -589,6 +619,12 @@ deployments:
                 value: ${SECRET_PRIVATE_RSA_KEY}
               - name: ORCHESTRATOR_KAFKA_KEY_PASSWORD
                 value: ${ORCHESTRATOR_KAFKA_KEY_PASSWORD}
+
+            volumeMounts:
+              - containerPath: /certs
+                volume:
+                  name: certs
+                  readOnly: false
 
             image: ghcr.io/red-kite-solutions/stalker-orchestrator
             name: orchestrator-container
@@ -625,6 +661,8 @@ deployments:
     kubectl:
       manifests:
         - packages/backend/cron/service/${CERTIFICATES}
+        - packages/backend/jobs-manager/service/${CERTIFICATES}
+        - packages/backend/orchestrator/service/${CERTIFICATES}
 
 dev:
   mongo:
