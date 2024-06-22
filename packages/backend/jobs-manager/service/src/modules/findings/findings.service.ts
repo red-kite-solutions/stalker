@@ -18,6 +18,7 @@ import { IpRangeCommand } from './commands/Findings/ipRange.command';
 import { CustomFindingCommand } from './commands/JobFindings/custom.command';
 import { HostnameIpCommand } from './commands/JobFindings/hostname-ip.command';
 import { PortCommand } from './commands/JobFindings/port.command';
+import { TagCommand } from './commands/JobFindings/tag.command';
 import { CustomFindingFieldDto } from './finding.dto';
 
 export type Finding =
@@ -27,7 +28,8 @@ export type Finding =
   | IpRangeFinding
   | PortFinding
   | JobStatusFinding
-  | CreateCustomFinding;
+  | CreateCustomFinding
+  | TagFinding;
 
 export class FindingBase {
   jobId?: string;
@@ -50,14 +52,23 @@ export class PortFinding extends FindingBase {
   ];
 }
 
-export class CreateCustomFinding extends FindingBase {
-  type: 'CustomFinding';
-  key: string;
+export class ResourceFinding extends FindingBase {
   domainName?: string;
   ip?: string;
   port?: number;
   protocol?: 'tcp' | 'udp';
+}
+
+export class CreateCustomFinding extends ResourceFinding {
+  type: 'CustomFinding';
+  key: string;
   name: string;
+}
+
+export class TagFinding extends ResourceFinding {
+  type: 'TagFinding';
+  key: 'TagFinding';
+  tag: string;
 }
 
 export class JobStatusFinding extends FindingBase {
@@ -356,6 +367,17 @@ export class FindingsService {
         );
         break;
 
+      case 'TagFinding':
+        finding.correlationKey = CorrelationKeyUtils.generateCorrelationKey(
+          projectId,
+          finding.domainName,
+          finding.ip,
+          finding.port,
+          finding.protocol,
+        );
+        this.commandBus.execute(
+          new TagCommand(jobId, projectId, CustomFindingCommand.name, finding),
+        );
       default:
         this.logger.error(`Unknown finding type ${finding['type']}`);
     }

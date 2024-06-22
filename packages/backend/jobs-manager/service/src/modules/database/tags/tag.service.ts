@@ -30,6 +30,10 @@ export class TagsService {
     return await this.tagsModel.findById(id);
   }
 
+  public async getByText(text: string) {
+    return await this.tagsModel.findOne({ text: { $eq: text } });
+  }
+
   public async delete(id: string): Promise<DeleteResult> {
     const tagId = new Types.ObjectId(id);
     const delResult = await this.tagsModel.deleteOne({

@@ -417,6 +417,33 @@ export class HostService {
     }
   }
 
+  /**
+   * Tag a host according to its IP and projectId
+   * @param ip
+   * @param projectId
+   * @param tagId Expects a valid tagId
+   * @param isTagged True to tag, False to untag
+   * @returns
+   */
+  public async tagHostByIp(
+    ip: string,
+    projectId: string,
+    tagId: string,
+    isTagged: boolean,
+  ): Promise<UpdateResult> {
+    if (!isTagged) {
+      return await this.hostModel.updateOne(
+        { ip: { $eq: ip }, projectId: { $eq: new Types.ObjectId(projectId) } },
+        { $pull: { tags: new Types.ObjectId(tagId) } },
+      );
+    } else {
+      return await this.hostModel.updateOne(
+        { ip: { $eq: ip }, projectId: { $eq: new Types.ObjectId(projectId) } },
+        { $addToSet: { tags: new Types.ObjectId(tagId) } },
+      );
+    }
+  }
+
   public async batchEdit(dto: BatchEditHostsDto) {
     const update: Partial<Host> = {};
     if (dto.block || dto.block === false) update.blocked = dto.block;
