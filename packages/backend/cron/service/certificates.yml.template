@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: jm-certs
+  name: cron-certs
 data:
   ca.pem: ${CA_PEM}
   client-signed.crt: ${CLIENT_SIGNED_CRT}
@@ -9,3 +9,4 @@ data:
   kafka-ca.crt: ${KAFKA_CA_CRT}
   kafka-client-signed.crt: ${KAFKA_CLIENT_SIGNED_CRT}
   kafka-client.key: ${KAFKA_CLIENT_KEY}
+  rks-ca.crt: ${ROOT_CA}

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-certs
+data:
+  nginx-chain.pem: ${NGINX_CHAIN_PEM}
+  nginx.key: ${NGINX_KEY}
