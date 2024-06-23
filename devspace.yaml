@@ -240,9 +240,9 @@ deployments:
             secret:
               secretName: jm-certs
 
-          - name: ca-certificate
+          - name: root-ca
             secret:
-              secretName: jm-ca-certificate
+              secretName: root-ca
 
         containers:
           - env:
@@ -281,7 +281,7 @@ deployments:
 
               - containerPath: /usr/local/share/ca-certificates/
                 volume:
-                  name: ca-certificate
+                  name: root-ca
                   readOnly: false
 
             lifecycle:
@@ -348,9 +348,10 @@ deployments:
           - name: certs
             secret:
               secretName: cron-certs
-          - name: ca-certificate
+
+          - name: root-ca
             secret:
-              secretName: cron-ca-certificate
+              secretName: root-ca
 
         containers:
           - env:
@@ -368,8 +369,6 @@ deployments:
                 value: ${STALKER_CRON_API_TOKEN}
               - name: CRON_MONGO_KEY_PASSWORD
                 value: ${CRON_MONGO_KEY_PASSWORD}
-              - name: NODE_EXTRA_CA_CERTS
-                value: /certs/rks-ca.crt
 
             volumeMounts:
               - containerPath: /certs
@@ -379,7 +378,7 @@ deployments:
 
               - containerPath: /usr/local/share/ca-certificates/
                 volume:
-                  name: ca-certificate
+                  name: root-ca
                   readOnly: false
 
             lifecycle:
@@ -608,7 +607,7 @@ deployments:
         volumes:
           - name: certs
             secret:
-              secretName: orchestrator-kafka-certs
+              secretName: orchestrator-certs
 
         serviceAccountName: orchestrator-service-account
         containers:
@@ -660,6 +659,7 @@ deployments:
   certificates:
     kubectl:
       manifests:
+        - root-ca.yml
         - packages/backend/cron/service/${CERTIFICATES}
         - packages/backend/jobs-manager/service/${CERTIFICATES}
         - packages/backend/orchestrator/service/${CERTIFICATES}
