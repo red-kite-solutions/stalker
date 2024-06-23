@@ -1,0 +1,6 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: root-ca
+data:
+  red-kite-solutions.crt: ${}
