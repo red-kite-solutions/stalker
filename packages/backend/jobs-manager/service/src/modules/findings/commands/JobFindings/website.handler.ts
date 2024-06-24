@@ -34,7 +34,6 @@ export class WebsiteHandler extends JobFindingHandlerBase<WebsiteCommand> {
   }
 
   protected async executeCore(command: WebsiteCommand) {
-    console.log(command.finding);
     await this.websiteService.addWebsite(
       command.projectId,
       command.finding.ip,
