@@ -420,6 +420,13 @@ deployments:
                     collection: "cronsubscriptions"
                   },
                   actions: ["find"]
+                },
+                {
+                  resource: {
+                    db: "stalker",
+                    collection: "alarms"
+                  },
+                  actions: ["find"]
                 }
               ],
               roles: []

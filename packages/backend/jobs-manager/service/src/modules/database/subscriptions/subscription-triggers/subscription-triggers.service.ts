@@ -111,4 +111,17 @@ export class SubscriptionTriggersService {
   public async getAll(): Promise<SubscriptionTriggerDocument[]> {
     return await this.subscriptionTriggerModel.find({});
   }
+
+  public async deleteAllForSubscription(subscriptionId: string) {
+    await this.subscriptionTriggerModel.deleteMany({
+      subscriptionId: { $eq: new Types.ObjectId(subscriptionId) },
+    });
+  }
+
+  public async deleteAllForProject(projectId: string) {
+    const r = new RegExp(`^project\:${projectId}`);
+    await this.subscriptionTriggerModel.deleteMany({
+      correlationKey: { $regex: r },
+    });
+  }
 }

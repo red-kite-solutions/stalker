@@ -39,4 +39,8 @@ export class ConfigService {
       _id: new Types.ObjectId(id),
     });
   }
+
+  public async getConfig(): Promise<Config> {
+    return await this.configModel.findOne();
+  }
 }
