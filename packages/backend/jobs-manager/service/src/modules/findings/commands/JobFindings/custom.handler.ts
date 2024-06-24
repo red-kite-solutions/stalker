@@ -55,6 +55,7 @@ export class CustomFindingHandler extends JobFindingHandlerBase<CustomFindingCom
               command.finding.ip,
               command.finding.port,
               '/',
+              service === 'https',
             );
           }
 

@@ -228,7 +228,8 @@ Example:
   "ip": "1.2.3.4",
   "port": 80,
   "domain": "example.com",
-  "path": "/"
+  "path": "/",
+  "ssl": false
 }
 ```
 
@@ -240,6 +241,7 @@ port = 80
 ip = "1.2.3.4"
 domain = "example.com"
 path = "/"
+ssl = False
 
 log_finding(
     WebsiteFinding(
@@ -248,6 +250,7 @@ log_finding(
         port,
         domain,
         path,
+        ssl,
         "New website",
         [],
         "WebsiteFinding",

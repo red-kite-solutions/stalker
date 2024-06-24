@@ -187,9 +187,9 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
 
   private autocompleteFilter(value: string) {
     if (!value) return this.filterOptions?.filter((col) => col !== 'select');
-    let filterValue = value.toLowerCase();
-    const filterIsNegated = filterValue.length > 0 && filterValue[0];
-    filterValue = filterIsNegated === '-' ? filterValue.slice(1) : filterValue;
+    let filterValue = value.toLowerCase().trimStart();
+    const filterIsNegated = filterValue.length > 0 && filterValue[0] === '-';
+    filterValue = filterIsNegated ? filterValue.slice(1) : filterValue;
     return this.filterOptions?.filter((col) => {
       const columnIncludesFilter = col.toLowerCase().includes(filterValue) && col !== 'select';
       if (filterIsNegated) {

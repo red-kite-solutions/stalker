@@ -1,18 +1,15 @@
-import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { randomUUID } from 'crypto';
 import {
   TestingData,
   checkAuthorizations,
   cleanup,
-  createDomain as createDomains,
-  createProject,
   deleteReq,
   getReq,
   initTesting,
   patchReq,
-  postReq,
-  putReq,
+  putReq
 } from '../../../../test/e2e.utils';
 import { AppModule } from '../../../app.module';
 import { Role } from '../../../auth/constants';
@@ -51,45 +48,9 @@ describe('Website Controller (e2e)', () => {
     await app.close();
   });
 
-  describe("GET a host's ports /ports", () => {
-    it('Should get the TCP ports of a host without ports (GET /ports/)', async () => {
-      // Arrange
-      const project = await createProject(app, testData, getName());
-      const domain = 'www.example.org';
-      await createDomains(app, testData, project._id, [domain]);
-      const rHost = await postReq(app, testData.admin.token, `/hosts`, {
-        ips: ['192.168.2.1'],
-        projectId: project._id.toString(),
-      });
-
-      const hostId = rHost.body[0]._id;
-
-      // Act
-      const r = await getReq(
-        app,
-        testData.admin.token,
-        `/ports/?hostId=${hostId}&page=0&pageSize=10&protocol=tcp`,
-      );
-
-      // Assert
-      expect(r.statusCode).toBe(HttpStatus.OK);
-      expect(r.body.items.length).toStrictEqual(0);
-      expect(r.body.totalRecords).toStrictEqual(0);
-    });
-  });
-
-  it('Should have proper authorizations (GET /ports/:id)', async () => {
-    const success = await checkAuthorizations(
-      testData,
-      Role.ReadOnly,
-      async (givenToken) => {
-        return await getReq(app, givenToken, `/ports/6450827d0ae00198f250672d`);
-      },
-    );
-    expect(success).toBe(true);
-  });
-
-  it('Should have proper authorizations (PUT /ports/:id/tags)', async () => {
+  describe('Get websites', () => {
+ 
+  it('Should have proper authorizations (PUT /websites/:id/tags)', async () => {
     const success = await checkAuthorizations(
       testData,
       Role.User,
@@ -97,7 +58,7 @@ describe('Website Controller (e2e)', () => {
         return await putReq(
           app,
           givenToken,
-          `/ports/6450827d0ae00198f250672d/tags`,
+          `/websites/6450827d0ae00198f250672d/tags`,
           {},
         );
       },
@@ -105,29 +66,33 @@ describe('Website Controller (e2e)', () => {
     expect(success).toBe(true);
   });
 
-  it('Should have proper authorizations (GET /ports)', async () => {
-    // Arrange
-    const project = await createProject(app, testData, getName());
-    const domain = 'www.example.org';
-    await createDomains(app, testData, project._id, [domain]);
-    const rHost = await postReq(app, testData.admin.token, `/hosts`, {
-      ips: ['192.168.2.1'],
-      projectId: project._id.toString(),
-    });
-
-    const hostId = rHost.body[0]._id;
-
+  it('Should have proper authorizations (GET /websites)', async () => {
     const success = await checkAuthorizations(
       testData,
       Role.ReadOnly,
       async (givenToken) => {
-        return await getReq(app, givenToken, `/ports?`);
+        return await getReq(app, givenToken, `/websites/`);
       },
     );
     expect(success).toBe(true);
   });
 
-  it('Should have proper authorizations (DELETE /ports/:id)', async () => {
+  it('Should have proper authorizations (GET /websites/:id)', async () => {
+    const success = await checkAuthorizations(
+      testData,
+      Role.ReadOnly,
+      async (givenToken) => {
+        return await getReq(
+          app,
+          givenToken,
+          `/websites/6450827d0ae00198f250672d`,
+        );
+      },
+    );
+    expect(success).toBe(true);
+  });
+
+  it('Should have proper authorizations (DELETE /websites/:id)', async () => {
     const success = await checkAuthorizations(
       testData,
       Role.User,
@@ -135,7 +100,7 @@ describe('Website Controller (e2e)', () => {
         return await deleteReq(
           app,
           givenToken,
-          `/ports/6450827d0ae00198f250672d`,
+          `/websites/6450827d0ae00198f250672d`,
           {},
         );
       },
@@ -143,23 +108,23 @@ describe('Website Controller (e2e)', () => {
     expect(success).toBe(true);
   });
 
-  it('Should have proper authorizations (DELETE /ports/)', async () => {
+  it('Should have proper authorizations (DELETE /websites/)', async () => {
     const success = await checkAuthorizations(
       testData,
       Role.User,
       async (givenToken) => {
-        return await deleteReq(app, givenToken, `/ports/`, {});
+        return await deleteReq(app, givenToken, `/websites/`, {});
       },
     );
     expect(success).toBe(true);
   });
 
-  it('Should have proper authorizations (PATCH /ports/)', async () => {
+  it('Should have proper authorizations (PATCH /websites/)', async () => {
     const success = await checkAuthorizations(
       testData,
       Role.User,
       async (givenToken) => {
-        return await patchReq(app, givenToken, `/ports/`, {});
+        return await patchReq(app, givenToken, `/websites/`, {});
       },
     );
     expect(success).toBe(true);

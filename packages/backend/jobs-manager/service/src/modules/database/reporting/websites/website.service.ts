@@ -1,8 +1,9 @@
-import { Injectable, Logger, NotImplementedException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { DeleteResult } from 'mongodb';
+import { DeleteResult, UpdateResult } from 'mongodb';
 import { FilterQuery, Model, Types } from 'mongoose';
 import { HttpNotFoundException } from '../../../../exceptions/http.exceptions';
+import escapeStringRegexp from '../../../../utils/escape-string-regexp';
 import { WebsiteFinding } from '../../../findings/findings.service';
 import { FindingsQueue } from '../../../job-queue/findings-queue';
 import { TagsService } from '../../tags/tag.service';
@@ -12,6 +13,7 @@ import { DomainSummary } from '../domain/domain.summary';
 import { Host } from '../host/host.model';
 import { Port } from '../port/port.model';
 import { WebsiteFilterModel } from './website-filter.model';
+import { BatchEditWebsitesDto } from './website.dto';
 import { Website, WebsiteDocument } from './website.model';
 
 @Injectable()
@@ -33,6 +35,7 @@ export class WebsiteService {
     port: number,
     domain: string = undefined,
     path: string = '/',
+    ssl: boolean = undefined,
   ) {
     const projectIdObj = new Types.ObjectId(projectId);
     const existingPort = await this.portModel.findOne({
@@ -88,7 +91,7 @@ export class WebsiteService {
     return this.websiteModel.findOneAndUpdate(
       searchQuery,
       {
-        $set: { lastSeen: Date.now() },
+        $set: { lastSeen: Date.now(), ssl: ssl ?? null },
         $setOnInsert: {
           host: existingPort.host,
           domain: existingDomainSummary ?? null,
@@ -125,6 +128,7 @@ export class WebsiteService {
     ip: string,
     port: number,
     path: string = '/',
+    ssl: boolean = false,
   ) {
     const host = await this.hostModel.findOne({
       ip: { $eq: ip },
@@ -145,6 +149,7 @@ export class WebsiteService {
       path: path,
       port: port,
       fields: [],
+      ssl: ssl,
     };
 
     // We will create a website finding
@@ -182,6 +187,12 @@ export class WebsiteService {
     });
   }
 
+  public async deleteMany(websiteIds: string[]): Promise<DeleteResult> {
+    return await this.websiteModel.deleteMany({
+      _id: { $in: websiteIds.map((wid) => new Types.ObjectId(wid)) },
+    });
+  }
+
   public async get(websiteId: string) {
     return await this.websiteModel.findById(websiteId);
   }
@@ -193,7 +204,7 @@ export class WebsiteService {
   ): Promise<WebsiteDocument[]> {
     let query;
     if (filter) {
-      query = this.websiteModel.find(this.buildFilters(filter));
+      query = this.websiteModel.find(await this.buildFilters(filter));
     } else {
       query = this.websiteModel.find({});
     }
@@ -204,8 +215,126 @@ export class WebsiteService {
     return await query;
   }
 
+  public async batchEdit(dto: BatchEditWebsitesDto) {
+    const update: Partial<Host> = {};
+    if (dto.block || dto.block === false) update.blocked = dto.block;
+    if (dto.block) update.blockedAt = Date.now();
+
+    return await this.websiteModel.updateMany(
+      { _id: { $in: dto.websiteIds.map((v) => new Types.ObjectId(v)) } },
+      update,
+    );
+  }
+
   private async buildFilters(filter: WebsiteFilterModel) {
-    throw new NotImplementedException();
+    const finalFilter = {};
+
+    // Filter by host ip
+    if (filter.hosts) {
+      const hostsRegex = filter.hosts
+        .filter((x) => x)
+        .map((x) => x.toLowerCase().trim())
+        .map((x) => escapeStringRegexp(x))
+        .map((x) => new RegExp(`.*${x}.*`));
+
+      if (hostsRegex.length > 0) {
+        const hosts = await this.hostModel.find(
+          { ip: { $in: hostsRegex } },
+          '_id',
+        );
+        if (hosts) finalFilter['host.id'] = { $in: hosts.map((h) => h._id) };
+      }
+    }
+
+    // Filter by domain
+    if (filter.domains) {
+      const domainsRegex = filter.domains
+        .filter((x) => x)
+        .map((x) => x.toLowerCase().trim())
+        .map((x) => escapeStringRegexp(x))
+        .map((x) => new RegExp(`.*${x}.*`));
+
+      if (domainsRegex.length > 0) {
+        const domains = await this.domainModel.find(
+          { name: { $in: domainsRegex } },
+          '_id',
+        );
+        if (domains)
+          finalFilter['domain.id'] = { $in: domains.map((d) => d._id) };
+      }
+    }
+
+    // Filter by port
+    if (filter.ports) {
+      const ports = await this.portModel.find(
+        { port: { $in: filter.ports } },
+        '_id',
+      );
+      if (ports) finalFilter['port.id'] = { $in: ports.map((p) => p._id) };
+    }
+
+    // Filter by project
+    if (filter.project) {
+      const projectIds = filter.project
+        .filter((x) => x)
+        .map((x) => new Types.ObjectId(x));
+
+      if (projectIds.length > 0) {
+        finalFilter['projectId'] = { $in: projectIds };
+      }
+    }
+
+    // Filter by tag
+    if (filter.tags) {
+      const preppedTagsArray = filter.tags
+        .filter((x) => x)
+        .map((x) => x.toLowerCase())
+        .map((x) => new Types.ObjectId(x));
+
+      if (preppedTagsArray.length > 0) {
+        finalFilter['tags'] = {
+          $all: preppedTagsArray.map((t) => new Types.ObjectId(t)),
+        };
+      }
+    }
+
+    // Filter by createdAt
+    if (filter.firstSeenStartDate || filter.firstSeenEndDate) {
+      let createdAtFilter = {};
+
+      if (filter.firstSeenStartDate && filter.firstSeenEndDate) {
+        createdAtFilter = [
+          { createdAt: { $gte: filter.firstSeenStartDate } },
+          { createdAt: { $lte: filter.firstSeenEndDate } },
+        ];
+        finalFilter['$and'] = createdAtFilter;
+      } else {
+        if (filter.firstSeenStartDate)
+          createdAtFilter = { $gte: filter.firstSeenStartDate };
+        else if (filter.firstSeenEndDate)
+          createdAtFilter = { $lte: filter.firstSeenEndDate };
+        finalFilter['createdAt'] = createdAtFilter;
+      }
+    }
+
+    // Filter by blocked
+    if (filter.blocked === false) {
+      finalFilter['$or'] = [
+        { blocked: { $exists: false } },
+        { blocked: { $eq: false } },
+      ];
+    } else if (filter.blocked === true) {
+      finalFilter['blocked'] = { $eq: true };
+    }
+
+    // Filter by merged
+    if (filter.merged === false) {
+      finalFilter['mergedInId'] = { $exists: false };
+    } else if (filter.merged === true) {
+      finalFilter['mergedInId'] = { $exists: true };
+    }
+
+    return finalFilter;
   }
 
   public async keyIsBlocked(correlationKey: string) {
@@ -214,6 +343,40 @@ export class WebsiteService {
       'blocked mergedInId',
     );
     return website && (!!website.mergedInId || website.blocked);
+  }
+
+  public async count(filter: WebsiteFilterModel = null) {
+    if (!filter) {
+      return await this.websiteModel.estimatedDocumentCount();
+    } else {
+      return await this.websiteModel.countDocuments(
+        await this.buildFilters(filter),
+      );
+    }
+  }
+
+  public async tagWebsite(
+    websiteId: string,
+    tagId: string,
+    isTagged: boolean,
+  ): Promise<UpdateResult> {
+    const website = await this.websiteModel.findById(websiteId);
+    if (!website) throw new HttpNotFoundException();
+
+    if (!isTagged) {
+      return await this.websiteModel.updateOne(
+        { _id: { $eq: new Types.ObjectId(websiteId) } },
+        { $pull: { tags: new Types.ObjectId(tagId) } },
+      );
+    } else {
+      if (!(await this.tagsService.tagExists(tagId)))
+        throw new HttpNotFoundException();
+
+      return await this.websiteModel.updateOne(
+        { _id: { $eq: new Types.ObjectId(websiteId) } },
+        { $addToSet: { tags: new Types.ObjectId(tagId) } },
+      );
+    }
   }
 
   /**

@@ -34,12 +34,16 @@ export class WebsiteHandler extends JobFindingHandlerBase<WebsiteCommand> {
   }
 
   protected async executeCore(command: WebsiteCommand) {
+    console.log(command.finding);
     await this.websiteService.addWebsite(
       command.projectId,
       command.finding.ip,
       command.finding.port,
       command.finding.domain,
       command.finding.path,
+      command.finding.ssl || command.finding.ssl === false
+        ? command.finding.ssl
+        : undefined,
     );
   }
 }
