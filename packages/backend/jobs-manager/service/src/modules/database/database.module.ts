@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule, MongooseModuleOptions } from '@nestjs/mongoose';
 import { ConfigModule } from './admin/config/config.module';
 import { AlarmModule } from './alarm/alarm.module';
+import { CustomJobTemplateModule } from './custom-job-templates/custom-job-templates.module';
 import { CustomJobsModule } from './custom-jobs/custom-jobs.module';
 import { JobsModule } from './jobs/jobs.module';
 import { ProjectModule } from './reporting/project.module';
@@ -48,6 +49,7 @@ const mongooseModuleOptions: MongooseModuleOptions =
     CustomJobsModule,
     SecretsModule,
     AlarmModule,
+    CustomJobTemplateModule,
   ],
   exports: [JobsModule],
   providers: [],

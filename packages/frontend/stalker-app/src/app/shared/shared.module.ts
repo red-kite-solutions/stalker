@@ -19,10 +19,12 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatTreeModule } from '@angular/material/tree';
 import { RouterModule } from '@angular/router';
 import { NgxFileDropModule } from 'ngx-file-drop';
 import { AvatarComponent } from './components/avatar/avatar.component';
 import { HeaderComponent } from './components/header/header.component';
+import { PickerDialogComponent } from './components/picker-dialog/picker-dialog.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { HumanizeDatePipe } from './pipes/humanize-date.pipe';
 import { HumanizePipe } from './pipes/humanize.pipe';
@@ -52,6 +54,7 @@ import { TextSelectMenuComponent } from './widget/text-select-menu/text-select-m
     HumanizeDatePipe,
     MemoryUnitsPipe,
     TextSelectMenuComponent,
+    PickerDialogComponent,
   ],
   imports: [
     CommonModule,
@@ -81,6 +84,7 @@ import { TextSelectMenuComponent } from './widget/text-select-menu/text-select-m
     FormsModule,
     TextMenuComponent,
     SpinnerButtonComponent,
+    MatTreeModule,
   ],
   exports: [
     HeaderComponent,
@@ -96,6 +100,7 @@ import { TextSelectMenuComponent } from './widget/text-select-menu/text-select-m
     MemoryUnitsPipe,
     CodeEditorComponent,
     TextSelectMenuComponent,
+    PickerDialogComponent,
   ],
 })
 export class SharedModule {}

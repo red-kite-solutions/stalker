@@ -1,0 +1,7 @@
+name: Hello World
+type: code
+language: python
+parameters: []
+jobPodConfigName: XS
+codeFilePath: code/PythonHelloWorld.py
+templateOrdering: '/python'

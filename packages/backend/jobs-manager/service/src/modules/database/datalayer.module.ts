@@ -3,6 +3,7 @@ import { ConfigModelModule } from './admin/config/config-model.module';
 import { databaseConfigInitProvider } from './admin/config/config.provider';
 import { JobPodConfigModelModule } from './admin/config/job-pod-config/job-pod-config-model.module';
 import { AlarmModelModule } from './alarm/alarm-model.module';
+import { CustomJobTemplateModelModule } from './custom-job-templates/custom-job-templates-model.module';
 import { JobModelModule } from './jobs/job-model.module';
 import { DomainModelModule } from './reporting/domain/domain-model.module';
 import { FindingModelModule } from './reporting/findings/findings-model.module';
@@ -27,6 +28,7 @@ import { TagModelModule } from './tags/tag-model.module';
     CronSubscriptionModelModule,
     SecretsModelModule,
     AlarmModelModule,
+    CustomJobTemplateModelModule,
   ],
   providers: [...databaseConfigInitProvider],
   exports: [
@@ -42,6 +44,7 @@ import { TagModelModule } from './tags/tag-model.module';
     CronSubscriptionModelModule,
     SecretsModelModule,
     AlarmModelModule,
+    CustomJobTemplateModelModule,
   ],
 })
 export class DatalayerModule {}
