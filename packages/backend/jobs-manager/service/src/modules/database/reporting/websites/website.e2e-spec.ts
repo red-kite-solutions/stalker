@@ -9,7 +9,7 @@ import {
   getReq,
   initTesting,
   patchReq,
-  putReq
+  putReq,
 } from '../../../../test/e2e.utils';
 import { AppModule } from '../../../app.module';
 import { Role } from '../../../auth/constants';
@@ -48,8 +48,6 @@ describe('Website Controller (e2e)', () => {
     await app.close();
   });
 
-  describe('Get websites', () => {
- 
   it('Should have proper authorizations (PUT /websites/:id/tags)', async () => {
     const success = await checkAuthorizations(
       testData,
