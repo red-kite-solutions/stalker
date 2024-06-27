@@ -335,10 +335,6 @@ deployments:
             secret:
               secretName: cron-certs
 
-          # - name: root-ca
-          #   secret:
-          #     secretName: root-ca
-
         containers:
           - env:
               - name: MONGO_ADDRESS
@@ -355,29 +351,12 @@ deployments:
                 value: ${STALKER_CRON_API_TOKEN}
               - name: CRON_MONGO_KEY_PASSWORD
                 value: ${CRON_MONGO_KEY_PASSWORD}
-              - name: NODE_EXTRA_CA_CERTS
-                value: /certs/rks-ca.crt
 
             volumeMounts:
               - containerPath: /certs
                 volume:
                   name: certs
                   readOnly: false
-
-              # - containerPath: /usr/local/share/ca-certificates/
-              #   volume:
-              #     name: root-ca
-              #     readOnly: false
-
-            # lifecycle:
-            #   postStart:
-            #     exec:
-            #       command:
-            #         [
-            #           "/bin/sh",
-            #           "-c",
-            #           "update-ca-certificates",
-            #         ]
 
             image: ghcr.io/red-kite-solutions/stalker-cron
             name: cron-container
@@ -391,23 +370,8 @@ deployments:
   ui:
     helm:
       values:
-        volumes:
-          - name: root-ca
-            secret:
-              secretName: root-ca
-
-          - name: certs
-            secret:
-              secretName: app-certs
-
         containers:
           - env:
-
-            # volumeMounts:
-            #   - containerPath: /etc/nginx/certs
-            #     volume:
-            #       name: certs
-            #       readOnly: false
 
             image: ghcr.io/red-kite-solutions/stalker-frontend
             name: ui-container
@@ -421,8 +385,46 @@ deployments:
   ui-prod:
     helm:
       values:
+        volumes:
+          - name: certs
+            secret:
+              defaultMode: 0777
+              secretName: app-certs
+
+          - name: root-ca
+            secret:
+              secretName: root-ca
+
+        initContainers:
+          - name: init-ca
+            image: nginx:alpine
+            command:
+              - sh
+              - -c
+              - |
+                apk update && apk add ca-certificates
+                update-ca-certificates
+
+            volumeMounts:
+              - containerPath: /etc/nginx/certs/
+                volume:
+                  name: certs
+                  readOnly: false
+
+              - containerPath: /usr/local/share/ca-certificates
+                volume:
+                  name: root-ca
+                  readOnly: false
+
         containers:
           - env: []
+
+            volumeMounts:
+              - containerPath: /etc/nginx/certs/
+                volume:
+                  name: certs
+                  readOnly: false
+
             image: ghcr.io/red-kite-solutions/stalker-frontend
             name: ui-container
 
@@ -671,6 +673,7 @@ deployments:
         - packages/backend/cron/service/${CERTIFICATES}
         - packages/backend/jobs-manager/service/${CERTIFICATES}
         - packages/backend/orchestrator/service/${CERTIFICATES}
+        - packages/frontend/stalker-app/${CERTIFICATES}
 
 dev:
   mongo:
