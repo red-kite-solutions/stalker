@@ -27,5 +27,3 @@ obj
 .husky
 **/dist/
 **/build/
-
-**/certificates.yml
