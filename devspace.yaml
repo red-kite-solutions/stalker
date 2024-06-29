@@ -290,6 +290,11 @@ deployments:
   jobs-manager-e2e:
     helm:
       values:
+        volumes:
+          - name: certs
+            secret:
+              secretName: jm-certs
+
         containers:
           - image: jobs-manager-e2e
             name: jobs-manager-container-e2e
@@ -323,6 +328,12 @@ deployments:
                 value: ${JM_KAFKA_KEY_PASSWORD}
               - name: STALKER_VERSION
                 value: ${STALKER_VERSION}
+
+            volumeMounts:
+              - containerPath: /certs
+                volume:
+                  name: certs
+                  readOnly: false
 
         service:
           ports:
