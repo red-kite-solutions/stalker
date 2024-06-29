@@ -88,6 +88,8 @@ pipelines:
       wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 300
       wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 300
 
+      create_deployments certificates
+
       # Run tests
       if [ $(get_flag "watch") == "true" ]; 
       then
