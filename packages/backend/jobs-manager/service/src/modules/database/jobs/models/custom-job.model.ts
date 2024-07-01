@@ -147,7 +147,7 @@ export class CustomJob {
     ) {
       throw new JobParameterValueException(
         'customJobParameters',
-        job.customJobParameters,
+        JSON.stringify(job.customJobParameters),
       );
     }
 

@@ -8,9 +8,10 @@ FROM node:19.6.1-alpine3.16
 COPY --from=build /app/packages/backend/jobs-manager/service/dist /server/dist
 COPY --from=build /app/packages/backend/jobs-manager/service/node_modules /server/node_modules
 
-# API https
+# Built-in content
 COPY --from=build /app/packages/backend/jobs-manager/service/src/modules/database/subscriptions/event-subscriptions/built-in/ /server/dist/src/modules/database/subscriptions/event-subscriptions/built-in/
 COPY --from=build /app/packages/backend/jobs-manager/service/src/modules/database/subscriptions/cron-subscriptions/built-in/ /server/dist/src/modules/database/subscriptions/cron-subscriptions/built-in/
 COPY --from=build /app/packages/backend/jobs-manager/service/src/modules/database/custom-jobs/built-in/ /server/dist/src/modules/database/custom-jobs/built-in/
+COPY --from=build /app/packages/backend/jobs-manager/service/src/modules/database/custom-job-templates/built-in/ /server/dist/src/modules/database/custom-job-templates/built-in/
 
 ENTRYPOINT ["node", "/server/dist/src/main"]

@@ -276,7 +276,7 @@ deployments:
               - containerPath: /certs
                 volume:
                   name: certs
-                  readOnly: false
+                  readOnly: true
 
             image: ghcr.io/red-kite-solutions/stalker-jobs-manager
             name: jobs-manager-container
@@ -333,7 +333,7 @@ deployments:
               - containerPath: /certs
                 volume:
                   name: certs
-                  readOnly: false
+                  readOnly: true
 
         service:
           ports:
@@ -370,7 +370,7 @@ deployments:
               - containerPath: /certs
                 volume:
                   name: certs
-                  readOnly: false
+                  readOnly: true
 
             image: ghcr.io/red-kite-solutions/stalker-cron
             name: cron-container
@@ -423,12 +423,12 @@ deployments:
               - containerPath: /etc/nginx/certs/
                 volume:
                   name: certs
-                  readOnly: false
+                  readOnly: true
 
               - containerPath: /usr/local/share/ca-certificates
                 volume:
                   name: root-ca
-                  readOnly: false
+                  readOnly: true
 
         containers:
           - env: []
@@ -437,7 +437,7 @@ deployments:
               - containerPath: /etc/nginx/certs/
                 volume:
                   name: certs
-                  readOnly: false
+                  readOnly: true
 
             image: ghcr.io/red-kite-solutions/stalker-frontend
             name: ui-container
@@ -647,7 +647,7 @@ deployments:
               - containerPath: /certs
                 volume:
                   name: certs
-                  readOnly: false
+                  readOnly: true
 
             image: ghcr.io/red-kite-solutions/stalker-orchestrator
             name: orchestrator-container

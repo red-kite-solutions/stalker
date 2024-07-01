@@ -4,7 +4,7 @@ import { lstatSync, readdirSync } from 'node:fs';
 import { JobModelUpdateQueue } from '../../job-queue/job-model-update-queue';
 import { DATABASE_INIT } from '../admin/config/config.provider';
 import { JobPodConfiguration } from '../admin/config/job-pod-config/job-pod-config.model';
-import { ALL_FILE_PATHS as ALL_JOB_FILE_PATHS } from './custom-jobs.constants';
+import { ALL_JOB_FILE_PATHS } from './custom-jobs.constants';
 import { CustomJobEntry } from './custom-jobs.model';
 import { CustomJobsUtils } from './custom-jobs.utils';
 
