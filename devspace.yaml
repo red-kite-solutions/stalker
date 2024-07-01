@@ -88,6 +88,8 @@ pipelines:
       wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 300
       wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 300
 
+      create_deployments certificates
+
       # Run tests
       if [ $(get_flag "watch") == "true" ]; 
       then
@@ -119,6 +121,7 @@ pipelines:
       ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks --from-file=kafka.truststore.jks=./queue/kafka.server.truststore.jks.test --from-file=kafka.keystore.jks=./queue/kafka-0.keystore.jks.test -n ${DEVSPACE_NAMESPACE}
       ${DEVSPACE_KUBECTL_EXECUTABLE} delete secret kafka-jks-password --ignore-not-found -n ${DEVSPACE_NAMESPACE}
       ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks-password --from-literal=password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=keystore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=truststore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=key-password=${KAFKA_KEYSTORE_PASSWORD} -n ${DEVSPACE_NAMESPACE}
+      create_deployments certificates
 
       create_deployments mongo kafka orchestrator-service-account orchestrator jobs-manager-e2e --sequential
 
@@ -154,13 +157,13 @@ pipelines:
       wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 300
       wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 300
 
+      create_deployments certificates
       create_deployments jobs-manager orchestrator-service-account orchestrator ui-prod --sequential
 
       # Wait for services before applying network policies
       wait_pod --label-selector app.kubernetes.io/component=ui-prod --timeout 300
       wait_pod --label-selector app.kubernetes.io/component=jobs-manager --timeout 300
       wait_pod --label-selector app.kubernetes.io/component=orchestrator --timeout 300
-
 
       create_deployments network-policies
       create_deployments resource-quotas
@@ -235,6 +238,11 @@ deployments:
   jobs-manager:
     helm:
       values:
+        volumes:
+          - name: certs
+            secret:
+              secretName: jm-certs
+
         containers:
           - env:
               - name: MONGO_ADDRESS
@@ -264,6 +272,12 @@ deployments:
               - name: STALKER_VERSION
                 value: ${STALKER_VERSION}
 
+            volumeMounts:
+              - containerPath: /certs
+                volume:
+                  name: certs
+                  readOnly: true
+
             image: ghcr.io/red-kite-solutions/stalker-jobs-manager
             name: jobs-manager-container
 
@@ -276,6 +290,11 @@ deployments:
   jobs-manager-e2e:
     helm:
       values:
+        volumes:
+          - name: certs
+            secret:
+              secretName: jm-certs
+
         containers:
           - image: jobs-manager-e2e
             name: jobs-manager-container-e2e
@@ -310,6 +329,12 @@ deployments:
               - name: STALKER_VERSION
                 value: ${STALKER_VERSION}
 
+            volumeMounts:
+              - containerPath: /certs
+                volume:
+                  name: certs
+                  readOnly: true
+
         service:
           ports:
             - containerPort: 3000
@@ -323,9 +348,6 @@ deployments:
           - name: certs
             secret:
               secretName: cron-certs
-          - name: ca-certificate
-            secret:
-              secretName: cron-ca-certificate
 
         containers:
           - env:
@@ -343,24 +365,12 @@ deployments:
                 value: ${STALKER_CRON_API_TOKEN}
               - name: CRON_MONGO_KEY_PASSWORD
                 value: ${CRON_MONGO_KEY_PASSWORD}
-              - name: NODE_EXTRA_CA_CERTS
-                value: /certs/rks-ca.crt
 
             volumeMounts:
               - containerPath: /certs
                 volume:
                   name: certs
-                  readOnly: false
-
-              - containerPath: /usr/local/share/ca-certificates/
-                volume:
-                  name: ca-certificate
-                  readOnly: false
-
-            lifecycle:
-              postStart:
-                exec:
-                  command: ["/bin/sh", "-c", "update-ca-certificates"]
+                  readOnly: true
 
             image: ghcr.io/red-kite-solutions/stalker-cron
             name: cron-container
@@ -389,8 +399,46 @@ deployments:
   ui-prod:
     helm:
       values:
+        volumes:
+          - name: certs
+            secret:
+              defaultMode: 0777
+              secretName: app-certs
+
+          - name: root-ca
+            secret:
+              secretName: root-ca
+
+        initContainers:
+          - name: init-ca
+            image: nginx:alpine
+            command:
+              - sh
+              - -c
+              - |
+                apk update && apk add ca-certificates
+                update-ca-certificates
+
+            volumeMounts:
+              - containerPath: /etc/nginx/certs/
+                volume:
+                  name: certs
+                  readOnly: true
+
+              - containerPath: /usr/local/share/ca-certificates
+                volume:
+                  name: root-ca
+                  readOnly: true
+
         containers:
           - env: []
+
+            volumeMounts:
+              - containerPath: /etc/nginx/certs/
+                volume:
+                  name: certs
+                  readOnly: true
+
             image: ghcr.io/red-kite-solutions/stalker-frontend
             name: ui-container
 
@@ -580,6 +628,11 @@ deployments:
   orchestrator:
     helm:
       values:
+        volumes:
+          - name: certs
+            secret:
+              secretName: orchestrator-certs
+
         serviceAccountName: orchestrator-service-account
         containers:
           - env:
@@ -589,6 +642,12 @@ deployments:
                 value: ${SECRET_PRIVATE_RSA_KEY}
               - name: ORCHESTRATOR_KAFKA_KEY_PASSWORD
                 value: ${ORCHESTRATOR_KAFKA_KEY_PASSWORD}
+
+            volumeMounts:
+              - containerPath: /certs
+                volume:
+                  name: certs
+                  readOnly: true
 
             image: ghcr.io/red-kite-solutions/stalker-orchestrator
             name: orchestrator-container
@@ -624,7 +683,11 @@ deployments:
   certificates:
     kubectl:
       manifests:
+        - root-ca.yml
         - packages/backend/cron/service/${CERTIFICATES}
+        - packages/backend/jobs-manager/service/${CERTIFICATES}
+        - packages/backend/orchestrator/service/${CERTIFICATES}
+        - packages/frontend/stalker-app/${CERTIFICATES}
 
 dev:
   mongo:

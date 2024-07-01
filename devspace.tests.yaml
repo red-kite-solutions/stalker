@@ -3,3 +3,4 @@ name: stalker-vars-dev
 
 vars:
   DOCKERFILE_NAME: Dockerfile.cicd
+  CERTIFICATES: "certificates.test.yml"

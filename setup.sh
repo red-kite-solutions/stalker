@@ -211,6 +211,7 @@ openssl req -config ./root_ca.cnf -key ./root_ca.key -new -x509 -days 7300 -sha2
 bash ./setup_ssl.sh $STALKER_HOSTNAME
 bash ./setup_mongo.sh
 bash ./setup_kafka.sh
+bash ./setup_secrets.sh
 
 rm root_ca.cnf
 rm index.txt*

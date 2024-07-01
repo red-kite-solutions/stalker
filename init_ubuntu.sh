@@ -1,5 +1,6 @@
 #!/usr/bin/bash 
 
+export NEEDRESTART_MODE=a
 STALKER_REPO="https://github.com/red-kite-solutions/stalker"
 DOCKER_USER=$USER
 DOCKER_USER_HOME=${HOME}
