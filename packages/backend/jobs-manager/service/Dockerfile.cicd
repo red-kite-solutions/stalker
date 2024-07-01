@@ -1,18 +1,6 @@
-FROM stalker-base:latest
+FROM ghcr.io/red-kite-solutions/stalker-base:latest
 
 WORKDIR /app
-
-RUN mkdir -p /certs/
-
-# Mongo certs
-COPY packages/backend/jobs-manager/service/ca.pem.test /certs/ca.pem
-COPY packages/backend/jobs-manager/service/client-signed.crt.test /certs/client-signed.crt
-COPY packages/backend/jobs-manager/service/client.key.test /certs/client.key
-
-# Kafka certs
-COPY packages/backend/jobs-manager/service/kafka-ca.crt.test /certs/kafka-ca.crt
-COPY packages/backend/jobs-manager/service/kafka-client-signed.crt.test /certs/kafka-client-signed.crt
-COPY packages/backend/jobs-manager/service/kafka-client.key.test /certs/kafka-client.key
 
 RUN yarn workspace @red-kite/jobs-manager build
 

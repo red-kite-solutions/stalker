@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: jm-certs
+data:
+  ca.pem: ${CA_PEM}
+  client-signed.crt: ${CLIENT_SIGNED_CRT}
+  client.key: ${CLIENT_KEY}
+  kafka-ca.crt: ${KAFKA_CA_CRT}
+  kafka-client-signed.crt: ${KAFKA_CLIENT_SIGNED_CRT}
+  kafka-client.key: ${KAFKA_CLIENT_KEY}
+  ssl-private.key: ${SSL_PRIVATE_KEY}
+  ssl-certificate-chain.pem: ${SSL_CERTIFICATE_CHAIN_PEM}

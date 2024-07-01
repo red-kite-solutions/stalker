@@ -1,9 +1,9 @@
-name: Jobs Manager / Release
+name: Python Job Base / Release
 
 on:
   push:
     tags:
-      - jobs-manager/v*
+      - python-job-base/v*
 
 permissions:
   packages: write
@@ -23,7 +23,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Login to Docker Hub
+      - name: Login to GHCR
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
@@ -34,7 +34,7 @@ jobs:
         uses: actions/github-script@v6
         id: version
         with:
-          script: return context.ref.substr('refs/tags/jobs-manager/'.length)
+          script: return context.ref.substr('refs/tags/python-job-base/'.length)
           result-encoding: string
 
       - name: Docker meta
@@ -42,7 +42,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ghcr.io/red-kite-solutions/stalker-jobs-manager
+            ghcr.io/red-kite-solutions/stalker-python-job-base
           tags: |
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
             type=semver,pattern={{version}},value=${{steps.version.outputs.result}}
@@ -54,8 +54,8 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          context: ./
-          file: ./packages/backend/jobs-manager/service/Dockerfile
+          context: ./jobs/job-base-images/python
+          file: ./jobs/job-base-images/python/Dockerfile
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
