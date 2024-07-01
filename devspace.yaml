@@ -276,7 +276,7 @@ deployments:
               - containerPath: /certs
                 volume:
                   name: certs
-                  readOnly: false
+                  readOnly: true
 
             image: ghcr.io/red-kite-solutions/stalker-jobs-manager
             name: jobs-manager-container
