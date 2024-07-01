@@ -437,7 +437,7 @@ deployments:
               - containerPath: /etc/nginx/certs/
                 volume:
                   name: certs
-                  readOnly: false
+                  readOnly: true
 
             image: ghcr.io/red-kite-solutions/stalker-frontend
             name: ui-container
