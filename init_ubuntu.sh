@@ -6,8 +6,8 @@ STALKER_REPO="https://github.com/red-kite-solutions/stalker"
 DOCKER_USER=$USER
 DOCKER_USER_HOME=${HOME}
 
-sudo apt update >/dev/null
-sudo apt install -y ca-certificates curl gnupg npm git openssl default-jdk >/dev/null
+sudo apt-get update >/dev/null
+sudo apt-get install -y ca-certificates curl gnupg npm git openssl default-jdk >/dev/null
 echo "Installed necessities"
 
 # Setup keyring
@@ -22,8 +22,8 @@ echo \
   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
 # Install docker
-sudo apt update >/dev/null
-sudo apt -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin >/dev/null
+sudo apt-get update >/dev/null
+sudo apt-get -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin >/dev/null
 echo "Installed docker"
 
 # Install minikube & kubectl
