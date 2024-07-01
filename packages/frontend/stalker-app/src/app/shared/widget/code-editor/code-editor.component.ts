@@ -9,7 +9,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { Subscription, first } from 'rxjs';
+import { Subject, Subscription, first } from 'rxjs';
 import { CodeEditorService } from './code-editor.service';
 import { FileTab } from './code-editor.type';
 import { MonacoModel } from './monaco.type';
@@ -43,8 +43,10 @@ export class CodeEditorComponent implements AfterContentInit, OnDestroy {
   private tabIdPathMapping: Map<string, string> = new Map<string, string>();
   private pathTabIdMapping: Map<string, string> = new Map<string, string>();
   public _currentFileTabIndex: number = 0;
+  public onInitFinished$: Subject<boolean> = new Subject<boolean>();
 
   private loadSub: Subscription | undefined;
+  private initSub: Subscription | undefined;
 
   @Input()
   public fileTabsEnabled: boolean = false;
@@ -272,6 +274,8 @@ export class CodeEditorComponent implements AfterContentInit, OnDestroy {
     });
 
     if (containerElement) this._divResizeObserver.observe(containerElement);
+
+    this.onInitFinished$.next(true);
   }
 
   ngAfterContentInit(): void {
@@ -280,6 +284,8 @@ export class CodeEditorComponent implements AfterContentInit, OnDestroy {
 
   ngOnDestroy(): void {
     if (this.loadSub) this.loadSub.unsubscribe();
+    if (this.onInitFinished$) this.onInitFinished$.unsubscribe();
+    if (this.initSub) this.initSub.unsubscribe();
 
     this.deleteAllFileTabs();
 
@@ -377,6 +383,15 @@ export class CodeEditorComponent implements AfterContentInit, OnDestroy {
   }
 
   public resetEditorFileTabs(fileTabs: FileTab[], fileTabFocusIndex: number = 0) {
+    if (!this.codeEditorService.loaded || !this._editor) {
+      this.initSub = this.onInitFinished$.subscribe((initialised) => {
+        if (initialised) {
+          this.resetEditorFileTabs(fileTabs, fileTabFocusIndex);
+        }
+      });
+      return;
+    }
+
     if (new Set(fileTabs.map((x) => x.id)).size != fileTabs.length) {
       throw new Error('Duplicate tab identifiers found.');
     }
