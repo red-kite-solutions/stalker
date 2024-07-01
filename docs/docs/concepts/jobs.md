@@ -6,12 +6,6 @@ description: What are jobs and how to use them
 
 # Jobs
 
-* [Built-in jobs](#built-in-jobs)
-  * [DomainNameResolvingJob](#domainnameresolvingjob)
-  * [TcpPortScanningJob](#tcpportscanningjob)
-  * [TcpIpRangeScanningJob](#tcpiprangescanningjob)
-  * [HttpServerCheckJob](#httpservercheckjob)
-
 A job is the way for Stalker to find new information. It is started by Stalker and runs in a contained environment. Different jobs will
 generate different findings. It is possible to reference a Finding's output variable as a job parameter. A job parameter is one of a job's
 input variables.
@@ -26,12 +20,12 @@ The built-in jobs come with a fresh Stalker installation. They can be fully modi
 hand-in-hand with the built-in subscriptions. Keep in mind that altering a built-in job's name may break a built-in subscription. That
 subscription would need to be adapted to the new name.
 
-| Name                                              | Description                                         |
-| ------------------------------------------------- | --------------------------------------------------- |
-| [DomainNameResolvingJob](#domainnameresolvingjob) | Resolves a domain name to an IP address             |
-| [TcpPortScanningJob](#tcpportscanningjob)         | Scans the tcp ports of an IP address                |
-| [TcpIpRangeScanningJob](#tcpiprangescanningjob)   | Scan an IP range for open ports                     |
-| [HttpServerCheckJob](#httpservercheckjob)         | Checks if a port is running an HTTP or HTTPS server |
+| Name                                              | Description                              |
+| ------------------------------------------------- | ---------------------------------------- |
+| [DomainNameResolvingJob](#domainnameresolvingjob) | Resolves a domain name to an IP address  |
+| [TcpPortScanningJob](#tcpportscanningjob)         | Scans the tcp ports of an IP address     |
+| [TcpIpRangeScanningJob](#tcpiprangescanningjob)   | Scan an IP range for open ports          |
+| [BannerGrabbingJob](#httpservercheckjob)          | Identifies the service running on a port |
 
 ### DomainNameResolvingJob
 
@@ -86,17 +80,20 @@ Scans an IP range (ex: `1.2.3.4/24`) for open ports. It discovers hosts that way
 - HostFinding
 - PortFinding
 
-### HttpServerCheckJob
+### BannerGrabbingJob
 
-Checks if a host's port runs an HTTP server.
+Identifies the service running on a port and grabs the banner. It may occasionally find which OS the host is running on and sometimes other domain names as well.
 
 **Input variables:**
 
-| Variable Name | Type     | Value description                   |
-| ------------- | -------- | ----------------------------------- |
-| targetIp      | string   | The IP address to check             |
-| ports         | number[] | The ports to check for HTTP servers |
+| Variable Name | Type     | Value description                                  |
+| ------------- | -------- | -------------------------------------------------- |
+| targetIp      | string   | The IP address to check                            |
+| ports         | number[] | The ports to check for a service                   |
+| nmapOptions   |          | A long string containing the options given to nmap |
 
 **Possible findings generated :**
 
-- HttpServerCheck
+- PortServiceFinding
+- HostnameIpFinding
+- OperatingSystemFinding

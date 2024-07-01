@@ -6,17 +6,6 @@ description: What are subscriptions and how to use them
 
 # Subscriptions
 
-* [Cron Subscriptions](#cron-subscriptions)
-  * [Cron Subscription Syntax](#cron-subscription-syntax)
-    * [Cron Subscription Simple Example](#cron-subscription-simple-example)
-    * [Input variable](#input-variable)
-* [Event Subscriptions](#event-subscriptions)
-  * [Event Subscription Syntax](#event-subscription-syntax)
-    * [Event Subscription Simple Example](#event-subscription-simple-example)
-    * [Event Subscription Complex Example](#event-subscription-complex-example)
-  * [Findings](#findings)
-  * [Conditions](#conditions)
-
 Subscriptions are used in Stalker to start jobs based on either a cron expression (cron subscriptions) or a finding (event subscription).
 They are used to expand Stalker's automation workflow.
 
@@ -226,11 +215,20 @@ An event subscription can contain these main elements :
   - `operator` : The operator to compare the two operands.
   - `rhs` : The right-hand side operand.
 
-> You can reference a Finding's output variable by name in a Job parameter's value or in a condition's operand using the following syntax:
-> `${parameterName}`. The variable name is case insensitive.
 
-> You can inject a secret as a parameter value with the `${secrets.secretName}` syntax. You can
-> [learn more about secrets here](/docs/concepts/secrets).
+
+
+
+#### Event Subscription Dynamic Input
+
+You can add dynamic input to an event subscription either by referencing a finding's fields, or by injecting a secret.
+
+You can reference a Finding's output variable by name in a Job parameter's value or in a condition's operand using the following syntax: 
+`${parameterName}`. The variable name is case insensitive. 
+
+In a finding, you can find [dynamic fields](/docs/concepts/findings#dynamic-fields) in the `fields` array. The text based dynamic fields' values can be injected in the same way as a regular field, with the `${parameterName}` syntax. Simply reference the `key` part of a dynamic field as the variable name, and its `data` will be injected.
+
+You can also inject a secret as a parameter value with the `${secrets.secretName}` syntax. You can [learn more about secrets here](/docs/concepts/secrets).
 
 #### Event Subscription Simple Example
 

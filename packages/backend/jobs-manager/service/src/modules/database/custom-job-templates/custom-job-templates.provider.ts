@@ -38,7 +38,6 @@ export const jobTemplatesInitProvider = [
               jpcModel,
             );
 
-            console.log(JSON.stringify(j));
             if (!j) continue;
             await templateModel.findOneAndUpdate(
               { builtInFilePath: j.builtInFilePath },
