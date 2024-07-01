@@ -423,12 +423,12 @@ deployments:
               - containerPath: /etc/nginx/certs/
                 volume:
                   name: certs
-                  readOnly: false
+                  readOnly: true
 
               - containerPath: /usr/local/share/ca-certificates
                 volume:
                   name: root-ca
-                  readOnly: false
+                  readOnly: true
 
         containers:
           - env: []
