@@ -333,7 +333,7 @@ deployments:
               - containerPath: /certs
                 volume:
                   name: certs
-                  readOnly: false
+                  readOnly: true
 
         service:
           ports:
