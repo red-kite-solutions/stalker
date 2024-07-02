@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import {
   TestingData,
   checkAuthorizations,
+  checkAuthorizationsCronApiKey,
   createProject,
   deleteReq,
   getReq,
@@ -105,6 +106,10 @@ describe('Job Controller (e2e)', () => {
     expect(r.statusCode).toBe(HttpStatus.OK);
   });
 
+  // ####################################
+  // ########## Authorizations ##########
+  // ####################################
+
   it('Should have proper authorizations (GET /jobs)', async () => {
     const success = await checkAuthorizations(
       testData,
@@ -150,6 +155,23 @@ describe('Job Controller (e2e)', () => {
           app,
           givenToken,
           `/jobs/6271641f2c0920007820b5f2`,
+        );
+      },
+    );
+    expect(success).toBe(true);
+  });
+
+  it('Should have proper authorizations (POST /jobs/cleanup)', async () => {
+    const success = await checkAuthorizationsCronApiKey(
+      testData,
+      async (givenToken: string, headers, authenticate) => {
+        return await postReq(
+          app,
+          givenToken,
+          `/jobs/cleanup`,
+          undefined,
+          headers,
+          authenticate,
         );
       },
     );

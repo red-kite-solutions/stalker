@@ -1,4 +1,4 @@
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import {
   TestingData,
@@ -28,6 +28,12 @@ describe('Domain Controller (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+      }),
+    );
     await app.init();
     testData = await initTesting(app);
     projectId = (
@@ -103,7 +109,7 @@ describe('Domain Controller (e2e)', () => {
     const r = await getReq(
       app,
       testData.admin.token,
-      '/domains?page=0&pageSize=10tags[]=&domain[]=&project=',
+      '/domains?page=0&pageSize=10&tags[]=&domain[]=&project=',
     );
 
     // Assert

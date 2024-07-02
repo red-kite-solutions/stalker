@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { AlarmModule } from './alarm/alarm.module';
 import { CronSubscriptionsModule } from './subscriptions/cron-subscriptions/cron-subscriptions.module';
 
 @Module({
@@ -17,6 +18,7 @@ import { CronSubscriptionsModule } from './subscriptions/cron-subscriptions/cron
       tlsCertificateKeyFilePassword: process.env.CRON_MONGO_KEY_PASSWORD,
     }),
     CronSubscriptionsModule,
+    AlarmModule,
   ],
   exports: [],
 })

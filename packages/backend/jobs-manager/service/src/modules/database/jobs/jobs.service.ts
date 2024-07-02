@@ -12,6 +12,7 @@ import {
 import { ProjectUnassigned } from '../../../validators/is-project-id.validator';
 import { JM_ENVIRONMENTS } from '../../app.constants';
 import { JobQueue } from '../../job-queue/job-queue';
+import { ConfigService } from '../admin/config/config.service';
 import { Project } from '../reporting/project.model';
 import { JobExecutionsDto } from './jobs.dto';
 import { CustomJob } from './models/custom-job.model';
@@ -20,6 +21,7 @@ import { Job, JobDocument } from './models/jobs.model';
 @Injectable()
 export class JobsService {
   constructor(
+    private configService: ConfigService,
     private jobQueue: JobQueue,
     @InjectModel('job') private readonly jobModel: Model<Job & Document>,
     @InjectModel('project') private readonly projectModel: Model<Project>,
@@ -208,5 +210,18 @@ export class JobsService {
           .sort((a, b) => a.timestamp - b.timestamp) ?? [],
       totalRecords: job.output?.length ?? 0,
     };
+  }
+
+  /**
+   * Deletes all the job runs older than `config.jobRunRetentionTimeSeconds`.
+   */
+  public async cleanup(): Promise<void> {
+    const config = await this.configService.getConfig();
+    const ttlMilliseconds = config.jobRunRetentionTimeSeconds * 1000;
+    const now = Date.now();
+    const oldestValidCreationDate = now - ttlMilliseconds;
+    await this.jobModel.deleteMany({
+      $or: [{ createdAt: { $lte: oldestValidCreationDate } }],
+    });
   }
 }

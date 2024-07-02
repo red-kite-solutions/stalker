@@ -7,7 +7,7 @@ COPY stalker_job_sdk /usr/src/stalker_job_sdk
 
 RUN python -m pip install -e /usr/src/stalker_job_sdk \
   && apt-get update \
-  && apt-get install -y git make gcc libpcap0.8 \
+  && apt-get install -y nmap git make gcc libpcap0.8 \
   && mkdir -p /tools/masscan/ \
   && git clone https://github.com/robertdavidgraham/masscan /tools/masscan/ \
   && cd /tools/masscan/ \

@@ -20,6 +20,7 @@ import { Page } from '../../../types/page.type';
 import { ProjectUnassigned } from '../../../validators/is-project-id.validator';
 import { Role } from '../../auth/constants';
 import { Roles } from '../../auth/decorators/roles.decorator';
+import { CronApiTokenGuard } from '../../auth/guards/cron-api-token.guard';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/role.guard';
 import { ConfigService } from '../admin/config/config.service';
@@ -133,6 +134,12 @@ export class JobsController {
   @Delete()
   async deleteAllJobs() {
     return await this.jobsService.deleteAll();
+  }
+
+  @UseGuards(CronApiTokenGuard)
+  @Post('cleanup')
+  async cleanup() {
+    await this.jobsService.cleanup();
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

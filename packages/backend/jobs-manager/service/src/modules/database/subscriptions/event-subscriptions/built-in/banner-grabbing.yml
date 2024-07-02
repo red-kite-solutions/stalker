@@ -1,14 +1,17 @@
-name: Http(s) server port check
+name: Banner grabbing
 finding: PortFinding
 cooldown: 82800
+builtIn: true
 job:
-  name: HttpServerCheckJob
+  name: BannerGrabbingJob
   parameters:
     - name: targetIp
       value: ${ip}
     - name: ports
       value:
         - ${port}
+    - name: nmapOptions
+      value: -oX output.xml -sV --open -Pn --max-rtt-timeout 3 --version-intensity 9
 conditions:
   - lhs: ${protocol}
     operator: equals

@@ -16,4 +16,5 @@ export interface Port extends PortNumber {
   updatedAt: number;
   blocked: boolean;
   blockedAt: number;
+  service: string;
 }

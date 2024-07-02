@@ -21,10 +21,4 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
-# Kafka certs
-RUN mkdir -p /certs/
-COPY --from=build /app/packages/backend/orchestrator/service/kafka-ca.crt /certs/
-COPY --from=build /app/packages/backend/orchestrator/service/kafka-client-signed.crt /certs/
-COPY --from=build /app/packages/backend/orchestrator/service/kafka-client.key /certs/
-
 ENTRYPOINT ["dotnet", "Orchestrator.dll"]

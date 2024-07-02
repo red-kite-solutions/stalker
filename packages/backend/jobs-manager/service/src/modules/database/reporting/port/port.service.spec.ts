@@ -101,7 +101,60 @@ describe('Port Service', () => {
       expect(p2.host.id.toString()).toStrictEqual(h[0]._id.toString());
     });
 
-    it('Should fail adding the same port to the same host', async () => {
+    it('Should add ports with a service to a host IP', async () => {
+      // Arrange
+      const hostIp = '1.1.1.1';
+      const service = 'ssh';
+      const c = await project();
+      const h = await host(hostIp, c._id.toString());
+
+      // Act
+      const p1 = await portService.addPortByIp(
+        hostIp,
+        c._id.toString(),
+        22,
+        'tcp',
+        service,
+      );
+
+      // Assert
+      expect(p1._id).toBeTruthy();
+      expect(p1.port).toStrictEqual(22);
+      expect(p1.host.id.toString()).toStrictEqual(h[0]._id.toString());
+      expect(p1.service).toStrictEqual(service);
+    });
+
+    it('Should add the service to an existing port', async () => {
+      // Arrange
+      const hostIp = '1.1.1.1';
+      const service = 'ssh';
+      const c = await project();
+      const h = await host(hostIp, c._id.toString());
+
+      // Act
+      let p1 = await portService.addPortByIp(
+        hostIp,
+        c._id.toString(),
+        22,
+        'tcp',
+      );
+
+      p1 = await portService.addPortByIp(
+        hostIp,
+        c._id.toString(),
+        22,
+        'tcp',
+        service,
+      );
+
+      // Assert
+      expect(p1._id).toBeTruthy();
+      expect(p1.port).toStrictEqual(22);
+      expect(p1.host.id.toString()).toStrictEqual(h[0]._id.toString());
+      expect(p1.service).toStrictEqual(service);
+    });
+
+    it('Should update a port that already exists instead of creating it', async () => {
       // Arrange
       const c = await project();
       const h = await host('1.1.1.1', c._id.toString());
@@ -121,7 +174,7 @@ describe('Port Service', () => {
 
       // Assert
       expect(p1).toBeTruthy();
-      expect(p2).toStrictEqual(null);
+      expect(p2._id.toString()).toStrictEqual(p1._id.toString());
     });
 
     it('Should add the same port to a different host', async () => {
