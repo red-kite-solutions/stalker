@@ -57,9 +57,10 @@ export class WebsiteFinding extends FindingBase {
   key: 'WebsiteFinding';
   ip: string;
   port: number;
-  domain: string = '';
+  domainName: string = '';
   path: string = '/';
   ssl?: boolean;
+  protocol: 'tcp' = 'tcp';
 }
 
 export class CreateCustomFinding extends FindingBase {
@@ -70,6 +71,7 @@ export class CreateCustomFinding extends FindingBase {
   port?: number;
   protocol?: 'tcp' | 'udp';
   name: string;
+  path?: string;
 }
 
 export class JobStatusFinding extends FindingBase {
@@ -191,6 +193,8 @@ export class FindingsService {
       dto.ip,
       dto.port,
       dto.protocol,
+      null,
+      dto.path,
     );
 
     const finding: CustomFinding = {
@@ -358,12 +362,12 @@ export class FindingsService {
         case 'WebsiteFinding':
           finding.correlationKey = CorrelationKeyUtils.generateCorrelationKey(
             projectId,
-            finding.domain,
+            finding.domainName ?? '',
             finding.ip,
             finding.port,
             'tcp',
             null,
-            finding.path,
+            finding.path ?? '/',
           );
           this.commandBus.execute(
             new WebsiteCommand(jobId, projectId, WebsiteCommand.name, finding),
@@ -377,6 +381,8 @@ export class FindingsService {
             finding.ip,
             finding.port,
             finding.protocol,
+            null,
+            finding.path,
           );
           this.commandBus.execute(
             new CustomFindingCommand(

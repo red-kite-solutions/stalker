@@ -20,7 +20,7 @@
 
   <div class="content-wrapper">
     <div class="content">
-      <findings-list [correlationKey]="(website$ | async)?.correlationKey"></findings-list>
+      <findings-list [correlationKey]="wsite.correlationKey"></findings-list>
     </div>
     <div #contextPanel class="context">
       @if (wsite.blocked) {

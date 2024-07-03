@@ -113,7 +113,7 @@ def emit_file_finding(file: WebsiteFile, domain: str, ip: str, port: int, path: 
 
     log_finding(
         WebsiteFinding(
-            "WebsitePath", ip, port, domain, path, ssl, f"Website path", fields
+            "WebsitePathFinding", ip, port, domain, path, ssl, f"Website path", fields
         )
     )
 
@@ -121,7 +121,7 @@ def emit_technology_findings(technologies: 'list[str]', domain: str, ip: str, po
     for tech in technologies:
         log_finding(
             WebsiteFinding(
-                "WebsiteTechnology", ip, port, domain, path, ssl, f"Website path", [TextField("technology", "Technology", tech)]
+                "WebsiteTechnologyFinding", ip, port, domain, path, ssl, f"Technology", [TextField("technology", "Technology", tech)]
             )
         )
 
@@ -141,7 +141,7 @@ def main():
 
     # katana -u https://example.com -silent -d 3 -ct 3600 -jc -kf all -timeout 3 -duc -j -or -ob -c 10 -p 10
     technologies: 'set[str]' = set()
-    with Popen(katana_str, stdout=PIPE, universal_newlines=True, shell=True) as katana_process:
+    with Popen(katana_str, stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True) as katana_process:
         
         for line in katana_process.stdout:
             file = ''
@@ -158,6 +158,9 @@ def main():
             except Exception as err:
                 log_warning(err)
                 continue
+
+        for line in katana_process.stderr:
+            log_error(line)
             
     emit_technology_findings(technologies, domain, target_ip, port, path, ssl)
 

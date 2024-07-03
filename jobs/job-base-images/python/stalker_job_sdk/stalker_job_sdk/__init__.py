@@ -80,7 +80,7 @@ class WebsiteFinding(Finding):
         key: str,
         ip: str,
         port: int,
-        domain: str,
+        domainName: str,
         path: str,
         ssl: bool = None,
         name: str = None,
@@ -90,7 +90,8 @@ class WebsiteFinding(Finding):
         super().__init__(key, type, name, fields)
         self.ip = ip
         self.port = port
-        self.domain = domain
+        self.domainName = domainName
+        self.protocol = 'tcp'
         self.path = path
         self.ssl = ssl
 
