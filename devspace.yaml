@@ -106,7 +106,7 @@ pipelines:
   purge:
     run: |-
       stop_dev --all
-      purge_deployments mongo ui jobs-manager jobs-manager kafka orchestrator-service-account orchestrator cron ui-prod --sequential
+      purge_deployments mongo ui jobs-manager jobs-manager kafka orchestrator-service-account orchestrator cron --sequential
 
   build-e2e:
     run: |-
@@ -152,17 +152,17 @@ pipelines:
       create_deployments mongo kafka --sequential
 
       # Start mongo and kafka
-      start_dev mongo-prod kafka
+      start_dev mongo kafka
 
       # Wait for kafka and mongo to be ready
       wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 300
       wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 300
 
       create_deployments certificates
-      create_deployments jobs-manager orchestrator-service-account orchestrator ui-prod --sequential
+      create_deployments jobs-manager orchestrator-service-account orchestrator ui --sequential
 
       # Wait for services before applying network policies
-      wait_pod --label-selector app.kubernetes.io/component=ui-prod --timeout 300
+      wait_pod --label-selector app.kubernetes.io/component=ui --timeout 300
       wait_pod --label-selector app.kubernetes.io/component=jobs-manager --timeout 300
       wait_pod --label-selector app.kubernetes.io/component=orchestrator --timeout 300
 
@@ -170,13 +170,13 @@ pipelines:
       create_deployments resource-quotas
 
       # Start microservices + ui
-      start_dev orchestrator-prod jobs-manager-prod ui-prod
+      start_dev orchestrator jobs-manager ui
 
       create_deployments cron
 
       wait_pod --label-selector app.kubernetes.io/component=cron --timeout 300
 
-      start_dev cron-prod
+      start_dev cron
 
 images:
   stalker-base:
@@ -335,58 +335,6 @@ deployments:
           ports:
             - containerPort: 4200
               port: 4200
-              protocol: TCP
-
-  ui-prod:
-    helm:
-      values:
-        volumes:
-          - name: certs
-            secret:
-              defaultMode: 0777
-              secretName: app-certs
-
-          - name: root-ca
-            secret:
-              secretName: root-ca
-
-        initContainers:
-          - name: init-ca
-            image: nginx:alpine
-            command:
-              - sh
-              - -c
-              - |
-                apk update && apk add ca-certificates
-                update-ca-certificates
-
-            volumeMounts:
-              - containerPath: /etc/nginx/certs/
-                volume:
-                  name: certs
-                  readOnly: true
-
-              - containerPath: /usr/local/share/ca-certificates
-                volume:
-                  name: root-ca
-                  readOnly: true
-
-        containers:
-          - env: []
-
-            volumeMounts:
-              - containerPath: /etc/nginx/certs/
-                volume:
-                  name: certs
-                  readOnly: true
-
-            image: ghcr.io/red-kite-solutions/stalker-frontend
-            name: ui-container
-
-        service:
-          ports:
-            - containerPort: 443
-              port: ${STALKER_PORT}
               protocol: TCP
 
   mongo: # volumes location: /var/lib/docker/volumes/minikube/_data/hostpath-provisioner/stalker/
@@ -644,10 +592,6 @@ dev:
     ports:
       - port: "27017"
 
-  mongo-prod:
-    labelSelector:
-      app.kubernetes.io/component: mongodb
-
   kafka:
     labelSelector:
       app.kubernetes.io/instance: kafka
@@ -675,19 +619,6 @@ dev:
     ports:
       - port: "3000"
 
-  jobs-manager-prod:
-    labelSelector:
-      app.kubernetes.io/component: jobs-manager
-    container: jobs-manager-container
-    logs:
-      enabled: true
-    restartHelper:
-      inject: false
-    resources:
-      limits:
-        memory: 2Gi
-        cpu: 1
-
   cron:
     labelSelector:
       app.kubernetes.io/component: cron
@@ -711,13 +642,6 @@ dev:
     ports:
       - port: "3001:3000"
 
-  cron-prod:
-    labelSelector:
-      app.kubernetes.io/component: cron
-    container: cron-container
-    restartHelper:
-      inject: false
-
   ui:
     labelSelector:
       app.kubernetes.io/component: ui
@@ -738,19 +662,6 @@ dev:
       inject: false
     ports:
       - port: "4200"
-
-  ui-prod:
-    labelSelector:
-      app.kubernetes.io/component: ui-prod
-    container: ui-container
-    restartHelper:
-      inject: false
-    ports:
-      - port: "${STALKER_PORT}:443"
-        bindAddress: ${STALKER_BIND_ADDRESS}
-    resources:
-      limits:
-        memory: 1Gi
 
   orchestrator:
     labelSelector:
@@ -774,13 +685,6 @@ dev:
       inject: false
     ports:
       - port: "5135:80"
-
-  orchestrator-prod:
-    labelSelector:
-      app.kubernetes.io/component: orchestrator
-    container: orchestrator-container
-    restartHelper:
-      inject: false
 
 hooks:
   - events:
@@ -824,16 +728,6 @@ hooks:
       containerName: ui-container
 
   - events:
-      - after:deploy:ui-prod
-    wait:
-      running: true
-      terminatedWithCode: 0
-    container:
-      labelSelector:
-        app.kubernetes.io/component: ui-prod
-      containerName: ui-container
-
-  - events:
       - after:deploy:orchestrator
     wait:
       running: true
@@ -860,5 +754,104 @@ profiles:
         path: dev.jobs-manager.ports
         value:
           - port: "9229"
+
       - op: remove
         path: dev.jobs-manager.sync
+
+  - name: prod
+    patches:
+      # Orchestrator modifications
+      - op: remove
+        path: dev.orchestrator.sync
+
+      - op: remove
+        path: dev.orchestrator.ports
+
+      # Mongo modifications
+      - op: remove
+        path: dev.mongodb.ports
+
+      # Cron modifications
+      - op: remove
+        path: dev.cron.sync
+
+      - op: remove
+        path: dev.cron.ports
+
+      # Jobs Manager modifications
+      - op: remove
+        path: dev.jobs-manager.ports
+
+      - op: replace
+        path: dev.jobs-manager.resources
+        value:
+          limits:
+            memory: 1Gi
+
+      # UI modifications
+      - op: replace
+        path: dev.ui.ports
+        value:
+          - port: "${STALKER_PORT}:443"
+            bindAddress: ${STALKER_BIND_ADDRESS}
+
+      - op: replace
+        path: dev.ui.resources
+        value:
+          limits:
+            memory: 2Gi
+            cpu: 1
+
+      - op: replace
+        path: deployments.ui
+        value:
+          helm:
+            values:
+              volumes:
+                - name: certs
+                  secret:
+                    defaultMode: 0777
+                    secretName: app-certs
+
+                - name: root-ca
+                  secret:
+                    secretName: root-ca
+
+              initContainers:
+                - name: init-ca
+                  image: nginx:alpine
+                  command:
+                    - sh
+                    - -c
+                    - |
+                      apk update && apk add ca-certificates
+                      update-ca-certificates
+
+                  volumeMounts:
+                    - containerPath: /etc/nginx/certs/
+                      volume:
+                        name: certs
+                        readOnly: true
+
+                    - containerPath: /usr/local/share/ca-certificates
+                      volume:
+                        name: root-ca
+                        readOnly: true
+
+              containers:
+                - env: []
+
+                  volumeMounts:
+                    - containerPath: /etc/nginx/certs/
+                      volume:
+                        name: certs
+                        readOnly: true
+
+                  image: ghcr.io/red-kite-solutions/stalker-frontend
+                  name: ui-container
+
+              service:
+                ports:
+                  - containerPort: 443
+                    port: ${STALKER_PORT}
+                    protocol: TCP
