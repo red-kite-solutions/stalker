@@ -81,8 +81,8 @@ pipelines:
       ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks-password --from-literal=password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=keystore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=truststore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=key-password=${KAFKA_KEYSTORE_PASSWORD} -n ${DEVSPACE_NAMESPACE}
 
       build_images stalker-base
-      build_images jobs-manager-e2e orchestrator python-job-base nuclei-job-base
-      create_deployments mongo kafka orchestrator-service-account orchestrator jobs-manager-e2e --sequential
+      build_images jobs-manager orchestrator python-job-base nuclei-job-base
+      create_deployments mongo kafka orchestrator-service-account orchestrator jobs-manager --sequential
 
       # Wait for kafka and mongo to be ready
       wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 300
@@ -94,23 +94,24 @@ pipelines:
       if [ $(get_flag "watch") == "true" ]; 
       then
         echo "Running tests in watch mode."
-        start_dev jobs-manager-e2e mongo
-        exec_container --label-selector app.kubernetes.io/component=jobs-manager-e2e -n stalker -- /bin/sh -c 'yarn workspace @red-kite/jobs-manager test:e2e:watch'
+        start_dev jobs-manager mongo
+        exec_container --label-selector app.kubernetes.io/component=jobs-manager -n stalker -- /bin/sh -c 'yarn workspace @red-kite/jobs-manager test:e2e:watch'
       else
         echo "Running tests in ci mode."
-        start_dev jobs-manager-e2e
-        exec_container --label-selector app.kubernetes.io/component=jobs-manager-e2e -n stalker -- /bin/sh -c 'yarn workspace @red-kite/jobs-manager test:e2e:cicd' 2>&1
+        start_dev jobs-manager
+        exec_container --label-selector app.kubernetes.io/component=jobs-manager -n stalker -- /bin/sh -c 'yarn workspace @red-kite/jobs-manager test:e2e:cicd' 2>&1
       fi
       stop_dev --all
+
   purge:
     run: |-
       stop_dev --all
-      purge_deployments mongo ui jobs-manager jobs-manager-e2e kafka orchestrator-service-account orchestrator cron ui-prod --sequential
+      purge_deployments mongo ui jobs-manager jobs-manager kafka orchestrator-service-account orchestrator cron ui-prod --sequential
 
   build-e2e:
     run: |-
       build_images stalker-base
-      build_images ui jobs-manager-e2e orchestrator python-job-base nuclei-job-base
+      build_images ui jobs-manager orchestrator python-job-base nuclei-job-base
 
   jobs-manager-e2e-cicd-deploy:
     run: |-
@@ -123,7 +124,7 @@ pipelines:
       ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks-password --from-literal=password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=keystore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=truststore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=key-password=${KAFKA_KEYSTORE_PASSWORD} -n ${DEVSPACE_NAMESPACE}
       create_deployments certificates
 
-      create_deployments mongo kafka orchestrator-service-account orchestrator jobs-manager-e2e --sequential
+      create_deployments mongo kafka orchestrator-service-account orchestrator jobs-manager --sequential
 
       # Wait for kafka and mongo to be ready
       wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 300
@@ -132,8 +133,8 @@ pipelines:
   jobs-manager-e2e-cicd-run:
     run: |-
       # Running jobs-manager-e2e-cicd-deploy pipeline is required before running this
-      start_dev jobs-manager-e2e
-      exec_container --label-selector app.kubernetes.io/component=jobs-manager-e2e -n stalker -- /bin/sh -c 'yarn workspace @red-kite/jobs-manager test:e2e:cicd'
+      start_dev jobs-manager
+      exec_container --label-selector app.kubernetes.io/component=jobs-manager -n stalker -- /bin/sh -c 'yarn workspace @red-kite/jobs-manager test:e2e:cicd'
       stop_dev --all
 
   prod:
@@ -191,12 +192,6 @@ images:
     dockerfile: packages/backend/jobs-manager/service/${DOCKERFILE_NAME}
     context: .
     rebuildStrategy: default
-
-  jobs-manager-e2e:
-    image: jobs-manager-e2e
-    dockerfile: packages/backend/jobs-manager/service/Dockerfile.cicd
-    context: .
-    rebuildStrategy: always
 
   cron:
     image: ghcr.io/red-kite-solutions/stalker-cron
@@ -280,60 +275,6 @@ deployments:
 
             image: ghcr.io/red-kite-solutions/stalker-jobs-manager
             name: jobs-manager-container
-
-        service:
-          ports:
-            - containerPort: 3000
-              port: 3000
-              protocol: TCP
-
-  jobs-manager-e2e:
-    helm:
-      values:
-        volumes:
-          - name: certs
-            secret:
-              secretName: jm-certs
-
-        containers:
-          - image: jobs-manager-e2e
-            name: jobs-manager-container-e2e
-            env:
-              - name: MONGO_ADDRESS
-                value: ${JM_MONGO_ADDRESS_E2E}
-              - name: MONGO_DATABASE_NAME
-                # value: stalker-jobs-manager-e2e
-                value: ${JM_MONGO_DATABASE_NAME}
-              - name: JM_JWT_SECRET
-                value: ${JM_JWT_SECRET}
-              - name: JM_REFRESH_SECRET
-                value: ${JM_REFRESH_SECRET}
-              - name: KAFKA_URI
-                value: ${KAFKA_URI}
-              - name: FEATURE_ORCHESTRATOR_ENABLED
-                value: "true"
-              - name: STALKER_URL
-                value: ${STALKER_URL}
-              - name: MONGO_REPLICA_SET_NAME
-                value: ${MONGO_REPLICA_SET_NAME}
-              - name: JM_ENVIRONMENT
-                value: "tests"
-              - name: STALKER_CRON_API_TOKEN
-                value: ${STALKER_CRON_API_TOKEN}
-              - name: SECRET_PUBLIC_RSA_KEY
-                value: ${SECRET_PUBLIC_RSA_KEY}
-              - name: JM_MONGO_KEY_PASSWORD
-                value: ${JM_MONGO_KEY_PASSWORD}
-              - name: JM_KAFKA_KEY_PASSWORD
-                value: ${JM_KAFKA_KEY_PASSWORD}
-              - name: STALKER_VERSION
-                value: ${STALKER_VERSION}
-
-            volumeMounts:
-              - containerPath: /certs
-                volume:
-                  name: certs
-                  readOnly: true
 
         service:
           ports:
@@ -747,31 +688,6 @@ dev:
         memory: 2Gi
         cpu: 1
 
-  jobs-manager-e2e:
-    labelSelector:
-      app.kubernetes.io/component: jobs-manager-e2e
-    container: jobs-manager-container-e2e
-    logs:
-      enabled: true
-    # sync:
-    #   - path: ./package.json:/app/package.json
-    #     disableDownload: true
-    #   - path: ./yarn.lock:/app/yarn.lock
-    #     disableDownload: true
-    #   - path: ./packages:/app/packages
-    #     disableDownload: true
-    #     excludePaths:
-    #       - node_modules/
-    #       - packages/frontend/stalker-app/.angular/
-    #       - packages/frontend/stalker-app/node_modules/
-    #       - packages/backend/jobs-manager/service/node_modules/
-    #       - packages/backend/cron/service/node_modules/
-    #       - packages/backend/orchestrator/service/node_modules/
-    restartHelper:
-      inject: false
-    ports:
-      - port: "9229"
-
   cron:
     labelSelector:
       app.kubernetes.io/component: cron
@@ -936,3 +852,16 @@ hooks:
       labelSelector:
         app.kubernetes.io/instance: kafka
       containerName: kafka-container
+
+profiles:
+  - name: production
+    patches: []
+
+  - name: e2e
+    patches:
+      - op: replace
+        path: dev.jobs-manager.ports
+        value:
+          - port: "9229"
+      - op: remove
+        path: dev.jobs-manager.sync
