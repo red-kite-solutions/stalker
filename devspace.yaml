@@ -480,7 +480,7 @@ deployments:
               roles:[]
             }
             db.createRole(flowRole);
-            var flowUser = { user: "${MONGO_JM_USER}", pwd: "${MONGO_JM_PASSWORD}", roles: ["flowrolee2e"] };
+            var flowUser = { user: "${MONGO_JM_USER_E2E}", pwd: "${MONGO_JM_PASSWORD}", roles: ["flowrolee2e"] };
             db.createUser(flowUser);
 
   kafka:
