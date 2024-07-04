@@ -53,7 +53,7 @@ jobs:
 
       - name: Jobs Manager Logs
         if: always()
-        run: kubectl logs -n stalker -l app.kubernetes.io/component=jobs-manager-e2e
+        run: kubectl logs -n stalker -l app.kubernetes.io/component=jobs-manager
 
       - name: Diagnosis
         if: always()
