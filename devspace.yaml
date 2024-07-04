@@ -854,9 +854,6 @@ hooks:
       containerName: kafka-container
 
 profiles:
-  - name: production
-    patches: []
-
   - name: e2e
     patches:
       - op: replace
