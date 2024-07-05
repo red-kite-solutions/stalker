@@ -9,6 +9,7 @@ import { WebsiteService } from '../../../database/reporting/websites/website.ser
 import { SecretsService } from '../../../database/secrets/secrets.service';
 import { EventSubscriptionsService } from '../../../database/subscriptions/event-subscriptions/event-subscriptions.service';
 import { SubscriptionTriggersService } from '../../../database/subscriptions/subscription-triggers/subscription-triggers.service';
+import { CustomFindingsConstants } from '../../findings.constants';
 import { FindingsService } from '../../findings.service';
 import { JobFindingHandlerBase } from '../job-findings-handler-base';
 import { CustomFindingCommand } from './custom.command';
@@ -42,7 +43,8 @@ export class CustomFindingHandler extends JobFindingHandlerBase<CustomFindingCom
     try {
       let service: string = undefined;
       for (const f of command.finding.fields) {
-        if (f.key === 'serviceName') service = f.data;
+        if (f.key === CustomFindingsConstants.ServiceNameFieldKey)
+          service = f.data;
       }
 
       if (service === 'http' || service === 'https') {
@@ -73,7 +75,10 @@ export class CustomFindingHandler extends JobFindingHandlerBase<CustomFindingCom
   private async handleWebsitePathFinding(command: CustomFindingCommand) {
     try {
       for (const f of command.finding.fields) {
-        if (f.key === 'endpoint' && f.data) {
+        if (
+          f.key === CustomFindingsConstants.WebsiteEndpointFieldKey &&
+          f.data
+        ) {
           await this.websiteService.addPathToWebsite(
             f.data,
             command.projectId,
@@ -92,10 +97,10 @@ export class CustomFindingHandler extends JobFindingHandlerBase<CustomFindingCom
 
   protected async executeCore(command: CustomFindingCommand) {
     switch (command.finding.key) {
-      case 'PortServiceFinding':
+      case CustomFindingsConstants.PortServiceFinding:
         await this.handlePortServiceFinding(command);
         break;
-      case 'WebsitePathFinding':
+      case CustomFindingsConstants.WebsitePathFinding:
         await this.handleWebsitePathFinding(command);
         break;
       default:

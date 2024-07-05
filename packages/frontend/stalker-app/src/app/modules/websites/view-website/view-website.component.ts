@@ -22,6 +22,7 @@ import {
   Observable,
   Subject,
   combineLatest,
+  debounceTime,
   firstValueFrom,
   forkJoin,
   map,
@@ -38,6 +39,7 @@ import { ProjectSummary } from 'src/app/shared/types/project/project.summary';
 import { Tag } from 'src/app/shared/types/tag.type';
 import { BlockedPillTagComponent } from 'src/app/shared/widget/pill-tag/blocked-pill-tag.component';
 import { TextMenuComponent } from 'src/app/shared/widget/text-menu/text-menu.component';
+import { FindingsService } from '../../../api/findings/findings.service';
 import { PortsService } from '../../../api/ports/ports.service';
 import { WebsitesService } from '../../../api/websites/websites.service';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
@@ -75,6 +77,7 @@ import { WebsiteInteractionsService } from '../websites-interactions.service';
     MatTooltipModule,
     TextMenuComponent,
     BlockedPillTagComponent,
+    FindingsModule,
   ],
   selector: 'app-view-website',
   templateUrl: './view-website.component.html',
@@ -82,6 +85,7 @@ import { WebsiteInteractionsService } from '../websites-interactions.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ViewWebsiteComponent implements OnDestroy {
+  public findingsFilterKeys = ['WebsitePathFinding'];
   public menuResizeObserver$?: ResizeObserver;
 
   @ViewChild('newPillTag', { read: ElementRef, static: false })
@@ -141,6 +145,31 @@ export class ViewWebsiteComponent implements OnDestroy {
       this.website = website;
     }),
     shareReplay(1)
+  );
+
+  public sitemapFilterChange$ = new BehaviorSubject<string>('');
+  public selectedEndpoint: string = '';
+  public endpointLoading: boolean = false;
+  public selectedEndpoint$ = new Subject<string>();
+  public endpointData$ = combineLatest([this.selectedEndpoint$, this.website$]).pipe(
+    tap(() => {
+      this.endpointLoading = true;
+    }),
+    debounceTime(200),
+    switchMap(([endpoint, website]) => {
+      this.selectedEndpoint = endpoint;
+      return this.findingService.getLatestWebsiteEndpoint(website.correlationKey, endpoint);
+    }),
+    tap(() => {
+      this.endpointLoading = false;
+    }),
+    shareReplay(1)
+  );
+
+  public sitemap$ = combineLatest([this.website$, this.sitemapFilterChange$]).pipe(
+    map(([website, filter]) => {
+      return website.sitemap.filter((v) => v.toLocaleLowerCase().includes(filter.toLocaleLowerCase()));
+    })
   );
 
   public hostPorts$ = this.website$.pipe(
@@ -287,6 +316,7 @@ export class ViewWebsiteComponent implements OnDestroy {
     private toastr: ToastrService,
     private router: Router,
     public dialog: MatDialog,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private findingService: FindingsService
   ) {}
 }

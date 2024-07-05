@@ -19,6 +19,15 @@ export class FindingsListComponent {
     this.initFindings();
   }
 
+  private _filterFindingKeys: string[] = [];
+  public get filterFindingKeys() {
+    return this._filterFindingKeys;
+  }
+
+  @Input() public set filterFindingKeys(value: string[]) {
+    this._filterFindingKeys = value;
+  }
+
   public loadMoreFindings$: BehaviorSubject<null> = new BehaviorSubject(null);
   public isLoadingMoreFindings$: BehaviorSubject<boolean> = new BehaviorSubject(false);
   public findings$: Observable<Page<CustomFinding>> | null = null;
@@ -37,7 +46,7 @@ export class FindingsListComponent {
     this.findings$ = this.loadMoreFindings$.pipe(
       tap(() => this.isLoadingMoreFindings$.next(true)),
       scan((acc) => acc + 1, 0),
-      concatMap((page) => this.findingsService.getFindings(correlationKey, page, 15)),
+      concatMap((page) => this.findingsService.getFindings(correlationKey, page, 15, this._filterFindingKeys)),
       scan((acc, value) => {
         acc.items.push(...value.items);
         acc.totalRecords = value.totalRecords;

@@ -1,8 +1,11 @@
 import { Type } from 'class-transformer';
 import {
+  IsArray,
   IsNotEmpty,
   IsNumber,
   IsNumberString,
+  IsOptional,
+  IsString,
   Max,
   Min,
 } from 'class-validator';
@@ -49,5 +52,21 @@ export class FindingsPagingDto {
   pageSize: string = '15';
 
   @IsNotEmpty()
+  @IsString()
   target: string;
+
+  @IsString({ each: true })
+  @IsArray()
+  @IsOptional()
+  filterFinding: string[];
+}
+
+export class WebsiteEndpointFindingDto {
+  @IsNotEmpty()
+  @IsString()
+  target: string;
+
+  @IsNotEmpty()
+  @IsString()
+  endpoint: string;
 }

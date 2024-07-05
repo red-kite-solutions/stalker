@@ -20,6 +20,7 @@ import { HostnameIpCommand } from './commands/JobFindings/hostname-ip.command';
 import { PortCommand } from './commands/JobFindings/port.command';
 import { WebsiteCommand } from './commands/JobFindings/website.command';
 import { CustomFindingFieldDto } from './finding.dto';
+import { CustomFindingsConstants } from './findings.constants';
 
 export type Finding =
   | HostnameIpFinding
@@ -134,6 +135,7 @@ export class FindingsService {
     target: string,
     page: number,
     pageSize: number,
+    filterFindings: string[] = [],
   ): Promise<Page<CustomFinding>> {
     if (page < 1) throw new HttpBadRequestException('Page starts at 1.');
 
@@ -143,6 +145,10 @@ export class FindingsService {
       filters.correlationKey = {
         $eq: target,
       };
+    }
+
+    if (filterFindings.length) {
+      filters.key = { $nin: filterFindings };
     }
 
     const items = await this.findingModel
@@ -159,6 +165,25 @@ export class FindingsService {
       items,
       totalRecords,
     };
+  }
+
+  public async getLatestWebsiteEndpoint(
+    correlationKey: string,
+    endpoint: string,
+  ) {
+    return await this.findingModel
+      .findOne({
+        correlationKey: { $eq: correlationKey },
+        key: CustomFindingsConstants.WebsitePathFinding,
+        fields: {
+          $elemMatch: {
+            type: 'text',
+            key: CustomFindingsConstants.WebsiteEndpointFieldKey,
+            data: endpoint,
+          },
+        },
+      })
+      .sort({ _id: 'ascending' });
   }
 
   /**

@@ -20,7 +20,132 @@
 
   <div class="content-wrapper">
     <div class="content">
-      <findings-list [correlationKey]="wsite.correlationKey"></findings-list>
+      <div class="website-overview">
+        <mat-card id="sitemap">
+          <mat-form-field class="search" appearance="fill" [floatLabel]="'always'" subscriptSizing="dynamic">
+            <mat-label i18n="Search filter|Filter your search to get more precise results">Search filter</mat-label>
+
+            <input
+              matInput
+              type="text"
+              i18n-placeholder="Search site map|Search the website's site map"
+              placeholder="Search site map"
+              #fulltextInput
+              (keyup)="sitemapFilterChange$.next(fulltextInput.value)"
+            />
+          </mat-form-field>
+          <div class="independent-scroll">
+            @for (path of sitemap$ | async; track $index) {
+              <div class="endpoint" (click)="selectedEndpoint$.next(path)">
+                <p
+                  [matTooltip]="path"
+                  matTooltipPosition="below"
+                  matTooltipShowDelay="200"
+                  [style]="path === selectedEndpoint ? 'text-decoration: underline;' : ''"
+                >
+                  {{ path }}
+                </p>
+              </div>
+            }
+            @if (!(sitemap$ | async)?.length) {
+              <p class="no-data" i18n="no available data|No data available">No available data</p>
+            }
+          </div>
+        </mat-card>
+        <mat-card id="website-data">
+          @if (endpointLoading) {
+            <div
+              class="tw-w-full tw-h-full tw-text-center tw-align-middle tw-flex tw-flex-row tw-items-center tw-justify-center"
+            >
+              <mat-spinner [color]="'accent'" class="spinner"></mat-spinner>
+            </div>
+          }
+          @if (endpointData$ | async; as endpointData) {
+            @if (!endpointLoading) {
+              <div class="inline-endpoint">
+                @for (field of endpointData.fields; track field) {
+                  @if (field.type === 'text') {
+                    @if (field.key === 'method') {
+                      <div id="method">
+                        <!-- <div class="label">{{ field.label }}</div> -->
+                        <div class="data">{{ field.data }}</div>
+                      </div>
+                    }
+
+                    @if (field.key === 'endpoint') {
+                      <div id="endpoint">
+                        <!-- <div class="label">{{ field.label }}</div> -->
+                        <div class="data">{{ field.data }}</div>
+                      </div>
+                    }
+
+                    @if (field.key === 'statusCode') {
+                      <div id="status-code">
+                        <app-status-code-pill-tag [statusCode]="field.data"></app-status-code-pill-tag>
+                      </div>
+                    }
+                  }
+                }
+              </div>
+              <mat-divider class="endpoint-data-divider"></mat-divider>
+              <div class="endpoint-metadata-container">
+                <div class="endpoint-metadata">
+                  @for (field of endpointData.fields; track field) {
+                    @if (
+                      field.type === 'text' &&
+                      field.key !== 'endpoint' &&
+                      field.key !== 'method' &&
+                      field.key !== 'statusCode'
+                    ) {
+                      <div class="endpoint-metadata-item">
+                        <div class="label">{{ field.label }}</div>
+                        <div class="data">{{ field.data }}</div>
+                      </div>
+                    }
+                  }
+                </div>
+                <div class="timestamp-container">
+                  <div
+                    class="timestamp"
+                    [matTooltip]="endpointData.created.valueOf() | humanizeDate: 'precise'"
+                    matTooltipPosition="after"
+                  >
+                    {{ endpointData.created | timeAgo }}
+                  </div>
+                </div>
+              </div>
+            }
+          } @else {
+            @if (!endpointLoading) {
+              <div
+                class="tw-w-full tw-h-full tw-text-center tw-align-middle tw-flex tw-flex-row tw-items-center tw-justify-center"
+              >
+                <div class="no-data">
+                  <span class="material-symbols-outlined no-data-icon"> search_insights </span>
+                  <p i18n="select endpoint|select endpoint in sitemap">Select an endpoint in the site map</p>
+                </div>
+              </div>
+            }
+          }
+        </mat-card>
+        <mat-card id="preview">
+          @if (wsite.previewImage) {
+            Not supported yet
+          } @else {
+            <div
+              class="tw-w-full tw-h-full tw-text-center tw-align-middle tw-flex tw-flex-row tw-items-center tw-justify-center"
+            >
+              <div class="no-data">
+                <span class="material-symbols-outlined no-data-icon"> screenshot_monitor </span>
+                <p i18n="No image preview|No image preview available for the moment">No image preview available</p>
+              </div>
+            </div>
+          }
+        </mat-card>
+      </div>
+      <mat-divider class="section-divider"></mat-divider>
+
+      <findings-list [correlationKey]="wsite.correlationKey" [filterFindingKeys]="findingsFilterKeys"></findings-list>
     </div>
     <div #contextPanel class="context">
       @if (wsite.blocked) {
