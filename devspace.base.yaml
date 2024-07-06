@@ -35,6 +35,8 @@ vars:
   JM_URL: "http://jobs-manager:3000"
 
   KAFKA_URI: "kafka:9092"
+  KAFKA_TRUSTSTORE_FILE: ./queue/kafka.server.truststore.jks
+  KAFKA_KEYSTORE_FILE: ./queue/kafka-0.keystore.jks
   NETWORK_POLICY: "network-policy.yml"
   CERTIFICATES: "certificates.yml"
   RESOURCE_QUOTA: "resource-quota.yml"

@@ -7,3 +7,6 @@ vars:
   MONGO_JM_USER_E2E: "jobsmanagere2e"
   JM_MONGO_ADDRESS: mongodb://${MONGO_JM_USER_E2E}:${MONGO_JM_PASSWORD}@mongo-mongodb-headless:27017/ # The address of the FM's mongo database
   JM_ENVIRONMENT: "tests"
+
+  KAFKA_TRUSTSTORE_FILE: ./queue/kafka.server.truststore.jks.test
+  KAFKA_KEYSTORE_FILE: ./queue/kafka-0.keystore.jks.test
