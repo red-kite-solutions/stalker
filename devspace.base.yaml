@@ -3,6 +3,14 @@ name: stalker-vars-base
 
 vars:
   STALKER_VERSION: "Stalker 0.0.2 alpha"
+
+  # Image versions
+  JOBS_MANAGER_VERSION: latest
+  CRON_VERSION: latest
+  FRONTEND_VERSION: latest
+  ORCHESTRATOR_VERSION: latest
+  UPDATE_IMAGE_TAGS: true
+
   MONGO_ROOT_PASSWORD: "123456"
   MONGO_JM_USER: "jobsmanager"
   MONGO_JM_PASSWORD: "123456"

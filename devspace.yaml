@@ -147,8 +147,8 @@ pipelines:
       ${DEVSPACE_KUBECTL_EXECUTABLE} delete secret kafka-jks-password --ignore-not-found -n ${DEVSPACE_NAMESPACE}
       ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks-password --from-literal=password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=keystore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=truststore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=key-password=${KAFKA_KEYSTORE_PASSWORD} -n ${DEVSPACE_NAMESPACE}
 
-      build_images stalker-base
-      build_images ui jobs-manager orchestrator python-job-base nuclei-job-base cron
+      # build_images stalker-base
+      # build_images ui jobs-manager orchestrator python-job-base nuclei-job-base cron
       create_deployments mongo kafka --sequential
 
       # Start mongo and kafka
@@ -200,7 +200,7 @@ images:
     rebuildStrategy: default
 
   ui:
-    image: ghcr.io/red-kite-solutions/stalker-frontend
+    image: ghcr.io/red-kite-solutions/stalker-app
     dockerfile: packages/frontend/stalker-app/${DOCKERFILE_NAME}
     context: .
     rebuildStrategy: default
@@ -231,6 +231,7 @@ images:
 
 deployments:
   jobs-manager:
+    updateImageTags: $( echo ${UPDATE_IMAGE_TAGS} )
     helm:
       values:
         volumes:
@@ -273,7 +274,7 @@ deployments:
                   name: certs
                   readOnly: true
 
-            image: ghcr.io/red-kite-solutions/stalker-jobs-manager
+            image: ghcr.io/red-kite-solutions/stalker-jobs-manager:${JOBS_MANAGER_VERSION}
             name: jobs-manager-container
 
         service:
@@ -283,6 +284,7 @@ deployments:
               protocol: TCP
 
   cron:
+    updateImageTags: $( echo ${UPDATE_IMAGE_TAGS} )
     helm:
       values:
         volumes:
@@ -313,7 +315,7 @@ deployments:
                   name: certs
                   readOnly: true
 
-            image: ghcr.io/red-kite-solutions/stalker-cron
+            image: ghcr.io/red-kite-solutions/stalker-cron:${CRON_VERSION}
             name: cron-container
 
         service:
@@ -323,12 +325,13 @@ deployments:
               protocol: TCP
 
   ui:
+    updateImageTags: $( echo ${UPDATE_IMAGE_TAGS} )
     helm:
       values:
         containers:
           - env:
 
-            image: ghcr.io/red-kite-solutions/stalker-frontend
+            image: ghcr.io/red-kite-solutions/stalker-app:${FRONTEND_VERSION}
             name: ui-container
 
         service:
@@ -516,12 +519,14 @@ deployments:
             - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:jobs-manager --operation read --operation describe --group jobs-manager"
             - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:jobs-manager --operation read --operation describe --group jobs-manager-job-logs"
             - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:orchestrator --operation read --operation describe --group stalker"
+
   orchestrator-service-account:
     kubectl:
       manifests:
         - packages/backend/orchestrator/service/orchestrator-service-account.yml
 
   orchestrator:
+    updateImageTags: $( echo ${UPDATE_IMAGE_TAGS} )
     helm:
       values:
         volumes:
@@ -545,7 +550,7 @@ deployments:
                   name: certs
                   readOnly: true
 
-            image: ghcr.io/red-kite-solutions/stalker-orchestrator
+            image: ghcr.io/red-kite-solutions/stalker-orchestrator:${ORCHESTRATOR_VERSION}
             name: orchestrator-container
 
         service:
@@ -749,6 +754,10 @@ hooks:
 
 profiles:
   - name: e2e
+    activation:
+      - vars:
+          STALKER_ENVIRONMENT: tests
+
     patches:
       - op: replace
         path: dev.jobs-manager.ports
@@ -759,6 +768,10 @@ profiles:
         path: dev.jobs-manager.sync
 
   - name: prod
+    activation:
+      - vars:
+          STALKER_ENVIRONMENT: prod
+
     patches:
       # Orchestrator modifications
       - op: remove
@@ -805,6 +818,7 @@ profiles:
       - op: replace
         path: deployments.ui
         value:
+          updateImageTags: $( echo ${UPDATE_IMAGE_TAGS} )
           helm:
             values:
               volumes:
@@ -847,7 +861,7 @@ profiles:
                         name: certs
                         readOnly: true
 
-                  image: ghcr.io/red-kite-solutions/stalker-frontend
+                  image: ghcr.io/red-kite-solutions/stalker-app:${FRONTEND_VERSION}
                   name: ui-container
 
               service:

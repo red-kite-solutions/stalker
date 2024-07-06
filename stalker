@@ -17,7 +17,7 @@ if [[ $* == *--help* || $* == *-h* ]]; then
   echo '  --force-setup, -f   Forces a setup, ignoring the existing setup.'
   echo '  --help, -h          Display this help message.'
   echo ''
-  echo 'Example:'
+  echo 'build:'
   echo '  ./stalker                # Setups and starts Stalker.'
   echo '  ./stalker --force-setup  # Forces a new setup of Stalker.'
   exit
@@ -39,4 +39,4 @@ fi
 if ! (minikube status &>/dev/null); then
   minikube start --driver=docker --memory=$MINIKUBE_RAM --cpus=$MINIKUBE_CPU
 fi
-devspace --var="STALKER_ENVIRONMENT=prod" -p prod run-pipeline prod -n stalker
+devspace --var="STALKER_ENVIRONMENT=prod" run-pipeline prod -n stalker
