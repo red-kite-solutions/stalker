@@ -165,5 +165,4 @@ lerna-debug.log*
 /coverage
 /.nyc_output
 **/certificates.yml
-root_ca.yml
 root-ca.yml
