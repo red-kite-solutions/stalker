@@ -1,5 +1,5 @@
 # ---- ROOT CA
-ROOT_CA=$(base64 ./root_ca -w0)
+ROOT_CA=''
 envsubst < ./root-ca.yml.dev.template > root-ca.yml
 
 # ---- ORCHESTRATOR: Creating k8s secret file
