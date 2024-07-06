@@ -18,28 +18,25 @@ pipelines:
     run: |-
       # Kafka's keystore and keystore password
       ${DEVSPACE_KUBECTL_EXECUTABLE} delete secret kafka-jks --ignore-not-found -n ${DEVSPACE_NAMESPACE}
-      ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks --from-file=kafka.truststore.jks=${KAFKA_TRUSTSTORE_FILE} --from-file=kafka.keystore.jks=/{KAFKA_KEYSTORE_FILE} -n ${DEVSPACE_NAMESPACE}
+      ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks --from-file=kafka.truststore.jks=${KAFKA_TRUSTSTORE_FILE} --from-file=kafka.keystore.jks=${KAFKA_KEYSTORE_FILE} -n ${DEVSPACE_NAMESPACE}
       ${DEVSPACE_KUBECTL_EXECUTABLE} delete secret kafka-jks-password --ignore-not-found -n ${DEVSPACE_NAMESPACE}
       ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks-password --from-literal=password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=keystore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=truststore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=key-password=${KAFKA_KEYSTORE_PASSWORD} -n ${DEVSPACE_NAMESPACE}
 
   build:
     run: |-
       build_images stalker-base
-      build_images ui jobs-manager orchestrator python-job-base nuclei-job-base
+      build_images ui jobs-manager orchestrator python-job-base nuclei-job-base cron
 
   deploy:
     run: |-
-      build_images stalker-base
-      build_images ui jobs-manager orchestrator python-job-base nuclei-job-base
+      run_pipelines build
       create_deployments mongo ui jobs-manager kafka orchestrator-service-account orchestrator --sequential
 
   dev:
     run: |-
       create_deployments namespaces
-      run_pipelines setup-kafka
+      run_pipelines setup-kafka build
 
-      build_images stalker-base
-      build_images ui jobs-manager orchestrator python-job-base nuclei-job-base cron
       create_deployments mongo kafka --sequential
 
       # Wait for kafka and mongo to be ready
@@ -75,18 +72,13 @@ pipelines:
         short: w
         type: bool
     run: |-
-      create_deployments namespaces
-      run_pipelines setup-kafka
-
-      build_images stalker-base
-      build_images jobs-manager orchestrator python-job-base nuclei-job-base
+      create_deployments namespaces certificates
+      run_pipelines setup-kafka build
       create_deployments mongo kafka orchestrator-service-account orchestrator jobs-manager --sequential
 
       # Wait for kafka and mongo to be ready
       wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 300
       wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 300
-
-      create_deployments certificates
 
       # Run tests
       if [ $(get_flag "watch") == "true" ]; 
@@ -106,18 +98,11 @@ pipelines:
       stop_dev --all
       purge_deployments mongo ui jobs-manager jobs-manager kafka orchestrator-service-account orchestrator cron --sequential
 
-  build-e2e:
-    run: |-
-      build_images stalker-base
-      build_images ui jobs-manager orchestrator python-job-base nuclei-job-base
-
   jobs-manager-e2e-cicd-deploy:
     run: |-
       # Running the build pipeline is required before running this
-      create_deployments namespaces
+      create_deployments namespaces certificates
       run_pipelines setup-kafka
-
-      create_deployments certificates
 
       create_deployments mongo kafka orchestrator-service-account orchestrator jobs-manager --sequential
 
@@ -134,11 +119,9 @@ pipelines:
 
   prod:
     run: |-
-      create_deployments namespaces
-      run_pipelines setup-kafka
+      create_deployments namespaces certificates
+      run_pipelines setup-kafka build
 
-      build_images stalker-base
-      build_images ui jobs-manager orchestrator python-job-base nuclei-job-base cron
       create_deployments mongo kafka --sequential
 
       # Start mongo and kafka
@@ -148,7 +131,6 @@ pipelines:
       wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 300
       wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 300
 
-      create_deployments certificates
       create_deployments jobs-manager orchestrator-service-account orchestrator ui --sequential
 
       # Wait for services before applying network policies
