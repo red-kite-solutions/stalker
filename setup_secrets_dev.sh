@@ -1,6 +1,6 @@
 # ---- ROOT CA
 ROOT_CA=''
-envsubst < ./root-ca.yml.dev.template > root-ca.yml
+envsubst < ./certificates.yml.dev.template > certificates.yml
 
 # ---- ORCHESTRATOR: Creating k8s secret file
 KAFKA_CA_CRT=$(base64 ./packages/backend/orchestrator/service/kafka-ca.crt -w0)

@@ -2,7 +2,7 @@
 ROOT_CA=$(base64 ./root_ca.crt -w0)
 
 export ROOT_CA
-envsubst < ./root-ca.yml.template > root-ca.yml
+envsubst < ./certificates.yml.template > certificates.yml
 
 # ---- ORCHESTRATOR: Creating k8s secret file
 KAFKA_CA_CRT=$(base64 ./packages/backend/orchestrator/service/kafka-ca.crt -w0)
