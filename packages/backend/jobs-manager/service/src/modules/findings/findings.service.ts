@@ -183,7 +183,7 @@ export class FindingsService {
           },
         },
       })
-      .sort({ _id: 'ascending' });
+      .sort({ _id: 'descending' });
   }
 
   /**
@@ -231,7 +231,7 @@ export class FindingsService {
       key: dto.key,
     };
 
-    await this.findingModel.create(finding);
+    return await this.findingModel.create(finding);
   }
 
   /**
