@@ -23,7 +23,6 @@ import {
   Observable,
   Subject,
   combineLatest,
-  debounceTime,
   firstValueFrom,
   forkJoin,
   map,
@@ -53,6 +52,7 @@ import { NewPillTagComponent } from '../../../shared/widget/pill-tag/new-pill-ta
 import { SelectItem } from '../../../shared/widget/text-select-menu/text-select-menu.component';
 import { FindingsModule } from '../../findings/findings.module';
 import { WebsiteInteractionsService } from '../websites-interactions.service';
+import { WebsiteOverviewComponent } from './website-overview/website-overview.component';
 
 @Component({
   standalone: true,
@@ -79,6 +79,7 @@ import { WebsiteInteractionsService } from '../websites-interactions.service';
     TextMenuComponent,
     BlockedPillTagComponent,
     FindingsModule,
+    WebsiteOverviewComponent,
   ],
   selector: 'app-view-website',
   templateUrl: './view-website.component.html',
@@ -146,31 +147,6 @@ export class ViewWebsiteComponent implements OnDestroy {
       this.website = website;
     }),
     shareReplay(1)
-  );
-
-  public sitemapFilterChange$ = new BehaviorSubject<string>('');
-  public selectedEndpoint: string = '';
-  public endpointLoading: boolean = false;
-  public selectedEndpoint$ = new Subject<string>();
-  public endpointData$ = combineLatest([this.selectedEndpoint$, this.website$]).pipe(
-    tap(() => {
-      this.endpointLoading = true;
-    }),
-    debounceTime(200),
-    switchMap(([endpoint, website]) => {
-      this.selectedEndpoint = endpoint;
-      return this.findingService.getLatestWebsiteEndpoint(website.correlationKey, endpoint);
-    }),
-    tap(() => {
-      this.endpointLoading = false;
-    }),
-    shareReplay(1)
-  );
-
-  public sitemap$ = combineLatest([this.website$, this.sitemapFilterChange$]).pipe(
-    map(([website, filter]) => {
-      return website.sitemap.filter((v) => v.toLocaleLowerCase().includes(filter.toLocaleLowerCase()));
-    })
   );
 
   public hostPorts$ = this.website$.pipe(
@@ -304,22 +280,6 @@ export class ViewWebsiteComponent implements OnDestroy {
       this.cdr.markForCheck();
       this.dialog.closeAll();
     }
-  }
-
-  public linkCopied = false;
-  public copyLink(path: string) {
-    let url = this.website.url.endsWith('/')
-      ? this.website.url.slice(0, this.website.url.length - 1)
-      : this.website.url;
-
-    url += path.startsWith('/') ? path : '/' + path;
-
-    this.clipboard.copy(url);
-    this.linkCopied = true;
-    setTimeout(() => {
-      this.linkCopied = false;
-      this.cdr.detectChanges();
-    }, 2000);
   }
 
   constructor(
