@@ -67,15 +67,20 @@
                   @if (field.type === 'text') {
                     @if (field.key === 'method') {
                       <div id="method">
-                        <!-- <div class="label">{{ field.label }}</div> -->
                         <div class="data">{{ field.data }}</div>
                       </div>
                     }
 
                     @if (field.key === 'endpoint') {
                       <div id="endpoint">
-                        <!-- <div class="label">{{ field.label }}</div> -->
                         <div class="data">{{ field.data }}</div>
+                        @if (!linkCopied) {
+                          <button mat-icon-button (click)="copyLink(field.data)">
+                            <mat-icon class="material-symbols-outlined">content_copy</mat-icon>
+                          </button>
+                        } @else {
+                          <mat-icon class="material-symbols-outlined">check</mat-icon>
+                        }
                       </div>
                     }
 

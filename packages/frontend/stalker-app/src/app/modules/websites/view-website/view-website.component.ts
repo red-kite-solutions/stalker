@@ -1,3 +1,4 @@
+import { Clipboard } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -305,6 +306,22 @@ export class ViewWebsiteComponent implements OnDestroy {
     }
   }
 
+  public linkCopied = false;
+  public copyLink(path: string) {
+    let url = this.website.url.endsWith('/')
+      ? this.website.url.slice(0, this.website.url.length - 1)
+      : this.website.url;
+
+    url += path.startsWith('/') ? path : '/' + path;
+
+    this.clipboard.copy(url);
+    this.linkCopied = true;
+    setTimeout(() => {
+      this.linkCopied = false;
+      this.cdr.detectChanges();
+    }, 2000);
+  }
+
   constructor(
     private route: ActivatedRoute,
     private projectsService: ProjectsService,
@@ -317,6 +334,7 @@ export class ViewWebsiteComponent implements OnDestroy {
     private router: Router,
     public dialog: MatDialog,
     private cdr: ChangeDetectorRef,
-    private findingService: FindingsService
+    private findingService: FindingsService,
+    private clipboard: Clipboard
   ) {}
 }
