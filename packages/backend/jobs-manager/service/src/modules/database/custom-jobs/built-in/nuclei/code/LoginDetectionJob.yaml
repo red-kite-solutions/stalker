@@ -1,0 +1,47 @@
+id: login-form-detection
+
+info:
+  name: Detect Login Forms (English and French)
+  author: ViperBlackSkull
+  severity: low
+  description: Detects common login forms on web pages, including French language forms.
+
+requests:
+  - method: GET
+    path:
+      - "{{BaseURL}}"
+    redirects: true
+    matchers-condition: or
+    matchers:
+      - type: regex
+        regex:
+          - "<form[^>]*method=[\"']?post[\"']?[^>]*>.*<input[^>]*type=[\"']?password[\"']?[^>]*>.*</form>"
+          - "<input[^>]*type=[\"']?password[\"']?[^>]*>"
+          - "<form[^>]*action=[\"']?login[\"']?[^>]*>"
+          - "<form[^>]*id=[\"']?login[\"']?[^>]*>"
+          - "<input[^>]*name=[\"']?username[\"']?[^>]*>"
+          - "<input[^>]*name=[\"']?user[\"']?[^>]*>"
+          - "<input[^>]*name=[\"']?email[\"']?[^>]*>"
+          - "<input[^>]*name=[\"']?login[\"']?[^>]*>"
+          - "<button[^>]*type=[\"']?submit[\"']?[^>]*>.*Login.*</button>"
+          - "<button[^>]*type=[\"']?submit[\"']?[^>]*>.*Sign In.*</button>"
+          - "<button[^>]*type=[\"']?submit[\"']?[^>]*>.*Connexion.*</button>"
+          - "<button[^>]*type=[\"']?submit[\"']?[^>]*>.*Se Connecter.*</button>"
+          - "<div class=\"auth-login-actions\""
+      - type: word
+        words:
+          - "Login"
+          - "Sign In"
+          - "Log In"
+          - "Password"
+          - "Username"
+          - "Email"
+          - "Connexion"
+          - "Se Connecter"
+          - "Mot de passe"
+          - "Nom d'utilisateur"
+          - "Courriel"
+          - "Authentification"
+          - "Auth"
+          - "mot-passe"
+        part: body

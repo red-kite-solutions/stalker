@@ -57,6 +57,7 @@ export class SubscriptionTriggersService {
     subscriptionId: string,
     correlationKey: string,
     subscriptionCooldown: number,
+    discriminator: string | null,
   ): Promise<boolean> {
     if (await this.isTriggerBlocked(correlationKey)) return false;
 
@@ -71,8 +72,9 @@ export class SubscriptionTriggersService {
       await session.withTransaction(async () => {
         const s = await this.subscriptionTriggerModel.findOne(
           {
-            subscriptionId: subId,
-            correlationKey: correlationKey,
+            subscriptionId: { $eq: subId },
+            correlationKey: { $eq: correlationKey },
+            discriminator: { $eq: discriminator },
           },
           undefined,
           { session },
@@ -93,6 +95,7 @@ export class SubscriptionTriggersService {
                 subscriptionId: subId,
                 correlationKey: correlationKey,
                 lastTrigger: now,
+                discriminator: discriminator,
               },
             ],
             { session },

@@ -104,7 +104,6 @@ export class CustomJobsInteractionService {
       title: $localize`:Job templates|Job templates:Job templates`,
       text: $localize`:Job template text|Job template picker text:Select a job template from the left panel to get started, or continue without a template.`,
       onSelection: async (option: PickerOption) => {
-        console.log(option.name);
         this.router.navigateByUrl(`/jobs/custom/create?templateId=${option.id}`);
         this.dialog.closeAll();
       },

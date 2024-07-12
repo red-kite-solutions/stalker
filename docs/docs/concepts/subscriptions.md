@@ -312,7 +312,7 @@ parameter is compared to the `rhs` parameter using the `operator`. A Finding's o
 parameter when referenced using the syntax `${paramName}`.
 
 The primitive type of the parameters must match together and must match with the operator for the condition to return `true`. The allowed
-types of an operand are `string`, `number` or `boolean`. If all the condtions return true, then the specified job will be started.
+types of an operand are `string`, `number`, `boolean`, or an `array` of these types. When two arrays are provided, every element of the `lhs` array will be compared with every element of the `rhs` array. If all the condtions return true, then the specified job will be started.
 
 | Operator     | Accepted Operand Types  | Description                                                                                                                                        |
 | ------------ | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |

@@ -51,4 +51,8 @@ export class EventSubscriptionDto {
   @IsInt()
   @Min(0)
   public cooldown: number;
+
+  @IsOptional()
+  @IsString()
+  public discriminator?: string;
 }

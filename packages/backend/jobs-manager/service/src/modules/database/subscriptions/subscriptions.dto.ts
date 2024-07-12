@@ -10,7 +10,7 @@ export class JobConditionDto {
   @IsIn(SubscriptionsUtils.conditionOperators)
   public operator: string;
 
-  @IsTypeIn(['string', 'number', 'boolean'])
+  @IsTypeIn(['string', 'number', 'boolean', 'array'])
   public rhs!: string | number | boolean;
 }
 

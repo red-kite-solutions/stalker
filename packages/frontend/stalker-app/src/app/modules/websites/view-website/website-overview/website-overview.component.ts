@@ -14,7 +14,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { BehaviorSubject, combineLatest, debounceTime, filter, map, shareReplay, Subject, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, Subject, combineLatest, debounceTime, filter, map, shareReplay, switchMap, tap } from 'rxjs';
 import { FindingsService } from '../../../../api/findings/findings.service';
 import { SharedModule } from '../../../../shared/shared.module';
 import { Website } from '../../../../shared/types/websites/website.type';
@@ -55,7 +55,6 @@ export class WebsiteOverviewComponent {
 
   @Input()
   public set website(wsite: Website) {
-    console.log('website setter');
     this.websiteSubject$.next(wsite);
     this._website = wsite;
   }
@@ -63,13 +62,6 @@ export class WebsiteOverviewComponent {
   public get website() {
     return this._website;
   }
-
-  public a = this.website$.pipe(
-    tap((w) => {
-      console.log('website tap');
-      console.log(w);
-    })
-  );
 
   public sitemapFilterChange$ = new BehaviorSubject<string>('');
   public selectedEndpoint: string = '';
@@ -92,7 +84,6 @@ export class WebsiteOverviewComponent {
 
   public sitemap$ = combineLatest([this.website$, this.sitemapFilterChange$]).pipe(
     map(([website, filter]) => {
-      console.log('coucou!!');
       return website!.sitemap.filter((v) => v.toLocaleLowerCase().includes(filter.toLocaleLowerCase()));
     }),
     tap(() => this.cdr.detectChanges())

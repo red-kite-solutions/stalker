@@ -13,9 +13,11 @@ import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
 import { JobFactoryUtils } from '../jobs/jobs.factory';
 import { CronSubscription } from './cron-subscriptions/cron-subscriptions.model';
 import {
+  AndJobCondition,
   EventSubscription,
   JobCondition,
   JobParameter,
+  OrJobCondition,
 } from './event-subscriptions/event-subscriptions.model';
 import { Subscription } from './subscriptions.type';
 
@@ -136,83 +138,131 @@ export class SubscriptionsUtils {
    */
   public static evaluateCondition(condition: JobCondition): boolean {
     let operator = condition.operator;
-    let lhs = condition.lhs;
-    let rhs = condition.rhs;
 
-    if (
-      lhs === null ||
-      lhs === undefined ||
-      rhs === null ||
-      rhs === undefined ||
-      operator === null ||
-      operator === undefined
-    )
-      return false;
+    let lhsArray = [];
+    let rhsArray = [];
+
+    if (Array.isArray(condition.lhs)) {
+      lhsArray.push(...condition.lhs);
+    } else {
+      lhsArray.push(condition.lhs);
+    }
+
+    if (Array.isArray(condition.rhs)) {
+      rhsArray.push(...condition.rhs);
+    } else {
+      rhsArray.push(condition.rhs);
+    }
+
+    let fullResult = true;
 
     // Making the case incensitive string checks all lowercase
+    let caseInsensitive = false;
+    if (!operator || !lhsArray.length || !rhsArray.length) {
+      return false;
+    }
+
     if (operator.endsWith('_i')) {
-      if (typeof lhs !== 'string' || typeof rhs !== 'string') return false;
-      lhs = lhs.toLowerCase();
-      rhs = rhs.toLowerCase();
+      caseInsensitive = true;
       operator = operator.substring(0, operator.length - 2);
     }
+
     let negate = false;
-    if (operator.startsWith('not_')) {
-      operator = operator.substring(4);
-      negate = true;
-    }
-
-    let result = false;
-
-    // equals are soft to allow for easier type match for the users
-    // no support for regex as I did not find an easy way to prevent ReDoS
-    // https://owasp.org/www-community/attacks/Regular_expression_Denial_of_Service_-_ReDoS
-    switch (operator) {
-      case 'equals': {
-        result = lhs == rhs;
-        break;
+    let or_operator = false;
+    while (operator.startsWith('not_') || operator.startsWith('or_')) {
+      if (operator.startsWith('not_')) {
+        operator = operator.substring(4);
+        negate = !negate;
       }
-      case 'gte': {
-        if (typeof lhs !== 'number' || typeof rhs !== 'number') return false;
-        result = lhs >= rhs;
-        break;
-      }
-      case 'gt': {
-        if (typeof lhs !== 'number' || typeof rhs !== 'number') return false;
-        result = lhs > rhs;
-        break;
-      }
-      case 'lte': {
-        if (typeof lhs !== 'number' || typeof rhs !== 'number') return false;
-        result = lhs <= rhs;
-        break;
-      }
-      case 'lt': {
-        if (typeof lhs !== 'number' || typeof rhs !== 'number') return false;
-        result = lhs < rhs;
-        break;
-      }
-      case 'contains': {
-        if (typeof lhs !== 'string' || typeof rhs !== 'string') return false;
-        result = lhs.includes(rhs);
-        break;
-      }
-      case 'startsWith': {
-        if (typeof lhs !== 'string' || typeof rhs !== 'string') return false;
-        result = lhs.startsWith(rhs);
-        break;
-      }
-      case 'endsWith': {
-        if (typeof lhs !== 'string' || typeof rhs !== 'string') return false;
-        result = lhs.endsWith(rhs);
-        break;
-      }
-      default: {
-        return false;
+      if (operator.startsWith('or_')) {
+        operator = operator.substring(3);
+        or_operator = true;
+        fullResult = false;
       }
     }
 
-    return negate ? !result : result;
+    for (let lhs of lhsArray) {
+      if (lhs === null || lhs === undefined) return false;
+
+      if (caseInsensitive) {
+        if (typeof lhs !== 'string') return false;
+        lhs = lhs.toLowerCase();
+      }
+
+      for (let rhs of rhsArray) {
+        if (rhs === null || rhs === undefined) return false;
+
+        if (caseInsensitive) {
+          if (typeof rhs !== 'string') return false;
+          rhs = rhs.toLowerCase();
+        }
+
+        let result = false;
+
+        // equals are soft to allow for easier type match for the users
+        // no support for regex as I did not find an easy way to prevent ReDoS
+        // https://owasp.org/www-community/attacks/Regular_expression_Denial_of_Service_-_ReDoS
+        switch (operator) {
+          case 'equals': {
+            result = lhs == rhs;
+            break;
+          }
+          case 'gte': {
+            if (typeof lhs !== 'number' || typeof rhs !== 'number')
+              return false;
+            result = lhs >= rhs;
+            break;
+          }
+          case 'gt': {
+            if (typeof lhs !== 'number' || typeof rhs !== 'number')
+              return false;
+            result = lhs > rhs;
+            break;
+          }
+          case 'lte': {
+            if (typeof lhs !== 'number' || typeof rhs !== 'number')
+              return false;
+            result = lhs <= rhs;
+            break;
+          }
+          case 'lt': {
+            if (typeof lhs !== 'number' || typeof rhs !== 'number')
+              return false;
+            result = lhs < rhs;
+            break;
+          }
+          case 'contains': {
+            if (typeof lhs !== 'string' || typeof rhs !== 'string')
+              return false;
+            result = lhs.includes(rhs);
+            break;
+          }
+          case 'startsWith': {
+            if (typeof lhs !== 'string' || typeof rhs !== 'string')
+              return false;
+            result = lhs.startsWith(rhs);
+            break;
+          }
+          case 'endsWith': {
+            if (typeof lhs !== 'string' || typeof rhs !== 'string')
+              return false;
+            result = lhs.endsWith(rhs);
+            break;
+          }
+          default: {
+            return false;
+          }
+        }
+
+        if (or_operator) fullResult = fullResult || (negate ? !result : result);
+        else fullResult = fullResult && (negate ? !result : result);
+
+        if ((!fullResult && !or_operator) || (fullResult && or_operator))
+          return fullResult;
+      }
+    }
+
+    return fullResult;
   }
 
   /**
@@ -225,7 +275,7 @@ export class SubscriptionsUtils {
    */
   public static shouldExecute<T extends FindingCommand>(
     isEnabled: boolean,
-    jobConditions: JobCondition[],
+    jobConditions: Array<JobCondition | AndJobCondition | OrJobCondition>,
     command: T,
   ) {
     return SubscriptionsUtils.shouldExecuteFromFinding(
@@ -237,7 +287,7 @@ export class SubscriptionsUtils {
 
   public static shouldExecuteFromFinding(
     isEnabled: boolean,
-    jobConditions: JobCondition[],
+    jobConditions: Array<JobCondition | AndJobCondition | OrJobCondition>,
     finding: Finding,
   ) {
     // For backward compatibility, if isEnabled is undefined, we consider it enabled.
@@ -245,21 +295,72 @@ export class SubscriptionsUtils {
     // is represented by 'undefined' instead of 'true'.
     if (isEnabled === false) return false;
 
-    let allConditionsMatch = true;
-    for (const condition of jobConditions ?? []) {
-      condition.lhs = SubscriptionsUtils.replaceValueIfReferingToFinding<
-        string | boolean | number
-      >(condition.lhs, finding);
-      condition.rhs = SubscriptionsUtils.replaceValueIfReferingToFinding<
-        string | boolean | number
-      >(condition.rhs, finding);
+    return SubscriptionsUtils.shouldExecuteFromFindingRecursive(
+      jobConditions,
+      finding,
+    );
+  }
 
-      if (!SubscriptionsUtils.evaluateCondition(condition)) {
-        allConditionsMatch = false;
-        break;
-      }
+  private static shouldExecuteFromFindingRecursive(
+    jobConditions: Array<JobCondition | AndJobCondition | OrJobCondition>,
+    finding: Finding,
+    orConditionContext = false,
+    parentOrConditionContext = null,
+  ) {
+    const conditions = jobConditions ?? [];
+
+    if (conditions.length <= 0) {
+      return (
+        parentOrConditionContext === null || // depth = 0, return true
+        !parentOrConditionContext
+      ); // return true if parent was an "and", false if parent was an "or", as to not affect the result
     }
-    return allConditionsMatch;
+
+    let allConditionsResult = !orConditionContext;
+
+    for (const condition of conditions) {
+      let currentConditionResult: boolean;
+      if ('or' in condition) {
+        currentConditionResult = this.shouldExecuteFromFindingRecursive(
+          condition.or,
+          finding,
+          true,
+          orConditionContext,
+        );
+      } else if ('and' in condition) {
+        currentConditionResult = this.shouldExecuteFromFindingRecursive(
+          condition.and,
+          finding,
+          false,
+          orConditionContext,
+        );
+      } else {
+        condition.lhs = SubscriptionsUtils.replaceValueIfReferingToFinding<
+          string | boolean | number | Array<string | boolean | number>
+        >(condition.lhs, finding);
+        condition.rhs = SubscriptionsUtils.replaceValueIfReferingToFinding<
+          string | boolean | number | Array<string | boolean | number>
+        >(condition.rhs, finding);
+
+        currentConditionResult =
+          SubscriptionsUtils.evaluateCondition(condition);
+      }
+
+      if (orConditionContext) {
+        allConditionsResult = allConditionsResult || currentConditionResult;
+      } else {
+        allConditionsResult = allConditionsResult && currentConditionResult;
+      }
+
+      // Early return if possible when future operations are meaningless
+      if (
+        (orConditionContext && allConditionsResult) ||
+        (!orConditionContext && !allConditionsResult)
+      )
+        return allConditionsResult;
+    }
+
+    return allConditionsResult;
   }
 
   /**
@@ -384,6 +485,7 @@ export class SubscriptionsUtils {
       jobParameters: params,
       conditions: conditions,
       builtIn: true,
+      discriminator: subYamlJson.discriminator ?? null,
     };
 
     return sub;

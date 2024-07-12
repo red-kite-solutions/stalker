@@ -20,13 +20,14 @@ The built-in jobs come with a fresh Stalker installation. They can be fully modi
 hand-in-hand with the built-in subscriptions. Keep in mind that altering a built-in job's name may break a built-in subscription. That
 subscription would need to be adapted to the new name.
 
-| Name                                              | Description                              |
-| ------------------------------------------------- | ---------------------------------------- |
-| [DomainNameResolvingJob](#domainnameresolvingjob) | Resolves a domain name to an IP address  |
-| [TcpPortScanningJob](#tcpportscanningjob)         | Scans the tcp ports of an IP address     |
-| [TcpIpRangeScanningJob](#tcpiprangescanningjob)   | Scan an IP range for open ports          |
-| [BannerGrabbingJob](#bannergrabbingjob)           | Identifies the service running on a port |
-| [WebsiteCrawlingJob](#websitecrawlingjob)         | Crawls a website for its valid endpoints |
+| Name                                              | Description                              | Type   | Language |
+| ------------------------------------------------- | ---------------------------------------- | ------ | -------- |
+| [DomainNameResolvingJob](#domainnameresolvingjob) | Resolves a domain name to an IP address  | Code   | Python   |
+| [TcpPortScanningJob](#tcpportscanningjob)         | Scans the tcp ports of an IP address     | Code   | Python   |
+| [TcpIpRangeScanningJob](#tcpiprangescanningjob)   | Scan an IP range for open ports          | Code   | Python   |
+| [BannerGrabbingJob](#bannergrabbingjob)           | Identifies the service running on a port | Code   | Python   |
+| [WebsiteCrawlingJob](#websitecrawlingjob)         | Crawls a website for its valid endpoints | Code   | Python   |
+| [LoginDetectionJob](#logindetectionjob)           | Detects login portals on websites        | Nuclei | Yaml     |
 
 ### DomainNameResolvingJob
 
@@ -122,3 +123,14 @@ Crawls a website for its differents valid endpoints. It can also find website te
 
 - WebsitePathFinding
 - WebsiteTechnologyFinding
+
+### LoginDetectionJob
+
+| Variable Name | Type   | Value description                |
+| ------------- | ------ | -------------------------------- |
+| targetIp      | string | The website's IP address         |
+| port          | number | The website's port               |
+| domainName    | string | The website's domain name        |
+| path          | string | The website's base path          |
+| ssl           | bool   | If the website is https          |
+| endpoint      | string | The website's endpoint to target |
