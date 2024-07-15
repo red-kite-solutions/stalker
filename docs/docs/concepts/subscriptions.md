@@ -305,9 +305,9 @@ To learn more about findings, [click here](/docs/concepts/findings).
 ### Conditions
 
 By default, an event subscription's Job will always start when the specified Finding is found. However, it is not always the desired
-behavior. Sometimes, the Job should only start if the Finding's output respect some established Conditions.
+behavior. Sometimes, the Job should only start if the Finding's output respect some established conditions.
 
-A Condition is made of three elements: a left-hand side parameter (`lhs`), an `operator`, and a right-hand side parameter (`rhs`). The `lhs`
+A condition is usually made of three elements: a left-hand side parameter (`lhs`), an `operator`, and a right-hand side parameter (`rhs`). The `lhs`
 parameter is compared to the `rhs` parameter using the `operator`. A Finding's output variable can be used as a Condition's `lhs` or `rhs`
 parameter when referenced using the syntax `${paramName}`.
 
@@ -329,3 +329,34 @@ types of an operand are `string`, `number`, `boolean`, or an `array` of these ty
 | endsWith     | string                  | Validates if the `lhs` string ends with the `rhs` string.                                                                                          |
 | endsWith_i   | string                  | Validates if the `lhs` string ends with the `rhs` string. Case insensitive.                                                                        |
 | not_         | string, number, boolean | Prefix `not_` to another operator to have the result negated. For instance, `not_equals` would be true when two operands are not considered equal. |
+| or_          | string, number, boolean | Use with arrays to change the boolean operator between array elements from `and` to `or`.                                                          |
+
+> Arrays of the corresponding type can be used on any operator
+
+By default, conditions are linked with an `and` operator. It means that all conditions have to be met to launch the job. However, you can use the `and` and `or` operators in the condition yaml to change the operator applied on the different conditions. In the following example, even though the condition `4 >= 5` will be `false`, since it is in an `or` operator, the whole operator will return `true`. Since the `or` operator will return `true` and `1 <= 2` will be `true` as well, the job will start. 
+
+
+```yaml
+conditions:
+  - or:
+    - and:
+      - lhs: asdf
+        operator: endsWith
+        rhs: df
+      - lhs: qwerty
+        operator: startsWith
+        rhs: qwe
+    - lhs: 4
+      operator: gte
+      rhs: 5
+  - lhs: 1
+    operator: lte
+    rhs: 2
+```
+
+The previous condition would be roughly equivalent to the following python `if` statement:
+
+```python
+if (("qwerty".startswith("qwe") and "asdf".endswith("df")) or 4 >= 5) and 1 <= 2:
+  print("Job will start")
+```
