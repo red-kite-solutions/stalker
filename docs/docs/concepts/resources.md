@@ -58,6 +58,33 @@ A port can be created with a `PortFinding`. A port finding is a combination of a
 
 The combination of a port's number and host identifier is unique in the database.
 
+### Websites
+
+A website represents a `tcp` port running an http(s) server.
+
+A website is the combination between a port, a host, a domain and a path. The path, when not specified, defaults to `/`. The domain can also be empty, as not all websites have domains that resolve to them.
+
+A website is usually created for each http(s) port for each domain linked to a host.
+
+Therefore, if a host runs two http(s) ports with two domains, a total of 6 websites on the `/` path are possible. Let's take the domains `dev.example.com` and `example.com`, the IP `1.2.3.4` and the ports `80` and `443` for the `/` path.
+
+The following 6 values are possible:
+
+| domain          | host    | port | path |
+| --------------- | ------- | ---- | ---- |
+|                 | 1.2.3.4 | 80   | /    |
+| example.com     | 1.2.3.4 | 80   | /    |
+| dev.example.com | 1.2.3.4 | 80   | /    |
+|                 | 1.2.3.4 | 443  | /    |
+| example.com     | 1.2.3.4 | 443  | /    |
+| dev.example.com | 1.2.3.4 | 443  | /    |
+
+Ports are used, combined with a *host*'s IP address, to represent a network service. Every port is linked to a *host*. They can be seen in the user interface under the `Ports` page.
+
+A website can be created with a `WebsiteFinding`. A website finding is a combination of an IP, a port, a domain and a path. Therefore, when a website is created, it is automatically linked to the given port, host and domain.
+
+The combination of a websites's port identifier, domain identifier and path is unique in the database.
+
 ## Interacting with resources
 
 ### Tagging a resource
@@ -81,3 +108,7 @@ While deleted resources are removed from the database, blocked resources will st
 Blocked resources can be seen in the user interface by removing the default filter `-is: blocked`. Every resource will be shown that way, blocked or not. If you wish to only see the blocked resources, use the `is: blocked` filter.
 
 Blocking a resource is useful if, through automation, Stalker found a resource that does not belong in the project. Deleting it would likely result in it reappearing later and jobs being run on it. Blocking it will ensure that jobs are not automatically run on the resource by remembering its existence.
+
+### Merging websites
+
+> This feature is not yet available, but is coming soon.

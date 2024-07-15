@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { isNullOrUndefined } from '@typegoose/typegoose/lib/internal/utils';
 import {
   isArray,
   isEmpty,
@@ -142,7 +143,7 @@ export class CustomJob {
           !isString(param.name) ||
           !environmentVariableRegex.test(param.name) ||
           environmentVariableConflict.some((v) => v === param.name) ||
-          isEmpty(param.value),
+          isNullOrUndefined(param.value),
       )
     ) {
       throw new JobParameterValueException(

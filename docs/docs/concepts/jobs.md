@@ -20,12 +20,14 @@ The built-in jobs come with a fresh Stalker installation. They can be fully modi
 hand-in-hand with the built-in subscriptions. Keep in mind that altering a built-in job's name may break a built-in subscription. That
 subscription would need to be adapted to the new name.
 
-| Name                                              | Description                              |
-| ------------------------------------------------- | ---------------------------------------- |
-| [DomainNameResolvingJob](#domainnameresolvingjob) | Resolves a domain name to an IP address  |
-| [TcpPortScanningJob](#tcpportscanningjob)         | Scans the tcp ports of an IP address     |
-| [TcpIpRangeScanningJob](#tcpiprangescanningjob)   | Scan an IP range for open ports          |
-| [BannerGrabbingJob](#httpservercheckjob)          | Identifies the service running on a port |
+| Name                                              | Description                              | Type   | Language |
+| ------------------------------------------------- | ---------------------------------------- | ------ | -------- |
+| [DomainNameResolvingJob](#domainnameresolvingjob) | Resolves a domain name to an IP address  | Code   | Python   |
+| [TcpPortScanningJob](#tcpportscanningjob)         | Scans the tcp ports of an IP address     | Code   | Python   |
+| [TcpIpRangeScanningJob](#tcpiprangescanningjob)   | Scan an IP range for open ports          | Code   | Python   |
+| [BannerGrabbingJob](#bannergrabbingjob)           | Identifies the service running on a port | Code   | Python   |
+| [WebsiteCrawlingJob](#websitecrawlingjob)         | Crawls a website for its valid endpoints | Code   | Python   |
+| [LoginDetectionJob](#logindetectionjob)           | Detects login portals on websites        | Nuclei | Yaml     |
 
 ### DomainNameResolvingJob
 
@@ -90,10 +92,45 @@ Identifies the service running on a port and grabs the banner. It may occasional
 | ------------- | -------- | -------------------------------------------------- |
 | targetIp      | string   | The IP address to check                            |
 | ports         | number[] | The ports to check for a service                   |
-| nmapOptions   |          | A long string containing the options given to nmap |
+| nmapOptions   | string   | A long string containing the options given to nmap |
 
 **Possible findings generated :**
 
 - PortServiceFinding
 - HostnameIpFinding
 - OperatingSystemFinding
+
+### WebsiteCrawlingJob
+
+Crawls a website for its differents valid endpoints. It can also find website technology information.
+
+**Input variables:**
+
+| Variable Name        | Type   | Value description                             |
+| -------------------- | ------ | --------------------------------------------- |
+| targetIp             | string | The website's IP address                      |
+| port                 | number | The website's port                            |
+| domainName           | string | The website's domain name                     |
+| path                 | string | The website's base path                       |
+| ssl                  | bool   | If the website is https                       |
+| maxDepth             | number | The depth to crawl                            |
+| crawlDurationSeconds | number | The max amount of time to crawl in seconds    |
+| fetcherConcurrency   | number | The number of concurrent fetchers to get data |
+| inputParallelism     | number | The number of concurrent inputs pprocessor    |
+| extraOptions         | string | Katana extra options to adapt execution       |
+
+**Possible findings generated :**
+
+- WebsitePathFinding
+- WebsiteTechnologyFinding
+
+### LoginDetectionJob
+
+| Variable Name | Type   | Value description                |
+| ------------- | ------ | -------------------------------- |
+| targetIp      | string | The website's IP address         |
+| port          | number | The website's port               |
+| domainName    | string | The website's domain name        |
+| path          | string | The website's base path          |
+| ssl           | bool   | If the website is https          |
+| endpoint      | string | The website's endpoint to target |

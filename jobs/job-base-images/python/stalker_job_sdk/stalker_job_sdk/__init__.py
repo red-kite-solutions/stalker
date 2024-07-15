@@ -74,6 +74,26 @@ class PortFinding(Finding):
         self.port = port
         self.protocol = protocol
 
+class WebsiteFinding(Finding):
+    def __init__(
+        self,
+        key: str,
+        ip: str,
+        port: int,
+        domainName: str,
+        path: str,
+        ssl: bool = None,
+        name: str = None,
+        fields: list[Field] = [],
+        type: str = "CustomFinding",
+    ):
+        super().__init__(key, type, name, fields)
+        self.ip = ip
+        self.port = port
+        self.domainName = domainName
+        self.protocol = 'tcp'
+        self.path = path
+        self.ssl = ssl
 
 class DomainFinding(Finding):
     def __init__(
@@ -89,6 +109,23 @@ class DomainFinding(Finding):
         self.ip = ip
         self.domainName = domainName
 
+class TagFinding(Finding):
+    def __init__(
+        self,
+        tag: str,
+        ip: str = None,
+        port: int  = None,
+        domainName: str = None,
+        protocol: str = None,
+        path: str = None,
+    ):
+        super().__init__("TagFinding", "TagFinding", "Tag", [])
+        self.ip = ip
+        self.port = port
+        self.domainName = domainName
+        self.protocol = protocol
+        self.path = path
+        self.tag = tag
 
 class JobStatus:
     SUCCESS = "Success"
@@ -158,3 +195,20 @@ def is_valid_port(port: int):
     except Exception:
         return False
     return True
+
+def build_url(ip: str, port: int, domain: str, path: str, ssl: bool):
+    url = "https://" if ssl else "http://"
+    url += domain if domain else ip
+    url += f":{str(port)}" if port != 80 and port != 443 else ""
+    if path:
+        url += path if path[0] == '/' else f"/{path}"
+    return url
+
+def to_boolean(value: str):
+    if value:
+        value = value.lower()
+        if value == "true":
+            return True
+        elif value == "false":
+            return False
+    return None

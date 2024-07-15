@@ -22,4 +22,5 @@ export interface CustomFindingTextField {
   type: 'text';
   label: string;
   data: string;
+  key: string;
 }

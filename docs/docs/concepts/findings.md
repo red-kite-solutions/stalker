@@ -14,15 +14,16 @@ To produce a finding, the job must create an object containing the necessary inf
 
 The finding object must contain the `type` field. Here is a list of available types.
 
-| Type                                      | Description                                        |
-| ----------------------------------------- | -------------------------------------------------- |
-| [HostnameFinding](#hostnamefinding)       | Creates a new domain.                              |
-| [IpFinding](#ipfinding)                   | Creates a new host.                                |
-| [IpRangeFinding](#iprangefinding)         | Creates a new IP range.                            |
-| [HostnameIpFinding](#hostnameipfinding)   | Creates a new host, attaches it to a given domain. |
-| [PortFinding](#portfinding)               | Creates a new port, attaches it to the given host. |
-| [CustomFinding](#customfinding)           | Attaches custom finding data to a given entity.    |
-| [PortServiceFinding](#portservicefinding) | Fills the `service` field of a port.               |
+| Type                                      | Description                                                  |
+| ----------------------------------------- | ------------------------------------------------------------ |
+| [HostnameFinding](#hostnamefinding)       | Creates a new domain.                                        |
+| [IpFinding](#ipfinding)                   | Creates a new host.                                          |
+| [IpRangeFinding](#iprangefinding)         | Creates a new IP range.                                      |
+| [HostnameIpFinding](#hostnameipfinding)   | Creates a new host, attaches it to a given domain.           |
+| [PortFinding](#portfinding)               | Creates a new port, attaches it to the given host.           |
+| [WebsiteFinding](#websitefinding)         | Creates a new website, with the proper host, domain and port |
+| [CustomFinding](#customfinding)           | Attaches custom finding data to a given entity.              |
+| [PortServiceFinding](#portservicefinding) | Fills the `service` field of a port.                         |
 
 ## HostnameFinding
 
@@ -186,7 +187,7 @@ Using the python SDK, you can emit this finding with the following code:
 ```python
 from stalker_job_sdk import PortFinding, log_finding
 port = 80
-ip = "0.0.0.0"
+ip = "1.2.3.4"
 log_finding(
     PortFinding(
         "PortFinding",
@@ -196,6 +197,64 @@ log_finding(
         "New port",
         [TextField("protocol", "This is a TCP port", "tcp")],
         "PortFinding",
+    )
+)
+```
+
+## WebsiteFinding
+
+The `WebsiteFinding` will create a website resource. Websites are made from 4 characteristics: an IP address, a domain name, a port number and a path. Only the IP address and the port are mandatory. The domain can be empty and the path will default to `/`.
+
+To create a website, it must reference an existing port of a project. To reference a domain as well, it must also be a domain already known to Stalker.
+
+It signals that an open port running an http(s) service, either `tcp` or `udp`, has been found on the host specified through the `ip` value. The `ip` must already be known to Stalker as a valid host. A port finding creates or updates a port
+and attaches it to the given host.
+
+> Emitting a `PortServiceFinding` with a `serviceName` of `http` and `https` will result in creating a `WebsiteFinding` per domain linked to the host, and one with an empty domain. [Learn more about PortServiceFinding and websites](#portservicefinding-and-websites)
+
+| Field    | Description                                             |
+| -------- | ------------------------------------------------------- |
+| `ip`     | The ip                                                  |
+| `port`   | The port number                                         |
+| `domain` | The domain on which the website is hosted, can be empty |
+| `path`   | The folder path, defaults to `/`                        |
+| `ssl`    | True if the website is protected by encryption          |
+
+Example:
+
+```json
+{
+  "type": "WebsiteFinding",
+  "key": "WebsiteFinding",
+  "ip": "1.2.3.4",
+  "port": 80,
+  "domainName": "example.com",
+  "path": "/",
+  "ssl": false
+}
+```
+
+Using the python SDK, you can emit this finding with the following code:
+
+```python
+from stalker_job_sdk import WebsiteFinding, log_finding
+port = 80
+ip = "1.2.3.4"
+domain = "example.com"
+path = "/"
+ssl = False
+
+log_finding(
+    WebsiteFinding(
+        "WebsiteFinding",
+        ip,
+        port,
+        domain,
+        path,
+        ssl,
+        "New website",
+        [],
+        "WebsiteFinding",
     )
 )
 ```
@@ -250,7 +309,7 @@ port = 80
 ip = "0.0.0.0"
 log_finding(
     PortFinding(
-        "HttpServerCheck", ip, port, "tcp", "This port runs an HTTP server"
+        "PortFunFact", ip, port, "tcp", "This is a fun fact about a port"
     )
 )
 ```
@@ -343,3 +402,81 @@ log_finding(
 ```
 
 Upon receiving this finding, the backend will set the service database field of the TCP port 22 for the `0.0.0.0` IP to `ssh`.
+
+### PortServiceFinding and websites
+
+When publishing a `PortServiceFinding` with the service name of `http` or `https`, the `Jobs Manager` will understand that a website is located on that port.
+
+The `Jobs Manager` will therefore create and publish several `WebsiteFinding`s, one for each of the host's linked domain name, and one for the IP address alone.
+
+These website findings will allow further investigation of the http(s) port with the different domain names, in case the port supporting multiple virutal hosts.
+
+For instance, imagine a host with the IP address `1.2.3.4`. This host has the linked domains `example.com` and `dev.example.com`.
+
+Then, with the following code publishing the results for an https port:
+
+```python
+from stalker_job_sdk import PortFinding, log_finding, TextField
+
+ip = '1.2.3.4'
+port = 443
+protocol = 'tcp'
+service_name = 'https'
+
+fields = [
+  TextField("serviceName", "Service name", service_name)
+]
+
+log_finding(
+    PortFinding(
+        "PortServiceFinding", ip, port, protocol, f"Found service {service_name}", fields
+    )
+)
+```
+
+We would create the following three websites:
+
+| domain          | host    | port | path |
+| --------------- | ------- | ---- | ---- |
+| N/A             | 1.2.3.4 | 443  | `/`  |
+| example.com     | 1.2.3.4 | 443  | `/`  |
+| dev.example.com | 1.2.3.4 | 443  | `/`  |
+
+That way, a website at `dev.example.com`, which may be different than the one at `example.com`, will be found. The same goes for the website through direct IP access.
+
+## WebsitePathFinding
+
+A `WebsitePathFinding` is type of `CustomFinding` that fills a website's `paths` database field with the `endpoint` text field label. It will then be shown in the interface as the website's site map.
+
+| Field    | Description                                                   |
+| -------- | ------------------------------------------------------------- |
+| `domain` | The website's domain                                          |
+| `ip`     | The website's ip                                              |
+| `port`   | The website's port number                                     |
+| `path`   | The website's path                                            |
+| `fields` | A list of [fields](#dynamic-fields). Must include `endpoint`. |
+
+Using the python SDK, you can emit this finding with the following code.
+
+```python
+from stalker_job_sdk import PortFinding, log_finding, TextField
+
+ip = '1.2.3.4'
+domain = 'example.com'
+port = 443
+path = '/'
+ssl = True
+endpoint = '/example/endpoint.html'
+
+fields = [
+  TextField("endpoint", "Enspoint", endpoint)
+]
+
+log_finding(
+    WebsiteFinding(
+        "WebsitePathFinding", ip, port, domain, path, ssl, f"Website path", fields
+    )
+)
+```
+
+Upon receiving this finding, the backend will populate the proper website's path with the `endpoint` data.

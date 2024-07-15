@@ -21,4 +21,8 @@ export const DEFAULT_TAGS: Tag[] = [
     color: '#1043ff',
     text: 'Info',
   },
+  {
+    color: '#6b0671',
+    text: 'Login',
+  },
 ];

@@ -21,12 +21,12 @@ def validate_port(port: int, name: str):
         exit()
         
 def main():
-    TARGET_IP: str = environ["targetIp"]  # Start of ip range
-    TARGET_MASK: int = int(environ["targetMask"])  # mask (ex: /24)
-    RATE: int = int(environ["rate"])  # number of threads to do the requests
-    PORT_MIN: int = int(environ["portMin"])  # expects a number (0 < p1 < 65535)
+    TARGET_IP: str = environ.get("targetIp")  # Start of ip range
+    TARGET_MASK: int = int(environ.get("targetMask"))  # mask (ex: /24)
+    RATE: int = int(environ.get("rate"))  # number of threads to do the requests
+    PORT_MIN: int = int(environ.get("portMin"))  # expects a number (0 < p1 < 65535)
     PORT_MAX: int = int(
-        environ["portMax"]
+        environ.get("portMax")
     )  # expects a number (0 < p2 <= 65535 and p2 > p1)
 
     PORTS = environ[

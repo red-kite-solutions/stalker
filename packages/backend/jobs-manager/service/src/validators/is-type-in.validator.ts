@@ -29,15 +29,33 @@ export function IsTypeIn(
       options: validationOptions,
       validator: {
         validate(value: any, args: ValidationArguments) {
-          if (types.includes('string-number') && typeof value === 'string') {
-            return isNumberString(value) || types.includes('string');
-          }
-          if (types.includes('array') && typeof value === 'object') {
-            return isArray(value) || types.includes('object');
-          }
-          return types.includes(typeof value);
+          return isTypeIn(value, types);
         },
       },
     });
   };
+}
+
+export function isTypeIn(
+  value: any,
+  types: Array<
+    | 'string'
+    | 'string-number'
+    | 'number'
+    | 'bigint'
+    | 'boolean'
+    | 'symbol'
+    | 'undefined'
+    | 'object'
+    | 'function'
+    | 'array'
+  >,
+) {
+  if (types.includes('string-number') && typeof value === 'string') {
+    return isNumberString(value) || types.includes('string');
+  }
+  if (types.includes('array') && typeof value === 'object') {
+    return isArray(value) || types.includes('object');
+  }
+  return types.includes(typeof value);
 }

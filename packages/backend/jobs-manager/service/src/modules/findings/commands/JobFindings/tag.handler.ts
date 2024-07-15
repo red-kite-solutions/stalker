@@ -7,6 +7,7 @@ import { CorrelationKeyUtils } from '../../../database/reporting/correlation.uti
 import { DomainsService } from '../../../database/reporting/domain/domain.service';
 import { HostService } from '../../../database/reporting/host/host.service';
 import { PortService } from '../../../database/reporting/port/port.service';
+import { WebsiteService } from '../../../database/reporting/websites/website.service';
 import { SecretsService } from '../../../database/secrets/secrets.service';
 import { EventSubscriptionsService } from '../../../database/subscriptions/event-subscriptions/event-subscriptions.service';
 import { SubscriptionTriggersService } from '../../../database/subscriptions/subscription-triggers/subscription-triggers.service';
@@ -23,6 +24,7 @@ export class TagHandler extends JobFindingHandlerBase<TagCommand> {
     private hostService: HostService,
     private portService: PortService,
     private tagService: TagsService,
+    private websiteService: WebsiteService,
     jobService: JobsService,
     subscriptionsService: EventSubscriptionsService,
     customJobsService: CustomJobsService,
@@ -56,6 +58,7 @@ export class TagHandler extends JobFindingHandlerBase<TagCommand> {
           true,
         );
         break;
+
       case 'HostService':
         await this.hostService.tagHostByIp(
           command.finding.ip,
@@ -64,6 +67,7 @@ export class TagHandler extends JobFindingHandlerBase<TagCommand> {
           true,
         );
         break;
+
       case 'PortService':
         await this.portService.tagPortByIp(
           command.finding.ip,
@@ -74,6 +78,15 @@ export class TagHandler extends JobFindingHandlerBase<TagCommand> {
           true,
         );
         break;
+
+      case 'WebsiteService':
+        await this.websiteService.tagWebsiteByCorrelationKey(
+          command.finding.correlationKey,
+          tag._id.toString(),
+          true,
+        );
+        break;
+
       default:
         break;
     }

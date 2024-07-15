@@ -31,6 +31,7 @@ export class EventSubscriptionsService {
       jobParameters: dto.jobParameters,
       conditions: dto.conditions,
       cooldown: dto.cooldown,
+      discriminator: dto.discriminator ?? null,
     };
     return await this.subscriptionModel.create(sub);
   }
@@ -64,6 +65,7 @@ export class EventSubscriptionsService {
       jobParameters: dto.jobParameters,
       conditions: dto.conditions,
       cooldown: dto.cooldown,
+      discriminator: dto.discriminator ?? null,
     };
     return await this.subscriptionModel.updateOne(
       { _id: { $eq: new Types.ObjectId(id) } },
@@ -93,6 +95,7 @@ export class EventSubscriptionsService {
       jobName: defaultSub.jobName,
       jobParameters: defaultSub.jobParameters,
       conditions: defaultSub.conditions,
+      discriminator: defaultSub.discriminator ?? null,
     };
 
     return await this.subscriptionModel.updateOne(

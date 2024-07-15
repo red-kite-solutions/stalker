@@ -5,6 +5,7 @@ import { Model, Types } from 'mongoose';
 import { Domain } from '../reporting/domain/domain.model';
 import { Host } from '../reporting/host/host.model';
 import { Port } from '../reporting/port/port.model';
+import { Website } from '../reporting/websites/website.model';
 import { Tag, TagsDocument } from './tag.model';
 
 @Injectable()
@@ -16,6 +17,7 @@ export class TagsService {
     @InjectModel('domain') private readonly domainsModel: Model<Domain>,
     @InjectModel('host') private readonly hostsModel: Model<Host>,
     @InjectModel('port') private readonly portsModel: Model<Port>,
+    @InjectModel('websites') private readonly websiteModel: Model<Website>,
   ) {}
 
   public async create(text: string, color: string) {
@@ -49,6 +51,10 @@ export class TagsService {
       .updateMany({ tags: tagId }, { $pull: { tags: tagId } })
       .exec();
     this.portsModel
+      .updateMany({ tags: tagId }, { $pull: { tags: tagId } })
+      .exec();
+
+    this.websiteModel
       .updateMany({ tags: tagId }, { $pull: { tags: tagId } })
       .exec();
 

@@ -82,6 +82,22 @@
         <span>{{ ports }}</span>
       }
     </a>
+
+    <a
+      mat-list-item
+      routerLinkActive="list-item-active"
+      [routerLinkActiveOptions]="{ exact: false }"
+      routerLink="/websites"
+      [matTooltip]="expanded ? '' : websites"
+      [matTooltipShowDelay]="700"
+      matTooltipPosition="right"
+    >
+      <mat-icon>web</mat-icon>
+      @if (expanded) {
+        <span>{{ websites }}</span>
+      }
+    </a>
+
     <a
       mat-list-item
       routerLinkActive="list-item-active"
