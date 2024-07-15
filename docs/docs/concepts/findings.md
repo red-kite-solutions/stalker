@@ -516,9 +516,9 @@ log_finding(
 
 Upon receiving this finding, the backend will tag the found resource. The resource will be identified with the given values. The valid combinations are:
 
-| Valid combination                | Resource type |
-| -------------------------------- | ------------- |
-| domain                           | Domain        |
-| ip                               | Host          |
-| ip, port, protocol               | Port          |
-| domain, ip, port, protocol, path | Website       |
+| Valid combination                  | Resource type |
+| ---------------------------------- | ------------- |
+| domain                             | Domain        |
+| ip                                 | Host          |
+| ip, port, protocol                 | Port          |
+| (domain), ip, port, protocol, path | Website       |
