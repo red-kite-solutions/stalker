@@ -24,6 +24,8 @@ The finding object must contain the `type` field. Here is a list of available ty
 | [WebsiteFinding](#websitefinding)         | Creates a new website, with the proper host, domain and port |
 | [CustomFinding](#customfinding)           | Attaches custom finding data to a given entity.              |
 | [PortServiceFinding](#portservicefinding) | Fills the `service` field of a port.                         |
+| [WebsitePathFinding](#websitepathfinding) | Adds an endpoint to a website's sitemap.                     |
+| [TagFinding](#tagfinding)                 | Tags a ressource.                                            |
 
 ## HostnameFinding
 
@@ -212,13 +214,13 @@ and attaches it to the given host.
 
 > Emitting a `PortServiceFinding` with a `serviceName` of `http` and `https` will result in creating a `WebsiteFinding` per domain linked to the host, and one with an empty domain. [Learn more about PortServiceFinding and websites](#portservicefinding-and-websites)
 
-| Field    | Description                                             |
-| -------- | ------------------------------------------------------- |
-| `ip`     | The ip                                                  |
-| `port`   | The port number                                         |
-| `domain` | The domain on which the website is hosted, can be empty |
-| `path`   | The folder path, defaults to `/`                        |
-| `ssl`    | True if the website is protected by encryption          |
+| Field        | Description                                             |
+| ------------ | ------------------------------------------------------- |
+| `ip`         | The ip                                                  |
+| `port`       | The port number                                         |
+| `domainName` | The domain on which the website is hosted, can be empty |
+| `path`       | The folder path, defaults to `/`                        |
+| `ssl`        | True if the website is protected by encryption          |
 
 Example:
 
@@ -448,18 +450,18 @@ That way, a website at `dev.example.com`, which may be different than the one at
 
 A `WebsitePathFinding` is type of `CustomFinding` that fills a website's `paths` database field with the `endpoint` text field label. It will then be shown in the interface as the website's site map.
 
-| Field    | Description                                                   |
-| -------- | ------------------------------------------------------------- |
-| `domain` | The website's domain                                          |
-| `ip`     | The website's ip                                              |
-| `port`   | The website's port number                                     |
-| `path`   | The website's path                                            |
-| `fields` | A list of [fields](#dynamic-fields). Must include `endpoint`. |
+| Field        | Description                                                   |
+| ------------ | ------------------------------------------------------------- |
+| `domainName` | The website's domain                                          |
+| `ip`         | The website's ip                                              |
+| `port`       | The website's port number                                     |
+| `path`       | The website's path                                            |
+| `fields`     | A list of [fields](#dynamic-fields). Must include `endpoint`. |
 
 Using the python SDK, you can emit this finding with the following code.
 
 ```python
-from stalker_job_sdk import PortFinding, log_finding, TextField
+from stalker_job_sdk import WebsiteFinding, log_finding, TextField
 
 ip = '1.2.3.4'
 domain = 'example.com'
@@ -480,3 +482,43 @@ log_finding(
 ```
 
 Upon receiving this finding, the backend will populate the proper website's path with the `endpoint` data.
+
+## TagFinding
+
+A `TagFinding` is a finding that will tag an existing resource with an existing tag. The resource and the tag must already exist.
+
+| Field        | Description                              |
+| ------------ | ---------------------------------------- |
+| `tag`        | The tag's name                           |
+| `ip`         | (optional) The resource's ip.            |
+| `port`       | (optional) The resource's port number.   |
+| `protocol`   | (optional) The resource's port protocol. |
+| `domainName` | (optional) The resource's domain.        |
+| `path`       | (optional) The resource's path.          |
+
+Using the python SDK, you can emit this finding for a website with the following code.
+
+```python
+from stalker_job_sdk import log_finding, TagFinding
+
+ip = '1.2.3.4'
+domain = 'example.com'
+port = 443
+path = '/'
+protocol='tcp'
+
+log_finding(
+    TagFinding(
+        "Login", ip=ip, port=port, domainName=domain, path=path, protocol=protocol
+    )
+)
+```
+
+Upon receiving this finding, the backend will tag the found resource. The resource will be identified with the given values. The valid combinations are:
+
+| Valid combination                | Resource type |
+| -------------------------------- | ------------- |
+| domain                           | Domain        |
+| ip                               | Host          |
+| ip, port, protocol               | Port          |
+| domain, ip, port, protocol, path | Website       |

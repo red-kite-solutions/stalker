@@ -115,8 +115,8 @@ class TagFinding(Finding):
         tag: str,
         ip: str = None,
         port: int  = None,
-        domainName: str = None,
         protocol: str = None,
+        domainName: str = None,
         path: str = None,
     ):
         super().__init__("TagFinding", "TagFinding", "Tag", [])
