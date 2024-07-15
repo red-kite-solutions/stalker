@@ -23,8 +23,35 @@ job:
       value: WebsiteLoginPortal
 conditions:
   - lhs: ${endpoint}
-    operator: or_contains_i
-    rhs: [ "auth", "log", "conn", "admin", "portal", "init", "session", "index"]
-  - lhs: ${endpoint}
     operator: not_endsWith_i
-    rhs: [".css", ".png", ".jpg", ".jpeg", ".ico", ".svg", ".pdf", ".gif", ".mp4", ".mov", ".zip", ".gz", ".tar", ".iso", ".jar", ".rar", ".wav", ".docx", ".xlsx", ".pptx", ".csv", ".exe"]
+    rhs:
+      - '.css'
+      - '.png'
+      - '.jpg'
+      - '.jpeg'
+      - '.ico'
+      - '.svg'
+      - '.pdf'
+      - '.gif'
+      - '.mp4'
+      - '.mov'
+      - '.zip'
+      - '.gz'
+      - '.tar'
+      - '.iso'
+      - '.jar'
+      - '.rar'
+      - '.wav'
+      - '.docx'
+      - '.xlsx'
+      - '.pptx'
+      - '.csv'
+      - '.exe'
+  - or:
+      - lhs: ${endpoint}
+        operator: or_contains_i
+        rhs:
+          ['auth', 'log', 'conn', 'admin', 'portal', 'init', 'session', 'index']
+      - lhs: ${endpoint}
+        operator: endsWith
+        rhs: '/'

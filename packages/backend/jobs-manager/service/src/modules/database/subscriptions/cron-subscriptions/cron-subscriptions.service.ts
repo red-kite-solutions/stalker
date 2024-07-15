@@ -175,14 +175,14 @@ export class CronSubscriptionsService {
       if (subCopy.input) {
         this.publishJobsFromInput(subCopy, projectId);
       } else {
-        let conditionPassed = true;
-        for (const condition of subCopy.conditions ?? []) {
-          if (!SubscriptionsUtils.evaluateCondition(condition)) {
-            conditionPassed = false;
-            break;
-          }
-        }
-        if (!conditionPassed) continue;
+        if (
+          !SubscriptionsUtils.shouldExecuteFromFinding(
+            subCopy.isEnabled,
+            subCopy.conditions,
+            null,
+          )
+        )
+          continue;
         this.publishJob(subCopy.jobName, subCopy.jobParameters, projectId);
       }
     }

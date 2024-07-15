@@ -11,7 +11,13 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { CustomJobNameExists } from '../../../../validators/custom-job-name-exists.validator';
-import { JobConditionDto, JobParameterDto } from '../subscriptions.dto';
+import { IsValidJobConditionsArray } from '../../../../validators/is-valid-job-conditions-array.validator';
+import { JobParameterDto } from '../subscriptions.dto';
+import {
+  AndJobCondition,
+  JobCondition,
+  OrJobCondition,
+} from './event-subscriptions.model';
 
 export class EventSubscriptionDto {
   @IsString()
@@ -41,11 +47,9 @@ export class EventSubscriptionDto {
   @IsOptional()
   public jobParameters?: JobParameterDto[];
 
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => JobConditionDto)
+  @IsValidJobConditionsArray()
   @IsOptional()
-  public conditions?: JobConditionDto[];
+  public conditions?: Array<JobCondition | OrJobCondition | AndJobCondition>;
 
   @IsNotEmpty()
   @IsInt()

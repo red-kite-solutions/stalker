@@ -29,13 +29,9 @@ export class SubscriptionsUtils {
     'lte',
     'lt',
     'contains',
-    'contains_i',
     'startsWith',
-    'startsWith_i',
     'endsWith',
-    'endsWith_i',
-    'equals_i',
-  ].flatMap((v) => [v, `not_${v}`]);
+  ];
 
   public static async getParametersForCustomJobSubscription(
     sub: Subscription,
@@ -112,6 +108,8 @@ export class SubscriptionsUtils {
     if (typeof value !== 'string' && !Array.isArray(value)) {
       return value;
     }
+
+    if (!finding) return value;
 
     let output: T;
 
