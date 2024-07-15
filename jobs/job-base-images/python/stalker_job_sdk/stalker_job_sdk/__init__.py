@@ -74,6 +74,23 @@ class PortFinding(Finding):
         self.port = port
         self.protocol = protocol
 
+class WebsiteFinding(Finding):
+    def __init__(
+        self,
+        key: str,
+        ip: str,
+        port: int,
+        domain: str,
+        path: str,
+        name: str = None,
+        fields: list[Field] = [],
+        type: str = "CustomFinding",
+    ):
+        super().__init__(key, type, name, fields)
+        self.ip = ip
+        self.port = port
+        self.domain = domain
+        self.path = path
 
 class DomainFinding(Finding):
     def __init__(

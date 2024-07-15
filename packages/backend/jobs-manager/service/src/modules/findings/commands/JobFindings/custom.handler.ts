@@ -5,6 +5,7 @@ import { ConfigService } from '../../../database/admin/config/config.service';
 import { CustomJobsService } from '../../../database/custom-jobs/custom-jobs.service';
 import { JobsService } from '../../../database/jobs/jobs.service';
 import { PortService } from '../../../database/reporting/port/port.service';
+import { WebsiteService } from '../../../database/reporting/websites/website.service';
 import { SecretsService } from '../../../database/secrets/secrets.service';
 import { EventSubscriptionsService } from '../../../database/subscriptions/event-subscriptions/event-subscriptions.service';
 import { SubscriptionTriggersService } from '../../../database/subscriptions/subscription-triggers/subscription-triggers.service';
@@ -25,6 +26,7 @@ export class CustomFindingHandler extends JobFindingHandlerBase<CustomFindingCom
     subscriptionTriggersService: SubscriptionTriggersService,
     secretsService: SecretsService,
     private portService: PortService,
+    private websiteService: WebsiteService,
   ) {
     super(
       jobService,
@@ -43,6 +45,17 @@ export class CustomFindingHandler extends JobFindingHandlerBase<CustomFindingCom
           let service: string = undefined;
           for (const f of command.finding.fields) {
             if (f.key === 'serviceName') service = f.data;
+          }
+
+          if (service === 'http' || service === 'https') {
+            // If we find an http or https service, we will build a more complex website resource
+            await this.websiteService.emitWebsiteFindingsForAllHostDomains(
+              command.jobId,
+              command.projectId,
+              command.finding.ip,
+              command.finding.port,
+              '/',
+            );
           }
 
           this.portService.addPortByIp(

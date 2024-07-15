@@ -1,15 +1,15 @@
 import { Prop } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
 
-export interface DomainSummary {
+export interface PortSummary {
   id: Types.ObjectId;
-  name: string;
+  port: number;
 }
 
-export class DomainSummaryType implements DomainSummary {
+export class PortSummaryType implements PortSummary {
   @Prop()
   id: Types.ObjectId;
 
   @Prop()
-  name: string;
+  port: number;
 }
