@@ -8,6 +8,8 @@ import { HostnameIpCommand } from './JobFindings/hostname-ip.command';
 import { HostnameIpHandler } from './JobFindings/hostname-ip.handler';
 import { PortCommand } from './JobFindings/port.command';
 import { PortHandler } from './JobFindings/port.handler';
+import { TagCommand } from './JobFindings/tag.command';
+import { TagHandler } from './JobFindings/tag.handler';
 import { WebsiteCommand } from './JobFindings/website.command';
 import { WebsiteHandler } from './JobFindings/website.handler';
 
@@ -41,6 +43,11 @@ export const FindingsCommandMapping = [
     finding: 'CustomFinding',
     handler: CustomFindingHandler,
     command: CustomFindingCommand,
+  },
+  {
+    finding: 'TagFinding',
+    handler: TagHandler,
+    command: TagCommand,
   },
 ];
 

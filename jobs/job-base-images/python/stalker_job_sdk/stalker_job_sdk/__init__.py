@@ -109,6 +109,23 @@ class DomainFinding(Finding):
         self.ip = ip
         self.domainName = domainName
 
+class TagFinding(Finding):
+    def __init__(
+        self,
+        tag: str,
+        ip: str = None,
+        port: int  = None,
+        protocol: str = None,
+        domainName: str = None,
+        path: str = None,
+    ):
+        super().__init__("TagFinding", "TagFinding", "Tag", [])
+        self.ip = ip
+        self.port = port
+        self.domainName = domainName
+        self.protocol = protocol
+        self.path = path
+        self.tag = tag
 
 class JobStatus:
     SUCCESS = "Success"

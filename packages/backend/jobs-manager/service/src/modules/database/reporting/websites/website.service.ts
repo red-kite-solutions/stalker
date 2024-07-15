@@ -431,6 +431,24 @@ export class WebsiteService {
     }
   }
 
+  public async tagWebsiteByCorrelationKey(
+    correlationKey: string,
+    tagId: string,
+    isTagged: boolean,
+  ) {
+    if (!isTagged) {
+      return await this.websiteModel.updateOne(
+        { correlationKey: { $eq: correlationKey } },
+        { $pull: { tags: new Types.ObjectId(tagId) } },
+      );
+    } else {
+      return await this.websiteModel.updateOne(
+        { correlationKey: { $eq: correlationKey } },
+        { $addToSet: { tags: new Types.ObjectId(tagId) } },
+      );
+    }
+  }
+
   /**
    * TODO:
    *

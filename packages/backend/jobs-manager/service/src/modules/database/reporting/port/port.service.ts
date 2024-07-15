@@ -263,6 +263,41 @@ export class PortService {
     }
   }
 
+  /**
+   *
+   * @param ip
+   * @param port
+   * @param protocol
+   * @param projectId
+   * @param tagId Expects a valid tagId
+   * @param isTagged
+   * @returns
+   */
+  public async tagPortByIp(
+    ip: string,
+    port: number,
+    protocol: string,
+    projectId: string,
+    tagId: string,
+    isTagged: boolean,
+  ): Promise<UpdateResult> {
+    const query: FilterQuery<Port> = {
+      ip: { $eq: ip },
+      port: { $eq: port },
+      protocol: { $eq: protocol },
+      projectId: { $eq: new Types.ObjectId(projectId) },
+    };
+    if (!isTagged) {
+      return await this.portsModel.updateOne(query, {
+        $pull: { tags: new Types.ObjectId(tagId) },
+      });
+    } else {
+      return await this.portsModel.updateOne(query, {
+        $addToSet: { tags: new Types.ObjectId(tagId) },
+      });
+    }
+  }
+
   public async getAll(
     page: number = null,
     pageSize: number = null,

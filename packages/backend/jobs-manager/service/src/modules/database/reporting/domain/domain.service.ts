@@ -329,6 +329,38 @@ export class DomainsService {
     }
   }
 
+  /**
+   *
+   * @param name
+   * @param projectId
+   * @param tagId This function expects a valid tag id
+   * @param isTagged true to tag, false to untag
+   */
+  public async tagDomainByName(
+    name: string,
+    projectId: string,
+    tagId: string,
+    isTagged: boolean,
+  ) {
+    if (!isTagged) {
+      return await this.domainModel.updateOne(
+        {
+          name: { $eq: name },
+          projectId: { $eq: new Types.ObjectId(projectId) },
+        },
+        { $pull: { tags: new Types.ObjectId(tagId) } },
+      );
+    } else {
+      return await this.domainModel.updateOne(
+        {
+          name: { $eq: name },
+          projectId: { $eq: new Types.ObjectId(projectId) },
+        },
+        { $addToSet: { tags: new Types.ObjectId(tagId) } },
+      );
+    }
+  }
+
   public buildFilters(dto: DomainsPagingDto) {
     const finalFilter = {};
     // Filter by domain

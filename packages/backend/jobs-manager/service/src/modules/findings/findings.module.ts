@@ -15,6 +15,7 @@ import { WebsiteModule } from '../database/reporting/websites/website.module';
 import { SecretsModule } from '../database/secrets/secrets.module';
 import { EventSubscriptionsModule } from '../database/subscriptions/event-subscriptions/event-subscriptions.module';
 import { SubscriptionTriggersModule } from '../database/subscriptions/subscription-triggers/subscription-triggers.module';
+import { TagsModule } from '../database/tags/tag.module';
 import { kafkaConfig } from '../job-queue/queue.module';
 import { FindingsHandlers } from './commands/findings-commands';
 import { FindingsConsumer } from './findings.consumer';
@@ -37,6 +38,7 @@ import { JobLogsConsumer } from './job-logs.consumer';
     SubscriptionTriggersModule,
     SecretsModule,
     WebsiteModule,
+    TagsModule,
   ],
   controllers: [FindingsController],
   providers: [FindingsService, ...FindingsHandlers],
