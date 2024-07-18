@@ -449,6 +449,94 @@ export class WebsiteService {
     }
   }
 
+  // TODO: Uncomment and test this function. It is too much for this PR though.
+  //       It will be more usefull in the PR where websites can be merged.
+  //
+  // /**
+  //  * This function cleans up the website collection from all traces of another resource.
+  //  * Mostly useful when a resource is deleted.
+  //  * @param id The resource ID that is deleted
+  //  * @param type The resource's type
+  //  * @returns
+  //  */
+  // public async cleanUpFor(id: string, type: 'host' | 'domain' | 'port') {
+  //   let filter: FilterQuery<Website>;
+  //   const oid = new Types.ObjectId(id);
+
+  //   const unlinkDomain = async (id: Types.ObjectId, linkedId: Types.ObjectId,  sess: ClientSession) => {
+  //     await this.websiteModel.updateMany(
+  //       { _id : { $eq: id }}, { $pull: {
+  //         alternativeDomains: { $elemMatch: { id: { $eq: linkedId }}}
+  //       }}, { session: sess }
+  //     )
+  //   };
+
+  //   const unlinkHost = async (id: Types.ObjectId, linkedId: Types.ObjectId,  sess: ClientSession) => {
+  //     await this.websiteModel.updateMany(
+  //       { _id : { $eq: id }}, { $pull: {
+  //         alternativeHosts: { $elemMatch: { id: { $eq: linkedId }}}
+  //       }}, { session: sess }
+  //     )
+  //   };
+
+  //   const unlinkPort = async (id: Types.ObjectId, linkedId: Types.ObjectId,  sess: ClientSession) => {
+  //     await this.websiteModel.updateMany(
+  //       { _id : { $eq: id }}, { $pull: {
+  //         alternativePorts: { $elemMatch: { id: { $eq: linkedId }}}
+  //       }}, { session: sess }
+  //     )
+  //   };
+
+  //   let unlink: (id: Types.ObjectId, linkedId: Types.ObjectId,  sess: ClientSession) => Promise<void>;
+
+  //   switch(type) {
+  //     case 'domain':
+  //       filter = { 'domain.id': { $eq: oid}};
+  //       unlink = unlinkDomain;
+  //       break;
+  //     case 'host':
+  //       filter = { 'host.id': { $eq: oid}};
+  //       unlink = unlinkHost;
+  //       break;
+  //     case 'port':
+  //       filter = { 'port.id': { $eq: oid}};
+  //       unlink = unlinkPort;
+  //       break;
+  //     default:
+  //       return;
+  //   }
+
+  //   const key = 'alternativeDomains';
+
+  //   filter.mergedInId
+
+  //   const session = await this.websiteModel.startSession();
+  //   const unlinkPromises: Promise<void>[] = [];
+
+  //   try {
+  //     await session.withTransaction(async () => {
+  //       const websites = await this.websiteModel.find(
+  //         {
+  //           ...filter,
+  //           mergedInId: { $ne: null }
+  //         },
+  //         undefined,
+  //         { session },
+  //       );
+
+  //       for(const w of websites) {
+  //         unlinkPromises.push(unlink(w.mergedInId, oid, session));
+  //       }
+
+  //       await Promise.all(unlinkPromises);
+
+  //       await this.websiteModel.deleteMany(filter, { session });
+  //     });
+  //   } finally {
+  //     await session.endSession();
+  //   }
+  // }
+
   /**
    * TODO:
    *

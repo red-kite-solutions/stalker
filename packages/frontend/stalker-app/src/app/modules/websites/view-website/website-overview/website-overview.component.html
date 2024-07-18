@@ -113,8 +113,22 @@
       }
     </mat-card>
     <mat-card id="preview">
-      @if (_website.previewImage) {
-        Not supported yet
+      @if (previewLoading) {
+        <div
+          class="tw-w-full tw-h-full tw-text-center tw-align-middle tw-flex tw-flex-row tw-items-center tw-justify-center"
+        >
+          <mat-spinner [color]="'accent'" class="spinner"></mat-spinner>
+        </div>
+      }
+
+      @if (preview$ | async; as preview) {
+        @for (field of preview.fields; track field) {
+          @if (field.type === 'image' && field.key === 'image') {
+            <div class="preview-image">
+              <image-finding-field [data]="field"></image-finding-field>
+            </div>
+          }
+        }
       } @else {
         <div
           class="tw-w-full tw-h-full tw-text-center tw-align-middle tw-flex tw-flex-row tw-items-center tw-justify-center"

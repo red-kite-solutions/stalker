@@ -1,4 +1,4 @@
-import { Type } from 'class-transformer';
+import { Transform, Type, plainToClass } from 'class-transformer';
 import {
   IsArray,
   IsNotEmpty,
@@ -8,7 +8,10 @@ import {
   IsString,
   Max,
   Min,
+  ValidateNested,
+  isArray,
 } from 'class-validator';
+import { HttpBadRequestException } from '../../exceptions/http.exceptions';
 
 export type CustomFindingFieldDto = CustomFindingBaseDto &
   (CustomFindingImageFieldDto | CustomFindingTextFieldDto);
@@ -41,6 +44,14 @@ export class CustomFindingDto {
   public fields: CustomFindingFieldDto[];
 }
 
+export class FieldFilterDto {
+  @IsString()
+  key: string;
+
+  @IsOptional()
+  data: unknown;
+}
+
 export class FindingsPagingDto {
   @IsNumberString()
   page: string = '1';
@@ -58,7 +69,35 @@ export class FindingsPagingDto {
   @IsString({ each: true })
   @IsArray()
   @IsOptional()
-  filterFinding: string[];
+  findingDenyList: string[];
+
+  @IsString({ each: true })
+  @IsArray()
+  @IsOptional()
+  findingAllowList: string[];
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => FieldFilterDto)
+  @Transform(
+    ({ value }) => {
+      if (value && isArray(value)) {
+        return value.map((v) => {
+          try {
+            return plainToClass(FieldFilterDto, JSON.parse(v));
+          } catch {
+            throw new HttpBadRequestException(
+              'Invalid fieldFilters data, unable to parse',
+            );
+          }
+        });
+      }
+      return value;
+    },
+    { toClassOnly: true },
+  )
+  @IsOptional()
+  fieldFilters: FieldFilterDto[];
 }
 
 export class WebsiteEndpointFindingDto {

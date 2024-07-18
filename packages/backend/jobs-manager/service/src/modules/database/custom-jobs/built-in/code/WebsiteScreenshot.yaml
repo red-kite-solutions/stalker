@@ -1,0 +1,22 @@
+name: WebsiteScreenshotJob
+type: code
+language: python
+parameters:
+  - name: domainName
+    type: string
+  - name: targetIp
+    type: string
+  - name: port
+    type: number
+    default: 443
+  - name: path
+    type: string
+    default: "/"
+  - name: ssl
+    type: boolean
+    default: true
+  - name: endpoint
+    type: string
+jobPodConfigName: XL
+codeFilePath: code/WebsiteScreenshotJob.py
+templateOrdering: '/built-in/python'

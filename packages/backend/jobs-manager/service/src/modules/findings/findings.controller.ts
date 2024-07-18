@@ -5,7 +5,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/role.guard';
 import { CustomFinding } from '../database/reporting/findings/finding.model';
-import { FindingsPagingDto, WebsiteEndpointFindingDto } from './finding.dto';
+import { FindingsPagingDto } from './finding.dto';
 import { FindingsService } from './findings.service';
 
 @Roles(Role.ReadOnly)
@@ -16,21 +16,6 @@ export class FindingsController {
 
   @Get()
   async get(@Query() dto: FindingsPagingDto): Promise<Page<CustomFinding>> {
-    return await this.findingsService.getAll(
-      dto.target,
-      +dto.page,
-      +dto.pageSize,
-      dto.filterFinding,
-    );
-  }
-
-  @Get('endpoint')
-  async getLatestEndpoint(
-    @Query() dto: WebsiteEndpointFindingDto,
-  ): Promise<CustomFinding> {
-    return await this.findingsService.getLatestWebsiteEndpoint(
-      dto.target,
-      dto.endpoint,
-    );
+    return await this.findingsService.getAll(+dto.page, +dto.pageSize, dto);
   }
 }

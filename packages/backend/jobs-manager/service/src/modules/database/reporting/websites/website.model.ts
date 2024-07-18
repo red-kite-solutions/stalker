@@ -36,9 +36,6 @@ export class Website {
   @Prop()
   public sitemap: string[];
 
-  @Prop({ select: false })
-  public previewImage: string;
-
   @Prop()
   public projectId?: Types.ObjectId;
 

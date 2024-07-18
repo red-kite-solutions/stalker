@@ -78,8 +78,12 @@ describe('Findings Service Spec', () => {
     ]);
 
     // Act
-    const firstPage = await findingsService.getAll('my-target', 1, 3);
-    const secondPage = await findingsService.getAll('my-target', 2, 3);
+    const firstPage = await findingsService.getAll(1, 3, {
+      target: 'my-target',
+    });
+    const secondPage = await findingsService.getAll(2, 3, {
+      target: 'my-target',
+    });
 
     // Assert
     expect(firstPage.totalRecords).toBe(5);
@@ -170,7 +174,9 @@ describe('Findings Service Spec', () => {
       c.id,
       'example.org',
     );
-    const findings = await findingsService.getAll(correlationKey, 1, 100);
+    const findings = await findingsService.getAll(1, 100, {
+      target: correlationKey,
+    });
     expect(findings.totalRecords).toBe(1);
 
     const finding = findings.items[0];
@@ -187,7 +193,7 @@ describe('Findings Service Spec', () => {
     expect(field.data).toBe('My content');
   });
 
-  it('Get findings filtered by key', async () => {
+  it('Get findings filtered by key - Deny list', async () => {
     // Arrange
     const c = await project();
 
@@ -207,9 +213,41 @@ describe('Findings Service Spec', () => {
       c.id,
       'example.org',
     );
-    const findings = await findingsService.getAll(correlationKey, 1, 100, [
-      filteredKey,
-    ]);
+    const findings = await findingsService.getAll(1, 100, {
+      target: correlationKey,
+      findingDenyList: [filteredKey],
+    });
+
+    // Assert
+    expect(findings.totalRecords).toBe(1);
+    const finding = findings.items[0];
+    expect(finding.key).toBe(nonFilteredKey);
+  });
+
+  it('Get findings filtered by key - Deny list', async () => {
+    // Arrange
+    const c = await project();
+
+    const j = await jobsModel.create({
+      projectId: c.id,
+      task: 'CustomJob',
+    });
+
+    const nonFilteredKey = 'my-finding-1';
+    const filteredKey = 'my-finding-2';
+
+    await customDomainFinding(c.id, j.id, filteredKey);
+    await customDomainFinding(c.id, j.id, nonFilteredKey);
+
+    // Act
+    const correlationKey = CorrelationKeyUtils.domainCorrelationKey(
+      c.id,
+      'example.org',
+    );
+    const findings = await findingsService.getAll(1, 100, {
+      target: correlationKey,
+      findingAllowList: [nonFilteredKey],
+    });
 
     // Assert
     expect(findings.totalRecords).toBe(1);
@@ -271,10 +309,17 @@ describe('Findings Service Spec', () => {
       'example.org',
       '/',
     );
-    const endpoint = await findingsService.getLatestWebsiteEndpoint(
-      correlationKey,
-      '/example/file.html',
-    );
+    const endpoint = (
+      await findingsService.getAll(1, 1, {
+        target: correlationKey,
+        fieldFilters: [
+          {
+            key: CustomFindingsConstants.WebsiteEndpointFieldKey,
+            data: '/example/file.html',
+          },
+        ],
+      })
+    ).items[0];
 
     // Assert
     expect(endpoint._id.toString()).toStrictEqual(f2._id.toString());
