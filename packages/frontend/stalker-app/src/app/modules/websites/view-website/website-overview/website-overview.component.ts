@@ -66,6 +66,7 @@ export class WebsiteOverviewComponent {
   public sitemapFilterChange$ = new BehaviorSubject<string>('');
   public selectedEndpoint: string = '';
   public endpointLoading: boolean = false;
+  public previewLoading: boolean = false;
   public selectedEndpoint$ = new Subject<string>();
   public endpointData$ = combineLatest([this.selectedEndpoint$, this.website$]).pipe(
     tap(() => {
@@ -80,6 +81,18 @@ export class WebsiteOverviewComponent {
       this.endpointLoading = false;
     }),
     shareReplay(1)
+  );
+
+  public preview$ = this.website$.pipe(
+    tap(() => {
+      this.previewLoading = true;
+    }),
+    switchMap((website) => {
+      return this.findingService.getLatestWebsitePreview(website!.correlationKey);
+    }),
+    tap(() => {
+      this.previewLoading = false;
+    })
   );
 
   public sitemap$ = combineLatest([this.website$, this.sitemapFilterChange$]).pipe(

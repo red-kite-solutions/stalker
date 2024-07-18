@@ -1,7 +1,7 @@
 import os
 import typing
 from json import loads
-from subprocess import PIPE, Popen, run
+from subprocess import PIPE, Popen
 from urllib.parse import urlparse
 
 from stalker_job_sdk import (JobStatus, TextField, WebsiteFinding, build_url,

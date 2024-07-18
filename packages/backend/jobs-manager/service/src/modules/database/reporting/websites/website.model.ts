@@ -36,9 +36,6 @@ export class Website {
   @Prop()
   public sitemap: string[];
 
-  @Prop({ select: false })
-  public previewImage: string;
-
   @Prop()
   public projectId?: Types.ObjectId;
 
@@ -67,7 +64,7 @@ export class Website {
   @Prop()
   public blockedAt?: number;
 
-  @Prop()
+  @Prop({ index: true })
   public mergedInId?: Types.ObjectId;
 }
 

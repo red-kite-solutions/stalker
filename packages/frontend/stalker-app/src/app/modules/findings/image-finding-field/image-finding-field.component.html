@@ -1,1 +1,7 @@
-<img [src]="_data?.data" />
+<img class="normal" [src]="_data?.data" (click)="zoom(zoomed)" />
+
+<ng-template #zoomed>
+  <div class="zoomed">
+    <img [src]="_data?.data" />
+  </div>
+</ng-template>

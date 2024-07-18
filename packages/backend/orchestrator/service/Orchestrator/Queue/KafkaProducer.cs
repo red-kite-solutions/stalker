@@ -37,10 +37,17 @@ public abstract class MessagesProducer<T> : IMessagesProducer<T> where T : class
     public async Task Produce(T message)
     {
         Logger.LogTrace($"Producing message to topic {Topic}: {JsonSerializer.Serialize(message)}");
-
-        await Producer.ProduceAsync(Topic, new Message<Null, T>
+        try 
         {
-            Value = message,
-        });
+            await Producer.ProduceAsync(Topic, new Message<Null, T>
+            {
+                Value = message,
+            });
+        }
+        catch (Exception ex) {
+            Logger.LogError(ex, "An error occurred while sending the message to Kafka.");
+            throw;
+        }
+        
     }
 }

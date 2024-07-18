@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { InjectModel } from '@nestjs/mongoose';
-import { FilterQuery, Model } from 'mongoose';
+import { Document, FilterQuery, Model } from 'mongoose';
 import {
   HttpBadRequestException,
   HttpNotFoundException,
@@ -21,7 +21,7 @@ import { PortCommand } from './commands/JobFindings/port.command';
 import { TagCommand } from './commands/JobFindings/tag.command';
 import { WebsiteCommand } from './commands/JobFindings/website.command';
 import { CustomFindingFieldDto } from './finding.dto';
-import { CustomFindingsConstants } from './findings.constants';
+import { FindingsFilter } from './findings-filter.type';
 
 export type Finding =
   | HostnameIpFinding
@@ -140,24 +140,13 @@ export class FindingsService {
   ) {}
 
   public async getAll(
-    target: string,
     page: number,
     pageSize: number,
-    filterFindings: string[] = [],
-  ): Promise<Page<CustomFinding>> {
+    dto: FindingsFilter = undefined,
+  ): Promise<Page<CustomFinding & Document>> {
     if (page < 1) throw new HttpBadRequestException('Page starts at 1.');
 
-    const filters: FilterQuery<CustomFinding> = {};
-
-    if (target) {
-      filters.correlationKey = {
-        $eq: target,
-      };
-    }
-
-    if (filterFindings.length) {
-      filters.key = { $nin: filterFindings };
-    }
+    const filters: FilterQuery<CustomFinding> = this.buildFilters(dto);
 
     const items = await this.findingModel
       .find(filters)
@@ -175,23 +164,46 @@ export class FindingsService {
     };
   }
 
-  public async getLatestWebsiteEndpoint(
-    correlationKey: string,
-    endpoint: string,
-  ) {
-    return await this.findingModel
-      .findOne({
-        correlationKey: { $eq: correlationKey },
-        key: CustomFindingsConstants.WebsitePathFinding,
-        fields: {
-          $elemMatch: {
-            type: 'text',
-            key: CustomFindingsConstants.WebsiteEndpointFieldKey,
-            data: endpoint,
-          },
-        },
-      })
-      .sort({ _id: 'descending' });
+  private buildFilters(dto: FindingsFilter): FilterQuery<CustomFinding> {
+    const filters: FilterQuery<CustomFinding> = {};
+
+    if (dto.target) {
+      filters.correlationKey = {
+        $eq: dto.target,
+      };
+    }
+
+    if (
+      dto.findingDenyList?.length ||
+      dto.findingAllowList?.length ||
+      dto.fieldFilters?.length
+    ) {
+      filters.$and = [];
+
+      if (dto.findingDenyList?.length) {
+        filters.$and.push({ key: { $nin: dto.findingDenyList } });
+      }
+
+      if (dto.findingAllowList?.length) {
+        filters.$and.push({ key: { $in: dto.findingAllowList } });
+      }
+
+      if (dto.fieldFilters) {
+        for (const fieldFilter of dto.fieldFilters) {
+          fieldFilter;
+          filters.$and.push({
+            fields: {
+              $elemMatch: {
+                key: fieldFilter.key,
+                data: fieldFilter.data,
+              },
+            },
+          });
+        }
+      }
+    }
+
+    return filters;
   }
 
   /**
