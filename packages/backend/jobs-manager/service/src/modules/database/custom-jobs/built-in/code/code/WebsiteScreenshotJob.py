@@ -1,12 +1,10 @@
 import os
 from base64 import b64encode
 from subprocess import CompletedProcess, run
-from urllib.parse import urlparse
 
 from stalker_job_sdk import (ImageField, JobStatus, TextField, WebsiteFinding,
                              build_url, is_valid_ip, is_valid_port, log_error,
-                             log_finding, log_info, log_status, log_warning,
-                             to_boolean)
+                             log_finding, log_info, log_status, to_boolean)
 
 
 def get_valid_args():
@@ -16,7 +14,8 @@ def get_valid_args():
     domain: str = os.environ.get("domainName")
     path: str = os.environ.get("path")
     ssl: str = to_boolean(os.environ.get("ssl"))
-    endpoint: str = to_boolean(os.environ.get("endpoint"))
+    endpoint: str = os.environ.get("endpoint")
+    findingName: str = os.environ.get("finding")
 
     if not is_valid_ip(target_ip):
         log_error(f"targetIp parameter is invalid: {target_ip}")
@@ -28,10 +27,13 @@ def get_valid_args():
         log_status(JobStatus.FAILED)
         exit()
 
-    return target_ip, port, domain, path, ssl, endpoint
+    if not findingName:
+        findingName = "WebsiteScreenshotFinding"
+
+    return target_ip, port, domain, path, ssl, endpoint, findingName
 
 
-def emit_screenshot_finding(domain: str, ip: str, port: int, path: str, ssl: bool, endpoint: str, url: str):
+def emit_screenshot_finding(findingName: str, domain: str, ip: str, port: int, path: str, ssl: bool, endpoint: str, url: str):
     output_folder = './output/screenshot/'
 
     for root, directories, files in os.walk(output_folder):
@@ -45,18 +47,17 @@ def emit_screenshot_finding(domain: str, ip: str, port: int, path: str, ssl: boo
                 
                 fields = []
                 fields.append(TextField("url", "Url", url))
-                if(endpoint):
-                    fields.append(TextField("endpoint", "Endpoint", endpoint))
+                fields.append(TextField("endpoint", "Endpoint", endpoint if endpoint else path))
                 fields.append(ImageField("image", f"data:image/png;base64,{data}"))
                 
                 log_finding(
                     WebsiteFinding(
-                        "WebsiteScreenshotFinding", ip, port, domain, path, ssl, f"Website screenshot", fields
+                        findingName, ip, port, domain, path, ssl, f"Website screenshot", fields
                     )
                 )
 
 def main():
-    target_ip, port, domain, path, ssl, endpoint = get_valid_args()
+    target_ip, port, domain, path, ssl, endpoint, findingName = get_valid_args()
 
     url = build_url(target_ip, port, domain, endpoint if endpoint else path, ssl)
 
@@ -66,7 +67,7 @@ def main():
 
     httpx_process: CompletedProcess = run(httpx_str.split(" "), text=True)
 
-    emit_screenshot_finding(domain, target_ip, port, path, ssl, endpoint, url)
+    emit_screenshot_finding(findingName, domain, target_ip, port, path, ssl, endpoint, url)
 
 try:
     main()

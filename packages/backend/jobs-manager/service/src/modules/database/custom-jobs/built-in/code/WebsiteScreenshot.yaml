@@ -17,6 +17,9 @@ parameters:
     default: true
   - name: endpoint
     type: string
+  - name: finding
+    type: string
+    default: "WebsiteScreenshotFinding"
 jobPodConfigName: XL
 codeFilePath: code/WebsiteScreenshotJob.py
 templateOrdering: '/built-in/python'

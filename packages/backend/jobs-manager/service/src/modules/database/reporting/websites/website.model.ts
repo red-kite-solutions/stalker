@@ -64,7 +64,7 @@ export class Website {
   @Prop()
   public blockedAt?: number;
 
-  @Prop()
+  @Prop({ index: true })
   public mergedInId?: Types.ObjectId;
 }
 
