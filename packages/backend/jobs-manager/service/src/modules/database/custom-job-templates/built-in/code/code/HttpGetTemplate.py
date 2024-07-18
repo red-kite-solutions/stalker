@@ -20,6 +20,7 @@ def get_valid_args():
     domain: str = os.environ.get("domainName")
     path: str = os.environ.get("path")
     ssl: str = to_boolean(os.environ.get("ssl"))
+    endpoint: str = os.environ.get("endpoint")
 
     if not is_valid_ip(target_ip):
         log_error(f"targetIp parameter is invalid: {target_ip}")
@@ -31,7 +32,7 @@ def get_valid_args():
         log_status(JobStatus.FAILED)
         exit()
 
-    return target_ip, port, domain, path, ssl
+    return target_ip, port, domain, path, ssl, endpoint
 
 
 def emit_file_finding(file: WebsiteFile, domain: str, ip: str, port: int, path: str, ssl: bool):
@@ -48,9 +49,9 @@ def emit_file_finding(file: WebsiteFile, domain: str, ip: str, port: int, path: 
     )
 
 def main():
-    target_ip, port, domain, path, ssl = get_valid_args()
+    target_ip, port, domain, path, ssl, endpoint = get_valid_args()
 
-    url = build_url(target_ip, port, domain, path, ssl)
+    url = build_url(target_ip, port, domain, endpoint if endpoint else path, ssl)
 
     with httpx.Client(verify=False, http2=True, timeout=10.0) as client:
         try:
