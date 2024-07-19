@@ -58,7 +58,10 @@ def main():
 
     httpx_str: str = f"httpx -silent -screenshot -system-chrome -duc -u {url}"
 
-    while retry_count <= max_retry:
+    should_retry = True
+
+    while should_retry and retry_count <= max_retry:
+        retry_count += 1
         log_info(f'Screenshot starting: {httpx_str}')
         httpx_process: CompletedProcess = run(httpx_str.split(" "), text=True)
 
@@ -72,9 +75,10 @@ def main():
                     data = b64encode(data).decode('utf-8')
                     
                     if len(data) > 0:
+                        should_retry = False
                         emit_screenshot_finding(findingName, domain, target_ip, port, path, ssl, endpoint, url, data)
                     else:
-                        retry_count += 1
+                        should_retry = True
                         if retry_count <= max_retry:
                             log_warning("Screenshot data is empty, retrying")
                         else:
