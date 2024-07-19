@@ -95,6 +95,10 @@ export class CorrelationKeyUtils {
       );
     }
 
+    if (path && !domainName) {
+      domainName = '';
+    }
+
     let correlationKey = null;
     const ambiguousRequest =
       'Ambiguous request for correlation key; Valid combinations are: [domainName], [ip], [ip,mask], [ip,port,protocol] and [ip,port,domainName,path]';

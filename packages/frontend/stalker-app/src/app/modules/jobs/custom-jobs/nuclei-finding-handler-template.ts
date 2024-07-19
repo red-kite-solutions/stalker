@@ -11,7 +11,7 @@ export const nucleiFindingHandlerTemplate = [
   '',
   '    def parse_finding(self, finding_obj: dict, original_string: str, original_path: str):',
   '        """This method returns a NucleiFinding, but it can return any object."""',
-  '        return NucleiFinding(finding_obj, original_string=line, original_path=path)',
+  '        return NucleiFinding(finding_obj, original_string=original_string, original_path=original_path)',
   '',
   '    def publish_findings(self, findings: list):',
   '        """This method receives all the findings given by the parse_finding method as a list."""',
