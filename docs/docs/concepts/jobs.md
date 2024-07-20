@@ -126,6 +126,8 @@ Crawls a website for its differents valid endpoints. It can also find website te
 
 ### LoginDetectionJob
 
+Detects a login page based on regex and word match.
+
 | Variable Name | Type   | Value description                |
 | ------------- | ------ | -------------------------------- |
 | targetIp      | string | The website's IP address         |
@@ -134,3 +136,18 @@ Crawls a website for its differents valid endpoints. It can also find website te
 | path          | string | The website's base path          |
 | ssl           | bool   | If the website is https          |
 | endpoint      | string | The website's endpoint to target |
+
+### WebsiteScreenshotJob
+
+Takes a screenshot of a web page.
+
+| Variable Name | Type   | Value description                                                             |
+| ------------- | ------ | ----------------------------------------------------------------------------- |
+| targetIp      | string | The website's IP address                                                      |
+| port          | number | The website's port                                                            |
+| domainName    | string | The website's domain name                                                     |
+| path          | string | The website's base path                                                       |
+| ssl           | bool   | If the website is https                                                       |
+| endpoint      | string | The website's endpoint to target                                              |
+| finding       | string | (Optional, default: WebsiteScreenshotFinding) The name of the emitted finding |
+| findingTitle  | string | (Optional, default: Website screenshot) The title of the emitted finding      |

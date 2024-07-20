@@ -483,6 +483,45 @@ log_finding(
 
 Upon receiving this finding, the backend will populate the proper website's path with the `endpoint` data.
 
+## WebsiteScreenshotFinding
+
+A `WebsiteScreenshotFinding` is type of `CustomFinding` that should contain an `ImageField` named `image`. This image will be considered the landing page of the website and will be shown on the different website views.
+
+| Field        | Description                                                |
+| ------------ | ---------------------------------------------------------- |
+| `domainName` | The website's domain                                       |
+| `ip`         | The website's ip                                           |
+| `port`       | The website's port number                                  |
+| `path`       | The website's path                                         |
+| `fields`     | A list of [fields](#dynamic-fields). Must include `image`. |
+
+Using the python SDK, you can emit this finding with the following code.
+
+```python
+from stalker_job_sdk import WebsiteFinding, log_finding, ImageField, TextField
+from base64 import b64encode
+
+ip = '1.2.3.4'
+domain = 'example.com'
+port = 443
+path = '/'
+ssl = True
+data = b64encode(image_bytes).decode('utf-8')
+image_data = 
+endpoint = '/example/endpoint.html'
+
+fields = [
+  TextField("endpoint", "Endpoint", endpoint),
+  ImageField("image", f"data:image/png;base64,{data}")
+]
+
+log_finding(
+  WebsiteFinding(
+      "WebsiteScreenshotFinding", ip, port, domain or '', path, ssl, "Website screenshot", fields
+  )
+)
+```
+
 ## TagFinding
 
 A `TagFinding` is a finding that will tag an existing resource with an existing tag. The resource and the tag must already exist.
