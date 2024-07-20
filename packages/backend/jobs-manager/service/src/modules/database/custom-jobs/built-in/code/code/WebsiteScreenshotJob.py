@@ -17,7 +17,8 @@ def get_valid_args():
     path: str = os.environ.get("path")
     ssl: str = to_boolean(os.environ.get("ssl"))
     endpoint: str = os.environ.get("endpoint")
-    findingName: str = os.environ.get("finding")
+    finding_name: str = os.environ.get("finding")
+    finding_title: str = os.environ.get("findingTitle")
 
     if not is_valid_ip(target_ip):
         log_error(f"targetIp parameter is invalid: {target_ip}")
@@ -29,13 +30,16 @@ def get_valid_args():
         log_status(JobStatus.FAILED)
         exit()
 
-    if not findingName:
-        findingName = "WebsiteScreenshotFinding"
+    if not finding_name:
+        finding_name = "WebsiteScreenshotFinding"
 
-    return target_ip, port, domain, path, ssl, endpoint, findingName
+    if not finding_title:
+        finding_title = "Website screenshot"
+
+    return target_ip, port, domain, path, ssl, endpoint, finding_name, finding_title
 
 
-def emit_screenshot_finding(findingName: str, domain: str, ip: str, port: int, path: str, ssl: bool, endpoint: str, url: str, data: str):
+def emit_screenshot_finding(finding_name: str, finding_title: str, domain: str, ip: str, port: int, path: str, ssl: bool, endpoint: str, url: str, data: str):
     fields = []
     fields.append(TextField("url", "Url", url))
     fields.append(TextField("endpoint", "Endpoint", endpoint if endpoint else path))
@@ -43,7 +47,7 @@ def emit_screenshot_finding(findingName: str, domain: str, ip: str, port: int, p
     
     log_finding(
         WebsiteFinding(
-            findingName, ip, port, domain or '', path, ssl, f"Website screenshot", fields
+            finding_name, ip, port, domain or '', path, ssl, finding_title, fields
         )
     )
 
@@ -51,7 +55,7 @@ def main():
     output_folder = './output/screenshot/'
     retry_count = 0
     max_retry = 1
-    target_ip, port, domain, path, ssl, endpoint, findingName = get_valid_args()
+    target_ip, port, domain, path, ssl, endpoint, finding_name, finding_title = get_valid_args()
     
 
     url = build_url(target_ip, port, domain, endpoint if endpoint else path, ssl)
@@ -76,7 +80,7 @@ def main():
                     
                     if len(data) > 0:
                         should_retry = False
-                        emit_screenshot_finding(findingName, domain, target_ip, port, path, ssl, endpoint, url, data)
+                        emit_screenshot_finding(finding_name, finding_title, domain, target_ip, port, path, ssl, endpoint, url, data)
                     else:
                         should_retry = True
                         if retry_count <= max_retry:

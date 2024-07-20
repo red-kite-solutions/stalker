@@ -471,7 +471,7 @@ ssl = True
 endpoint = '/example/endpoint.html'
 
 fields = [
-  TextField("endpoint", "Enspoint", endpoint)
+  TextField("endpoint", "Endpoint", endpoint)
 ]
 
 log_finding(

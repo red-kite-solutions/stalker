@@ -1,9 +1,9 @@
-name: Detect login portals
-finding: WebsitePathFinding
-cooldown: 86400
+name: Login portal screenshot
+finding: WebsiteLoginPortal
 discriminator: ${endpoint}
+cooldown: 2592000
 job:
-  name: LoginDetectionJob
+  name: WebsiteScreenshotJob
   parameters:
     - name: domainName
       value: ${domainName}
@@ -17,10 +17,15 @@ job:
       value: ${ssl}
     - name: endpoint
       value: ${endpoint}
+    - name: finding
+      value: WebsiteLoginScreenshotFinding
+    - name: findingTitle
+      value: Website login portal
 conditions:
   - lhs: ${endpoint}
     operator: not_endsWith_i
     rhs:
+      - '.js'
       - '.css'
       - '.png'
       - '.jpg'
@@ -43,11 +48,3 @@ conditions:
       - '.pptx'
       - '.csv'
       - '.exe'
-  - or:
-      - lhs: ${endpoint}
-        operator: or_contains_i
-        rhs:
-          ['auth', 'log', 'conn', 'admin', 'portal', 'init', 'session', 'index']
-      - lhs: ${endpoint}
-        operator: endsWith
-        rhs: '/'
