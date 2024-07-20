@@ -11,7 +11,7 @@ parameters:
     default: 443
   - name: path
     type: string
-    default: "/"
+    default: '/'
   - name: ssl
     type: boolean
     default: true
@@ -19,7 +19,10 @@ parameters:
     type: string
   - name: finding
     type: string
-    default: "WebsiteScreenshotFinding"
+    default: 'WebsiteScreenshotFinding'
+  - name: findingTitle
+    type: string
+    default: 'Website screenshot'
 jobPodConfigName: XL
 codeFilePath: code/WebsiteScreenshotJob.py
 templateOrdering: '/built-in/python'

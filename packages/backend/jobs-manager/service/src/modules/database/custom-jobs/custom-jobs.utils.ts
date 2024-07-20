@@ -106,7 +106,7 @@ export class CustomJobsUtils {
         jobPodConfigId: jpc._id,
       };
 
-      if (jobMetadata.findingHandler && existsSync(handlerPath)) {
+      if (jobMetadata.handlerFilePath && existsSync(handlerPath)) {
         job.findingHandler = readFileSync(handlerPath).toString();
         job.findingHandlerEnabled = true;
         job.findingHandlerLanguage = jobMetadata.findingHandlerLanguage;

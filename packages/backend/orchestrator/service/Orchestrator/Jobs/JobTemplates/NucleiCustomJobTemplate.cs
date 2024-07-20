@@ -21,7 +21,7 @@ public class NucleiCustomJobTemplate : KubernetesJobTemplate
         {
             foreach (var param in jobParameters!)
             {
-                if (param.Name.IsNullOrEmpty() || param.Value.IsNullOrEmpty()) continue;
+                if (param.Name.IsNullOrEmpty() || param == null) continue;
                 EnvironmentVariable[param.Name!] = param.Value!;
             }
         }

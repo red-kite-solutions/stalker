@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { firstValueFrom, Observable } from 'rxjs';
+import { firstValueFrom, map, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { CustomJob, CustomJobData } from '../../../shared/types/jobs/custom-job.type';
 
@@ -15,7 +15,12 @@ export class CustomJobsService {
   }
 
   public get(id: string): Observable<CustomJob> {
-    return <Observable<CustomJob>>this.http.get(`${environment.fmUrl}/custom-jobs/${id}`);
+    return <Observable<CustomJob>>this.http.get(`${environment.fmUrl}/custom-jobs/${id}`).pipe(
+      map((v) => {
+        // console.log(v);
+        return v;
+      })
+    );
   }
 
   public async create(data: CustomJobData): Promise<CustomJob> {

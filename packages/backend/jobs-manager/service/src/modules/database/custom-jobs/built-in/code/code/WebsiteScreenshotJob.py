@@ -1,10 +1,12 @@
 import os
 from base64 import b64encode
+from shutil import rmtree
 from subprocess import CompletedProcess, run
 
 from stalker_job_sdk import (ImageField, JobStatus, TextField, WebsiteFinding,
                              build_url, is_valid_ip, is_valid_port, log_error,
-                             log_finding, log_info, log_status, to_boolean)
+                             log_finding, log_info, log_status, log_warning,
+                             to_boolean)
 
 
 def get_valid_args():
@@ -15,7 +17,8 @@ def get_valid_args():
     path: str = os.environ.get("path")
     ssl: str = to_boolean(os.environ.get("ssl"))
     endpoint: str = os.environ.get("endpoint")
-    findingName: str = os.environ.get("finding")
+    finding_name: str = os.environ.get("finding")
+    finding_title: str = os.environ.get("findingTitle")
 
     if not is_valid_ip(target_ip):
         log_error(f"targetIp parameter is invalid: {target_ip}")
@@ -27,47 +30,63 @@ def get_valid_args():
         log_status(JobStatus.FAILED)
         exit()
 
-    if not findingName:
-        findingName = "WebsiteScreenshotFinding"
+    if not finding_name:
+        finding_name = "WebsiteScreenshotFinding"
 
-    return target_ip, port, domain, path, ssl, endpoint, findingName
+    if not finding_title:
+        finding_title = "Website screenshot"
+
+    return target_ip, port, domain, path, ssl, endpoint, finding_name, finding_title
 
 
-def emit_screenshot_finding(findingName: str, domain: str, ip: str, port: int, path: str, ssl: bool, endpoint: str, url: str):
-    output_folder = './output/screenshot/'
-
-    for root, directories, files in os.walk(output_folder):
-        for file in files:
-            if (file.endswith('.png')):
-                data = ''
-                with open(root + '/' + file, 'rb') as f:
-                    data = f.read()
-
-                data = b64encode(data).decode('utf-8')
-                
-                fields = []
-                fields.append(TextField("url", "Url", url))
-                fields.append(TextField("endpoint", "Endpoint", endpoint if endpoint else path))
-                fields.append(ImageField("image", f"data:image/png;base64,{data}"))
-                
-                log_finding(
-                    WebsiteFinding(
-                        findingName, ip, port, domain, path, ssl, f"Website screenshot", fields
-                    )
-                )
+def emit_screenshot_finding(finding_name: str, finding_title: str, domain: str, ip: str, port: int, path: str, ssl: bool, endpoint: str, url: str, data: str):
+    fields = []
+    fields.append(TextField("url", "Url", url))
+    fields.append(TextField("endpoint", "Endpoint", endpoint if endpoint else path))
+    fields.append(ImageField("image", f"data:image/png;base64,{data}"))
+    
+    log_finding(
+        WebsiteFinding(
+            finding_name, ip, port, domain or '', path, ssl, finding_title, fields
+        )
+    )
 
 def main():
-    target_ip, port, domain, path, ssl, endpoint, findingName = get_valid_args()
+    output_folder = './output/screenshot/'
+    retry_count = 0
+    max_retry = 1
+    target_ip, port, domain, path, ssl, endpoint, finding_name, finding_title = get_valid_args()
+    
 
     url = build_url(target_ip, port, domain, endpoint if endpoint else path, ssl)
 
     httpx_str: str = f"httpx -silent -screenshot -system-chrome -duc -u {url}"
 
-    log_info(f'Screenshot starting: {httpx_str}')
+    should_retry = True
 
-    httpx_process: CompletedProcess = run(httpx_str.split(" "), text=True)
+    while should_retry and retry_count <= max_retry:
+        retry_count += 1
+        log_info(f'Screenshot starting: {httpx_str}')
+        httpx_process: CompletedProcess = run(httpx_str.split(" "), text=True)
 
-    emit_screenshot_finding(findingName, domain, target_ip, port, path, ssl, endpoint, url)
+        for root, directories, files in os.walk(output_folder):
+            for file in files:
+                if (file.endswith('.png')):
+                    data = ''
+                    with open(root + '/' + file, 'rb') as f:
+                        data = f.read()
+
+                    data = b64encode(data).decode('utf-8')
+                    
+                    if len(data) > 0:
+                        should_retry = False
+                        emit_screenshot_finding(finding_name, finding_title, domain, target_ip, port, path, ssl, endpoint, url, data)
+                    else:
+                        should_retry = True
+                        if retry_count <= max_retry:
+                            log_warning("Screenshot data is empty, retrying")
+                        else:
+                            log_warning("Screenshot data is empty and out of retries")
 
 try:
     main()

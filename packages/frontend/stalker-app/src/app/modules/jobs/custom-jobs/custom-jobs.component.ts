@@ -260,9 +260,10 @@ export class CustomJobsComponent implements OnInit, OnDestroy, HasUnsavedChanges
           ? this.customJobForm.controls.findingHandlerLanguage.enable()
           : this.customJobForm.controls.findingHandlerLanguage.disable();
 
-        const hasNameChanged = oldFormValues?.customJobName != formValues.customJobName;
-        const hasTypeChanged = oldFormValues?.customJobType != formValues.customJobType;
-        const hasHandlerStatusChanged = oldFormValues?.findingHandlerEnabled != formValues.findingHandlerEnabled;
+        const hasNameChanged = oldFormValues && oldFormValues?.customJobName != formValues.customJobName;
+        const hasTypeChanged = oldFormValues && oldFormValues?.customJobType != formValues.customJobType;
+        const hasHandlerStatusChanged =
+          oldFormValues && oldFormValues?.findingHandlerEnabled != formValues.findingHandlerEnabled;
 
         if (hasNameChanged || hasTypeChanged || hasHandlerStatusChanged) {
           this.initializeFileTabs(
@@ -314,6 +315,7 @@ export class CustomJobsComponent implements OnInit, OnDestroy, HasUnsavedChanges
     if (handlerEnabled) {
       const handlerCode =
         hasHandlerStatusChanged && !this.originalHandlerCode ? nucleiFindingHandlerTemplate : this.originalHandlerCode;
+
       fileTabs.push(
         this.getFileTab(this.handlerCodeTabId, `${fileName}_handler`, handlerLanguage ?? 'python', handlerCode)
       );

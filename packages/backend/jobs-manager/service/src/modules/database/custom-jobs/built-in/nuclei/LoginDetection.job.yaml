@@ -24,4 +24,4 @@ jobPodConfigName: M
 codeFilePath: code/LoginDetectionJob.yaml
 templateOrdering: '/built-in/nuclei'
 findingHandlerLanguage: python
-handlerFilePath: null
+handlerFilePath: handler/LoginDetectionJob.py

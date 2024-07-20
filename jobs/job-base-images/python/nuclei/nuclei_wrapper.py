@@ -108,6 +108,8 @@ def handle_finding(finding: NucleiFinding, stalker_output_type: str, output_find
         fields.append(TextField('matched-at', 'Matched at', finding.matched_at))
     if finding.matcher_name:
         fields.append(TextField('matcher-name', 'Matcher name', finding.matcher_name))
+    if finding.endpoint:
+        fields.append(TextField('endpoint', 'Endpoint', finding.endpoint))
 
     if finding.extracted_results and len(finding.extracted_results) >= 1:
         for result in finding.extracted_results:
