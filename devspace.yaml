@@ -115,6 +115,31 @@ pipelines:
 
       start_dev cron
 
+  prod:
+    run: |-
+      build_images orchestrator
+      create_deployments namespaces certificates
+      run_pipelines setup-kafka
+
+      # Start mongo and kafka
+      create_deployments mongo kafka --sequential
+
+      # Wait for kafka and mongo to be ready
+      wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 300
+      wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 300
+
+      create_deployments jobs-manager orchestrator-service-account orchestrator ui --sequential
+
+      # Wait for services before applying network policies
+      wait_pod --label-selector app.kubernetes.io/component=ui --timeout 300
+      wait_pod --label-selector app.kubernetes.io/component=jobs-manager --timeout 300
+      wait_pod --label-selector app.kubernetes.io/component=orchestrator --timeout 300
+
+      create_deployments network-policies resource-quotas
+
+      create_deployments cron
+      wait_pod --label-selector app.kubernetes.io/component=cron --timeout 300
+
 images:
   stalker-base:
     image: ghcr.io/red-kite-solutions/stalker-base
@@ -214,7 +239,11 @@ deployments:
             image: ghcr.io/red-kite-solutions/stalker-jobs-manager:${JOBS_MANAGER_VERSION}
             name: jobs-manager-container
 
+        nodeSelector: $(echo ${JM_K8S_NODE_SELECTOR})
+
         service:
+          type: ClusterIP
+
           ports:
             - containerPort: 3000
               port: 3000
@@ -255,6 +284,8 @@ deployments:
             image: ghcr.io/red-kite-solutions/stalker-cron:${CRON_VERSION}
             name: cron-container
 
+        nodeSelector: $(echo ${CRON_K8S_NODE_SELECTOR})
+
         service:
           ports:
             - containerPort: 3000
@@ -271,6 +302,8 @@ deployments:
             image: ghcr.io/red-kite-solutions/stalker-app:${FRONTEND_VERSION}
             name: ui-container
 
+        nodeSelector: $(echo ${UI_K8S_NODE_SELECTOR})
+
         service:
           ports:
             - containerPort: 4200
@@ -285,11 +318,13 @@ deployments:
         version: "13.9.1"
       values:
         architecture: replicaset
+        nodeSelector: $(echo ${MONGO_K8S_NODE_SELECTOR})
         replicaCount: ${MONGO_REPLICA_SET_COUNT}
         arbiter:
           enabled: false
         persistence:
           size: ${MONGODB_MAX_SIZE}
+          storageClass: ${MONGODB_STORAGE_CLASS}
         externalAccess.enabled: true
         externalAccess.service.type: LoadBalancer
         externalAccess.service.port: 27017
@@ -305,6 +340,8 @@ deployments:
           mTls:
             enabled: true
         service:
+          type: ClusterIP
+
           ports:
             mongodb: 27017
         auth:
@@ -378,6 +415,12 @@ deployments:
         repo: https://charts.bitnami.com/bitnami
         version: "26.0.0"
       values:
+        nodeSelector: $(echo ${KAFKA_K8S_NODE_SELECTOR})
+
+        controller:
+          persistence:
+            storageClass: ${KAFKA_STORAGE_CLASS}
+
         # The mapping rules extract the CN part of the certificate to be used as the username in ACL rules
         # kafka as a super user is the account used for provisioning and for inter-kafka communications.
         # Other accounts have minimal rights defined in "extraProvisioningCommands"
@@ -396,6 +439,7 @@ deployments:
             containerPort: 9093
             protocol: SSL
             sslClientAuth: "required"
+
           interbroker:
             name: INTERNAL
             containerPort: 9094
@@ -480,6 +524,8 @@ deployments:
                 value: ${SECRET_PRIVATE_RSA_KEY}
               - name: ORCHESTRATOR_KAFKA_KEY_PASSWORD
                 value: ${ORCHESTRATOR_KAFKA_KEY_PASSWORD}
+              - name: JOBS_K8S_NODE_SELECTOR
+                value: ${ORCHESTRATOR_JOBS_K8S_NODE_SELECTOR}
 
             volumeMounts:
               - containerPath: /certs
@@ -489,6 +535,8 @@ deployments:
 
             image: ghcr.io/red-kite-solutions/stalker-orchestrator:${ORCHESTRATOR_VERSION}
             name: orchestrator-container
+
+        nodeSelector: $(echo ${ORCHESTRATOR_K8S_NODE_SELECTOR})
 
         service:
           ports:
@@ -770,7 +818,7 @@ profiles:
 
               initContainers:
                 - name: init-ca
-                  image: nginx:alpine
+                  image: nginx:1.27.0-alpine
                   command:
                     - sh
                     - -c
@@ -801,7 +849,11 @@ profiles:
                   image: ghcr.io/red-kite-solutions/stalker-app:${FRONTEND_VERSION}
                   name: ui-container
 
+              nodeSelector: $(echo ${UI_K8S_NODE_SELECTOR})
+
               service:
+                type: ClusterIP
+
                 ports:
                   - containerPort: 443
                     port: ${STALKER_PORT}
