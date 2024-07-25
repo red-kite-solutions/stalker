@@ -13,6 +13,7 @@ import { DomainsService } from '../domain/domain.service';
 import { DomainSummary } from '../domain/domain.summary';
 import { PortService } from '../port/port.service';
 import { Project } from '../project.model';
+import { WebsiteService } from '../websites/website.service';
 import { HostFilterModel } from './host-filter.model';
 import { BatchEditHostsDto } from './host.dto';
 import { Host, HostDocument } from './host.model';
@@ -31,6 +32,7 @@ export class HostService {
     private domainService: DomainsService,
     private portsService: PortService,
     private findingsQueue: FindingsQueue,
+    private websiteService: WebsiteService,
   ) {}
 
   public async getAll(
@@ -291,6 +293,7 @@ export class HostService {
     }
 
     await this.portsService.deleteAllForHost(hostId);
+    await this.websiteService.cleanUpFor(hostId, 'host');
 
     return await this.hostModel.deleteOne({ _id: { $eq: hostId } });
   }
@@ -301,6 +304,8 @@ export class HostService {
       const r = await this.delete(host);
       if (!deleteResults) deleteResults = r;
       else deleteResults.deletedCount += r.deletedCount;
+
+      await this.websiteService.cleanUpFor(host, 'host');
     }
     return deleteResults;
   }

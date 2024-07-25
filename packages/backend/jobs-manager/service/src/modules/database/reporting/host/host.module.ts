@@ -6,6 +6,7 @@ import { JobsModule } from '../../jobs/jobs.module';
 import { TagsModule } from '../../tags/tag.module';
 import { DomainsModule } from '../domain/domain.module';
 import { PortModule } from '../port/port.module';
+import { WebsiteModule } from '../websites/website.module';
 import { HostController } from './host.controller';
 import { HostService } from './host.service';
 
@@ -18,6 +19,7 @@ import { HostService } from './host.service';
     QueueModule,
     forwardRef(() => DomainsModule),
     PortModule,
+    WebsiteModule,
   ],
   controllers: [HostController],
   providers: [HostService],

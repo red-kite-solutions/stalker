@@ -574,18 +574,4 @@ export class WebsiteService {
 
     return await this.cleanup(filter);
   }
-
-  /**
-   * TODO:
-   *
-   * When a host is deleted:
-   *  delete the websites for the host
-   *  unlink the host if in alternative hosts
-   * When a domain is deleted:
-   *   delete the websites for the domain
-   *   unlink the domain if in alternative domains
-   * When a port is deleted:
-   *   delete the websites for the port
-   *   unlink the port if in alternative ports
-   */
 }
