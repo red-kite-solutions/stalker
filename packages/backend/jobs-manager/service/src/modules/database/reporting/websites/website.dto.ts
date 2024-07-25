@@ -66,6 +66,10 @@ export class GetWebsitesDto {
   ports: number[];
 
   @IsOptional()
+  @IsMongoId()
+  mergedInId: string;
+
+  @IsOptional()
   @IsBoolean()
   @Transform(booleanStringToBoolean)
   blocked: boolean;
@@ -90,4 +94,19 @@ export class BatchEditWebsitesDto {
   @IsOptional()
   @IsBoolean()
   block: boolean;
+}
+
+export class MergeWebsitesDto {
+  @IsMongoId()
+  mergeInto: string;
+
+  @IsMongoId({ each: true })
+  @IsArray()
+  mergeFrom: string[];
+}
+
+export class UnmergeWebsitesDto {
+  @IsMongoId({ each: true })
+  @IsArray()
+  unmerge: string[];
 }

@@ -79,6 +79,7 @@ export class SubscriptionInteractionService {
       text: $localize`:Select subscriptions again|No subscription was selected so there is nothing to delete:Select the subscriptions to delete and try again.`,
       title: $localize`:Nothing to delete|Tried to delete something, but there was nothing to delete:Nothing to delete`,
       primaryButtonText: $localize`:Ok|Accept or confirm:Ok`,
+      noDataSelectItem: true,
       onPrimaryButtonClick: () => {
         this.dialog.closeAll();
       },

@@ -12,20 +12,11 @@ export class Website {
   @Prop({ type: HostSummaryType })
   public host: HostSummary;
 
-  @Prop({ type: Array<HostSummaryType> })
-  public alternativeHosts?: HostSummary[];
-
   @Prop({ type: DomainSummaryType })
   public domain?: DomainSummary;
 
-  @Prop({ type: Array<DomainSummaryType> })
-  public alternativeDomains?: DomainSummary[];
-
   @Prop({ type: PortSummaryType })
   public port: PortSummary;
-
-  @Prop({ type: Array<PortSummaryType> })
-  public alternativePorts?: PortSummary[];
 
   @Prop()
   public path: string;

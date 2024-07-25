@@ -121,11 +121,11 @@ export class ListWebsitesComponent {
 
   public displayColumns$ = this.screenSize$.pipe(
     map((screen: BreakpointState) => {
-      if (screen.breakpoints[Breakpoints.XSmall]) return ['select', 'website', 'project', 'menu'];
+      if (screen.breakpoints[Breakpoints.XSmall]) return ['select', 'url', 'project', 'menu'];
       else if (screen.breakpoints[Breakpoints.Small])
-        return ['select', 'website', 'domain', 'port', 'ip', 'project', 'tags', 'menu'];
+        return ['select', 'url', 'domain', 'port', 'ip', 'project', 'tags', 'menu'];
       else if (screen.breakpoints[Breakpoints.Medium])
-        return ['select', 'website', 'domain', 'port', 'ip', 'project', 'tags', 'menu'];
+        return ['select', 'url', 'domain', 'port', 'ip', 'project', 'tags', 'menu'];
       return this.displayedColumns;
     })
   );
@@ -239,24 +239,24 @@ export class ListWebsitesComponent {
     this.startDate = new Date(Date.now() - defaultNewTimeMs);
   }
 
-  public async deleteBatch(domains: Website[]) {
-    const result = await this.websitesInteractor.deleteBatch(domains, this.projects);
+  public async deleteBatch(websites: Website[]) {
+    const result = await this.websitesInteractor.deleteBatch(websites, this.projects);
     if (result) {
       this.selection.clear();
       this.currentPage$.next(this.currentPage);
     }
   }
 
-  public async blockBatch(domains: Website[]) {
-    const result = await this.websitesInteractor.blockBatch(domains, this.projects);
+  public async blockBatch(websites: Website[]) {
+    const result = await this.websitesInteractor.blockBatch(websites, this.projects);
     if (result) {
       this.selection.clear();
       this.currentPage$.next(this.currentPage);
     }
   }
 
-  public async block(domainId: string, block: boolean) {
-    const result = await this.websitesInteractor.block(domainId, block);
+  public async block(websiteId: string, block: boolean) {
+    const result = await this.websitesInteractor.block(websiteId, block);
     if (result) {
       this.selection.clear();
       this.currentPage$.next(this.currentPage);
@@ -281,6 +281,29 @@ export class ListWebsitesComponent {
       label: $localize`:Delete website|Delete website:Delete`,
     });
 
+    menuItems.push({
+      action: () => this.unmerge(element._id),
+      icon: 'call_split',
+      label: $localize`:Unmerge|Unmerge websites that were previously merged together:Unmerge`,
+      hidden: !element.mergedInId,
+    });
+
     return menuItems;
   };
+
+  public async merge(websites: Website[]) {
+    const result = await this.websitesInteractor.merge(websites, this.projects);
+    if (result) {
+      this.selection.clear();
+      this.currentPage$.next(this.currentPage);
+    }
+  }
+
+  private async unmerge(id: string) {
+    const result = await this.websitesInteractor.unmerge(id);
+    if (result) {
+      this.selection.clear();
+      this.currentPage$.next(this.currentPage);
+    }
+  }
 }

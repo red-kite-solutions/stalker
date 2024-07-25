@@ -1,8 +1,8 @@
 import { Prop } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
+import { Summary } from '../resource.summary';
 
-export interface HostSummary {
-  id: Types.ObjectId;
+export interface HostSummary extends Summary {
   ip: string;
 }
 

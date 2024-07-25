@@ -50,12 +50,14 @@
 
           <mat-menu #menu="matMenu">
             @for (menuItem of menuFactory(row); track $index) {
-              <button mat-menu-item (click)="menuItem.action()">
-                @if (menuItem.icon) {
-                  <mat-icon>{{ menuItem.icon }}</mat-icon>
-                }
-                {{ menuItem.label }}
-              </button>
+              @if (!menuItem.hidden) {
+                <button mat-menu-item (click)="menuItem.action()">
+                  @if (menuItem.icon) {
+                    <mat-icon>{{ menuItem.icon }}</mat-icon>
+                  }
+                  {{ menuItem.label }}
+                </button>
+              }
             }
           </mat-menu>
         }

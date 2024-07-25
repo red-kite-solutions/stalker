@@ -8,6 +8,7 @@ export interface ConfirmDialogData {
   dangerButtonText?: string;
   listElements?: string[];
   enableCancelButton?: boolean;
+  noDataSelectItem?: boolean;
   onPrimaryButtonClick?: (close: (result: boolean) => void) => unknown | (() => Promise<unknown>);
   onDangerButtonClick?: (close: (result: boolean) => void) => unknown | (() => Promise<unknown>);
 }

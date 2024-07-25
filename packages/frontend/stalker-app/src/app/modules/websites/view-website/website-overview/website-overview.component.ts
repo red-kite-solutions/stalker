@@ -98,8 +98,7 @@ export class WebsiteOverviewComponent {
   public sitemap$ = combineLatest([this.website$, this.sitemapFilterChange$]).pipe(
     map(([website, filter]) => {
       return website!.sitemap.filter((v) => v.toLocaleLowerCase().includes(filter.toLocaleLowerCase()));
-    }),
-    tap(() => this.cdr.detectChanges())
+    })
   );
 
   public linkCopied = false;

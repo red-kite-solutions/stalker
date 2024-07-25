@@ -13,4 +13,5 @@ export class WebsiteFilterModel {
   firstSeenEndDate?: number;
   blocked?: boolean;
   merged?: boolean;
+  mergedInId?: string;
 }

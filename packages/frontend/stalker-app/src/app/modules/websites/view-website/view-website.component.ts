@@ -23,10 +23,11 @@ import {
   Observable,
   Subject,
   combineLatest,
+  filter,
   firstValueFrom,
-  forkJoin,
   map,
   merge,
+  scan,
   shareReplay,
   switchMap,
   tap,
@@ -45,8 +46,7 @@ import { WebsitesService } from '../../../api/websites/websites.service';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PanelSectionModule } from '../../../shared/components/panel-section/panel-section.module';
 import { SharedModule } from '../../../shared/shared.module';
-import { HostSummary } from '../../../shared/types/host/host.summary';
-import { Port } from '../../../shared/types/ports/port.interface';
+import { Page } from '../../../shared/types/page.type';
 import { Website } from '../../../shared/types/websites/website.type';
 import { NewPillTagComponent } from '../../../shared/widget/pill-tag/new-pill-tag.component';
 import { SelectItem } from '../../../shared/widget/text-select-menu/text-select-menu.component';
@@ -149,40 +149,27 @@ export class ViewWebsiteComponent implements OnDestroy {
     shareReplay(1)
   );
 
-  public hostPorts$ = this.website$.pipe(
-    map((website) => {
-      const allPortSummaries = [];
-      if (website.alternativePorts) {
-        for (const portSummary of website.alternativePorts) {
-          allPortSummaries.push(portSummary);
-        }
-      }
+  public mergedWebsitesPage$ = new BehaviorSubject(0);
 
-      const portObservables: Observable<Port>[] = [];
-      for (const portSummary of allPortSummaries) {
-        portObservables.push(this.portsService.getPort(portSummary.id));
-      }
-
-      return forkJoin(portObservables);
+  public mergedWebsites$ = combineLatest([this.website$, this.mergedWebsitesPage$]).pipe(
+    filter(([website, page]) => {
+      return !website.mergedInId;
     }),
-    switchMap((port) => port),
-    map((ports: Port[]) => {
-      const allHostSummaries: HostSummary[] = [];
-      if (this.website.alternativeHosts) {
-        for (const hostSummary of this.website.alternativeHosts) {
-          allHostSummaries.push(hostSummary);
-        }
-      }
-      const hostPorts: { hostSummary: HostSummary; websitePorts: Port[] }[] = [];
+    switchMap(([website, page]) => {
+      return this.websitesService.getPage(page, 5, { mergedInId: website._id });
+    }),
+    scan((acc: Page<Website>, value: Page<Website>) => {
+      acc.items = acc.items.concat(value.items);
+      return acc;
+    })
+  );
 
-      for (const hostSummary of allHostSummaries) {
-        hostPorts.push({
-          hostSummary: hostSummary,
-          websitePorts: ports.filter((p) => p.host.id === hostSummary.id),
-        });
-      }
-
-      return hostPorts;
+  public mergedInWebsite$ = this.website$.pipe(
+    filter((website) => {
+      return !!website.mergedInId;
+    }),
+    switchMap((website: Website) => {
+      return this.websitesService.getWebsite(website.mergedInId ?? '');
     })
   );
 
@@ -277,6 +264,16 @@ export class ViewWebsiteComponent implements OnDestroy {
       const p = await firstValueFrom(this.websitesService.getWebsite(this.websiteId));
       this.website.blocked = p.blocked;
       this.website.blockedAt = p.blockedAt;
+      this.cdr.markForCheck();
+      this.dialog.closeAll();
+    }
+  }
+
+  public async unmergeWebsite() {
+    const result = await this.websitesInteractor.unmerge(this.websiteId);
+    if (result) {
+      const p = await firstValueFrom(this.websitesService.getWebsite(this.websiteId));
+      this.website.mergedInId = undefined;
       this.cdr.markForCheck();
       this.dialog.closeAll();
     }

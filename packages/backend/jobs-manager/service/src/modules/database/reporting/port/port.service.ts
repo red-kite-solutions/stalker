@@ -10,6 +10,7 @@ import escapeStringRegexp from '../../../../utils/escape-string-regexp';
 import { TagsService } from '../../tags/tag.service';
 import { CorrelationKeyUtils } from '../correlation.utils';
 import { Host, HostDocument } from '../host/host.model';
+import { WebsiteService } from '../websites/website.service';
 import { BatchEditPortsDto, GetPortsDto } from './port.dto';
 import { Port, PortDocument } from './port.model';
 
@@ -21,6 +22,7 @@ export class PortService {
     @InjectModel('host') private readonly hostModel: Model<Host>,
     private tagsService: TagsService,
     @InjectModel('port') private readonly portsModel: Model<Port>,
+    private readonly websiteService: WebsiteService,
   ) {}
 
   private readonly hostNotFoundError = 'Invalid host and project combination.';
@@ -228,12 +230,15 @@ export class PortService {
   }
 
   public async delete(portId: string): Promise<DeleteResult> {
+    await this.websiteService.cleanUpFor(portId, 'port');
     return await this.portsModel.deleteOne({
       _id: { $eq: new Types.ObjectId(portId) },
     });
   }
 
   public async deleteMany(portIds: string[]): Promise<DeleteResult> {
+    for (const id of portIds) await this.websiteService.cleanUpFor(id, 'port');
+
     return await this.portsModel.deleteMany({
       _id: { $in: portIds.map((pid) => new Types.ObjectId(pid)) },
     });

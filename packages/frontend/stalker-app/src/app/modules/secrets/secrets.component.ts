@@ -173,6 +173,7 @@ export class SecretsComponent implements AfterViewInit {
         text: $localize`:Select secrets again|No secrets were selected so there is nothing to delete:Select the secrets to delete and try again.`,
         title: $localize`:Nothing to delete|Tried to delete something, but there was nothing to delete:Nothing to delete`,
         primaryButtonText: $localize`:Ok|Accept or confirm:Ok`,
+        noDataSelectItem: true,
         onPrimaryButtonClick: () => {
           this.dialog.closeAll();
         },

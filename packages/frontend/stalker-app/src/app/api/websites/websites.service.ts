@@ -89,11 +89,19 @@ export class WebsitesService {
     return await firstValueFrom(this.http.patch(`${environment.fmUrl}/websites/`, { websiteIds: websiteIds, block }));
   }
 
-  public buildUrl(domain: string, ip: string, port: number, path: string, ssl: boolean): string {
+  private buildUrl(domain: string, ip: string, port: number, path: string, ssl: boolean): string {
     let url = ssl ? 'https://' : 'http://';
     url += domain ? domain : ip;
     url += port === 80 || port === 443 ? '' : ':' + port.toString();
     url += path;
     return url;
+  }
+
+  public async merge(mergeInto: string, mergeFrom: string[]) {
+    return await firstValueFrom(this.http.patch(`${environment.fmUrl}/websites/merge`, { mergeInto, mergeFrom }));
+  }
+
+  public async unmerge(unmerge: string[]) {
+    return await firstValueFrom(this.http.patch(`${environment.fmUrl}/websites/unmerge`, { unmerge }));
   }
 }

@@ -1,4 +1,4 @@
 export interface Summary {
-  [key: string]: string;
+  [key: string]: string | number;
   id: string;
 }

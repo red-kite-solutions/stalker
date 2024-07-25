@@ -128,6 +128,28 @@ describe('Website Controller (e2e)', () => {
     expect(success).toBe(true);
   });
 
+  it('Should have proper authorizations (PATCH /websites/merge)', async () => {
+    const success = await checkAuthorizations(
+      testData,
+      Role.User,
+      async (givenToken) => {
+        return await patchReq(app, givenToken, `/websites/`, {});
+      },
+    );
+    expect(success).toBe(true);
+  });
+
+  it('Should have proper authorizations (PATCH /websites/unmerge)', async () => {
+    const success = await checkAuthorizations(
+      testData,
+      Role.User,
+      async (givenToken) => {
+        return await patchReq(app, givenToken, `/websites/`, {});
+      },
+    );
+    expect(success).toBe(true);
+  });
+
   function getName() {
     return `${testPrefix}-${randomUUID()}`;
   }

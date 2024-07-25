@@ -5,6 +5,7 @@ import { DatalayerModule } from '../../datalayer.module';
 import { JobsModule } from '../../jobs/jobs.module';
 import { TagsModule } from '../../tags/tag.module';
 import { HostModule } from '../host/host.module';
+import { WebsiteModule } from '../websites/website.module';
 import { DomainsController } from './domain.controller';
 import { DomainsService } from './domain.service';
 
@@ -16,6 +17,7 @@ import { DomainsService } from './domain.service';
     forwardRef(() => HostModule),
     QueueModule,
     TagsModule,
+    WebsiteModule,
   ],
   controllers: [DomainsController],
   providers: [DomainsService],

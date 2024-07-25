@@ -4,6 +4,11 @@
       <mat-card-title class="tw-flex-1" i18n="Websites|Websites">Websites</mat-card-title>
 
       <div class="tw-flex tw-gap-sm tw-pb-4">
+        <button mat-stroked-button (click)="merge(selection.selected)">
+          <mat-icon>call_merge</mat-icon>
+          <label i18n="Merge|Merge websites together">Merge</label>
+        </button>
+
         <button mat-stroked-button (click)="blockBatch(selection.selected)">
           <mat-icon>block</mat-icon>
           <label i18n="Block|Block an item">Block</label>
