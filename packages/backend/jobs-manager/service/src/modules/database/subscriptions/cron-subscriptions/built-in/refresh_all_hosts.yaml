@@ -1,6 +1,6 @@
 name: Rescanning all hosts
 input: ALL_HOSTS
-cronExpression: '0 0 * * *'
+cronExpression: '0 0 */7 * *'
 job:
   name: TcpPortScanningJob
   parameters:

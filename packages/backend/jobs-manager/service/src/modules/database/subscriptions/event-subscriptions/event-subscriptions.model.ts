@@ -9,9 +9,17 @@ export class JobParameter {
 }
 
 export class JobCondition {
-  public lhs!: string | number | boolean;
+  public lhs!: string | number | boolean | Array<boolean | string | number>;
   public operator: string;
-  public rhs!: string | number | boolean;
+  public rhs!: string | number | boolean | Array<boolean | string | number>;
+}
+
+export class AndJobCondition {
+  public and!: Array<AndJobCondition | OrJobCondition | JobCondition>;
+}
+
+export class OrJobCondition {
+  public or!: Array<AndJobCondition | OrJobCondition | JobCondition>;
 }
 
 @Schema()
@@ -35,7 +43,7 @@ export class EventSubscription {
   public jobParameters: JobParameter[];
 
   @Prop()
-  public conditions: JobCondition[];
+  public conditions: Array<AndJobCondition | OrJobCondition | JobCondition>;
 
   @Prop()
   public cooldown: number;
@@ -46,6 +54,9 @@ export class EventSubscription {
 
   @Prop()
   public file?: string;
+
+  @Prop()
+  public discriminator?: string;
 }
 
 export const EventSubscriptionsSchema =

@@ -14,9 +14,11 @@ import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
 import { ProjectService } from '../reporting/project.service';
 import { CronSubscription } from './cron-subscriptions/cron-subscriptions.model';
 import {
+  AndJobCondition,
   EventSubscription,
   JobCondition,
   JobParameter,
+  OrJobCondition,
 } from './event-subscriptions/event-subscriptions.model';
 import { SubscriptionsUtils } from './subscriptions.utils';
 
@@ -200,9 +202,108 @@ describe('Findings Handler Base', () => {
           { lhs: 0, operator: 'not_lt', rhs: 0 },
         ],
       ],
+      [
+        [
+          { lhs: 'asdf', operator: 'equals_i', rhs: ['asdf', 'ASDF', 'AsdF'] },
+          { lhs: 'aSDf', operator: 'not_equals_i', rhs: ['ASDfs'] },
+          {
+            lhs: ['AsDF', 'aaaaaaaaaDF', 'qwertyDF'],
+            operator: 'endsWith',
+            rhs: 'DF',
+          },
+          { lhs: 'AsdF', operator: 'not_endsWith', rhs: ['DF', 'As', 'qw'] },
+          { lhs: ['aSDf', 'asdf', 'AsdF'], operator: 'equals_i', rhs: 'ASDf' },
+          {
+            lhs: ['aSDf', 'asdf', 'AsdF'],
+            operator: 'equals_i',
+            rhs: ['ASDf', 'aSDf', 'asdf', 'AsdF'],
+          },
+          { lhs: [1, 4, 5, 6], operator: 'not_equals', rhs: 2 },
+          { lhs: 0, operator: 'not_gt', rhs: [0, 1, 6] },
+          { lhs: [0, 1, 2], operator: 'not_lt', rhs: [0, -3, -4, -5] },
+        ],
+      ],
+      [
+        [
+          {
+            or: [
+              { lhs: 'asdf', operator: 'startsWith', rhs: 'DF' },
+              {
+                lhs: 'asdf',
+                operator: 'equals_i',
+                rhs: ['asdf', 'ASDF', 'AsdF'],
+              },
+            ],
+          },
+          {
+            or: [
+              {
+                or: [
+                  { lhs: 'asdf', operator: 'startsWith', rhs: 'DF' },
+                  {
+                    lhs: 'asdf',
+                    operator: 'equals_i',
+                    rhs: ['asdf', 'ASDF', 'AsdF'],
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            and: [
+              { lhs: 'asdf', operator: 'not_startsWith', rhs: 'DF' },
+              {
+                lhs: 'asdf',
+                operator: 'equals_i',
+                rhs: ['asdf', 'ASDF', 'AsdF'],
+              },
+            ],
+          },
+          {
+            or: [
+              {
+                and: [
+                  {
+                    lhs: '${domainName}',
+                    operator: 'equals',
+                    rhs: 'stalker.is',
+                  },
+                  {
+                    lhs: 'asdf',
+                    operator: 'equals_i',
+                    rhs: ['asdf', 'ASDF', 'AsdF'],
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            and: [
+              { lhs: 'asdf', operator: 'equals', rhs: 'asdf' },
+              {
+                and: [],
+              },
+            ],
+          },
+          {
+            and: [
+              { lhs: 'asdf', operator: 'equals', rhs: 'asdf' },
+              {
+                and: [],
+              },
+            ],
+          },
+          {
+            and: [],
+          },
+          {
+            or: [],
+          },
+        ],
+      ],
     ])(
       'Hostname finding - Should be valid for execution',
-      (conditions: JobCondition[]) => {
+      (conditions: Array<JobCondition | OrJobCondition | AndJobCondition>) => {
         // Arrange
         const hnFinding = new HostnameFinding();
         hnFinding.domainName = 'stalker.is';
@@ -213,11 +314,27 @@ describe('Findings Handler Base', () => {
         );
 
         // Act
-        const shouldExecute = SubscriptionsUtils.shouldExecute(
+        let shouldExecute = SubscriptionsUtils.shouldExecute(
           true,
           conditions,
           hnCommand,
         );
+
+        // Act
+        if (!shouldExecute) {
+          for (const c of conditions) {
+            shouldExecute = SubscriptionsUtils.shouldExecute(
+              true,
+              [c],
+              hnCommand,
+            );
+            if (shouldExecute) {
+              console.log(
+                `Error while processing condition: [${c}] should be true`,
+              );
+            }
+          }
+        }
 
         // Assert
         expect(shouldExecute).toBe(true);
@@ -388,9 +505,98 @@ describe('Findings Handler Base', () => {
           },
         ],
       ],
+      [
+        [
+          { lhs: 'asdf', operator: 'equals_i', rhs: ['asdf', 'ASDF', 'Asdt'] },
+          { lhs: 'aSDf', operator: 'not_equals_i', rhs: ['ASDf'] },
+          {
+            lhs: ['AsDF', 'aaaaaaaaaDF', 'qwertyDF'],
+            operator: 'not_endsWith',
+            rhs: 'DF',
+          },
+          { lhs: 'AsdF', operator: 'endsWith', rhs: ['DF', 'As', 'qw'] },
+          {
+            lhs: ['aSDf', 'asdf', 'AsdF'],
+            operator: 'not_equals_i',
+            rhs: 'ASDf',
+          },
+          {
+            lhs: ['aSDf', 'asdfasdf', 'AsdF'],
+            operator: 'equals_i',
+            rhs: ['ASDf', 'aSDf', 'asdf', 'AsdF'],
+          },
+          { lhs: [2, 2, 5, 2], operator: 'equals', rhs: 2 },
+          { lhs: 0, operator: 'not_gt', rhs: [0, -1, -6, 1] },
+          { lhs: [0, -1, -2, 1], operator: 'not_lt', rhs: [0, 3, 4, 5] },
+          { lhs: 0, operator: 'equals', rhs: [] },
+          { lhs: '', operator: 'equals', rhs: [] },
+          { lhs: [], operator: 'equals_i', rhs: '' },
+          { lhs: [], operator: 'equals', rhs: [] },
+        ],
+      ],
+      [
+        [
+          {
+            and: [
+              {
+                lhs: 'asdf',
+                operator: 'equals_i',
+                rhs: ['asdf', 'ASDF', 'AsdF'],
+              },
+              { lhs: 'asdf', operator: 'startsWith', rhs: 'DF' },
+            ],
+          },
+          {
+            or: [
+              {
+                and: [
+                  { lhs: 'asdf', operator: 'startsWith', rhs: 'DF' },
+                  {
+                    lhs: 'asdf',
+                    operator: 'equals_i',
+                    rhs: ['asdf', 'ASDF', 'AsdF'],
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            or: [
+              { lhs: 'asdf', operator: 'startsWith', rhs: 'DF' },
+              {
+                lhs: 'asdf',
+                operator: 'equals_i',
+                rhs: ['asdf', 'ASDF', 'AsdF', 'qwerty'],
+              },
+            ],
+          },
+          {
+            or: [
+              {
+                and: [
+                  { lhs: 'asdf', operator: 'equals', rhs: 'stalker.is' },
+                  {
+                    lhs: 'asdf',
+                    operator: 'equals_i',
+                    rhs: ['asdf', 'ASDF', 'AsdF'],
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            or: [
+              { lhs: 'asdf', operator: 'equals', rhs: 'stalker.is' },
+              {
+                and: [],
+              },
+            ],
+          },
+        ],
+      ],
     ])(
       'Hostname finding - Should be invalid for execution',
-      (conditions: JobCondition[]) => {
+      (conditions: Array<JobCondition | OrJobCondition | AndJobCondition>) => {
         // Arrange
         const hnFinding = new HostnameFinding();
         const hnCommand = new HostnameCommand(
@@ -411,12 +617,11 @@ describe('Findings Handler Base', () => {
           if (shouldExecute) {
             atLeastOneError = true;
             console.log(
-              `Error while processing condition: [${c.lhs} ${c.operator} ${c.rhs}] should be false`,
+              `Error while processing condition: [${c}] should be false`,
             );
           }
         }
 
-        // Assert
         expect(atLeastOneError).toBe(false);
       },
     );
@@ -646,6 +851,7 @@ describe('Findings Handler Base', () => {
         ],
         conditions: [{ lhs: '${protocol}', operator: 'equals', rhs: 'tcp' }],
       };
+      es.conditions[0] = es.conditions[0] as JobCondition;
       let yaml = [
         `name: ${es.name}`,
         `finding: ${es.finding}`,
@@ -681,6 +887,8 @@ describe('Findings Handler Base', () => {
       expect(sub.jobParameters[1].value[0]).toStrictEqual(
         es.jobParameters[1].value[0],
       );
+
+      sub.conditions[0] = sub.conditions[0] as JobCondition;
 
       expect(sub.conditions[0].lhs).toStrictEqual(es.conditions[0].lhs);
       expect(sub.conditions[0].operator).toStrictEqual(

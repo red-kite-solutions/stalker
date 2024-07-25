@@ -1,0 +1,27 @@
+name: LoginDetectionJob
+type: nuclei
+language: yaml
+parameters:
+  - name: domainName
+    type: string
+  - name: targetIp
+    type: string
+  - name: port
+    type: number
+  - name: path
+    type: string
+  - name: ssl
+    type: boolean
+  - name: endpoint
+    type: string
+  - name: stalkerOutputType
+    type: string
+    default: website
+  - name: outputFindingName
+    type: string
+    default: WebsiteLoginPortal
+jobPodConfigName: M
+codeFilePath: code/LoginDetectionJob.yaml
+templateOrdering: '/built-in/nuclei'
+findingHandlerLanguage: python
+handlerFilePath: null

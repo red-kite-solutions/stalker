@@ -11,7 +11,13 @@ import {
 } from 'class-validator';
 import { CustomJobNameExists } from '../../../../validators/custom-job-name-exists.validator';
 import { IsCronExpression } from '../../../../validators/is-cron-expression.validator';
-import { JobConditionDto, JobParameterDto } from '../subscriptions.dto';
+import { IsValidJobConditionsArray } from '../../../../validators/is-valid-job-conditions-array.validator';
+import {
+  AndJobCondition,
+  JobCondition,
+  OrJobCondition,
+} from '../event-subscriptions/event-subscriptions.model';
+import { JobParameterDto } from '../subscriptions.dto';
 import { InputSource, inputSources } from './cron-subscriptions.model';
 
 export class CronSubscriptionDto {
@@ -47,9 +53,7 @@ export class CronSubscriptionDto {
   @IsOptional()
   public input?: InputSource;
 
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => JobConditionDto)
+  @IsValidJobConditionsArray()
   @IsOptional()
-  public conditions?: JobConditionDto[];
+  public conditions?: Array<JobCondition | OrJobCondition | AndJobCondition>;
 }

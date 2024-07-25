@@ -4,9 +4,10 @@ from json import loads
 from subprocess import PIPE, Popen, run
 from urllib.parse import urlparse
 
-from stalker_job_sdk import (JobStatus, TextField, WebsiteFinding, is_valid_ip,
-                             is_valid_port, log_error, log_finding, log_info,
-                             log_status, log_warning)
+from stalker_job_sdk import (JobStatus, TextField, WebsiteFinding, build_url,
+                             is_valid_ip, is_valid_port, log_error,
+                             log_finding, log_info, log_status, log_warning,
+                             to_boolean)
 
 
 class WebsiteRequest:
@@ -48,7 +49,7 @@ def get_valid_args():
     port: int = int(os.environ.get("port"))
     domain: str = os.environ.get("domainName")
     path: str = os.environ.get("path")
-    ssl: str = os.environ.get("ssl")
+    ssl: str = to_boolean(os.environ.get("ssl"))
     max_depth: int = int(os.environ.get("maxDepth"))
     crawl_duration_seconds: int = int(os.environ.get("crawlDurationSeconds"))
     concurrency : int = int(os.environ.get("fetcherConcurrency"))
@@ -124,13 +125,6 @@ def emit_technology_findings(technologies: 'list[str]', domain: str, ip: str, po
                 "WebsiteTechnologyFinding", ip, port, domain, path, ssl, f"Technology", [TextField("technology", "Technology", tech)]
             )
         )
-
-def build_url(ip: str, port: int, domain: str, path: str, ssl: bool):
-    url = "https://" if ssl else "http://"
-    url += domain if domain else ip
-    url += f":{str(port)}" if port != 80 and port != 443 else ""
-    url += path
-    return url
 
 def main():
     target_ip, port, domain, path, ssl, max_depth, crawl_duration_seconds, concurrency, parallelism, extra_options = get_valid_args()

@@ -1,5 +1,5 @@
 name: Scanning IP ranges
-cronExpression: 0 0 */7 * *
+cronExpression: '0 0 */14 * *'
 input: ALL_IP_RANGES
 job:
   name: TcpIpRangeScanningJob

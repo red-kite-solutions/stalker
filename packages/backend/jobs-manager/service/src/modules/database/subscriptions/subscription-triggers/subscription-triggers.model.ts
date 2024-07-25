@@ -13,11 +13,14 @@ export class SubscriptionTrigger {
 
   @Prop()
   public lastTrigger!: number;
+
+  @Prop()
+  public discriminator: string | null;
 }
 
 export const SubscriptionTriggerSchema =
   SchemaFactory.createForClass(SubscriptionTrigger);
 SubscriptionTriggerSchema.index(
-  { subscriptionId: 1, correlationKey: 1 },
+  { subscriptionId: 1, correlationKey: 1, discriminator: 1 },
   { unique: true },
 );

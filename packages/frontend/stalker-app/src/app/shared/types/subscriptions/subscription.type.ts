@@ -12,9 +12,9 @@ export interface CronSubscription extends CronSubscriptionData {
 export interface EventSubscriptionData extends SubscriptionData {
   type: 'event';
   cooldown: number;
+  discriminator?: string;
   builtIn: boolean;
   finding: string;
-  conditions?: Condition[] | undefined | null;
 }
 
 export interface CronSubscriptionData extends SubscriptionData {
@@ -32,6 +32,15 @@ export interface SubscriptionData {
     name: string;
     parameters?: JobParameter[] | undefined | null;
   };
+  conditions?: Array<Condition | AndCondition | OrCondition> | undefined | null;
+}
+
+export interface AndCondition {
+  and: Array<Condition | AndCondition | OrCondition>;
+}
+
+export interface OrCondition {
+  or: Array<Condition | AndCondition | OrCondition>;
 }
 
 export interface Condition {

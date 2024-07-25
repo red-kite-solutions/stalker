@@ -61,6 +61,16 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
           );
       }
 
+      // A subscription's discrimator is a dynamic way to differentiate between subscription
+      // triggers for a ressource's aspect that cannot be told apart by correlation key alone
+      // A good example of that is two website endpoints having the same website correlation key
+      if (sub.discriminator) {
+        sub.discriminator = SubscriptionsUtils.replaceValueIfReferingToFinding(
+          sub.discriminator,
+          command.finding,
+        );
+      }
+
       // The job parameters will be added to the jobParameters array
       // All the subscription's parameters are actually customJobParameters
       // and the actual parameters come from the CustomJobEntry in the database
@@ -94,6 +104,7 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
           sub._id.toString(),
           command.finding.correlationKey,
           sub.cooldown,
+          sub.discriminator,
         ))
       )
         this.jobsService.publish(job);

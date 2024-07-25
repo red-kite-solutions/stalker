@@ -1,6 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { JobCondition } from '../event-subscriptions/event-subscriptions.model';
+import {
+  AndJobCondition,
+  JobCondition,
+  OrJobCondition,
+} from '../event-subscriptions/event-subscriptions.model';
 
 export type CronSubscriptionsDocument = CronSubscription & Document;
 
@@ -42,7 +46,7 @@ export class CronSubscription {
   public jobParameters: JobParameter[];
 
   @Prop()
-  public conditions: JobCondition[];
+  public conditions: Array<JobCondition | OrJobCondition | AndJobCondition>;
 
   // true for a built-in subsctiption, false otherwise
   @Prop()

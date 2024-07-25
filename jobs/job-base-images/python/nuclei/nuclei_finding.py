@@ -1,3 +1,4 @@
+from ipaddress import ip_address
 from urllib.parse import ParseResult, urlparse
 
 _scheme_port_mapping = {
@@ -26,10 +27,16 @@ class NucleiFinding:
     description: str = None
     original_string: str = None
     matcher_name: str = None
+    matcher_status: bool = None
+    original_path: str = None
+    endpoint: str = None
+    ssl: bool = None
+    path: str = None
 
 
-    def __init__(self, json_data: dict, original_string=''):
+    def __init__(self, json_data: dict, original_string='', original_path = ''):
         self.original_string = original_string
+        self.original_path = original_path
         self.template_id = json_data.get("template-id") or None
         if json_data.get("info"):
             self.name = json_data.get("info").get("name") or None
@@ -40,25 +47,35 @@ class NucleiFinding:
         self.port = int(json_data.get("port")) if json_data.get("port") and isinstance(json_data.get("port"), int) else None
         self.scheme = json_data.get("scheme") or None
         self.url = json_data.get("url") or None
-        
-        self.domain = json_data.get("host") or None # host here is a domain name
+        self._domain_or_ip_parsing(json_data.get("host"))
         self.matched_at = json_data.get("matched-at") or None
         self.matcher_name = json_data.get("matcher-name") or None
         self.extracted_results = json_data.get("extracted-results") or None
         self.ip = json_data.get("ip") or None
         self.timestamp = json_data.get("timestamp") or None
         self.curl_command = json_data.get("curl-command") or None
+        self.matcher_status = json_data.get("matcher-status") or None
+        self.path = json_data.get("path") or None
 
-        self._extended_port_parsing()  
+        self._extended_url_parsing()  
 
-    def _extended_port_parsing(self):
-        """If the port value is not present, this function will try to deduce it from the object values"""
-
-        if not self.port and self.url:
+    def _extended_url_parsing(self):
+        """This function will try to extract additionnal value from the object values"""
+        if self.url:
             try:
                 url_obj: ParseResult = urlparse(self.url)
-                if url_obj.port:
+                if not self.port and url_obj.port:
                     self.port = int(url_obj.port)
+                if url_obj.path:
+                    self.endpoint = url_obj.path
+                if url_obj.hostname and not (self.ip or self.domain):
+                    self._domain_or_ip_parsing(url_obj.hostname)
+                if url_obj.scheme:
+                    if url_obj.scheme == 'https':
+                        self.ssl = True
+                    if url_obj.scheme == 'http':
+                        self.ssl = False
+                    
             except Exception:
                 pass
 
@@ -66,3 +83,18 @@ class NucleiFinding:
             p = _scheme_port_mapping.get(self.scheme) 
             if p:
                 self.port = p
+
+        
+    def _domain_or_ip_parsing(self, hostname: str):
+        if hostname and hostname.find(':') >= 0:
+            split_host = hostname.split(':')
+            hostname = split_host[0]
+            if not self.port:
+                self.port = int(split_host[1])
+        try:
+            ip = ip_address(hostname)
+            if not self.ip:
+                self.ip = ip
+        except ValueError:
+            if not self.domain:
+                self.domain = hostname
