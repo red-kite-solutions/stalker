@@ -55,6 +55,7 @@ export interface ElementMenuItems {
   label: string;
   icon: string;
   action: () => Promise<unknown> | void;
+  hidden?: boolean;
 }
 
 @Component({

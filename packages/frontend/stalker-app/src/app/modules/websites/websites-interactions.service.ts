@@ -9,6 +9,10 @@ import {
 } from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
 import { WebsitesService } from '../../api/websites/websites.service';
 import { Website } from '../../shared/types/websites/website.type';
+import {
+  MergeWebsitesData,
+  MergeWebsitesDialogComponent,
+} from './list-websites/merge-websites/merge-websites.component';
 
 @Injectable({ providedIn: 'root' })
 export class WebsiteInteractionsService {
@@ -44,6 +48,7 @@ export class WebsiteInteractionsService {
         text: $localize`:Select websites again|No websites were selected so there is nothing to delete:Select the websites to delete and try again.`,
         title: $localize`:Nothing to delete|Tried to delete something, but there was nothing to delete:Nothing to delete`,
         primaryButtonText: $localize`:Ok|Accept or confirm:Ok`,
+        noDataSelectItem: true,
         onPrimaryButtonClick: (close) => {
           close(false);
         },
@@ -96,6 +101,7 @@ export class WebsiteInteractionsService {
         text: $localize`:Select websites again|No websites were selected so there is nothing to delete:Select the websites to block and try again.`,
         title: $localize`:Nothing to block|Tried to block something, but there was nothing to delete:Nothing to block`,
         primaryButtonText: $localize`:Ok|Accept or confirm:Ok`,
+        noDataSelectItem: true,
         onPrimaryButtonClick: (close) => close(false),
       };
     }
@@ -157,5 +163,65 @@ export class WebsiteInteractionsService {
       const projectName = projects?.find((d) => d.id === x.projectId)?.name;
       return projectName ? `${x.url} (${projectName})` : `${x.url}`;
     });
+  }
+
+  public async merge(websites: Website[], projects: ProjectSummary[]) {
+    const data: MergeWebsitesData = {
+      selectedWebsites: websites,
+      projects: projects,
+    };
+    let mergeSuccess = false;
+
+    try {
+      mergeSuccess = !!(await firstValueFrom(
+        this.dialog
+          .open(MergeWebsitesDialogComponent, {
+            data,
+            restoreFocus: false,
+          })
+          .afterClosed()
+      ));
+
+      if (mergeSuccess) {
+        this.toastr.success($localize`:Website merged|Merged a website:Website successfully merged`);
+      }
+    } catch {
+      this.toastr.error($localize`:Error while merging|Error while merging an item:Error while merging`);
+    }
+
+    return mergeSuccess;
+  }
+
+  public async unmerge(websiteId: string) {
+    const errorBlocking = $localize`:Error while unmerging|Error while unmerging an item:Error while unmerging`;
+    if (!websiteId) {
+      this.toastr.error(errorBlocking);
+    }
+
+    let data: ConfirmDialogData = {
+      text: $localize`:Confirm unmerge website|Confirmation message asking if the user wants to unmerge the website:Do you really wish to unmerge this website?`,
+      title: $localize`:Unmerging website|Title of a page to unmerge a website:Unmerging website`,
+      primaryButtonText: $localize`:Unmerge|Unmerge an item:Unmerge`,
+      enableCancelButton: true,
+      onPrimaryButtonClick: async (close) => {
+        try {
+          await this.websitesService.unmerge([websiteId]);
+          this.toastr.success($localize`:Website unmerged|Unmerged a website:Website successfully unmerged`);
+          close(true);
+        } catch {
+          this.toastr.error(errorBlocking);
+          close(false);
+        }
+      },
+    };
+
+    return firstValueFrom(
+      this.dialog
+        .open(ConfirmDialogComponent, {
+          data,
+          restoreFocus: false,
+        })
+        .afterClosed()
+    );
   }
 }

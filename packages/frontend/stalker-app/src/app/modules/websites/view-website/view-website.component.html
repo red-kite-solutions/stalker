@@ -103,9 +103,6 @@
       <panel-section>
         <panel-section-title i18n="Website IP|The ip related to a website">IP address</panel-section-title>
         <a [routerLink]="['/hosts', wsite.host.id]">{{ wsite.host.ip }}</a>
-        @for (altHost of wsite.alternativeHosts; track altHost) {
-          <a [routerLink]="['/hosts', altHost.id]">{{ altHost.ip }}</a>
-        }
       </panel-section>
 
       <panel-section>
@@ -127,52 +124,24 @@
       <mat-divider></mat-divider>
 
       <panel-section>
-        <panel-section-title i18n="Domain|The domain related to a website">Merged domains</panel-section-title>
+        @if (!wsite.mergedInId) {
+          <panel-section-title i18n="Merged websites|Merged websites">Merged websites</panel-section-title>
 
-        @for (altDomain of wsite.alternativeDomains; track altDomain) {
-          <a [routerLink]="['/domains', altDomain.id]">{{ altDomain.name }}</a>
-        }
-        @if (!wsite.alternativeDomains || !wsite.alternativeDomains.length) {
-          <panel-section-subtitle i18n="No domains yet|There are no domains for this item"
-            >No domains yet</panel-section-subtitle
-          >
-        }
-      </panel-section>
-
-      <panel-section>
-        <panel-section-title i18n="Merged hosts|A website's merged IP address">Merged hosts</panel-section-title>
-        @if (hostPorts$ | async; as allHostPorts) {
-          @if (allHostPorts.length > 5 && !showAllHosts ? allHostPorts.slice(0, 5) : allHostPorts; as hostPorts) {
-            @for (hostPort of hostPorts; track hostPort) {
-              <div class="host">
-                <a [routerLink]="['/hosts', hostPort.hostSummary.id]">{{ hostPort.hostSummary.ip }}</a>
-                @if (
-                  showAllPorts[hostPort.hostSummary.ip] ? hostPort.websitePorts : hostPort.websitePorts.slice(0, 5);
-                  as ports
-                ) {
-                  <ul class="ports">
-                    @for (port of ports; track port; let last = $last) {
-                      <li [routerLink]="['/hosts', hostPort.hostSummary.id, 'ports', port.port]">
-                        <a>{{ port.port }}</a>
-                      </li>
-                    }
-                  </ul>
-                }
-                @if (hostPort.websitePorts.length > 5) {
-                  <div class="show-more">
-                    <button panel-load-more (click)="showAllPorts[hostPort.hostSummary.ip] = true">
-                      Show all ports ({{ hostPort.websitePorts.length }})
-                    </button>
-                  </div>
-                }
-              </div>
+          @if (mergedWebsites$ | async; as mergedWebsites) {
+            @for (wSite of mergedWebsites.items; track $index) {
+              <a [routerLink]="['/websites', wSite._id]">{{ wSite.url }}</a>
+            }
+            @if (mergedWebsites.totalRecords > mergedWebsites.items.length) {
+              <button panel-load-more (click)="mergedWebsitesPage$.next(mergedWebsitesPage$.value + 1)">
+                Show more ({{ mergedWebsites.items.length }})
+              </button>
             }
           }
-          @if (allHostPorts.length > 5) {
-            <button panel-load-more (click)="showAllHosts = true">Show more ({{ allHostPorts.length }})</button>
-          }
         } @else {
-          <panel-section-subtitle i18n="No data yet|There is no data for this item">No data yet</panel-section-subtitle>
+          <panel-section-title i18n="Merged in|Merged in website">Merged in</panel-section-title>
+          @if (mergedInWebsite$ | async; as mergedInWebsite) {
+            <a [routerLink]="['/websites', mergedInWebsite._id]">{{ mergedInWebsite.url }}</a>
+          }
         }
       </panel-section>
 
@@ -193,6 +162,13 @@
               <mat-icon>delete</mat-icon>
               <label i18n="Delete|Delete an item">Delete</label>
             </button>
+
+            @if (website.mergedInId) {
+              <button mat-menu-item color="warn" class="tw-w-full" (click)="unmergeWebsite()">
+                <mat-icon>call_split</mat-icon>
+                <label i18n="Unmerge|Unmerge an item">Unmerge</label>
+              </button>
+            }
           </div>
         </app-text-menu>
       </panel-section>

@@ -20,6 +20,8 @@ import {
   BatchEditWebsitesDto,
   DeleteManyWebsitesDto,
   GetWebsitesDto,
+  MergeWebsitesDto,
+  UnmergeWebsitesDto,
 } from './website.dto';
 import { WebsiteDocument } from './website.model';
 import { WebsiteService } from './website.service';
@@ -80,5 +82,19 @@ export class WebsiteController {
   @Patch()
   async batchEdit(@Body() dto: BatchEditWebsitesDto) {
     return await this.websiteService.batchEdit(dto);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User)
+  @Patch('merge')
+  async merge(@Body() dto: MergeWebsitesDto) {
+    return await this.websiteService.merge(dto.mergeInto, dto.mergeFrom);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.User)
+  @Patch('unmerge')
+  async unmerge(@Body() dto: UnmergeWebsitesDto) {
+    return await this.websiteService.unmerge(dto.unmerge);
   }
 }

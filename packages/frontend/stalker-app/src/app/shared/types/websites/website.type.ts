@@ -7,15 +7,12 @@ export interface Website {
   url: string;
   ssl: boolean;
   host: HostSummary;
-  alternativeHosts?: HostSummary[];
   domain?: DomainSummary;
-  alternativeDomains?: DomainSummary[];
   port: PortSummary;
-  alternativePorts?: PortSummary[];
   path: string;
   sitemap: string[];
   previewImage: string;
-  projectId?: string;
+  projectId: string;
   correlationKey: string;
   tags?: string[];
   updatedAt: number;

@@ -376,6 +376,64 @@ describe('Website Service', () => {
     });
   });
 
+  describe('Merge and unmerge websites', () => {
+    const ips = ['1.1.1.1', '1.1.1.1', '2.2.2.2', '2.2.2.2', '3.3.3.3'];
+    const ports = [80, 443, 80, 80, 8080];
+    const domains = [
+      'example.com',
+      'example.com',
+      'example.com',
+      'www.example.com',
+      '',
+    ];
+
+    it('Should merge websites together - No prior merge', async () => {
+      // Arrange
+      const websites = await bulkWebsites(ips, ports, domains);
+      const mainWebsite = websites.splice(0, 1)[0];
+
+      // Act
+      await websiteService.merge(
+        mainWebsite._id.toString(),
+        websites.map((w) => w._id.toString()),
+      );
+
+      // Assert
+      for (let w of websites) {
+        const mergedWebsite = await websiteService.get(w._id.toString());
+        expect(mergedWebsite.mergedInId?.toString()).toStrictEqual(
+          mainWebsite._id.toString(),
+        );
+      }
+    });
+
+    it('Should merge websites together - Prior merge', async () => {
+      // Arrange
+      const websites = await bulkWebsites(ips, ports, domains);
+      const mainWebsite = websites.splice(0, 1)[0];
+      const priorMergedWebsite = websites.splice(0, 1)[0];
+
+      await websiteService.merge(websites[0]._id.toString(), [
+        priorMergedWebsite._id.toString(),
+      ]);
+
+      // Act
+      await websiteService.merge(
+        mainWebsite._id.toString(),
+        websites.map((w) => w._id.toString()),
+      );
+
+      // Assert
+      websites.push(priorMergedWebsite);
+      for (let w of websites) {
+        const mergedWebsite = await websiteService.get(w._id.toString());
+        expect(mergedWebsite.mergedInId?.toString()).toStrictEqual(
+          mainWebsite._id.toString(),
+        );
+      }
+    });
+  });
+
   async function project(name: string = '') {
     const ccDto: CreateProjectDto = { name: `${getName(testPrefix)}` };
     return await projectService.addProject(ccDto);

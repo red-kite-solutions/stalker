@@ -2,7 +2,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DeleteResult, UpdateResult } from 'mongodb';
 import { FilterQuery, Model, Types } from 'mongoose';
-import { HttpNotFoundException } from '../../../../exceptions/http.exceptions';
+import {
+  HttpBadRequestException,
+  HttpNotFoundException,
+} from '../../../../exceptions/http.exceptions';
 import escapeStringRegexp from '../../../../utils/escape-string-regexp';
 import { WebsiteFinding } from '../../../findings/findings.service';
 import { FindingsQueue } from '../../../job-queue/findings-queue';
@@ -234,13 +237,13 @@ export class WebsiteService {
   }
 
   public async delete(websiteId: string): Promise<DeleteResult> {
-    return await this.websiteModel.deleteOne({
+    return await this.cleanup({
       _id: { $eq: new Types.ObjectId(websiteId) },
     });
   }
 
   public async deleteMany(websiteIds: string[]): Promise<DeleteResult> {
-    return await this.websiteModel.deleteMany({
+    return await this.cleanup({
       _id: { $in: websiteIds.map((wid) => new Types.ObjectId(wid)) },
     });
   }
@@ -369,6 +372,12 @@ export class WebsiteService {
       }
     }
 
+    if (filter.mergedInId) {
+      finalFilter['mergedInId'] = {
+        $eq: new Types.ObjectId(filter.mergedInId),
+      };
+    }
+
     // Filter by blocked
     if (filter.blocked === false) {
       finalFilter['$or'] = [
@@ -381,9 +390,9 @@ export class WebsiteService {
 
     // Filter by merged
     if (filter.merged === false) {
-      finalFilter['mergedInId'] = { $exists: false };
+      finalFilter['mergedInId'] = { $eq: null };
     } else if (filter.merged === true) {
-      finalFilter['mergedInId'] = { $exists: true };
+      finalFilter['mergedInId'] = { $ne: null };
     }
 
     return finalFilter;
@@ -449,93 +458,122 @@ export class WebsiteService {
     }
   }
 
-  // TODO: Uncomment and test this function. It is too much for this PR though.
-  //       It will be more usefull in the PR where websites can be merged.
-  //
-  // /**
-  //  * This function cleans up the website collection from all traces of another resource.
-  //  * Mostly useful when a resource is deleted.
-  //  * @param id The resource ID that is deleted
-  //  * @param type The resource's type
-  //  * @returns
-  //  */
-  // public async cleanUpFor(id: string, type: 'host' | 'domain' | 'port') {
-  //   let filter: FilterQuery<Website>;
-  //   const oid = new Types.ObjectId(id);
+  public async merge(mergeInto: string, mergeFrom: string[]) {
+    if (!mergeInto || !mergeFrom || mergeFrom.length <= 0)
+      throw new HttpBadRequestException('The website ids are invalid');
 
-  //   const unlinkDomain = async (id: Types.ObjectId, linkedId: Types.ObjectId,  sess: ClientSession) => {
-  //     await this.websiteModel.updateMany(
-  //       { _id : { $eq: id }}, { $pull: {
-  //         alternativeDomains: { $elemMatch: { id: { $eq: linkedId }}}
-  //       }}, { session: sess }
-  //     )
-  //   };
+    const intoObj: Types.ObjectId = new Types.ObjectId(mergeInto);
+    const fromObj: Types.ObjectId[] = mergeFrom.map(
+      (id) => new Types.ObjectId(id),
+    );
 
-  //   const unlinkHost = async (id: Types.ObjectId, linkedId: Types.ObjectId,  sess: ClientSession) => {
-  //     await this.websiteModel.updateMany(
-  //       { _id : { $eq: id }}, { $pull: {
-  //         alternativeHosts: { $elemMatch: { id: { $eq: linkedId }}}
-  //       }}, { session: sess }
-  //     )
-  //   };
+    const website: Pick<WebsiteDocument, '_id' | 'projectId'> =
+      await this.websiteModel.findOneAndUpdate(
+        {
+          _id: { $eq: intoObj },
+        },
+        {
+          $set: { mergedInId: null },
+        },
+        { new: true, projection: '_id projectId' },
+      );
 
-  //   const unlinkPort = async (id: Types.ObjectId, linkedId: Types.ObjectId,  sess: ClientSession) => {
-  //     await this.websiteModel.updateMany(
-  //       { _id : { $eq: id }}, { $pull: {
-  //         alternativePorts: { $elemMatch: { id: { $eq: linkedId }}}
-  //       }}, { session: sess }
-  //     )
-  //   };
+    if (!website) {
+      throw new HttpBadRequestException(
+        'The website to merge into was not found.',
+      );
+    }
 
-  //   let unlink: (id: Types.ObjectId, linkedId: Types.ObjectId,  sess: ClientSession) => Promise<void>;
+    const relinkPromises: Promise<UpdateResult>[] = [];
 
-  //   switch(type) {
-  //     case 'domain':
-  //       filter = { 'domain.id': { $eq: oid}};
-  //       unlink = unlinkDomain;
-  //       break;
-  //     case 'host':
-  //       filter = { 'host.id': { $eq: oid}};
-  //       unlink = unlinkHost;
-  //       break;
-  //     case 'port':
-  //       filter = { 'port.id': { $eq: oid}};
-  //       unlink = unlinkPort;
-  //       break;
-  //     default:
-  //       return;
-  //   }
+    for (let obj of fromObj) {
+      relinkPromises.push(
+        this.websiteModel
+          .updateMany(
+            { mergedInId: { $eq: obj }, projectId: { $eq: website.projectId } },
+            { $set: { mergedInId: intoObj } },
+          )
+          .exec(),
+      );
+    }
 
-  //   const key = 'alternativeDomains';
+    await Promise.all(relinkPromises);
 
-  //   filter.mergedInId
+    return await this.websiteModel.updateMany(
+      { _id: { $in: fromObj }, projectId: { $eq: website.projectId } },
+      { $set: { mergedInId: intoObj } },
+    );
+  }
 
-  //   const session = await this.websiteModel.startSession();
-  //   const unlinkPromises: Promise<void>[] = [];
+  public async unmerge(unmerge: string[]) {
+    const idObjs = unmerge.map((id) => new Types.ObjectId(id));
+    return await this.websiteModel.updateMany(
+      { _id: { $in: idObjs } },
+      { $set: { mergedInId: null } },
+    );
+  }
 
-  //   try {
-  //     await session.withTransaction(async () => {
-  //       const websites = await this.websiteModel.find(
-  //         {
-  //           ...filter,
-  //           mergedInId: { $ne: null }
-  //         },
-  //         undefined,
-  //         { session },
-  //       );
+  private async cleanup(filter: FilterQuery<WebsiteDocument>) {
+    const session = await this.websiteModel.startSession();
+    const unlinkPromises: Promise<UpdateResult>[] = [];
+    let result: DeleteResult = undefined;
+    try {
+      await session.withTransaction(async () => {
+        const websites = await this.websiteModel.find(filter, undefined, {
+          session,
+        });
 
-  //       for(const w of websites) {
-  //         unlinkPromises.push(unlink(w.mergedInId, oid, session));
-  //       }
+        for (let w of websites) {
+          unlinkPromises.push(
+            this.websiteModel
+              .updateMany(
+                { mergedInId: { $eq: w._id } },
+                { $set: { mergedInId: null } },
+                { session: session },
+              )
+              .exec(),
+          );
+        }
 
-  //       await Promise.all(unlinkPromises);
+        await Promise.all(unlinkPromises);
 
-  //       await this.websiteModel.deleteMany(filter, { session });
-  //     });
-  //   } finally {
-  //     await session.endSession();
-  //   }
-  // }
+        result = await this.websiteModel.deleteMany(filter, { session });
+      });
+    } finally {
+      await session.endSession();
+    }
+    return result;
+  }
+
+  /**
+   * This function cleans up the website collection from all traces of another resource.
+   * Mostly useful when a resource is deleted.
+   * @param id The resource ID that is deleted
+   * @param type The resource's type
+   * @returns
+   */
+  public async cleanUpFor(id: string, type: 'host' | 'domain' | 'port') {
+    let filter: FilterQuery<Website>;
+    const oid = new Types.ObjectId(id);
+
+    switch (type) {
+      case 'domain':
+        filter = { 'domain.id': { $eq: oid } };
+        break;
+      case 'host':
+        filter = { 'host.id': { $eq: oid } };
+        break;
+      case 'port':
+        filter = { 'port.id': { $eq: oid } };
+        break;
+      default:
+        return;
+    }
+
+    filter.mergedInId;
+
+    return await this.cleanup(filter);
+  }
 
   /**
    * TODO:

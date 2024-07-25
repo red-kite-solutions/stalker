@@ -1,7 +1,7 @@
 @if (data.title) {
   <h1 mat-dialog-title>{{ data.title }}</h1>
 }
-@if (data.text || data.listElements?.length) {
+@if ((data.text || data.listElements?.length) && !data.noDataSelectItem) {
   <div mat-dialog-content>
     {{ data.text }}
     @if (data.listElements?.length) {
@@ -12,6 +12,14 @@
       </ul>
     }
   </div>
+} @else {
+  @if (data.noDataSelectItem) {
+    <div mat-dialog-content>
+      <app-no-data-select-item>
+        {{ data.text }}
+      </app-no-data-select-item>
+    </div>
+  }
 }
 <div mat-dialog-actions [align]="'end'" class="tw-flex tw-gap-2">
   @if (data.primaryButtonText != '') {

@@ -34,6 +34,7 @@ import { WhereIdPipe } from './pipes/where-id.pipe';
 import { CodeEditorComponent } from './widget/code-editor/code-editor.component';
 import { ConfirmDialogComponent } from './widget/confirm-dialog/confirm-dialog.component';
 import { ImageUploadComponent } from './widget/image-upload/image-upload.component';
+import { NoDataSelectItemComponent } from './widget/no-data-select-item/no-data-select-item.component';
 import { NewPillTagComponent } from './widget/pill-tag/new-pill-tag.component';
 import { PillTagComponent } from './widget/pill-tag/pill-tag.component';
 import { StatusCodePillTagComponent } from './widget/pill-tag/status-code-pill-tag.component';
@@ -87,6 +88,7 @@ import { TextSelectMenuComponent } from './widget/text-select-menu/text-select-m
     TextMenuComponent,
     SpinnerButtonComponent,
     MatTreeModule,
+    NoDataSelectItemComponent,
   ],
   exports: [
     HeaderComponent,

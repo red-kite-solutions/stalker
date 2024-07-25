@@ -1,0 +1,249 @@
+@if (data.selectedWebsites.length > 1) {
+  <h1 mat-dialog-title i18n="Merging Websites|Merging websites dialog title">Merging Websites</h1>
+} @else {
+  <h1 mat-dialog-title i18n="Nothing to merge|Select more websites to allow for merging">Nothing to merge</h1>
+}
+
+<div mat-dialog-content>
+  @if (data.selectedWebsites.length > 1) {
+    <p
+      class="tw-pb-3 explanation"
+      i18n="Merging websites explanation|An explanation around the concept of merging two or more websites together"
+    >
+      Merging multiple websites together allows them to be considered as only one website by the automated workflows.
+      For instance, it is likely that a website on port 80 and 443 on the same IP are really the same website and should
+      be merged together.
+    </p>
+    <mat-stepper class="stepper" [linear]="true" #stepper>
+      <mat-step [stepControl]="selectProjectStep">
+        <form [formGroup]="selectProjectStep">
+          <ng-template i18n="Select project|Select the project" matStepLabel>Select project</ng-template>
+          <div class="tw-flex tw-flex-col tw-gap-y-3">
+            <mat-form-field appearance="outline" class="tw-mt-3">
+              <mat-select
+                i18n-placeholder="Project|Project or business"
+                placeholder="Project"
+                formControlName="project"
+              >
+                @for (project of validProjects; track project) {
+                  <mat-option [value]="project.id">{{ project.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <div class="next-buttons">
+              <button mat-stroked-button matStepperNext i18n="Next|Next step" color="primary">Next</button>
+            </div>
+          </div>
+        </form>
+      </mat-step>
+
+      <mat-step [stepControl]="mergeDestinationStep">
+        <form [formGroup]="mergeDestinationStep">
+          <ng-template i18n="Select merge destination|Select in which item the data will be merged" matStepLabel
+            >Select merge destination</ng-template
+          >
+
+          <div class="tw-flex tw-flex-col tw-gap-y-3">
+            <h2 class="subtitle tw-mt-3">
+              <span i18n="Merging for project|Merging websites subtitle" class="tw-mr-2">Merging for project:</span
+              ><span>{{ (validProjects | whereId: [selectProjectStep.get('project')?.value])?.name }}</span>
+            </h2>
+
+            <ul class="tw-flex tw-flex-row tw-flex-wrap website-list">
+              @if (websitesToMerge$ | async; as websitesToMerge) {
+                <div class="tw-w-1/2">
+                  @for (line of websitesToMerge; track $index) {
+                    @if ($index < websitesToMerge.length / 2) {
+                      <li class="tw-ml-5">{{ line.url }}</li>
+                    }
+                  }
+                </div>
+                <div class="tw-w-1/2">
+                  @for (line of websitesToMerge; track $index) {
+                    @if ($index >= websitesToMerge.length / 2) {
+                      <li class="tw-ml-5">{{ line.url }}</li>
+                    }
+                  }
+                </div>
+              }
+            </ul>
+
+            <h2 class="subtitle tw-mt-3" i18n="Merge destination|Merging websites into destination">
+              Merge destination
+            </h2>
+
+            <mat-form-field appearance="outline">
+              <mat-label i18n="Merge destination|Merging websites into destination">Merge destination</mat-label>
+              <input type="text" matInput formControlName="targetWebsite" [matAutocomplete]="auto" />
+              <mat-autocomplete #auto="matAutocomplete">
+                @for (selectableWebsite of selectableWebsites$ | async; track $index) {
+                  <mat-option [value]="selectableWebsite.url">{{ selectableWebsite.url }}</mat-option>
+                }
+              </mat-autocomplete>
+            </mat-form-field>
+
+            <div class="tw-flex tw-flex-row tw-mb-3 target-website-data">
+              <div class="tw-w-1/2">
+                <div class="tw-flex tw-flex-row tw-gap-x-2 tw-ml-5">
+                  <span i18n="Domain:|Domain" class="preview-item-title">Domain: </span>
+                  @if (mergeTarget$ | async; as mergeTarget) {
+                    @if (mergeTarget.domain?.name) {
+                      <span>{{ mergeTarget?.domain?.name }}</span>
+                    } @else {
+                      <ng-container *ngTemplateOutlet="noDataTemplate"></ng-container>
+                    }
+                  } @else {
+                    <ng-container *ngTemplateOutlet="noDataTemplate"></ng-container>
+                  }
+                </div>
+                <div class="tw-flex tw-flex-row tw-gap-x-2 tw-ml-5">
+                  <span i18n="Host:|Host" class="preview-item-title">Host: </span>
+                  @if (mergeTarget$ | async; as mergeTarget) {
+                    <span>{{ mergeTarget?.host?.ip }}</span>
+                  } @else {
+                    <ng-container *ngTemplateOutlet="noDataTemplate"></ng-container>
+                  }
+                </div>
+              </div>
+              <div class="tw-w-1/2">
+                <div class="tw-flex tw-flex-row tw-gap-x-2 tw-ml-5">
+                  <span i18n="Path:|Website path" class="preview-item-title">Path: </span>
+                  @if (mergeTarget$ | async; as mergeTarget) {
+                    <span>{{ mergeTarget?.path }}</span>
+                  } @else {
+                    <ng-container *ngTemplateOutlet="noDataTemplate"></ng-container>
+                  }
+                </div>
+                <div class="tw-flex tw-flex-row tw-gap-x-2 tw-ml-5">
+                  <span i18n="Port:|Port" class="preview-item-title">Port: </span>
+                  @if (mergeTarget$ | async; as mergeTarget) {
+                    <span>{{ mergeTarget?.port?.port }}</span>
+                  } @else {
+                    <ng-container *ngTemplateOutlet="noDataTemplate"></ng-container>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="next-buttons">
+            <button mat-button matStepperPrevious i18n="Back|Previous step">Back</button>
+            <button mat-stroked-button matStepperNext i18n="Next|Next step" color="primary">Next</button>
+          </div>
+        </form>
+      </mat-step>
+
+      <mat-step>
+        <ng-template i18n="Confirm merge|Confirm the merge" matStepLabel>Confirm merge</ng-template>
+
+        <div class="tw-flex tw-flex-col tw-gap-y-3">
+          <h2 class="subtitle tw-mt-3" i18n="Merge Preview|Merge Preview">Merge Preview</h2>
+
+          <p class="tw-pb-3" i18n="After merge preview|After merge preview info">
+            After the merge, the destination website will represent the following information.
+          </p>
+
+          @if (alreadyMergedUrls.length > 0) {
+            <div class="warning-already-merged">
+              <div class="warning-title">
+                <mat-icon>Warning</mat-icon>
+                <span i18n="Websites already merged|Warning that websites are already merged"
+                  >Warning: Some websites were already merged</span
+                >
+              </div>
+              <div i18n="Websites already merged|The websites were already merged and cannot be merged again">
+                The following websites are already merged in another website. They will be merged like the others into
+                the new destination.
+              </div>
+
+              <ul>
+                @for (alreadyMergedUrl of alreadyMergedUrls; track $index) {
+                  <li>
+                    <a [href]="'/websites/' + alreadyMergedUrl.id">{{ alreadyMergedUrl.url }}</a>
+                  </li>
+                }
+              </ul>
+            </div>
+          }
+          @if (mergePreview$ | async; as mergePreview) {
+            <div class="tw-flex tw-flex-row tw-flex-wrap">
+              <div class="preview-item">
+                <div i18n="Domain|Domain" class="preview-item-title">Domain</div>
+                @if (mergePreview?.domain?.name) {
+                  <span>{{ mergePreview?.domain?.name }}</span>
+                } @else {
+                  <ng-container *ngTemplateOutlet="noDataTemplate"></ng-container>
+                }
+              </div>
+              <div class="preview-item">
+                <div i18n="Host|Host" class="preview-item-title">Host</div>
+                <div>{{ mergePreview?.host?.ip }}</div>
+              </div>
+              <div class="preview-item">
+                <span i18n="Port|Port" class="preview-item-title">Port</span>
+                <span>{{ mergePreview?.port?.port }}</span>
+              </div>
+              <div class="preview-item">
+                <span i18n="Merged domains|Merged domains" class="preview-item-title">Merged domains</span>
+                @for (altDomain of mergePreview?.alternativeDomains; track $index) {
+                  <span>{{ altDomain }}</span>
+                }
+                @if (!mergePreview.alternativeDomains || mergePreview.alternativeDomains.length <= 0) {
+                  <ng-container *ngTemplateOutlet="noDataTemplate"></ng-container>
+                }
+              </div>
+              <div class="preview-item">
+                <span i18n="Merged hosts|Merged hosts" class="preview-item-title">Merged hosts</span>
+                @for (altHost of mergePreview?.alternativeHosts; track $index) {
+                  <span>{{ altHost }}</span>
+                }
+                @if (!mergePreview.alternativeHosts || mergePreview.alternativeHosts.length <= 0) {
+                  <ng-container *ngTemplateOutlet="noDataTemplate"></ng-container>
+                }
+              </div>
+              <div class="preview-item">
+                <span i18n="Merged ports|Merged ports" class="preview-item-title">Merged ports</span>
+                @for (altPort of mergePreview?.alternativePorts; track $index) {
+                  <span>{{ altPort }}</span>
+                }
+                @if (!mergePreview.alternativePorts || mergePreview.alternativePorts.length <= 0) {
+                  <ng-container *ngTemplateOutlet="noDataTemplate"></ng-container>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="next-buttons">
+          <button mat-button matStepperPrevious i18n="Back|Previous step">Back</button>
+          <button mat-button (click)="stepper.reset()" i18n="Reset|Reset form">Reset</button>
+        </div>
+      </mat-step>
+    </mat-stepper>
+  } @else {
+    <app-no-data-select-item i18n="No website to merge|No websites were selected, so there is nothing to merge">
+      Not enough data to merge. Select at least two websites to merge them together and consider them as the same
+      website.
+    </app-no-data-select-item>
+  }
+</div>
+
+<div mat-dialog-actions [align]="'end'" class="tw-flex tw-gap-2">
+  @if (data.selectedWebsites.length > 1) {
+    <app-spinner-button
+      i18n="Merge|Merge action"
+      [disabled]="!stepper || stepper.selectedIndex + 1 !== stepper.steps.length"
+      (click)="merge()"
+      [buttonColor]="'primary'"
+      [spinnerColor]="'accent'"
+      [loadingState]="mergeLoading"
+      >Merge</app-spinner-button
+    >
+  }
+
+  <app-spinner-button i18n="Cancel|Cancel action" (click)="cancel()"> Cancel </app-spinner-button>
+</div>
+
+<ng-template #noDataTemplate>
+  <span class="tw-italic" i18n="No data yet|No available data for now">No data yet</span>
+</ng-template>
