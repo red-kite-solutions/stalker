@@ -32,12 +32,14 @@ vars:
   MONGO_REPLICA_SET_NAME: "rs0"
   MONGO_REPLICA_SET_COUNT:
     value: 3
+  MONGO_STORAGE_CLASS: ""
 
   # Kafka
   KAFKA_K8S_NODE_SELECTOR: "{}"
   KAFKA_TRUSTSTORE_FILE: ./queue/kafka.server.truststore.jks
   KAFKA_KEYSTORE_FILE: ./queue/kafka-0.keystore.jks
   KAFKA_KEYSTORE_PASSWORD: xa8pn1LMh57XsMdJV3Zg6VE41
+  KAFKA_STORAGE_CLASS: ""
 
   # Jobs Manager
   JM_VERSION: latest

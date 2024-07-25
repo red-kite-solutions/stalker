@@ -7,10 +7,10 @@ vars:
 imports:
   - path: devspace.dev.yaml
     enabled: $(is_equal ${STALKER_ENVIRONMENT} "dev")
-  - path: devspace.prod.yaml
-    enabled: $(is_equal ${STALKER_ENVIRONMENT} "prod")
   - path: devspace.tests.yaml
     enabled: $(is_equal ${STALKER_ENVIRONMENT} "tests")
+  - path: devspace.prod.yaml
+    enabled: $(is_equal ${STALKER_ENVIRONMENT} "prod-community")
   - path: devspace.base.yaml
 
 pipelines:
@@ -323,7 +323,7 @@ deployments:
           enabled: false
         persistence:
           size: ${MONGO_MAX_SIZE}
-          storageClass: ${MONGODB_STORAGE_CLASS}
+          storageClass: ${MONGO_STORAGE_CLASS}
         externalAccess.enabled: true
         externalAccess.service.type: LoadBalancer
         externalAccess.service.port: 27017
@@ -754,7 +754,7 @@ profiles:
   - name: prod
     activation:
       - vars:
-          STALKER_ENVIRONMENT: prod
+          STALKER_ENVIRONMENT: "^prod-.+$"
 
     patches:
       # Orchestrator modifications
