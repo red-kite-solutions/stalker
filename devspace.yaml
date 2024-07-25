@@ -236,7 +236,7 @@ deployments:
                   name: certs
                   readOnly: true
 
-            image: ghcr.io/red-kite-solutions/stalker-jobs-manager:${JOBS_MANAGER_VERSION}
+            image: ghcr.io/red-kite-solutions/stalker-jobs-manager:${JM_VERSION}
             name: jobs-manager-container
 
         nodeSelector: $(echo ${JM_K8S_NODE_SELECTOR})
@@ -323,7 +323,7 @@ deployments:
         arbiter:
           enabled: false
         persistence:
-          size: ${MONGODB_MAX_SIZE}
+          size: ${MONGO_MAX_SIZE}
           storageClass: ${MONGODB_STORAGE_CLASS}
         externalAccess.enabled: true
         externalAccess.service.type: LoadBalancer
