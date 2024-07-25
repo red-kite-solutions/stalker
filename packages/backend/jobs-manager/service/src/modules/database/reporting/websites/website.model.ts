@@ -31,9 +31,12 @@ export class Website {
   public path: string;
 
   @Prop()
-  public sitemap: string[];
+  public ssl?: boolean;
 
   @Prop()
+  public sitemap: string[];
+
+  @Prop({ select: false })
   public previewImage: string;
 
   @Prop()

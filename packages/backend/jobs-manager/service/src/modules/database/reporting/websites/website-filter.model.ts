@@ -4,11 +4,11 @@ export class WebsitePagingModel {
 }
 
 export class WebsiteFilterModel {
-  domain?: Array<string>;
+  domains?: Array<string>;
   tags?: Array<string>;
   project?: Array<string>;
-  host?: Array<string>;
-  port?: Array<number>;
+  hosts?: Array<string>;
+  ports?: Array<number>;
   firstSeenStartDate?: number;
   firstSeenEndDate?: number;
   blocked?: boolean;

@@ -30,6 +30,7 @@ export class KafkaFindingsQueue implements FindingsQueue {
         value: JSON.stringify({
           FindingsJson: JSON.stringify({ findings: findings }),
           JobId: jobId,
+          Timestamp: Date.now(),
         }),
       },
     ];

@@ -59,6 +59,7 @@ export class WebsiteFinding extends FindingBase {
   port: number;
   domain: string = '';
   path: string = '/';
+  ssl?: boolean;
 }
 
 export class CreateCustomFinding extends FindingBase {

@@ -50,6 +50,10 @@ const routes: Routes = [
         loadChildren: () => import('./modules/ports/ports.module').then((m) => m.PortsListModule),
       },
       {
+        path: 'websites',
+        loadChildren: () => import('./modules/websites/websites.module').then((m) => m.WebsitesListModule),
+      },
+      {
         path: 'tags',
         loadChildren: () => import('./modules/tags/tags.module').then((m) => m.TagsModule),
       },

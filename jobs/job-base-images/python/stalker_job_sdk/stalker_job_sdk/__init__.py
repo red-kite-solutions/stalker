@@ -82,6 +82,7 @@ class WebsiteFinding(Finding):
         port: int,
         domain: str,
         path: str,
+        ssl: bool = None,
         name: str = None,
         fields: list[Field] = [],
         type: str = "CustomFinding",
@@ -91,6 +92,7 @@ class WebsiteFinding(Finding):
         self.port = port
         self.domain = domain
         self.path = path
+        self.ssl = ssl
 
 class DomainFinding(Finding):
     def __init__(
