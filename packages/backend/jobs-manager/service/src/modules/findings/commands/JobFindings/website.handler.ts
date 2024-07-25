@@ -38,7 +38,7 @@ export class WebsiteHandler extends JobFindingHandlerBase<WebsiteCommand> {
       command.projectId,
       command.finding.ip,
       command.finding.port,
-      command.finding.domain,
+      command.finding.domainName,
       command.finding.path,
       command.finding.ssl || command.finding.ssl === false
         ? command.finding.ssl

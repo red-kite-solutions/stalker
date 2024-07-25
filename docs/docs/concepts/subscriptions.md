@@ -215,16 +215,12 @@ An event subscription can contain these main elements :
   - `operator` : The operator to compare the two operands.
   - `rhs` : The right-hand side operand.
 
-
-
-
-
 #### Event Subscription Dynamic Input
 
 You can add dynamic input to an event subscription either by referencing a finding's fields, or by injecting a secret.
 
-You can reference a Finding's output variable by name in a Job parameter's value or in a condition's operand using the following syntax: 
-`${parameterName}`. The variable name is case insensitive. 
+You can reference a Finding's output variable by name in a Job parameter's value or in a condition's operand using the following syntax:
+`${parameterName}`. The variable name is case insensitive.
 
 In a finding, you can find [dynamic fields](/docs/concepts/findings#dynamic-fields) in the `fields` array. The text based dynamic fields' values can be injected in the same way as a regular field, with the `${parameterName}` syntax. Simply reference the `key` part of a dynamic field as the variable name, and its `data` will be injected.
 

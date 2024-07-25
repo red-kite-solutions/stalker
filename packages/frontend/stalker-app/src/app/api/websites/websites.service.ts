@@ -69,6 +69,7 @@ export class WebsitesService {
             website.ssl
           ),
           ...website,
+          sitemap: website.sitemap.sort(),
         };
       })
     );

@@ -20,7 +20,11 @@
 
   <div class="content-wrapper">
     <div class="content">
-      <findings-list [correlationKey]="(website$ | async)?.correlationKey"></findings-list>
+      <app-website-overview [website]="wsite"></app-website-overview>
+
+      <mat-divider class="section-divider"></mat-divider>
+
+      <findings-list [correlationKey]="wsite.correlationKey" [filterFindingKeys]="findingsFilterKeys"></findings-list>
     </div>
     <div #contextPanel class="context">
       @if (wsite.blocked) {

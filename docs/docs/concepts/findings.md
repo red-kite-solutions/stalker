@@ -21,7 +21,7 @@ The finding object must contain the `type` field. Here is a list of available ty
 | [IpRangeFinding](#iprangefinding)         | Creates a new IP range.                                      |
 | [HostnameIpFinding](#hostnameipfinding)   | Creates a new host, attaches it to a given domain.           |
 | [PortFinding](#portfinding)               | Creates a new port, attaches it to the given host.           |
-| [WebsiteFinding](#websiteFinding)         | Creates a new website, with the proper host, domain and port |
+| [WebsiteFinding](#websitefinding)         | Creates a new website, with the proper host, domain and port |
 | [CustomFinding](#customfinding)           | Attaches custom finding data to a given entity.              |
 | [PortServiceFinding](#portservicefinding) | Fills the `service` field of a port.                         |
 
@@ -218,6 +218,7 @@ and attaches it to the given host.
 | `port`   | The port number                                         |
 | `domain` | The domain on which the website is hosted, can be empty |
 | `path`   | The folder path, defaults to `/`                        |
+| `ssl`    | True if the website is protected by encryption          |
 
 Example:
 
@@ -227,7 +228,7 @@ Example:
   "key": "WebsiteFinding",
   "ip": "1.2.3.4",
   "port": 80,
-  "domain": "example.com",
+  "domainName": "example.com",
   "path": "/",
   "ssl": false
 }
@@ -308,7 +309,7 @@ port = 80
 ip = "0.0.0.0"
 log_finding(
     PortFinding(
-        "HttpServerCheck", ip, port, "tcp", "This port runs an HTTP server"
+        "PortFunFact", ip, port, "tcp", "This is a fun fact about a port"
     )
 )
 ```
@@ -442,3 +443,40 @@ We would create the following three websites:
 | dev.example.com | 1.2.3.4 | 443  | `/`  |
 
 That way, a website at `dev.example.com`, which may be different than the one at `example.com`, will be found. The same goes for the website through direct IP access.
+
+## WebsitePathFinding
+
+A `WebsitePathFinding` is type of `CustomFinding` that fills a website's `paths` database field with the `endpoint` text field label. It will then be shown in the interface as the website's site map.
+
+| Field    | Description                                                   |
+| -------- | ------------------------------------------------------------- |
+| `domain` | The website's domain                                          |
+| `ip`     | The website's ip                                              |
+| `port`   | The website's port number                                     |
+| `path`   | The website's path                                            |
+| `fields` | A list of [fields](#dynamic-fields). Must include `endpoint`. |
+
+Using the python SDK, you can emit this finding with the following code.
+
+```python
+from stalker_job_sdk import PortFinding, log_finding, TextField
+
+ip = '1.2.3.4'
+domain = 'example.com'
+port = 443
+path = '/'
+ssl = True
+endpoint = '/example/endpoint.html'
+
+fields = [
+  TextField("endpoint", "Enspoint", endpoint)
+]
+
+log_finding(
+    WebsiteFinding(
+        "WebsitePathFinding", ip, port, domain, path, ssl, f"Website path", fields
+    )
+)
+```
+
+Upon receiving this finding, the backend will populate the proper website's path with the `endpoint` data.

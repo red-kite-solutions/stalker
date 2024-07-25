@@ -20,6 +20,7 @@ import { HostnameIpCommand } from './commands/JobFindings/hostname-ip.command';
 import { PortCommand } from './commands/JobFindings/port.command';
 import { WebsiteCommand } from './commands/JobFindings/website.command';
 import { CustomFindingFieldDto } from './finding.dto';
+import { CustomFindingsConstants } from './findings.constants';
 
 export type Finding =
   | HostnameIpFinding
@@ -57,9 +58,10 @@ export class WebsiteFinding extends FindingBase {
   key: 'WebsiteFinding';
   ip: string;
   port: number;
-  domain: string = '';
+  domainName: string = '';
   path: string = '/';
   ssl?: boolean;
+  protocol: 'tcp' = 'tcp';
 }
 
 export class CreateCustomFinding extends FindingBase {
@@ -70,6 +72,7 @@ export class CreateCustomFinding extends FindingBase {
   port?: number;
   protocol?: 'tcp' | 'udp';
   name: string;
+  path?: string;
 }
 
 export class JobStatusFinding extends FindingBase {
@@ -132,6 +135,7 @@ export class FindingsService {
     target: string,
     page: number,
     pageSize: number,
+    filterFindings: string[] = [],
   ): Promise<Page<CustomFinding>> {
     if (page < 1) throw new HttpBadRequestException('Page starts at 1.');
 
@@ -141,6 +145,10 @@ export class FindingsService {
       filters.correlationKey = {
         $eq: target,
       };
+    }
+
+    if (filterFindings.length) {
+      filters.key = { $nin: filterFindings };
     }
 
     const items = await this.findingModel
@@ -157,6 +165,25 @@ export class FindingsService {
       items,
       totalRecords,
     };
+  }
+
+  public async getLatestWebsiteEndpoint(
+    correlationKey: string,
+    endpoint: string,
+  ) {
+    return await this.findingModel
+      .findOne({
+        correlationKey: { $eq: correlationKey },
+        key: CustomFindingsConstants.WebsitePathFinding,
+        fields: {
+          $elemMatch: {
+            type: 'text',
+            key: CustomFindingsConstants.WebsiteEndpointFieldKey,
+            data: endpoint,
+          },
+        },
+      })
+      .sort({ _id: 'descending' });
   }
 
   /**
@@ -191,6 +218,8 @@ export class FindingsService {
       dto.ip,
       dto.port,
       dto.protocol,
+      null,
+      dto.path,
     );
 
     const finding: CustomFinding = {
@@ -202,7 +231,7 @@ export class FindingsService {
       key: dto.key,
     };
 
-    await this.findingModel.create(finding);
+    return await this.findingModel.create(finding);
   }
 
   /**
@@ -358,12 +387,12 @@ export class FindingsService {
         case 'WebsiteFinding':
           finding.correlationKey = CorrelationKeyUtils.generateCorrelationKey(
             projectId,
-            finding.domain,
+            finding.domainName ?? '',
             finding.ip,
             finding.port,
             'tcp',
             null,
-            finding.path,
+            finding.path ?? '/',
           );
           this.commandBus.execute(
             new WebsiteCommand(jobId, projectId, WebsiteCommand.name, finding),
@@ -377,6 +406,8 @@ export class FindingsService {
             finding.ip,
             finding.port,
             finding.protocol,
+            null,
+            finding.path,
           );
           this.commandBus.execute(
             new CustomFindingCommand(

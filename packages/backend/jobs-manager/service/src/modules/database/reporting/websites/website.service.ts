@@ -11,10 +11,17 @@ import { CorrelationKeyUtils } from '../correlation.utils';
 import { Domain } from '../domain/domain.model';
 import { DomainSummary } from '../domain/domain.summary';
 import { Host } from '../host/host.model';
-import { Port } from '../port/port.model';
+import { Port, PortDocument } from '../port/port.model';
 import { WebsiteFilterModel } from './website-filter.model';
 import { BatchEditWebsitesDto } from './website.dto';
 import { Website, WebsiteDocument } from './website.model';
+
+interface ExtendedWebsiteSearchQuery {
+  projectIdObj: Types.ObjectId;
+  existingDomainSummary: DomainSummary | undefined;
+  existingPort: PortDocument;
+  searchQuery: FilterQuery<Website>;
+}
 
 @Injectable()
 export class WebsiteService {
@@ -29,14 +36,13 @@ export class WebsiteService {
     private tagsService: TagsService,
   ) {}
 
-  public async addWebsite(
+  private async buildExtendedSearchQuery(
     projectId: string,
     ip: string,
     port: number,
     domain: string = undefined,
     path: string = '/',
-    ssl: boolean = undefined,
-  ) {
+  ): Promise<ExtendedWebsiteSearchQuery> {
     const projectIdObj = new Types.ObjectId(projectId);
     const existingPort = await this.portModel.findOne({
       'host.ip': { $eq: ip },
@@ -78,37 +84,82 @@ export class WebsiteService {
       existingDomainSummary = undefined;
     }
 
+    return {
+      projectIdObj: projectIdObj,
+      existingDomainSummary: existingDomainSummary,
+      existingPort: existingPort,
+      searchQuery: {
+        'port.id': { $eq: existingPort._id },
+        'domain.id': {
+          $eq: existingDomainSummary ? existingDomainSummary.id : null,
+        },
+        path: { $eq: path },
+      },
+    };
+  }
+
+  public async addWebsite(
+    projectId: string,
+    ip: string,
+    port: number,
+    domain: string = undefined,
+    path: string = '/',
+    ssl: boolean = undefined,
+  ) {
     // Search for a website with the proper port id, domain and path.
     // domain may or may not exist, it depends if it was found in the domains collection
-    const searchQuery: FilterQuery<Website> = {
-      'port.id': { $eq: existingPort._id },
-      'domain.id': {
-        $eq: existingDomainSummary ? existingDomainSummary.id : null,
-      },
-      path: { $eq: path },
-    };
+    const extendedSearchQuery: ExtendedWebsiteSearchQuery =
+      await this.buildExtendedSearchQuery(projectId, ip, port, domain, path);
 
-    return this.websiteModel.findOneAndUpdate(
-      searchQuery,
+    return await this.websiteModel.findOneAndUpdate(
+      extendedSearchQuery.searchQuery,
       {
         $set: { lastSeen: Date.now(), ssl: ssl ?? null },
         $setOnInsert: {
-          host: existingPort.host,
-          domain: existingDomainSummary ?? null,
-          port: { id: existingPort._id, port: existingPort.port },
+          host: extendedSearchQuery.existingPort.host,
+          domain: extendedSearchQuery.existingDomainSummary ?? null,
+          port: {
+            id: extendedSearchQuery.existingPort._id,
+            port: extendedSearchQuery.existingPort.port,
+          },
           path: path,
-          sitemap: ['/'],
-          projectId: projectIdObj,
+          sitemap: [],
+          projectId: extendedSearchQuery.projectIdObj,
           correlationKey: CorrelationKeyUtils.websiteCorrelationKey(
             projectId,
             ip,
             port,
-            existingDomainSummary ? existingDomainSummary.name : '',
+            extendedSearchQuery.existingDomainSummary
+              ? extendedSearchQuery.existingDomainSummary.name
+              : '',
             path,
           ),
         },
       },
       { upsert: true, new: true },
+    );
+  }
+
+  public async addPathToWebsite(
+    pathToAdd: string,
+    projectId: string,
+    ip: string,
+    port: number,
+    domain: string = undefined,
+    path: string = '/',
+  ) {
+    const extendedSearchQuery = await this.buildExtendedSearchQuery(
+      projectId,
+      ip,
+      port,
+      domain,
+      path,
+    );
+
+    return await this.websiteModel.findOneAndUpdate(
+      extendedSearchQuery.searchQuery,
+      { $addToSet: { sitemap: pathToAdd } },
+      { new: true },
     );
   }
 
@@ -142,27 +193,28 @@ export class WebsiteService {
       throw new HttpNotFoundException();
     }
 
-    const websiteFindingBase: Omit<WebsiteFinding, 'domain'> = {
+    const websiteFindingBase: Omit<WebsiteFinding, 'domainName'> = {
       type: 'WebsiteFinding',
       key: 'WebsiteFinding',
       ip: ip,
       path: path,
       port: port,
       fields: [],
+      protocol: 'tcp',
       ssl: ssl,
     };
 
     // We will create a website finding
     let findings: WebsiteFinding[] = [
       {
-        domain: '',
+        domainName: '',
         ...websiteFindingBase,
       },
     ];
 
     for (const domainSummary of host.domains) {
       findings.push({
-        domain: domainSummary.name,
+        domainName: domainSummary.name,
         ...websiteFindingBase,
       });
 

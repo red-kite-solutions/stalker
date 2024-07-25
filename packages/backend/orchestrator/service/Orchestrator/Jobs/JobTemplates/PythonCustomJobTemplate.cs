@@ -14,7 +14,7 @@ public class PythonCustomJobTemplate : PythonJobTemplate
         {
             foreach (var param in jobParameters!)
             {
-                if (param.Name.IsNullOrEmpty() || param.Value.IsNullOrEmpty()) continue;
+                if (param.Name.IsNullOrEmpty() || param.Value == null) continue;
                 EnvironmentVariable[param.Name!] = CryptoUtils.Decrypt(param.Value!);
             }
         }

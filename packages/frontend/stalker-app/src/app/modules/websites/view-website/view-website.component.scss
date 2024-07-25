@@ -15,10 +15,21 @@
   box-sizing: border-box;
   display: grid;
   grid-template-columns: 1fr 200px;
-  max-width: 1100px;
+  max-width: 80%;
   width: 100%;
   gap: var(--normal-gap-size);
   align-self: center;
+
+  .content {
+    app-website-overview {
+      display: block;
+      width: 100%;
+    }
+    .section-divider {
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+  }
 }
 
 .show-all-button-wrapper {

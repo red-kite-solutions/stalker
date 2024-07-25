@@ -1,5 +1,4 @@
 import os
-import random
 
 import httpx
 from stalker_job_sdk import (JobStatus, PortFinding, TextField, is_valid_ip,
@@ -9,10 +8,10 @@ from stalker_job_sdk import (JobStatus, PortFinding, TextField, is_valid_ip,
 
 def get_args():
     """Gets the arguments from environment variables"""
-    target_ip: str = os.environ["targetIp"]
-    port = int(os.environ["port"])
-    domain = os.environ["domainName"] # DOMAIN should resolve to TARGET_IP
-    path = os.environ["path"] # Http server file path to GET
+    target_ip: str = os.environ.get("targetIp")
+    port = int(os.environ.get("port"))
+    domain = os.environ.get("domainName") # DOMAIN should resolve to TARGET_IP
+    path = os.environ.get("path") # Http server file path to GET
 
     if not path or len(path) == 0:
         path = '/'

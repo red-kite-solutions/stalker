@@ -1,3 +1,4 @@
+import { Clipboard } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -38,6 +39,7 @@ import { ProjectSummary } from 'src/app/shared/types/project/project.summary';
 import { Tag } from 'src/app/shared/types/tag.type';
 import { BlockedPillTagComponent } from 'src/app/shared/widget/pill-tag/blocked-pill-tag.component';
 import { TextMenuComponent } from 'src/app/shared/widget/text-menu/text-menu.component';
+import { FindingsService } from '../../../api/findings/findings.service';
 import { PortsService } from '../../../api/ports/ports.service';
 import { WebsitesService } from '../../../api/websites/websites.service';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
@@ -50,6 +52,7 @@ import { NewPillTagComponent } from '../../../shared/widget/pill-tag/new-pill-ta
 import { SelectItem } from '../../../shared/widget/text-select-menu/text-select-menu.component';
 import { FindingsModule } from '../../findings/findings.module';
 import { WebsiteInteractionsService } from '../websites-interactions.service';
+import { WebsiteOverviewComponent } from './website-overview/website-overview.component';
 
 @Component({
   standalone: true,
@@ -75,6 +78,8 @@ import { WebsiteInteractionsService } from '../websites-interactions.service';
     MatTooltipModule,
     TextMenuComponent,
     BlockedPillTagComponent,
+    FindingsModule,
+    WebsiteOverviewComponent,
   ],
   selector: 'app-view-website',
   templateUrl: './view-website.component.html',
@@ -82,6 +87,7 @@ import { WebsiteInteractionsService } from '../websites-interactions.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ViewWebsiteComponent implements OnDestroy {
+  public findingsFilterKeys = ['WebsitePathFinding'];
   public menuResizeObserver$?: ResizeObserver;
 
   @ViewChild('newPillTag', { read: ElementRef, static: false })
@@ -287,6 +293,8 @@ export class ViewWebsiteComponent implements OnDestroy {
     private toastr: ToastrService,
     private router: Router,
     public dialog: MatDialog,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private findingService: FindingsService,
+    private clipboard: Clipboard
   ) {}
 }

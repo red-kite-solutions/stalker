@@ -11,6 +11,8 @@ import {
   FindingTextField,
 } from '../database/reporting/findings/finding.model';
 import { ProjectService } from '../database/reporting/project.service';
+import { CustomFindingFieldDto } from './finding.dto';
+import { CustomFindingsConstants } from './findings.constants';
 import { FindingsService } from './findings.service';
 
 describe('Findings Service Spec', () => {
@@ -98,11 +100,7 @@ describe('Findings Service Spec', () => {
 
   it('Save - Nonexistent job - Throws', async () => {
     // Arrange
-    const c = await projectService.addProject({
-      name: randomUUID(),
-      imageType: null,
-      logo: null,
-    });
+    const c = await project();
 
     // Act
     // Assert
@@ -113,11 +111,7 @@ describe('Findings Service Spec', () => {
 
   it('Save - Nonexistent job - Throws', async () => {
     // Arrange
-    const c = await projectService.addProject({
-      name: randomUUID(),
-      imageType: null,
-      logo: null,
-    });
+    const c = await project();
 
     // Act
     // Assert
@@ -135,11 +129,7 @@ describe('Findings Service Spec', () => {
     'Save - Invalid finding correlation information - Throws',
     async (domainName: string, ip: string, port: number) => {
       // Arrange
-      const c = await projectService.addProject({
-        name: randomUUID(),
-        imageType: null,
-        logo: null,
-      });
+      const c = await project();
 
       const j = await jobsModel.create({
         projectId: c.id,
@@ -164,11 +154,7 @@ describe('Findings Service Spec', () => {
 
   it('Save - Valid findings - Returns findings', async () => {
     // Arrange
-    const c = await projectService.addProject({
-      name: randomUUID(),
-      imageType: null,
-      logo: null,
-    });
+    const c = await project();
 
     const j = await jobsModel.create({
       projectId: c.id,
@@ -176,20 +162,8 @@ describe('Findings Service Spec', () => {
     });
 
     // Act
-    await findingsService.save(c.id, j.id, {
-      key: 'my-finding',
-      name: 'My finding',
-      fields: [
-        {
-          key: 'my-field',
-          type: 'text',
-          label: 'My label',
-          data: 'My content',
-        },
-      ],
-      type: 'CustomFinding',
-      domainName: 'example.org',
-    });
+
+    await customDomainFinding(c.id, j.id, 'my-finding');
 
     // Assert
     const correlationKey = CorrelationKeyUtils.domainCorrelationKey(
@@ -212,4 +186,161 @@ describe('Findings Service Spec', () => {
     expect(field.label).toBe('My label');
     expect(field.data).toBe('My content');
   });
+
+  it('Get findings filtered by key', async () => {
+    // Arrange
+    const c = await project();
+
+    const j = await jobsModel.create({
+      projectId: c.id,
+      task: 'CustomJob',
+    });
+
+    const filteredKey = 'my-finding-1';
+    const nonFilteredKey = 'my-finding-2';
+
+    await customDomainFinding(c.id, j.id, filteredKey);
+    await customDomainFinding(c.id, j.id, nonFilteredKey);
+
+    // Act
+    const correlationKey = CorrelationKeyUtils.domainCorrelationKey(
+      c.id,
+      'example.org',
+    );
+    const findings = await findingsService.getAll(correlationKey, 1, 100, [
+      filteredKey,
+    ]);
+
+    // Assert
+    expect(findings.totalRecords).toBe(1);
+    const finding = findings.items[0];
+    expect(finding.key).toBe(nonFilteredKey);
+  });
+
+  it('Get latest website path finding', async () => {
+    // Arrange
+    const c = await project();
+
+    const j = await jobsModel.create({
+      projectId: c.id,
+      task: 'CustomJob',
+    });
+
+    const f1 = await customWebsiteFinding(
+      c.id,
+      j.id,
+      CustomFindingsConstants.WebsitePathFinding,
+      'example.org',
+    );
+    const f2 = await customWebsiteFinding(
+      c.id,
+      j.id,
+      CustomFindingsConstants.WebsitePathFinding,
+      'example.org',
+    );
+    await customWebsiteFinding(
+      c.id,
+      j.id,
+      CustomFindingsConstants.WebsitePathFinding,
+      'example2.com',
+    );
+    await customWebsiteFinding(
+      c.id,
+      j.id,
+      CustomFindingsConstants.WebsitePathFinding,
+      'example.org',
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      [
+        {
+          key: CustomFindingsConstants.WebsiteEndpointFieldKey,
+          type: 'text',
+          label: 'Endpoint',
+          data: '/example/other-endpoint.html',
+        },
+      ],
+    );
+
+    // Act
+    const correlationKey = CorrelationKeyUtils.websiteCorrelationKey(
+      c.id,
+      '1.1.1.1',
+      443,
+      'example.org',
+      '/',
+    );
+    const endpoint = await findingsService.getLatestWebsiteEndpoint(
+      correlationKey,
+      '/example/file.html',
+    );
+
+    // Assert
+    expect(endpoint._id.toString()).toStrictEqual(f2._id.toString());
+    expect(endpoint.fields[0].data).toStrictEqual('/example/file.html');
+  });
+
+  async function customDomainFinding(
+    projectId: string,
+    jobId: string,
+    key: string,
+    domainName: string = 'example.org',
+    name: string = 'My finding',
+    fields: Array<CustomFindingFieldDto> = [
+      {
+        key: 'my-field',
+        type: 'text',
+        label: 'My label',
+        data: 'My content',
+      },
+    ],
+  ) {
+    return await findingsService.save(projectId, jobId, {
+      key,
+      name,
+      fields,
+      type: 'CustomFinding',
+      domainName,
+    });
+  }
+
+  async function customWebsiteFinding(
+    projectId: string,
+    jobId: string,
+    key: string,
+    domainName: string = 'example.org',
+    ip: string = '1.1.1.1',
+    path: string = '/',
+    port: number = 443,
+    name: string = 'My finding',
+    fields: Array<CustomFindingFieldDto> = [
+      {
+        key: CustomFindingsConstants.WebsiteEndpointFieldKey,
+        type: 'text',
+        label: 'Endpoint',
+        data: '/example/file.html',
+      },
+    ],
+  ) {
+    return await findingsService.save(projectId, jobId, {
+      key,
+      name,
+      fields,
+      type: 'CustomFinding',
+      domainName,
+      ip,
+      path,
+      port,
+      protocol: 'tcp',
+    });
+  }
+
+  async function project() {
+    return await projectService.addProject({
+      name: randomUUID(),
+      imageType: null,
+      logo: null,
+    });
+  }
 });
