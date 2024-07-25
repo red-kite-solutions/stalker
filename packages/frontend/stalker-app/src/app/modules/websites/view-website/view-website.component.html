@@ -128,9 +128,12 @@
           <panel-section-title i18n="Merged websites|Merged websites">Merged websites</panel-section-title>
 
           @if (mergedWebsites$ | async; as mergedWebsites) {
-            @for (wSite of mergedWebsites.items; track $index) {
-              <a [routerLink]="['/websites', wSite._id]">{{ wSite.url }}</a>
-            }
+            <div>
+              @for (wSite of mergedWebsites.items; track $index) {
+                <a [routerLink]="['/websites', wSite._id]">{{ wSite.url }}</a>
+              }
+            </div>
+
             @if (mergedWebsites.totalRecords > mergedWebsites.items.length) {
               <button panel-load-more (click)="mergedWebsitesPage$.next(mergedWebsitesPage$.value + 1)">
                 Show more ({{ mergedWebsites.items.length }})
