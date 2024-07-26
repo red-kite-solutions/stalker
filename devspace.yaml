@@ -122,7 +122,8 @@ pipelines:
   prod:
     run: |-
       create_deployments namespaces
-      run_pipelines setup-certificates setup-kafka
+      run_pipelines setup-certificates
+      # run_pipelines setup-kafka
 
       # Start mongo and kafka
       create_deployments mongo kafka --sequential
