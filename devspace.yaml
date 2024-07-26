@@ -14,6 +14,10 @@ imports:
   - path: devspace.base.yaml
 
 pipelines:
+  setup-certificates:
+    run: |-
+      create_deployments root-certificates cron-certificates jm-certificates orchestrator-certificates ui-certificates
+
   setup-kafka:
     run: |-
       # Kafka's keystore and keystore password
@@ -38,8 +42,8 @@ pipelines:
         short: w
         type: bool
     run: |-
-      create_deployments namespaces certificates
-      run_pipelines setup-kafka build
+      create_deployments namespaces
+      run_pipelines setup-certificates setup-kafka build
       create_deployments mongo kafka orchestrator-service-account orchestrator jobs-manager --sequential
 
       # Wait for kafka and mongo to be ready
@@ -67,8 +71,8 @@ pipelines:
   jobs-manager-e2e-cicd-deploy:
     run: |-
       # Running the build pipeline is required before running this
-      create_deployments namespaces certificates
-      run_pipelines setup-kafka
+      create_deployments namespaces 
+      run_pipelines setup-certificates setup-kafka
 
       create_deployments mongo kafka orchestrator-service-account orchestrator jobs-manager --sequential
 
@@ -85,8 +89,8 @@ pipelines:
 
   dev:
     run: |-
-      create_deployments namespaces certificates
-      run_pipelines setup-kafka build
+      create_deployments namespaces
+      run_pipelines setup-certificates setup-kafka build
 
       # Start mongo and kafka
       create_deployments mongo kafka --sequential
@@ -117,8 +121,8 @@ pipelines:
 
   prod:
     run: |-
-      create_deployments namespaces certificates
-      run_pipelines setup-kafka
+      create_deployments namespaces
+      run_pipelines setup-certificates setup-kafka
 
       # Start mongo and kafka
       create_deployments mongo kafka --sequential
@@ -339,8 +343,6 @@ deployments:
           mTls:
             enabled: true
         service:
-          type: ClusterIP
-
           ports:
             mongodb: 27017
         auth:
@@ -565,14 +567,69 @@ deployments:
         - queue/${NETWORK_POLICY}
         - jobs/${NETWORK_POLICY}
 
-  certificates:
+  root-certificates:
     kubectl:
-      manifests:
-        - ${CERTIFICATES}
-        - packages/backend/cron/service/${CERTIFICATES}
-        - packages/backend/jobs-manager/service/${CERTIFICATES}
-        - packages/backend/orchestrator/service/${CERTIFICATES}
-        - packages/frontend/stalker-app/${CERTIFICATES}
+      inlineManifest: |-
+        apiVersion: v1
+        kind: Secret
+        metadata:
+          name: root-ca
+        data:
+          rks-ca.crt: ${ROOT_RKS_CA_CRT}
+
+  cron-certificates:
+    kubectl:
+      inlineManifest: |-
+        apiVersion: v1
+        kind: Secret
+        metadata:
+          name: cron-certs
+        data:
+          ca.pem: ${CRON_CERTIFICATES_CA_PEM}
+          client-signed.crt: ${CRON_CERTIFICATES_CLIENT_SIGNED_CRT}
+          client.key: ${CRON_CERTIFICATES_CLIENT_KEY}
+          rks-ca.crt: ${CRON_CERTIFICATES_RKS_CA_CRT}
+
+  jm-certificates:
+    kubectl:
+      inlineManifest: |-
+        apiVersion: v1
+        kind: Secret
+        metadata:
+          name: jm-certs
+        data:
+          ca.pem: ${JM_CERTIFICATES_CA_PEM}
+          client-signed.crt: ${JM_CERTIFICATES_CLIENT_SIGNED_CRT}
+          client.key: ${JM_CERTIFICATES_CLIENT_KEY}
+          kafka-ca.crt: ${JM_CERTIFICATES_KAFKA_CA_CRT}
+          kafka-client-signed.crt: ${JM_CERTIFICATES_KAFKA_CLIENT_SIGNED_CRT}
+          kafka-client.key: ${JM_CERTIFICATES_KAFKA_CLIENT_KEY}
+          ssl-private.key: ${JM_CERTIFICATES_SSL_PRIVATE_KEY}
+          ssl-certificate-chain.pem: ${JM_CERTIFICATES_SSL_CERTIFICATE_CHAIN_PEM}
+
+  orchestrator-certificates:
+    kubectl:
+      inlineManifest: |-
+        apiVersion: v1
+        kind: Secret
+        metadata:
+          name: orchestrator-certs
+        data:
+          kafka-ca.crt: ${ORCHESTRATOR_CERTIFICATES_KAFKA_CA_CRT}
+          kafka-client-signed.crt: ${ORCHESTRATOR_CERTIFICATES_KAFKA_CLIENT_SIGNED_CRT}
+          kafka-client.key: ${ORCHESTRATOR_CERTIFICATES_KAFKA_CLIENT_KEY}
+          rks-ca.crt: ${ORCHESTRATOR_CERTIFICATES_RKS_CA_CRT}
+
+  ui-certificates:
+    kubectl:
+      inlineManifest: |-
+        apiVersion: v1
+        kind: Secret
+        metadata:
+          name: app-certs
+        data:
+          nginx-chain.pem: ${UI_CERTIFICATES_NGINX_CHAIN_PEM}
+          nginx.key: ${UI_CERTIFICATES_NGINX_KEY}
 
 dev:
   mongo:
