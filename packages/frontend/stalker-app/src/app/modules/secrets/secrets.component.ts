@@ -26,6 +26,7 @@ import { ProjectSummary } from '../../shared/types/project/project.summary';
 import { Secret } from '../../shared/types/secret.type';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/widget/confirm-dialog/confirm-dialog.component';
 import { FilteredPaginatedTableComponent } from '../../shared/widget/filtered-paginated-table/filtered-paginated-table.component';
+import { TableFormatComponent } from '../../shared/widget/filtered-paginated-table/table-format/table-format.component';
 import { secretExplanation } from './secrets.constants';
 
 @Component({
@@ -52,6 +53,7 @@ import { secretExplanation } from './secrets.constants';
     ReactiveFormsModule,
     MatOptionModule,
     MatSelectModule,
+    TableFormatComponent,
   ],
 })
 export class SecretsComponent implements AfterViewInit {

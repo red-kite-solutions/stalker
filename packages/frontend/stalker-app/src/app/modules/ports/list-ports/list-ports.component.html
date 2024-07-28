@@ -24,69 +24,73 @@
         (pageChange)="pageChange($event)"
         [isLoading]="dataLoading"
         [length]="count"
-        [columns]="displayColumns$ | async"
         [filterOptions]="filterOptions"
         [negatableFilterOptions]="['is']"
-        [routerLinkBuilder]="routerLinkBuilder"
         (filtersChange)="filtersChange($event)"
         (dateFiltersChange)="dateRangeFilterChange($event)"
-        (selectionChange)="selection = $event"
-        [noDataMessage]="noDataMessage"
         [dateSearchEnabled]="true"
         [startDate]="startDate"
         [filters]="currentFilters"
-        [menuFactory]="generateMenuItem"
       >
-        <!-- Port Column -->
-        <ng-container matColumnDef="port">
-          <th mat-header-cell *matHeaderCellDef i18n="Port|Port number">Port</th>
-          <td mat-cell *matCellDef="let element">
-            <div class="tw-flex tw-flex-wrap tw-gap-2 tw-items-center">
-              <a
-                [routerLink]="'/hosts/' + element.host.id + '/ports/' + element.port"
-                (click)="$event.stopPropagation()"
-                >{{ element.port }}</a
-              >
-              @if (element.blocked) {
-                <app-blocked-pill-tag></app-blocked-pill-tag>
-              }
-            </div>
-          </td>
-        </ng-container>
+        <app-table-format
+          [dataSource]="dataSource"
+          [columns]="displayColumns$ | async"
+          [routerLinkBuilder]="routerLinkBuilder"
+          (selectionChange)="selection = $event"
+          [noDataMessage]="noDataMessage"
+          [menuFactory]="generateMenuItem"
+        >
+          <!-- Port Column -->
+          <ng-container matColumnDef="port">
+            <th mat-header-cell *matHeaderCellDef i18n="Port|Port number">Port</th>
+            <td mat-cell *matCellDef="let element">
+              <div class="tw-flex tw-flex-wrap tw-gap-2 tw-items-center">
+                <a
+                  [routerLink]="'/hosts/' + element.host.id + '/ports/' + element.port"
+                  (click)="$event.stopPropagation()"
+                  >{{ element.port }}</a
+                >
+                @if (element.blocked) {
+                  <app-blocked-pill-tag></app-blocked-pill-tag>
+                }
+              </div>
+            </td>
+          </ng-container>
 
-        <!-- Ip/Host Column -->
-        <ng-container matColumnDef="ip">
-          <th mat-header-cell *matHeaderCellDef i18n="Host|host">Host</th>
-          <td mat-cell *matCellDef="let element">
-            <a [routerLink]="'/hosts/' + element.host.id" (click)="$event.stopPropagation()">{{ element.host.ip }}</a>
-          </td>
-        </ng-container>
+          <!-- Ip/Host Column -->
+          <ng-container matColumnDef="ip">
+            <th mat-header-cell *matHeaderCellDef i18n="Host|host">Host</th>
+            <td mat-cell *matCellDef="let element">
+              <a [routerLink]="'/hosts/' + element.host.id" (click)="$event.stopPropagation()">{{ element.host.ip }}</a>
+            </td>
+          </ng-container>
 
-        <!-- Project Column -->
-        <ng-container matColumnDef="project">
-          <th mat-header-cell *matHeaderCellDef i18n="Project|A business">Project</th>
-          <td mat-cell *matCellDef="let element">
-            <project-cell [project]="projects | whereId: [element.projectId]"></project-cell>
-          </td>
-        </ng-container>
-        <!-- Tags Column -->
-        <ng-container matColumnDef="tags">
-          <th mat-header-cell *matHeaderCellDef i18n="Tags|Multiple tags describing something">Tags</th>
-          <td mat-cell *matCellDef="let element">
-            <div class="tw-pt-1 tw-flex tw-flex-wrap tw-gap-x-2 tw-gap-y-1">
-              @for (tag of element.tags; track tag) {
-                <app-pill-tag [color]="(tags | whereId: [tag])?.color">{{
-                  (tags | whereId: [tag])?.text
-                }}</app-pill-tag>
-              }
-              <app-new-pill-tag
-                [createdAtMilliseconds]="element.createdAt"
-                (click)="dateFilter($event)"
-              ></app-new-pill-tag>
-            </div>
-          </td>
-        </ng-container>
-        <tr mat-header-row *matHeaderRowDef="displayColumns$ | async"></tr>
+          <!-- Project Column -->
+          <ng-container matColumnDef="project">
+            <th mat-header-cell *matHeaderCellDef i18n="Project|A business">Project</th>
+            <td mat-cell *matCellDef="let element">
+              <project-cell [project]="projects | whereId: [element.projectId]"></project-cell>
+            </td>
+          </ng-container>
+          <!-- Tags Column -->
+          <ng-container matColumnDef="tags">
+            <th mat-header-cell *matHeaderCellDef i18n="Tags|Multiple tags describing something">Tags</th>
+            <td mat-cell *matCellDef="let element">
+              <div class="tw-pt-1 tw-flex tw-flex-wrap tw-gap-x-2 tw-gap-y-1">
+                @for (tag of element.tags; track tag) {
+                  <app-pill-tag [color]="(tags | whereId: [tag])?.color">{{
+                    (tags | whereId: [tag])?.text
+                  }}</app-pill-tag>
+                }
+                <app-new-pill-tag
+                  [createdAtMilliseconds]="element.createdAt"
+                  (click)="dateFilter($event)"
+                ></app-new-pill-tag>
+              </div>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="displayColumns$ | async"></tr>
+        </app-table-format>
       </app-filtered-paginated-table>
     }
   </mat-card-content>

@@ -32,6 +32,7 @@ import { HostsService } from '../../../api/hosts/hosts.service';
 import { SharedModule } from '../../../shared/shared.module';
 import { Host } from '../../../shared/types/host/host.interface';
 import { HttpStatus } from '../../../shared/types/http-status.type';
+import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-table/table-format/table-format.component';
 import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.component';
 import { HostsInteractionsService } from '../hosts-interactions.service';
 
@@ -54,6 +55,7 @@ import { HostsInteractionsService } from '../hosts-interactions.service';
     FilteredPaginatedTableComponent,
     BlockedPillTagComponent,
     RouterModule,
+    TableFormatComponent,
   ],
   selector: 'app-list-hosts',
   templateUrl: './list-hosts.component.html',

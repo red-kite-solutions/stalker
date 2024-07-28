@@ -25,6 +25,7 @@ import {
 } from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
 import { SharedModule } from '../../../shared/shared.module';
 import { FilteredPaginatedTableComponent } from '../../../shared/widget/filtered-paginated-table/filtered-paginated-table.component';
+import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-table/table-format/table-format.component';
 
 @Component({
   standalone: true,
@@ -44,6 +45,7 @@ import { FilteredPaginatedTableComponent } from '../../../shared/widget/filtered
     MatCheckboxModule,
     NgxMatColorPickerModule,
     FilteredPaginatedTableComponent,
+    TableFormatComponent,
   ],
   selector: 'app-manage-tags',
   templateUrl: './manage-tags.component.html',

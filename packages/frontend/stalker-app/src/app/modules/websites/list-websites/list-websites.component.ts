@@ -4,9 +4,11 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
 import { DateRange } from '@angular/material/datepicker';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -31,6 +33,7 @@ import { BlockedPillTagComponent } from 'src/app/shared/widget/pill-tag/blocked-
 import { WebsitesService } from '../../../api/websites/websites.service';
 import { SharedModule } from '../../../shared/shared.module';
 import { Website } from '../../../shared/types/websites/website.type';
+import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-table/table-format/table-format.component';
 import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.component';
 import { WebsiteInteractionsService } from '../websites-interactions.service';
 
@@ -53,6 +56,9 @@ import { WebsiteInteractionsService } from '../websites-interactions.service';
     FilteredPaginatedTableComponent,
     RouterModule,
     BlockedPillTagComponent,
+    MatDividerModule,
+    MatButtonToggleModule,
+    TableFormatComponent,
   ],
   selector: 'app-list-websites',
   templateUrl: './list-websites.component.html',
@@ -72,6 +78,15 @@ export class ListWebsitesComponent {
   selection = new SelectionModel<Website>(true, []);
   currentDateRange: DateRange<Date> = new DateRange<Date>(null, null);
   startDate: Date | null = null;
+  public readonly gridColumnsOptions: number[] = [1, 2, 3, 4, 5, 6, 7, 8];
+  public viewStyle: 'table' | 'grid' = 'table';
+  public _gridColumnsCount = 3;
+  public set gridColumnsCount(v: number) {
+    this._gridColumnsCount = v;
+  }
+  public get gridColumnsCount() {
+    return this._gridColumnsCount;
+  }
 
   dataSource$ = this.currentPage$.pipe(
     tap((currentPage) => {
