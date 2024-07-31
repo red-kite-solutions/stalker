@@ -13,7 +13,7 @@
           </mat-button-toggle>
         </mat-button-toggle-group>
         <mat-form-field class="grid-select" appearance="outline">
-          <mat-select [(value)]="gridColumnsCount" hideSingleSelectionIndicator>
+          <mat-select [(value)]="gridColumnsCount" hideSingleSelectionIndicator [disabled]="viewStyle !== 'grid'">
             @for (cols of gridColumnsOptions; track cols) {
               <mat-option [value]="cols">{{ cols }}</mat-option>
             }
@@ -55,7 +55,6 @@
         [dateSearchEnabled]="true"
         [startDate]="startDate"
         [filters]="currentFilters"
-        [gridColumns]="_gridColumnsCount"
       >
         @if (viewStyle === 'table') {
           <app-table-format
@@ -148,7 +147,92 @@
             </ng-container>
             <tr mat-header-row *matHeaderRowDef="displayColumns$ | async"></tr>
           </app-table-format>
-        } @else {}
+        } @else {
+          <app-grid-format
+            [dataSource]="dataSource"
+            [routerLinkPrefix]="'/websites/'"
+            (selectionChange)="selection = $event"
+            [noDataMessage]="noDataMessage"
+            [menuFactory]="generateMenuItem"
+            [gridColumns]="_gridColumnsCount"
+          >
+            <ng-template #title let-element="element">
+              <div class="tw-flex tw-flex-row">
+                <div class="tw-grow">
+                  <div class="tw-flex tw-flex-row tw-flex-wrap url">
+                    <a [routerLink]="'/websites/' + element._id" (click)="$event.stopPropagation()">
+                      {{ element?.url }}
+                    </a>
+                  </div>
+                </div>
+
+                <app-secure-icon class="spread" [secure]="element?.ssl" class="tw-self-center"></app-secure-icon>
+              </div>
+            </ng-template>
+
+            <ng-template #body let-element="element">
+              <div class="tw-flex tw-flex-col tw-h-full">
+                <div class="tw-flex tw-flex-row">
+                  <div class="tw-grow tw-shrink ip-container">
+                    <span>
+                      <a [routerLink]="'/hosts/' + element.host.id" (click)="$event.stopPropagation()">
+                        {{ element?.host?.ip }}
+                      </a>
+                    </span>
+                    <span>:</span>
+                    <span>
+                      <a
+                        [routerLink]="'/hosts/' + element.host.id + '/ports/' + element.port.port"
+                        (click)="$event.stopPropagation()"
+                      >
+                        {{ element?.port?.port }}
+                      </a>
+                    </span>
+                  </div>
+
+                  <div class="tw-shrink-0 spread">
+                    <project-cell [project]="projects | whereId: [element.projectId]"></project-cell>
+                  </div>
+                </div>
+                <div class="tw-pt-1 tw-flex tw-flex-wrap tw-gap-x-2 tw-gap-y-1">
+                  @for (tag of element.tags; track tag) {
+                    <app-pill-tag [color]="(tags | whereId: [tag])?.color">{{
+                      (tags | whereId: [tag])?.text
+                    }}</app-pill-tag>
+                  }
+                  <app-new-pill-tag
+                    [createdAtMilliseconds]="element.createdAt"
+                    (click)="dateFilter($event)"
+                  ></app-new-pill-tag>
+                </div>
+                <mat-divider color="accent"></mat-divider>
+                <div class="preview-image tw-grow">
+                  @if (images$[element._id] && images$[element._id] | async; as image) {
+                    <image-finding-field
+                      [data]="image"
+                      class="grid-image-height-{{ gridColumnsCount }}"
+                    ></image-finding-field>
+                  } @else {
+                    @if (imageLoading[element._id] || imageLoading[element._id] === undefined) {
+                      <mat-spinner color="accent"></mat-spinner>
+                    } @else {
+                      <div
+                        class="tw-w-full tw-h-full tw-text-center tw-align-middle tw-flex tw-flex-row tw-items-center tw-justify-center"
+                      >
+                        <div class="no-data">
+                          <span class="material-symbols-outlined no-data-icon"> screenshot_monitor </span>
+                          <p i18n="No image preview|No image preview available for the moment">
+                            No image preview available
+                          </p>
+                        </div>
+                      </div>
+                    }
+                  }
+                </div>
+              </div>
+            </ng-template>
+          </app-grid-format>
+        }
       </app-filtered-paginated-table>
     }
   </mat-card-content>

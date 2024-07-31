@@ -1,5 +1,5 @@
 import { SelectionModel } from '@angular/cdk/collections';
-import { BreakpointObserver, BreakpointState, Breakpoints } from '@angular/cdk/layout';
+import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -13,12 +13,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { PageEvent } from '@angular/material/paginator';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, map, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, map, Observable, shareReplay, switchMap, tap } from 'rxjs';
 import { ProjectsService } from 'src/app/api/projects/projects.service';
 import { TagsService } from 'src/app/api/tags/tags.service';
 import { ProjectCellComponent } from 'src/app/shared/components/project-cell/project-cell.component';
@@ -30,11 +31,16 @@ import {
   FilteredPaginatedTableComponent,
 } from 'src/app/shared/widget/filtered-paginated-table/filtered-paginated-table.component';
 import { BlockedPillTagComponent } from 'src/app/shared/widget/pill-tag/blocked-pill-tag.component';
+import { FindingsService } from '../../../api/findings/findings.service';
 import { WebsitesService } from '../../../api/websites/websites.service';
 import { SharedModule } from '../../../shared/shared.module';
+import { CustomFinding, CustomFindingField } from '../../../shared/types/finding/finding.type';
 import { Website } from '../../../shared/types/websites/website.type';
+import { SecureIconComponent } from '../../../shared/widget/dynamic-icons/secure-icon.component';
+import { GridFormatComponent } from '../../../shared/widget/filtered-paginated-table/grid-format/grid-format.component';
 import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-table/table-format/table-format.component';
 import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.component';
+import { FindingsModule } from '../../findings/findings.module';
 import { WebsiteInteractionsService } from '../websites-interactions.service';
 
 @Component({
@@ -59,6 +65,11 @@ import { WebsiteInteractionsService } from '../websites-interactions.service';
     MatDividerModule,
     MatButtonToggleModule,
     TableFormatComponent,
+    GridFormatComponent,
+    SecureIconComponent,
+    MatCardModule,
+    MatProgressSpinnerModule,
+    FindingsModule,
   ],
   selector: 'app-list-websites',
   templateUrl: './list-websites.component.html',
@@ -88,6 +99,9 @@ export class ListWebsitesComponent {
     return this._gridColumnsCount;
   }
 
+  public imageLoading: { [id: string]: boolean } = {};
+  public images$: { [id: string]: Observable<CustomFindingField | null> } = {};
+
   dataSource$ = this.currentPage$.pipe(
     tap((currentPage) => {
       this.currentPage = currentPage;
@@ -96,11 +110,28 @@ export class ListWebsitesComponent {
       const filters = this.buildFilters(this.currentFilters);
       return this.websitesService.getPage(currentPage.pageIndex, currentPage.pageSize, filters, this.currentDateRange);
     }),
-    map((data: Page<Website>) => {
+    tap((data: Page<Website>) => {
       this.dataSource = new MatTableDataSource<Website>(data.items);
       this.count = data.totalRecords;
       this.dataLoading = false;
-      return data;
+      for (const wsite of data.items) {
+        this.imageLoading[wsite._id] = true;
+        this.images$[wsite._id] = this.findingsService.getLatestWebsitePreview(wsite.correlationKey).pipe(
+          map((finding: CustomFinding) => {
+            if (!finding) return null;
+
+            const index = finding.fields.findIndex((f) => f.key === 'image' && f.type === 'image' && !!f.data);
+
+            if (index < 0) return null;
+
+            return finding.fields[index];
+          }),
+          tap(() => {
+            this.imageLoading[wsite._id] = false;
+          }),
+          shareReplay(1)
+        );
+      }
     })
   );
 
@@ -158,7 +189,8 @@ export class ListWebsitesComponent {
     private toastr: ToastrService,
     private tagsService: TagsService,
     public dialog: MatDialog,
-    private titleService: Title
+    private titleService: Title,
+    private findingsService: FindingsService
   ) {
     this.titleService.setTitle($localize`:Websites list page title|:Websites`);
   }

@@ -1,32 +1,14 @@
 import { SelectionModel } from '@angular/cdk/collections';
 import { CommonModule } from '@angular/common';
-import {
-  AfterContentInit,
-  Component,
-  ContentChild,
-  ContentChildren,
-  EventEmitter,
-  Input,
-  Output,
-  QueryList,
-  ViewChild,
-} from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
+import { Component, ContentChild, EventEmitter, Input, Output, TemplateRef } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatOptionModule } from '@angular/material/core';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import {
-  MatColumnDef,
-  MatHeaderRowDef,
-  MatNoDataRow,
-  MatRowDef,
-  MatTable,
-  MatTableDataSource,
-  MatTableModule,
-} from '@angular/material/table';
+import { MatTableDataSource } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
@@ -43,9 +25,9 @@ export interface ElementMenuItems {
 
 @Component({
   standalone: true,
-  selector: 'app-table-format',
-  templateUrl: './table-format.component.html',
-  styleUrls: ['./table-format.component.scss'],
+  selector: 'app-grid-format',
+  templateUrl: './grid-format.component.html',
+  styleUrls: ['./grid-format.component.scss'],
   imports: [
     CommonModule,
     AvatarComponent,
@@ -57,19 +39,18 @@ export interface ElementMenuItems {
     RouterModule,
     MatTooltipModule,
     MatCheckboxModule,
-    MatTableModule,
-    ReactiveFormsModule,
     MatOptionModule,
+    MatCardModule,
     MenuIconComponent,
   ],
 })
-export class TableFormatComponent<T extends IdentifiedElement> implements AfterContentInit {
-  @ContentChildren(MatHeaderRowDef) headerRowDefs!: QueryList<MatHeaderRowDef>;
-  @ContentChildren(MatRowDef) rowDefs!: QueryList<MatRowDef<T>>;
-  @ContentChildren(MatColumnDef) columnDefs!: QueryList<MatColumnDef>;
-  @ContentChild(MatNoDataRow) noDataRow!: MatNoDataRow;
+export class GridFormatComponent<T extends IdentifiedElement> {
+  // @ContentChild(TemplateRef) bodyTemplate!: TemplateRef<any>;
 
-  @ViewChild(MatTable, { static: true }) table!: MatTable<T>;
+  // get the title template
+  @ContentChild('title', { read: TemplateRef }) titleTemplate!: TemplateRef<any>;
+  // get the body template
+  @ContentChild('body', { read: TemplateRef }) bodyTemplate!: TemplateRef<any>;
 
   _dataSource!: MatTableDataSource<T>;
   @Input() set dataSource(data: MatTableDataSource<T> | null) {
@@ -88,7 +69,6 @@ export class TableFormatComponent<T extends IdentifiedElement> implements AfterC
 
   @Input() noDataMessage: string =
     $localize`:No data|No data is matching the filter, the array is empty:No matching data.`;
-  @Input() columns!: string[] | null;
   @Input() routerLinkPrefix = '/';
   @Input() routerLinkBuilder: ((row: T) => string | any[] | null | undefined) | undefined = undefined;
   @Input() elementLinkActive = true;
@@ -97,6 +77,18 @@ export class TableFormatComponent<T extends IdentifiedElement> implements AfterC
 
   @Output() selectionChange = new EventEmitter<SelectionModel<T>>();
   @Input() selection = new SelectionModel<T>(true, []);
+  @Input() gridColumns: number = 3;
+
+  gridClassesMapping: string[] = [
+    'tw-grid-cols-1',
+    'tw-grid-cols-2',
+    'tw-grid-cols-3',
+    'tw-grid-cols-4',
+    'tw-grid-cols-5',
+    'tw-grid-cols-6',
+    'tw-grid-cols-7',
+    'tw-grid-cols-8',
+  ];
 
   masterToggleState = false;
 
@@ -117,13 +109,6 @@ export class TableFormatComponent<T extends IdentifiedElement> implements AfterC
       this.masterToggleState = true;
     }
     this.selectionChange.emit(this.selection);
-  }
-
-  async ngAfterContentInit() {
-    this.columnDefs.forEach((columnDef) => this.table.addColumnDef(columnDef));
-    this.rowDefs.forEach((rowDef) => this.table.addRowDef(rowDef));
-    this.headerRowDefs.forEach((headerRowDef) => this.table.addHeaderRowDef(headerRowDef));
-    this.table.setNoDataRow(this.noDataRow);
   }
 
   toggleSelectedRow(row: T) {

@@ -28,12 +28,3 @@ mat-hint {
     text-decoration: underline;
   }
 }
-
-.grid-view {
-  display: grid;
-  gap: 10px;
-
-  .grid-item {
-    column-span: 1;
-  }
-}

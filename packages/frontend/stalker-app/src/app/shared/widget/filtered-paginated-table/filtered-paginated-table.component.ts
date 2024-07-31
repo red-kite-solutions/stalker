@@ -124,20 +124,6 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
   @Output() filtersChange = new EventEmitter<string[]>();
   @Output() dateFiltersChange = new EventEmitter<DateRange<Date>>();
 
-  _listFormat: 'table' | 'grid' = 'table';
-  @Input() gridColumns: number = 3;
-
-  gridClassesMapping: string[] = [
-    'tw-grid-cols-1',
-    'tw-grid-cols-2',
-    'tw-grid-cols-3',
-    'tw-grid-cols-4',
-    'tw-grid-cols-5',
-    'tw-grid-cols-6',
-    'tw-grid-cols-7',
-    'tw-grid-cols-8',
-  ];
-
   @Input() currentPage = 0;
   @Input() pageSizeOptions: number[] = [10, 25, 50, 100];
   @Input() pageSize = 0;

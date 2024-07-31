@@ -21,31 +21,13 @@
     </td>
   </ng-container>
 
-  <!-- <ng-container *ngTemplateOutlet="this._template"></ng-container> -->
   <ng-content></ng-content>
 
   <!-- Menu Column -->
   <ng-container matColumnDef="menu">
     <th mat-header-cell *matHeaderCellDef></th>
     <td mat-cell *matCellDef="let row" (click)="$event.stopPropagation()" class="check-box-cell">
-      @if (menuFactory != null) {
-        <button mat-icon-button [matMenuTriggerFor]="menu">
-          <mat-icon>more_vert</mat-icon>
-        </button>
-
-        <mat-menu #menu="matMenu">
-          @for (menuItem of menuFactory(row); track $index) {
-            @if (!menuItem.hidden) {
-              <button mat-menu-item (click)="menuItem.action()">
-                @if (menuItem.icon) {
-                  <mat-icon>{{ menuItem.icon }}</mat-icon>
-                }
-                {{ menuItem.label }}
-              </button>
-            }
-          }
-        </mat-menu>
-      }
+      <app-menu-icon [item]="row" [menuFactory]="menuFactory"></app-menu-icon>
     </td>
   </ng-container>
 

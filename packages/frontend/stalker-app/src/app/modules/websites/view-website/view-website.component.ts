@@ -48,6 +48,7 @@ import { PanelSectionModule } from '../../../shared/components/panel-section/pan
 import { SharedModule } from '../../../shared/shared.module';
 import { Page } from '../../../shared/types/page.type';
 import { Website } from '../../../shared/types/websites/website.type';
+import { SecureIconComponent } from '../../../shared/widget/dynamic-icons/secure-icon.component';
 import { NewPillTagComponent } from '../../../shared/widget/pill-tag/new-pill-tag.component';
 import { SelectItem } from '../../../shared/widget/text-select-menu/text-select-menu.component';
 import { FindingsModule } from '../../findings/findings.module';
@@ -80,6 +81,7 @@ import { WebsiteOverviewComponent } from './website-overview/website-overview.co
     BlockedPillTagComponent,
     FindingsModule,
     WebsiteOverviewComponent,
+    SecureIconComponent,
   ],
   selector: 'app-view-website',
   templateUrl: './view-website.component.html',
