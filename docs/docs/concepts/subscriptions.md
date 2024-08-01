@@ -51,7 +51,7 @@ A cron subscription contains the following main elements :
 
 - The `name` element can be anything and is only used to distinguish the subscription from the others.
 - The `cronExpression` element has to be a valid cron expression. It is used to trigger the job launch.
-- The `input` element is either `ALL_DOMAINS`, `ALL_HOSTS`, `ALL_IP_RANGES` or `ALL_TCP_PORTS`. These values represent all the ressources of
+- The `input` element is either `ALL_DOMAINS`, `ALL_HOSTS`, `ALL_IP_RANGES`, `ALL_TCP_PORTS` or `ALL_WEBSITES`. These values represent all the ressources of
   the corresponding type.
 - The `job` element contains multiple values:
   - `name` : mandatory, must be an existing Job's type. See the Jobs section for the list of valid values.
@@ -175,6 +175,39 @@ job:
     - name: ports
       value: []
 ```
+
+When you specify the `ALL_WEBSITES` input, you have access to the `${domainName}`, `${ip}`, `${port}`, `${path}` and `${ssl}` injectable variables. Stalker will apply the subscription for all the websites, and the websites's different values will be injected where specified.
+
+
+```yaml
+name: Recrawling websites
+cronExpression: 0 0 */7 * *
+input: ALL_WEBSITES
+job:
+  name: WebsiteCrawlingJob
+  parameters:
+    - name: domainName
+      value: ${domainName}
+    - name: targetIp
+      value: ${ip}
+    - name: port
+      value: ${port}
+    - name: path
+      value: ${path}
+    - name: ssl
+      value: ${ssl}
+    - name: maxDepth
+      value: 3
+    - name: crawlDurationSeconds
+      value: 1800
+    - name: fetcherConcurrency
+      value: 10
+    - name: inputParallelism
+      value: 10
+    - name: extraOptions
+      value: -jc -kf all -duc -j -or -ob -silent
+```
+
 
 ## Event Subscriptions
 

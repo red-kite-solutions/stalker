@@ -18,6 +18,7 @@ export const inputSources = [
   'ALL_HOSTS',
   'ALL_TCP_PORTS',
   'ALL_IP_RANGES',
+  'ALL_WEBSITES',
 ] as const;
 
 export type InputSource = (typeof inputSources)[number];

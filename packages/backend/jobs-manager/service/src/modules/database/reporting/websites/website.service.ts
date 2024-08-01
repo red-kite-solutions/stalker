@@ -281,6 +281,21 @@ export class WebsiteService {
     );
   }
 
+  public async getWebsites(
+    page: number = null,
+    pageSize: number = null,
+    filter: FilterQuery<WebsiteDocument>,
+  ): Promise<
+    Pick<WebsiteDocument, '_id' | 'domain' | 'host' | 'port' | 'path' | 'ssl'>[]
+  > {
+    let query = this.websiteModel.find(filter, '_id domain host port path ssl');
+
+    if (page != null && pageSize != null) {
+      query = query.skip(page * pageSize).limit(pageSize);
+    }
+    return await query;
+  }
+
   private async buildFilters(filter: WebsiteFilterModel) {
     const finalFilter = {};
 
