@@ -5,6 +5,7 @@ import { AfterViewInit, Directive, ElementRef, Input } from '@angular/core';
   selector: '[appObserverChild]',
 })
 export class ObserverChildDirective implements AfterViewInit {
+  // https://stackoverflow.com/questions/67272516/intersection-observer-in-angular
   @Input() observer!: IntersectionObserver;
 
   constructor(private el: ElementRef) {}
