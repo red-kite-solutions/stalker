@@ -131,7 +131,7 @@ export class ListWebsitesComponent {
   startDate: Date | null = null;
   public readonly gridColumnsOptions: number[] = [1, 2, 3, 4, 5, 6, 7, 8];
   public viewStyle: 'table' | 'grid' = 'table';
-  public _gridColumnsCount = 1;
+  public _gridColumnsCount = 3;
   public set gridColumnsCount(v: number) {
     this._gridColumnsCount = v;
   }
