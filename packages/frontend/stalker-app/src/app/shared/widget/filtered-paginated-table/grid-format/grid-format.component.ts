@@ -45,8 +45,6 @@ export interface ElementMenuItems {
   ],
 })
 export class GridFormatComponent<T extends IdentifiedElement> {
-  // @ContentChild(TemplateRef) bodyTemplate!: TemplateRef<any>;
-
   // get the title template
   @ContentChild('title', { read: TemplateRef }) titleTemplate!: TemplateRef<any>;
   // get the body template

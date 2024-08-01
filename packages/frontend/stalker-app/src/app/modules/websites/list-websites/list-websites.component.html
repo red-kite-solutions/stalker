@@ -171,7 +171,12 @@
             </ng-template>
 
             <ng-template #body let-element="element">
-              <div class="tw-flex tw-flex-col tw-h-full">
+              <div
+                class="tw-flex tw-flex-col tw-h-full"
+                appObserverChild
+                [observer]="this.observer"
+                id="{{ element._id }}"
+              >
                 <div class="tw-flex tw-flex-row">
                   <div class="tw-grow tw-shrink ip-container">
                     <span>

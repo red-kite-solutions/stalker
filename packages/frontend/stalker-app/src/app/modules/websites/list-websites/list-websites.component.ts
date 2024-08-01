@@ -33,6 +33,7 @@ import {
 import { BlockedPillTagComponent } from 'src/app/shared/widget/pill-tag/blocked-pill-tag.component';
 import { FindingsService } from '../../../api/findings/findings.service';
 import { WebsitesService } from '../../../api/websites/websites.service';
+import { ObserverChildDirective } from '../../../shared/directives/observer-child.directive';
 import { SharedModule } from '../../../shared/shared.module';
 import { CustomFinding, CustomFindingField } from '../../../shared/types/finding/finding.type';
 import { Website } from '../../../shared/types/websites/website.type';
@@ -70,12 +71,51 @@ import { WebsiteInteractionsService } from '../websites-interactions.service';
     MatCardModule,
     MatProgressSpinnerModule,
     FindingsModule,
+    ObserverChildDirective,
   ],
   selector: 'app-list-websites',
   templateUrl: './list-websites.component.html',
   styleUrls: ['./list-websites.component.scss'],
 })
 export class ListWebsitesComponent {
+  readonly correlationKeysToLoad: BehaviorSubject<string>[] = [];
+
+  readonly observer = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (entry.isIntersecting) {
+        let wsite: Website | undefined = undefined;
+
+        const id = entry.target.id;
+
+        if (this.imageLoading[id] || this.images$[id]) continue;
+
+        const index = this.dataSource.data.findIndex((w) => w._id === id);
+        if (index < 0) continue;
+
+        wsite = this.dataSource.data[index];
+
+        if (!wsite) continue;
+
+        this.imageLoading[wsite._id] = true;
+        this.images$[wsite._id] = this.findingsService.getLatestWebsitePreview(wsite.correlationKey).pipe(
+          map((finding: CustomFinding) => {
+            if (!finding) return null;
+
+            const index = finding.fields.findIndex((f) => f.key === 'image' && f.type === 'image' && !!f.data);
+
+            if (index < 0) return null;
+
+            return finding.fields[index];
+          }),
+          tap(() => {
+            this.imageLoading[wsite!._id] = false;
+          }),
+          shareReplay(1)
+        );
+      }
+    }
+  });
+
   dataLoading = true;
   displayedColumns: string[] = ['select', 'url', 'domain', 'port', 'ip', 'project', 'tags', 'menu'];
   filterOptions: string[] = ['domain', 'host', 'port', 'project', 'tags', 'is'];
@@ -91,7 +131,7 @@ export class ListWebsitesComponent {
   startDate: Date | null = null;
   public readonly gridColumnsOptions: number[] = [1, 2, 3, 4, 5, 6, 7, 8];
   public viewStyle: 'table' | 'grid' = 'table';
-  public _gridColumnsCount = 3;
+  public _gridColumnsCount = 1;
   public set gridColumnsCount(v: number) {
     this._gridColumnsCount = v;
   }
@@ -114,24 +154,6 @@ export class ListWebsitesComponent {
       this.dataSource = new MatTableDataSource<Website>(data.items);
       this.count = data.totalRecords;
       this.dataLoading = false;
-      for (const wsite of data.items) {
-        this.imageLoading[wsite._id] = true;
-        this.images$[wsite._id] = this.findingsService.getLatestWebsitePreview(wsite.correlationKey).pipe(
-          map((finding: CustomFinding) => {
-            if (!finding) return null;
-
-            const index = finding.fields.findIndex((f) => f.key === 'image' && f.type === 'image' && !!f.data);
-
-            if (index < 0) return null;
-
-            return finding.fields[index];
-          }),
-          tap(() => {
-            this.imageLoading[wsite._id] = false;
-          }),
-          shareReplay(1)
-        );
-      }
     })
   );
 
