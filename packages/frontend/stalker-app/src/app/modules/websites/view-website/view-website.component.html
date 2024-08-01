@@ -9,13 +9,7 @@
       <app-blocked-pill-tag class="tw-mt-[9px]"></app-blocked-pill-tag>
     }
 
-    <h1 [matTooltip]="wsite.ssl ? secureConnectionTooltip : insecureConnectionTooltip" class="secure-icon">
-      @if (wsite.ssl) {
-        <mat-icon> lock </mat-icon>
-      } @else {
-        <mat-icon> no_encryption </mat-icon>
-      }
-    </h1>
+    <app-secure-icon class="secure-icon"></app-secure-icon>
   </div>
 
   <div class="content-wrapper">

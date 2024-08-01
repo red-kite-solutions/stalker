@@ -1,0 +1,25 @@
+<div class="grid-view" [class]="gridClassesMapping[gridColumns - 1]">
+  @for (element of _dataSource.data; track element) {
+    <mat-card class="grid-item" appearance="outlined">
+      <mat-card-title>
+        <div>
+          <mat-checkbox
+            color="accent"
+            (click)="$event.stopPropagation()"
+            (change)="$event ? toggleSelectedRow(element) : null"
+            [checked]="selection.isSelected(element)"
+          >
+          </mat-checkbox>
+        </div>
+        <div class="title-container">
+          <ng-container *ngTemplateOutlet="titleTemplate; context: { element: element }"></ng-container>
+        </div>
+        <app-menu-icon [menuFactory]="menuFactory" [item]="element" [orientation]="'vertical'"></app-menu-icon>
+      </mat-card-title>
+      <mat-card-content>
+        <ng-container *ngTemplateOutlet="bodyTemplate; context: { element: element }"></ng-container>
+      </mat-card-content>
+      <!-- <img mat-card-image /> -->
+    </mat-card>
+  }
+</div>

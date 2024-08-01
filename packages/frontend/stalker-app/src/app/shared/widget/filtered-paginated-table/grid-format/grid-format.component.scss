@@ -1,0 +1,64 @@
+.mat-column-select {
+  width: 48px;
+  max-width: 48px;
+  overflow: visible;
+}
+
+.mat-column-menu {
+  width: 64px;
+  max-width: 64px;
+  overflow: visible;
+}
+
+.center-column-content {
+  text-align: center;
+}
+
+.check-box-cell {
+  cursor: default;
+}
+
+.nodata {
+  text-align: center;
+  height: 48px;
+}
+
+.grid-view {
+  display: grid;
+  gap: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+  .grid-item {
+    column-span: 1;
+    background-color: var(--rks-card-second-level);
+    padding: 4px;
+  }
+}
+
+mat-card-title {
+  font-size: 19px;
+  display: flex;
+  flex-direction: row;
+  line-height: normal;
+}
+
+app-menu-icon {
+  padding-top: 5px;
+  padding-right: 4px;
+}
+
+.title-container {
+  padding-top: 5px;
+  flex-grow: 1;
+  display: block;
+  overflow: scroll;
+}
+
+mat-card-content {
+  padding: 0px 8px 8px 8px;
+  height: 100%;
+}
+
+.mat-mdc-card-content:last-child {
+  padding-bottom: 8px;
+}

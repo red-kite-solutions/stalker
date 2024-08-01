@@ -14,52 +14,59 @@
             [length]="count"
             [columns]="displayColumns"
             [filterOptions]="filterOptions"
-            [routerLinkPrefix]="'/jobs/executions/'"
             (filtersChange)="filtersChange($event)"
-            [noDataMessage]="noDataMessage"
           >
-            <!-- Name Column -->
-            <ng-container matColumnDef="name">
-              <th mat-header-cell *matHeaderCellDef i18n="Name|Name of an item">Name</th>
-              <td mat-cell *matCellDef="let element">
-                <div class="name-cell">
-                  <app-job-state [state]="element.state"></app-job-state>
-                  <div>
+            <app-table-format
+              [dataSource]="dataSource"
+              [columns]="displayColumns"
+              [routerLinkPrefix]="'/jobs/executions/'"
+              [noDataMessage]="noDataMessage"
+            >
+              <!-- Name Column -->
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef i18n="Name|Name of an item">Name</th>
+                <td mat-cell *matCellDef="let element">
+                  <div class="name-cell">
+                    <app-job-state [state]="element.state"></app-job-state>
                     <div>
-                      <a [routerLink]="'/jobs/executions/' + element._id" (click)="$event.stopPropagation()">{{
-                        element.name
-                      }}</a>
+                      <div>
+                        <a [routerLink]="'/jobs/executions/' + element._id" (click)="$event.stopPropagation()">{{
+                          element.name
+                        }}</a>
+                      </div>
+                      <div class="execution-info"><job-logs-summary [job]="element"></job-logs-summary></div>
                     </div>
-                    <div class="execution-info"><job-logs-summary [job]="element"></job-logs-summary></div>
                   </div>
-                </div>
-              </td>
-            </ng-container>
-            <!-- Project Column -->
-            <ng-container matColumnDef="project">
-              <th mat-header-cell *matHeaderCellDef i18n="Project|A business">Project</th>
-              <td mat-cell *matCellDef="let element">
-                <project-cell [project]="projects | whereId: [element.projectId]"></project-cell>
-              </td>
-            </ng-container>
-            <!-- Time Column -->
-            <ng-container matColumnDef="time">
-              <th mat-header-cell *matHeaderCellDef></th>
-              <td mat-cell *matCellDef="let element">
-                @if (element.endTime) {
-                  <div>
+                </td>
+              </ng-container>
+              <!-- Project Column -->
+              <ng-container matColumnDef="project">
+                <th mat-header-cell *matHeaderCellDef i18n="Project|A business">Project</th>
+                <td mat-cell *matCellDef="let element">
+                  <project-cell [project]="projects | whereId: [element.projectId]"></project-cell>
+                </td>
+              </ng-container>
+              <!-- Time Column -->
+              <ng-container matColumnDef="time">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let element">
+                  @if (element.endTime) {
+                    <div>
+                      <div i18n="Started|Started x days ago">Started {{ element.startTime | timeAgo }}</div>
+                      <div i18n="Took|Took x seconds" class="tw-opacity-80">
+                        Took {{ element.endTime - element.startTime | humanize }}
+                      </div>
+                    </div>
+                  } @else {
                     <div i18n="Started|Started x days ago">Started {{ element.startTime | timeAgo }}</div>
-                    <div i18n="Took|Took x seconds" class="tw-opacity-80">
-                      Took {{ element.endTime - element.startTime | humanize }}
+                    <div i18n="Currently running|This job is still running" class="tw-opacity-80">
+                      Currently running
                     </div>
-                  </div>
-                } @else {
-                  <div i18n="Started|Started x days ago">Started {{ element.startTime | timeAgo }}</div>
-                  <div i18n="Currently running|This job is still running" class="tw-opacity-80">Currently running</div>
-                }
-              </td>
-            </ng-container>
-            <tr mat-header-row *matHeaderRowDef="displayColumns"></tr>
+                  }
+                </td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="displayColumns"></tr>
+            </app-table-format>
           </app-filtered-paginated-table>
         }
       </div>

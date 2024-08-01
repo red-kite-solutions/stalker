@@ -1,0 +1,41 @@
+@mixin app-list-websites($theme) {
+  app-list-websites {
+    .grid-select {
+      // padding-right: 4px !important;
+      // padding-left: 4px !important;
+      max-height: 28px;
+      .mat-mdc-text-field-wrapper {
+        // padding-right: 8px !important;
+        // padding-left: 8px !important;
+        max-height: 28px;
+      }
+
+      .mat-mdc-form-field-infix {
+        padding-top: 2px;
+        padding-bottom: 4px;
+        max-height: 28px;
+      }
+    }
+
+    mat-button-toggle-group {
+      max-height: 28px;
+      height: 100%;
+    }
+
+    mat-button-toggle {
+      max-height: 28px;
+      height: 100%;
+      button {
+        height: 100%;
+        max-height: 28px;
+        span {
+          max-height: 28px;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+        }
+      }
+    }
+  }
+}
