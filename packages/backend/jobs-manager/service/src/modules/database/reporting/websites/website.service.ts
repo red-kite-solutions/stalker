@@ -117,7 +117,10 @@ export class WebsiteService {
     return await this.websiteModel.findOneAndUpdate(
       extendedSearchQuery.searchQuery,
       {
-        $set: { lastSeen: Date.now(), ssl: ssl ?? null },
+        $set: {
+          lastSeen: Date.now(),
+          ssl: ssl === false || ssl === true ? ssl : undefined,
+        },
         $setOnInsert: {
           host: extendedSearchQuery.existingPort.host,
           domain: extendedSearchQuery.existingDomainSummary ?? null,

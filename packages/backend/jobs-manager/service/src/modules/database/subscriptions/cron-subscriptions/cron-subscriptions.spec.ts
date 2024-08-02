@@ -4,6 +4,8 @@ import { DomainsService } from '../../reporting/domain/domain.service';
 import { HostService } from '../../reporting/host/host.service';
 import { PortService } from '../../reporting/port/port.service';
 import { ProjectService } from '../../reporting/project.service';
+import { WebsiteDocument } from '../../reporting/websites/website.model';
+import { WebsiteService } from '../../reporting/websites/website.service';
 import { CronSubscriptionDto } from './cron-subscriptions.dto';
 import { CronSubscription, JobParameter } from './cron-subscriptions.model';
 import { CronSubscriptionsService } from './cron-subscriptions.service';
@@ -15,6 +17,7 @@ describe('Cron Subscriptions Service', () => {
   let domainsService: DomainsService;
   let hostsService: HostService;
   let portsService: PortService;
+  let websiteService: WebsiteService;
 
   const csDto: CronSubscriptionDto = {
     cronExpression: '*/5 * * * *',
@@ -41,6 +44,7 @@ describe('Cron Subscriptions Service', () => {
     domainsService = moduleFixture.get(DomainsService);
     hostsService = moduleFixture.get(HostService);
     portsService = moduleFixture.get(PortService);
+    websiteService = moduleFixture.get(WebsiteService);
   });
 
   beforeEach(async () => {
@@ -1705,6 +1709,193 @@ describe('Cron Subscriptions Service', () => {
       // Assert
       expect(spy).toHaveBeenCalledTimes(2);
     });
+
+    // ALL_WEBSITES
+    const websiteCrawlingJobParams: JobParameter[] = [
+      {
+        name: 'crawlDurationSeconds',
+        value: 1800,
+      },
+      {
+        name: 'fetcherConcurrency',
+        value: 10,
+      },
+      {
+        name: 'inputParallelism',
+        value: 10,
+      },
+      {
+        name: 'extraOptions',
+        value: '-jc -kf all -duc -j -or -ob -silent',
+      },
+    ];
+    const allWebsitesCronSub: Partial<CronSubscription> = {
+      name: 'test subscription all websites',
+      input: 'ALL_WEBSITES',
+      builtIn: true,
+      cronExpression: '* * * * *',
+      jobName: 'WebsiteCrawlingJob',
+      conditions: [],
+    };
+
+    it('Should publish (1) job from input ALL_WEBSITES', async () => {
+      // Arrange
+      const c = await project('Test project');
+      allWebsitesCronSub.projectId = c._id;
+      allWebsitesCronSub.jobParameters = websiteCrawlingJobParams.concat([
+        {
+          name: 'projectId',
+          value: c._id.toString(),
+        },
+        { name: 'targetIp', value: '${ip}' },
+        { name: 'domainName', value: '${domainName}' },
+        { name: 'port', value: '${port}' },
+        { name: 'path', value: '${path}' },
+        { name: 'ssl', value: '${ssl}' },
+      ]);
+
+      const w1 = await website(c._id.toString(), '1.1.1.1', 80, 'example.com');
+
+      const spy = jest //@ts-expect-error
+        .spyOn(subscriptionsService, 'publishJob') //@ts-expect-error
+        .mockImplementation(() => {});
+
+      // Act
+      //@ts-expect-error
+      await subscriptionsService.publishJobsFromInput(
+        <CronSubscription>allWebsitesCronSub,
+        c._id.toString(),
+      );
+
+      // Assert
+      expect(spy).toHaveBeenCalled();
+      expect(spy).toHaveBeenCalledWith(
+        allWebsitesCronSub.jobName,
+        websiteCrawlingJobParams.concat([
+          {
+            name: 'projectId',
+            value: c._id.toString(),
+          },
+          { name: 'targetIp', value: '1.1.1.1' },
+          { name: 'domainName', value: 'example.com' },
+          { name: 'port', value: 80 },
+          { name: 'path', value: '/' },
+          { name: 'ssl', value: false },
+        ]),
+        c._id.toString(),
+      );
+    });
+
+    it('Should publish (5) jobs from input ALL_WEBSITES', async () => {
+      // Arrange
+      const c = await project('Test project');
+      allWebsitesCronSub.projectId = c._id;
+      allWebsitesCronSub.jobParameters = websiteCrawlingJobParams.concat([
+        {
+          name: 'projectId',
+          value: c._id.toString(),
+        },
+        { name: 'targetIp', value: '${ip}' },
+        { name: 'domainName', value: '${domainName}' },
+        { name: 'port', value: '${port}' },
+        { name: 'path', value: '${path}' },
+        { name: 'ssl', value: '${ssl}' },
+      ]);
+
+      const w1 = await website(c._id.toString(), '1.1.1.1', 80, 'example.com');
+      const w2 = await website(c._id.toString(), '1.1.1.2', 80, 'example.com');
+      const w3 = await website(c._id.toString(), '1.1.1.3', 80, 'example.com');
+      const w4 = await website(c._id.toString(), '1.1.1.4', 80, 'example.com');
+      const w5 = await website(c._id.toString(), '1.1.1.5', 80, 'example.com');
+
+      const spy = jest //@ts-expect-error
+        .spyOn(subscriptionsService, 'publishJob') //@ts-expect-error
+        .mockImplementation(() => {});
+
+      // Act
+      //@ts-expect-error
+      await subscriptionsService.publishJobsFromInput(
+        <CronSubscription>allWebsitesCronSub,
+        c._id.toString(),
+      );
+
+      // Assert
+      expect(spy).toHaveBeenCalledTimes(5);
+      expect(spy).toHaveBeenCalledWith(
+        allWebsitesCronSub.jobName,
+        websiteCrawlingJobParams.concat([
+          {
+            name: 'projectId',
+            value: c._id.toString(),
+          },
+          { name: 'targetIp', value: '1.1.1.5' },
+          { name: 'domainName', value: 'example.com' },
+          { name: 'port', value: 80 },
+          { name: 'path', value: '/' },
+          { name: 'ssl', value: false },
+        ]),
+        c._id.toString(),
+      );
+    });
+
+    it('Should not publish job from input ALL_WEBSITES (merged website)', async () => {
+      // Arrange
+      const c = await project('Test project');
+      allWebsitesCronSub.projectId = c._id;
+      allWebsitesCronSub.jobParameters = websiteCrawlingJobParams.concat([
+        {
+          name: 'projectId',
+          value: c._id.toString(),
+        },
+        { name: 'targetIp', value: '${ip}' },
+        { name: 'domainName', value: '${domainName}' },
+        { name: 'port', value: '${port}' },
+        { name: 'path', value: '${path}' },
+        { name: 'ssl', value: '${ssl}' },
+      ]);
+
+      const w1 = await website(c._id.toString(), '1.1.1.1', 80, 'example.com');
+      const w2 = await website(c._id.toString(), '1.1.1.2', 80, 'example.com');
+      const w3 = await website(c._id.toString(), '1.1.1.3', 80, 'example.com');
+      const w4 = await website(c._id.toString(), '1.1.1.4', 80, 'example.com');
+      const w5 = await website(c._id.toString(), '1.1.1.5', 80, 'example.com');
+
+      await websiteService.merge(w5._id.toString(), [
+        w1._id.toString(),
+        w2._id.toString(),
+        w3._id.toString(),
+        w4._id.toString(),
+      ]);
+
+      const spy = jest //@ts-expect-error
+        .spyOn(subscriptionsService, 'publishJob') //@ts-expect-error
+        .mockImplementation(() => {});
+
+      // Act
+      //@ts-expect-error
+      await subscriptionsService.publishJobsFromInput(
+        <CronSubscription>allWebsitesCronSub,
+        c._id.toString(),
+      );
+
+      // Assert
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(
+        allWebsitesCronSub.jobName,
+        websiteCrawlingJobParams.concat([
+          {
+            name: 'projectId',
+            value: c._id.toString(),
+          },
+          { name: 'targetIp', value: '1.1.1.5' },
+          { name: 'domainName', value: 'example.com' },
+          { name: 'port', value: 80 },
+          { name: 'path', value: '/' },
+          { name: 'ssl', value: false },
+        ]),
+        c._id.toString(),
+      );
+    });
   });
 
   async function project(name: string) {
@@ -1762,5 +1953,25 @@ describe('Cron Subscriptions Service', () => {
       p.blocked = true;
     }
     return p;
+  }
+
+  async function website(
+    projectId: string,
+    ip: string,
+    portNumber: number,
+    domainName: string,
+  ): Promise<WebsiteDocument> {
+    const h = await host(ip, projectId);
+    const p = await port(portNumber, h[0]._id, projectId);
+    const d = await domain(domainName, projectId);
+
+    return await websiteService.addWebsite(
+      projectId,
+      ip,
+      portNumber,
+      domainName,
+      '/',
+      false,
+    );
   }
 });

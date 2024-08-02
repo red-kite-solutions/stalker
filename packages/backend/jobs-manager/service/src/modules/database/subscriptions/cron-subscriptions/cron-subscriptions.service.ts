@@ -260,7 +260,7 @@ export class CronSubscriptionsService {
           });
           this.publishJobsFromWebsitesPage(sub, websites, projectId);
           page++;
-        } while (hosts.length >= pageSize);
+        } while (websites.length >= pageSize);
         break;
       default:
         this.logger.error(
