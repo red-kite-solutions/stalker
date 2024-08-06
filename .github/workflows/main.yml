@@ -37,7 +37,7 @@ jobs:
         run: kubectl create namespace stalker
 
       - name: Build test containers
-        run: devspace --var="STALKER_ENVIRONMENT=tests" run-pipeline build-e2e -n stalker
+        run:  rm -rf /opt/hostedtoolcache && devspace --var="STALKER_ENVIRONMENT=tests" run-pipeline build-e2e -n stalker
 
       - name: Deploy test containers
         run: devspace run-pipeline --var="STALKER_ENVIRONMENT=tests" jobs-manager-e2e-cicd-deploy -n stalker
