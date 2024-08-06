@@ -26,6 +26,7 @@ COPY --from=build /app/packages/backend/jobs-manager/service/ssl-certificate-cha
 COPY --from=build /app/packages/backend/jobs-manager/service/src/modules/database/subscriptions/event-subscriptions/built-in/ /server/dist/src/modules/database/subscriptions/event-subscriptions/built-in/
 COPY --from=build /app/packages/backend/jobs-manager/service/src/modules/database/subscriptions/cron-subscriptions/built-in/ /server/dist/src/modules/database/subscriptions/cron-subscriptions/built-in/
 COPY --from=build /app/packages/backend/jobs-manager/service/src/modules/database/custom-jobs/built-in/ /server/dist/src/modules/database/custom-jobs/built-in/
+COPY --from=build /app/packages/backend/jobs-manager/service/src/modules/database/custom-job-templates/built-in/ /server/dist/src/modules/database/custom-job-templates/built-in/
 
 
 ENTRYPOINT ["node", "/server/dist/src/main"]
