@@ -304,7 +304,7 @@ export class CronSubscriptionsService {
     for (const website of websites) {
       const finding = new WebsiteFinding();
       finding.ip = website.host.ip;
-      finding.domainName = website.domain.name;
+      finding.domainName = website.domain?.name ?? '';
       finding.port = website.port.port;
       finding.ssl = website.ssl;
       finding.path = website.path;
