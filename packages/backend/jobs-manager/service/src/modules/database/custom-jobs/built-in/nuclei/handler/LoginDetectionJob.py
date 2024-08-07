@@ -1,5 +1,7 @@
 from nuclei_finding import NucleiFinding
-from stalker_job_sdk import log_info, log_finding, TextField, WebsiteFinding, TagFinding
+from nuclei_wrapper import JobInput
+from stalker_job_sdk import (TagFinding, TextField, WebsiteFinding,
+                             log_finding, log_info)
 
 
 class FindingHandler:
@@ -8,9 +10,9 @@ class FindingHandler:
     def __init__(self):
         log_info("Initializing the custom handler")
 
-    def parse_finding(self, finding_obj: dict, original_string: str, original_path: str):
+    def parse_finding(self, finding_obj: dict, original_string: str, input: JobInput):
         """This method returns a NucleiFinding, but it can return any object."""
-        return NucleiFinding(finding_obj, original_string=original_string, original_path=original_path)
+        return NucleiFinding(finding_obj, original_string=original_string, input=input)
 
     def publish_findings(self, findings: list):
         """This method receives all the findings given by the parse_finding method as a list."""

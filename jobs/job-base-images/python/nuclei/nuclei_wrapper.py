@@ -12,6 +12,14 @@ from stalker_job_sdk import (DomainFinding, Field, IpFinding, JobStatus,
                              to_boolean)
 
 
+class JobInput:
+    target_ip: str
+    port: int
+    domain: str
+    path: str
+    ssl: str
+    endpoint: str
+
 def handle_port_finding(finding: NucleiFinding, all_fields: 'list[Field]', output_finding_name: str):
     log_finding(
         PortFinding(
@@ -128,6 +136,15 @@ def get_valid_args():
     ssl: str = to_boolean(os.environ.get("ssl"))
     endpoint: str = os.environ.get("endpoint")
 
+    input = JobInput()
+    input.target_ip = target_ip
+    input.port = port
+    input.domain = domain
+    input.path = path
+    input.ssl = ssl
+    input.endpoint = endpoint
+    
+
     if not is_valid_ip(target_ip):
         log_error(f"targetIp parameter is invalid: {target_ip}")
         log_status(JobStatus.FAILED)
@@ -138,7 +155,7 @@ def get_valid_args():
         log_status(JobStatus.FAILED)
         exit()
 
-    return target_ip, port, domain, path, ssl, endpoint
+    return input
 
 
 def main():
@@ -149,18 +166,18 @@ def main():
     stalker_output_type_str = 'stalkerOutputType'
     output_finding_name_str = 'outputFindingName'
 
-    target_ip, port, domain, path, ssl, endpoint = get_valid_args()
+    input = get_valid_args()
 
     target = ''
 
-    if (domain or target_ip) and port and path:
-        target = build_url(target_ip, port, domain, endpoint if endpoint else path, ssl if ssl else False)
+    if (input.domain or input.target_ip) and input.port and input.path:
+        target = build_url(input.target_ip, input.port, input.domain, input.endpoint if input.endpoint else input.path, input.ssl if input.ssl else False)
     else:
-        target = domain if domain else target_ip
-        if port:
-            target += f":{str(port)}"
+        target = input.domain if input.domain else input.target_ip
+        if input.port:
+            target += f":{str(input.port)}"
 
-    log_debug(f"targetIp: {target_ip}, port: {str(port)}, domainName: {str(domain)}, path: {path}, ssl: {str(ssl)}, endpoint: {endpoint}")
+    log_debug(f"targetIp: {input.target_ip}, port: {str(input.port)}, domainName: {str(input.domain)}, path: {input.path}, ssl: {str(input.ssl)}, endpoint: {input.endpoint}")
     log_info(f"Target: {target}")
     
     # Mandatory job parameters if no NUCLEI_FINDING_HANDLER provided
@@ -185,7 +202,7 @@ def main():
             custom_parser = None
 
     if not target:
-        log_error(f'Unable to build target from: {{ targetIp: {target_ip}, domainName: {domain}, port: {str(port)}, ssl: {ssl}, path: {path} }}')
+        log_error(f'Unable to build target from: {{ targetIp: {input.target_ip}, domainName: {input.domain}, port: {str(input.port)}, ssl: {input.ssl}, path: {input.path} }}')
         log_status(JobStatus.FAILED)
         exit()
 
@@ -251,9 +268,9 @@ def main():
             for line in f:
                 try:
                     if custom_parser:
-                        custom_parser_findings.append(custom_parser.parse_finding(loads(line), original_string=line, original_path=path))
+                        custom_parser_findings.append(custom_parser.parse_finding(loads(line), original_string=line, input=input))
                     else:
-                        nuclei_findings.append(NucleiFinding(loads(line), original_string=line, original_path=path))
+                        nuclei_findings.append(NucleiFinding(loads(line), original_string=line, input=input))
                 except Exception as err:
                     if custom_parser:
                         log_warning("Error while parsing json output with custom parser, skipping line:")

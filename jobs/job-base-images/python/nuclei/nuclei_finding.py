@@ -1,6 +1,8 @@
 from ipaddress import ip_address
 from urllib.parse import ParseResult, urlparse
 
+from nuclei_wrapper import JobInput
+
 _scheme_port_mapping = {
     "ftp": 21,
     "ssh": 22,
@@ -34,9 +36,9 @@ class NucleiFinding:
     path: str = None
 
 
-    def __init__(self, json_data: dict, original_string='', original_path = ''):
+    def __init__(self, json_data: dict, original_string='', input: JobInput = None):
         self.original_string = original_string
-        self.original_path = original_path
+        self.original_path = input.path
         self.template_id = json_data.get("template-id") or None
         if json_data.get("info"):
             self.name = json_data.get("info").get("name") or None
@@ -51,7 +53,7 @@ class NucleiFinding:
         self.matched_at = json_data.get("matched-at") or None
         self.matcher_name = json_data.get("matcher-name") or None
         self.extracted_results = json_data.get("extracted-results") or None
-        self.ip = json_data.get("ip") or None
+        self.ip = json_data.get("ip") or input.target_ip
         self.timestamp = json_data.get("timestamp") or None
         self.curl_command = json_data.get("curl-command") or None
         self.matcher_status = json_data.get("matcher-status") or None
