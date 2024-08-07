@@ -1,6 +1,6 @@
 export const nucleiFindingHandlerTemplate = [
   'from nuclei_finding import NucleiFinding',
-  'from nuclei_wrapper import JobInput',
+  'from nuclei_job_input import JobInput',
   'from stalker_job_sdk import log_info',
   '',
   '',

@@ -5,20 +5,13 @@ from subprocess import CompletedProcess, run
 from types import ModuleType
 
 from nuclei_finding import NucleiFinding
+from nuclei_job_input import JobInput
 from stalker_job_sdk import (DomainFinding, Field, IpFinding, JobStatus,
                              PortFinding, TextField, WebsiteFinding, build_url,
                              is_valid_ip, is_valid_port, log_debug, log_error,
                              log_finding, log_info, log_status, log_warning,
                              to_boolean)
 
-
-class JobInput:
-    target_ip: str
-    port: int
-    domain: str
-    path: str
-    ssl: str
-    endpoint: str
 
 def handle_port_finding(finding: NucleiFinding, all_fields: 'list[Field]', output_finding_name: str):
     log_finding(

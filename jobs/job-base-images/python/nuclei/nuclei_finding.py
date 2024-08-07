@@ -1,7 +1,7 @@
 from ipaddress import ip_address
 from urllib.parse import ParseResult, urlparse
 
-from nuclei_wrapper import JobInput
+from nuclei_job_input import JobInput
 
 _scheme_port_mapping = {
     "ftp": 21,
