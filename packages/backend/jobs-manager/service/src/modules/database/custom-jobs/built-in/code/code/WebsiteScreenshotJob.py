@@ -3,6 +3,7 @@ from base64 import b64encode
 from shutil import rmtree
 from subprocess import CompletedProcess, run
 
+from PIL import Image
 from stalker_job_sdk import (ImageField, JobStatus, TextField, WebsiteFinding,
                              build_url, is_valid_ip, is_valid_port, log_error,
                              log_finding, log_info, log_status, log_warning,
@@ -60,7 +61,7 @@ def main():
 
     url = build_url(target_ip, port, domain, endpoint if endpoint else path, ssl)
 
-    httpx_str: str = f"httpx -silent -screenshot -system-chrome -duc -u {url}"
+    httpx_str: str = f"httpx -silent -screenshot -fr -timeout 30 -system-chrome -duc -u {url}"
 
     should_retry = True
 
@@ -72,12 +73,25 @@ def main():
         for root, directories, files in os.walk(output_folder):
             for file in files:
                 if (file.endswith('.png')):
-                    data = ''
-                    with open(root + '/' + file, 'rb') as f:
-                        data = f.read()
+                    resize = True
+                    dimensions = 2100
+                    while resize:
+                        resize = False
+                        dimensions = dimensions - 100
+                        image = Image.open(root + '/' + file)
+                        image = image.convert("P", palette=Image.ADAPTIVE, colors=256)
+                        image.thumbnail((dimensions, dimensions))
+                        image.save("smaller.png", optimize=True)
+                        log_info(root + '/' + file)
 
-                    data = b64encode(data).decode('utf-8')
-                    
+                        data = ''
+                        with open("smaller.png", 'rb') as f:
+                            data = f.read()
+                        data = b64encode(data).decode('utf-8')
+
+                        if len(data) > 1000000:
+                            resize = True
+                        
                     if len(data) > 0:
                         should_retry = False
                         emit_screenshot_finding(finding_name, finding_title, domain, target_ip, port, path, ssl, endpoint, url, data)
