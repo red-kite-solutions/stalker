@@ -9,8 +9,7 @@
     "packages/backend/cron/service"
   ],
   "scripts": {
-    "prepare": "husky install",
-    "dev": "minikube start && devspace dev -n stalker"
+    "prepare": "husky install"
   },
   "repository": {
     "type": "git",

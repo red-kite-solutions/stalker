@@ -1,6 +1,5 @@
 ﻿using k8s;
 using k8s.Models;
-using System.Diagnostics;
 
 namespace Orchestrator.K8s;
 
@@ -40,6 +39,21 @@ public class KubernetesFacade : IKubernetesFacade
 
         V1ResourceRequirements resources = new V1ResourceRequirements(limits: limitQuantity);
 
+        // Get the node selector in a hackish way. 
+        // Ideally we would be able to configure multiple node selectors, but this is fine for now.
+        var rawNodeSelector = Environment.GetEnvironmentVariable("JOBS_K8S_NODE_SELECTOR");
+
+        var nodeSelector = new Dictionary<string, string>();
+        if (rawNodeSelector != null)
+        {
+            var splitNodeSelector = rawNodeSelector?.Split('=');
+            if (splitNodeSelector?.Length == 2)
+            {
+                nodeSelector[splitNodeSelector[0]] = splitNodeSelector[1];
+            }
+        }
+
+
         var kubernetesJob = new V1Job("batch/v1", "Job",
             new V1ObjectMeta
             {
@@ -62,6 +76,7 @@ public class KubernetesFacade : IKubernetesFacade
                                     Resources = resources,
                                 }
                         },
+                        NodeSelector = nodeSelector,
                         RestartPolicy = "Never",
                     },
                 },

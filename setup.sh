@@ -13,7 +13,7 @@ STALKER_BIND_ADDRESS="0.0.0.0"
 
 # Max database size and replication. Having 3 replicas with 32Gi would mean that 
 # (32 * 3) Gi of space on disk is needed
-MONGODB_MAX_SIZE="32Gi"
+MONGO_MAX_SIZE="32Gi"
 MONGO_REPLICA_SET_COUNT=1
 
 PASSWORD_LENGTH=35
@@ -92,7 +92,7 @@ vars:
   STALKER_URL: "https://$STALKER_HOSTNAME:\${STALKER_PORT}"
   DOCKERFILE_NAME: Dockerfile
   JM_URL: "https://jobs-manager:3000"
-  MONGODB_MAX_SIZE: $MONGODB_MAX_SIZE
+  MONGO_MAX_SIZE: $MONGO_MAX_SIZE
   STALKER_BIND_ADDRESS: $STALKER_BIND_ADDRESS
 EOF
 

@@ -1,7 +1,0 @@
-FROM ghcr.io/red-kite-solutions/stalker-base:latest
-
-WORKDIR /app
-
-RUN yarn workspace @red-kite/jobs-manager build
-
-CMD ["yarn", "workspace", "@red-kite/jobs-manager", "start:debug"]
