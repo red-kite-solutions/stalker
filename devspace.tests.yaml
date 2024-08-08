@@ -4,3 +4,6 @@ name: stalker-vars-dev
 vars:
   DOCKERFILE_NAME: Dockerfile.cicd
   CERTIFICATES: "certificates.test.yml"
+  MONGO_JM_USER_E2E: "jobsmanagere2e"
+  JM_MONGO_ADDRESS: mongodb://${MONGO_JM_USER_E2E}:${MONGO_JM_PASSWORD}@mongo-mongodb-headless:27017/ # The address of the FM's mongo database
+  JM_ENVIRONMENT: "tests"

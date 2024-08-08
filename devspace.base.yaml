@@ -5,7 +5,6 @@ vars:
   STALKER_VERSION: "Stalker 0.0.2 alpha"
   MONGO_ROOT_PASSWORD: "123456"
   MONGO_JM_USER: "jobsmanager"
-  MONGO_JM_USER_E2E: "jobsmanagere2e"
   MONGO_JM_PASSWORD: "123456"
   MONGO_CRON_USER: "cronservice"
   MONGO_CRON_PASSWORD: "123456"
@@ -16,7 +15,6 @@ vars:
   JM_JWT_SECRET: "123456" # The secret used to sign JWT for users
   JM_REFRESH_SECRET: "123456" # The secret used to sign JWT refresh token for users
   JM_MONGO_ADDRESS: mongodb://${MONGO_JM_USER}:${MONGO_JM_PASSWORD}@mongo-mongodb-headless:27017/ # The address of the FM's mongo database
-  JM_MONGO_ADDRESS_E2E: mongodb://${MONGO_JM_USER_E2E}:${MONGO_JM_PASSWORD}@mongo-mongodb-headless:27017/ # The address of the FM's mongo database
   CRON_MONGO_ADDRESS: mongodb://${MONGO_CRON_USER}:${MONGO_CRON_PASSWORD}@mongo-mongodb-headless:27017/
   JM_MONGO_DATABASE_NAME: stalker
 
