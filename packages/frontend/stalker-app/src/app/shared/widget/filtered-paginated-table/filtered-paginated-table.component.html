@@ -1,6 +1,6 @@
 <div class="table-container tw-flex tw-flex-col">
   <!-- Search filter-->
-  <div class="tw-flex tw-flex-row tw-gap-4">
+  <div class="tw-flex tw-flex-row tw-gap-4" #tabletop>
     @switch (filterType) {
       @case ('tokens') {
         <ng-container *ngTemplateOutlet="tokenSearch"> </ng-container>

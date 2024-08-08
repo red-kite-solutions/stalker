@@ -105,6 +105,7 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
   @ViewChild(MatAutocomplete) autocomplete!: MatAutocomplete;
   @ViewChild('filterInput') filterInput!: ElementRef<HTMLInputElement>;
   @ViewChild('chipList') chipGrid!: MatChipGrid;
+  @ViewChild('tabletop', { read: ElementRef }) filterDiv!: ElementRef;
 
   @Input() dataSource!: MatTableDataSource<T> | null;
 
@@ -187,6 +188,7 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
   pageChanged(event: PageEvent) {
     this.pageSize = event.pageSize;
     this.currentPage = event.pageIndex;
+    this.filterDiv.nativeElement.scrollIntoView({ behavior: 'instant', block: 'start' });
     this.pageChange.emit(event);
   }
 
