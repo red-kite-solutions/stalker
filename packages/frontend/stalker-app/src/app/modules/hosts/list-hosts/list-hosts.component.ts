@@ -112,10 +112,10 @@ export class ListHostsComponent {
   selectedProject = '';
   selectedNewHosts = '';
 
-  private generateFirstPageEvent() {
+  private generateFirstPageEvent(pageSize = 10) {
     const p = new PageEvent();
     p.pageIndex = 0;
-    p.pageSize = 10;
+    p.pageSize = pageSize;
     this.currentPage = p;
     return p;
   }
@@ -157,13 +157,11 @@ export class ListHostsComponent {
   filtersChange(filters: string[]) {
     this.currentFilters = filters;
     this.dataLoading = true;
-    this.currentPage$.next(this.currentPage);
   }
 
   dateRangeFilterChange(range: DateRange<Date>) {
     this.currentDateRange = range;
     this.dataLoading = true;
-    this.currentPage$.next(this.currentPage);
   }
 
   buildFilters(stringFilters: string[]): any {

@@ -159,6 +159,7 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
         endDateIncludingSelectedDay = new Date(endDate.getTime() + 1000 * 60 * 60 * 24 - 1); // 23:59:59:999
       }
       this.dateFiltersChange.emit(new DateRange<Date>(dr.start?.toDate() ?? null, endDateIncludingSelectedDay ?? null));
+      this.resetPaging();
     });
 
   constructor() {
@@ -192,6 +193,11 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
     this.pageChange.emit(event);
   }
 
+  resetPaging(): void {
+    this.currentPage = 0;
+    this.pageChange.emit({ length: this.length ?? 0, pageIndex: 0, pageSize: this.pageSize, previousPageIndex: 0 });
+  }
+
   ngOnInit(): void {
     if (!this.pageSize)
       this.pageSize = this.pageSizeOptions && this.pageSizeOptions.length > 0 ? this.pageSizeOptions[0] : 10;
@@ -204,6 +210,7 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
     if (index >= 0) {
       this.filters.splice(index, 1);
       this.filtersChange.emit(this.filters);
+      this.resetPaging();
     }
   }
 
@@ -226,6 +233,7 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
       // if regex are ever supported
       this.filters.push(value);
       this.filtersChange.emit(this.filters);
+      this.resetPaging();
 
       this.filterInput.nativeElement.value = '';
       this.filterForm.setValue(null);
@@ -253,6 +261,11 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
     this.filterInput.nativeElement.value = filter;
 
     this.refocusMatChipInput();
+  }
+
+  fulltextSearchChange(value: string[]) {
+    this.filtersChange.next(value);
+    this.resetPaging();
   }
 
   private refocusMatChipInput() {

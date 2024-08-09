@@ -6,14 +6,14 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
-import { BehaviorSubject, debounceTime, map, shareReplay, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, combineLatest, debounceTime, map, shareReplay, switchMap, tap } from 'rxjs';
 import { SubscriptionService, SubscriptionType } from 'src/app/api/jobs/subscriptions/subscriptions.service';
 import { AvatarComponent } from 'src/app/shared/components/avatar/avatar.component';
 import {
@@ -61,6 +61,8 @@ export class ListSubscriptionsComponent {
   public noDataMessage = $localize`:No subscription found|No subscriptions were found:No subscription found`;
   public selection = new SelectionModel<CronSubscription | EventSubscription>(true, []);
 
+  currentPage: PageEvent = this.generateFirstPageEvent();
+  public currentPage$ = new BehaviorSubject<PageEvent>(this.currentPage);
   private filters$ = new BehaviorSubject<string[]>([]);
   private refreshData$ = new BehaviorSubject<void>(undefined);
   public subscriptions$ = this.refreshData$.pipe(
@@ -79,11 +81,24 @@ export class ListSubscriptionsComponent {
     )
   );
 
-  public dataSource$ = this.subscriptions$.pipe(
-    map((subscriptions) => new MatTableDataSource<EventSubscription | CronSubscription>(subscriptions)),
+  public dataSource$ = combineLatest([this.currentPage$, this.subscriptions$]).pipe(
+    map(([page, subscriptions]) => {
+      const start = page.pageIndex * page.pageSize;
+      let end = start + page.pageSize;
+      end = end < subscriptions.length ? end : subscriptions.length;
+      return new MatTableDataSource<EventSubscription | CronSubscription>(subscriptions.slice(start, end));
+    }),
     tap(() => this.isLoading$.next(false)),
     shareReplay(1)
   );
+
+  private generateFirstPageEvent(pageSize: number = 10) {
+    const p = new PageEvent();
+    p.pageIndex = 0;
+    p.pageSize = pageSize;
+    this.currentPage = p;
+    return p;
+  }
 
   constructor(
     private subscriptionsService: SubscriptionService,
@@ -108,7 +123,10 @@ export class ListSubscriptionsComponent {
   }
 
   public revertToDefault() {}
-  public pageChange(e: any) {}
+  public pageChange(e: PageEvent) {
+    this.currentPage$.next(e);
+  }
+
   public filterChange(filters: string[]) {
     this.filters$.next(filters);
   }

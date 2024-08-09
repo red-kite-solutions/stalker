@@ -86,7 +86,7 @@
       i18n-placeholder="New filter|Creating a new filter"
       placeholder="New filter..."
       #fulltextInput
-      (keyup)="filtersChange.next([fulltextInput.value])"
+      (keyup)="fulltextSearchChange([fulltextInput.value])"
     />
   </mat-form-field>
 </ng-template>

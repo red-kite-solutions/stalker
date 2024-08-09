@@ -82,10 +82,10 @@ export class JobExecutionsComponent {
     this.titleService.setTitle($localize`:Job executions|:Job executions`);
   }
 
-  private generateFirstPageEvent() {
+  private generateFirstPageEvent(pageSize = 10) {
     const p = new PageEvent();
     p.pageIndex = 0;
-    p.pageSize = 10;
+    p.pageSize = pageSize;
     this.currentPage = p;
     return p;
   }
@@ -93,7 +93,6 @@ export class JobExecutionsComponent {
   filtersChange(filters: string[]) {
     this.currentFilters = filters;
     this.dataLoading = true;
-    this.currentPage$.next(this.currentPage);
   }
 
   pageChange(event: PageEvent) {
