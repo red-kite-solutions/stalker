@@ -39,11 +39,11 @@ export class EventSubscriptionsService implements GenericSubscriptionService<Eve
       type: eventSubscriptionKey,
       _id: newSub._id,
       builtIn: subscription.builtIn,
+      discriminator: newSub.discriminator ? newSub.discriminator : undefined,
       isEnabled: subscription.isEnabled,
       name: newSub.name,
       finding: newSub.finding,
       cooldown: newSub.cooldown,
-      discriminator: newSub.discriminator,
       projectId: newSub.projectId ? newSub.projectId : allProjectsSubscriptions,
       job: {
         name: newSub.jobName,
@@ -67,9 +67,9 @@ export class EventSubscriptionsService implements GenericSubscriptionService<Eve
     const data: any = {
       name: subscription.name,
       isEnabled: subscription.isEnabled,
+      discriminator: subscription.discriminator ? subscription.discriminator : undefined,
       finding: subscription.finding,
       cooldown: subscription.cooldown,
-      discriminator: subscription.discriminator,
       jobName: subscription.job.name,
       projectId: subscription.projectId === allProjectsSubscriptions ? undefined : subscription.projectId,
     };
@@ -101,10 +101,11 @@ export class EventSubscriptionsService implements GenericSubscriptionService<Eve
       finding: data.finding,
       projectId: data.projectId ? data.projectId : allProjectsSubscriptions,
       cooldown: data.cooldown,
-      discriminator: data.discriminator,
       builtIn: data.builtIn,
+      discriminator: data.discriminator ? data.discriminator : undefined,
       job: { name: data.jobName },
     };
+
     if (data.jobParameters) {
       sub.job.parameters = data.jobParameters;
     }
