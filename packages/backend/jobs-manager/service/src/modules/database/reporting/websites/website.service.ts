@@ -225,7 +225,7 @@ export class WebsiteService {
       });
 
       if (findings.length >= 10) {
-        await this.findingsQueue.publish(...findings);
+        await this.findingsQueue.publishForJob(jobId, ...findings);
         findings = [];
       }
     }
