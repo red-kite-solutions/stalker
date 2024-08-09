@@ -111,4 +111,8 @@ Blocking a resource is useful if, through automation, Stalker found a resource t
 
 ### Merging websites
 
-> This feature is not yet available, but is coming soon.
+Merging website resources into a single entity is often feasible because Stalker generates multiple potential websites that may actually be identical. For example, if Stalker creates two different websites for ports 80 and 443 on the same IP address, they are likely to be the same site accessible through different ports.
+
+By merging these websites, automated workflows can treat them as a single entity, reducing the amount of work required. In other words, a merged website will be ignored by the automated workflows and will point to the other website in which it is merged.
+
+You can merge websites with the UI using the `Merge` button. Only the websites in a same project can be merged together.

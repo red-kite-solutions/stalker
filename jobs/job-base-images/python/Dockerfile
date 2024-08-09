@@ -2,6 +2,7 @@ FROM python:3.12.4-slim-bullseye AS base
 
 RUN python -m pip install httpx[http2]
 RUN python -m pip install "poetry==1.3.2"
+RUN python -m pip install pillow
 
 COPY stalker_job_sdk /usr/src/stalker_job_sdk
 
@@ -48,5 +49,7 @@ ENV PATH "/tools:$PATH"
 RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -  \
   && sh -c 'echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
   && apt update && apt install -y google-chrome-stable
+
+RUN echo "precedence ::ffff:0:0/96  100" >> /etc/gai.conf
 
 WORKDIR /usr/src/stalker-job

@@ -95,7 +95,9 @@ export class SubscriptionsUtils {
     // Would extract domainName from ${ domainName }
     const expression = match[1].toLowerCase();
     const ctx = prepareContext(finding);
-    return executeDsl(expression, ctx) || '';
+    const res = executeDsl(expression, ctx);
+
+    return res || res === false ? res : '';
   }
 
   /**

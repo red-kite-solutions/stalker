@@ -11,5 +11,6 @@ RUN python -m pip install -e /usr/src/stalker_job_sdk
 RUN python -m pip install httpx[http2]
 COPY ./nuclei/nuclei_finding.py .
 COPY ./nuclei/nuclei_wrapper.py .
+COPY ./nuclei/nuclei_job_input.py .
 
 ENTRYPOINT [ "python", "nuclei_wrapper.py"]

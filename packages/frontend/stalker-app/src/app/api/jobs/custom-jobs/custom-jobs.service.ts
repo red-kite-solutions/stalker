@@ -17,7 +17,6 @@ export class CustomJobsService {
   public get(id: string): Observable<CustomJob> {
     return <Observable<CustomJob>>this.http.get(`${environment.fmUrl}/custom-jobs/${id}`).pipe(
       map((v) => {
-        // console.log(v);
         return v;
       })
     );

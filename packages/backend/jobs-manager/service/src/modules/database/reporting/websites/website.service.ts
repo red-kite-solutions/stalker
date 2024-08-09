@@ -117,7 +117,10 @@ export class WebsiteService {
     return await this.websiteModel.findOneAndUpdate(
       extendedSearchQuery.searchQuery,
       {
-        $set: { lastSeen: Date.now(), ssl: ssl ?? null },
+        $set: {
+          lastSeen: Date.now(),
+          ssl: ssl === false || ssl === true ? ssl : undefined,
+        },
         $setOnInsert: {
           host: extendedSearchQuery.existingPort.host,
           domain: extendedSearchQuery.existingDomainSummary ?? null,
@@ -279,6 +282,21 @@ export class WebsiteService {
       { _id: { $in: dto.websiteIds.map((v) => new Types.ObjectId(v)) } },
       update,
     );
+  }
+
+  public async getWebsites(
+    page: number = null,
+    pageSize: number = null,
+    filter: FilterQuery<WebsiteDocument>,
+  ): Promise<
+    Pick<WebsiteDocument, '_id' | 'domain' | 'host' | 'port' | 'path' | 'ssl'>[]
+  > {
+    let query = this.websiteModel.find(filter, '_id domain host port path ssl');
+
+    if (page != null && pageSize != null) {
+      query = query.skip(page * pageSize).limit(pageSize);
+    }
+    return await query;
   }
 
   private async buildFilters(filter: WebsiteFilterModel) {

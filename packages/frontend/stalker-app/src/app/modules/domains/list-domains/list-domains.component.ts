@@ -114,10 +114,10 @@ export class ListDomainsComponent {
   selectedProject = '';
   selectedNewDomains = '';
 
-  private generateFirstPageEvent() {
+  private generateFirstPageEvent(pageSize = 10) {
     const p = new PageEvent();
     p.pageIndex = 0;
-    p.pageSize = 10;
+    p.pageSize = pageSize;
     this.currentPage = p;
     return p;
   }
@@ -146,7 +146,6 @@ export class ListDomainsComponent {
   dateRangeFilterChange(range: DateRange<Date>) {
     this.currentDateRange = range;
     this.dataLoading = true;
-    this.currentPage$.next(this.currentPage);
   }
 
   constructor(
@@ -165,7 +164,6 @@ export class ListDomainsComponent {
   filtersChange(filters: string[]) {
     this.currentFilters = filters;
     this.dataLoading = true;
-    this.currentPage$.next(this.currentPage);
   }
 
   buildFilters(stringFilters: string[]): any {

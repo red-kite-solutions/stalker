@@ -10,15 +10,16 @@ export const databaseConfigInitProvider = [
     provide: DATABASE_INIT,
     inject: [getModelToken('jobPodConfig')],
     useFactory: async (jobPodConfigModel: Model<JobPodConfiguration>) => {
-      const jpConf = await jobPodConfigModel.findOne();
-      if (!jpConf) {
-        const jobPodConfigs: JobPodConfiguration[] = JSON.parse(
-          JSON.stringify(DEFAULT_JOB_POD_CONFIG),
-        );
-        for (const c of jobPodConfigs) {
-          await jobPodConfigModel.create(c);
-        }
+      const jobPodConfigs: JobPodConfiguration[] = JSON.parse(
+        JSON.stringify(DEFAULT_JOB_POD_CONFIG),
+      );
+
+      for (const c of jobPodConfigs) {
+        await jobPodConfigModel.updateOne({ name: c.name }, c, {
+          upsert: true,
+        });
       }
+
       return DATABASE_INIT;
     },
   },
