@@ -147,6 +147,7 @@ export class ViewWebsiteComponent implements OnDestroy {
     }),
     tap((website: Website) => {
       this.website = website;
+      this.titleService.setTitle($localize`:Website page title|:Website · ${website.url}`);
     }),
     shareReplay(1)
   );
@@ -173,11 +174,6 @@ export class ViewWebsiteComponent implements OnDestroy {
     switchMap((website: Website) => {
       return this.websitesService.getWebsite(website.mergedInId ?? '');
     })
-  );
-
-  public websiteTitle$ = this.website$.pipe(
-    tap((website) => this.titleService.setTitle($localize`:Website page title|:Website · ${website.url}`)),
-    shareReplay(1)
   );
 
   public port$ = this.website$.pipe(
