@@ -629,8 +629,8 @@ deployments:
         metadata:
           name: app-certs
         data:
-          nginx-chain.pem: ${UI_CERTIFICATES_NGINX_CHAIN_PEM}
-          nginx.key: ${UI_CERTIFICATES_NGINX_KEY}
+          tls.crt: ${UI_CERTIFICATES_NGINX_CHAIN_PEM}
+          tls.key: ${UI_CERTIFICATES_NGINX_KEY}
 
 dev:
   mongo:
@@ -888,6 +888,14 @@ profiles:
                       volume:
                         name: certs
                         readOnly: true
+
+                  volumeMounts:
+                    - name: app-certs
+                      mountPath: /etc/nginx/certs/nginx-chain.pem
+                      subPath: tls.crt
+                    - name: nginx-certs
+                      mountPath: /etc/nginx/certs/nginx.key
+                      subPath: tls.key
 
                     - containerPath: /usr/local/share/ca-certificates
                       volume:
