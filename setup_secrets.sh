@@ -43,8 +43,8 @@ echo "  CRON_CERTIFICATES_CLIENT_KEY: $CLIENT_KEY" >> devspace.prod.yaml
 echo "  CRON_CERTIFICATES_RKS_CA_CRT: $ROOT_CA" >> devspace.prod.yaml
 
 # ---- APP: Creating k8s secret file
-NGINX_CHAIN_PEM=$(base64 ./packages/frontend/stalker-app/nginx-chain.pem -w0)
-NGINX_KEY=$(base64 ./packages/frontend/stalker-app/nginx.key -w0) 
+NGINX_CHAIN_PEM=$(base64 ./packages/frontend/stalker-app/tls.crt -w0)
+NGINX_KEY=$(base64 ./packages/frontend/stalker-app/tls.key -w0) 
 
 echo "  UI_CERTIFICATES_NGINX_CHAIN_PEM: $NGINX_CHAIN_PEM" >> devspace.prod.yaml
 echo "  UI_CERTIFICATES_NGINX_KEY: $NGINX_KEY" >> devspace.prod.yaml
