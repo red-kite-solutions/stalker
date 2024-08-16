@@ -629,8 +629,8 @@ deployments:
         metadata:
           name: app-certs
         data:
-          nginx-chain.pem: ${UI_CERTIFICATES_NGINX_CHAIN_PEM}
-          nginx.key: ${UI_CERTIFICATES_NGINX_KEY}
+          tls.crt: ${UI_CERTIFICATES_NGINX_CHAIN_PEM}
+          tls.key: ${UI_CERTIFICATES_NGINX_KEY}
 
 dev:
   mongo:
