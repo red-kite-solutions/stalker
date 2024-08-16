@@ -884,16 +884,11 @@ profiles:
                       update-ca-certificates
 
                   volumeMounts:
-                    - containerPath: /etc/nginx/certs/
-                      volume:
-                        name: certs
-                        readOnly: true
-
-                  volumeMounts:
                     - name: app-certs
                       mountPath: /etc/nginx/certs/nginx-chain.pem
                       subPath: tls.crt
-                    - name: nginx-certs
+
+                    - name: app-certs
                       mountPath: /etc/nginx/certs/nginx.key
                       subPath: tls.key
 
@@ -906,10 +901,13 @@ profiles:
                 - env: []
 
                   volumeMounts:
-                    - containerPath: /etc/nginx/certs/
-                      volume:
-                        name: certs
-                        readOnly: true
+                    - name: app-certs
+                      mountPath: /etc/nginx/certs/nginx-chain.pem
+                      subPath: tls.crt
+
+                    - name: app-certs
+                      mountPath: /etc/nginx/certs/nginx.key
+                      subPath: tls.key
 
                   image: ghcr.io/red-kite-solutions/stalker-app:${FRONTEND_VERSION}
                   name: ui-container
