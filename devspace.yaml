@@ -629,8 +629,8 @@ deployments:
         metadata:
           name: app-certs
         data:
-          tls.crt: ${UI_CERTIFICATES_NGINX_CHAIN_PEM}
-          tls.key: ${UI_CERTIFICATES_NGINX_KEY}
+          nginx-chain.pem: ${UI_CERTIFICATES_NGINX_CHAIN_PEM}
+          nginx.key: ${UI_CERTIFICATES_NGINX_KEY}
 
 dev:
   mongo:
@@ -884,13 +884,10 @@ profiles:
                       update-ca-certificates
 
                   volumeMounts:
-                    - name: app-certs
-                      mountPath: /etc/nginx/certs/nginx-chain.pem
-                      subPath: tls.crt
-
-                    - name: app-certs
-                      mountPath: /etc/nginx/certs/nginx.key
-                      subPath: tls.key
+                    - containerPath: /etc/nginx/certs/
+                      volume:
+                        name: certs
+                        readOnly: true
 
                     - containerPath: /usr/local/share/ca-certificates
                       volume:
@@ -901,13 +898,10 @@ profiles:
                 - env: []
 
                   volumeMounts:
-                    - name: app-certs
-                      mountPath: /etc/nginx/certs/nginx-chain.pem
-                      subPath: tls.crt
-
-                    - name: app-certs
-                      mountPath: /etc/nginx/certs/nginx.key
-                      subPath: tls.key
+                    - containerPath: /etc/nginx/certs/
+                      volume:
+                        name: certs
+                        readOnly: true
 
                   image: ghcr.io/red-kite-solutions/stalker-app:${FRONTEND_VERSION}
                   name: ui-container
