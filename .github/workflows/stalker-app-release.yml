@@ -15,9 +15,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          ref: ${{ github.ref }} # Ensures the workflow checks out the tagged commit
+          fetch-depth: 0
+          fetch-tags: false
+          ref: ${{ github.ref }}
+
+      - name: Test
+        run: cat packages/frontend/stalker-app/nginx.conf
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
