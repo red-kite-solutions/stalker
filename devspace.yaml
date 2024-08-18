@@ -122,7 +122,9 @@ pipelines:
   prod:
     run: |-
       create_deployments namespaces
-      run_pipelines setup-certificates
+
+      # TODO: Should we remove this line?
+      # run_pipelines setup-certificates
       # run_pipelines setup-kafka
 
       # Start mongo and kafka
