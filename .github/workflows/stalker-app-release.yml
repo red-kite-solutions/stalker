@@ -57,7 +57,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          context: .
+          context: https://github.com/red-kite-solutions/stalker.git#${{ github.sha }}
           file: ./packages/frontend/stalker-app/Dockerfile
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
