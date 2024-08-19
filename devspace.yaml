@@ -123,9 +123,8 @@ pipelines:
     run: |-
       create_deployments namespaces
 
-      # TODO: Should we remove this line?
-      # run_pipelines setup-certificates
-      # run_pipelines setup-kafka
+      $( [ ${STALKER_ENVIRONMENT} == "prod-community" ] && run_pipelines setup-certificates )
+      $( [ ${STALKER_ENVIRONMENT} == "prod-community" ] && run_pipelines setup-kafka )
 
       # Start mongo and kafka
       create_deployments mongo kafka --sequential

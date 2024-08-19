@@ -39,4 +39,5 @@ fi
 if ! (minikube status &>/dev/null); then
   minikube start --driver=docker --memory=$MINIKUBE_RAM --cpus=$MINIKUBE_CPU
 fi
+
 devspace --var="STALKER_ENVIRONMENT=prod-community" -p prod run-pipeline prod -n stalker
