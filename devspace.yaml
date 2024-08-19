@@ -122,9 +122,10 @@ pipelines:
   prod:
     run: |-
       create_deployments namespaces
-
-      $( [ ${STALKER_ENVIRONMENT} == "prod-community" ] && run_pipelines setup-certificates )
-      $( [ ${STALKER_ENVIRONMENT} == "prod-community" ] && run_pipelines setup-kafka )
+      if [ ${STALKER_ENVIRONMENT} == "prod-community" ]; 
+      then
+        run_pipelines setup-certificates setup-kafka 
+      fi
 
       # Start mongo and kafka
       create_deployments mongo kafka --sequential
