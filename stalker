@@ -17,7 +17,7 @@ if [[ $* == *--help* || $* == *-h* ]]; then
   echo '  --force-setup, -f   Forces a setup, ignoring the existing setup.'
   echo '  --help, -h          Display this help message.'
   echo ''
-  echo 'build:'
+  echo 'Example:'
   echo '  ./stalker                # Setups and starts Stalker.'
   echo '  ./stalker --force-setup  # Forces a new setup of Stalker.'
   exit
