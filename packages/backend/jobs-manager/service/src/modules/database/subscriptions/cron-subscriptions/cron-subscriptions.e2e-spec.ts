@@ -1,10 +1,10 @@
 import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { useContainer } from 'class-validator';
-import request from 'supertest';
 import {
   TestingData,
   checkAuthorizations,
+  checkAuthorizationsCronApiKey,
   cleanup,
   deleteReq,
   getReq,
@@ -274,38 +274,19 @@ describe('Cron Subscriptions Controller (e2e)', () => {
   });
 
   it('Should have proper authorizations (POST /cron-subscriptions/{id}/notify)', async () => {
-    // Arrange
-    const path = `/cron-subscriptions/${subscriptionId}/notify`;
-
-    // Act & Assert
-    const call = async (givenToken: string) => {
-      return await postReq(app, givenToken, path);
-    };
-
-    let r = await call(testData.admin.token);
-    expect(r.statusCode).toStrictEqual(HttpStatus.FORBIDDEN);
-
-    r = await call(testData.user.token);
-    expect(r.statusCode).toStrictEqual(HttpStatus.FORBIDDEN);
-
-    r = await call(testData.readonly.token);
-    expect(r.statusCode).toStrictEqual(HttpStatus.FORBIDDEN);
-
-    r = await call('');
-    expect(r.statusCode).toStrictEqual(HttpStatus.FORBIDDEN);
-
-    r = await request(app.getHttpServer())
-      .post(path)
-      .set('Content-Type', 'application/json')
-      .set('x-stalker-cron', `asdf`)
-      .send({});
-    expect(r.statusCode).toStrictEqual(HttpStatus.FORBIDDEN);
-
-    r = await request(app.getHttpServer())
-      .post(path)
-      .set('Content-Type', 'application/json')
-      .set('x-stalker-cron', process.env.STALKER_CRON_API_TOKEN)
-      .send({});
-    expect(r.statusCode !== HttpStatus.FORBIDDEN).toStrictEqual(true);
+    const success = await checkAuthorizationsCronApiKey(
+      testData,
+      async (givenToken: string, headers, authenticate) => {
+        return await postReq(
+          app,
+          givenToken,
+          `/cron-subscriptions/${subscriptionId}/notify`,
+          undefined,
+          headers,
+          authenticate,
+        );
+      },
+    );
+    expect(success).toBe(true);
   });
 });

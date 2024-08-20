@@ -14,21 +14,6 @@ when a job needs to be run, the Jobs Manager (JM) drops a message on the _Job Re
 jobs inside [Kubernetes Jobs](https://kubernetes.io/docs/concepts/workloads/controllers/job/). The Orchestrator monitors the container
 standard output; this is how the job communicates its _findings_ and more to Stalker.
 
-* [Python](#python)
-  * [Setup](#setup)
-* [Making contact with the outside world](#making-contact-with-the-outside-world)
-  * [Producing findings](#producing-findings)
-  * [Producing logs](#producing-logs)
-  * [Updating the job's status](#updating-the-jobs-status)
-* [Built-in Jobs](#built-in-jobs)
-* [Custom Jobs](#custom-jobs)
-  * [Custom Job Input](#custom-job-input)
-  * [Custom Job Output](#custom-job-output)
-  * [Types of custom jobs](#types-of-custom-jobs)
-    * [Python Custom Job](#python-custom-job)
-    * [Nuclei Custom Job](#nuclei-custom-job)
-      * [Nuclei Custom Finding Handling](#nuclei-custom-finding-handling)
-
 ## Python
 
 The `stalker_job_sdk` provides utilitary functions and classes to help you implement jobs.

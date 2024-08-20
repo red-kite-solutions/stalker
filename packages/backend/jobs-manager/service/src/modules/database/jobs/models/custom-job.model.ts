@@ -66,6 +66,7 @@ export class CustomJob {
   public publishTime: number;
   public startTime: number;
   public endTime: number;
+  public createdAt: number;
 
   @Prop()
   public name: string;
@@ -147,7 +148,7 @@ export class CustomJob {
     ) {
       throw new JobParameterValueException(
         'customJobParameters',
-        job.customJobParameters,
+        JSON.stringify(job.customJobParameters),
       );
     }
 

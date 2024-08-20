@@ -75,6 +75,11 @@
       }
 
       <panel-section>
+        <panel-section-title i18n="Service|The port's service">Service</panel-section-title>
+        {{ port.service }}
+      </panel-section>
+
+      <panel-section>
         <panel-section-title i18n="Host|The ip related to a port">IP address</panel-section-title>
         <a [routerLink]="['/hosts', host._id]">{{ host.ip }}</a>
       </panel-section>

@@ -1,10 +1,5 @@
-FROM stalker-base:latest
+FROM ghcr.io/red-kite-solutions/stalker-base:latest
 
 WORKDIR /app
-
-RUN mkdir -p /certs/
-COPY packages/backend/cron/service/ca.pem /certs/
-COPY packages/backend/cron/service/client-signed.crt /certs/
-COPY packages/backend/cron/service/client.key /certs/
 
 CMD ["yarn", "workspace", "@red-kite/cron", "start:debug"]

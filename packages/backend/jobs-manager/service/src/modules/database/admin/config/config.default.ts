@@ -1,3 +1,4 @@
+import { Config } from './config.model';
 import { JobPodConfiguration } from './job-pod-config/job-pod-config.model';
 
 const baseMemory = 1024;
@@ -38,4 +39,9 @@ export const DEFAULT_JOB_POD_FALLBACK_CONFIG: JobPodConfiguration = {
   name: 'Stalker Default Fallback Job Pod Config',
   memoryKbytesLimit: baseMemory * 100,
   milliCpuLimit: 100,
+};
+
+export const DEFAULT_GENERAL_CONFIG: Config = {
+  findingRetentionTimeSeconds: 60 * 60 * 24 * 365, // ~1 year
+  jobRunRetentionTimeSeconds: 60 * 60 * 24 * 14, // 14 days
 };

@@ -7,7 +7,13 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-spinner-button',
-  template: `<button mat-stroked-button class="tw-w-full" type="button" [color]="buttonColor" [disabled]="loadingState">
+  template: `<button
+    mat-stroked-button
+    class="tw-w-full"
+    type="button"
+    [color]="buttonColor"
+    [disabled]="loadingState || disabled"
+  >
     <span class="tw-flex tw-gap-2 tw-items-center">
       @if (loadingState) {
         <mat-spinner [diameter]="16" [color]="spinnerColor"></mat-spinner>
@@ -23,4 +29,5 @@ export class SpinnerButtonComponent {
   @Input() buttonColor: 'primary' | 'accent' | 'warn' | undefined = undefined;
   @Input() spinnerColor = 'primary';
   @Input() loadingState = false;
+  @Input() disabled = false;
 }

@@ -8,6 +8,7 @@ import {
 } from '../../exceptions/http.exceptions';
 import { Page } from '../../types/page.type';
 import { ProjectUnassigned } from '../../validators/is-project-id.validator';
+import { ConfigService } from '../database/admin/config/config.service';
 import { JobsService } from '../database/jobs/jobs.service';
 import { CorrelationKeyUtils } from '../database/reporting/correlation.utils';
 import { CustomFinding } from '../database/reporting/findings/finding.model';
@@ -56,7 +57,7 @@ export class CreateCustomFinding extends FindingBase {
   domainName?: string;
   ip?: string;
   port?: number;
-  protocol?: string;
+  protocol?: 'tcp' | 'udp';
   name: string;
 }
 
@@ -112,9 +113,23 @@ export class FindingsService {
     private commandBus: CommandBus,
     private jobsService: JobsService,
     private projectService: ProjectService,
+    private configService: ConfigService,
     @InjectModel('finding')
     private readonly findingModel: Model<CustomFinding>,
   ) {}
+
+  /**
+   * Deletes all the findings runs older than `config.jobRunRetentionTimeSeconds`.
+   */
+  public async cleanup(): Promise<void> {
+    const config = await this.configService.getConfig();
+    const ttlMilliseconds = config.findingRetentionTimeSeconds * 1000;
+    const now = Date.now();
+    const oldestValidCreationDate = now - ttlMilliseconds;
+    await this.findingModel.deleteMany({
+      $or: [{ created: { $lte: new Date(oldestValidCreationDate) } }],
+    });
+  }
 
   public async getAll(
     target: string,

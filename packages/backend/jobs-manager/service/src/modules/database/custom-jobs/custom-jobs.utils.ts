@@ -15,7 +15,7 @@ import { CustomJobEntry } from './custom-jobs.model';
 export class CustomJobsUtils {
   private static logger = new Logger(CustomJobsUtils.name);
 
-  private static validateCustomJobPathInformation(
+  public static validateCustomJobPathInformation(
     path: string,
     fileName: string,
   ): boolean {
