@@ -2,7 +2,7 @@ version: v2beta1
 name: stalker
 
 vars:
-  STALKER_ENVIRONMENT: dev
+  STALKER_ENVIRONMENT: prod-community
 
 imports:
   - path: devspace.dev.yaml
@@ -122,10 +122,6 @@ pipelines:
   prod:
     run: |-
       create_deployments namespaces
-      if [ ${STALKER_ENVIRONMENT} == "prod-community" ]; 
-      then
-        run_pipelines setup-certificates setup-kafka 
-      fi
 
       # Start mongo and kafka
       create_deployments mongo kafka --sequential
@@ -145,6 +141,13 @@ pipelines:
 
       create_deployments cron
       wait_pod --label-selector app.kubernetes.io/component=cron --timeout 480
+
+  prod-community:
+    run: |-
+      create_deployments namespaces
+      run_pipelines setup-certificates setup-kafka 
+      run_pipelines prod
+      start_dev ui orchestrator jobs-manager cron
 
 images:
   stalker-base:
@@ -826,7 +829,7 @@ profiles:
 
       # Mongo modifications
       - op: remove
-        path: dev.mongodb.ports
+        path: dev.mongo.ports
 
       # Cron modifications
       - op: remove
