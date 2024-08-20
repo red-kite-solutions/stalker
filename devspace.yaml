@@ -145,7 +145,7 @@ pipelines:
   prod-community:
     run: |-
       create_deployments namespaces
-      run_pipelines setup-certificates setup-kafka 
+      run_pipelines setup-certificates setup-kafka build
       run_pipelines prod
       start_dev ui orchestrator jobs-manager cron
 
@@ -817,7 +817,7 @@ profiles:
   - name: prod
     activation:
       - vars:
-          STALKER_ENVIRONMENT: "^prod-.+$"
+          STALKER_ENVIRONMENT: "^prod-?.*$"
 
     patches:
       # Orchestrator modifications
