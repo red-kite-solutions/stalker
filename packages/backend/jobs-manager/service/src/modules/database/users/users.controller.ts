@@ -210,6 +210,7 @@ export class UnprotectedUsersController {
   ) {
     if (!dto.email) throw new BadRequestException();
 
-    await this.usersService.createPasswordResetRequest(dto.email);
+    // We fire-and-forget the password reset link task
+    void this.usersService.createPasswordResetRequest(dto.email);
   }
 }

@@ -19,10 +19,6 @@ import { USER_INIT } from './users.provider';
 
 @Injectable()
 export class UsersService {
-  private options = {
-    timeCost: 5,
-  };
-
   constructor(
     @InjectModel('users') private readonly userModel: Model<User>,
     @InjectModel('magicLinkTokens')
@@ -364,35 +360,31 @@ export class UsersService {
     const user = await this.userModel.findOne({ email });
     if (!user) return;
 
-    // We fire-and-forget the password reset link task
-    void new Promise((res) => {
-      const ttl = resetPasswordConstants.expirationTimeSeconds * 1000;
-      const token = randomBytes(64).toString('hex');
-      const now = new Date();
-      const expirationDate = new Date(now.getTime() + ttl);
+    const ttl = resetPasswordConstants.expirationTimeSeconds * 1000;
+    const token = randomBytes(64).toString('hex');
+    const now = new Date();
+    const expirationDate = new Date(now.getTime() + ttl);
 
-      // Save the token, keep the 5 most recent
-      this.uniqueTokenModel.create({
-        token,
-        userId: user._id,
-        expirationDate: expirationDate.getTime(),
-      });
-
-      const link = `${process.env.STALKER_APP_BASE_URL}/auth/reset?token=${token}`;
-      this.emailService.sendResetPassword(
-        {
-          link,
-          validHours: ttl / 1000 / 60 / 60,
-        },
-        [
-          {
-            email,
-            name: [user.firstName, user.lastName]
-              .filter((x) => x && x.trim() != '')
-              .join(' '),
-          },
-        ],
-      );
+    this.uniqueTokenModel.create({
+      token,
+      userId: user._id,
+      expirationDate: expirationDate.getTime(),
     });
+
+    const link = `${process.env.STALKER_APP_BASE_URL}/auth/reset?token=${token}`;
+    this.emailService.sendResetPassword(
+      {
+        link,
+        validHours: ttl / 1000 / 60 / 60,
+      },
+      [
+        {
+          email,
+          name: [user.firstName, user.lastName]
+            .filter((x) => x && x.trim() != '')
+            .join(' '),
+        },
+      ],
+    );
   }
 }

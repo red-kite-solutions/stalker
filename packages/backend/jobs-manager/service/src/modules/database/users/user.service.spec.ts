@@ -376,7 +376,7 @@ describe('Users Service', () => {
       expect(token).toBeNull();
     });
 
-    it('Should return access token when magic token is expired', async () => {
+    it('Should not return access token when magic token is expired', async () => {
       // Arrange
       const u = await user({ role: Role.Admin });
       await magicLinkToken.create({
@@ -393,7 +393,7 @@ describe('Users Service', () => {
       expect(authenticatedUser).toBeUndefined();
     });
 
-    it('Should return access token when magic token does not exist', async () => {
+    it('Should not return access token when magic token does not exist', async () => {
       // Arrange
       // Act
       const authenticatedUser =

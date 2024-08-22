@@ -8,12 +8,17 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
+import { UserDocument } from '../database/users/users.model';
 import { LogoutDto } from './auth.dto';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import JwtRefreshGuard from './guards/jwt-refresh.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { MagicLinkAuthGuard } from './guards/magic-link.guard';
+
+interface RequestWithUser extends Request {
+  user?: Partial<UserDocument>;
+}
 
 @Controller('/auth')
 export class AuthController {
@@ -27,13 +32,13 @@ export class AuthController {
 
   @UseGuards(MagicLinkAuthGuard)
   @Post('login-magic-link')
-  async loginMagicLink(@Request() req) {
+  async loginMagicLink(@Request() req: RequestWithUser) {
     return await this.loginCore(req);
   }
 
   @UseGuards(JwtRefreshGuard)
   @Put('refresh')
-  async refresh(@Request() req: any) {
+  async refresh(@Request() req: RequestWithUser) {
     const accessToken = await this.authService.createAccessToken(req.user);
 
     return { access_token: accessToken };
@@ -41,7 +46,7 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Delete('logout')
-  async logOut(@Request() request: any, @Body() dto: LogoutDto) {
+  async logOut(@Request() request: RequestWithUser, @Body() dto: LogoutDto) {
     if (dto.refresh_token) {
       await this.authService.removeRefreshToken(
         request.user.id,
@@ -61,7 +66,7 @@ export class AuthController {
     return { isSetup: await this.authService.isAuthenticationSetup() };
   }
 
-  private async loginCore(req: any) {
+  private async loginCore(req: RequestWithUser) {
     const accessToken = await this.authService.createAccessToken({
       email: req.user.email,
       id: req.user._id,

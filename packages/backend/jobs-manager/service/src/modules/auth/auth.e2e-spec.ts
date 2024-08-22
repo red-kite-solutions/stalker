@@ -197,7 +197,7 @@ describe('Auth Controller (e2e)', () => {
     refresh = r.body.refresh_token;
   });
 
-  it('Should connect as the magic link user (POST /auth/login-magic-link)', async () => {
+  it('Should not connect as the magic link user (POST /auth/login-magic-link)', async () => {
     // Arrange
     // Act
     const r = await loginMagicLinkToken(app, 'iamnotvalid');
