@@ -1,7 +1,7 @@
 import { Logger, Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { Kafka } from 'kafkajs';
-import { JM_ENVIRONMENTS } from '../app.constants';
+import { isTest } from '../app.constants';
 import { ConfigModule } from '../database/admin/config/config.module';
 import { CustomJobsModule } from '../database/custom-jobs/custom-jobs.module';
 import { DatalayerModule } from '../database/datalayer.module';
@@ -49,7 +49,7 @@ export class FindingsModule {
   ) {}
 
   public async onApplicationBootstrap() {
-    if (process.env.JM_ENVIRONMENT !== JM_ENVIRONMENTS.tests) {
+    if (!isTest()) {
       const kafka = new Kafka(kafkaConfig);
 
       await FindingsConsumer.create(kafka, this.findingsService);
