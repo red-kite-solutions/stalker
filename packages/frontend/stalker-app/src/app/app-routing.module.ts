@@ -135,6 +135,11 @@ const routes: Routes = [
             loadComponent: () =>
               import('./modules/auth/reset/reset-password.component').then((c) => c.ResetPasswordComponent),
           },
+          {
+            path: 'first',
+            loadComponent: () =>
+              import('./modules/auth/first-user/first-user.component').then((c) => c.FirstUserComponent),
+          },
         ],
       },
     ],

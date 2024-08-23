@@ -1,0 +1,111 @@
+<mat-card-content>
+  <h1 i18n="Initial Setup|Setting up the application for its first use">Initial Setup</h1>
+  <form #loginForm="ngForm" (ngSubmit)="onSubmit()" (keyup.enter)="onSubmit()" [formGroup]="form">
+    <mat-form-field appearance="outline">
+      <input
+        matInput
+        i18n-placeholder="Email|A user's email"
+        placeholder="Email"
+        name="email"
+        formControlName="email"
+      />
+      <mat-label i18n="Email|A user's email">Email</mat-label>
+      <mat-error i18n="Invalid email|Asking for the user to provide a valid email address"
+        >Please provide a valid email address</mat-error
+      >
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <input
+        matInput
+        i18n-placeholder="First name|A person's first name"
+        placeholder="First name"
+        name="firstName"
+        formControlName="firstName"
+      />
+      <mat-label i18n="First name|A person's first name">First name</mat-label>
+      <mat-error i18n="First name required|A user must have a first name, otherwise the form is invalid"
+        >First name must not be empty</mat-error
+      >
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <input
+        matInput
+        i18n-placeholder="Last name|A person's family name"
+        placeholder="Last name"
+        name="lastName"
+        formControlName="lastName"
+      />
+      <mat-label i18n="Last name|A person's family name">Last name</mat-label>
+      <mat-error i18n="Last name required|A user must have a last name, otherwise the form is invalid"
+        >Last name must not be empty</mat-error
+      >
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <input
+        matInput
+        type="{{ hide ? 'password' : 'text' }}"
+        i18n-placeholder="Password|Placeholder for a password form"
+        placeholder="Password"
+        name="newPassword"
+        formControlName="newPassword"
+        autocomplete="new-password"
+      />
+      <mat-label i18n="Password|Placeholder for a password form">Password</mat-label>
+      <mat-error i18n="Password minimal length|The password must meet the length requirement to be accepted"
+        >Password must have a minimal length of 12 characters</mat-error
+      >
+      <button
+        type="button"
+        mat-icon-button
+        matSuffix
+        (click)="hide = !hide; $event.stopPropagation()"
+        [attr.aria-pressed]="hide"
+      >
+        <mat-icon>{{ hide ? 'visibility_off' : 'visibility' }}</mat-icon>
+      </button>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <input
+        matInput
+        type="{{ hideConfirm ? 'password' : 'text' }}"
+        i18n-placeholder="Confirm password|Placeholder for a password confirmation form"
+        placeholder="Confirm password"
+        name="passwordConfirm"
+        formControlName="passwordConfirm"
+      />
+      <mat-label i18n="Confirm password|Placeholder for a password confirmation form">Confirm password</mat-label>
+      @if (!form.get('passwordConfirm')?.hasError('required')) {
+        <mat-error i18n="Passwords not identical|The two passwords must be identical for the form to be valid"
+          >The two passwords are not identical</mat-error
+        >
+      }
+      @if (form.get('passwordConfirm')?.hasError('required')) {
+        <mat-error i18n="Confirm password required|The user must confirm the password by retyping it"
+          >Password confirmation is required</mat-error
+        >
+      }
+      <button
+        type="button"
+        mat-icon-button
+        matSuffix
+        (click)="hideConfirm = !hideConfirm; $event.stopPropagation()"
+        [attr.aria-pressed]="hideConfirm"
+      >
+        <mat-icon>{{ hideConfirm ? 'visibility_off' : 'visibility' }}</mat-icon>
+      </button>
+    </mat-form-field>
+
+    <button
+      type="button"
+      class="submitButton"
+      mat-flat-button
+      color="primary"
+      (click)="onSubmit()"
+      i18n="Create|Create an item"
+    >
+      Create
+    </button>
+  </form>
+</mat-card-content>

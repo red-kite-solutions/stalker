@@ -10,9 +10,10 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterModule } from '@angular/router';
 import { AuthComponent } from './auth.component';
+import { FirstUserComponent } from './first-user/first-user.component';
 
 @NgModule({
-  declarations: [AuthComponent],
+  declarations: [AuthComponent, FirstUserComponent],
   imports: [
     CommonModule,
     RouterModule,
