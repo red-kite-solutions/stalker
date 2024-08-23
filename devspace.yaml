@@ -2,7 +2,7 @@ version: v2beta1
 name: stalker
 
 vars:
-  STALKER_ENVIRONMENT: prod-community
+  STALKER_ENVIRONMENT: dev
 
 imports:
   - path: devspace.dev.yaml
