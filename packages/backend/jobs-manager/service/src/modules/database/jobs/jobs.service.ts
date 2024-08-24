@@ -10,7 +10,7 @@ import {
   TimestampedString,
 } from '../../../types/timestamped-string.type';
 import { ProjectUnassigned } from '../../../validators/is-project-id.validator';
-import { JM_ENVIRONMENTS } from '../../app.constants';
+import { isTest } from '../../app.constants';
 import { JobQueue } from '../../job-queue/job-queue';
 import { ConfigService } from '../admin/config/config.service';
 import { Project } from '../reporting/project.model';
@@ -91,7 +91,7 @@ export class JobsService {
 
     // This part of the code ensures that every custom job parameter is sent as a string
     // Not sending a custom job parameter as a string will break the orchestrator's deserialization
-    if (process.env.JM_ENVIRONMENT !== JM_ENVIRONMENTS.tests) {
+    if (!isTest()) {
       if (job.task === CustomJob.name) {
         let cJob = job as CustomJob;
 

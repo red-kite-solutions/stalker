@@ -7,64 +7,34 @@ vars:
 imports:
   - path: devspace.dev.yaml
     enabled: $(is_equal ${STALKER_ENVIRONMENT} "dev")
-  - path: devspace.prod.yaml
-    enabled: $(is_equal ${STALKER_ENVIRONMENT} "prod")
   - path: devspace.tests.yaml
     enabled: $(is_equal ${STALKER_ENVIRONMENT} "tests")
+  - path: devspace.prod.yaml
+    enabled: $(is_equal ${STALKER_ENVIRONMENT} "prod-community")
   - path: devspace.base.yaml
 
 pipelines:
-  build:
+  setup-certificates:
     run: |-
-      build_images stalker-base
-      build_images ui jobs-manager orchestrator python-job-base nuclei-job-base
+      create_deployments root-certificates cron-certificates jm-certificates orchestrator-certificates ui-certificates
 
-  deploy:
+  setup-kafka:
     run: |-
-      build_images stalker-base
-      build_images ui jobs-manager orchestrator python-job-base nuclei-job-base
-      create_deployments mongo ui jobs-manager kafka orchestrator-service-account orchestrator --sequential
-
-  dev:
-    run: |-
-      create_deployments namespaces
-
       # Kafka's keystore and keystore password
       ${DEVSPACE_KUBECTL_EXECUTABLE} delete secret kafka-jks --ignore-not-found -n ${DEVSPACE_NAMESPACE}
-      ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks --from-file=kafka.truststore.jks=./queue/kafka.server.truststore.jks --from-file=kafka.keystore.jks=./queue/kafka-0.keystore.jks -n ${DEVSPACE_NAMESPACE}
+      ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks --from-file=kafka.truststore.jks=${KAFKA_TRUSTSTORE_FILE} --from-file=kafka.keystore.jks=${KAFKA_KEYSTORE_FILE} -n ${DEVSPACE_NAMESPACE}
       ${DEVSPACE_KUBECTL_EXECUTABLE} delete secret kafka-jks-password --ignore-not-found -n ${DEVSPACE_NAMESPACE}
       ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks-password --from-literal=password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=keystore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=truststore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=key-password=${KAFKA_KEYSTORE_PASSWORD} -n ${DEVSPACE_NAMESPACE}
 
+  build:
+    run: |-
       build_images stalker-base
       build_images ui jobs-manager orchestrator python-job-base nuclei-job-base cron
-      create_deployments mongo kafka --sequential
 
-      # Wait for kafka and mongo to be ready
-      wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 300
-      wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 300
-
-      # Start mongo and kafka
-      start_dev mongo kafka
-
-      create_deployments certificates
-      create_deployments ui jobs-manager orchestrator-service-account orchestrator --sequential
-
-      # Wait for services before applying network policies
-      wait_pod --label-selector app.kubernetes.io/component=ui --timeout 300
-      wait_pod --label-selector app.kubernetes.io/component=jobs-manager --timeout 300
-      wait_pod --label-selector app.kubernetes.io/component=orchestrator --timeout 300
-
-      create_deployments network-policies
-      create_deployments resource-quotas
-
-      # Start microservices + ui
-      start_dev orchestrator jobs-manager ui
-
-      create_deployments cron
-
-      wait_pod --label-selector app.kubernetes.io/component=cron --timeout 300
-
-      start_dev cron
+  deploy:
+    run: |-
+      run_pipelines build
+      create_deployments mongo ui jobs-manager kafka orchestrator-service-account orchestrator --sequential
 
   jobs-manager-e2e:
     flags:
@@ -73,22 +43,12 @@ pipelines:
         type: bool
     run: |-
       create_deployments namespaces
-
-      # Kafka's keystore and keystore password
-      ${DEVSPACE_KUBECTL_EXECUTABLE} delete secret kafka-jks --ignore-not-found -n ${DEVSPACE_NAMESPACE}
-      ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks --from-file=kafka.truststore.jks=./queue/kafka.server.truststore.jks.test --from-file=kafka.keystore.jks=./queue/kafka-0.keystore.jks.test -n ${DEVSPACE_NAMESPACE}
-      ${DEVSPACE_KUBECTL_EXECUTABLE} delete secret kafka-jks-password --ignore-not-found -n ${DEVSPACE_NAMESPACE}
-      ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks-password --from-literal=password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=keystore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=truststore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=key-password=${KAFKA_KEYSTORE_PASSWORD} -n ${DEVSPACE_NAMESPACE}
-
-      build_images stalker-base
-      build_images jobs-manager orchestrator python-job-base nuclei-job-base
+      run_pipelines setup-certificates setup-kafka build
       create_deployments mongo kafka orchestrator-service-account orchestrator jobs-manager --sequential
 
       # Wait for kafka and mongo to be ready
-      wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 300
-      wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 300
-
-      create_deployments certificates
+      wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 480
+      wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 480
 
       # Run tests
       if [ $(get_flag "watch") == "true" ]; 
@@ -106,29 +66,19 @@ pipelines:
   purge:
     run: |-
       stop_dev --all
-      purge_deployments mongo ui jobs-manager jobs-manager kafka orchestrator-service-account orchestrator cron ui-prod --sequential
-
-  build-e2e:
-    run: |-
-      build_images stalker-base
-      build_images ui jobs-manager orchestrator python-job-base nuclei-job-base
+      purge_deployments mongo ui jobs-manager jobs-manager kafka orchestrator-service-account orchestrator cron --sequential
 
   jobs-manager-e2e-cicd-deploy:
     run: |-
       # Running the build pipeline is required before running this
-      create_deployments namespaces
-
-      ${DEVSPACE_KUBECTL_EXECUTABLE} delete secret kafka-jks --ignore-not-found -n ${DEVSPACE_NAMESPACE}
-      ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks --from-file=kafka.truststore.jks=./queue/kafka.server.truststore.jks.test --from-file=kafka.keystore.jks=./queue/kafka-0.keystore.jks.test -n ${DEVSPACE_NAMESPACE}
-      ${DEVSPACE_KUBECTL_EXECUTABLE} delete secret kafka-jks-password --ignore-not-found -n ${DEVSPACE_NAMESPACE}
-      ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks-password --from-literal=password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=keystore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=truststore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=key-password=${KAFKA_KEYSTORE_PASSWORD} -n ${DEVSPACE_NAMESPACE}
-      create_deployments certificates
+      create_deployments namespaces 
+      run_pipelines setup-certificates setup-kafka
 
       create_deployments mongo kafka orchestrator-service-account orchestrator jobs-manager --sequential
 
       # Wait for kafka and mongo to be ready
-      wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 300
-      wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 300
+      wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 480
+      wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 480
 
   jobs-manager-e2e-cicd-run:
     run: |-
@@ -137,46 +87,67 @@ pipelines:
       exec_container --label-selector app.kubernetes.io/component=jobs-manager -n stalker -- /bin/sh -c 'yarn workspace @red-kite/jobs-manager test:e2e:cicd'
       stop_dev --all
 
-  prod:
+  dev:
     run: |-
       create_deployments namespaces
-
-      # Kafka's keystore and keystore password
-      ${DEVSPACE_KUBECTL_EXECUTABLE} delete secret kafka-jks --ignore-not-found -n ${DEVSPACE_NAMESPACE}
-      ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks --from-file=kafka.truststore.jks=./queue/kafka.server.truststore.jks --from-file=kafka.keystore.jks=./queue/kafka-0.keystore.jks -n ${DEVSPACE_NAMESPACE}
-      ${DEVSPACE_KUBECTL_EXECUTABLE} delete secret kafka-jks-password --ignore-not-found -n ${DEVSPACE_NAMESPACE}
-      ${DEVSPACE_KUBECTL_EXECUTABLE} create secret generic kafka-jks-password --from-literal=password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=keystore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=truststore-password=${KAFKA_KEYSTORE_PASSWORD} --from-literal=key-password=${KAFKA_KEYSTORE_PASSWORD} -n ${DEVSPACE_NAMESPACE}
-
-      build_images stalker-base
-      build_images ui jobs-manager orchestrator python-job-base nuclei-job-base cron
-      create_deployments mongo kafka --sequential
+      run_pipelines setup-certificates setup-kafka build
 
       # Start mongo and kafka
-      start_dev mongo-prod kafka
+      create_deployments mongo kafka --sequential
+      start_dev mongo kafka
 
       # Wait for kafka and mongo to be ready
-      wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 300
-      wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 300
+      wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 480
+      wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 480
 
-      create_deployments certificates
-      create_deployments jobs-manager orchestrator-service-account orchestrator ui-prod --sequential
+      create_deployments ui jobs-manager orchestrator-service-account orchestrator --sequential
 
       # Wait for services before applying network policies
-      wait_pod --label-selector app.kubernetes.io/component=ui-prod --timeout 300
-      wait_pod --label-selector app.kubernetes.io/component=jobs-manager --timeout 300
-      wait_pod --label-selector app.kubernetes.io/component=orchestrator --timeout 300
+      wait_pod --label-selector app.kubernetes.io/component=ui --timeout 480
+      wait_pod --label-selector app.kubernetes.io/component=jobs-manager --timeout 480
+      wait_pod --label-selector app.kubernetes.io/component=orchestrator --timeout 480
 
       create_deployments network-policies
       create_deployments resource-quotas
 
       # Start microservices + ui
-      start_dev orchestrator-prod jobs-manager-prod ui-prod
+      start_dev orchestrator jobs-manager ui
 
       create_deployments cron
 
-      wait_pod --label-selector app.kubernetes.io/component=cron --timeout 300
+      wait_pod --label-selector app.kubernetes.io/component=cron --timeout 480
 
-      start_dev cron-prod
+      start_dev cron
+
+  prod:
+    run: |-
+      create_deployments namespaces
+
+      # Start mongo and kafka
+      create_deployments mongo kafka --sequential
+
+      # Wait for kafka and mongo to be ready
+      wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 480
+      wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 480
+
+      create_deployments jobs-manager orchestrator-service-account orchestrator ui --sequential
+
+      # Wait for services before applying network policies
+      wait_pod --label-selector app.kubernetes.io/component=ui --timeout 480
+      wait_pod --label-selector app.kubernetes.io/component=jobs-manager --timeout 480
+      wait_pod --label-selector app.kubernetes.io/component=orchestrator --timeout 480
+
+      create_deployments network-policies resource-quotas
+
+      create_deployments cron
+      wait_pod --label-selector app.kubernetes.io/component=cron --timeout 480
+
+  prod-community:
+    run: |-
+      create_deployments namespaces
+      run_pipelines setup-certificates setup-kafka build
+      run_pipelines prod
+      start_dev ui orchestrator jobs-manager cron
 
 images:
   stalker-base:
@@ -200,7 +171,7 @@ images:
     rebuildStrategy: default
 
   ui:
-    image: ghcr.io/red-kite-solutions/stalker-frontend
+    image: ghcr.io/red-kite-solutions/stalker-app
     dockerfile: packages/frontend/stalker-app/${DOCKERFILE_NAME}
     context: .
     rebuildStrategy: default
@@ -231,6 +202,7 @@ images:
 
 deployments:
   jobs-manager:
+    updateImageTags: $( echo ${UPDATE_IMAGE_TAGS} )
     helm:
       values:
         volumes:
@@ -273,16 +245,21 @@ deployments:
                   name: certs
                   readOnly: true
 
-            image: ghcr.io/red-kite-solutions/stalker-jobs-manager
+            image: ghcr.io/red-kite-solutions/stalker-jobs-manager:${JM_VERSION}
             name: jobs-manager-container
 
+        nodeSelector: $(echo ${JM_K8S_NODE_SELECTOR})
+
         service:
+          type: ClusterIP
+
           ports:
             - containerPort: 3000
               port: 3000
               protocol: TCP
 
   cron:
+    updateImageTags: $( echo ${UPDATE_IMAGE_TAGS} )
     helm:
       values:
         volumes:
@@ -313,8 +290,10 @@ deployments:
                   name: certs
                   readOnly: true
 
-            image: ghcr.io/red-kite-solutions/stalker-cron
+            image: ghcr.io/red-kite-solutions/stalker-cron:${CRON_VERSION}
             name: cron-container
+
+        nodeSelector: $(echo ${CRON_K8S_NODE_SELECTOR})
 
         service:
           ports:
@@ -323,70 +302,21 @@ deployments:
               protocol: TCP
 
   ui:
+    updateImageTags: $( echo ${UPDATE_IMAGE_TAGS} )
     helm:
       values:
         containers:
           - env:
 
-            image: ghcr.io/red-kite-solutions/stalker-frontend
+            image: ghcr.io/red-kite-solutions/stalker-app:${FRONTEND_VERSION}
             name: ui-container
+
+        nodeSelector: $(echo ${UI_K8S_NODE_SELECTOR})
 
         service:
           ports:
             - containerPort: 4200
               port: 4200
-              protocol: TCP
-
-  ui-prod:
-    helm:
-      values:
-        volumes:
-          - name: certs
-            secret:
-              defaultMode: 0777
-              secretName: app-certs
-
-          - name: root-ca
-            secret:
-              secretName: root-ca
-
-        initContainers:
-          - name: init-ca
-            image: nginx:alpine
-            command:
-              - sh
-              - -c
-              - |
-                apk update && apk add ca-certificates
-                update-ca-certificates
-
-            volumeMounts:
-              - containerPath: /etc/nginx/certs/
-                volume:
-                  name: certs
-                  readOnly: true
-
-              - containerPath: /usr/local/share/ca-certificates
-                volume:
-                  name: root-ca
-                  readOnly: true
-
-        containers:
-          - env: []
-
-            volumeMounts:
-              - containerPath: /etc/nginx/certs/
-                volume:
-                  name: certs
-                  readOnly: true
-
-            image: ghcr.io/red-kite-solutions/stalker-frontend
-            name: ui-container
-
-        service:
-          ports:
-            - containerPort: 443
-              port: ${STALKER_PORT}
               protocol: TCP
 
   mongo: # volumes location: /var/lib/docker/volumes/minikube/_data/hostpath-provisioner/stalker/
@@ -397,11 +327,13 @@ deployments:
         version: "13.9.1"
       values:
         architecture: replicaset
+        nodeSelector: $(echo ${MONGO_K8S_NODE_SELECTOR})
         replicaCount: ${MONGO_REPLICA_SET_COUNT}
         arbiter:
           enabled: false
         persistence:
-          size: ${MONGODB_MAX_SIZE}
+          size: ${MONGO_MAX_SIZE}
+          storageClass: ${MONGO_STORAGE_CLASS}
         externalAccess.enabled: true
         externalAccess.service.type: LoadBalancer
         externalAccess.service.port: 27017
@@ -490,6 +422,12 @@ deployments:
         repo: https://charts.bitnami.com/bitnami
         version: "26.0.0"
       values:
+        nodeSelector: $(echo ${KAFKA_K8S_NODE_SELECTOR})
+
+        controller:
+          persistence:
+            storageClass: ${KAFKA_STORAGE_CLASS}
+
         # The mapping rules extract the CN part of the certificate to be used as the username in ACL rules
         # kafka as a super user is the account used for provisioning and for inter-kafka communications.
         # Other accounts have minimal rights defined in "extraProvisioningCommands"
@@ -508,6 +446,7 @@ deployments:
             containerPort: 9093
             protocol: SSL
             sslClientAuth: "required"
+
           interbroker:
             name: INTERNAL
             containerPort: 9094
@@ -568,12 +507,14 @@ deployments:
             - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:jobs-manager --operation read --operation describe --group jobs-manager"
             - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:jobs-manager --operation read --operation describe --group jobs-manager-job-logs"
             - "/opt/bitnami/kafka/bin/kafka-acls.sh --bootstrap-server $KAFKA_SERVICE --command-config $CLIENT_CONF --add --allow-principal User:orchestrator --operation read --operation describe --group stalker"
+
   orchestrator-service-account:
     kubectl:
       manifests:
         - packages/backend/orchestrator/service/orchestrator-service-account.yml
 
   orchestrator:
+    updateImageTags: $( echo ${UPDATE_IMAGE_TAGS} )
     helm:
       values:
         volumes:
@@ -590,6 +531,8 @@ deployments:
                 value: ${SECRET_PRIVATE_RSA_KEY}
               - name: ORCHESTRATOR_KAFKA_KEY_PASSWORD
                 value: ${ORCHESTRATOR_KAFKA_KEY_PASSWORD}
+              - name: JOBS_K8S_NODE_SELECTOR
+                value: ${ORCHESTRATOR_JOBS_K8S_NODE_SELECTOR}
 
             volumeMounts:
               - containerPath: /certs
@@ -597,8 +540,10 @@ deployments:
                   name: certs
                   readOnly: true
 
-            image: ghcr.io/red-kite-solutions/stalker-orchestrator
+            image: ghcr.io/red-kite-solutions/stalker-orchestrator:${ORCHESTRATOR_VERSION}
             name: orchestrator-container
+
+        nodeSelector: $(echo ${ORCHESTRATOR_K8S_NODE_SELECTOR})
 
         service:
           ports:
@@ -628,14 +573,69 @@ deployments:
         - queue/${NETWORK_POLICY}
         - jobs/${NETWORK_POLICY}
 
-  certificates:
+  root-certificates:
     kubectl:
-      manifests:
-        - root-ca.yml
-        - packages/backend/cron/service/${CERTIFICATES}
-        - packages/backend/jobs-manager/service/${CERTIFICATES}
-        - packages/backend/orchestrator/service/${CERTIFICATES}
-        - packages/frontend/stalker-app/${CERTIFICATES}
+      inlineManifest: |-
+        apiVersion: v1
+        kind: Secret
+        metadata:
+          name: root-ca
+        data:
+          rks-ca.crt: ${ROOT_RKS_CA_CRT}
+
+  cron-certificates:
+    kubectl:
+      inlineManifest: |-
+        apiVersion: v1
+        kind: Secret
+        metadata:
+          name: cron-certs
+        data:
+          ca.pem: ${CRON_CERTIFICATES_CA_PEM}
+          client-signed.crt: ${CRON_CERTIFICATES_CLIENT_SIGNED_CRT}
+          client.key: ${CRON_CERTIFICATES_CLIENT_KEY}
+          rks-ca.crt: ${CRON_CERTIFICATES_RKS_CA_CRT}
+
+  jm-certificates:
+    kubectl:
+      inlineManifest: |-
+        apiVersion: v1
+        kind: Secret
+        metadata:
+          name: jm-certs
+        data:
+          ca.pem: ${JM_CERTIFICATES_CA_PEM}
+          client-signed.crt: ${JM_CERTIFICATES_CLIENT_SIGNED_CRT}
+          client.key: ${JM_CERTIFICATES_CLIENT_KEY}
+          kafka-ca.crt: ${JM_CERTIFICATES_KAFKA_CA_CRT}
+          kafka-client-signed.crt: ${JM_CERTIFICATES_KAFKA_CLIENT_SIGNED_CRT}
+          kafka-client.key: ${JM_CERTIFICATES_KAFKA_CLIENT_KEY}
+          ssl-private.key: ${JM_CERTIFICATES_SSL_PRIVATE_KEY}
+          ssl-certificate-chain.pem: ${JM_CERTIFICATES_SSL_CERTIFICATE_CHAIN_PEM}
+
+  orchestrator-certificates:
+    kubectl:
+      inlineManifest: |-
+        apiVersion: v1
+        kind: Secret
+        metadata:
+          name: orchestrator-certs
+        data:
+          kafka-ca.crt: ${ORCHESTRATOR_CERTIFICATES_KAFKA_CA_CRT}
+          kafka-client-signed.crt: ${ORCHESTRATOR_CERTIFICATES_KAFKA_CLIENT_SIGNED_CRT}
+          kafka-client.key: ${ORCHESTRATOR_CERTIFICATES_KAFKA_CLIENT_KEY}
+          rks-ca.crt: ${ORCHESTRATOR_CERTIFICATES_RKS_CA_CRT}
+
+  ui-certificates:
+    kubectl:
+      inlineManifest: |-
+        apiVersion: v1
+        kind: Secret
+        metadata:
+          name: app-certs
+        data:
+          tls.crt: ${UI_CERTIFICATES_NGINX_CHAIN_PEM}
+          tls.key: ${UI_CERTIFICATES_NGINX_KEY}
 
 dev:
   mongo:
@@ -643,10 +643,6 @@ dev:
       app.kubernetes.io/component: mongodb
     ports:
       - port: "27017"
-
-  mongo-prod:
-    labelSelector:
-      app.kubernetes.io/component: mongodb
 
   kafka:
     labelSelector:
@@ -675,19 +671,6 @@ dev:
     ports:
       - port: "3000"
 
-  jobs-manager-prod:
-    labelSelector:
-      app.kubernetes.io/component: jobs-manager
-    container: jobs-manager-container
-    logs:
-      enabled: true
-    restartHelper:
-      inject: false
-    resources:
-      limits:
-        memory: 2Gi
-        cpu: 1
-
   cron:
     labelSelector:
       app.kubernetes.io/component: cron
@@ -711,13 +694,6 @@ dev:
     ports:
       - port: "3001:3000"
 
-  cron-prod:
-    labelSelector:
-      app.kubernetes.io/component: cron
-    container: cron-container
-    restartHelper:
-      inject: false
-
   ui:
     labelSelector:
       app.kubernetes.io/component: ui
@@ -738,19 +714,6 @@ dev:
       inject: false
     ports:
       - port: "4200"
-
-  ui-prod:
-    labelSelector:
-      app.kubernetes.io/component: ui-prod
-    container: ui-container
-    restartHelper:
-      inject: false
-    ports:
-      - port: "${STALKER_PORT}:443"
-        bindAddress: ${STALKER_BIND_ADDRESS}
-    resources:
-      limits:
-        memory: 1Gi
 
   orchestrator:
     labelSelector:
@@ -774,13 +737,6 @@ dev:
       inject: false
     ports:
       - port: "5135:80"
-
-  orchestrator-prod:
-    labelSelector:
-      app.kubernetes.io/component: orchestrator
-    container: orchestrator-container
-    restartHelper:
-      inject: false
 
 hooks:
   - events:
@@ -824,16 +780,6 @@ hooks:
       containerName: ui-container
 
   - events:
-      - after:deploy:ui-prod
-    wait:
-      running: true
-      terminatedWithCode: 0
-    container:
-      labelSelector:
-        app.kubernetes.io/component: ui-prod
-      containerName: ui-container
-
-  - events:
       - after:deploy:orchestrator
     wait:
       running: true
@@ -855,10 +801,122 @@ hooks:
 
 profiles:
   - name: e2e
+    activation:
+      - vars:
+          STALKER_ENVIRONMENT: tests
+
     patches:
       - op: replace
         path: dev.jobs-manager.ports
         value:
           - port: "9229"
+
       - op: remove
         path: dev.jobs-manager.sync
+
+  - name: prod
+    activation:
+      - vars:
+          STALKER_ENVIRONMENT: "^prod-?.*$"
+
+    patches:
+      # Orchestrator modifications
+      - op: remove
+        path: dev.orchestrator.sync
+
+      - op: remove
+        path: dev.orchestrator.ports
+
+      # Mongo modifications
+      - op: remove
+        path: dev.mongo.ports
+
+      # Cron modifications
+      - op: remove
+        path: dev.cron.sync
+
+      - op: remove
+        path: dev.cron.ports
+
+      # Jobs Manager modifications
+      - op: remove
+        path: dev.jobs-manager.ports
+
+      - op: replace
+        path: dev.jobs-manager.resources
+        value:
+          limits:
+            memory: 1Gi
+
+      # UI modifications
+      - op: replace
+        path: dev.ui.ports
+        value:
+          - port: "${STALKER_PORT}:443"
+            bindAddress: ${STALKER_BIND_ADDRESS}
+
+      - op: replace
+        path: dev.ui.resources
+        value:
+          limits:
+            memory: 2Gi
+            cpu: 1
+
+      - op: replace
+        path: deployments.ui
+        value:
+          updateImageTags: $( echo ${UPDATE_IMAGE_TAGS} )
+          helm:
+            values:
+              volumes:
+                - name: certs
+                  secret:
+                    defaultMode: 0777
+                    secretName: app-certs
+
+                - name: root-ca
+                  secret:
+                    secretName: root-ca
+
+              initContainers:
+                - name: init-ca
+                  image: nginx:1.27.0-alpine
+                  command:
+                    - sh
+                    - -c
+                    - |
+                      apk update && apk add ca-certificates
+                      update-ca-certificates
+
+                  volumeMounts:
+                    - containerPath: /etc/nginx/certs/
+                      volume:
+                        name: certs
+                        readOnly: true
+
+                    - containerPath: /usr/local/share/ca-certificates
+                      volume:
+                        name: root-ca
+                        readOnly: true
+
+              containers:
+                - env: []
+
+                  volumeMounts:
+                    - containerPath: /etc/nginx/certs/
+                      volume:
+                        name: certs
+                        readOnly: true
+
+                  image: ghcr.io/red-kite-solutions/stalker-app:${FRONTEND_VERSION}
+                  name: ui-container
+
+              nodeSelector: $(echo ${UI_K8S_NODE_SELECTOR})
+
+              service:
+                type: ClusterIP
+
+                ports:
+                  - containerPort: 443
+                    port: ${STALKER_PORT}
+                    protocol: TCP

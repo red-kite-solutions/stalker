@@ -1,9 +1,8 @@
-import { JM_ENVIRONMENTS } from '../../app.constants';
+import { isProd } from '../../app.constants';
 
-export const JOB_FOLDERS_PATH =
-  process.env.JM_ENVIRONMENT === JM_ENVIRONMENTS.prod
-    ? '/server/dist/src/modules/database/custom-job-templates/built-in/'
-    : './src/modules/database/custom-job-templates/built-in/';
+export const JOB_FOLDERS_PATH = isProd()
+  ? '/server/dist/src/modules/database/custom-job-templates/built-in/'
+  : './src/modules/database/custom-job-templates/built-in/';
 export const CODE_JOB_FOLDER = 'code/';
 export const NUCLEI_JOB_FOLDER = 'nuclei/';
 export const CODE_JOB_TEMPLATE_FILES_PATH = `${JOB_FOLDERS_PATH}${CODE_JOB_FOLDER}`;
