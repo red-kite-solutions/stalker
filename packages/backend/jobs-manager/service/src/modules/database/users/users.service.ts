@@ -357,7 +357,7 @@ export class UsersService {
 
   public async createPasswordResetRequest(email: string) {
     // If the user does not exist, we gracefully end the request.
-    const user = await this.userModel.findOne({ email });
+    const user = await this.userModel.findOne({ email: { $eq: email } });
     if (!user) return;
 
     const ttl = resetPasswordConstants.expirationTimeSeconds * 1000;
@@ -365,14 +365,14 @@ export class UsersService {
     const now = new Date();
     const expirationDate = new Date(now.getTime() + ttl);
 
-    this.uniqueTokenModel.create({
+    await this.uniqueTokenModel.create({
       token,
       userId: user._id,
       expirationDate: expirationDate.getTime(),
     });
 
     const link = `${process.env.STALKER_APP_BASE_URL}/auth/reset?token=${token}`;
-    this.emailService.sendResetPassword(
+    await this.emailService.sendResetPassword(
       {
         link,
         validHours: ttl / 1000 / 60 / 60,

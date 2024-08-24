@@ -3,3 +3,10 @@ name: stalker-vars-dev
 
 vars:
   STALKER_APP_BASE_URL: https://your-base-url
+  
+  ### Mailing-related configs
+  # A comma-separated list of email addresses. Acts as an exclusive allow-list in dev, and as a block-list in production
+  JM_EMAIL_RECIPIENTS_FILTER_LIST: 
+  JM_MAILJET_API_KEY:
+  JM_MAILJET_API_SECRET:
+  JM_EMAIL_SENDER:
