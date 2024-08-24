@@ -2,7 +2,7 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import jwt_decode from 'jwt-decode';
 import { MongoClient, MongoClientOptions } from 'mongodb';
-import * as request from 'supertest';
+import request from 'supertest';
 import { isTest } from '../modules/app.constants';
 import { Role } from '../modules/auth/constants';
 import { ProjectDocument } from '../modules/database/reporting/project.model';
@@ -59,6 +59,18 @@ export async function login(
     .send({
       email: email,
       password: password,
+    });
+}
+
+export async function loginMagicLinkToken(
+  app: INestApplication,
+  token: string,
+) {
+  return await request(app.getHttpServer())
+    .post('/auth/login-magic-link')
+    .set('Content-Type', 'application/json')
+    .send({
+      token,
     });
 }
 

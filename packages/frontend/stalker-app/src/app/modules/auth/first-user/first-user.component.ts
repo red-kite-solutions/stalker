@@ -8,10 +8,10 @@ import { UsersService } from '../../../api/users/users.service';
 
 @Component({
   selector: 'app-first',
-  templateUrl: './first.component.html',
-  styleUrls: ['./first.component.scss'],
+  templateUrl: './first-user.component.html',
+  styleUrls: ['./first-user.component.scss'],
 })
-export class FirstComponent {
+export class FirstUserComponent {
   private validatePasswordEquals: Function = (control: UntypedFormControl): ValidationErrors | null => {
     if (control.root.get('newPassword')?.value === control.root.get('passwordConfirm')?.value) {
       control.root.get('passwordConfirm')?.setErrors(null);

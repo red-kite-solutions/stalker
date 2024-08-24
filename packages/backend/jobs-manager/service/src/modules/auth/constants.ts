@@ -5,6 +5,10 @@ export const jwtConstants = {
   expirationTime: '300s',
 };
 
+export const resetPasswordConstants = {
+  expirationTimeSeconds: 3600,
+};
+
 export const rtConstants = {
   secret: process.env['JM_REFRESH_SECRET'],
   expirationTime: '25200s',
@@ -23,19 +27,38 @@ export const orchestratorConstants = {
 
 export enum Role {
   User = 'user',
+  UserResetPassword = 'user-reset-password',
   Admin = 'admin',
   ReadOnly = 'read-only',
 }
 
-export function roleIsAuthorized(role: string, requiredRole: string): boolean {
-  if (role === Role.Admin) return true;
-  if (
-    role === Role.User &&
-    (requiredRole === Role.ReadOnly || requiredRole === Role.User)
-  )
-    return true;
+export function roleIsAuthorized(
+  userRole: string,
+  requiredRole: string,
+): boolean {
+  const allowedRoles = expandRole(userRole);
 
-  if (role !== requiredRole) throw new UnauthorizedException();
+  if (!allowedRoles.includes(requiredRole)) throw new UnauthorizedException();
 
   return true;
+}
+
+/** Returns all the roles allowed by the given role. */
+function expandRole(role: string): string[] {
+  switch (role) {
+    case Role.Admin:
+      return [Role.Admin, Role.User, Role.ReadOnly, Role.UserResetPassword];
+
+    case Role.User:
+      return [Role.User, Role.ReadOnly, Role.UserResetPassword];
+
+    case Role.ReadOnly:
+      return [Role.ReadOnly, Role.UserResetPassword];
+
+    case Role.UserResetPassword:
+      return [Role.UserResetPassword];
+
+    default:
+      return [];
+  }
 }

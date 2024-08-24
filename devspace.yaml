@@ -238,6 +238,16 @@ deployments:
                 value: ${JM_KAFKA_KEY_PASSWORD}
               - name: STALKER_VERSION
                 value: ${STALKER_VERSION}
+              - name: EMAIL_SENDER
+                value: ${JM_EMAIL_SENDER}
+              - name: MAILJET_API_KEY
+                value: ${JM_MAILJET_API_KEY}
+              - name: MAILJET_API_SECRET
+                value: ${JM_MAILJET_API_SECRET}
+              - name: EMAIL_RECIPIENTS_FILTER_LIST
+                value: ${JM_EMAIL_RECIPIENTS_FILTER_LIST}
+              - name: STALKER_APP_BASE_URL
+                value: ${STALKER_APP_BASE_URL}
 
             volumeMounts:
               - containerPath: /certs

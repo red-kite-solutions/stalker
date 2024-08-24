@@ -64,9 +64,9 @@ export class ChangePasswordDto {
   @IsString()
   public newPassword: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  public currentPassword: string;
+  public currentPassword?: string;
 }
 
 export class EditUserDto {
