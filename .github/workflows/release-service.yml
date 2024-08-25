@@ -28,6 +28,11 @@ on:
         type: string
         description: Release type (none, patch, minor, major)
 
+    secrets:
+      github-token:
+        description: Github Token
+        required: true
+
 permissions:
   packages: write
   contents: write
@@ -51,7 +56,7 @@ jobs:
         uses: mathieudutour/github-tag-action@v6.1
         with:
           commit_sha: ${{ steps.release-sha.outputs.sha }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.github-token }}
           default_bump: ${{ inputs.release-type }}
           tag_prefix: "${{inputs.tag-prefix}}/v"
 
@@ -64,7 +69,7 @@ jobs:
           name: "Release ${{ steps.tag-version.outputs.new_version }}"
           generate_release_notes: true
           tag_name: ${{ steps.tag-version.outputs.new_tag }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.github-token }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -77,7 +82,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.github-token }}
 
       - name: Docker meta
         id: meta

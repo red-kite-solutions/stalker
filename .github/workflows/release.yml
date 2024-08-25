@@ -93,6 +93,8 @@ jobs:
       tag-prefix: stalker-base
       dockerfile-path: ./packages/Dockerfile.base
       image-name: ghcr.io/red-kite-solutions/stalker-base
+    secrets:
+      github-token: ${{secrets.GITHUB_TOKEN}}
 
   cron:
     name: Cron
@@ -104,6 +106,8 @@ jobs:
       tag-prefix: cron
       dockerfile-path: ./packages/backend/cron/service/Dockerfile
       image-name: ghcr.io/red-kite-solutions/stalker-cron
+    secrets:
+      github-token: ${{secrets.GITHUB_TOKEN}}
 
   orchestrator:
     name: Orchestrator
@@ -115,6 +119,8 @@ jobs:
       tag-prefix: orchestrator
       dockerfile-path: ./packages/backend/orchestrator/service/Dockerfile
       image-name: ghcr.io/red-kite-solutions/stalker-orchestrator
+    secrets:
+      github-token: ${{secrets.GITHUB_TOKEN}}
 
   jobs-manager:
     name: Jobs Manager
@@ -126,6 +132,8 @@ jobs:
       tag-prefix: jobs-manager
       dockerfile-path: ./packages/backend/jobs-manager/service/Dockerfile
       image-name: ghcr.io/red-kite-solutions/stalker-jobs-manager
+    secrets:
+      github-token: ${{secrets.GITHUB_TOKEN}}
 
   app:
     name: App
@@ -137,6 +145,8 @@ jobs:
       tag-prefix: stalker-app
       dockerfile-path: ./packages/frontend/stalker-app/Dockerfile
       image-name: ghcr.io/red-kite-solutions/stalker-app
+    secrets:
+      github-token: ${{secrets.GITHUB_TOKEN}}
 
   nuclei-job-base:
     name: Nuclei Job Base
@@ -148,6 +158,8 @@ jobs:
       dockerfile-path: ./jobs/job-base-images/python/Dockerfile.nuclei
       docker-context: ./jobs/job-base-images/python
       image-name: ghcr.io/red-kite-solutions/stalker-nuclei-job-base
+    secrets:
+      github-token: ${{secrets.GITHUB_TOKEN}}
 
   python-job-base:
     name: Python Job Base
@@ -159,3 +171,5 @@ jobs:
       dockerfile-path: ./jobs/job-base-images/python/Dockerfile
       docker-context: ./jobs/job-base-images/python
       image-name: ghcr.io/red-kite-solutions/stalker-python-job-base
+    secrets:
+      github-token: ${{secrets.GITHUB_TOKEN}}
