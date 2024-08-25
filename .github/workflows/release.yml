@@ -13,28 +13,6 @@ on:
           - major
         description: Base
 
-      stalker-python-job-base-release-type:
-        required: true
-        default: none
-        type: choice
-        options:
-          - patch
-          - minor
-          - major
-          - none
-        description: Base / Python Jobs
-
-      stalker-nuclei-job-base-release-type:
-        required: true
-        default: none
-        type: choice
-        options:
-          - patch
-          - minor
-          - major
-          - none
-        description: Base / Nuclei Job
-
       cron-release-type:
         required: true
         default: none
@@ -78,6 +56,28 @@ on:
           - major
           - none
         description: Frontend / App
+
+      stalker-python-job-base-release-type:
+        required: true
+        default: none
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - none
+        description: Jobs / Python
+
+      stalker-nuclei-job-base-release-type:
+        required: true
+        default: none
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - none
+        description: Jobs / Nuclei
 
 permissions:
   packages: write
