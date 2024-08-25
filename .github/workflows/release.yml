@@ -146,6 +146,7 @@ jobs:
       release-type: ${{ inputs.stalker-nuclei-job-base-release-type }}
       tag-prefix: nuclei-job-base
       dockerfile-path: ./jobs/job-base-images/python/Dockerfile.nuclei
+      docker-context: ./jobs/job-base-images/python
       image-name: ghcr.io/red-kite-solutions/stalker-nuclei-job-base
 
   python-job-base:
@@ -156,4 +157,5 @@ jobs:
       release-type: ${{ inputs.stalker-python-job-base-release-type }}
       tag-prefix: python-job-base
       dockerfile-path: ./jobs/job-base-images/python/Dockerfile
+      docker-context: ./jobs/job-base-images/python
       image-name: ghcr.io/red-kite-solutions/stalker-python-job-base
