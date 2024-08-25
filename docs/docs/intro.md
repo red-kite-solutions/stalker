@@ -60,7 +60,7 @@ STALKER_PORT=8443
 You can also set a custom size for your mongodb storage in `setup.sh`. The default size is 32 Gb. You may need more, depending on usage.
 
 ```bash
-MONGODB_MAX_SIZE="32Gi"
+MONGO_MAX_SIZE="32Gi"
 ```
 
 ### 4. Make sure your user is in the "docker" group

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { Kafka, KafkaConfig } from 'kafkajs';
 import { readFileSync } from 'node:fs';
-import { JM_ENVIRONMENTS } from '../app.constants';
+import { isTest } from '../app.constants';
 import { orchestratorConstants } from '../auth/constants';
 import { FindingsQueue } from './findings-queue';
 import { JobModelUpdateQueue } from './job-model-update-queue';
@@ -14,15 +14,9 @@ import { NullJobModelUpdateQueue } from './null-job-model-update-queue';
 import { NullJobQueue } from './null-job-queue';
 
 const certFolder =
-  process.env.JM_ENVIRONMENT === JM_ENVIRONMENTS.tests &&
-  process.env.TEST_TYPE === 'unit'
-    ? './'
-    : '/certs';
+  isTest() && process.env.TEST_TYPE === 'unit' ? './' : '/certs';
 const certTestExtension =
-  process.env.JM_ENVIRONMENT === JM_ENVIRONMENTS.tests &&
-  process.env.TEST_TYPE === 'unit'
-    ? '.test'
-    : '';
+  isTest() && process.env.TEST_TYPE === 'unit' ? '.test' : '';
 
 export const kafkaConfig: KafkaConfig = {
   clientId: orchestratorConstants.clientId,
@@ -52,8 +46,7 @@ export const kafkaConfig: KafkaConfig = {
     {
       provide: JobQueue,
       useFactory: async () => {
-        if (process.env.JM_ENVIRONMENT === JM_ENVIRONMENTS.tests)
-          return new NullJobQueue();
+        if (isTest()) return new NullJobQueue();
 
         const kafka = new Kafka(kafkaConfig);
 
@@ -66,8 +59,7 @@ export const kafkaConfig: KafkaConfig = {
     {
       provide: FindingsQueue,
       useFactory: async () => {
-        if (process.env.JM_ENVIRONMENT === JM_ENVIRONMENTS.tests)
-          return new NullFindingsQueue();
+        if (isTest()) return new NullFindingsQueue();
 
         const kafka = new Kafka(kafkaConfig);
 
@@ -80,8 +72,7 @@ export const kafkaConfig: KafkaConfig = {
     {
       provide: JobModelUpdateQueue,
       useFactory: async () => {
-        if (process.env.JM_ENVIRONMENT === JM_ENVIRONMENTS.tests)
-          return new NullJobModelUpdateQueue();
+        if (isTest()) return new NullJobModelUpdateQueue();
 
         const kafka = new Kafka(kafkaConfig);
 

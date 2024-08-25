@@ -52,12 +52,6 @@ export class AuthService implements AuthTokenProvider {
     if (token && refresh) {
       this.initSession(token);
       this.initRefreshToken(refresh);
-    } else {
-      this.router.navigate([`/auth/login`], {
-        queryParams: {
-          returnUrl: getReturnUrl(this.router),
-        },
-      });
     }
   }
 
@@ -105,6 +99,28 @@ export class AuthService implements AuthTokenProvider {
         this.http.post(`${environment.fmUrl}/auth/login`, {
           email: email,
           password: password,
+        })
+      );
+    } catch {
+      return false;
+    }
+
+    if (data) {
+      this.initSession(data.access_token);
+      this.initRefreshToken(data.refresh_token);
+
+      return true;
+    }
+
+    return false;
+  }
+
+  public async loginUsingToken(token: string): Promise<boolean> {
+    let data: any;
+    try {
+      data = await firstValueFrom(
+        this.http.post(`${environment.fmUrl}/auth/login-magic-link`, {
+          token,
         })
       );
     } catch {

@@ -123,7 +123,7 @@ export class CronSubscriptionsService {
       return;
     }
 
-    if (!isEnabled) {
+    if (isEnabled === false) {
       this.logger.debug(
         `Skipping execution for "${name}" because it is disabled.`,
       );
