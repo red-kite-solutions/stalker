@@ -101,7 +101,8 @@ export class JobsService {
         ) {
           for (let j = 0; j < cJob.customJobParameters.length; ++j) {
             if (
-              !cJob.customJobParameters[j].value ||
+              cJob.customJobParameters[j].value === null ||
+              cJob.customJobParameters[j].value === undefined ||
               typeof cJob.customJobParameters[j].value === 'string'
             ) {
               continue;
@@ -126,7 +127,7 @@ export class JobsService {
       await this.addJobOutputLine(
         createdJob.id,
         Date.now(),
-        'Job sent to orchestrator.',
+        `Job ${createdJob.id} sent to orchestrator.`,
         'debug',
       );
     } else {
