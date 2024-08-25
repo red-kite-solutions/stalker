@@ -1,0 +1,88 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      stalker-base-release-type:
+        required: true
+        default: none
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - none
+        description: Stalker Base release type
+
+      stalker-python-job-base-release-type:
+        required: true
+        default: none
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - none
+        description: Stalker Python Job Base release type
+
+      stalker-nuclei-job-base-release-type:
+        required: true
+        default: none
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - none
+        description: Stalker Nuclei Job Base release type
+
+      cron-release-type:
+        required: true
+        default: none
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - none
+        description: Cron release type
+
+      orchestrator-release-type:
+        required: true
+        default: none
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - none
+        description: Orchestrator release type
+
+      app-release-type:
+        required: true
+        default: none
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - none
+        description: App release type
+
+      jobs-manager-release-type:
+        required: true
+        default: none
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - none
+        description: Jobs Manager release type
+
+jobs:
+  tests:
+    name: Do nothing
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
