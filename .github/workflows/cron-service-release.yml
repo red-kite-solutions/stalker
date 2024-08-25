@@ -10,15 +10,13 @@ on:
 
 permissions:
   packages: write
-  contents: read
+  contents: write
 
 jobs:
   docker:
     name: Build and push docker image
     runs-on: ubuntu-latest
     if: inputs.release-type != 'none'
-    permissions:
-      contents: write
 
     steps:
       - name: Checkout
