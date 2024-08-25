@@ -125,3 +125,25 @@ mongodb://root:123456@localhost:27017/?authSource=admin&replicaSet=rs0&readPrefe
 9. Set `Client Private Key` to the generated `user-client.key` file.
 10. Set `Client Key Password` to the password that was given to you when you ran `setup_mongo_dev.sh`.
 11. Click `Connect`
+
+# Releasing a new version
+
+Releasing an image is a simple two step process: creatig and pushing the tag. GitHub Actions takes care of building and pushing the image. The tag scheme defines the image to be released and the version.
+
+```
+git tag <SCHEME>; git push origin <SCHEME>
+```
+
+Use the following schemes to create and push tags for different images:
+
+| Image                                                                                                                    | Scheme                       |
+| ------------------------------------------------------------------------------------------------------------------------ | ---------------------------- |
+| [stalker-cron](https://github.com/orgs/red-kite-solutions/packages/container/package/stalker-cron)                       | `cron/v{VERSION}`            |
+| [stalker-app](https://github.com/orgs/red-kite-solutions/packages/container/package/stalker-app)                         | `stalker-app/v{VERSION}`     |
+| [stalker-jobs-manager](https://github.com/orgs/red-kite-solutions/packages/container/package/stalker-jobs-manager)       | `jobs-manager/v{VERSION}`    |
+| [stalker-orchestrator](https://github.com/orgs/red-kite-solutions/packages/container/package/stalker-orchestrator)       | `orchestrator/v{VERSION}`    |
+| [stalker-base](https://github.com/orgs/red-kite-solutions/packages/container/package/stalker-base)                       | `stalker-base/v{VERSION}`    |
+| [stalker-nuclei-job-base](https://github.com/orgs/red-kite-solutions/packages/container/package/stalker-nuclei-job-base) | `nuclei-job-base/v{VERSION}` |
+| [stalker-python-job-base](https://github.com/orgs/red-kite-solutions/packages/container/package/stalker-python-job-base) | `python-job-base/v{VERSION}` |
+
+Replace `{VERSION}` with the desired version number. For example, to release version 1.2.3 of stalker-cron, you would use the scheme cron/v1.2.3.

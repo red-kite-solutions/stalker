@@ -67,6 +67,7 @@ export class CustomJob {
   public publishTime: number;
   public startTime: number;
   public endTime: number;
+  public createdAt: number;
 
   @Prop()
   public name: string;

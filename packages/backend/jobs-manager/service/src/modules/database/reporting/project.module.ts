@@ -5,6 +5,7 @@ import { DatalayerModule } from '../datalayer.module';
 import { JobsModule } from '../jobs/jobs.module';
 import { SecretsModule } from '../secrets/secrets.module';
 import { EventSubscriptionsModule } from '../subscriptions/event-subscriptions/event-subscriptions.module';
+import { SubscriptionTriggersModule } from '../subscriptions/subscription-triggers/subscription-triggers.module';
 import { DomainsModule } from './domain/domain.module';
 import { HostModule } from './host/host.module';
 import { PortModule } from './port/port.module';
@@ -24,6 +25,7 @@ import { WebsiteModule } from './websites/website.module';
     ConfigModule,
     SecretsModule,
     WebsiteModule,
+    SubscriptionTriggersModule,
   ],
   controllers: [ProjectController],
   providers: [ProjectService],
