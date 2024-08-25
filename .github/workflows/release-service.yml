@@ -18,6 +18,11 @@ on:
         type: string
         description: Path to the Dockerfile
 
+      docker-context:
+        default: ./
+        type: string
+        description: "Path of the Docker build context"
+
       image-name:
         required: true
         type: string
@@ -91,7 +96,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          context: ./
+          context: ${{inputs.docker-context}}
           file: ${{inputs.dockerfile-path}}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
