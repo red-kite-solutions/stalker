@@ -80,6 +80,9 @@ on:
           - none
         description: Frontend / App
 
+permissions:
+  packages: write
+  contents: write
 jobs:
   cron:
     name: Backend / Cron
