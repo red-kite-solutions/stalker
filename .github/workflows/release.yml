@@ -83,9 +83,13 @@ on:
 permissions:
   packages: write
   contents: write
+
 jobs:
   cron:
     name: Backend / Cron
-    uses: ./.github/workflows/cron-service-release.yml
+    uses: ./.github/workflows/release-service.yml
     with:
       release-type: ${{inputs.cron-release-type}}
+      tag-prefix: cron
+      dockerfile-path: ./packages/backend/cron/service/Dockerfile
+      image-name: ghcr.io/red-kite-solutions/stalker-cron
