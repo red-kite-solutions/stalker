@@ -81,8 +81,8 @@ on:
         description: Frontend / App
 
 jobs:
-  tests:
-    name: Do nothing
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
+  cron:
+    name: Backend / Cron
+    uses: ./.github/workflows/cron-service-release.yml
+    with:
+      release-type: ${{inputs.cron-release-type}}

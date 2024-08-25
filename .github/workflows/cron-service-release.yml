@@ -1,9 +1,12 @@
 name: Cron Service / Release
 
 on:
-  push:
-    tags:
-      - cron/v*
+  workflow_call:
+    inputs:
+      release-type:
+        required: true
+        type: string
+        description: Release type (none, patch, minor, major)
 
 permissions:
   packages: write
@@ -13,9 +16,37 @@ jobs:
   docker:
     name: Build and push docker image
     runs-on: ubuntu-latest
+    if: inputs.release-type != 'none'
+    permissions:
+      contents: write
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: Get sha
+        id: release-sha
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Bump version and push tag
+        id: tag-version
+        uses: mathieudutour/github-tag-action@v6.1
+        with:
+          commit_sha: ${{ steps.release-sha.outputs.sha }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          default_bump: ${{ inputs.release-type }}
+          tag_prefix: "cron/v"
+
+          # This rule will never occur; always use the default bump
+          custom_release_rules: "will-never-occur:minor"
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: "Release ${{ steps.tag-version.outputs.new_version }}"
+          generate_release_notes: true
+          tag_name: ${{ steps.tag-version.outputs.new_tag }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -30,13 +61,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract semver from tag
-        uses: actions/github-script@v6
-        id: version
-        with:
-          script: return context.ref.substr('refs/tags/cron/'.length)
-          result-encoding: string
-
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v4
@@ -45,9 +69,9 @@ jobs:
             ghcr.io/red-kite-solutions/stalker-cron
           tags: |
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
-            type=semver,pattern={{version}},value=${{steps.version.outputs.result}}
-            type=semver,pattern={{major}}.{{minor}},value=${{steps.version.outputs.result}}
-            type=semver,pattern={{major}},value=${{steps.version.outputs.result}}
+            type=semver,pattern={{version}},value=${{steps.tag-version.outputs.new_version}}
+            type=semver,pattern={{major}}.{{minor}},value=${{steps.tag-version.outputs.new_version}}
+            type=semver,pattern={{major}},value=${{steps.tag-version.outputs.new_version}}
             type=sha
 
       - name: Build and push
