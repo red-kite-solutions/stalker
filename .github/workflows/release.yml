@@ -5,13 +5,12 @@ on:
     inputs:
       stalker-base-release-type:
         required: true
-        default: none
+        default: minor
         type: choice
         options:
           - patch
           - minor
           - major
-          - none
         description: Base
 
       stalker-python-job-base-release-type:
@@ -85,11 +84,86 @@ permissions:
   contents: write
 
 jobs:
-  cron:
-    name: Backend / Cron
-    uses: ./.github/workflows/release-service.yml
-    with:
-      release-type: ${{inputs.cron-release-type}}
-      tag-prefix: cron
-      dockerfile-path: ./packages/backend/cron/service/Dockerfile
-      image-name: ghcr.io/red-kite-solutions/stalker-cron
+  base:
+    name: Base
+    runs-on: ubuntu-latest
+    steps:
+      - name: Base
+        if: inputs.stalker-base-release-type != 'none'
+        uses: ./.github/actions/build-tag-push
+        with:
+          release-type: ${{inputs.stalker-base-release-type}}
+          tag-prefix: stalker-base
+          dockerfile-path: ./packages/Dockerfile.base
+          image-name: ghcr.io/red-kite-solutions/stalker-base
+
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+    needs: ["base"]
+    steps:
+      - name: Cron
+        if: inputs.cron-release-type != 'none'
+        uses: ./.github/actions/build-tag-push
+        with:
+          release-type: ${{inputs.cron-release-type}}
+          tag-prefix: cron
+          dockerfile-path: ./packages/backend/cron/service/Dockerfile
+          image-name: ghcr.io/red-kite-solutions/stalker-cron
+
+      - name: Orchestrator
+        if: inputs.orchestrator-release-type != 'none'
+        uses: ./.github/actions/build-tag-push
+        with:
+          release-type: ${{inputs.orchestrator-release-type}}
+          tag-prefix: orchstrator
+          dockerfile-path: ./packages/backend/orchstrator/service/Dockerfile
+          image-name: ghcr.io/red-kite-solutions/stalker-orchstrator
+
+      - name: Jobs Manager
+        if: inputs.jobs-manager-release-type != 'none'
+        uses: ./.github/actions/build-tag-push
+        with:
+          release-type: ${{inputs.orchestrator-release-type}}
+          tag-prefix: jobs-manager
+          dockerfile-path: ./packages/backend/jobs-manager/service/Dockerfile
+          image-name: ghcr.io/red-kite-solutions/stalker-jobs-manager
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    needs: ["base"]
+    steps:
+      - name: App
+        if: inputs.app-release-type != 'none'
+        uses: ./.github/actions/build-tag-push
+        with:
+          release-type: ${{inputs.app-release-type}}
+          tag-prefix: stalker-app
+          dockerfile-path: ./packages/frontend/stalker-app/Dockerfile
+          image-name: ghcr.io/red-kite-solutions/stalker-app
+
+  job-bases:
+    name: Job Bases
+    runs-on: ubuntu-latest
+    needs: ["base"]
+    steps:
+      - name: Nuclei
+        if: inputs.stalker-nuclei-job-base-release-type != 'none'
+        uses: ./.github/actions/build-tag-push
+        with:
+          release-type: ${{inputs.stalker-nuclei-job-base-release-type}}
+          tag-prefix: nuclei-job-base
+          dockerfile-path: ./jobs/job-base-images/python/Dockerfile.nuclei
+          context: ./jobs/job-base-images/python
+          image-name: ghcr.io/red-kite-solutions/stalker-nuclei-job-base
+
+      - name: Python
+        if: inputs.stalker-python-job-base-release-type != 'none'
+        uses: ./.github/actions/build-tag-push
+        with:
+          release-type: ${{inputs.stalker-python-job-base-release-type}}
+          tag-prefix: python-job-base
+          dockerfile-path: ./jobs/job-base-images/python/Dockerfile
+          context: ./jobs/job-base-images/python
+          image-name: ghcr.io/red-kite-solutions/stalker-python-job-base
