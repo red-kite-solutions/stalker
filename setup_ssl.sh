@@ -136,13 +136,13 @@ DNS.2 = localhost
 EOF
 
 # Create CSR for nginx
-openssl req -new -nodes -newkey rsa:2048 -keyout ./packages/frontend/stalker-app/nginx.key -out ./packages/frontend/stalker-app/nginx.csr -config ./packages/frontend/stalker-app/nginx-csr.cnf
+openssl req -new -nodes -newkey rsa:2048 -keyout ./packages/frontend/stalker-app/tls.key -out ./packages/frontend/stalker-app/nginx.csr -config ./packages/frontend/stalker-app/nginx-csr.cnf
 
 # Signing nginx csr with intermediate ca
 openssl x509 -req -in ./packages/frontend/stalker-app/nginx.csr -CA ./packages/frontend/stalker-app/nginx-ca.crt -CAkey ./packages/frontend/stalker-app/nginx-ca.key -CAcreateserial -out ./packages/frontend/stalker-app/nginx.crt -days 365 -extfile ./packages/frontend/stalker-app/nginx-csr.cnf -extensions extensions
 
 # Making a full certificate chain for nginx
-cat ./packages/frontend/stalker-app/nginx.crt ./packages/frontend/stalker-app/nginx-ca.crt root_ca.crt > ./packages/frontend/stalker-app/nginx-chain.pem
+cat ./packages/frontend/stalker-app/nginx.crt ./packages/frontend/stalker-app/nginx-ca.crt root_ca.crt > ./packages/frontend/stalker-app/tls.crt
 
 # Adding root ca to the proper folders for trust
 cp root_ca.crt ./packages/backend/cron/service/root_ca.crt

@@ -3,7 +3,7 @@ from base64 import b64encode
 from shutil import rmtree
 from subprocess import CompletedProcess, run
 
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 from stalker_job_sdk import (ImageField, JobStatus, TextField, WebsiteFinding,
                              build_url, is_valid_ip, is_valid_port, log_error,
                              log_finding, log_info, log_status, log_warning,
@@ -55,7 +55,7 @@ def emit_screenshot_finding(finding_name: str, finding_title: str, domain: str, 
 def main():
     output_folder = './output/screenshot/'
     retry_count = 0
-    max_retry = 1
+    max_retry = 2
     target_ip, port, domain, path, ssl, endpoint, finding_name, finding_title = get_valid_args()
     
 
@@ -72,17 +72,20 @@ def main():
 
         for root, directories, files in os.walk(output_folder):
             for file in files:
-                if (file.endswith('.png')):
+                if (not file.endswith('.png')):
+                    continue
+
+                try:
                     resize = True
                     dimensions = 2100
                     while resize:
                         resize = False
                         dimensions = dimensions - 100
+                        
                         image = Image.open(root + '/' + file)
                         image = image.convert("P", palette=Image.ADAPTIVE, colors=256)
                         image.thumbnail((dimensions, dimensions))
                         image.save("smaller.png", optimize=True)
-                        log_info(root + '/' + file)
 
                         data = ''
                         with open("smaller.png", 'rb') as f:
@@ -92,16 +95,16 @@ def main():
                         if len(data) > 1000000:
                             resize = True
                         
-                    if len(data) > 0:
-                        should_retry = False
-                        emit_screenshot_finding(finding_name, finding_title, domain, target_ip, port, path, ssl, endpoint, url, data)
+                    
+                    should_retry = False
+                    emit_screenshot_finding(finding_name, finding_title, domain, target_ip, port, path, ssl, endpoint, url, data)
+                except UnidentifiedImageError:
+                    should_retry = True
+                    if retry_count <= max_retry:
+                        log_warning("Error in screenshot, retrying")
                     else:
-                        should_retry = True
-                        if retry_count <= max_retry:
-                            log_warning("Screenshot data is empty, retrying")
-                        else:
-                            log_warning("Screenshot data is empty and out of retries")
-
+                        log_warning("Error in screenshot and out of retries")
+                    
 try:
     main()
     log_status(JobStatus.SUCCESS)

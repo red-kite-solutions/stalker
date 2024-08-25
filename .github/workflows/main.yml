@@ -47,13 +47,13 @@ jobs:
           rm -rf /opt/hostedtoolcache/node
 
       - name: Build test containers
-        run:  ls -la /opt/hostedtoolcache/ && devspace --var="STALKER_ENVIRONMENT=tests" run-pipeline build-e2e -n stalker
+        run: devspace -p e2e --var="STALKER_ENVIRONMENT=tests" run-pipeline build -n stalker
 
       - name: Deploy test containers
-        run: devspace run-pipeline --var="STALKER_ENVIRONMENT=tests" jobs-manager-e2e-cicd-deploy -n stalker
+        run: devspace -p e2e run-pipeline --var="STALKER_ENVIRONMENT=tests" jobs-manager-e2e-cicd-deploy -n stalker
 
       - name: Run tests
-        run: devspace --var="STALKER_ENVIRONMENT=tests" run-pipeline jobs-manager-e2e-cicd-run -n stalker
+        run: devspace -p e2e --var="STALKER_ENVIRONMENT=tests" run-pipeline jobs-manager-e2e-cicd-run -n stalker
 
       - name: Diagnosis
         if: always()
@@ -63,7 +63,7 @@ jobs:
 
       - name: Jobs Manager Logs
         if: always()
-        run: kubectl logs -n stalker -l app.kubernetes.io/component=jobs-manager-e2e
+        run: kubectl logs -n stalker -l app.kubernetes.io/component=jobs-manager
 
       - name: Diagnosis
         if: always()

@@ -1,6 +1,6 @@
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { JM_ENVIRONMENTS } from '../../app.constants';
+import { isProd } from '../../app.constants';
 import { MONGO_DUPLICATE_ERROR } from '../database.constants';
 import { User } from './users.model';
 
@@ -12,12 +12,7 @@ export const userInitProvider = [
     inject: [getModelToken('users')],
     useFactory: async (userModel: Model<User>) => {
       const user = await userModel.findOne({});
-      if (
-        user ||
-        (process.env.JM_ENVIRONMENT !== JM_ENVIRONMENTS.dev &&
-          process.env.JM_ENVIRONMENT !== JM_ENVIRONMENTS.tests)
-      )
-        return;
+      if (user || isProd()) return;
 
       // Setting the default user in tests and dev environments for dev QoL
       // In other environments, the user has to be set at startup

@@ -74,6 +74,12 @@ The scripts will generate the certificates and keys and append the environment v
 
 > Every password, certificate and keys should be custom to your own environment. Do not use the provided certificates, keys and passwords. They are only provided as examples and to run the tests.
 
+Then, generate secrets
+
+```bash
+bash ./setup_secrets_dev.sh
+```
+
 ### 3. Run stalker
 
 From the repository root, run
