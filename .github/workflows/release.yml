@@ -12,7 +12,7 @@ on:
           - minor
           - major
           - none
-        description: Stalker Base release type
+        description: Base
 
       stalker-python-job-base-release-type:
         required: true
@@ -23,7 +23,7 @@ on:
           - minor
           - major
           - none
-        description: Stalker Python Job Base release type
+        description: Base / Python Jobs
 
       stalker-nuclei-job-base-release-type:
         required: true
@@ -34,7 +34,7 @@ on:
           - minor
           - major
           - none
-        description: Stalker Nuclei Job Base release type
+        description: Base / Nuclei Job
 
       cron-release-type:
         required: true
@@ -45,7 +45,7 @@ on:
           - minor
           - major
           - none
-        description: Cron release type
+        description: Backend / Cron
 
       orchestrator-release-type:
         required: true
@@ -56,18 +56,7 @@ on:
           - minor
           - major
           - none
-        description: Orchestrator release type
-
-      app-release-type:
-        required: true
-        default: none
-        type: choice
-        options:
-          - patch
-          - minor
-          - major
-          - none
-        description: App release type
+        description: Backend / Orchestrator
 
       jobs-manager-release-type:
         required: true
@@ -78,7 +67,18 @@ on:
           - minor
           - major
           - none
-        description: Jobs Manager release type
+        description: Backend / Jobs Manager
+
+      app-release-type:
+        required: true
+        default: none
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - none
+        description: Frontend / App
 
 jobs:
   tests:
