@@ -1,5 +1,5 @@
 @if (host$ | async; as host) {
-  <div class="tw-flex tw-items-center tw-px-4 tw-gap">
+  <div class="tw-flex tw-items-center tw-gap">
     <app-page-header
       [backRoute]="['../..']"
       [parts]="[(projects$ | async | whereId: [host?.projectId])?.name, host.ip, (port$ | async)?.port]"
