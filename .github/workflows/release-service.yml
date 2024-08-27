@@ -28,6 +28,15 @@ on:
         type: string
         description: Release type (none, patch, minor, major)
 
+      stalker-base-tag-override:
+        type: string
+        description: If provided, instead of using stalker-base:latest, we'll use stalker-base:stalker-base-tag-override
+
+    outputs:
+      new-tag:
+        description: "The second output string"
+        value: ${{ jobs.release.outputs.new-tag }}
+
     secrets:
       github-token:
         description: Github Token
@@ -42,6 +51,9 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     if: inputs.release-type != 'none'
+
+    outputs:
+      new-tag: ${{ fromJson(steps.meta.outputs.json).tags[0] }}
 
     steps:
       - name: Checkout
@@ -83,6 +95,12 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.github-token }}
+
+      - name: Override stalker-base
+        if: inputs.stalker-base-tag-override != ''
+        run: |-
+          docker pull ghcr.io/red-kite-solutions/stalker-base:${{ inputs.stalker-base-tag-override }}
+          docker image tag ghcr.io/red-kite-solutions/stalker-base:${{ inputs.stalker-base-tag-override }} ghcr.io/red-kite-solutions/stalker-base:latest
 
       - name: Docker meta
         id: meta
