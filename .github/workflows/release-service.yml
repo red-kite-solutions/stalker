@@ -100,7 +100,7 @@ jobs:
         if: inputs.stalker-base-tag-override != ''
         run: |-
           docker pull ghcr.io/red-kite-solutions/stalker-base:${{ inputs.stalker-base-tag-override }}
-          docker image tag ghcr.io/red-kite-solutions/stalker-base:${{ inputs.stalker-base-tag-override }} ghcr.io/red-kite-solutions/stalker-base:latest
+          docker image tag {{ inputs.stalker-base-tag-override }} ghcr.io/red-kite-solutions/stalker-base:latest
 
       - name: Docker meta
         id: meta
