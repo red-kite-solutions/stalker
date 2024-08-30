@@ -28,7 +28,7 @@ describe('Subscriptions Triggers Service', () => {
     portService = moduleFixture.get(PortService);
     projectService = moduleFixture.get(ProjectService);
     // Without { doNotFake: ['nextTick'] } the tests timeout with fake timers
-    jest.useFakeTimers({ doNotFake: ['nextTick'] });
+    jest.useFakeTimers({ doNotFake: ['nextTick', 'setImmediate'] });
   });
 
   beforeEach(async () => {
