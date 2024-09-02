@@ -25,7 +25,7 @@
         font-weight: 400;
         font-size: small;
         height: 100%;
-        overflow: scroll;
+        overflow: auto;
         white-space: nowrap;
         padding: 5px 0px 5px 5px;
 
@@ -117,7 +117,7 @@
           gap: 10px;
           width: 100%;
           flex-wrap: wrap;
-          overflow: scroll;
+          overflow: auto;
 
           .endpoint-metadata-item {
             width: 31%;
