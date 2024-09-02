@@ -13,8 +13,9 @@ import { CreateFirstUserDto } from './users.dto';
 
 import { randomBytes } from 'crypto';
 import { EmailService } from '../../notifications/emails/email.service';
+import { ApiKeyService } from '../api-key/api-key.service';
 import { MagicLinkToken } from './magic-link-token.model';
-import { User } from './users.model';
+import { User, UserDocument } from './users.model';
 import { USER_INIT } from './users.provider';
 
 @Injectable()
@@ -25,6 +26,7 @@ export class UsersService {
     private readonly uniqueTokenModel: Model<MagicLinkToken>,
     @Inject(USER_INIT) userProvider,
     private emailService: EmailService,
+    private apiKeyService: ApiKeyService,
   ) {}
 
   /**
@@ -73,7 +75,7 @@ export class UsersService {
     }
   }
 
-  public async createUser(dto: Partial<User>): Promise<any> {
+  public async createUser(dto: Partial<User>): Promise<UserDocument> {
     const pass: string = await hashPassword(dto.password);
 
     const user: User & any = {
@@ -143,6 +145,7 @@ export class UsersService {
     userEdits: Partial<User>,
   ): Promise<UpdateWriteOpResult> {
     let result: UpdateWriteOpResult;
+    let targetId: Types.ObjectId = undefined;
     if (
       userEdits.active === false ||
       (typeof userEdits.role !== 'undefined' && userEdits.role !== Role.Admin)
@@ -173,8 +176,9 @@ export class UsersService {
               );
           }
 
+          targetId = userToEdit._id;
           result = await this.userModel.updateOne(
-            selectFilter,
+            { _id: { $eq: targetId } },
             { ...userEdits },
             {
               session: session,
@@ -185,8 +189,20 @@ export class UsersService {
         await session.endSession();
       }
     } else {
+      targetId = (await this.userModel.findOne(selectFilter, '_id'))._id;
+      if (!targetId) throw new HttpNotFoundException(`User not found`);
       // We are not deactivating or demoting an admin, therefore a simple edit is enough
-      result = await this.userModel.updateOne(selectFilter, { ...userEdits });
+      result = await this.userModel.updateOne(
+        { _id: { $eq: targetId } },
+        { ...userEdits },
+      );
+    }
+
+    if ((userEdits.active === true || userEdits.active === false) && targetId) {
+      await this.apiKeyService.setUserIsActiveStatus(
+        targetId.toString(),
+        userEdits.active,
+      );
     }
     return result;
   }
@@ -256,6 +272,8 @@ export class UsersService {
     } finally {
       await session.endSession();
     }
+
+    await this.apiKeyService.deleteAllForUser(userId);
 
     return result;
   }

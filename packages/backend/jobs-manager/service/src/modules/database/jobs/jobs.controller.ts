@@ -8,6 +8,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { isNotEmpty, isString } from 'class-validator';
 import {
   HttpBadRequestException,
@@ -23,6 +24,8 @@ import { Roles } from '../../auth/decorators/roles.decorator';
 import { CronApiTokenGuard } from '../../auth/guards/cron-api-token.guard';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/role.guard';
+import { ApiKeyStrategy } from '../../auth/strategies/api-key.strategy';
+import { JwtStrategy } from '../../auth/strategies/jwt.strategy';
 import { ConfigService } from '../admin/config/config.service';
 import { JobPodConfiguration } from '../admin/config/job-pod-config/job-pod-config.model';
 import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
@@ -44,7 +47,7 @@ export class JobsController {
     private readonly secretsService: SecretsService,
   ) {}
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.ReadOnly)
   @Get()
   async getAllJobs(
