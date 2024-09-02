@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DeleteResult } from 'mongodb';
 import { FilterQuery, Model, Types, UpdateWriteOpResult } from 'mongoose';
@@ -19,13 +19,17 @@ import { USER_INIT } from './users.provider';
 
 @Injectable()
 export class UsersService {
+  protected logger: Logger;
+
   constructor(
     @InjectModel('users') private readonly userModel: Model<User>,
     @InjectModel('magicLinkTokens')
     private readonly uniqueTokenModel: Model<MagicLinkToken>,
     @Inject(USER_INIT) userProvider,
     private emailService: EmailService,
-  ) {}
+  ) {
+    this.logger = new Logger('UsersService');
+  }
 
   /**
    * Tells if the first user of the application has been created
@@ -203,12 +207,17 @@ export class UsersService {
   }
 
   public async changePasswordById(
-    id: string,
+    userId: string,
     password: string,
   ): Promise<UpdateWriteOpResult> {
     const pass: string = await hashPassword(password);
+
+    await this.uniqueTokenModel.deleteMany({
+      userId: { $eq: new Types.ObjectId(userId) },
+    });
+
     return await this.userModel.updateOne(
-      { _id: { $eq: new Types.ObjectId(id) } },
+      { _id: { $eq: new Types.ObjectId(userId) } },
       { password: pass },
     );
   }
@@ -279,8 +288,6 @@ export class UsersService {
     });
 
     if (!existingToken) return undefined;
-
-    await this.uniqueTokenModel.deleteOne({ _id: existingToken._id });
 
     const user = await this.findOneById(existingToken.userId);
 
@@ -365,6 +372,7 @@ export class UsersService {
     const now = new Date();
     const expirationDate = new Date(now.getTime() + ttl);
 
+    this.logger.log('Creating unique reset password token.');
     await this.uniqueTokenModel.create({
       token,
       userId: user._id,
