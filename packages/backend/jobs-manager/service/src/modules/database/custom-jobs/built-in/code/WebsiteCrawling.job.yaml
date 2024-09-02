@@ -1,0 +1,35 @@
+name: WebsiteCrawlingJob
+type: code
+language: python
+parameters:
+  - name: domainName
+    type: string
+  - name: targetIp
+    type: string
+  - name: port
+    type: number
+    default: 443
+  - name: path
+    type: string
+    default: "/"
+  - name: ssl
+    type: boolean
+    default: true
+  - name: maxDepth
+    type: number
+    default: 3
+  - name: crawlDurationSeconds
+    type: number
+    default: 1800
+  - name: fetcherConcurrency
+    type: number
+    default: 10
+  - name: inputParallelism
+    type: number
+    default: 10
+  - name: extraOptions
+    value: "-jc -kf all -duc -j -or -ob -silent"
+jobPodConfigName: M
+codeFilePath: code/WebsiteCrawlingJob.py
+templateOrdering: '/built-in/python'
+    

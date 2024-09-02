@@ -44,6 +44,7 @@ export class DomainsInteractionsService {
         text: $localize`:Select domains again|No domains were selected so there is nothing to delete:Select the domains to delete and try again.`,
         title: $localize`:Nothing to delete|Tried to delete something, but there was nothing to delete:Nothing to delete`,
         primaryButtonText: $localize`:Ok|Accept or confirm:Ok`,
+        noDataSelectItem: true,
         onPrimaryButtonClick: (close) => {
           close(false);
         },
@@ -96,6 +97,7 @@ export class DomainsInteractionsService {
         text: $localize`:Select domains again|No domains were selected so there is nothing to delete:Select the domains to block and try again.`,
         title: $localize`:Nothing to block|Tried to block something, but there was nothing to delete:Nothing to block`,
         primaryButtonText: $localize`:Ok|Accept or confirm:Ok`,
+        noDataSelectItem: true,
         onPrimaryButtonClick: (close) => close(false),
       };
     }

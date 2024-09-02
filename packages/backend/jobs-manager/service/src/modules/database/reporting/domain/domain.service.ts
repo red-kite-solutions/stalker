@@ -17,6 +17,7 @@ import { CorrelationKeyUtils } from '../correlation.utils';
 import { HostService } from '../host/host.service';
 import { HostSummary } from '../host/host.summary';
 import { Project } from '../project.model';
+import { WebsiteService } from '../websites/website.service';
 import { BatchEditDomainsDto, DomainsPagingDto } from './domain.dto';
 import { Domain, DomainDocument } from './domain.model';
 
@@ -33,6 +34,7 @@ export class DomainsService {
     private hostService: HostService,
     private findingsQueue: FindingsQueue,
     private tagsService: TagsService,
+    private websiteService: WebsiteService,
   ) {}
 
   /**
@@ -277,6 +279,8 @@ export class DomainsService {
       }
     }
 
+    await this.websiteService.cleanUpFor(domainId, 'domain');
+
     return await this.domainModel.deleteOne({
       _id: { $eq: new Types.ObjectId(domainId) },
     });
@@ -291,6 +295,8 @@ export class DomainsService {
       } else {
         deleteResults.deletedCount += result.deletedCount;
       }
+
+      await this.websiteService.cleanUpFor(id, 'domain');
     }
     return deleteResults;
   }
@@ -324,6 +330,38 @@ export class DomainsService {
 
       return await this.domainModel.updateOne(
         { _id: { $eq: new Types.ObjectId(domainId) } },
+        { $addToSet: { tags: new Types.ObjectId(tagId) } },
+      );
+    }
+  }
+
+  /**
+   *
+   * @param name
+   * @param projectId
+   * @param tagId This function expects a valid tag id
+   * @param isTagged true to tag, false to untag
+   */
+  public async tagDomainByName(
+    name: string,
+    projectId: string,
+    tagId: string,
+    isTagged: boolean,
+  ) {
+    if (!isTagged) {
+      return await this.domainModel.updateOne(
+        {
+          name: { $eq: name },
+          projectId: { $eq: new Types.ObjectId(projectId) },
+        },
+        { $pull: { tags: new Types.ObjectId(tagId) } },
+      );
+    } else {
+      return await this.domainModel.updateOne(
+        {
+          name: { $eq: name },
+          projectId: { $eq: new Types.ObjectId(projectId) },
+        },
         { $addToSet: { tags: new Types.ObjectId(tagId) } },
       );
     }

@@ -45,14 +45,14 @@ class PortScanThread(threading.Thread):
                 self.open_ports.append(p)
 
 
-TARGET_IP: str = os.environ["targetIp"]  # IP to scan
-THREADS: int = int(os.environ["threads"])  # number of threads to do the requests
+TARGET_IP: str = os.environ.get("targetIp")  # IP to scan
+THREADS: int = int(os.environ.get("threads"))  # number of threads to do the requests
 SOCKET_TIMEOUT: float = float(
-    os.environ["socketTimeoutSeconds"]
+    os.environ.get("socketTimeoutSeconds")
 )  # time in seconds to wait for socket
-PORT_MIN: int = int(os.environ["portMin"])  # expects a number (0 < p1 < 65535)
+PORT_MIN: int = int(os.environ.get("portMin"))  # expects a number (0 < p1 < 65535)
 PORT_MAX: int = int(
-    os.environ["portMax"]
+    os.environ.get("portMax")
 )  # expects a number (0 < p2 <= 65535 and p2 > p1)
 
 PORTS = os.environ[

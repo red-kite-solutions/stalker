@@ -30,6 +30,7 @@ export class CustomJobsInteractionService {
       text: $localize`:Select jobs again|No job was selected so there is nothing to delete:Select the jobs to delete and try again.`,
       title: $localize`:Nothing to delete|Tried to delete something, but there was nothing to delete:Nothing to delete`,
       primaryButtonText: $localize`:Ok|Accept or confirm:Ok`,
+      noDataSelectItem: true,
       onPrimaryButtonClick: () => {
         this.dialog.closeAll();
       },
@@ -104,7 +105,6 @@ export class CustomJobsInteractionService {
       title: $localize`:Job templates|Job templates:Job templates`,
       text: $localize`:Job template text|Job template picker text:Select a job template from the left panel to get started, or continue without a template.`,
       onSelection: async (option: PickerOption) => {
-        console.log(option.name);
         this.router.navigateByUrl(`/jobs/custom/create?templateId=${option.id}`);
         this.dialog.closeAll();
       },

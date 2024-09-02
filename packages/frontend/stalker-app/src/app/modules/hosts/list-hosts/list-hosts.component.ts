@@ -32,6 +32,7 @@ import { HostsService } from '../../../api/hosts/hosts.service';
 import { SharedModule } from '../../../shared/shared.module';
 import { Host } from '../../../shared/types/host/host.interface';
 import { HttpStatus } from '../../../shared/types/http-status.type';
+import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-table/table-format/table-format.component';
 import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.component';
 import { HostsInteractionsService } from '../hosts-interactions.service';
 
@@ -54,6 +55,7 @@ import { HostsInteractionsService } from '../hosts-interactions.service';
     FilteredPaginatedTableComponent,
     BlockedPillTagComponent,
     RouterModule,
+    TableFormatComponent,
   ],
   selector: 'app-list-hosts',
   templateUrl: './list-hosts.component.html',
@@ -110,10 +112,10 @@ export class ListHostsComponent {
   selectedProject = '';
   selectedNewHosts = '';
 
-  private generateFirstPageEvent() {
+  private generateFirstPageEvent(pageSize = 10) {
     const p = new PageEvent();
     p.pageIndex = 0;
-    p.pageSize = 10;
+    p.pageSize = pageSize;
     this.currentPage = p;
     return p;
   }
@@ -155,13 +157,11 @@ export class ListHostsComponent {
   filtersChange(filters: string[]) {
     this.currentFilters = filters;
     this.dataLoading = true;
-    this.currentPage$.next(this.currentPage);
   }
 
   dateRangeFilterChange(range: DateRange<Date>) {
     this.currentDateRange = range;
     this.dataLoading = true;
-    this.currentPage$.next(this.currentPage);
   }
 
   buildFilters(stringFilters: string[]): any {

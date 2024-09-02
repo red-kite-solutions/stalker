@@ -31,6 +31,7 @@ import { BlockedPillTagComponent } from 'src/app/shared/widget/pill-tag/blocked-
 import { PortsService } from '../../../api/ports/ports.service';
 import { SharedModule } from '../../../shared/shared.module';
 import { Port } from '../../../shared/types/ports/port.interface';
+import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-table/table-format/table-format.component';
 import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.component';
 import { PortsInteractionsService } from '../ports-interactions.service';
 
@@ -53,6 +54,7 @@ import { PortsInteractionsService } from '../ports-interactions.service';
     FilteredPaginatedTableComponent,
     RouterModule,
     BlockedPillTagComponent,
+    TableFormatComponent,
   ],
   selector: 'app-list-ports',
   templateUrl: './list-ports.component.html',
@@ -110,10 +112,10 @@ export class ListPortsComponent {
     })
   );
 
-  private generateFirstPageEvent() {
+  private generateFirstPageEvent(pageSize = 10) {
     const p = new PageEvent();
     p.pageIndex = 0;
-    p.pageSize = 10;
+    p.pageSize = pageSize;
     this.currentPage = p;
     return p;
   }
@@ -155,13 +157,11 @@ export class ListPortsComponent {
   filtersChange(filters: string[]) {
     this.currentFilters = filters;
     this.dataLoading = true;
-    this.currentPage$.next(this.currentPage);
   }
 
   dateRangeFilterChange(range: DateRange<Date>) {
     this.currentDateRange = range;
     this.dataLoading = true;
-    this.currentPage$.next(this.currentPage);
   }
 
   buildFilters(stringFilters: string[]): any {

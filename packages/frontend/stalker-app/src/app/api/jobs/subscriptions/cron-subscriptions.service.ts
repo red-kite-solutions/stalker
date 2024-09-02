@@ -47,6 +47,7 @@ export class CronSubscriptionsService implements GenericSubscriptionService<Cron
       job: {
         name: newSub.jobName,
       },
+      conditions: newSub.conditions ?? undefined,
     };
     if (newSub.jobParameters && Array.isArray(newSub.jobParameters)) parsedSub.job.parameters = newSub.jobParameters;
     return parsedSub;
@@ -77,6 +78,10 @@ export class CronSubscriptionsService implements GenericSubscriptionService<Cron
       data['input'] = subscription.input;
     }
 
+    if (subscription.conditions) {
+      data['conditions'] = subscription.conditions;
+    }
+
     return data;
   }
 
@@ -102,6 +107,9 @@ export class CronSubscriptionsService implements GenericSubscriptionService<Cron
     };
     if (data.jobParameters) {
       sub.job.parameters = data.jobParameters;
+    }
+    if (data.conditions) {
+      sub.conditions = data.conditions;
     }
 
     return sub;

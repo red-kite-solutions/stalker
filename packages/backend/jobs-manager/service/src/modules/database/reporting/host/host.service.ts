@@ -13,6 +13,7 @@ import { DomainsService } from '../domain/domain.service';
 import { DomainSummary } from '../domain/domain.summary';
 import { PortService } from '../port/port.service';
 import { Project } from '../project.model';
+import { WebsiteService } from '../websites/website.service';
 import { HostFilterModel } from './host-filter.model';
 import { BatchEditHostsDto } from './host.dto';
 import { Host, HostDocument } from './host.model';
@@ -31,6 +32,7 @@ export class HostService {
     private domainService: DomainsService,
     private portsService: PortService,
     private findingsQueue: FindingsQueue,
+    private websiteService: WebsiteService,
   ) {}
 
   public async getAll(
@@ -291,6 +293,7 @@ export class HostService {
     }
 
     await this.portsService.deleteAllForHost(hostId);
+    await this.websiteService.cleanUpFor(hostId, 'host');
 
     return await this.hostModel.deleteOne({ _id: { $eq: hostId } });
   }
@@ -301,6 +304,8 @@ export class HostService {
       const r = await this.delete(host);
       if (!deleteResults) deleteResults = r;
       else deleteResults.deletedCount += r.deletedCount;
+
+      await this.websiteService.cleanUpFor(host, 'host');
     }
     return deleteResults;
   }
@@ -412,6 +417,33 @@ export class HostService {
 
       return await this.hostModel.updateOne(
         { _id: { $eq: new Types.ObjectId(hostId) } },
+        { $addToSet: { tags: new Types.ObjectId(tagId) } },
+      );
+    }
+  }
+
+  /**
+   * Tag a host according to its IP and projectId
+   * @param ip
+   * @param projectId
+   * @param tagId Expects a valid tagId
+   * @param isTagged True to tag, False to untag
+   * @returns
+   */
+  public async tagHostByIp(
+    ip: string,
+    projectId: string,
+    tagId: string,
+    isTagged: boolean,
+  ): Promise<UpdateResult> {
+    if (!isTagged) {
+      return await this.hostModel.updateOne(
+        { ip: { $eq: ip }, projectId: { $eq: new Types.ObjectId(projectId) } },
+        { $pull: { tags: new Types.ObjectId(tagId) } },
+      );
+    } else {
+      return await this.hostModel.updateOne(
+        { ip: { $eq: ip }, projectId: { $eq: new Types.ObjectId(projectId) } },
         { $addToSet: { tags: new Types.ObjectId(tagId) } },
       );
     }

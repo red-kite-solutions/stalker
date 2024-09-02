@@ -31,11 +31,22 @@ export class FindingsConsumer extends KafkaConsumer {
         timestamp: findingsRaw.Timestamp,
         findings: JSON.parse(findingsRaw.FindingsJson).findings,
       };
-      this.logger.debug(
-        `Kafka findings for Job ID ${findings.jobId} : ${JSON.stringify(
-          findings.findings,
-        )}`,
-      );
+      this.logger.debug(`Kafka findings for Job ID ${findings.jobId}`);
+      for (const finding of findings.findings) {
+        const findingCopy = JSON.parse(JSON.stringify(finding));
+        if (findingCopy.fields && Array.isArray(findingCopy.fields)) {
+          for (const field of findingCopy.fields) {
+            if (field.type && field.type === 'image' && field.data) {
+              field.data = '_removed_image_data_for_printing_';
+            }
+          }
+        }
+        this.logger.debug(
+          `Finding for Job ID ${findings.jobId} : ${JSON.stringify(
+            findingCopy,
+          )}`,
+        );
+      }
       this.findingsService.handleJobFindings(findings);
     } else {
       const findings = {

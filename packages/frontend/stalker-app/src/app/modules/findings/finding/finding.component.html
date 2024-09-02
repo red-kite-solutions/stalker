@@ -5,7 +5,9 @@
     <div class="field">
       @switch (field.type) {
         @case ('image') {
-          <image-finding-field [data]="field"></image-finding-field>
+          <div class="image-container">
+            <image-finding-field [data]="field"></image-finding-field>
+          </div>
         }
         @case ('text') {
           <text-finding-field [data]="field"></text-finding-field>

@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { BehaviorSubject, concatMap, Observable, scan, shareReplay, tap } from 'rxjs';
+import { BehaviorSubject, Observable, concatMap, scan, shareReplay, tap } from 'rxjs';
 import { FindingsService } from '../../../api/findings/findings.service';
 import { CustomFinding } from '../../../shared/types/finding/finding.type';
 import { Page } from '../../../shared/types/page.type';
@@ -17,6 +17,15 @@ export class FindingsListComponent {
   @Input() public set correlationKey(value: string | undefined) {
     this._correlationKey = value;
     this.initFindings();
+  }
+
+  private _filterFindingKeys: string[] = [];
+  public get filterFindingKeys() {
+    return this._filterFindingKeys;
+  }
+
+  @Input() public set filterFindingKeys(value: string[]) {
+    this._filterFindingKeys = value;
   }
 
   public loadMoreFindings$: BehaviorSubject<null> = new BehaviorSubject(null);
@@ -37,7 +46,12 @@ export class FindingsListComponent {
     this.findings$ = this.loadMoreFindings$.pipe(
       tap(() => this.isLoadingMoreFindings$.next(true)),
       scan((acc) => acc + 1, 0),
-      concatMap((page) => this.findingsService.getFindings(correlationKey, page, 15)),
+      concatMap((page) =>
+        this.findingsService.getFindings(page, 15, {
+          target: correlationKey,
+          findingDenyList: this._filterFindingKeys,
+        })
+      ),
       scan((acc, value) => {
         acc.items.push(...value.items);
         acc.totalRecords = value.totalRecords;

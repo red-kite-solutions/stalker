@@ -22,6 +22,7 @@ import {
 } from 'src/app/shared/widget/filtered-paginated-table/filtered-paginated-table.component';
 import { AuthService } from '../../../api/auth/auth.service';
 import { CustomJobTemplatesService } from '../../../api/jobs/custom-job-templates/custom-job-templates.service';
+import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-table/table-format/table-format.component';
 import { AuthModule } from '../../auth/auth.module';
 import { CustomJobsInteractionService } from './custom-jobs-interaction.service';
 
@@ -46,6 +47,7 @@ import { CustomJobsInteractionService } from './custom-jobs-interaction.service'
     FilteredPaginatedTableComponent,
     MatTooltipModule,
     AuthModule,
+    TableFormatComponent,
   ],
 })
 export class ListCustomJobsComponent {

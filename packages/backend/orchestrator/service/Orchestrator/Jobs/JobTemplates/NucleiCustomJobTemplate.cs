@@ -14,13 +14,14 @@ public class NucleiCustomJobTemplate : KubernetesJobTemplate
         Id = id;
         Config = config;
         SetNamespace();
+        EnvironmentVariable["StalkerJobId"] = Id;
 
         // Adding parameters as environment variables
         if (!jobParameters.IsNullOrEmpty())
         {
             foreach (var param in jobParameters!)
             {
-                if (param.Name.IsNullOrEmpty() || param.Value.IsNullOrEmpty()) continue;
+                if (param.Name.IsNullOrEmpty() || param == null) continue;
                 EnvironmentVariable[param.Name!] = param.Value!;
             }
         }

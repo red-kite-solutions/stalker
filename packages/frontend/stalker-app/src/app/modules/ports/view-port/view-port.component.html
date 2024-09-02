@@ -1,12 +1,14 @@
 @if (host$ | async; as host) {
-  <div class="tw-flex tw-items-center tw-px-4 tw-gap">
+  <div class="tw-flex tw-items-center tw-gap">
     <app-page-header
       [backRoute]="['../..']"
       [parts]="[(projects$ | async | whereId: [host?.projectId])?.name, host.ip, (port$ | async)?.port]"
     ></app-page-header>
 
-    @if (port.blocked) {
-      <app-blocked-pill-tag class="tw-mt-[9px]"></app-blocked-pill-tag>
+    @if (port$ | async) {
+      @if (port.blocked) {
+        <app-blocked-pill-tag class="tw-mt-[9px]"></app-blocked-pill-tag>
+      }
     }
   </div>
 
@@ -76,7 +78,9 @@
 
       <panel-section>
         <panel-section-title i18n="Service|The port's service">Service</panel-section-title>
-        {{ port.service }}
+        @if (port$ | async) {
+          {{ port.service }}
+        }
       </panel-section>
 
       <panel-section>
@@ -105,14 +109,16 @@
       <panel-section class="tw-opacity-60" #managementPanelSection>
         <app-text-menu [buttonText]="managePortText" [iconName]="'settings'" [xPosition]="'before'">
           <div class="tw-h-full tw-w-full tw-grid tw-gap-y-1">
-            <button mat-menu-item class="tw-w-full" (click)="blockPort(!port.blocked)">
-              <mat-icon>{{ port.blocked ? 'thumb_up' : 'block' }}</mat-icon>
-              @if (port.blocked) {
-                <label i18n="Unblock|Unblock an item">Unblock</label>
-              } @else {
-                <label i18n="Block|Block an item">Block</label>
-              }
-            </button>
+            @if (port$ | async) {
+              <button mat-menu-item class="tw-w-full" (click)="blockPort(!port.blocked)">
+                <mat-icon>{{ port.blocked ? 'thumb_up' : 'block' }}</mat-icon>
+                @if (port.blocked) {
+                  <label i18n="Unblock|Unblock an item">Unblock</label>
+                } @else {
+                  <label i18n="Block|Block an item">Block</label>
+                }
+              </button>
+            }
             <button mat-menu-item color="warn" class="tw-w-full" (click)="deletePort()">
               <mat-icon>delete</mat-icon>
               <label i18n="Delete|Delete an item">Delete</label>

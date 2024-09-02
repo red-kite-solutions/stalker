@@ -1,5 +1,5 @@
 @if (host$ | async) {
-  <div class="tw-flex tw-items-center tw-px-4 tw-gap">
+  <div class="tw-flex tw-items-center tw-gap">
     <app-page-header [parts]="[(projects$ | async | whereId: [host.projectId])?.name, host.ip]"> </app-page-header>
 
     @if (host.blocked) {

@@ -12,6 +12,7 @@ import {
   IpFinding,
   IpRangeFinding,
   PortFinding,
+  WebsiteFinding,
 } from '../../../findings/findings.service';
 import { ConfigService } from '../../admin/config/config.service';
 import { CustomJobsService } from '../../custom-jobs/custom-jobs.service';
@@ -26,6 +27,8 @@ import { Port } from '../../reporting/port/port.model';
 import { PortService } from '../../reporting/port/port.service';
 import { ProjectDocument } from '../../reporting/project.model';
 import { ProjectService } from '../../reporting/project.service';
+import { WebsiteDocument } from '../../reporting/websites/website.model';
+import { WebsiteService } from '../../reporting/websites/website.service';
 import { SecretsService } from '../../secrets/secrets.service';
 import { CRON_SUBSCRIPTIONS_FILES_PATH } from '../subscriptions.constants';
 import { SubscriptionsUtils } from '../subscriptions.utils';
@@ -51,6 +54,7 @@ export class CronSubscriptionsService {
     private readonly hostsService: HostService,
     private readonly portsService: PortService,
     private readonly secretsService: SecretsService,
+    private readonly websitesService: WebsiteService,
   ) {}
 
   public async create(dto: CronSubscriptionDto) {
@@ -175,14 +179,14 @@ export class CronSubscriptionsService {
       if (subCopy.input) {
         this.publishJobsFromInput(subCopy, projectId);
       } else {
-        let conditionPassed = true;
-        for (const condition of subCopy.conditions ?? []) {
-          if (!SubscriptionsUtils.evaluateCondition(condition)) {
-            conditionPassed = false;
-            break;
-          }
-        }
-        if (!conditionPassed) continue;
+        if (
+          !SubscriptionsUtils.shouldExecuteFromFinding(
+            subCopy.isEnabled,
+            subCopy.conditions,
+            null,
+          )
+        )
+          continue;
         this.publishJob(subCopy.jobName, subCopy.jobParameters, projectId);
       }
     }
@@ -244,6 +248,20 @@ export class CronSubscriptionsService {
         const ranges = await this.projectService.getIpRanges(projectId);
         this.publishJobsFromIpRanges(sub, ranges, projectId);
         break;
+      case 'ALL_WEBSITES':
+        let websites: Pick<
+          WebsiteDocument,
+          '_id' | 'domain' | 'host' | 'port' | 'path' | 'ssl'
+        >[];
+        do {
+          websites = await this.websitesService.getWebsites(page, pageSize, {
+            ...filter,
+            mergedInId: { $eq: null },
+          });
+          this.publishJobsFromWebsitesPage(sub, websites, projectId);
+          page++;
+        } while (websites.length >= pageSize);
+        break;
       default:
         this.logger.error(
           `Invalid input type "${sub.input}" for cron subscription "${sub.name}"`,
@@ -271,6 +289,25 @@ export class CronSubscriptionsService {
     for (const host of hosts) {
       const finding = new IpFinding();
       finding.ip = host.ip;
+      this.publishJobForFinding(sub, finding, projectId);
+    }
+  }
+
+  private publishJobsFromWebsitesPage(
+    sub: CronSubscription,
+    websites: Pick<
+      WebsiteDocument,
+      '_id' | 'domain' | 'host' | 'port' | 'path' | 'ssl'
+    >[],
+    projectId: string,
+  ) {
+    for (const website of websites) {
+      const finding = new WebsiteFinding();
+      finding.ip = website.host.ip;
+      finding.domainName = website.domain?.name ?? '';
+      finding.port = website.port.port;
+      finding.ssl = website.ssl;
+      finding.path = website.path;
       this.publishJobForFinding(sub, finding, projectId);
     }
   }

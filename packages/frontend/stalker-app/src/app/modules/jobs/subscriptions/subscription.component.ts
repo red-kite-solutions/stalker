@@ -21,7 +21,18 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, Observable, combineLatest, filter, firstValueFrom, map, of, switchMap, timer } from 'rxjs';
+import {
+  BehaviorSubject,
+  Observable,
+  combineLatest,
+  filter,
+  firstValueFrom,
+  map,
+  of,
+  shareReplay,
+  switchMap,
+  timer,
+} from 'rxjs';
 import { eventSubscriptionKey } from 'src/app/api/jobs/subscriptions/event-subscriptions.service';
 import { SubscriptionService, SubscriptionType } from 'src/app/api/jobs/subscriptions/subscriptions.service';
 import { ThemeService } from 'src/app/services/theme.service';
@@ -112,7 +123,8 @@ export class SubscriptionComponent implements OnInit, OnDestroy, HasUnsavedChang
         return this.subscriptionService.get(type, id!);
       }
     }),
-    map((x) => x?.isEnabled)
+    map((x) => x?.isEnabled),
+    shareReplay(1)
   );
 
   public selectedRow: Subscription | undefined;
