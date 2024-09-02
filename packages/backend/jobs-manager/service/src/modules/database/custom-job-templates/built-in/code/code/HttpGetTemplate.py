@@ -1,87 +1,74 @@
 import os
-import random
+from urllib.parse import urlparse
 
 import httpx
-from stalker_job_sdk import (JobStatus, PortFinding, TextField, is_valid_ip,
-                             is_valid_port, log_error, log_finding, log_info,
-                             log_status, log_warning)
+from stalker_job_sdk import (JobStatus, TextField, WebsiteFinding, build_url,
+                             is_valid_ip, is_valid_port, log_error,
+                             log_finding, log_info, log_status, log_warning,
+                             to_boolean)
 
 
-def get_args():
+class WebsiteFile:
+    status_code: int
+    url: str
+    method: str
+
+def get_valid_args():
     """Gets the arguments from environment variables"""
-    target_ip: str = os.environ["targetIp"]
-    port = int(os.environ["port"])
-    domain = os.environ["domainName"] # DOMAIN should resolve to TARGET_IP
-    path = os.environ["path"] # Http server file path to GET
+    target_ip: str = os.environ.get("targetIp")
+    port: int = int(os.environ.get("port"))
+    domain: str = os.environ.get("domainName")
+    path: str = os.environ.get("path")
+    ssl: str = to_boolean(os.environ.get("ssl"))
+    endpoint: str = os.environ.get("endpoint")
 
-    if not path or len(path) == 0:
-        path = '/'
-
-    if path[0] != '/':
-        path = f"/{path}"
-
-    return target_ip, port, domain, path
-
-def validate_input(ip: str, port: int, domain: str, path: str):
-    if ip and not is_valid_ip(ip):
-        log_error(f"targetIp parameter is invalid: {ip}")
+    if not is_valid_ip(target_ip):
+        log_error(f"targetIp parameter is invalid: {target_ip}")
         log_status(JobStatus.FAILED)
         exit()
 
     if not is_valid_port(port):
-        log_error(f"Invalid port {str(port)}")
+        log_error(f"port parameter is invalid: {str(port)}")
         log_status(JobStatus.FAILED)
         exit()
 
-    if not path:
-        log_error(f"path parameter is missing")
-        log_status(JobStatus.FAILED)
-        exit()
+    return target_ip, port, domain, path, ssl, endpoint
 
-def emit_finding(url: str, ip: str, port: int, domain: str, path: str):
+
+def emit_file_finding(file: WebsiteFile, domain: str, ip: str, port: int, path: str, ssl: bool):
+    fields = []
+    fields.append(TextField("statusCode", "Status Code", file.status_code))
+    endpoint = urlparse(file.url).path    
+    fields.append(TextField("endpoint", "Endpoint", endpoint))
+    fields.append(TextField("method", "Method", file.method))
+
     log_finding(
-        PortFinding(
-            "HttpFileFound", ip, port, "tcp", f"Found file {path}", [
-                TextField("domain", "domain", domain),
-                TextField("url", "url", url),
-                TextField("path", "path", path),
-                TextField("statusCode", "status code", "200")
-            ]
+        WebsiteFinding(
+            "WebsitePathFinding", ip, port, domain, path, ssl, f"Website path", fields
         )
     )
 
 def main():
-    target_ip, port, domain, path = get_args()
+    target_ip, port, domain, path, ssl, endpoint = get_valid_args()
 
-    validate_input(target_ip, port, domain, path)
-
-    url = ""
-
-    if domain:
-        url = f"{domain}:{str(port)}{path}"
-    else:
-        url = f"{target_ip}:{str(port)}{path}"
+    url = build_url(target_ip, port, domain, endpoint if endpoint else path, ssl)
 
     with httpx.Client(verify=False, http2=True, timeout=10.0) as client:
         try:
-            full_url = f"https://{url}"
-            r = client.get(full_url)
-            log_info(f"Got status code {str(r.status_code)}")
-            if r.status_code == 200:
-                emit_finding(full_url, target_ip, port, domain, path)
+            r = client.get(url)
+            log_info(f"Got status code {str(r.status_code)} for {url}")
+            if r.status_code != 404:
+                file = WebsiteFile()
+                file.method = "GET"
+                file.status_code = r.status_code
+                file.url = url
+                emit_file_finding(file, domain, target_ip, port, path, ssl)
             return
-        except Exception as e:
-            pass # retrying with http
-        
-        try:
-            full_url = f"http://{url}"
-            r = client.get(full_url)
-            log_info(f"Got status code {str(r.status_code)}")
-            if r.status_code == 200:
-                emit_finding(full_url, target_ip, port, domain, path)
-            return
-        except Exception as e:
-            log_warning(f"Exception while querying http(s)://{url}")
+        except Exception as err:
+            log_warning(f"Exception while querying {url}")
+            log_error(err)
+            log_status(JobStatus.FAILED)
+            exit()
 
 try:
     main()

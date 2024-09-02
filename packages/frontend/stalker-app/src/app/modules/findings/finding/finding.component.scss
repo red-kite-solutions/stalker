@@ -12,3 +12,16 @@ h3 {
   opacity: 0.6;
   font-style: italic;
 }
+
+.image-container {
+  display: flex;
+  max-height: 40vh;
+  flex-direction: row;
+  justify-content: center;
+
+  image-finding-field {
+    width: fit-content;
+    max-width: inherit;
+    max-height: inherit;
+  }
+}

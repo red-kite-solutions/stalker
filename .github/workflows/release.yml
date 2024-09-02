@@ -5,36 +5,13 @@ on:
     inputs:
       stalker-base-release-type:
         required: true
-        default: none
+        default: minor
         type: choice
         options:
           - patch
           - minor
           - major
-          - none
-        description: Stalker Base release type
-
-      stalker-python-job-base-release-type:
-        required: true
-        default: none
-        type: choice
-        options:
-          - patch
-          - minor
-          - major
-          - none
-        description: Stalker Python Job Base release type
-
-      stalker-nuclei-job-base-release-type:
-        required: true
-        default: none
-        type: choice
-        options:
-          - patch
-          - minor
-          - major
-          - none
-        description: Stalker Nuclei Job Base release type
+        description: Base
 
       cron-release-type:
         required: true
@@ -45,7 +22,7 @@ on:
           - minor
           - major
           - none
-        description: Cron release type
+        description: Backend / Cron
 
       orchestrator-release-type:
         required: true
@@ -56,18 +33,7 @@ on:
           - minor
           - major
           - none
-        description: Orchestrator release type
-
-      app-release-type:
-        required: true
-        default: none
-        type: choice
-        options:
-          - patch
-          - minor
-          - major
-          - none
-        description: App release type
+        description: Backend / Orchestrator
 
       jobs-manager-release-type:
         required: true
@@ -78,11 +44,132 @@ on:
           - minor
           - major
           - none
-        description: Jobs Manager release type
+        description: Backend / Jobs Manager
+
+      app-release-type:
+        required: true
+        default: none
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - none
+        description: Frontend / App
+
+      stalker-python-job-base-release-type:
+        required: true
+        default: none
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - none
+        description: Jobs / Python
+
+      stalker-nuclei-job-base-release-type:
+        required: true
+        default: none
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - none
+        description: Jobs / Nuclei
+
+permissions:
+  packages: write
+  contents: write
 
 jobs:
-  tests:
-    name: Do nothing
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
+  base:
+    name: Base
+    if: inputs.stalker-base-release-type != 'none'
+    uses: ./.github/workflows/release-service.yml
+    with:
+      release-type: ${{ inputs.stalker-base-release-type }}
+      tag-prefix: stalker-base
+      dockerfile-path: ./packages/Dockerfile.base
+      image-name: ghcr.io/red-kite-solutions/stalker-base
+    secrets:
+      github-token: ${{secrets.GITHUB_TOKEN}}
+
+  cron:
+    name: Cron
+    needs: base
+    if: inputs.cron-release-type != 'none'
+    uses: ./.github/workflows/release-service.yml
+    with:
+      release-type: ${{ inputs.cron-release-type }}
+      tag-prefix: cron
+      dockerfile-path: ./packages/backend/cron/service/Dockerfile
+      image-name: ghcr.io/red-kite-solutions/stalker-cron
+    secrets:
+      github-token: ${{secrets.GITHUB_TOKEN}}
+
+  orchestrator:
+    name: Orchestrator
+    needs: base
+    if: inputs.orchestrator-release-type != 'none'
+    uses: ./.github/workflows/release-service.yml
+    with:
+      release-type: ${{ inputs.orchestrator-release-type }}
+      tag-prefix: orchestrator
+      dockerfile-path: ./packages/backend/orchestrator/service/Dockerfile
+      image-name: ghcr.io/red-kite-solutions/stalker-orchestrator
+    secrets:
+      github-token: ${{secrets.GITHUB_TOKEN}}
+
+  jobs-manager:
+    name: Jobs Manager
+    needs: base
+    if: inputs.jobs-manager-release-type != 'none'
+    uses: ./.github/workflows/release-service.yml
+    with:
+      release-type: ${{ inputs.jobs-manager-release-type }}
+      tag-prefix: jobs-manager
+      dockerfile-path: ./packages/backend/jobs-manager/service/Dockerfile
+      image-name: ghcr.io/red-kite-solutions/stalker-jobs-manager
+    secrets:
+      github-token: ${{secrets.GITHUB_TOKEN}}
+
+  app:
+    name: App
+    needs: base
+    if: inputs.app-release-type != 'none'
+    uses: ./.github/workflows/release-service.yml
+    with:
+      release-type: ${{ inputs.app-release-type }}
+      tag-prefix: stalker-app
+      dockerfile-path: ./packages/frontend/stalker-app/Dockerfile
+      image-name: ghcr.io/red-kite-solutions/stalker-app
+    secrets:
+      github-token: ${{secrets.GITHUB_TOKEN}}
+
+  nuclei-job-base:
+    name: Nuclei Job Base
+    if: inputs.stalker-nuclei-job-base-release-type != 'none'
+    uses: ./.github/workflows/release-service.yml
+    with:
+      release-type: ${{ inputs.stalker-nuclei-job-base-release-type }}
+      tag-prefix: nuclei-job-base
+      dockerfile-path: ./jobs/job-base-images/python/Dockerfile.nuclei
+      docker-context: ./jobs/job-base-images/python
+      image-name: ghcr.io/red-kite-solutions/stalker-nuclei-job-base
+    secrets:
+      github-token: ${{secrets.GITHUB_TOKEN}}
+
+  python-job-base:
+    name: Python Job Base
+    if: inputs.stalker-python-job-base-release-type != 'none'
+    uses: ./.github/workflows/release-service.yml
+    with:
+      release-type: ${{ inputs.stalker-python-job-base-release-type }}
+      tag-prefix: python-job-base
+      dockerfile-path: ./jobs/job-base-images/python/Dockerfile
+      docker-context: ./jobs/job-base-images/python
+      image-name: ghcr.io/red-kite-solutions/stalker-python-job-base
+    secrets:
+      github-token: ${{secrets.GITHUB_TOKEN}}

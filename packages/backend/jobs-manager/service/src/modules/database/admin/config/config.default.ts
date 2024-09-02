@@ -29,6 +29,11 @@ export const DEFAULT_JOB_POD_CONFIG: JobPodConfiguration[] = [
     memoryKbytesLimit: baseMemory * 1024,
     milliCpuLimit: 500,
   },
+  {
+    name: 'XXL',
+    memoryKbytesLimit: baseMemory * 2048,
+    milliCpuLimit: 1000,
+  },
 ];
 
 export const DEFAULT_JOB_POD_CONFIG_NAMES = DEFAULT_JOB_POD_CONFIG.map(

@@ -1,0 +1,100 @@
+mat-card {
+  overflow: hidden;
+}
+
+mat-dialog-content {
+  display: flex;
+  flex-direction: column;
+}
+
+mat-dialog-actions {
+  justify-content: center;
+}
+
+app-blocked-pill-tag {
+  margin-left: 5px;
+}
+
+.grid-select {
+  max-width: 70px;
+}
+
+.ip-container {
+  flex-wrap: nowrap;
+  overflow: auto;
+  text-wrap: nowrap;
+}
+
+.url {
+  text-wrap: nowrap;
+}
+
+.spread {
+  margin-left: 4px;
+}
+
+.no-data {
+  opacity: 0.65;
+  user-select: none;
+  .no-data-icon {
+    font-size: 4em;
+    fill: currentColor;
+  }
+}
+
+.preview-image {
+  max-width: 100%;
+  max-height: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  padding-top: 8px;
+  padding-bottom: 8px;
+
+  image-finding-field {
+    display: contents;
+  }
+
+  .no-data {
+    height: fit-content;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+mat-divider {
+  margin: 8px 6px 4px 6px;
+}
+
+.grid-image-height-1 {
+  max-height: 70vh;
+}
+
+.grid-image-height-2 {
+  max-height: 50vh;
+}
+
+.grid-image-height-3 {
+  max-height: 40vh;
+}
+
+.grid-image-height-4 {
+  max-height: 35vh;
+}
+
+.grid-image-height-5 {
+  max-height: 30vh;
+}
+
+.grid-image-height-6 {
+  max-height: 25vh;
+}
+
+.grid-image-height-7 {
+  max-height: 20vh;
+}
+
+.grid-image-height-8 {
+  max-height: 20vh;
+}

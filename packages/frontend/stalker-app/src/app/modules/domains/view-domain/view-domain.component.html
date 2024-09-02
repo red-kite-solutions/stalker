@@ -1,5 +1,5 @@
 @if (domain$ | async) {
-  <div class="tw-flex tw-items-center tw-px-4 tw-gap">
+  <div class="tw-flex tw-items-center tw-gap">
     <app-page-header [parts]="[(projects$ | async | whereId: [domain.projectId])?.name, domain.name]">
     </app-page-header>
 

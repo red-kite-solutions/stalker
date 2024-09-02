@@ -6,6 +6,7 @@ import { CorrelationKeyUtils } from '../../reporting/correlation.utils';
 import { DomainsService } from '../../reporting/domain/domain.service';
 import { HostService } from '../../reporting/host/host.service';
 import { PortService } from '../../reporting/port/port.service';
+import { WebsiteService } from '../../reporting/websites/website.service';
 import {
   SubscriptionTrigger,
   SubscriptionTriggerDocument,
@@ -21,6 +22,7 @@ export class SubscriptionTriggersService {
     private readonly hostsService: HostService,
     private readonly domainsService: DomainsService,
     private readonly portsService: PortService,
+    private readonly websiteService: WebsiteService,
   ) {}
 
   public async isTriggerBlocked(correlationKey: string): Promise<boolean> {
@@ -34,6 +36,8 @@ export class SubscriptionTriggersService {
         return await this.domainsService.keyIsBlocked(correlationKey);
       case 'HostService':
         return await this.hostsService.keyIsBlocked(correlationKey);
+      case 'WebsiteService':
+        return await this.websiteService.keyIsBlocked(correlationKey);
       default:
         return false;
     }
@@ -53,6 +57,7 @@ export class SubscriptionTriggersService {
     subscriptionId: string,
     correlationKey: string,
     subscriptionCooldown: number,
+    discriminator: string | null,
   ): Promise<boolean> {
     if (await this.isTriggerBlocked(correlationKey)) return false;
 
@@ -67,8 +72,9 @@ export class SubscriptionTriggersService {
       await session.withTransaction(async () => {
         const s = await this.subscriptionTriggerModel.findOne(
           {
-            subscriptionId: subId,
-            correlationKey: correlationKey,
+            subscriptionId: { $eq: subId },
+            correlationKey: { $eq: correlationKey },
+            discriminator: { $eq: discriminator },
           },
           undefined,
           { session },
@@ -89,6 +95,7 @@ export class SubscriptionTriggersService {
                 subscriptionId: subId,
                 correlationKey: correlationKey,
                 lastTrigger: now,
+                discriminator: discriminator,
               },
             ],
             { session },

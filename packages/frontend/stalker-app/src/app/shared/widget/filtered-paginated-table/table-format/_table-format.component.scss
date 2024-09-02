@@ -1,4 +1,4 @@
-@mixin app-filtered-paginated-table($theme) {
+@mixin app-table-format($theme) {
   app-filtered-paginated-table {
     table .rows {
       cursor: pointer;

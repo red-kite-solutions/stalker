@@ -28,7 +28,7 @@ describe('Subscriptions Triggers Service', () => {
     portService = moduleFixture.get(PortService);
     projectService = moduleFixture.get(ProjectService);
     // Without { doNotFake: ['nextTick'] } the tests timeout with fake timers
-    jest.useFakeTimers({ doNotFake: ['nextTick'] });
+    jest.useFakeTimers({ doNotFake: ['nextTick', 'setImmediate'] });
   });
 
   beforeEach(async () => {
@@ -63,6 +63,7 @@ describe('Subscriptions Triggers Service', () => {
       subId,
       correlationKey,
       subCooldown,
+      null,
     );
 
     // Assert
@@ -81,7 +82,12 @@ describe('Subscriptions Triggers Service', () => {
     );
 
     // Act
-    await triggersService.attemptTrigger(subId, correlationKey, subCooldown);
+    await triggersService.attemptTrigger(
+      subId,
+      correlationKey,
+      subCooldown,
+      null,
+    );
 
     // Assert
     const triggers = await triggersService.getAll();
@@ -99,7 +105,12 @@ describe('Subscriptions Triggers Service', () => {
       projectId,
       domain,
     );
-    await triggersService.attemptTrigger(subId, correlationKey, subCooldown);
+    await triggersService.attemptTrigger(
+      subId,
+      correlationKey,
+      subCooldown,
+      null,
+    );
     jest.setSystemTime(Date.now() + subCooldown * 1000 * 2);
 
     // Act
@@ -107,6 +118,7 @@ describe('Subscriptions Triggers Service', () => {
       subId,
       correlationKey,
       subCooldown,
+      null,
     );
 
     // Assert
@@ -123,7 +135,12 @@ describe('Subscriptions Triggers Service', () => {
       projectId,
       domain,
     );
-    await triggersService.attemptTrigger(subId, correlationKey, subCooldown);
+    await triggersService.attemptTrigger(
+      subId,
+      correlationKey,
+      subCooldown,
+      null,
+    );
     jest.setSystemTime(Date.now() + subCooldown * 1000);
 
     // Act
@@ -131,6 +148,7 @@ describe('Subscriptions Triggers Service', () => {
       subId,
       correlationKey,
       subCooldown,
+      null,
     );
 
     // Assert
@@ -147,7 +165,12 @@ describe('Subscriptions Triggers Service', () => {
       projectId,
       domain,
     );
-    await triggersService.attemptTrigger(subId, correlationKey, subCooldown);
+    await triggersService.attemptTrigger(
+      subId,
+      correlationKey,
+      subCooldown,
+      null,
+    );
     jest.setSystemTime(Date.now() + subCooldown * 1000 + 1);
 
     // Act
@@ -155,6 +178,7 @@ describe('Subscriptions Triggers Service', () => {
       subId,
       correlationKey,
       subCooldown,
+      null,
     );
 
     // Assert
@@ -171,7 +195,12 @@ describe('Subscriptions Triggers Service', () => {
       projectId,
       domain,
     );
-    await triggersService.attemptTrigger(subId, correlationKey, subCooldown);
+    await triggersService.attemptTrigger(
+      subId,
+      correlationKey,
+      subCooldown,
+      null,
+    );
     jest.setSystemTime(Date.now() + subCooldown * 1000 - 1);
 
     // Act
@@ -179,6 +208,7 @@ describe('Subscriptions Triggers Service', () => {
       subId,
       correlationKey,
       subCooldown,
+      null,
     );
 
     // Assert
@@ -195,7 +225,12 @@ describe('Subscriptions Triggers Service', () => {
       projectId,
       domain,
     );
-    await triggersService.attemptTrigger(subId, correlationKey, subCooldown);
+    await triggersService.attemptTrigger(
+      subId,
+      correlationKey,
+      subCooldown,
+      null,
+    );
     jest.setSystemTime(Date.now() + subCooldown * 10 * 2);
 
     // Act
@@ -203,6 +238,7 @@ describe('Subscriptions Triggers Service', () => {
       subId,
       correlationKey,
       subCooldown,
+      null,
     );
 
     // Assert
@@ -227,7 +263,12 @@ describe('Subscriptions Triggers Service', () => {
         domainName,
       );
 
-      await triggersService.attemptTrigger(subId, correlationKey, subCooldown);
+      await triggersService.attemptTrigger(
+        subId,
+        correlationKey,
+        subCooldown,
+        null,
+      );
       jest.setSystemTime(Date.now() + subCooldown * 1000 * 2);
 
       // Act
@@ -235,6 +276,7 @@ describe('Subscriptions Triggers Service', () => {
         subId,
         correlationKey,
         subCooldown,
+        null,
       );
 
       // Assert
@@ -255,7 +297,12 @@ describe('Subscriptions Triggers Service', () => {
         ip,
       );
 
-      await triggersService.attemptTrigger(subId, correlationKey, subCooldown);
+      await triggersService.attemptTrigger(
+        subId,
+        correlationKey,
+        subCooldown,
+        null,
+      );
       jest.setSystemTime(Date.now() + subCooldown * 1000 * 2);
 
       // Act
@@ -263,6 +310,7 @@ describe('Subscriptions Triggers Service', () => {
         subId,
         correlationKey,
         subCooldown,
+        null,
       );
 
       // Assert
@@ -292,7 +340,12 @@ describe('Subscriptions Triggers Service', () => {
         'tcp',
       );
 
-      await triggersService.attemptTrigger(subId, correlationKey, subCooldown);
+      await triggersService.attemptTrigger(
+        subId,
+        correlationKey,
+        subCooldown,
+        null,
+      );
       jest.setSystemTime(Date.now() + subCooldown * 1000 * 2);
 
       // Act
@@ -300,6 +353,7 @@ describe('Subscriptions Triggers Service', () => {
         subId,
         correlationKey,
         subCooldown,
+        null,
       );
 
       // Assert

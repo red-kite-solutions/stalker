@@ -1,4 +1,16 @@
-img {
+.normal {
   border-radius: 8px;
-  width: 64px;
+  cursor: pointer;
+  min-width: 64px;
+  max-width: inherit;
+  max-height: inherit;
+}
+
+.zoomed {
+  max-width: 90vw;
+  max-height: 95vh;
+  img {
+    min-width: 10vw;
+    min-height: 10vw;
+  }
 }

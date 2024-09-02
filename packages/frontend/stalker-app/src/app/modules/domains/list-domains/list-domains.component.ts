@@ -33,6 +33,7 @@ import {
 import { BlockedPillTagComponent } from 'src/app/shared/widget/pill-tag/blocked-pill-tag.component';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { SharedModule } from '../../../shared/shared.module';
+import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-table/table-format/table-format.component';
 import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.component';
 import { DomainsInteractionsService } from '../domains-interactions.service';
 
@@ -56,6 +57,7 @@ import { DomainsInteractionsService } from '../domains-interactions.service';
     FilteredPaginatedTableComponent,
     RouterModule,
     BlockedPillTagComponent,
+    TableFormatComponent,
   ],
   selector: 'app-list-domains',
   templateUrl: './list-domains.component.html',
@@ -112,10 +114,10 @@ export class ListDomainsComponent {
   selectedProject = '';
   selectedNewDomains = '';
 
-  private generateFirstPageEvent() {
+  private generateFirstPageEvent(pageSize = 10) {
     const p = new PageEvent();
     p.pageIndex = 0;
-    p.pageSize = 10;
+    p.pageSize = pageSize;
     this.currentPage = p;
     return p;
   }
@@ -129,9 +131,9 @@ export class ListDomainsComponent {
 
   public displayColumns$ = this.screenSize$.pipe(
     map((screen: BreakpointState) => {
-      if (screen.breakpoints[Breakpoints.XSmall]) return ['select', 'domain', 'project', 'menu'];
-      else if (screen.breakpoints[Breakpoints.Small]) return ['select', 'domain', 'project', 'tags', 'menu'];
-      else if (screen.breakpoints[Breakpoints.Medium]) return ['select', 'domain', 'hosts', 'project', 'tags', 'menu'];
+      // if (screen.breakpoints[Breakpoints.XSmall]) return ['select', 'domain', 'project', 'menu'];
+      // else if (screen.breakpoints[Breakpoints.Small]) return ['select', 'domain', 'project', 'tags', 'menu'];
+      // else if (screen.breakpoints[Breakpoints.Medium]) return ['select', 'domain', 'hosts', 'project', 'tags', 'menu'];
       return this.displayedColumns;
     })
   );
@@ -144,7 +146,6 @@ export class ListDomainsComponent {
   dateRangeFilterChange(range: DateRange<Date>) {
     this.currentDateRange = range;
     this.dataLoading = true;
-    this.currentPage$.next(this.currentPage);
   }
 
   constructor(
@@ -163,7 +164,6 @@ export class ListDomainsComponent {
   filtersChange(filters: string[]) {
     this.currentFilters = filters;
     this.dataLoading = true;
-    this.currentPage$.next(this.currentPage);
   }
 
   buildFilters(stringFilters: string[]): any {

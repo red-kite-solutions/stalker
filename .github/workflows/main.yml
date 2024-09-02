@@ -22,7 +22,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup MiniKube
         id: minikube
@@ -35,6 +35,16 @@ jobs:
 
       - name: Create namespace
         run: kubectl create namespace stalker
+
+      - name: Make room in the container
+        run: |-
+          rm -rf /opt/hostedtoolcache/CodeQL
+          rm -rf /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk
+          rm -rf /opt/hostedtoolcache/PyPy
+          rm -rf /opt/hostedtoolcache/Python
+          rm -rf /opt/hostedtoolcache/Ruby
+          rm -rf /opt/hostedtoolcache/go
+          rm -rf /opt/hostedtoolcache/node
 
       - name: Build test containers
         run: devspace -p e2e --var="STALKER_ENVIRONMENT=tests" run-pipeline build -n stalker

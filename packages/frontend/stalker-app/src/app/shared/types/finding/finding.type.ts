@@ -16,10 +16,12 @@ export type CustomFindingField = CustomFindingImageField | CustomFindingTextFiel
 export interface CustomFindingImageField {
   type: 'image';
   data: string;
+  key: string;
 }
 
 export interface CustomFindingTextField {
   type: 'text';
   label: string;
   data: string;
+  key: string;
 }

@@ -7,20 +7,17 @@ description: How to implement Stalker jobs
 # Implementing jobs
 
 This article describes how to implement a job in Stalker. This process involves a few steps, but it is usually quite easy! There is
-currently one type of job: a _python job_.
+currently two types of jobs: a _python job_ and a _Nuclei job_.
 
-There are a few ways a job can be started: manually (through user input), or automatically (through configured subscriptions). In any case,
-when a job needs to be run, the Jobs Manager (JM) drops a message on the _Job Requests Queue_. The Orchestrator consumes requests and runs
-jobs inside [Kubernetes Jobs](https://kubernetes.io/docs/concepts/workloads/controllers/job/). The Orchestrator monitors the container
-standard output; this is how the job communicates its _findings_ and more to Stalker.
+There are a few ways a job can be started: manually (through user input or the Launch Job interface), or automatically (through configured subscriptions). In any case, when a job needs to be run, the Jobs Manager (JM) drops a message on the _Job Requests Queue_. The Orchestrator consumes requests and runs jobs inside [Kubernetes Jobs](https://kubernetes.io/docs/concepts/workloads/controllers/job/). The Orchestrator then waits for the job's _findings_ on its API.
 
 ## Python
 
 The `stalker_job_sdk` provides utilitary functions and classes to help you implement jobs.
 
-### Setup
+### Local Setup
 
-In order for intellisense to help you, you need to create a virtual environmnet. Vscode's
+In order for intellisense to help you, you need to create a virtual environment. Vscode's
 [python](https://marketplace.visualstudio.com/items?itemName=ms-python.python) extension can help you with that: use the "Python: Create
 environment" command. Then, install the requirements:
 
@@ -56,7 +53,7 @@ log_debug("Hello world!")
 
 There are different log levels available:
 
-| Level         | function    |
+| Level         | Function    |
 | ------------- | ----------- |
 | Debugging     | log_debug   |
 | Informational | log_info    |
@@ -187,16 +184,23 @@ findings. It is implemented in python. Don't worry though, a template, a custom 
 
 To start a Nuclei custom job, a target is always required. You can provide the target with the following job parameter:
 
-| Name         | Value Details                                                                   |
-| ------------ | ------------------------------------------------------------------------------- |
-| NucleiTarget | Corresponds to the `-target` parameter in Nuclei. It is a URL or a host to scan |
+| Name       | Value Details                                                                      |
+| ---------- | ---------------------------------------------------------------------------------- |
+| targetIp   | The IP address of the target                                                       |
+| port       | The port of the target                                                             |
+| domainName | The domain name of the target. Prioritized over targetIp when building the target. |
+| path       | The path identifying the root of the website, for instance, `/`                    |
+| ssl        | True if the website uses encryption, false otherwise.                              |
+| endpoint   | The target's endpoint. For instance, `/target/file.html`.                          |
+
+This information will be used to build the Nuclei target and identify the resource to which the findings belong. Partial information can be given to target different things. For instance, for a DNS check, only the `domainName` value is necessary. For a web check, all the previous parameters are necessary.
 
 To start a Nuclei custom job with the default parser, you must configure the default parser by providing the two following job parameters:
 
-| Name              | Value Details                                                                                                                            |
-| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| StalkerOutputType | Either "domain", "host" or "port". It will change on which ressource the data binds by changing the type of findings that are published. |
-| OutputFindingName | The finding name that you want. It will be used to match subscriptions.                                                                  |
+| Name              | Value Details                                                                                                                                       |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| stalkerOutputType | Either `domain`, `host`, `port` or `website`. It will change on which ressource the data binds by changing the type of findings that are published. |
+| outputFindingName | The finding name that you want. It will be used to match subscriptions.                                                                             |
 
 ##### Nuclei Custom Finding Handling
 
@@ -218,9 +222,9 @@ class FindingHandler:
     def __init__(self):
         log_info("Initializing the custom handler")
 
-    def parse_finding(self, finding_obj: dict):
+    def parse_finding(self, finding_obj: dict, original_string: str, original_path: str):
         """This method returns a NucleiFinding, but it can return any object."""
-        return NucleiFinding(finding_obj)
+        return NucleiFinding(finding_obj, original_string=original_string, original_path=original_path)
 
     def publish_findings(self, findings: list):
         """This method receives all the findings given by the parse_finding method as a list."""

@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { InjectModel } from '@nestjs/mongoose';
-import { FilterQuery, Model } from 'mongoose';
+import { Document, FilterQuery, Model } from 'mongoose';
 import {
   HttpBadRequestException,
   HttpNotFoundException,
@@ -19,7 +19,10 @@ import { IpRangeCommand } from './commands/Findings/ipRange.command';
 import { CustomFindingCommand } from './commands/JobFindings/custom.command';
 import { HostnameIpCommand } from './commands/JobFindings/hostname-ip.command';
 import { PortCommand } from './commands/JobFindings/port.command';
+import { TagCommand } from './commands/JobFindings/tag.command';
+import { WebsiteCommand } from './commands/JobFindings/website.command';
 import { CustomFindingFieldDto } from './finding.dto';
+import { FindingsFilter } from './findings-filter.type';
 
 export type Finding =
   | HostnameIpFinding
@@ -27,8 +30,10 @@ export type Finding =
   | IpFinding
   | IpRangeFinding
   | PortFinding
+  | WebsiteFinding
   | JobStatusFinding
-  | CreateCustomFinding;
+  | CreateCustomFinding
+  | TagFinding;
 
 export class FindingBase {
   jobId?: string;
@@ -51,14 +56,32 @@ export class PortFinding extends FindingBase {
   ];
 }
 
-export class CreateCustomFinding extends FindingBase {
-  type: 'CustomFinding';
-  key: string;
+export class ResourceFinding extends FindingBase {
   domainName?: string;
   ip?: string;
   port?: number;
   protocol?: 'tcp' | 'udp';
+  path?: string;
+}
+
+export class WebsiteFinding extends ResourceFinding {
+  type: 'WebsiteFinding';
+  key: 'WebsiteFinding';
+  path: string = '/';
+  ssl?: boolean;
+  protocol: 'tcp' = 'tcp';
+}
+
+export class CreateCustomFinding extends ResourceFinding {
+  type: 'CustomFinding';
+  key: string;
   name: string;
+}
+
+export class TagFinding extends ResourceFinding {
+  type: 'TagFinding';
+  key: 'TagFinding';
+  tag: string;
 }
 
 export class JobStatusFinding extends FindingBase {
@@ -132,19 +155,13 @@ export class FindingsService {
   }
 
   public async getAll(
-    target: string,
     page: number,
     pageSize: number,
-  ): Promise<Page<CustomFinding>> {
+    dto: FindingsFilter = undefined,
+  ): Promise<Page<CustomFinding & Document>> {
     if (page < 1) throw new HttpBadRequestException('Page starts at 1.');
 
-    const filters: FilterQuery<CustomFinding> = {};
-
-    if (target) {
-      filters.correlationKey = {
-        $eq: target,
-      };
-    }
+    const filters: FilterQuery<CustomFinding> = this.buildFilters(dto);
 
     const items = await this.findingModel
       .find(filters)
@@ -160,6 +177,48 @@ export class FindingsService {
       items,
       totalRecords,
     };
+  }
+
+  private buildFilters(dto: FindingsFilter): FilterQuery<CustomFinding> {
+    const filters: FilterQuery<CustomFinding> = {};
+
+    if (dto.target) {
+      filters.correlationKey = {
+        $eq: dto.target,
+      };
+    }
+
+    if (
+      dto.findingDenyList?.length ||
+      dto.findingAllowList?.length ||
+      dto.fieldFilters?.length
+    ) {
+      filters.$and = [];
+
+      if (dto.findingDenyList?.length) {
+        filters.$and.push({ key: { $nin: dto.findingDenyList } });
+      }
+
+      if (dto.findingAllowList?.length) {
+        filters.$and.push({ key: { $in: dto.findingAllowList } });
+      }
+
+      if (dto.fieldFilters) {
+        for (const fieldFilter of dto.fieldFilters) {
+          fieldFilter;
+          filters.$and.push({
+            fields: {
+              $elemMatch: {
+                key: fieldFilter.key,
+                data: fieldFilter.data,
+              },
+            },
+          });
+        }
+      }
+    }
+
+    return filters;
   }
 
   /**
@@ -194,6 +253,8 @@ export class FindingsService {
       dto.ip,
       dto.port,
       dto.protocol,
+      null,
+      dto.path,
     );
 
     const finding: CustomFinding = {
@@ -205,7 +266,7 @@ export class FindingsService {
       key: dto.key,
     };
 
-    await this.findingModel.create(finding);
+    return await this.findingModel.create(finding);
   }
 
   /**
@@ -286,93 +347,138 @@ export class FindingsService {
       return;
     }
 
-    switch (finding.type) {
-      case 'HostnameIpFinding':
-        finding.correlationKey = CorrelationKeyUtils.generateCorrelationKey(
-          projectId,
-          null,
-          finding.ip,
-        );
-        this.commandBus.execute(
-          new HostnameIpCommand(
-            jobId,
+    try {
+      switch (finding.type) {
+        case 'HostnameIpFinding':
+          finding.correlationKey = CorrelationKeyUtils.generateCorrelationKey(
             projectId,
-            HostnameIpCommand.name,
-            finding,
-          ),
-        );
-        break;
-      case 'HostnameFinding':
-        finding.projectId = finding.projectId ? finding.projectId : projectId;
-        finding.correlationKey = CorrelationKeyUtils.generateCorrelationKey(
-          finding.projectId,
-          finding.domainName,
-        );
-        this.commandBus.execute(
-          new HostnameCommand(finding.projectId, HostnameCommand.name, finding),
-        );
-        break;
+            null,
+            finding.ip,
+          );
+          this.commandBus.execute(
+            new HostnameIpCommand(
+              jobId,
+              projectId,
+              HostnameIpCommand.name,
+              finding,
+            ),
+          );
+          break;
+        case 'HostnameFinding':
+          finding.projectId = finding.projectId ? finding.projectId : projectId;
+          finding.correlationKey = CorrelationKeyUtils.generateCorrelationKey(
+            finding.projectId,
+            finding.domainName,
+          );
+          this.commandBus.execute(
+            new HostnameCommand(
+              finding.projectId,
+              HostnameCommand.name,
+              finding,
+            ),
+          );
+          break;
 
-      case 'IpFinding':
-        finding.projectId = finding.projectId ? finding.projectId : projectId;
-        finding.correlationKey = CorrelationKeyUtils.generateCorrelationKey(
-          finding.projectId,
-          null,
-          finding.ip,
-        );
-        this.commandBus.execute(
-          new IpCommand(finding.projectId, IpCommand.name, finding),
-        );
-        break;
+        case 'IpFinding':
+          finding.projectId = finding.projectId ? finding.projectId : projectId;
+          finding.correlationKey = CorrelationKeyUtils.generateCorrelationKey(
+            finding.projectId,
+            null,
+            finding.ip,
+          );
+          this.commandBus.execute(
+            new IpCommand(finding.projectId, IpCommand.name, finding),
+          );
+          break;
 
-      case 'IpRangeFinding':
-        finding.projectId = finding.projectId ? finding.projectId : projectId;
-        finding.correlationKey = CorrelationKeyUtils.generateCorrelationKey(
-          finding.projectId,
-          null,
-          finding.ip,
-          null,
-          null,
-          finding.mask,
-        );
-        this.commandBus.execute(
-          new IpRangeCommand(finding.projectId, IpRangeCommand.name, finding),
-        );
-        break;
+        case 'IpRangeFinding':
+          finding.projectId = finding.projectId ? finding.projectId : projectId;
+          finding.correlationKey = CorrelationKeyUtils.generateCorrelationKey(
+            finding.projectId,
+            null,
+            finding.ip,
+            null,
+            null,
+            finding.mask,
+          );
+          this.commandBus.execute(
+            new IpRangeCommand(finding.projectId, IpRangeCommand.name, finding),
+          );
+          break;
 
-      case 'PortFinding':
-        finding.correlationKey = CorrelationKeyUtils.generateCorrelationKey(
-          projectId,
-          null,
-          finding.ip,
-          finding.port,
-          finding.fields[0]?.data,
-        );
-        this.commandBus.execute(
-          new PortCommand(jobId, projectId, PortCommand.name, finding),
-        );
-        break;
-
-      case 'CustomFinding':
-        finding.correlationKey = CorrelationKeyUtils.generateCorrelationKey(
-          projectId,
-          finding.domainName,
-          finding.ip,
-          finding.port,
-          finding.protocol,
-        );
-        this.commandBus.execute(
-          new CustomFindingCommand(
-            jobId,
+        case 'PortFinding':
+          finding.correlationKey = CorrelationKeyUtils.generateCorrelationKey(
             projectId,
-            CustomFindingCommand.name,
-            finding,
-          ),
-        );
-        break;
+            null,
+            finding.ip,
+            finding.port,
+            finding.fields[0]?.data,
+          );
+          this.commandBus.execute(
+            new PortCommand(jobId, projectId, PortCommand.name, finding),
+          );
+          break;
 
-      default:
-        this.logger.error(`Unknown finding type ${finding['type']}`);
+        case 'TagFinding':
+          finding.correlationKey = CorrelationKeyUtils.generateCorrelationKey(
+            projectId,
+            finding.domainName,
+            finding.ip,
+            finding.port,
+            finding.protocol,
+            null,
+            finding.path,
+          );
+          this.commandBus.execute(
+            new TagCommand(
+              jobId,
+              projectId,
+              CustomFindingCommand.name,
+              finding,
+            ),
+          );
+          break;
+
+        case 'WebsiteFinding':
+          finding.correlationKey = CorrelationKeyUtils.generateCorrelationKey(
+            projectId,
+            finding.domainName ?? '',
+            finding.ip,
+            finding.port,
+            'tcp',
+            null,
+            finding.path ?? '/',
+          );
+          this.commandBus.execute(
+            new WebsiteCommand(jobId, projectId, WebsiteCommand.name, finding),
+          );
+          break;
+
+        case 'CustomFinding':
+          finding.correlationKey = CorrelationKeyUtils.generateCorrelationKey(
+            projectId,
+            finding.domainName,
+            finding.ip,
+            finding.port,
+            finding.protocol,
+            null,
+            finding.path,
+          );
+          this.commandBus.execute(
+            new CustomFindingCommand(
+              jobId,
+              projectId,
+              CustomFindingCommand.name,
+              finding,
+            ),
+          );
+          break;
+
+        default:
+          this.logger.error(`Unknown finding type ${finding['type']}`);
+      }
+    } catch (err) {
+      this.logger.error(err);
     }
   }
 }

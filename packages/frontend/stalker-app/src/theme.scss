@@ -3,7 +3,7 @@
 
 @include mat.core();
 
-@import 'app/shared/widget/filtered-paginated-table/_filtered-paginated-table.component.scss';
+@import 'app/shared/widget/filtered-paginated-table/table-format/_table-format.component.scss';
 @import 'app/shared/components/panel-section/_panel-section.component.scss';
 @import 'app/shared/widget/code-editor/_code-editor.component.scss';
 @import 'app/shared/widget/text-select-menu/_text-select-menu.component.scss';
@@ -13,6 +13,17 @@
 @import 'app/shared/widget/pill-tag/_pill-tag.component.scss';
 @import 'app/modules/projects/list-projects/_list-projects.component.scss';
 @import 'app/modules/jobs/launch-jobs/_launch-jobs.component.scss';
+@import 'app/modules/websites/list-websites/_list-websites.component';
+
+@mixin app-toggle-button($app-theme) {
+  $accent: mat.get-theme-color($app-theme, accent, default);
+  $accent-contrast: mat.get-theme-color($app-theme, accent, default-contrast);
+
+  .mat-button-toggle-checked {
+    background-color: $accent !important;
+    color: $accent-contrast !important;
+  }
+}
 
 :root {
   --density-scale: -2;
@@ -72,7 +83,7 @@ $stalker-dark: mat.define-dark-theme(
 @include mat.core-theme($stalker-light);
 @include mat.all-component-themes($stalker-light);
 
-@include app-filtered-paginated-table($stalker-light);
+@include app-table-format($stalker-light);
 @include panel-section($stalker-light);
 @include app-code-editor($stalker-light);
 @include app-text-menu($stalker-light);
@@ -82,9 +93,30 @@ $stalker-dark: mat.define-dark-theme(
 @include app-pill-tag($stalker-light);
 @include app-list-projects($stalker-light);
 @include app-launch-jobs($stalker-light);
+@include app-list-websites($stalker-light);
+@include app-toggle-button($stalker-light);
 
 .theme-light {
+  // Duplication of the includes is required, otherwise the CSS is not applied exactly the same
+  // for the dark and light theme and it causes some issues
+  @include mat.core-theme($stalker-light);
+  @include mat.all-component-themes($stalker-light);
+
+  @include app-table-format($stalker-light);
+  @include panel-section($stalker-light);
+  @include app-code-editor($stalker-light);
+  @include app-text-menu($stalker-light);
+  @include app-text-select-menu($stalker-light);
+  @include app-custom-jobs($stalker-light);
+  @include app-manage-tags($stalker-light);
+  @include app-pill-tag($stalker-light);
+  @include app-list-projects($stalker-light);
+  @include app-launch-jobs($stalker-light);
+  @include app-list-websites($stalker-light);
+  @include app-toggle-button($stalker-light);
+
   --mat-table-background-color-hover: rgb(243, 243, 243);
+  --rks-card-second-level: rgb(253, 253, 253);
 
   *:not(button) a {
     text-decoration: none;
@@ -101,7 +133,7 @@ $stalker-dark: mat.define-dark-theme(
   @include mat.core-theme($stalker-dark);
   @include mat.all-component-themes($stalker-dark);
 
-  @include app-filtered-paginated-table($stalker-dark);
+  @include app-table-format($stalker-dark);
   @include panel-section($stalker-dark);
   @include app-code-editor($stalker-dark);
   @include app-text-menu($stalker-dark);
@@ -111,8 +143,11 @@ $stalker-dark: mat.define-dark-theme(
   @include app-pill-tag($stalker-dark);
   @include app-list-projects($stalker-dark);
   @include app-launch-jobs($stalker-dark);
+  @include app-list-websites($stalker-dark);
+  @include app-toggle-button($stalker-dark);
 
   --mat-table-background-color-hover: #4d4d4d;
+  --rks-card-second-level: #4a4a4a;
 
   *:not(button) a {
     text-decoration: none;

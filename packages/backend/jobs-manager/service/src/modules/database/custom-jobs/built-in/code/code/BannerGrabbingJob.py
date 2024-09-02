@@ -19,9 +19,9 @@ class PortInfo:
 
 def get_valid_args():
     """Gets the arguments from environment variables"""
-    target_ip: str = os.environ["targetIp"]
-    ports_str: str = os.environ["ports"]
-    nmap_options: str = os.environ["nmapOptions"]
+    target_ip: str = os.environ.get("targetIp")
+    ports_str: str = os.environ.get("ports")
+    nmap_options: str = os.environ.get("nmapOptions")
 
     ports_list:list = []
     ports_set: set = set()

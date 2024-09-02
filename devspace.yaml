@@ -430,7 +430,7 @@ deployments:
       chart:
         name: kafka
         repo: https://charts.bitnami.com/bitnami
-        version: "26.0.0"
+        version: "28.0.0"
       values:
         nodeSelector: $(echo ${KAFKA_K8S_NODE_SELECTOR})
 
@@ -485,7 +485,8 @@ deployments:
               partitions: 1
               replicationFactor: 1
               config:
-                max.message.bytes: 64000
+                max.message.bytes: "1048588"
+                # max.message.bytes: 64000
                 flush.messages: 1
             - name: stalker.jobs.requests
               partitions: 1

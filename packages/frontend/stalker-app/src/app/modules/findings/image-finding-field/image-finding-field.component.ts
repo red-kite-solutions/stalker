@@ -1,4 +1,5 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, TemplateRef } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { CustomFindingField, CustomFindingImageField } from '../../../shared/types/finding/finding.type';
 
 @Component({
@@ -16,4 +17,10 @@ export class ImageFindingFieldComponent {
 
     this._data = value;
   }
+
+  public zoom(template: TemplateRef<any>) {
+    this.dialog.open(template);
+  }
+
+  constructor(public dialog: MatDialog) {}
 }
