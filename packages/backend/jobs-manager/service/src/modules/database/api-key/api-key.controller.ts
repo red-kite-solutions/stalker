@@ -9,6 +9,7 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { DeleteResult } from 'mongodb';
 import {
   HttpConflictException,
@@ -18,15 +19,16 @@ import { MongoIdDto } from '../../../types/dto/mongo-id.dto';
 import { AuthenticatedRequest, UserAuthContext } from '../../auth/auth.types';
 import { Role } from '../../auth/constants';
 import { Roles } from '../../auth/decorators/roles.decorator';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/role.guard';
+import { ApiKeyStrategy } from '../../auth/strategies/api-key.strategy';
+import { JwtStrategy } from '../../auth/strategies/jwt.strategy';
 import { MONGO_DUPLICATE_ERROR } from '../database.constants';
 import { ApiKeyDocument } from './api-key.model';
 import { ApiKeyService } from './api-key.service';
 import { ApiKeyFilterModel } from './api-key.types';
 import { ApiKeyFilterDto, CreateApiKeyDto } from './api.key.dto';
 
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
 @Roles(Role.ReadOnly)
 @Controller('apikey')
 export class ApiKeyController {
