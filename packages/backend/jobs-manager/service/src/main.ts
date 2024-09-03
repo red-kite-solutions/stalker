@@ -13,7 +13,7 @@ async function bootstrap() {
     cors: {
       origin: process.env.STALKER_URL,
     },
-    logger: ['debug', 'warn', 'error'],
+    logger: ['debug', 'log', 'warn', 'error'],
   };
 
   // Setting up https for prod environments

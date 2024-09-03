@@ -106,7 +106,6 @@ jobs:
       tag-prefix: cron
       dockerfile-path: ./packages/backend/cron/service/Dockerfile
       image-name: ghcr.io/red-kite-solutions/stalker-cron
-      stalker-base-tag-override: ${{ needs.base.outputs.new-tag }}
     secrets:
       github-token: ${{secrets.GITHUB_TOKEN}}
 
@@ -120,7 +119,6 @@ jobs:
       tag-prefix: orchestrator
       dockerfile-path: ./packages/backend/orchestrator/service/Dockerfile
       image-name: ghcr.io/red-kite-solutions/stalker-orchestrator
-      stalker-base-tag-override: ${{ needs.base.outputs.new-tag }}
     secrets:
       github-token: ${{secrets.GITHUB_TOKEN}}
 
@@ -134,7 +132,6 @@ jobs:
       tag-prefix: jobs-manager
       dockerfile-path: ./packages/backend/jobs-manager/service/Dockerfile
       image-name: ghcr.io/red-kite-solutions/stalker-jobs-manager
-      stalker-base-tag-override: ${{ needs.base.outputs.new-tag }}
     secrets:
       github-token: ${{secrets.GITHUB_TOKEN}}
 
@@ -148,7 +145,6 @@ jobs:
       tag-prefix: stalker-app
       dockerfile-path: ./packages/frontend/stalker-app/Dockerfile
       image-name: ghcr.io/red-kite-solutions/stalker-app
-      stalker-base-tag-override: ${{ needs.base.outputs.new-tag }}
     secrets:
       github-token: ${{secrets.GITHUB_TOKEN}}
 

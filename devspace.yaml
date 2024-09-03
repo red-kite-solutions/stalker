@@ -47,8 +47,8 @@ pipelines:
       create_deployments mongo kafka orchestrator-service-account orchestrator jobs-manager --sequential
 
       # Wait for kafka and mongo to be ready
-      wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 480
-      wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 480
+      wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 600
+      wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 600
 
       # Run tests
       if [ $(get_flag "watch") == "true" ]; 
@@ -77,8 +77,8 @@ pipelines:
       create_deployments mongo kafka orchestrator-service-account orchestrator jobs-manager --sequential
 
       # Wait for kafka and mongo to be ready
-      wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 480
-      wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 480
+      wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 600
+      wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 600
 
   jobs-manager-e2e-cicd-run:
     run: |-
@@ -97,15 +97,15 @@ pipelines:
       start_dev mongo kafka
 
       # Wait for kafka and mongo to be ready
-      wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 480
-      wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 480
+      wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 600
+      wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 600
 
       create_deployments ui jobs-manager orchestrator-service-account orchestrator --sequential
 
       # Wait for services before applying network policies
-      wait_pod --label-selector app.kubernetes.io/component=ui --timeout 480
-      wait_pod --label-selector app.kubernetes.io/component=jobs-manager --timeout 480
-      wait_pod --label-selector app.kubernetes.io/component=orchestrator --timeout 480
+      wait_pod --label-selector app.kubernetes.io/component=ui --timeout 600
+      wait_pod --label-selector app.kubernetes.io/component=jobs-manager --timeout 600
+      wait_pod --label-selector app.kubernetes.io/component=orchestrator --timeout 600
 
       create_deployments network-policies
       create_deployments resource-quotas
@@ -115,37 +115,38 @@ pipelines:
 
       create_deployments cron
 
-      wait_pod --label-selector app.kubernetes.io/component=cron --timeout 480
+      wait_pod --label-selector app.kubernetes.io/component=cron --timeout 600
 
       start_dev cron
 
   prod:
     run: |-
       create_deployments namespaces
+      run_pipelines setup-certificates
 
       # Start mongo and kafka
       create_deployments mongo kafka --sequential
 
       # Wait for kafka and mongo to be ready
-      wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 480
-      wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 480
+      wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 600
+      wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 600
 
       create_deployments jobs-manager orchestrator-service-account orchestrator ui --sequential
 
       # Wait for services before applying network policies
-      wait_pod --label-selector app.kubernetes.io/component=ui --timeout 480
-      wait_pod --label-selector app.kubernetes.io/component=jobs-manager --timeout 480
-      wait_pod --label-selector app.kubernetes.io/component=orchestrator --timeout 480
+      wait_pod --label-selector app.kubernetes.io/component=ui --timeout 600
+      wait_pod --label-selector app.kubernetes.io/component=jobs-manager --timeout 600
+      wait_pod --label-selector app.kubernetes.io/component=orchestrator --timeout 600
 
       create_deployments network-policies resource-quotas
 
       create_deployments cron
-      wait_pod --label-selector app.kubernetes.io/component=cron --timeout 480
+      wait_pod --label-selector app.kubernetes.io/component=cron --timeout 600
 
   prod-community:
     run: |-
       create_deployments namespaces
-      run_pipelines setup-certificates setup-kafka build
+      run_pipelines setup-kafka build
       run_pipelines prod
       start_dev ui orchestrator jobs-manager cron
 
