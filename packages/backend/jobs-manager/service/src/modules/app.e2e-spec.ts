@@ -19,15 +19,15 @@ describe('AppController (e2e)', () => {
     await app.close();
   });
 
-  it('Should get the root of the application to check if it is alive (GET /)', async () => {
+  it('Should be unauthorized get the root of the application (GET /)', async () => {
     const r = await request(app.getHttpServer()).get('/');
-    expect(r.statusCode).toBe(HttpStatus.OK);
-    expect(r.text.length).toBeGreaterThan(0);
+    expect(r.statusCode).toBe(HttpStatus.UNAUTHORIZED);
   });
 
-  it('Should be unauthorized to get the ping route while unauthenticated (GET /ping)', async () => {
+  it('Should the ping route while (GET /ping)', async () => {
     const r = await request(app.getHttpServer()).get('/ping');
-    expect(r.statusCode).toBe(HttpStatus.UNAUTHORIZED);
+    expect(r.statusCode).toBe(HttpStatus.OK);
+    expect(r.text.length).toBeGreaterThan(0);
   });
 
   afterAll(async () => {
