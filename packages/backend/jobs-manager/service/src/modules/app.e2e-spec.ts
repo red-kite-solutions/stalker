@@ -29,8 +29,4 @@ describe('AppController (e2e)', () => {
     expect(r.statusCode).toBe(HttpStatus.OK);
     expect(r.text.length).toBeGreaterThan(0);
   });
-
-  afterAll(async () => {
-    await app.close();
-  });
 });
