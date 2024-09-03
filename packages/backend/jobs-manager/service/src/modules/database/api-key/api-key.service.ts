@@ -78,6 +78,14 @@ export class ApiKeyService {
     return await query;
   }
 
+  public async count(filter: ApiKeyFilterModel = null) {
+    if (!filter) {
+      return await this.apiKeyModel.estimatedDocumentCount();
+    } else {
+      return await this.apiKeyModel.countDocuments(this.buildFilters(filter));
+    }
+  }
+
   public async getById(
     id: string,
     userId: string = undefined,

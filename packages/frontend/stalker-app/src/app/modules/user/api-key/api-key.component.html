@@ -1,0 +1,100 @@
+<div>
+  <p i18n="Api key explanation|The explanation of the form and API keys">
+    Create an API key to access the API as your current user.
+  </p>
+
+  <form [formGroup]="form" class="tw-flex tw-flex-col tw-gap">
+    <div class="tw-flex tw-row tw-gap">
+      <mat-form-field class="tw-flex-auto tw-w-64">
+        <input matInput name="name" formControlName="name" />
+        <mat-label i18="Name|name">Name</mat-label>
+        <mat-error i18n="Name required|An API requires a name">Name is required</mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="tw-flex-auto tw-w-48">
+        <mat-label i18n="Key expiration|The date at which the key will expire">Key expiration date</mat-label>
+        <input
+          matInput
+          [matDatepicker]="picker"
+          formControlName="picker"
+          i18n-matTooltip="Date picker format|Date picker format"
+          matTooltip="yyyy/mm/dd"
+          matTooltipShowDelay="500"
+        />
+        <mat-error i18n="Required key expiration|Key expiration date is required for the form to be valid"
+          >Key expiration date is required</mat-error
+        >
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+
+      <button class="create-key" mat-stroked-button (click)="createApiKey()">
+        <mat-icon>add</mat-icon>
+        <label i18n="Create key|Create a new API key">Create key</label>
+      </button>
+    </div>
+    @if (newKeyValue) {
+      <div class="api-key-created">
+        <div class="tw-flex tw-flex-row tw-gap">
+          <div class="api-key-title">New API key</div>
+          <mat-divider vertical="true"></mat-divider>
+          <div>Save your new API key, as it will not be shown again.</div>
+        </div>
+
+        <div class="api-key-value">{{ newKeyValue }}</div>
+      </div>
+    }
+  </form>
+</div>
+
+<div class="tw-mt-2">
+  @if (dataSource$ | async; as dataSource) {
+    <app-filtered-paginated-table
+      (pageChange)="pageChange($event)"
+      [isLoading]="dataLoading"
+      [length]="count"
+      [filterEnabled]="false"
+    >
+      <app-table-format
+        [dataSource]="dataSource"
+        [columns]="displayColumns"
+        (selectionChange)="selection = $event"
+        [noDataMessage]="noDataMessage"
+        [menuFactory]="generateMenuItem"
+        [elementLinkActive]="false"
+      >
+        <!-- Name Column -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef i18n="Name|An item's name">Name</th>
+          <td mat-cell *matCellDef="let element">
+            <div class="tw-flex tw-flex-wrap tw-gap-2 tw-items-center">
+              {{ element.name }}
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- ExpiresAt Column -->
+        <ng-container matColumnDef="expiresAt">
+          <th mat-header-cell *matHeaderCellDef i18n="Expires at|The expiration date">Expires at</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.expiresAt | humanizeDate: 'approximate' }}
+          </td>
+        </ng-container>
+
+        <!-- CreatedAt Column -->
+        <ng-container matColumnDef="createdAt">
+          <th mat-header-cell *matHeaderCellDef i18n="Created at|The creation date">Created at</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.createdAt | humanizeDate: 'approximate' }}
+          </td>
+        </ng-container>
+
+        <!--
+      Make an is active column
+      -->
+
+        <tr mat-header-row *matHeaderRowDef="displayColumns"></tr>
+      </app-table-format>
+    </app-filtered-paginated-table>
+  }
+</div>

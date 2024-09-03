@@ -1,14 +1,50 @@
+import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormControl, ValidationErrors, Validators } from '@angular/forms';
+import {
+  FormsModule,
+  ReactiveFormsModule,
+  UntypedFormBuilder,
+  UntypedFormControl,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
-import { map } from 'rxjs';
+import { map, shareReplay } from 'rxjs';
 import { AuthService } from 'src/app/api/auth/auth.service';
 import { UsersService } from 'src/app/api/users/users.service';
 import { HttpStatus } from 'src/app/shared/types/http-status.type';
+import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { ApiKeyComponent } from '../api-key/api-key.component';
 
 @Component({
+  standalone: true,
   selector: 'app-profile',
+  imports: [
+    CommonModule,
+    MatCardModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatButtonModule,
+    MatInputModule,
+    MatProgressSpinnerModule,
+    MatMenuModule,
+    FormsModule,
+    AppHeaderComponent,
+    MatTooltipModule,
+    MatDividerModule,
+    ReactiveFormsModule,
+    ApiKeyComponent,
+  ],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss'],
 })
@@ -62,14 +98,17 @@ export class ProfileComponent {
     passwordConfirm: ['', [this.validatePasswordEquals]],
   });
 
+  userId: string | undefined = undefined;
   form$ = this.usersService.getUser(this.authService.id).pipe(
     map((user: any) => {
       this.form.controls['email'].setValue(user.email);
       this.form.controls['firstName'].setValue(user.firstName);
       this.form.controls['lastName'].setValue(user.lastName);
       this.form.controls['email'].disable();
+      this.userId = user._id;
       return this.form;
-    })
+    }),
+    shareReplay(1)
   );
 
   hideCurrentPassword = true;

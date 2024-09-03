@@ -4,12 +4,8 @@
   bottom: 0;
   right: 0;
   left: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
   padding: 16px;
   padding-top: 0;
-  align-items: center;
 }
 
 mat-card {
@@ -21,4 +17,14 @@ mat-card {
 mat-divider {
   margin-left: -16px;
   margin-right: -16px;
+}
+
+.container {
+  width: 100%;
+  height: fit-content;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  padding-bottom: 30px;
+  align-items: center;
 }

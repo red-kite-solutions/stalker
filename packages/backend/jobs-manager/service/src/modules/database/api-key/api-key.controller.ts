@@ -16,6 +16,7 @@ import {
   HttpServerErrorException,
 } from '../../../exceptions/http.exceptions';
 import { MongoIdDto } from '../../../types/dto/mongo-id.dto';
+import { Page } from '../../../types/page.type';
 import { AuthenticatedRequest, UserAuthContext } from '../../auth/auth.types';
 import { Role } from '../../auth/constants';
 import { Roles } from '../../auth/decorators/roles.decorator';
@@ -30,7 +31,7 @@ import { ApiKeyFilterDto, CreateApiKeyDto } from './api.key.dto';
 
 @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
 @Roles(Role.ReadOnly)
-@Controller('apikey')
+@Controller('api-key')
 export class ApiKeyController {
   constructor(private apiKeyService: ApiKeyService) {}
 
@@ -45,7 +46,7 @@ export class ApiKeyController {
   async getAll(
     @Request() req: AuthenticatedRequest,
     @Query() dto: ApiKeyFilterDto,
-  ): Promise<ApiKeyDocument[]> {
+  ): Promise<Page<ApiKeyDocument>> {
     const userContext = this.getUserAuthContext(req);
     let filter: ApiKeyFilterModel = dto;
 
@@ -54,7 +55,10 @@ export class ApiKeyController {
       filter.userId = userContext.id;
     }
 
-    return await this.apiKeyService.getAll(dto.page, dto.pageSize, filter);
+    return {
+      totalRecords: await this.apiKeyService.count(),
+      items: await this.apiKeyService.getAll(dto.page, dto.pageSize, filter),
+    };
   }
 
   @Get(':id')

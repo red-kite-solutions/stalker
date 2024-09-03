@@ -30,6 +30,9 @@ export class ApiKey {
 
   @Prop()
   public active: boolean;
+
+  @Prop()
+  public updatedAt: number;
 }
 
 export const ApiKeySchema = SchemaFactory.createForClass(ApiKey);
