@@ -9,14 +9,16 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { DeleteResult, UpdateResult } from 'mongodb';
 import { HttpBadRequestException } from '../../../../exceptions/http.exceptions';
 import { MongoIdDto } from '../../../../types/dto/mongo-id.dto';
 import { Role } from '../../../auth/constants';
 import { Roles } from '../../../auth/decorators/roles.decorator';
 import { CronApiTokenGuard } from '../../../auth/guards/cron-api-token.guard';
-import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../auth/guards/role.guard';
+import { ApiKeyStrategy } from '../../../auth/strategies/api-key.strategy';
+import { JwtStrategy } from '../../../auth/strategies/jwt.strategy';
 import { PatchSubscriptionDto } from '../subscriptions.dto';
 import { CronSubscriptionDto } from './cron-subscriptions.dto';
 import { CronSubscriptionsDocument } from './cron-subscriptions.model';
@@ -26,21 +28,21 @@ import { CronSubscriptionsService } from './cron-subscriptions.service';
 export class CronSubscriptionsController {
   constructor(private subscriptionsService: CronSubscriptionsService) {}
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.User)
   @Post()
   async create(@Body() dto: CronSubscriptionDto) {
     return await this.subscriptionsService.create(dto);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.ReadOnly)
   @Get()
   async getAllSubscriptions(): Promise<CronSubscriptionsDocument[]> {
     return await this.subscriptionsService.getAll();
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.ReadOnly)
   @Get(':id')
   async getSubscription(
@@ -49,7 +51,7 @@ export class CronSubscriptionsController {
     return await this.subscriptionsService.get(idDto.id);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.User)
   @Patch(':id')
   async patch(
@@ -77,7 +79,7 @@ export class CronSubscriptionsController {
     await this.subscriptionsService.launchCronSubscriptionJob(idDto.id);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.User)
   @Put(':id')
   async editSubscription(
@@ -87,7 +89,7 @@ export class CronSubscriptionsController {
     return await this.subscriptionsService.edit(idDto.id, dto);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.User)
   @Delete(':id')
   async deleteSubscription(@Param() idDto: MongoIdDto): Promise<DeleteResult> {

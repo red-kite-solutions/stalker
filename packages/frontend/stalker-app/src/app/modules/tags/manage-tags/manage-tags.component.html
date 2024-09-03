@@ -21,7 +21,6 @@
     <div class="table-container">
       @if ((dataSource$ | async) || true) {
         <app-filtered-paginated-table
-          [dataSource]="dataSource$ | async"
           (pageChange)="pageChange($event)"
           [isLoading]="(isLoading$ | async) || false"
           [length]="(tags$ | async)?.length || 0"

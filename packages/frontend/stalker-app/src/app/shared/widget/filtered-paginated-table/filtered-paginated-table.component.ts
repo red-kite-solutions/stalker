@@ -36,7 +36,6 @@ import {
   MatNoDataRow,
   MatRowDef,
   MatTable,
-  MatTableDataSource,
   MatTableModule,
 } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -107,8 +106,6 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
   @ViewChild('chipList') chipGrid!: MatChipGrid;
   @ViewChild('tabletop', { read: ElementRef }) filterDiv!: ElementRef;
 
-  @Input() dataSource!: MatTableDataSource<T> | null;
-
   @Input() noDataMessage: string =
     $localize`:No data|No data is matching the filter, the array is empty:No matching data.`;
   @Input() filterType: 'tokens' | 'fulltext' = 'tokens';
@@ -139,6 +136,7 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
     if (date) this.dateRange.get('end')?.setValue(moment(date));
   }
 
+  @Input() filterEnabled: boolean = true;
   @Input() filters: string[] = [];
   separatorKeysCodes: number[] = [TAB, ENTER];
   filterForm = new UntypedFormControl('');

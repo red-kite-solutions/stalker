@@ -1,5 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { ApiKeyService } from '../database/api-key/api-key.service';
 import { UserDocument } from '../database/users/users.model';
 import { UsersService } from '../database/users/users.service';
 import { jwtConstants, rtConstants } from './constants';
@@ -10,6 +11,7 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     public jwtService: JwtService,
+    private apiKeyService: ApiKeyService,
   ) {}
 
   public async validateUser(email: string, pass: string): Promise<any> {
@@ -54,5 +56,9 @@ export class AuthService {
 
   public async isAuthenticationSetup() {
     return await this.usersService.isFirstUserCreated();
+  }
+
+  public async findValidApiKey(key: string) {
+    return await this.apiKeyService.findValidApiKey(key);
   }
 }

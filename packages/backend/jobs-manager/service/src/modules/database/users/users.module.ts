@@ -1,30 +1,17 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
 import { NotificationsModule } from '../../notifications/notifications.module';
+import { ApiKeyModule } from '../api-key/api-key.module';
+import { DatalayerModule } from '../datalayer.module';
 import { FirstUserController } from './first-user.controller';
-import { MagicLinkTokenSchema } from './magic-link-token.model';
 import {
   UnprotectedUsersController,
   UsersController,
 } from './users.controller';
-import { UsersSchema } from './users.model';
 import { userInitProvider } from './users.provider';
 import { UsersService } from './users.service';
 
 @Module({
-  imports: [
-    NotificationsModule,
-    MongooseModule.forFeature([
-      {
-        name: 'users',
-        schema: UsersSchema,
-      },
-      {
-        name: 'magicLinkTokens',
-        schema: MagicLinkTokenSchema,
-      },
-    ]),
-  ],
+  imports: [NotificationsModule, DatalayerModule, ApiKeyModule],
   controllers: [
     UsersController,
     UnprotectedUsersController,

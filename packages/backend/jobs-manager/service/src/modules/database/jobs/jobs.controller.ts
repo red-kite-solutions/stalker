@@ -8,6 +8,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { isNotEmpty, isString } from 'class-validator';
 import {
   HttpBadRequestException,
@@ -21,8 +22,9 @@ import { ProjectUnassigned } from '../../../validators/is-project-id.validator';
 import { Role } from '../../auth/constants';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { CronApiTokenGuard } from '../../auth/guards/cron-api-token.guard';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/role.guard';
+import { ApiKeyStrategy } from '../../auth/strategies/api-key.strategy';
+import { JwtStrategy } from '../../auth/strategies/jwt.strategy';
 import { ConfigService } from '../admin/config/config.service';
 import { JobPodConfiguration } from '../admin/config/job-pod-config/job-pod-config.model';
 import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
@@ -44,7 +46,7 @@ export class JobsController {
     private readonly secretsService: SecretsService,
   ) {}
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.ReadOnly)
   @Get()
   async getAllJobs(
@@ -54,14 +56,14 @@ export class JobsController {
     return await this.jobsService.getAll(dto);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.ReadOnly)
   @Get(':id/logs')
   async getJobLogs(@Param() id: MongoIdDto): Promise<Page<JobLog>> {
     return await this.jobsService.getLogs(id.id);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.ReadOnly)
   @Get('summaries')
   async getAllJobSummaries(): Promise<JobSummary[]> {
@@ -81,7 +83,7 @@ export class JobsController {
     return jd.concat(cjd);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.User)
   @Post()
   async startJob(@Body() dto: StartJobDto) {
@@ -129,7 +131,7 @@ export class JobsController {
     return await this.jobsService.publish(job);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.User)
   @Delete()
   async deleteAllJobs() {
@@ -142,14 +144,14 @@ export class JobsController {
     await this.jobsService.cleanup();
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.User)
   @Delete(':id')
   async deleteJob(@Param() dto: MongoIdDto) {
     return await this.jobsService.delete(dto.id);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.ReadOnly)
   @Get(':id')
   async getJob(@Param() dto: MongoIdDto): Promise<any> {

@@ -12,13 +12,15 @@ import {
 } from '@nestjs/common';
 import { UpdateResult } from 'mongodb';
 
+import { AuthGuard } from '@nestjs/passport';
 import { MongoIdDto } from '../../../../types/dto/mongo-id.dto';
 import { TagItemDto } from '../../../../types/dto/tag-item.dto';
 import { Page } from '../../../../types/page.type';
 import { Role } from '../../../auth/constants';
 import { Roles } from '../../../auth/decorators/roles.decorator';
-import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../auth/guards/role.guard';
+import { ApiKeyStrategy } from '../../../auth/strategies/api-key.strategy';
+import { JwtStrategy } from '../../../auth/strategies/jwt.strategy';
 import {
   BatchEditDomainsDto,
   DeleteDomainsDto,
@@ -33,7 +35,7 @@ import { DomainsService } from './domain.service';
 export class DomainsController {
   constructor(private readonly domainsService: DomainsService) {}
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.ReadOnly)
   @Get()
   async getAllDomains(
@@ -48,14 +50,14 @@ export class DomainsController {
     };
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.User)
   @Post()
   async submitDomains(@Body() dto: SubmitDomainsDto) {
     return await this.domainsService.addDomains(dto.domains, dto.projectId);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.User)
   @Put(':id/tags')
   async tagDomain(@Param() idDto: MongoIdDto, @Body() tagDto: TagItemDto) {
@@ -66,21 +68,21 @@ export class DomainsController {
     );
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.User)
   @Patch()
   async batchEdit(@Body() dto: BatchEditDomainsDto) {
     return await this.domainsService.batchEdit(dto);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.ReadOnly)
   @Get(':id')
   async getDomain(@Param() dto: MongoIdDto): Promise<DomainDocument> {
     return await this.domainsService.getDomain(dto.id);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.User)
   @Put(':id')
   async editDomain(
@@ -90,14 +92,14 @@ export class DomainsController {
     return await this.domainsService.editDomain(idDto.id, dto);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.User)
   @Delete(':id')
   async deleteDomain(@Param() idDto: MongoIdDto) {
     return await this.domainsService.delete(idDto.id);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.User)
   @Delete()
   async deleteDomains(@Body() dto: DeleteDomainsDto) {

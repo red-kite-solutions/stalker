@@ -371,8 +371,4 @@ describe('Users Controller (e2e)', () => {
     );
     expect(success).toBe(true);
   });
-
-  afterAll(async () => {
-    await app.close();
-  });
 });

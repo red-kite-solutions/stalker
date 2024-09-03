@@ -7,6 +7,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { DeleteResult } from 'mongodb';
 import {
   HttpConflictException,
@@ -17,8 +18,9 @@ import { MongoIdDto } from '../../../types/dto/mongo-id.dto';
 import { ProjectUnassigned } from '../../../validators/is-project-id.validator';
 import { Role } from '../../auth/constants';
 import { Roles } from '../../auth/decorators/roles.decorator';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/role.guard';
+import { ApiKeyStrategy } from '../../auth/strategies/api-key.strategy';
+import { JwtStrategy } from '../../auth/strategies/jwt.strategy';
 import { MONGO_DUPLICATE_ERROR } from '../database.constants';
 import { CreateSecretDto } from './secrets.dto';
 import { SecretsService } from './secrets.service';
@@ -27,14 +29,14 @@ import { SecretsService } from './secrets.service';
 export class SecretsController {
   constructor(private secretsService: SecretsService) {}
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.ReadOnly)
   @Get()
   async getSecrets() {
     return await this.secretsService.getAll();
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.ReadOnly)
   @Get(':id')
   async getSecret(@Param() id: MongoIdDto) {
@@ -43,7 +45,7 @@ export class SecretsController {
     return s;
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.User)
   @Post()
   async createSecret(@Body() dto: CreateSecretDto) {
@@ -65,7 +67,7 @@ export class SecretsController {
     }
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.User)
   @Delete(':id')
   async deleteSecret(@Param() id: MongoIdDto): Promise<DeleteResult> {
