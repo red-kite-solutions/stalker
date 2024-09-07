@@ -24,6 +24,9 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
+      - name: Switch user
+        run: su codebuild-user
+
       - name: Setup MiniKube
         id: minikube
         uses: medyagh/setup-minikube@master
