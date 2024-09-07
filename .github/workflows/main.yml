@@ -16,7 +16,7 @@ jobs:
   test:
     name: E2E Tests
     # The type of runner that the job will run on
-    runs-on: codebuild-Stalker-${{ github.run_id }}-${{ github.run_attempt }}-with-buildspec
+    runs-on: codebuild-Stalker-${{ github.run_id }}-${{ github.run_attempt }}
     timeout-minutes: 30
 
     # Steps represent a sequence of tasks that will be executed as part of the job
