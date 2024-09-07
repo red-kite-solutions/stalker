@@ -26,10 +26,13 @@ jobs:
 
       - name: Setup MiniKube
         id: minikube
-        uses: medyagh/setup-minikube@master
+        uses: manusa/actions-setup-minikube@v2.11.0
         with:
-          extra-config: "--force"
-
+          minikube version: 'v1.33.0'
+          kubernetes version: 'v1.30.0'
+          driver: docker
+          start args: --force --cpus 8 --memory 8192
+          
       - name: Install DevSpace
         uses: loft-sh/setup-devspace@main
         with:
