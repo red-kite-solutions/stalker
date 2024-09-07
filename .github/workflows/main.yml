@@ -31,7 +31,7 @@ jobs:
           minikube version: 'v1.33.0'
           kubernetes version: 'v1.30.0'
           driver: docker
-          start args: --user=codebuild-user --cpus 8 --memory 8192
+          start args: --force --cpus 8 --memory 8192
           
       - name: Install DevSpace
         uses: loft-sh/setup-devspace@main
