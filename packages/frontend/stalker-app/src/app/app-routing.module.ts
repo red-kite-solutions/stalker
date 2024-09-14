@@ -7,7 +7,6 @@ import { UnauthenticatedComponent } from './layouts/unauthenticated/unauthentica
 import { AuthComponent } from './modules/auth/auth.component';
 import { JobExecutionDetailComponent } from './modules/jobs/job-executions/job-execution-detail.component';
 import { EditProjectsComponent } from './modules/projects/edit-projects/edit-projects.component';
-import { ProfileComponent } from './modules/user/profile/profile.component';
 import { hasUnsavedChangesGuard } from './shared/guards/unsaved-changes-can-deactivate.component';
 
 const routes: Routes = [
@@ -23,7 +22,7 @@ const routes: Routes = [
       {
         path: 'profile',
         canActivate: [authenticationGuard],
-        component: ProfileComponent,
+        loadChildren: () => import('./modules/user/user.module').then((m) => m.UserModule),
       },
       {
         path: 'admin',

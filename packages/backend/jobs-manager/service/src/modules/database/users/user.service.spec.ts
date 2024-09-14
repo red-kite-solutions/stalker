@@ -33,6 +33,7 @@ describe('Users Service', () => {
 
   beforeEach(async () => {
     await userModel.deleteMany({});
+    await magicLinkToken.deleteMany({});
   });
 
   afterAll(async () => {
@@ -354,7 +355,7 @@ describe('Users Service', () => {
       expect(sendEmailSpy).toHaveBeenCalled();
     });
 
-    it('Should return user with limited permissions and delete token when magic token is valid', async () => {
+    it('Should return user with limited permissions and delete token when password is reset', async () => {
       // Arrange
       const u = await user({ role: Role.Admin });
       await magicLinkToken.create({
@@ -372,6 +373,10 @@ describe('Users Service', () => {
       expect(authenticatedUser.email).toBe(u.email);
       expect(authenticatedUser.role).toBe(Role.UserResetPassword);
 
+      // Act
+      await userService.changePasswordById(u._id.toString(), 'newpass');
+
+      // Assert
       const token = await magicLinkToken.findOne({ userId: u._id });
       expect(token).toBeNull();
     });

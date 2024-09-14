@@ -1,0 +1,36 @@
+.api-key-created {
+  border: 3px;
+  border-color: #3e8550;
+  border-style: solid;
+  border-radius: 8px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 15px;
+  color: var(--mdc-dialog-supporting-text-color, rgba(0, 0, 0, 0.6));
+
+  .api-key-title {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    color: #3e8550;
+    font-weight: bold;
+  }
+
+  .api-key-value {
+    font-family: Consolas;
+  }
+}
+
+p {
+  font-size: 15px;
+  color: var(--mdc-dialog-supporting-text-color, rgba(0, 0, 0, 0.6));
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.create-key {
+  height: inherit;
+  margin-bottom: 18px;
+}

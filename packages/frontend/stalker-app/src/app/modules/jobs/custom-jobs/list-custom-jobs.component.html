@@ -26,7 +26,6 @@
 
   <mat-card-content>
     <app-filtered-paginated-table
-      [dataSource]="dataSource$ | async"
       (pageChange)="pageChange($event)"
       [isLoading]="(isLoading$ | async) || false"
       [length]="(customJobs$ | async)?.length || 0"

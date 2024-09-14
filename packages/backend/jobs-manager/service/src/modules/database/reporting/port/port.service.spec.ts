@@ -37,7 +37,7 @@ describe('Port Service', () => {
     }
     const tags = await tagsService.getAll();
     for (const t of tags) {
-      tagsService.delete(t._id);
+      await tagsService.delete(t._id);
     }
   });
 

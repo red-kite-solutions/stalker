@@ -11,6 +11,7 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { DeleteResult } from 'mongodb';
 import {
   HttpConflictException,
@@ -18,17 +19,19 @@ import {
   HttpServerErrorException,
 } from '../../../exceptions/http.exceptions';
 import { MongoIdDto } from '../../../types/dto/mongo-id.dto';
+import { AuthenticatedRequest } from '../../auth/auth.types';
 import { Role } from '../../auth/constants';
 import { Roles } from '../../auth/decorators/roles.decorator';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/role.guard';
+import { ApiKeyStrategy } from '../../auth/strategies/api-key.strategy';
+import { JwtStrategy } from '../../auth/strategies/jwt.strategy';
 import { MONGO_DUPLICATE_ERROR } from '../database.constants';
 import { ResetPasswordRequestDto } from './reset-password-request.dto';
 import { ChangePasswordDto, CreateUserDto, EditUserDto } from './users.dto';
 import { User, UserDocument } from './users.model';
 import { UsersService } from './users.service';
 
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
 @Controller('/users')
 export class UsersController {
   private logger = new Logger(UsersController.name);
@@ -49,7 +52,7 @@ export class UsersController {
   @Roles(Role.Admin)
   @Post()
   public async createUser(
-    @Request() req,
+    @Request() req: AuthenticatedRequest,
     @Body() dto: CreateUserDto,
   ): Promise<UserDocument> {
     const valid: boolean | null = await this.usersService.validateIdentity(
@@ -86,7 +89,7 @@ export class UsersController {
   @Roles(Role.ReadOnly)
   @Get(':id')
   public async getUser(
-    @Request() req,
+    @Request() req: AuthenticatedRequest,
     @Param() dto: MongoIdDto,
   ): Promise<User> {
     if (req.user.role !== Role.Admin && req.user.id !== dto.id) {
@@ -103,7 +106,7 @@ export class UsersController {
   @Roles(Role.ReadOnly)
   @Put(':id')
   public async editUser(
-    @Request() req,
+    @Request() req: AuthenticatedRequest,
     @Param() idDto: MongoIdDto,
     @Body() dto: EditUserDto,
   ): Promise<void> {
@@ -150,7 +153,7 @@ export class UsersController {
   @Roles(Role.UserResetPassword)
   @Put(':id/password')
   public async editUserPassword(
-    @Request() req,
+    @Request() req: AuthenticatedRequest,
     @Param() idDto: MongoIdDto,
     @Body() dto: ChangePasswordDto,
   ): Promise<void> {
@@ -204,10 +207,7 @@ export class UnprotectedUsersController {
    * This route is unprotected on purpose. It allows users to update their password.
    */
   @Post('reset-password-requests')
-  async requestPasswordReset(
-    @Request() request: any,
-    @Body() dto: ResetPasswordRequestDto,
-  ) {
+  async requestPasswordReset(@Body() dto: ResetPasswordRequestDto) {
     if (!dto.email) throw new BadRequestException();
 
     // We fire-and-forget the password reset link task

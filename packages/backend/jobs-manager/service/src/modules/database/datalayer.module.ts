@@ -3,6 +3,7 @@ import { ConfigModelModule } from './admin/config/config-model.module';
 import { databaseConfigInitProvider } from './admin/config/config.provider';
 import { JobPodConfigModelModule } from './admin/config/job-pod-config/job-pod-config-model.module';
 import { AlarmModelModule } from './alarm/alarm-model.module';
+import { ApiKeyModelModule } from './api-key/api-key-model.module';
 import { CustomJobTemplateModelModule } from './custom-job-templates/custom-job-templates-model.module';
 import { JobModelModule } from './jobs/job-model.module';
 import { DomainModelModule } from './reporting/domain/domain-model.module';
@@ -14,6 +15,7 @@ import { WebsiteModelModule } from './reporting/websites/website-model.module';
 import { SecretsModelModule } from './secrets/secrets-model.module';
 import { CronSubscriptionModelModule } from './subscriptions/cron-subscriptions/cron-subscription-model.module';
 import { TagModelModule } from './tags/tag-model.module';
+import { UserModelModule } from './users/users-model.module';
 
 @Module({
   imports: [
@@ -31,6 +33,8 @@ import { TagModelModule } from './tags/tag-model.module';
     AlarmModelModule,
     CustomJobTemplateModelModule,
     WebsiteModelModule,
+    ApiKeyModelModule,
+    UserModelModule,
   ],
   providers: [...databaseConfigInitProvider],
   exports: [
@@ -49,6 +53,7 @@ import { TagModelModule } from './tags/tag-model.module';
     CustomJobTemplateModelModule,
     WebsiteModelModule,
     DomainModelModule,
+    ApiKeyModelModule,
   ],
 })
 export class DatalayerModule {}

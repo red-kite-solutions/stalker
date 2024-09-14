@@ -1,20 +1,20 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 
 export class HttpServerErrorException extends HttpException {
-  constructor() {
-    super('Error', HttpStatus.INTERNAL_SERVER_ERROR);
+  constructor(message: string = 'Error') {
+    super(message, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 }
 
 export class HttpConflictException extends HttpException {
-  constructor() {
-    super('Conflict', HttpStatus.CONFLICT);
+  constructor(message: string = 'Conflict') {
+    super(message, HttpStatus.CONFLICT);
   }
 }
 
 export class HttpForbiddenException extends HttpException {
-  constructor(message: string | null = null) {
-    super(message ?? 'Invalid credentials', HttpStatus.FORBIDDEN);
+  constructor(message: string = 'Invalid credentials') {
+    super(message, HttpStatus.FORBIDDEN);
   }
 }
 
@@ -28,13 +28,13 @@ export class HttpNotFoundException extends HttpException {
 }
 
 export class HttpBadRequestException extends HttpException {
-  constructor(message: string | null = null) {
-    super(message ?? 'Error in request parameters', HttpStatus.BAD_REQUEST);
+  constructor(message: string = 'Error in request parameters') {
+    super(message, HttpStatus.BAD_REQUEST);
   }
 }
 
 export class HttpNotImplementedException extends HttpException {
-  constructor() {
-    super('Feature not yet implemented', HttpStatus.NOT_IMPLEMENTED);
+  constructor(message: string = 'Feature not yet implemented') {
+    super(message, HttpStatus.NOT_IMPLEMENTED);
   }
 }

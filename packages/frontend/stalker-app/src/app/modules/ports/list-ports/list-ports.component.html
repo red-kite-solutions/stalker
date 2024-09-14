@@ -20,7 +20,6 @@
   <mat-card-content>
     @if (((dataSource$ | async) && (projects$ | async) && (tags$ | async)) || true) {
       <app-filtered-paginated-table
-        [dataSource]="dataSource"
         (pageChange)="pageChange($event)"
         [isLoading]="dataLoading"
         [length]="count"

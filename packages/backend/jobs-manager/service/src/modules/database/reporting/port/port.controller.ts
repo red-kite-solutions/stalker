@@ -9,14 +9,16 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { HttpNotImplementedException } from '../../../../exceptions/http.exceptions';
 import { MongoIdDto } from '../../../../types/dto/mongo-id.dto';
 import { TagItemDto } from '../../../../types/dto/tag-item.dto';
 import { Page } from '../../../../types/page.type';
 import { Role } from '../../../auth/constants';
 import { Roles } from '../../../auth/decorators/roles.decorator';
-import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../auth/guards/role.guard';
+import { ApiKeyStrategy } from '../../../auth/strategies/api-key.strategy';
+import { JwtStrategy } from '../../../auth/strategies/jwt.strategy';
 import { BatchEditPortsDto, DeleteManyPortsDto, GetPortsDto } from './port.dto';
 import { Port, PortDocument } from './port.model';
 import { PortService } from './port.service';
@@ -25,7 +27,7 @@ import { PortService } from './port.service';
 export class PortController {
   constructor(private readonly portsService: PortService) {}
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.ReadOnly)
   @Get()
   async getHostTopTcpPorts(
@@ -42,7 +44,7 @@ export class PortController {
     };
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.User)
   @Put(':id/tags')
   async tagPort(@Param() idDto: MongoIdDto, @Body() tagDto: TagItemDto) {
@@ -53,28 +55,28 @@ export class PortController {
     );
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.ReadOnly)
   @Get(':id')
   async getPort(@Param() idDto: MongoIdDto) {
     return await this.portsService.getPort(idDto.id);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.User)
   @Delete()
   async deletePorts(@Body() dto: DeleteManyPortsDto) {
     return await this.portsService.deleteMany(dto.portIds);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.User)
   @Delete(':id')
   async deletePort(@Param() idDto: MongoIdDto) {
     return await this.portsService.delete(idDto.id);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.User)
   @Patch()
   async batchEdit(@Body() dto: BatchEditPortsDto) {

@@ -1,5 +1,4 @@
-import { Injectable } from '@nestjs/common';
-import { Logger } from 'mongodb';
+import { Injectable, Logger } from '@nestjs/common';
 import { Client } from 'node-mailjet';
 import {
   EMAIL_RECIPIENTS_FILTER_LIST,
@@ -30,6 +29,7 @@ export class MailJetEmailService extends EmailService {
     context: ResetPasswordContext,
     recipients: EmailRecipient[],
   ) {
+    this.logger.debug('Sending reset password email.');
     const email = this.templatesProvider.getResetPasswordTemplate(context);
     await this.sendEmail(email.subject, email.body, recipients);
   }
@@ -40,6 +40,10 @@ export class MailJetEmailService extends EmailService {
     recipients: EmailRecipient[],
   ) {
     const filteredRecipients = this.filterRecipients(recipients);
+    this.logger.debug(
+      `Sending email to ${filteredRecipients.length} (${recipients.length} before filtering)`,
+    );
+
     try {
       await this.client.post('send', { version: 'v3.1' }).request({
         Messages: [

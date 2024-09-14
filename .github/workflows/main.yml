@@ -27,6 +27,9 @@ jobs:
       - name: Setup MiniKube
         id: minikube
         uses: medyagh/setup-minikube@master
+        with:
+          memory: max
+          cpus: max
 
       - name: Install DevSpace
         uses: loft-sh/setup-devspace@main

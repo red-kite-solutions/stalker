@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { ApiKeyModule } from '../database/api-key/api-key.module';
 import { UsersModule } from '../database/users/users.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { jwtConstants } from './constants';
+import { ApiKeyStrategy } from './strategies/api-key.strategy';
 import { JwtSocketioStrategy } from './strategies/jwt-socketio.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
@@ -19,6 +21,7 @@ import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
       secret: jwtConstants.secret,
       signOptions: { expiresIn: jwtConstants.expirationTime },
     }),
+    ApiKeyModule,
   ],
   controllers: [AuthController],
   providers: [
@@ -28,6 +31,7 @@ import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
     JwtStrategy,
     RefreshTokenStrategy,
     JwtSocketioStrategy,
+    ApiKeyStrategy,
   ],
   exports: [AuthService],
 })
