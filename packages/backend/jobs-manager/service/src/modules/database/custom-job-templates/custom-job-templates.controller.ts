@@ -26,7 +26,9 @@ export class CustomJobTemplatesController {
   @Roles(Role.ReadOnly)
   @Get('summary')
   async getAllSummaries(): Promise<CustomJobTemplateSummary[]> {
-    return await this.templatesService.getAllSummaries();
+    const foo = await this.templatesService.getAllSummaries();
+    console.log(foo);
+    return foo;
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)

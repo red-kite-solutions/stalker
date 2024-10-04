@@ -422,7 +422,7 @@ export class CronSubscriptionsService {
       throw new HttpBadRequestException('Subscription not suitable for revert');
     }
 
-    const defaultSub = SubscriptionsUtils.readCronSubscriptionFile(
+    const defaultSub = await SubscriptionsUtils.readCronSubscriptionFile(
       CRON_SUBSCRIPTIONS_FILES_PATH,
       sub.file,
     );

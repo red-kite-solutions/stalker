@@ -4,7 +4,7 @@ import { JobParameterDefinition } from './job.type';
 export interface CustomJobTemplateSummary {
   _id: string;
   name: string;
-  templateOrdering?: string;
+  category?: string;
 }
 
 export interface CustomJobTemplate extends CustomJobTemplateSummary {

@@ -16,6 +16,11 @@ export class CustomJobTemplateService {
   ) {}
 
   public async create(dto: CustomJobTemplateDto) {
+    let category = dto.category;
+    if (category != null && category[0] != '/') {
+      category = '/' + category;
+    }
+
     const template: CustomJobTemplate = {
       name: dto.name,
       code: dto.code,
@@ -24,7 +29,7 @@ export class CustomJobTemplateService {
       findingHandlerEnabled: dto.findingHandlerEnabled,
       findingHandler: dto.findingHandler ?? undefined,
       findingHandlerLanguage: dto.findingHandlerLanguage ?? undefined,
-      templateOrdering: dto.templateOrdering ?? undefined,
+      category: category,
       jobPodConfigId: new Types.ObjectId(dto.jobPodConfigId),
       parameters: [],
     };
@@ -40,9 +45,7 @@ export class CustomJobTemplateService {
   }
 
   public async getAllSummaries(): Promise<CustomJobTemplateSummary[]> {
-    return await this.templateModel
-      .find()
-      .select(['_id', 'name', 'templateOrdering']);
+    return await this.templateModel.find().select(['_id', 'name', 'category']);
   }
 
   public async delete(id: string): Promise<DeleteResult> {

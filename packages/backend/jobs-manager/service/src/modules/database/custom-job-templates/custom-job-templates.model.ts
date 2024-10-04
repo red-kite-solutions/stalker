@@ -40,7 +40,7 @@ export class CustomJobTemplate {
   builtInFilePath?: string;
 
   @Prop()
-  templateOrdering?: string;
+  category?: string;
 }
 
 export const CustomJobTemplateSchema =

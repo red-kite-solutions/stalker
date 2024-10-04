@@ -85,7 +85,7 @@ export class EventSubscriptionsService {
       throw new HttpBadRequestException('Subscription not suitable for revert');
     }
 
-    const defaultSub = SubscriptionsUtils.readEventSubscriptionFile(
+    const defaultSub = await SubscriptionsUtils.readEventSubscriptionFile(
       EVENT_SUBSCRIPTIONS_FILES_PATH,
       sub.file,
     );

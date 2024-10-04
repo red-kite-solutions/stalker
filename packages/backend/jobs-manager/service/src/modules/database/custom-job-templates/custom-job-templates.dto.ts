@@ -50,5 +50,5 @@ export class CustomJobTemplateDto {
 
   @IsString()
   @IsOptional()
-  public templateOrdering?: string;
+  public category?: string;
 }

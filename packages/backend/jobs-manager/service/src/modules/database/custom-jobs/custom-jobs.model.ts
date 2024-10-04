@@ -38,6 +38,9 @@ export class CustomJobEntry {
 
   @Prop()
   builtInFilePath?: string;
+
+  @Prop()
+  category?: string;
 }
 
 export const CustomJobsSchema = SchemaFactory.createForClass(CustomJobEntry);

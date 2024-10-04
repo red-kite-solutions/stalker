@@ -5,8 +5,8 @@ import { ConfigService } from '../admin/config/config.service';
 import { DatalayerModule } from '../datalayer.module';
 import { CustomJobsController } from './custom-jobs.controller';
 import { CustomJobsSchema } from './custom-jobs.model';
-import { jobsInitProvider } from './custom-jobs.provider';
 import { CustomJobsService } from './custom-jobs.service';
+import { jobsInitProvider } from './jobs.provider';
 
 @Module({
   imports: [

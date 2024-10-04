@@ -1,12 +1,10 @@
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { lstatSync, readdirSync } from 'node:fs';
 import { JobModelUpdateQueue } from '../../job-queue/job-model-update-queue';
 import { DATABASE_INIT } from '../admin/config/config.provider';
 import { JobPodConfiguration } from '../admin/config/job-pod-config/job-pod-config.model';
-import { ALL_JOB_FILE_PATHS } from './custom-jobs.constants';
 import { CustomJobEntry } from './custom-jobs.model';
-import { CustomJobsUtils } from './custom-jobs.utils';
+import { GitJobSource } from './jobs.source';
 
 export const JOBS_INIT = 'JOBS_INIT';
 
@@ -20,22 +18,24 @@ export const jobsInitProvider = [
       { token: DATABASE_INIT, optional: false },
     ],
     useFactory: async (
-      customJobModel: Model<CustomJobEntry>,
+      jobsModel: Model<CustomJobEntry>,
       jpcModel: Model<JobPodConfiguration>,
       jobCodeQueue: JobModelUpdateQueue,
     ) => {
-      const anyJob = await customJobModel.findOne({});
-      if (!anyJob) {
-        for (const fp of ALL_JOB_FILE_PATHS) {
-          const files = readdirSync(fp);
+      await jobsModel.deleteMany({ builtIn: true });
+      const podConfigs = await jpcModel.find();
 
-          for (const file of files) {
-            if (lstatSync(fp + file).isDirectory()) continue;
-            const j = await CustomJobsUtils.getCustomJob(fp, file, jpcModel);
-            if (!j) continue;
-            const created = await customJobModel.create(j);
-            jobCodeQueue.publish(created);
-          }
+      const jobSources = [
+        new GitJobSource(
+          'https://github.com/red-kite-solutions/stalker-templates-community',
+        ),
+      ];
+
+      for (const source of jobSources) {
+        const importedJobs = await source.synchronize(podConfigs);
+        for (const job of importedJobs) {
+          const created = await jobsModel.create(job);
+          jobCodeQueue.publish(created);
         }
       }
     },

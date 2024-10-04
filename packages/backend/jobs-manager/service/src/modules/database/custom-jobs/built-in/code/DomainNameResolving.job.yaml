@@ -1,9 +1,0 @@
-name: DomainNameResolvingJob
-type: code
-language: python
-parameters:
-  - name: domainName
-    type: string
-jobPodConfigName: XS
-codeFilePath: code/DomainNameResolvingJob.py
-templateOrdering: '/built-in/python'

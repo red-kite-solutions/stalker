@@ -1,12 +1,9 @@
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { lstatSync, readdirSync } from 'node:fs';
 import { DATABASE_INIT } from '../admin/config/config.provider';
 import { JobPodConfiguration } from '../admin/config/job-pod-config/job-pod-config.model';
-import { ALL_JOB_FILE_PATHS } from '../custom-jobs/custom-jobs.constants';
-import { ALL_TEMPLATE_FILE_PATHS } from './custom-job-templates.constants';
+import { GitJobSource } from '../custom-jobs/jobs.source';
 import { CustomJobTemplate } from './custom-job-templates.model';
-import { CustomJobTemplateUtils } from './custom-job-templates.utils';
 
 export const JOBS_INIT = 'JOBS_INIT';
 
@@ -19,37 +16,24 @@ export const jobTemplatesInitProvider = [
       { token: DATABASE_INIT, optional: false },
     ],
     useFactory: async (
-      templateModel: Model<CustomJobTemplate>,
+      jobTemplatesModel: Model<CustomJobTemplate>,
       jpcModel: Model<JobPodConfiguration>,
     ) => {
-      const initTemplates = async (
-        paths: string[],
-        source: 'custom jobs' | 'templates',
-      ) => {
-        for (const fp of paths) {
-          const files = readdirSync(fp);
+      await jobTemplatesModel.deleteMany();
+      const podConfigs = await jpcModel.find();
 
-          for (const file of files) {
-            if (lstatSync(fp + file).isDirectory()) continue;
-            const j = await CustomJobTemplateUtils.getCustomJob(
-              fp,
-              file,
-              source,
-              jpcModel,
-            );
+      const jobSources = [
+        new GitJobSource(
+          'https://github.com/red-kite-solutions/stalker-templates-community',
+        ),
+      ];
 
-            if (!j) continue;
-            await templateModel.findOneAndUpdate(
-              { builtInFilePath: j.builtInFilePath },
-              j,
-              { upsert: true },
-            );
-          }
+      for (const source of jobSources) {
+        const importedJobs = await source.synchronize(podConfigs, true);
+        for (const job of importedJobs) {
+          await jobTemplatesModel.create(job);
         }
-      };
-
-      await initTemplates(ALL_TEMPLATE_FILE_PATHS, 'templates');
-      await initTemplates(ALL_JOB_FILE_PATHS, 'custom jobs');
+      }
     },
   },
 ];
