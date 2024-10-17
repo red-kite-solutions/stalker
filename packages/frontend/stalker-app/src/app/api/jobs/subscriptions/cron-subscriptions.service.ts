@@ -104,6 +104,7 @@ export class CronSubscriptionsService implements GenericSubscriptionService<Cron
       projectId: data.projectId ? data.projectId : allProjectsSubscriptions,
       job: { name: data.jobName },
       builtIn: data.builtIn,
+      source: data.source,
     };
     if (data.jobParameters) {
       sub.job.parameters = data.jobParameters;

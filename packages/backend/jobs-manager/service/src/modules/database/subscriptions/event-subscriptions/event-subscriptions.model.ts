@@ -22,6 +22,12 @@ export class OrJobCondition {
   public or!: Array<AndJobCondition | OrJobCondition | JobCondition>;
 }
 
+export class EventSubscriptionSource {
+  type: 'git';
+  url: string;
+  avatarUrl: string;
+}
+
 @Schema()
 export class EventSubscription {
   @Prop()
@@ -57,6 +63,9 @@ export class EventSubscription {
 
   @Prop()
   public discriminator?: string;
+
+  @Prop()
+  public source?: EventSubscriptionSource;
 }
 
 export const EventSubscriptionsSchema =

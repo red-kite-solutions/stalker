@@ -3,8 +3,14 @@ import { FsPromisesApi } from 'memfs/lib/node/types';
 import { GitDataSource } from './data-source';
 import { GitDataSourceConfig } from './git-data-source';
 
-class DataSourceCacheEntry {
+export interface DataSource {
+  type: 'git';
+  repoUrl: string;
+  avatarUrl: string;
   fs: FsPromisesApi;
+}
+
+interface DataSourceCacheEntry extends DataSource {
   expiration: number;
 }
 
@@ -14,15 +20,15 @@ export class DataSources {
 
   private cache: { [key: string]: DataSourceCacheEntry } = {};
 
-  public async get(config: GitDataSourceConfig): Promise<FsPromisesApi> {
+  public async get(config: GitDataSourceConfig): Promise<DataSourceCacheEntry> {
     const cached = this.getFromCache(config);
-    if (cached != null) return cached.fs;
+    if (cached != null) return cached;
 
     const dataSource = new GitDataSource(config);
     const fs = await dataSource.get();
     this.setInCache(config, fs);
 
-    return fs;
+    return this.getFromCache(config);
   }
 
   private getFromCache(config: GitDataSourceConfig) {
@@ -41,10 +47,25 @@ export class DataSources {
     const now = new Date().getUTCMilliseconds();
     const expiration = now + this.cacheTtlMs;
     const key = this.generateKey(config);
-    this.cache[key] = { expiration, fs };
+    this.cache[key] = {
+      type: 'git',
+      expiration,
+      fs,
+      avatarUrl: this.inferAvatar(config.url),
+      repoUrl: config.url,
+    };
   }
 
   private generateKey(config: GitDataSourceConfig) {
     return JSON.stringify(config);
+  }
+
+  private inferAvatar(repoUrl: string) {
+    let match = repoUrl.match(/https:\/\/github.com\/([^\/]*)\//);
+    if (match) {
+      return `https://github.com/${match[1]}.png`;
+    }
+
+    return undefined;
   }
 }

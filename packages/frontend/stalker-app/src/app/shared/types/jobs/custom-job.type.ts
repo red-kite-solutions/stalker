@@ -49,4 +49,9 @@ export interface CustomJobData {
   findingHandlerEnabled?: boolean;
   findingHandler?: string;
   findingHandlerLanguage?: CustomJobFindingHandlerLanguage;
+  source?: {
+    type: 'git';
+    repoUrl: string;
+    avatarUrl: string;
+  };
 }

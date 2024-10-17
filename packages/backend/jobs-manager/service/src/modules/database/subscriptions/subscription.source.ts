@@ -1,5 +1,5 @@
 import Dirent from 'memfs/lib/Dirent';
-import { FsPromisesApi } from 'memfs/lib/node/types';
+import { DataSource } from '../../datasources/data-sources';
 import { SubscriptionWithType } from './subscriptions.type';
 import { SubscriptionsUtils } from './subscriptions.utils';
 
@@ -8,13 +8,10 @@ export interface SubscriptionSource {
 }
 
 export class GitSubscriptionSource implements SubscriptionSource {
-  constructor(private fs: FsPromisesApi) {}
+  constructor(private dataSource: DataSource) {}
 
   public async synchronize(): Promise<SubscriptionWithType[]> {
-    const subscriptions = await this.listSubscriptions(
-      this.fs,
-      '/subscriptions',
-    );
+    const subscriptions = await this.listSubscriptions('/subscriptions');
 
     const importedSubscriptions: SubscriptionWithType[] = [];
     for (const subscription of subscriptions) {
@@ -22,7 +19,7 @@ export class GitSubscriptionSource implements SubscriptionSource {
         await SubscriptionsUtils.readSubscriptionFile(
           subscription.directory,
           subscription.name,
-          this.fs,
+          this.dataSource,
         );
       importedSubscriptions.push(importedSubscription);
     }
@@ -30,8 +27,8 @@ export class GitSubscriptionSource implements SubscriptionSource {
     return importedSubscriptions;
   }
 
-  private async listSubscriptions(fs: FsPromisesApi, directory: string) {
-    const directoryContent = (await fs.readdir(directory, {
+  private async listSubscriptions(directory: string) {
+    const directoryContent = (await this.dataSource.fs.readdir(directory, {
       withFileTypes: true,
     })) as Dirent[];
 

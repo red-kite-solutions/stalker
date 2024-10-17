@@ -17,5 +17,9 @@ export interface CustomJobTemplate extends CustomJobTemplateSummary {
   findingHandlerEnabled?: boolean;
   findingHandler?: string;
   findingHandlerLanguage?: CustomJobFindingHandlerLanguage;
-  builtInFilePath?: string;
+  source: {
+    type: 'git' | 'custom';
+    url: string;
+    avatarUrl: string;
+  };
 }

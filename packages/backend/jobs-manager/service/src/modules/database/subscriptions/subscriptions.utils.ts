@@ -4,6 +4,7 @@ import { FsPromisesApi as MemfsFsPromisesApi } from 'memfs/lib/node/types';
 import { basename } from 'node:path';
 import * as path from 'path';
 import { parse } from 'yaml';
+import { DataSource } from '../../datasources/data-sources';
 import {
   executeDsl,
   prepareContext,
@@ -402,9 +403,9 @@ export class SubscriptionsUtils {
   public static async readSubscriptionFile(
     directory: string,
     fileName: string,
-    fs?: FsPromisesApi,
+    dataSource: DataSource,
   ): Promise<SubscriptionWithType | null> {
-    fs ??= realFs.promises;
+    const fs = dataSource?.fs ?? realFs.promises;
 
     const baseName = basename(fileName);
     const isFileNameValid =
@@ -422,6 +423,12 @@ export class SubscriptionsUtils {
     ).toString();
     const yaml = parse(fileContent);
 
+    const source = {
+      type: dataSource.type,
+      avatarUrl: dataSource.avatarUrl,
+      url: dataSource.repoUrl,
+    };
+
     switch (yaml.triggerType) {
       case 'cron':
         const cron = await SubscriptionsUtils.readCronSubscriptionFile(
@@ -429,7 +436,7 @@ export class SubscriptionsUtils {
           fileName,
           fs,
         );
-        return cron != null ? { ...cron, triggerType: 'cron' } : null;
+        return cron != null ? { ...cron, triggerType: 'cron', source } : null;
 
       case 'event':
         const event = await SubscriptionsUtils.readEventSubscriptionFile(
@@ -437,7 +444,9 @@ export class SubscriptionsUtils {
           fileName,
           fs,
         );
-        return event != null ? { ...event, triggerType: 'event' } : null;
+        return event != null
+          ? { ...event, triggerType: 'event', source }
+          : null;
 
       default:
         throw new Error(

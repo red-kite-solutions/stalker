@@ -104,6 +104,7 @@ export class EventSubscriptionsService implements GenericSubscriptionService<Eve
       builtIn: data.builtIn,
       discriminator: data.discriminator ? data.discriminator : undefined,
       job: { name: data.jobName },
+      source: data.source,
     };
 
     if (data.jobParameters) {

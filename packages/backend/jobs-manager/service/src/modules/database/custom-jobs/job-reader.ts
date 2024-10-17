@@ -3,6 +3,7 @@ import * as realFs from 'fs';
 import { FsPromisesApi as MemfsFsPromisesApi } from 'memfs/lib/node/types';
 import path from 'path';
 import { parse } from 'yaml';
+import { DataSource } from '../../datasources/data-sources';
 import { JobPodConfigurationDocument } from '../admin/config/job-pod-config/job-pod-config.model';
 import { validCustomJobTypeDetails } from '../jobs/models/custom-job.model';
 import { CustomJobMetadataV2 } from './custom-job-metadata.type';
@@ -46,9 +47,9 @@ export class JobReader {
     jobsPath: string,
     jobName: string,
     podConfigurations: JobPodConfigurationDocument[],
-    fs?: FsPromisesApi,
+    dataSource: DataSource,
   ): Promise<CustomJobEntry | null> {
-    fs ??= realFs.promises;
+    const fs = dataSource.fs ?? realFs.promises;
 
     const jobPath = path.join(jobsPath, jobName);
     const templatePath = path.join(jobPath, 'template.yaml');
@@ -114,10 +115,14 @@ export class JobReader {
         language: jobMetadata.language,
         type: jobMetadata.type,
         builtIn: true,
-        builtInFilePath: jobName,
         parameters: jobMetadata.parameters,
         jobPodConfigId: jpc._id,
         category: this.cleanCategory(jobMetadata.category),
+        source: {
+          type: dataSource.type,
+          avatarUrl: dataSource.avatarUrl,
+          repoUrl: dataSource.repoUrl,
+        },
       };
 
       if (await exists(fs, handlerPath)) {

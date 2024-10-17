@@ -4,6 +4,12 @@ import { JobParameterDefinition } from '../../../types/job-parameter-definition.
 
 export type CustomJobTemplateDocument = CustomJobTemplate & Document;
 
+export class CustomJobTemplateSource {
+  type: 'git';
+  repoUrl: string;
+  avatarUrl: string;
+}
+
 @Schema()
 export class CustomJobTemplate {
   @Prop({ unique: true, index: true })
@@ -37,10 +43,10 @@ export class CustomJobTemplate {
   public findingHandlerLanguage?: string;
 
   @Prop()
-  builtInFilePath?: string;
+  category?: string;
 
   @Prop()
-  category?: string;
+  source: CustomJobTemplateSource;
 }
 
 export const CustomJobTemplateSchema =

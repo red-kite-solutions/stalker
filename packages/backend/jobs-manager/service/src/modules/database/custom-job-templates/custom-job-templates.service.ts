@@ -32,6 +32,7 @@ export class CustomJobTemplateService {
       category: category,
       jobPodConfigId: new Types.ObjectId(dto.jobPodConfigId),
       parameters: [],
+      source: dto.source,
     };
     return await this.templateModel.create(template);
   }
