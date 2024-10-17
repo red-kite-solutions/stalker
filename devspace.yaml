@@ -249,6 +249,8 @@ deployments:
                 value: ${JM_EMAIL_RECIPIENTS_FILTER_LIST}
               - name: STALKER_APP_BASE_URL
                 value: ${STALKER_APP_BASE_URL}
+              - name: DATA_SOURCES
+                value: ${JM_DATA_SOURCES}
 
             volumeMounts:
               - containerPath: /certs
