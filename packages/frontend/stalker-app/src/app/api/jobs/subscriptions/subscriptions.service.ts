@@ -62,10 +62,6 @@ export class SubscriptionService {
     return this.getService(type).delete(id);
   }
 
-  revert(type: SubscriptionType, id: string): Promise<void> {
-    return this.getService(type).revert(id);
-  }
-
   updateIsEnabled(type: SubscriptionType, id: string, isEnabled: boolean): Promise<void> {
     return this.getService(type).updateIsEnabled(id, isEnabled);
   }

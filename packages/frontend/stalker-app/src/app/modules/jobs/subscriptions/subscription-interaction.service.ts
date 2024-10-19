@@ -36,44 +36,6 @@ export class SubscriptionInteractionService {
     }
   }
 
-  public async revertToOriginal(id: string, type: SubscriptionType): Promise<boolean> {
-    const data: ConfirmDialogData = {
-      text: $localize`:Confirm revert to original|Confirmation message asking if the user really wants to revert the subscription to the original configuraton:Do you really wish to revert this subscription to its original configuration?`,
-      title: $localize`:Reverting subscription to original|Title of a page to revert a subscription to the original configuration:Revert to original`,
-      primaryButtonText: $localize`:Cancel|Cancel current action:Cancel`,
-      dangerButtonText: $localize`:Revert to original|Confirm that the user wants to revert the subscription to its original configuration:Revert to original`,
-      onPrimaryButtonClick: (close) => {
-        close(false);
-      },
-      onDangerButtonClick: async (close) => {
-        try {
-          if (id == null) throw new Error('Id is null.');
-
-          await this.subscriptionService.revert(type, id);
-
-          this.toastr.success(
-            $localize`:Subscription reverted|The subscription has been reverted to its original configuration:Subscription successfully reverted to its original configuration`
-          );
-
-          close(true);
-        } catch (err) {
-          const errorReverting = $localize`:Error while deleting|Error while deleting an item:Error while deleting`;
-          this.toastr.error(errorReverting);
-          close(false);
-        }
-      },
-    };
-
-    return firstValueFrom(
-      this.dialog
-        .open(ConfirmDialogComponent, {
-          data,
-          restoreFocus: false,
-        })
-        .afterClosed()
-    );
-  }
-
   public async deleteBatch(subscriptions: Pick<CronSubscription | EventSubscription, '_id' | 'type' | 'name'>[]) {
     let data: ConfirmDialogData = {
       text: $localize`:Select subscriptions again|No subscription was selected so there is nothing to delete:Select the subscriptions to delete and try again.`,

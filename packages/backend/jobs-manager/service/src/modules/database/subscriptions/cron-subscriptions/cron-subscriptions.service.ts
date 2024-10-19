@@ -3,10 +3,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { DeleteResult, UpdateResult } from 'mongodb';
 import { FilterQuery, Model, Types } from 'mongoose';
 import {
-  HttpBadRequestException,
-  HttpNotFoundException,
-} from '../../../../exceptions/http.exceptions';
-import {
   Finding,
   HostnameFinding,
   IpFinding,
@@ -30,7 +26,6 @@ import { ProjectService } from '../../reporting/project.service';
 import { WebsiteDocument } from '../../reporting/websites/website.model';
 import { WebsiteService } from '../../reporting/websites/website.service';
 import { SecretsService } from '../../secrets/secrets.service';
-import { CRON_SUBSCRIPTIONS_FILES_PATH } from '../subscriptions.constants';
 import { SubscriptionsUtils } from '../subscriptions.utils';
 import { CronSubscriptionDto } from './cron-subscriptions.dto';
 import {
@@ -410,33 +405,5 @@ export class CronSubscriptionsService {
       projectId,
     );
     if (job != null) this.jobsService.publish(job);
-  }
-
-  public async revertToDefaults(id: string): Promise<UpdateResult> {
-    const sub = await this.subscriptionModel.findById(new Types.ObjectId(id));
-    if (!sub) {
-      throw new HttpNotFoundException('Subscription not found');
-    }
-
-    if (!(sub.builtIn && sub.file)) {
-      throw new HttpBadRequestException('Subscription not suitable for revert');
-    }
-
-    const defaultSub = await SubscriptionsUtils.readCronSubscriptionFile(
-      CRON_SUBSCRIPTIONS_FILES_PATH,
-      sub.file,
-    );
-
-    const subUpdate: Partial<CronSubscription> = {
-      name: defaultSub.name,
-      jobName: defaultSub.jobName,
-      jobParameters: defaultSub.jobParameters,
-      cronExpression: defaultSub.cronExpression,
-    };
-
-    return await this.subscriptionModel.updateOne(
-      { _id: { $eq: sub._id } },
-      subUpdate,
-    );
   }
 }

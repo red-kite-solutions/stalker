@@ -2,14 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DeleteResult, UpdateResult } from 'mongodb';
 import { Model, Types } from 'mongoose';
-import {
-  HttpBadRequestException,
-  HttpNotFoundException,
-} from '../../../../exceptions/http.exceptions';
 import { ProjectUnassigned } from '../../../../validators/is-project-id.validator';
 import { SubscriptionTriggersService } from '../subscription-triggers/subscription-triggers.service';
-import { EVENT_SUBSCRIPTIONS_FILES_PATH } from '../subscriptions.constants';
-import { SubscriptionsUtils } from '../subscriptions.utils';
 import { EventSubscriptionDto } from './event-subscriptions.dto';
 import { EventSubscription } from './event-subscriptions.model';
 
@@ -72,37 +66,6 @@ export class EventSubscriptionsService {
     return await this.subscriptionModel.updateOne(
       { _id: { $eq: new Types.ObjectId(id) } },
       sub,
-    );
-  }
-
-  public async revertToDefaults(id: string): Promise<UpdateResult> {
-    const sub = await this.subscriptionModel.findById(new Types.ObjectId(id));
-    if (!sub) {
-      throw new HttpNotFoundException('Subscription not found');
-    }
-
-    if (!(sub.builtIn && sub.file)) {
-      throw new HttpBadRequestException('Subscription not suitable for revert');
-    }
-
-    const defaultSub = await SubscriptionsUtils.readEventSubscriptionFile(
-      EVENT_SUBSCRIPTIONS_FILES_PATH,
-      sub.file,
-    );
-
-    const subUpdate: Partial<EventSubscription> = {
-      name: defaultSub.name,
-      finding: defaultSub.finding,
-      cooldown: defaultSub.cooldown,
-      jobName: defaultSub.jobName,
-      jobParameters: defaultSub.jobParameters,
-      conditions: defaultSub.conditions,
-      discriminator: defaultSub.discriminator ?? null,
-    };
-
-    return await this.subscriptionModel.updateOne(
-      { _id: { $eq: sub._id } },
-      subUpdate,
     );
   }
 
