@@ -6,7 +6,7 @@ import { parse } from 'yaml';
 import { DataSource } from '../../datasources/data-sources';
 import { JobPodConfigurationDocument } from '../admin/config/job-pod-config/job-pod-config.model';
 import { validCustomJobTypeDetails } from '../jobs/models/custom-job.model';
-import { CustomJobMetadataV2 } from './custom-job-metadata.type';
+import { CustomJobMetadata } from './custom-job-metadata.type';
 import { CustomJobEntry } from './custom-jobs.model';
 
 type FsPromisesApi = MemfsFsPromisesApi | typeof realFs.promises;
@@ -61,7 +61,7 @@ export class JobReader {
 
     let job: CustomJobEntry | null = null;
     try {
-      const jobMetadata = <CustomJobMetadataV2>(
+      const jobMetadata = <CustomJobMetadata>(
         parse((await fs.readFile(templatePath)).toString())
       );
 

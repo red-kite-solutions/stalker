@@ -1,5 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
+import { UpdateFilter } from 'mongodb';
 import { Model } from 'mongoose';
 import { DataSources } from '../../datasources/data-sources';
 import { GitDataSourceConfig } from '../../datasources/git-data-source';
@@ -27,9 +28,6 @@ export const subscriptionsInitProvider = [
     ) => {
       const logger = new Logger('subscriptionsInitProvider');
 
-      await cronSubscriptionModel.deleteMany({ builtIn: true });
-      await eventSubscriptionModel.deleteMany({ builtIn: true });
-
       const sourceConfigs: GitDataSourceConfig[] =
         process.env.DATA_SOURCES != null
           ? JSON.parse(process.env.DATA_SOURCES) ?? undefined
@@ -44,13 +42,22 @@ export const subscriptionsInitProvider = [
       for (const source of sources) {
         const importedSubscriptions = await source.synchronize();
         for (const subscription of importedSubscriptions) {
+          const filter: UpdateFilter<CronSubscription | EventSubscription> = {
+            jobName: subscription.jobName,
+            'source.url': subscription.source?.url,
+          };
+
           switch (subscription.triggerType) {
             case 'cron':
-              cronSubscriptionModel.create(subscription);
+              await cronSubscriptionModel.updateOne(filter, subscription, {
+                upsert: true,
+              });
               break;
 
             case 'event':
-              eventSubscriptionModel.create(subscription);
+              await eventSubscriptionModel.updateOne(filter, subscription, {
+                upsert: true,
+              });
               break;
 
             default:

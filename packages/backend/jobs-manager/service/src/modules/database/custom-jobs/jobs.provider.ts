@@ -1,4 +1,5 @@
 import { getModelToken } from '@nestjs/mongoose';
+import { UpdateFilter } from 'mongodb';
 import { Model } from 'mongoose';
 import { DataSources } from '../../datasources/data-sources';
 import { JobModelUpdateQueue } from '../../job-queue/job-model-update-queue';
@@ -25,7 +26,6 @@ export const jobsInitProvider = [
       jobCodeQueue: JobModelUpdateQueue,
       dataSources: DataSources,
     ) => {
-      await jobsModel.deleteMany({ builtIn: true });
       const podConfigs = await jpcModel.find();
 
       const sourceConfigs: JobSourceConfig[] =
@@ -42,8 +42,17 @@ export const jobsInitProvider = [
       for (const source of sources) {
         const importedJobs = await source.synchronize(podConfigs);
         for (const job of importedJobs) {
-          const created = await jobsModel.create(job);
-          jobCodeQueue.publish(created);
+          const filter: UpdateFilter<CustomJobEntry> = {
+            name: job.name,
+            'source.repoUrl': job.source?.repoUrl,
+          };
+
+          const updated = await jobsModel.findOneAndUpdate(filter, job, {
+            upsert: true,
+            returnDocument: 'after',
+          });
+
+          jobCodeQueue.publish(updated);
         }
       }
     },

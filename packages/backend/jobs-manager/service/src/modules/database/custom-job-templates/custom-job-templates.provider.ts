@@ -1,8 +1,10 @@
 import { getModelToken } from '@nestjs/mongoose';
+import { UpdateFilter } from 'mongodb';
 import { Model } from 'mongoose';
 import { DataSources } from '../../datasources/data-sources';
 import { DATABASE_INIT } from '../admin/config/config.provider';
 import { JobPodConfiguration } from '../admin/config/job-pod-config/job-pod-config.model';
+import { CustomJobEntry } from '../custom-jobs/custom-jobs.model';
 import {
   GitJobSource,
   JobSource,
@@ -43,7 +45,15 @@ export const jobTemplatesInitProvider = [
       for (const source of sources) {
         const importedJobs = await source.synchronize(podConfigs, true);
         for (const job of importedJobs) {
-          await jobTemplatesModel.create(job);
+          const filter: UpdateFilter<CustomJobEntry> = {
+            name: job.name,
+            'source.repoUrl': job.source?.repoUrl,
+          };
+
+          await jobTemplatesModel.findOneAndUpdate(filter, job, {
+            upsert: true,
+            returnDocument: 'after',
+          });
         }
       }
     },
