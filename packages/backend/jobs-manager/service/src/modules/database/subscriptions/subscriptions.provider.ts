@@ -28,44 +28,48 @@ export const subscriptionsInitProvider = [
     ) => {
       const logger = new Logger('subscriptionsInitProvider');
 
-      const sourceConfigs: GitDataSourceConfig[] =
-        process.env.DATA_SOURCES != null
-          ? JSON.parse(process.env.DATA_SOURCES) ?? undefined
-          : [];
+      try {
+        const sourceConfigs: GitDataSourceConfig[] =
+          process.env.DATA_SOURCES != null
+            ? JSON.parse(process.env.DATA_SOURCES) ?? undefined
+            : [];
 
-      const sources: SubscriptionSource[] = [];
-      for (const source of sourceConfigs) {
-        const dataSource = await dataSources.get(source);
-        sources.push(new GitSubscriptionSource(dataSource));
-      }
+        const sources: SubscriptionSource[] = [];
+        for (const source of sourceConfigs) {
+          const dataSource = await dataSources.get(source);
+          sources.push(new GitSubscriptionSource(dataSource));
+        }
 
-      for (const source of sources) {
-        const importedSubscriptions = await source.synchronize();
-        for (const subscription of importedSubscriptions) {
-          const filter: UpdateFilter<CronSubscription | EventSubscription> = {
-            jobName: subscription.jobName,
-            'source.url': subscription.source?.url,
-          };
+        for (const source of sources) {
+          const importedSubscriptions = await source.synchronize();
+          for (const subscription of importedSubscriptions) {
+            const filter: UpdateFilter<CronSubscription | EventSubscription> = {
+              jobName: subscription.jobName,
+              'source.url': subscription.source?.url,
+            };
 
-          switch (subscription.triggerType) {
-            case 'cron':
-              await cronSubscriptionModel.updateOne(filter, subscription, {
-                upsert: true,
-              });
-              break;
+            switch (subscription.triggerType) {
+              case 'cron':
+                await cronSubscriptionModel.updateOne(filter, subscription, {
+                  upsert: true,
+                });
+                break;
 
-            case 'event':
-              await eventSubscriptionModel.updateOne(filter, subscription, {
-                upsert: true,
-              });
-              break;
+              case 'event':
+                await eventSubscriptionModel.updateOne(filter, subscription, {
+                  upsert: true,
+                });
+                break;
 
-            default:
-              logger.warn(
-                `Unknown subscription type ${subscription.triggerType}`,
-              );
+              default:
+                logger.warn(
+                  `Unknown subscription type ${subscription.triggerType}`,
+                );
+            }
           }
         }
+      } catch (e) {
+        logger.error(e);
       }
     },
   },

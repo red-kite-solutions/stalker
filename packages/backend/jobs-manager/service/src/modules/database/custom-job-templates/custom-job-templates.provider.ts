@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { UpdateFilter } from 'mongodb';
 import { Model } from 'mongoose';
@@ -28,33 +29,38 @@ export const jobTemplatesInitProvider = [
       jpcModel: Model<JobPodConfiguration>,
       dataSources: DataSources,
     ) => {
-      await jobTemplatesModel.deleteMany();
-      const podConfigs = await jpcModel.find();
+      const logger = new Logger('jobTemplatesInitProvider');
 
-      const sourceConfigs: JobSourceConfig[] =
-        process.env.DATA_SOURCES != null
-          ? JSON.parse(process.env.DATA_SOURCES) ?? undefined
-          : [];
+      try {
+        const podConfigs = await jpcModel.find();
 
-      const sources: JobSource[] = [];
-      for (const source of sourceConfigs) {
-        const dataSource = await dataSources.get(source);
-        sources.push(new GitJobSource(dataSource));
-      }
+        const sourceConfigs: JobSourceConfig[] =
+          process.env.DATA_SOURCES != null
+            ? JSON.parse(process.env.DATA_SOURCES) ?? undefined
+            : [];
 
-      for (const source of sources) {
-        const importedJobs = await source.synchronize(podConfigs, true);
-        for (const job of importedJobs) {
-          const filter: UpdateFilter<CustomJobEntry> = {
-            name: job.name,
-            'source.repoUrl': job.source?.repoUrl,
-          };
-
-          await jobTemplatesModel.findOneAndUpdate(filter, job, {
-            upsert: true,
-            returnDocument: 'after',
-          });
+        const sources: JobSource[] = [];
+        for (const source of sourceConfigs) {
+          const dataSource = await dataSources.get(source);
+          sources.push(new GitJobSource(dataSource));
         }
+
+        for (const source of sources) {
+          const importedJobs = await source.synchronize(podConfigs, true);
+          for (const job of importedJobs) {
+            const filter: UpdateFilter<CustomJobEntry> = {
+              name: job.name,
+              'source.repoUrl': job.source?.repoUrl,
+            };
+
+            await jobTemplatesModel.findOneAndUpdate(filter, job, {
+              upsert: true,
+              returnDocument: 'after',
+            });
+          }
+        }
+      } catch (e) {
+        logger.error(e);
       }
     },
   },
