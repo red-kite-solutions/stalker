@@ -30,7 +30,6 @@ export const subscriptionsInitProvider = [
       await cronSubscriptionModel.deleteMany({ builtIn: true });
       await eventSubscriptionModel.deleteMany({ builtIn: true });
 
-      console.log(process.env.DATA_SOURCES);
       const sourceConfigs: GitDataSourceConfig[] =
         process.env.DATA_SOURCES != null
           ? JSON.parse(process.env.DATA_SOURCES) ?? undefined

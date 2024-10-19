@@ -1,3 +1,5 @@
+import { JobSource } from './job-source.type';
+
 export const customJobTypes = ['code', 'nuclei'] as const;
 export const customJobLanguages = ['python', 'yaml'] as const;
 export const customJobFindingHandlerLanguages = ['python', undefined] as const;
@@ -49,9 +51,5 @@ export interface CustomJobData {
   findingHandlerEnabled?: boolean;
   findingHandler?: string;
   findingHandlerLanguage?: CustomJobFindingHandlerLanguage;
-  source?: {
-    type: 'git';
-    repoUrl: string;
-    avatarUrl: string;
-  };
+  source?: JobSource;
 }
