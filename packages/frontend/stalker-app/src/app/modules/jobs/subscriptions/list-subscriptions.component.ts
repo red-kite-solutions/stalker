@@ -122,7 +122,6 @@ export class ListSubscriptionsComponent {
     }
   }
 
-  public revertToDefault() {}
   public pageChange(e: PageEvent) {
     this.currentPage$.next(e);
   }

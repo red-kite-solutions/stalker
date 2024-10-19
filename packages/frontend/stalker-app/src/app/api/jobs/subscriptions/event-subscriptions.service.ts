@@ -84,10 +84,6 @@ export class EventSubscriptionsService implements GenericSubscriptionService<Eve
     return data;
   }
 
-  public async revert(id: string) {
-    await firstValueFrom(this.http.patch(`${environment.fmUrl}/event-subscriptions/${id}`, { revert: true }));
-  }
-
   public async updateIsEnabled(id: string, isEnabled: boolean) {
     await firstValueFrom(this.http.patch(`${environment.fmUrl}/event-subscriptions/${id}`, { isEnabled }));
   }
@@ -104,6 +100,7 @@ export class EventSubscriptionsService implements GenericSubscriptionService<Eve
       builtIn: data.builtIn,
       discriminator: data.discriminator ? data.discriminator : undefined,
       job: { name: data.jobName },
+      source: data.source,
     };
 
     if (data.jobParameters) {

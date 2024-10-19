@@ -52,7 +52,7 @@ export class CustomJobsService {
   public async getAllSummaries(): Promise<JobSummary[]> {
     return await this.customJobModel
       .find()
-      .select(['-_id', 'name', 'parameters', 'builtIn']);
+      .select(['-_id', 'name', 'parameters', 'builtIn', 'source']);
   }
 
   public async edit(

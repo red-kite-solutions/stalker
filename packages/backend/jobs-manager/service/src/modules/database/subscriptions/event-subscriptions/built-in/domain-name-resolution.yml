@@ -1,8 +1,0 @@
-name: Domain name resolution
-finding: HostnameFinding
-cooldown: 82800
-job:
-  name: DomainNameResolvingJob
-  parameters:
-    - name: domainName
-      value: ${domainName}

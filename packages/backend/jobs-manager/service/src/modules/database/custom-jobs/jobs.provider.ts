@@ -3,33 +3,31 @@ import { getModelToken } from '@nestjs/mongoose';
 import { UpdateFilter } from 'mongodb';
 import { Model } from 'mongoose';
 import { DataSources } from '../../datasources/data-sources';
+import { JobModelUpdateQueue } from '../../job-queue/job-model-update-queue';
 import { DATABASE_INIT } from '../admin/config/config.provider';
 import { JobPodConfiguration } from '../admin/config/job-pod-config/job-pod-config.model';
-import { CustomJobEntry } from '../custom-jobs/custom-jobs.model';
-import {
-  GitJobSource,
-  JobSource,
-  JobSourceConfig,
-} from '../custom-jobs/jobs.source';
-import { CustomJobTemplate } from './custom-job-templates.model';
+import { CustomJobEntry } from './custom-jobs.model';
+import { GitJobSource, JobSource, JobSourceConfig } from './jobs.source';
 
 export const JOBS_INIT = 'JOBS_INIT';
 
-export const jobTemplatesInitProvider = [
+export const jobsInitProvider = [
   {
     provide: JOBS_INIT,
     inject: [
-      getModelToken('customJobTemplates'),
+      getModelToken('customJobs'),
       getModelToken('jobPodConfig'),
+      JobModelUpdateQueue,
       DataSources,
       { token: DATABASE_INIT, optional: false },
     ],
     useFactory: async (
-      jobTemplatesModel: Model<CustomJobTemplate>,
+      jobsModel: Model<CustomJobEntry>,
       jpcModel: Model<JobPodConfiguration>,
+      jobCodeQueue: JobModelUpdateQueue,
       dataSources: DataSources,
     ) => {
-      const logger = new Logger('jobTemplatesInitProvider');
+      const logger = new Logger('jobsInitProvider');
 
       try {
         const podConfigs = await jpcModel.find();
@@ -46,17 +44,19 @@ export const jobTemplatesInitProvider = [
         }
 
         for (const source of sources) {
-          const importedJobs = await source.synchronize(podConfigs, true);
+          const importedJobs = await source.synchronize(podConfigs);
           for (const job of importedJobs) {
             const filter: UpdateFilter<CustomJobEntry> = {
               name: job.name,
               'source.repoUrl': job.source?.repoUrl,
             };
 
-            await jobTemplatesModel.findOneAndUpdate(filter, job, {
+            const updated = await jobsModel.findOneAndUpdate(filter, job, {
               upsert: true,
               returnDocument: 'after',
             });
+
+            jobCodeQueue.publish(updated);
           }
         }
       } catch (e) {

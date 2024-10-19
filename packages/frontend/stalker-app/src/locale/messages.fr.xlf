@@ -2970,20 +2970,7 @@ unautre.stalker.is</target>
         <note priority="1" from="description">Select all projects</note>
         <note priority="1" from="meaning">All Projects</note>
       </trans-unit>
-      <trans-unit id="3840846463192313495" datatype="html">
-        <source>Revert to original</source>
-        <target>Revenir à l'original</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/modules/jobs/subscriptions/subscription.component.html</context>
-          <context context-type="linenumber">62</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/modules/jobs/subscriptions/subscription.component.ts</context>
-          <context context-type="linenumber">311</context>
-        </context-group>
-        <note priority="1" from="description">Revert to original subscription</note>
-        <note priority="1" from="meaning">Revert to original</note>
-      </trans-unit>
+
       <trans-unit id="634481192456869697" datatype="html">
         <source>There are unsaved changes to the current finding event subscription.</source>
         <target>Certaines modifications à l'abonnement évènementiel n'ont pas été enregistrées.</target>
@@ -3057,36 +3044,6 @@ unautre.stalker.is</target>
         </context-group>
         <note priority="1" from="description">The subscription has been deleted</note>
         <note priority="1" from="meaning">Subscription deleted</note>
-      </trans-unit>
-      <trans-unit id="5249356997069470771" datatype="html">
-        <source>Do you really wish to revert this subscription to its original configuration?</source>
-        <target>Souhaitez-vous vraiment rétablir cet abonnement dans sa configuration d'origine ?</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/modules/jobs/subscriptions/subscription.component.ts</context>
-          <context context-type="linenumber">308</context>
-        </context-group>
-        <note priority="1" from="description">Confirmation message asking if the user really wants to revert the subscription to the original configuraton</note>
-        <note priority="1" from="meaning">Confirm revert to original</note>
-      </trans-unit>
-      <trans-unit id="8390110512368084652" datatype="html">
-        <source>Revert to original</source>
-        <target>Revenir à l'original</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/modules/jobs/subscriptions/subscription.component.ts</context>
-          <context context-type="linenumber">309</context>
-        </context-group>
-        <note priority="1" from="description">Title of a page to revert a subscription to the original configuration</note>
-        <note priority="1" from="meaning">Reverting subscription to original</note>
-      </trans-unit>
-      <trans-unit id="4052775438350811532" datatype="html">
-        <source>Subscription successfully reverted to its original configuration</source>
-        <target>L'abonnement a été rétabli à sa configuration d'origine</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/modules/jobs/subscriptions/subscription.component.ts</context>
-          <context context-type="linenumber">324</context>
-        </context-group>
-        <note priority="1" from="description">The subscription has been reverted to its original configuration</note>
-        <note priority="1" from="meaning">Subscription reverted</note>
       </trans-unit>
       <trans-unit id="8412050879867728791" datatype="html">
         <source>Project Information</source>

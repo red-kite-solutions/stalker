@@ -61,13 +61,6 @@
           [iconName]="'settings'"
         >
           <div class="tw-flex tw-flex-col tw-gap-2">
-            @if ((subscription$ | async)?.builtIn) {
-              <button mat-menu-item class="tw-w-full" (click)="revertToOriginal()">
-                <mat-icon>settings_backup_restore</mat-icon>
-                <label i18n="Revert to original|Revert to original subscription">Revert to original</label>
-              </button>
-            }
-
             @if ((isEnabled$ | async) === false) {
               <button mat-menu-item color="primary" class="tw-w-full" (click)="updateEnabled(true)">
                 <mat-icon>play_arrow</mat-icon>

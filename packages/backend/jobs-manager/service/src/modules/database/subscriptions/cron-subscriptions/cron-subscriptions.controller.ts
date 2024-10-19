@@ -60,13 +60,8 @@ export class CronSubscriptionsController {
   ): Promise<void> {
     if (body == null) throw new HttpBadRequestException();
 
-    const { revert, isEnabled } = body;
-    if (isEnabled == null && revert == null)
-      throw new HttpBadRequestException();
-
-    if (revert) {
-      await this.subscriptionsService.revertToDefaults(idDto.id);
-    }
+    const { isEnabled } = body;
+    if (isEnabled == null) throw new HttpBadRequestException();
 
     if (isEnabled != null) {
       await this.subscriptionsService.updateEnabled(idDto.id, isEnabled);

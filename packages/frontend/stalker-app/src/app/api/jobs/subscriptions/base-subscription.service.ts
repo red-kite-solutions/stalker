@@ -13,6 +13,4 @@ export interface GenericSubscriptionService<T extends SubscriptionData> {
   edit(id: string, subscription: T): Promise<void>;
 
   delete(id: string): Promise<void>;
-
-  revert(id: string): Promise<void>;
 }

@@ -97,7 +97,6 @@ export class ListCustomJobsComponent {
     if (result) this.refreshData$.next();
   }
 
-  public revertToDefault() {}
   public pageChange(e: any) {}
   public filterChange(filters: string[]) {
     this.filters$.next(filters);

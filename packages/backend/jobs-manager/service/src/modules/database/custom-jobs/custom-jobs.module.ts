@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { DataSourcesModule } from '../../datasources/data-sources.module';
 import { QueueModule } from '../../job-queue/queue.module';
 import { ConfigService } from '../admin/config/config.service';
 import { DatalayerModule } from '../datalayer.module';
 import { CustomJobsController } from './custom-jobs.controller';
 import { CustomJobsSchema } from './custom-jobs.model';
-import { jobsInitProvider } from './custom-jobs.provider';
 import { CustomJobsService } from './custom-jobs.service';
+import { jobsInitProvider } from './jobs.provider';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { CustomJobsService } from './custom-jobs.service';
     ]),
     DatalayerModule,
     QueueModule,
+    DataSourcesModule,
   ],
   controllers: [CustomJobsController],
   providers: [CustomJobsService, ConfigService, ...jobsInitProvider],

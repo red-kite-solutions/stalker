@@ -1,4 +1,4 @@
-import { Equals, IsBoolean, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsOptional, IsString } from 'class-validator';
 import { IsTypeIn } from '../../../validators/is-type-in.validator';
 
 export class JobParameterDto {
@@ -10,11 +10,6 @@ export class JobParameterDto {
 }
 
 export class PatchSubscriptionDto {
-  @Equals(true)
-  @IsBoolean()
-  @IsOptional()
-  revert?: boolean;
-
   @IsBoolean()
   @IsOptional()
   isEnabled?: boolean;

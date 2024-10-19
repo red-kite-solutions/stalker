@@ -11,7 +11,6 @@ import { ProjectModule } from '../../reporting/project.module';
 import { WebsiteModule } from '../../reporting/websites/website.module';
 import { SecretsModule } from '../../secrets/secrets.module';
 import { CronSubscriptionsController } from './cron-subscriptions.controller';
-import { cronSubscriptionsInitProvider } from './cron-subscriptions.provider';
 import { CronSubscriptionsService } from './cron-subscriptions.service';
 
 @Module({
@@ -29,11 +28,7 @@ import { CronSubscriptionsService } from './cron-subscriptions.service';
     WebsiteModule,
   ],
   controllers: [CronSubscriptionsController],
-  providers: [
-    CronSubscriptionsService,
-    ...cronSubscriptionsInitProvider,
-    CustomJobNameExistsRule,
-  ],
-  exports: [CronSubscriptionsService, ...cronSubscriptionsInitProvider],
+  providers: [CronSubscriptionsService, CustomJobNameExistsRule],
+  exports: [CronSubscriptionsService],
 })
 export class CronSubscriptionsModule {}
