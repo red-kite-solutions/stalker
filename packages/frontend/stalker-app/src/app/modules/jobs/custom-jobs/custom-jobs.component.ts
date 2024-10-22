@@ -5,7 +5,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatOptionModule } from '@angular/material/core';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -54,7 +53,9 @@ import {
   languageExtensionMapping,
   validCustomJobTypeDetails,
 } from '../../../shared/types/jobs/custom-job.type';
+import { JobSource } from '../../../shared/types/jobs/job-source.type';
 import { CodeEditorComponent, CodeEditorTheme } from '../../../shared/widget/code-editor/code-editor.component';
+import { JobSourceComponent } from '../job-source/job-source.component';
 import { CustomJobsInteractionService } from './custom-jobs-interaction.service';
 import { nucleiFindingHandlerTemplate } from './nuclei-finding-handler-template';
 
@@ -73,7 +74,6 @@ import { nucleiFindingHandlerTemplate } from './nuclei-finding-handler-template'
     MatFormFieldModule,
     MatOptionModule,
     MatButtonModule,
-    MatDialogModule,
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
@@ -95,6 +95,7 @@ import { nucleiFindingHandlerTemplate } from './nuclei-finding-handler-template'
     MatDividerModule,
     MatCheckboxModule,
     SavingButtonComponent,
+    JobSourceComponent,
   ],
 })
 export class CustomJobsComponent implements OnInit, OnDestroy, HasUnsavedChanges {
@@ -118,6 +119,7 @@ export class CustomJobsComponent implements OnInit, OnDestroy, HasUnsavedChanges
   public customJobTypesLocalized = customJobTypesLocalized;
   public languageOptions: CustomJobLanguage[] = [];
   public findingHandlerLanguageOptions: CustomJobFindingHandlerLanguage[] = [];
+  public jobSource: JobSource | undefined = undefined;
 
   @ViewChild(CodeEditorComponent) codeEditor!: CodeEditorComponent;
 
@@ -151,7 +153,6 @@ export class CustomJobsComponent implements OnInit, OnDestroy, HasUnsavedChanges
   public hasUnsavedChanges$ = new BehaviorSubject(false);
 
   constructor(
-    private dialog: MatDialog,
     private customJobsService: CustomJobsService,
     private customJobsInteractor: CustomJobsInteractionService,
     private toastr: ToastrService,
@@ -225,6 +226,8 @@ export class CustomJobsComponent implements OnInit, OnDestroy, HasUnsavedChanges
       findingHandlerLanguage: customJob.findingHandlerLanguage || null,
     });
 
+    if (customJob?.source != null) this.customJobForm.disable();
+
     const formValue$ = this.customJobForm.valueChanges.pipe(
       startWith(this.customJobForm.value),
       distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b))
@@ -256,7 +259,7 @@ export class CustomJobsComponent implements OnInit, OnDestroy, HasUnsavedChanges
           this.customJobForm.controls.customJobLanguage.setValue(customJobLanguage);
         }
 
-        findingHandlerEnabled
+        findingHandlerEnabled && customJob?.source == null
           ? this.customJobForm.controls.findingHandlerLanguage.enable()
           : this.customJobForm.controls.findingHandlerLanguage.disable();
 
@@ -278,6 +281,7 @@ export class CustomJobsComponent implements OnInit, OnDestroy, HasUnsavedChanges
         }
       });
 
+    this.jobSource = customJob?.source;
     this.originalCode = customJob?.code ?? '';
     this.originalHandlerCode = customJob?.findingHandler ?? '';
     this.initializeFileTabs({

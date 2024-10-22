@@ -24,6 +24,7 @@ import { AuthService } from '../../../api/auth/auth.service';
 import { CustomJobTemplatesService } from '../../../api/jobs/custom-job-templates/custom-job-templates.service';
 import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-table/table-format/table-format.component';
 import { AuthModule } from '../../auth/auth.module';
+import { JobSourceComponent } from '../job-source/job-source.component';
 import { CustomJobsInteractionService } from './custom-jobs-interaction.service';
 
 @Component({
@@ -48,6 +49,7 @@ import { CustomJobsInteractionService } from './custom-jobs-interaction.service'
     MatTooltipModule,
     AuthModule,
     TableFormatComponent,
+    JobSourceComponent,
   ],
 })
 export class ListCustomJobsComponent {

@@ -7,13 +7,27 @@
           [backRoute]="['/jobs/custom']"
         ></app-page-header>
 
-        <app-saving-button
-          class="tw-mt-[9px]"
-          [isSaving]="isSaving"
-          [canSave]="canSave"
-          [hasBeenSaved]="hasBeenSaved"
-          (save)="save()"
-        ></app-saving-button>
+        <job-source class="tw-mt-[9px]" [source]="jobSource"></job-source>
+
+        @if (jobSource == null) {
+          <app-saving-button
+            [isSaving]="isSaving"
+            [canSave]="canSave"
+            [hasBeenSaved]="hasBeenSaved"
+            (save)="save()"
+            class="tw-mt-[9px]"
+          ></app-saving-button>
+        } @else {
+          <div
+            i18n-matTooltip="
+              Job is readonly because it has been imported from an external source|Explains why imported job is
+              readonly.
+            "
+            matTooltip="Job is readonly because it has been imported from an external source"
+          >
+            <button mat-stroked-button class="tw-mt-[9px]" [disabled]="true">Readonly</button>
+          </div>
+        }
       </div>
 
       <div class="code-editor-container">
@@ -29,13 +43,14 @@
           [fileTabsReadOnly]="true"
           (codeChange)="canSave = true; hasUnsavedChanges$.next(true)"
           (saveEvent)="forceSave()"
+          [readonly]="jobSource != null"
         ></app-code-editor>
       </div>
     </div>
   </mat-drawer-content>
 
   <mat-drawer mode="side" position="end" disableClose="true" opened>
-    <div #contextMenu class="tw-flex tw-gap-2 tw-flex-col tw-m-4" [formGroup]="customJobForm">
+    <form #contextMenu class="tw-flex tw-gap-2 tw-flex-col tw-m-4" [formGroup]="customJobForm">
       <h2 i18n="Configuration|Configuration">Configuration</h2>
 
       <div class="tw-w-full tw-flex tw-flex-col tw-gap">
@@ -117,6 +132,6 @@
           </div>
         </app-text-menu>
       </panel-section>
-    </div>
+    </form>
   </mat-drawer>
 </mat-drawer-container>
