@@ -90,7 +90,7 @@ export class FirstUserComponent {
     try {
       await this.usersService.createFirstUser(email, password, firstName, lastName);
       this.toastr.success(
-        $localize`:Stalker initialized|The platform is properly intialized:Stalker is now initialized`
+        $localize`:Red Kite initialized|The platform is properly intialized:Red Kite is now initialized`
       );
       this.router.navigateByUrl('/auth/login');
     } catch {

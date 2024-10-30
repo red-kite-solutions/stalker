@@ -26,6 +26,9 @@ export const jobTemplatesInitProvider = [
         paths: string[],
         source: 'custom jobs' | 'templates',
       ) => {
+        // TODO DELETE ME
+        return;
+
         for (const fp of paths) {
           const files = readdirSync(fp);
 
