@@ -3,10 +3,10 @@ import { Component, Input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AvatarComponent } from '../../../shared/components/avatar/avatar.component';
-import { JobSource } from '../../../shared/types/jobs/job-source.type';
+import { DataSource } from '../../../shared/types/data-source/data-source.type';
 
 @Component({
-  selector: 'job-source',
+  selector: 'data-source',
   standalone: true,
   imports: [CommonModule, MatIconModule, AvatarComponent, MatTooltipModule],
   template: `<div class="tw-flex tw-items-center">
@@ -27,6 +27,6 @@ import { JobSource } from '../../../shared/types/jobs/job-source.type';
     }
   </div>`,
 })
-export class JobSourceComponent {
-  @Input() source!: JobSource | undefined;
+export class DataSourceComponent {
+  @Input() source!: DataSource | undefined;
 }

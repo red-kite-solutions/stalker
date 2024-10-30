@@ -12,8 +12,8 @@ import {
 } from '../../../findings/findings.service';
 import { ConfigService } from '../../admin/config/config.service';
 import { CustomJobsService } from '../../custom-jobs/custom-jobs.service';
+import { JobExecutionsService } from '../../jobs/job-executions.service';
 import { JobFactory } from '../../jobs/jobs.factory';
-import { JobsService } from '../../jobs/jobs.service';
 import { Job } from '../../jobs/models/jobs.model';
 import { Domain, DomainDocument } from '../../reporting/domain/domain.model';
 import { DomainsService } from '../../reporting/domain/domain.service';
@@ -44,7 +44,7 @@ export class CronSubscriptionsService {
     private readonly projectService: ProjectService,
     private readonly configService: ConfigService,
     private readonly customJobsService: CustomJobsService,
-    private readonly jobsService: JobsService,
+    private readonly jobsService: JobExecutionsService,
     private readonly domainsService: DomainsService,
     private readonly hostsService: HostService,
     private readonly portsService: PortService,

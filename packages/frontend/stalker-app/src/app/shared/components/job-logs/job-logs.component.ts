@@ -3,8 +3,8 @@ import { ChangeDetectionStrategy, Component, Input, OnChanges } from '@angular/c
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Observable, concatMap, debounceTime, map, scan, shareReplay, startWith } from 'rxjs';
 import { AuthService } from '../../../api/auth/auth.service';
-import { JobsService } from '../../../api/jobs/jobs/jobs.service';
-import { JobsSocketioClient } from '../../../api/jobs/jobs/jobs.socketio-client';
+import { JobExecutionsService } from '../../../api/jobs/job-executions/job-executions.service';
+import { JobExecutionsSocketioClient } from '../../../api/jobs/job-executions/job-executions.socketio-client';
 import { getLogTimestamp } from '../../../utils/time.utils';
 import { CodeEditorComponent, CodeEditorTheme } from '../../widget/code-editor/code-editor.component';
 
@@ -33,14 +33,14 @@ export class JobLogsComponent implements OnChanges {
   @Input() public theme: CodeEditorTheme = 'vs-dark';
   @Input() public jobId: string | null | undefined = undefined;
 
-  private socket: JobsSocketioClient | undefined = undefined;
+  private socket: JobExecutionsSocketioClient | undefined = undefined;
   private timeout: any | undefined = undefined;
 
   public logs$: Observable<string> | null = null;
   public isJobInProgress$: Observable<boolean> | null = null;
 
   constructor(
-    public jobsService: JobsService,
+    public jobsService: JobExecutionsService,
     public authService: AuthService
   ) {}
 
@@ -48,7 +48,7 @@ export class JobLogsComponent implements OnChanges {
     if (this.jobId != null) {
       if (this.timeout) clearTimeout(this.timeout);
       this.socket?.disconnect();
-      this.socket = new JobsSocketioClient(this.authService);
+      this.socket = new JobExecutionsSocketioClient(this.authService);
       this.logs$ = this.jobsService.getJobLogs(this.jobId).pipe(
         map((initialLogs) =>
           initialLogs.items.map((value) => this.formatLog(value.timestamp, value.level, value.value))

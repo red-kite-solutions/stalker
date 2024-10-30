@@ -22,9 +22,9 @@ import { RolesGuard } from '../../auth/guards/role.guard';
 import { ApiKeyStrategy } from '../../auth/strategies/api-key.strategy';
 import { JwtStrategy } from '../../auth/strategies/jwt.strategy';
 import { MONGO_DUPLICATE_ERROR } from '../database.constants';
-import { CustomJobDto } from './custom-jobs.dto';
 import { CustomJobsDocument } from './custom-jobs.model';
 import { CustomJobsService } from './custom-jobs.service';
+import { DuplicateJobDto, JobDto } from './jobs.dto';
 
 @Controller('custom-jobs')
 export class CustomJobsController {
@@ -34,9 +34,13 @@ export class CustomJobsController {
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.User)
   @Post()
-  async create(@Body() dto: CustomJobDto) {
+  async create(@Body() dto: JobDto | DuplicateJobDto) {
     try {
-      return await this.customJobsService.create(dto);
+      if ('jobId' in dto) {
+        return await this.customJobsService.duplicate(dto.jobId);
+      } else {
+        return await this.customJobsService.create(dto);
+      }
     } catch (err) {
       if (err.code === MONGO_DUPLICATE_ERROR) {
         throw new HttpConflictException();
@@ -65,7 +69,7 @@ export class CustomJobsController {
   @Put(':id')
   async editCustomJob(
     @Param() IdDto: MongoIdDto,
-    @Body() dto: CustomJobDto,
+    @Body() dto: JobDto,
   ): Promise<CustomJobsDocument> {
     try {
       return await this.customJobsService.edit(IdDto.id, dto);

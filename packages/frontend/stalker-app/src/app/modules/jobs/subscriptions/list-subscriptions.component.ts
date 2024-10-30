@@ -27,7 +27,7 @@ import {
 } from 'src/app/shared/widget/filtered-paginated-table/filtered-paginated-table.component';
 import { DisabledPillTagComponent } from 'src/app/shared/widget/pill-tag/disabled-pill-tag.component';
 import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-table/table-format/table-format.component';
-import { JobSourceComponent } from '../job-source/job-source.component';
+import { DataSourceComponent } from '../../data-source/data-source/data-source.component';
 import { SubscriptionInteractionService } from './subscription-interaction.service';
 import { subscriptionTypes } from './subscription-templates';
 
@@ -54,7 +54,7 @@ import { subscriptionTypes } from './subscription-templates';
     MatTooltipModule,
     DisabledPillTagComponent,
     TableFormatComponent,
-    JobSourceComponent,
+    DataSourceComponent,
   ],
 })
 export class ListSubscriptionsComponent {

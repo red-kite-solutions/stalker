@@ -13,7 +13,7 @@ import {
 import { AppModule } from '../../app.module';
 import { Role } from '../../auth/constants';
 import { JobPodConfigurationDocument } from '../admin/config/job-pod-config/job-pod-config.model';
-import { CustomJobDto } from './custom-jobs.dto';
+import { JobDto } from './jobs.dto';
 
 describe('Custom Jobs Controller (e2e)', () => {
   let app: INestApplication;
@@ -29,7 +29,7 @@ describe('Custom Jobs Controller (e2e)', () => {
     jobPodConfigId: '',
   };
 
-  const nucleiCustomJob: CustomJobDto = {
+  const nucleiCustomJob: JobDto = {
     name: 'My nuclei custom job',
     type: 'nuclei',
     code: 'nuclei template placeholder',
@@ -85,7 +85,7 @@ describe('Custom Jobs Controller (e2e)', () => {
 
   it('Should create a custom job (handler enabled = false) (POST /custom-jobs)', async () => {
     // Arrange
-    const cj: CustomJobDto = {
+    const cj: JobDto = {
       language: 'python',
       type: 'code',
       name: 'print secret',
@@ -103,7 +103,7 @@ describe('Custom Jobs Controller (e2e)', () => {
 
   it('Should not create a custom job (handler enabled = true) (POST /custom-jobs)', async () => {
     // Arrange
-    const cj: CustomJobDto = {
+    const cj: JobDto = {
       language: 'python',
       type: 'code',
       name: 'print secret',
@@ -198,7 +198,7 @@ describe('Custom Jobs Controller (e2e)', () => {
 
   it('Should create a nuclei custom job with custom handler (POST /custom-jobs)', async () => {
     // arrange
-    const nucleiDto: CustomJobDto = {
+    const nucleiDto: JobDto = {
       ...nucleiCustomJob,
       name: 'Nuclei custom handler',
       findingHandler: 'handler content placeholder',
@@ -224,7 +224,7 @@ describe('Custom Jobs Controller (e2e)', () => {
 
   it('Should not create a nuclei custom job (name duplicate) (POST /custom-jobs)', async () => {
     // arrange
-    const nucleiDto: CustomJobDto = {
+    const nucleiDto: JobDto = {
       ...nucleiCustomJob,
       name: 'Nuclei custom handler',
       findingHandler: 'handler content placeholder',

@@ -16,7 +16,7 @@ import { Role } from '../../auth/constants';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { JwtSocketioGuard } from '../../auth/guards/jwt-socketio.guard';
 import { RolesSocketioGuard } from '../../auth/guards/role-socketio.guard';
-import { JobsService } from './jobs.service';
+import { JobExecutionsService } from './job-executions.service';
 
 export class JobOutputResponse {
   constructor(
@@ -27,10 +27,7 @@ export class JobOutputResponse {
 }
 
 export class JobStatusUpdate {
-  constructor(
-    private status: string,
-    private timestamp: number,
-  ) {}
+  constructor(private status: string, private timestamp: number) {}
 }
 
 @WebSocketGateway({ cors: true })
@@ -45,7 +42,7 @@ export class JobOutputGateway implements OnGatewayDisconnect {
     ChangeStream<any, ChangeStreamDocument<any>>
   >();
 
-  constructor(private jobsService: JobsService) {}
+  constructor(private jobsService: JobExecutionsService) {}
 
   @SubscribeMessage('JobOutputRequest')
   async listenForMessages(

@@ -13,7 +13,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
 import { Router, RouterModule } from '@angular/router';
 import { BehaviorSubject, debounceTime, map, shareReplay, switchMap, tap } from 'rxjs';
-import { CustomJobsService } from 'src/app/api/jobs/custom-jobs/custom-jobs.service';
+import { JobsService } from 'src/app/api/jobs/jobs/jobs.service';
 import { AvatarComponent } from 'src/app/shared/components/avatar/avatar.component';
 import { CustomJob } from 'src/app/shared/types/jobs/custom-job.type';
 import {
@@ -24,7 +24,7 @@ import { AuthService } from '../../../api/auth/auth.service';
 import { CustomJobTemplatesService } from '../../../api/jobs/custom-job-templates/custom-job-templates.service';
 import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-table/table-format/table-format.component';
 import { AuthModule } from '../../auth/auth.module';
-import { JobSourceComponent } from '../job-source/job-source.component';
+import { DataSourceComponent } from '../../data-source/data-source/data-source.component';
 import { CustomJobsInteractionService } from './custom-jobs-interaction.service';
 
 @Component({
@@ -49,7 +49,7 @@ import { CustomJobsInteractionService } from './custom-jobs-interaction.service'
     MatTooltipModule,
     AuthModule,
     TableFormatComponent,
-    JobSourceComponent,
+    DataSourceComponent,
   ],
 })
 export class ListCustomJobsComponent {
@@ -61,7 +61,7 @@ export class ListCustomJobsComponent {
   private refreshData$ = new BehaviorSubject<void>(undefined);
   public customJobs$ = this.refreshData$.pipe(
     switchMap(() =>
-      this.customJobsService.getCustomJobs().pipe(
+      this.customJobsService.getJobs().pipe(
         map((customJobs) => customJobs.sort((a, b) => a._id.localeCompare(b._id))),
         switchMap((customJobs) =>
           this.filters$.pipe(
@@ -84,7 +84,7 @@ export class ListCustomJobsComponent {
   );
 
   constructor(
-    private customJobsService: CustomJobsService,
+    private customJobsService: JobsService,
     public customJobsInteractor: CustomJobsInteractionService,
     private titleService: Title,
     public templateService: CustomJobTemplatesService,
@@ -97,6 +97,11 @@ export class ListCustomJobsComponent {
   public async deleteBatch(jobs: CustomJob[]) {
     const result = await this.customJobsInteractor.delete(jobs);
     if (result) this.refreshData$.next();
+  }
+
+  public async duplicate(job: CustomJob) {
+    await this.customJobsInteractor.duplicate(job);
+    this.refreshData$.next();
   }
 
   public pageChange(e: any) {}
@@ -123,6 +128,12 @@ export class ListCustomJobsComponent {
   public generateMenuItem = (element: CustomJob): ElementMenuItems[] => {
     if (!element) return [];
     const menuItems: ElementMenuItems[] = [];
+
+    menuItems.push({
+      action: () => this.duplicate(element),
+      icon: 'file_copy',
+      label: $localize`:Duplicate a job|Duplicate a job:Duplicate`,
+    });
 
     menuItems.push({
       action: () => this.deleteBatch([element]),

@@ -49,8 +49,10 @@ import { parse } from 'yaml';
 import { allProjectsSubscriptions } from '../../../api/constants';
 import { cronSubscriptionKey } from '../../../api/jobs/subscriptions/cron-subscriptions.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
+import { DataSource } from '../../../shared/types/data-source/data-source.type';
 import { ProjectSummary } from '../../../shared/types/project/project.summary';
 import { CodeEditorComponent, CodeEditorTheme } from '../../../shared/widget/code-editor/code-editor.component';
+import { DataSourceComponent } from '../../data-source/data-source/data-source.component';
 import { SubscriptionInteractionService } from './subscription-interaction.service';
 import { cronSubscriptionTemplate, eventSubscriptionTemplate } from './subscription-templates';
 
@@ -96,6 +98,7 @@ import { cronSubscriptionTemplate, eventSubscriptionTemplate } from './subscript
     MatDividerModule,
     SavingButtonComponent,
     DisabledPillTagComponent,
+    DataSourceComponent,
   ],
 })
 export class SubscriptionComponent implements OnInit, OnDestroy, HasUnsavedChanges {
@@ -103,6 +106,7 @@ export class SubscriptionComponent implements OnInit, OnDestroy, HasUnsavedChang
   public originalCode = '';
   public isSaving = false;
   public isInitializing = true;
+  public subSource: DataSource | undefined = undefined;
   public theme$: Observable<CodeEditorTheme> = this.themeService.theme$.pipe(
     map((theme) => (theme === 'dark' ? 'vs-dark' : 'vs'))
   );
@@ -261,6 +265,7 @@ export class SubscriptionComponent implements OnInit, OnDestroy, HasUnsavedChang
       this.code = sub.yaml;
       this.hasConfigChanged = false;
       this.hasUnsavedChanges$.next(false);
+      this.subSource = sub.source;
     }
 
     this.originalCode = this.code;

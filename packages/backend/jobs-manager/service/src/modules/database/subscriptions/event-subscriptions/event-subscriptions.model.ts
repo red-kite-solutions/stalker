@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
+import { DataSource } from '../../data-source/data-source.model';
 
 export type EventSubscriptionsDocument = EventSubscription & Document;
 
@@ -20,12 +21,6 @@ export class AndJobCondition {
 
 export class OrJobCondition {
   public or!: Array<AndJobCondition | OrJobCondition | JobCondition>;
-}
-
-export class EventSubscriptionSource {
-  type: 'git';
-  url: string;
-  avatarUrl: string;
 }
 
 @Schema()
@@ -65,7 +60,7 @@ export class EventSubscription {
   public discriminator?: string;
 
   @Prop()
-  public source?: EventSubscriptionSource;
+  public source?: DataSource;
 }
 
 export const EventSubscriptionsSchema =

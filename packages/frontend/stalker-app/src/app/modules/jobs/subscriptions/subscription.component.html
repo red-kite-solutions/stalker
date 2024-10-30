@@ -7,17 +7,31 @@
           [backRoute]="['/jobs/subscriptions']"
         ></app-page-header>
 
+        <data-source class="tw-mt-[9px]" [source]="subSource"></data-source>
+
         @if ((isEnabled$ | async) === false) {
           <app-disabled-pill-tag class="tw-mt-[9px]"></app-disabled-pill-tag>
         }
 
-        <app-saving-button
-          class="tw-mt-[9px]"
-          [isSaving]="isSaving"
-          [canSave]="canSave"
-          [hasBeenSaved]="hasBeenSaved"
-          (save)="save()"
-        ></app-saving-button>
+        @if (subSource == null) {
+          <app-saving-button
+            class="tw-mt-[9px]"
+            [isSaving]="isSaving"
+            [canSave]="canSave"
+            [hasBeenSaved]="hasBeenSaved"
+            (save)="save()"
+          ></app-saving-button>
+        } @else {
+          <div
+            i18n-matTooltip="
+              Subscription is readonly because it has been imported from an external source|Explains why imported
+              subscription is readonly.
+            "
+            matTooltip="Subscription is readonly because it has been imported from an external source"
+          >
+            <button mat-stroked-button class="tw-mt-[9px]" [disabled]="true">Readonly</button>
+          </div>
+        }
       </div>
 
       <div class="code-editor-container">
@@ -27,7 +41,7 @@
           [language]="'yaml'"
           [minimapEnabled]="false"
           [theme]="(theme$ | async) ?? 'vs-dark'"
-          [readonly]="isInitializing"
+          [readonly]="isInitializing || subSource != null"
           (saveEvent)="forceSave()"
           [path]="'/subcriptions/subscription.yaml'"
         ></app-code-editor>

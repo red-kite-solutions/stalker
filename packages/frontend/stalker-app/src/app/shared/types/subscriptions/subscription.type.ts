@@ -1,3 +1,5 @@
+import { DataSource } from '../data-source/data-source.type';
+
 export type Subscription = CronSubscription | EventSubscription;
 
 export interface EventSubscription extends EventSubscriptionData {
@@ -33,11 +35,7 @@ export interface SubscriptionData {
     parameters?: JobParameter[] | undefined | null;
   };
   conditions?: Array<Condition | AndCondition | OrCondition> | undefined | null;
-  source?: {
-    type: 'git';
-    url: string;
-    avatarUrl: string;
-  };
+  source?: DataSource;
 }
 
 export interface AndCondition {

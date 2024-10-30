@@ -1,4 +1,4 @@
-export interface JobSource {
+export class DataSource {
   type: 'git';
   repoUrl: string;
   avatarUrl: string;

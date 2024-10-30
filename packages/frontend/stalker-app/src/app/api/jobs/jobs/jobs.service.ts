@@ -1,12 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom, map, Observable } from 'rxjs';
-import { environment } from '../../../../environments/environment';
-import { JobListEntry, StartedJob, StartedJobState, StartedJobViewModel } from '../../../shared/types/jobs/job.type';
-import { Page } from '../../../shared/types/page.type';
-import { JobParameter } from '../../../shared/types/subscriptions/subscription.type';
-import { filtersToParams } from '../../../utils/filters-to-params';
-import { JobOutputResponse } from './jobs.socketio-client';
+import { environment } from 'src/environments/environment';
+import { CustomJob, CustomJobData } from '../../../shared/types/jobs/custom-job.type';
 
 @Injectable({
   providedIn: 'root',
@@ -14,85 +10,35 @@ import { JobOutputResponse } from './jobs.socketio-client';
 export class JobsService {
   constructor(private http: HttpClient) {}
 
-  public getJobSummaries(): Observable<JobListEntry[]> {
-    return <Observable<JobListEntry[]>>this.http.get(`${environment.fmUrl}/jobs/summaries`);
+  public getJobs(): Observable<CustomJob[]> {
+    return <Observable<CustomJob[]>>this.http.get(`${environment.fmUrl}/custom-jobs/`);
   }
 
-  public getJobExecutions(
-    page: number,
-    pageSize: number,
-    filters: any = undefined
-  ): Observable<Page<StartedJobViewModel>> {
-    let params = filtersToParams(filters);
-    params = params.append('page', page);
-    params = params.append('pageSize', pageSize);
-
-    return this.http.get<Page<StartedJob>>(`${environment.fmUrl}/jobs`, { params }).pipe(
-      map((page) => ({
-        totalRecords: page.totalRecords,
-        items: page.items.map((i) => this.toStartedJobViewModel(i)),
-      }))
+  public get(id: string): Observable<CustomJob> {
+    return <Observable<CustomJob>>this.http.get(`${environment.fmUrl}/custom-jobs/${id}`).pipe(
+      map((v) => {
+        return v;
+      })
     );
   }
 
-  public getJobExecution(jobId: string): Observable<StartedJobViewModel> {
-    return this.http
-      .get<StartedJob>(`${environment.fmUrl}/jobs/${jobId}`)
-      .pipe(map((model) => this.toStartedJobViewModel(model)));
+  public async create(data: CustomJobData): Promise<CustomJob> {
+    return <CustomJob>await firstValueFrom(this.http.post(`${environment.fmUrl}/custom-jobs/`, data));
   }
 
-  public getJobLogs(jobId: string): Observable<Page<JobOutputResponse>> {
-    return this.http.get<Page<JobOutputResponse>>(`${environment.fmUrl}/jobs/${jobId}/logs`);
+  public async edit(id: string, data: CustomJobData) {
+    return await firstValueFrom(this.http.put(`${environment.fmUrl}/custom-jobs/${id}`, data));
   }
 
-  private toStartedJobViewModel(job: StartedJob): StartedJobViewModel {
-    const logsPerLevel = job.output.reduce(
-      (prev, current) => {
-        prev[current.level] += 1;
-        return prev;
-      },
-      {
-        debug: 0,
-        info: 0,
-        warning: 0,
-        error: 0,
-        finding: 0,
-      }
-    );
-
-    return {
-      ...job,
-      id: job._id,
-      numberOfWarnings: logsPerLevel.warning,
-      numberOfErrors: logsPerLevel.error,
-      numberOfFindings: logsPerLevel.finding,
-      state: this.toStartedJobState(job),
-      startTimestamp: job.startTime,
-      endTimestamp: job.endTime,
-      startTime: job.startTime != null ? new Date(job.startTime) : undefined,
-      endTime: job.endTime != null ? new Date(job.endTime) : undefined,
-    };
+  public async duplicate(id: string) {
+    return await firstValueFrom(this.http.post(`${environment.fmUrl}/custom-jobs`, { jobId: id }));
   }
 
-  private toStartedJobState(job: StartedJob): StartedJobState | undefined {
-    if (job == null) return undefined;
-
-    if (job.endTime == null) {
-      return 'in-progress';
-    }
-
-    if (job.output.find((x) => x.level === 'error')) return 'errored';
-
-    return 'done';
+  public async delete(id: string) {
+    return await firstValueFrom(this.http.delete(`${environment.fmUrl}/custom-jobs/${id}`));
   }
 
-  public async startJob(jobName: string, jobParameters: JobParameter[], projectId: string | null = null) {
-    const data = {
-      task: jobName,
-      jobParameters: jobParameters,
-      projectId: projectId,
-    };
-
-    return <StartedJob>await firstValueFrom(this.http.post(`${environment.fmUrl}/jobs/`, data));
+  public async syncCache() {
+    return await firstValueFrom(this.http.post(`${environment.fmUrl}/custom-jobs/sync`, undefined));
   }
 }

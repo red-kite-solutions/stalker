@@ -15,7 +15,14 @@ import {
   customJobTypes,
 } from '../jobs/models/custom-job.model';
 
-export class CustomJobDto {
+export class DuplicateJobDto {
+  @IsMongoId()
+  @IsNotEmpty()
+  @IsString()
+  public jobId: string;
+}
+
+export class JobDto {
   @IsString()
   @IsNotEmpty()
   public name!: string;

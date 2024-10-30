@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, firstValueFrom, map } from 'rxjs';
-import { CustomJobsService } from 'src/app/api/jobs/custom-jobs/custom-jobs.service';
+import { JobsService } from 'src/app/api/jobs/jobs/jobs.service';
 import { CustomJob } from 'src/app/shared/types/jobs/custom-job.type';
 import {
   ConfirmDialogComponent,
@@ -18,7 +18,7 @@ import { FileTab } from '../../../shared/widget/code-editor/code-editor.type';
 @Injectable({ providedIn: 'root' })
 export class CustomJobsInteractionService {
   constructor(
-    private customJobsService: CustomJobsService,
+    private customJobsService: JobsService,
     private dialog: MatDialog,
     private toastr: ToastrService,
     public router: Router,
@@ -71,6 +71,10 @@ export class CustomJobsInteractionService {
         })
         .afterClosed()
     );
+  }
+
+  public async duplicate(job: Pick<CustomJob, '_id' | 'name'>): Promise<void> {
+    await this.customJobsService.duplicate(job._id);
   }
 
   public async syncCache() {

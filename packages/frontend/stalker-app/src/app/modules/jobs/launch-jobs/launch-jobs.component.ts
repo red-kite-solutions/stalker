@@ -36,7 +36,7 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { SpinnerButtonComponent } from 'src/app/shared/widget/spinner-button/spinner-button.component';
 import { parse, parseDocument, stringify } from 'yaml';
 import { AuthService } from '../../../api/auth/auth.service';
-import { JobsService } from '../../../api/jobs/jobs/jobs.service';
+import { JobExecutionsService } from '../../../api/jobs/job-executions/job-executions.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { JobListEntry, JobParameterDefinition, StartedJob } from '../../../shared/types/jobs/job.type';
 import { ProjectSummary } from '../../../shared/types/project/project.summary';
@@ -122,7 +122,7 @@ export class LaunchJobsComponent {
   );
 
   constructor(
-    private jobsService: JobsService,
+    private jobsService: JobExecutionsService,
     private toastr: ToastrService,
     private projectsService: ProjectsService,
     private titleService: Title,

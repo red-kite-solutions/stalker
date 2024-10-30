@@ -39,8 +39,9 @@ import { SavingButtonComponent } from 'src/app/shared/widget/spinner-button/savi
 import { SpinnerButtonComponent } from 'src/app/shared/widget/spinner-button/spinner-button.component';
 import { TextMenuComponent } from 'src/app/shared/widget/text-menu/text-menu.component';
 import { CustomJobTemplatesService } from '../../../api/jobs/custom-job-templates/custom-job-templates.service';
-import { CustomJobsService } from '../../../api/jobs/custom-jobs/custom-jobs.service';
+import { JobsService } from '../../../api/jobs/jobs/jobs.service';
 import { SettingsService } from '../../../api/settings/settings.service';
+import { DataSource } from '../../../shared/types/data-source/data-source.type';
 import { CustomJobTemplate } from '../../../shared/types/jobs/custom-job-template.type';
 import {
   CustomJob,
@@ -53,9 +54,8 @@ import {
   languageExtensionMapping,
   validCustomJobTypeDetails,
 } from '../../../shared/types/jobs/custom-job.type';
-import { JobSource } from '../../../shared/types/jobs/job-source.type';
 import { CodeEditorComponent, CodeEditorTheme } from '../../../shared/widget/code-editor/code-editor.component';
-import { JobSourceComponent } from '../job-source/job-source.component';
+import { DataSourceComponent } from '../../data-source/data-source/data-source.component';
 import { CustomJobsInteractionService } from './custom-jobs-interaction.service';
 import { nucleiFindingHandlerTemplate } from './nuclei-finding-handler-template';
 
@@ -95,7 +95,7 @@ import { nucleiFindingHandlerTemplate } from './nuclei-finding-handler-template'
     MatDividerModule,
     MatCheckboxModule,
     SavingButtonComponent,
-    JobSourceComponent,
+    DataSourceComponent,
   ],
 })
 export class CustomJobsComponent implements OnInit, OnDestroy, HasUnsavedChanges {
@@ -119,7 +119,7 @@ export class CustomJobsComponent implements OnInit, OnDestroy, HasUnsavedChanges
   public customJobTypesLocalized = customJobTypesLocalized;
   public languageOptions: CustomJobLanguage[] = [];
   public findingHandlerLanguageOptions: CustomJobFindingHandlerLanguage[] = [];
-  public jobSource: JobSource | undefined = undefined;
+  public jobSource: DataSource | undefined = undefined;
 
   @ViewChild(CodeEditorComponent) codeEditor!: CodeEditorComponent;
 
@@ -153,7 +153,7 @@ export class CustomJobsComponent implements OnInit, OnDestroy, HasUnsavedChanges
   public hasUnsavedChanges$ = new BehaviorSubject(false);
 
   constructor(
-    private customJobsService: CustomJobsService,
+    private customJobsService: JobsService,
     private customJobsInteractor: CustomJobsInteractionService,
     private toastr: ToastrService,
     private titleService: Title,

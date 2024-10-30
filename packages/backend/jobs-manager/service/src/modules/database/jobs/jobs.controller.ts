@@ -30,17 +30,17 @@ import { JobPodConfiguration } from '../admin/config/job-pod-config/job-pod-conf
 import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
 import { SecretsService } from '../secrets/secrets.service';
 import { JobParameter } from '../subscriptions/event-subscriptions/event-subscriptions.model';
+import { JobExecutionsService } from './job-executions.service';
 import { JobDefinitions } from './job-model.module';
 import { JobExecutionsDto, StartJobDto } from './jobs.dto';
 import { JobFactory, JobFactoryUtils } from './jobs.factory';
-import { JobsService } from './jobs.service';
 import { CustomJob } from './models/custom-job.model';
 import { JobDocument } from './models/jobs.model';
 
 @Controller('jobs')
 export class JobsController {
   constructor(
-    private readonly jobsService: JobsService,
+    private readonly jobsService: JobExecutionsService,
     private readonly customJobsService: CustomJobsService,
     private readonly configService: ConfigService,
     private readonly secretsService: SecretsService,

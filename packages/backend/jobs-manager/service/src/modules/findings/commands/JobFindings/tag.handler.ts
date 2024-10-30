@@ -2,7 +2,7 @@ import { Logger } from '@nestjs/common';
 import { CommandHandler } from '@nestjs/cqrs';
 import { ConfigService } from '../../../database/admin/config/config.service';
 import { CustomJobsService } from '../../../database/custom-jobs/custom-jobs.service';
-import { JobsService } from '../../../database/jobs/jobs.service';
+import { JobExecutionsService } from '../../../database/jobs/job-executions.service';
 import { CorrelationKeyUtils } from '../../../database/reporting/correlation.utils';
 import { DomainsService } from '../../../database/reporting/domain/domain.service';
 import { HostService } from '../../../database/reporting/host/host.service';
@@ -25,7 +25,7 @@ export class TagHandler extends JobFindingHandlerBase<TagCommand> {
     private portService: PortService,
     private tagService: TagsService,
     private websiteService: WebsiteService,
-    jobService: JobsService,
+    jobService: JobExecutionsService,
     subscriptionsService: EventSubscriptionsService,
     customJobsService: CustomJobsService,
     configService: ConfigService,

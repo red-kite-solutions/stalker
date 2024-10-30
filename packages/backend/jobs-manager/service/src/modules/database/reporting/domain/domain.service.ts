@@ -11,7 +11,7 @@ import { HostnameFinding } from '../../../findings/findings.service';
 import { FindingsQueue } from '../../../job-queue/findings-queue';
 import { ConfigService } from '../../admin/config/config.service';
 import { MONGO_DUPLICATE_ERROR } from '../../database.constants';
-import { JobsService } from '../../jobs/jobs.service';
+import { JobExecutionsService } from '../../jobs/job-executions.service';
 import { TagsService } from '../../tags/tag.service';
 import { CorrelationKeyUtils } from '../correlation.utils';
 import { HostService } from '../host/host.service';
@@ -28,7 +28,7 @@ export class DomainsService {
   constructor(
     @InjectModel('domain') private readonly domainModel: Model<Domain>,
     @InjectModel('project') private readonly projectModel: Model<Project>,
-    private jobService: JobsService,
+    private jobService: JobExecutionsService,
     private configService: ConfigService,
     @Inject(forwardRef(() => HostService))
     private hostService: HostService,

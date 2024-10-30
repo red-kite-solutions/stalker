@@ -9,7 +9,7 @@ import {
 import { Page } from '../../types/page.type';
 import { ProjectUnassigned } from '../../validators/is-project-id.validator';
 import { ConfigService } from '../database/admin/config/config.service';
-import { JobsService } from '../database/jobs/jobs.service';
+import { JobExecutionsService } from '../database/jobs/job-executions.service';
 import { CorrelationKeyUtils } from '../database/reporting/correlation.utils';
 import { CustomFinding } from '../database/reporting/findings/finding.model';
 import { ProjectService } from '../database/reporting/project.service';
@@ -134,7 +134,7 @@ export class FindingsService {
 
   constructor(
     private commandBus: CommandBus,
-    private jobsService: JobsService,
+    private jobsService: JobExecutionsService,
     private projectService: ProjectService,
     private configService: ConfigService,
     @InjectModel('finding')

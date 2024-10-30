@@ -5,8 +5,8 @@ import { isTest } from '../app.constants';
 import { ConfigModule } from '../database/admin/config/config.module';
 import { CustomJobsModule } from '../database/custom-jobs/custom-jobs.module';
 import { DatalayerModule } from '../database/datalayer.module';
+import { JobExecutionsService } from '../database/jobs/job-executions.service';
 import { JobsModule } from '../database/jobs/jobs.module';
-import { JobsService } from '../database/jobs/jobs.service';
 import { DomainsModule } from '../database/reporting/domain/domain.module';
 import { HostModule } from '../database/reporting/host/host.module';
 import { PortModule } from '../database/reporting/port/port.module';
@@ -49,7 +49,7 @@ export class FindingsModule {
 
   public constructor(
     private findingsService: FindingsService,
-    private jobService: JobsService,
+    private jobService: JobExecutionsService,
   ) {}
 
   public async onApplicationBootstrap() {
