@@ -123,7 +123,7 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
   @Output() dateFiltersChange = new EventEmitter<DateRange<Date>>();
 
   @Input() currentPage = 0;
-  @Input() pageSizeOptions: number[] = [10, 25, 50, 100];
+  @Input() pageSizeOptions: number[] = [25, 50, 100];
   @Input() pageSize = 0;
   dateRange = new FormGroup({
     start: new FormControl<Moment | null>(null),
