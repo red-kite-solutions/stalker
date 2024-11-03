@@ -3,7 +3,7 @@ name: stalker-vars-base
 
 vars:
   # General
-  STALKER_VERSION: "Stalker 0.0.2 alpha"
+  RK_VERSION: "Stalker 0.0.2 alpha"
   UPDATE_IMAGE_TAGS: true
 
   # openssl genrsa -out private.pem 2048; cat private.pem | base64 -w 0
@@ -16,8 +16,8 @@ vars:
   CERTIFICATES: "certificates.yml"
   RESOURCE_QUOTA: "resource-quota.yml"
   DOCKERFILE_NAME: Dockerfile.dev # For development
-  STALKER_PORT: 4200
-  STALKER_URL: "http://localhost:${STALKER_PORT}"
+  RK_PORT: 4200
+  RK_URL: "http://localhost:${RK_PORT}"
 
   # Mongo
   MONGO_K8S_NODE_SELECTOR: "{}"
@@ -58,7 +58,7 @@ vars:
   CRON_K8S_NODE_SELECTOR: "{}"
   CRON_MONGO_KEY_PASSWORD: qtawxARQ0TCQQPbUxDjSZcmuk
   CRON_MONGO_ADDRESS: mongodb://${MONGO_CRON_USER}:${MONGO_CRON_PASSWORD}@mongo-mongodb-headless:27017/
-  STALKER_CRON_API_TOKEN: "123456" # Jobs Manager's cron subscriptions notification API token for the cron service
+  RK_CRON_API_TOKEN: "123456" # Jobs Manager's cron subscriptions notification API token for the cron service
 
   # UI
   FRONTEND_VERSION: latest

@@ -3,13 +3,13 @@
 # This variable is used in the generation of the SSL certificate
 # Having "stalker.lan" here with port 8443 means that you will connect to Stalker using
 # https://stalker.lan:8443/
-STALKER_HOSTNAME=stalker.lan
-STALKER_PORT=8443
+RK_HOSTNAME=stalker.lan
+RK_PORT=8443
 
 # Bind address indicates from where Stalker will accept connections
 # 0.0.0.0 means from everywhere
 # 127.0.0.1 means only from localhost
-STALKER_BIND_ADDRESS="0.0.0.0"
+RK_BIND_ADDRESS="0.0.0.0"
 
 # Max database size and replication. Having 3 replicas with 32Gi would mean that 
 # (32 * 3) Gi of space on disk is needed
@@ -54,7 +54,7 @@ echo "# You will be prompted several times for your root CA key's password."
 echo "# The CA will sign all of Stalker's certificates."
 echo "#" 
 echo "# After deployment, Stalker is configured to listen on:"
-echo "# https://$STALKER_HOSTNAME:$STALKER_PORT/"
+echo "# https://$RK_HOSTNAME:$RK_PORT/"
 echo "##############################"
 
 read -n 1 -p "Press any key to continue..."
@@ -81,19 +81,19 @@ vars:
   MONGO_ROOT_PASSWORD: $mongo_root
   MONGO_JM_PASSWORD: $mongo_fm
   MONGO_CRON_PASSWORD: $mongo_cs
-  STALKER_CRON_API_TOKEN: $cron_api_token
+  RK_CRON_API_TOKEN: $cron_api_token
   JM_JWT_SECRET: $jm_jwt
   JM_REFRESH_SECRET: $jm_refresh
   JM_MONGO_ADDRESS: mongodb://\${MONGO_JM_USER}:\${MONGO_JM_PASSWORD}@mongo-mongodb-headless:27017/
   CRON_MONGO_ADDRESS: mongodb://\${MONGO_CRON_USER}:\${MONGO_CRON_PASSWORD}@mongo-mongodb-headless:27017/
   SECRET_PRIVATE_RSA_KEY: $secrets_private_key
   SECRET_PUBLIC_RSA_KEY: $secrets_public_key
-  STALKER_PORT: $STALKER_PORT
-  STALKER_URL: "https://$STALKER_HOSTNAME:\${STALKER_PORT}"
+  RK_PORT: $RK_PORT
+  RK_URL: "https://$RK_HOSTNAME:\${RK_PORT}"
   DOCKERFILE_NAME: Dockerfile
   JM_URL: "https://jobs-manager:3000"
   MONGO_MAX_SIZE: $MONGO_MAX_SIZE
-  STALKER_BIND_ADDRESS: $STALKER_BIND_ADDRESS
+  RK_BIND_ADDRESS: $RK_BIND_ADDRESS
 EOF
 
 cat > "root_ca.cnf" << EOF
@@ -208,7 +208,7 @@ touch index.txt
 openssl genrsa -aes256 -out ./root_ca.key 4096
 openssl req -config ./root_ca.cnf -key ./root_ca.key -new -x509 -days 7300 -sha256 -extensions v3_ca -out ./root_ca.crt -subj="/CN=Stalker CA/OU=Stalker CA/O=Red Kite Solutions/L=/ST=/C="
 
-bash ./setup_ssl.sh $STALKER_HOSTNAME
+bash ./setup_ssl.sh $RK_HOSTNAME
 bash ./setup_mongo.sh
 bash ./setup_kafka.sh
 bash ./setup_secrets.sh

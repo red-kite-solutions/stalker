@@ -6,13 +6,13 @@ description: What are subscriptions and how to use them
 
 # Subscriptions
 
-Subscriptions are used in Stalker to start jobs based on either a cron expression (cron subscriptions) or a finding (event subscription).
-They are used to expand Stalker's automation workflow.
+Subscriptions are used in Red Kite to start jobs based on either a cron expression (cron subscriptions) or a finding (event subscription).
+They are used to expand Red Kite's automation workflow.
 
 A subscription can belong to a project, in which case, they will only take effect on the mentionned project. If a project is not specified
 for a subscription, it will take effect on all the projects.
 
-Some subscriptions come built-in Stalker. These subscriptions are marked as such, but they can still be modified by the users. When a
+Some subscriptions come built-in Red Kite. These subscriptions are marked as such, but they can still be modified by the users. When a
 built-in subscription is altered, it can be reverted back to its original state. Built-in subscriptions can even be deleted, but be sure to
 know what you are doing.
 
@@ -91,7 +91,7 @@ If a project is specified, only the ressources of the targeted project will be u
 | ALL_HOSTS     | `${ip}`                           |
 | ALL_TCP_PORTS | `${ip}`, `${port}`, `${protocol}` |
 
-When you specify the `ALL_DOMAINS` input, you have access to the `${domainName}` injectable variable. Stalker will apply the subscription
+When you specify the `ALL_DOMAINS` input, you have access to the `${domainName}` injectable variable. Red Kite will apply the subscription
 for all the domains, and the domain's value will be injected where specified.
 
 ```yaml
@@ -105,7 +105,7 @@ job:
       value: ${domainName}
 ```
 
-When you specify the `ALL_HOSTS` input, you have access to the `${ip}` injectable variable. Stalker will apply the subscription for all the
+When you specify the `ALL_HOSTS` input, you have access to the `${ip}` injectable variable. Red Kite will apply the subscription for all the
 hosts, and the hosts's ip value will be injected where specified.
 
 ```yaml
@@ -129,7 +129,7 @@ job:
       value: []
 ```
 
-When you specify the `ALL_TCP_PORTS` input, you have access to the `${ip}`, `${port}` and `${protocol}` injectable variables. Stalker will
+When you specify the `ALL_TCP_PORTS` input, you have access to the `${ip}`, `${port}` and `${protocol}` injectable variables. Red Kite will
 apply the subscription for all the ports, and the ip, port and protocol values can be injected where specified. Protocol is either tcp or
 udp.
 
@@ -152,7 +152,7 @@ conditions:
     rhs: "tcp"
 ```
 
-When you specify the `ALL_IP_RANGES` input, you have access to the `${ip}` and `${mask}` injectable variables. Stalker will apply the
+When you specify the `ALL_IP_RANGES` input, you have access to the `${ip}` and `${mask}` injectable variables. Red Kite will apply the
 subscription for all the projects' ip ranges.
 
 ```yaml
@@ -176,7 +176,7 @@ job:
       value: []
 ```
 
-When you specify the `ALL_WEBSITES` input, you have access to the `${domainName}`, `${ip}`, `${port}`, `${path}` and `${ssl}` injectable variables. Stalker will apply the subscription for all the websites, and the websites's different values will be injected where specified.
+When you specify the `ALL_WEBSITES` input, you have access to the `${domainName}`, `${ip}`, `${port}`, `${path}` and `${ssl}` injectable variables. Red Kite will apply the subscription for all the websites, and the websites's different values will be injected where specified.
 
 
 ```yaml
@@ -211,11 +211,11 @@ job:
 
 ## Event Subscriptions
 
-When Stalker finds some information, either through the output of a Job or through user input, a Finding is emitted. This Finding contains
+When Red Kite finds some information, either through the output of a Job or through user input, a Finding is emitted. This Finding contains
 the output information given by the Job or the user. From this information, new Jobs are started that will output more Findings. This is
-roughly how Stalker's automation workflow works.
+roughly how Red Kite's automation workflow works.
 
-An event subscription allows for the customization of Stalker's automation workflow by starting any Job on any Finding. These jobs can be
+An event subscription allows for the customization of Red Kite's automation workflow by starting any Job on any Finding. These jobs can be
 started on specified conditions. Also, the output of the finding can be used as a job input, as well as a condition parameter.
 
 Event subscriptions also have a cooldown in seconds. This value ensures that a subscription is not triggered too often for the same
@@ -270,7 +270,7 @@ emit a `HostnameIpFinding` if it properly resolves the domain name.
 The `cooldown` here represents 23 hours. Therefore, the same hostname can only be resolved as often as every 23 hours through this
 subscription.
 
-> This subscription is already built in Stalker
+> This subscription is already built in Red Kite
 
 ```yaml
 name: Domain name resolution
@@ -295,7 +295,7 @@ The Job, in this case, will scan the `${ip}`'s 1000 first ports ([1-1000]) as we
 parallel threads. Every thread's socket will have a 1 second timeout if it does not respond. We can therefore expect the Job to finish in a
 maximum of around 100 seconds.
 
-> Something similar in behavior, except from the conditions, is already built in Stalker.
+> Something similar in behavior, except from the conditions, is already built in Red Kite.
 
 ```yaml
 name: My complex subscription
@@ -327,7 +327,7 @@ conditions:
 
 ### Findings
 
-A finding event is propagated by Stalker whenever an information comes into play. Every finding type contains information that is specific
+A finding event is propagated by Red Kite whenever an information comes into play. Every finding type contains information that is specific
 to it.
 
 It is possible to reference a finding outputted by a job as an input of a new job, as well as a condition operand. All references to a

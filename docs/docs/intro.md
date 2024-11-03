@@ -1,19 +1,19 @@
 ---
 sidebar_position: 1
 title: Overview
-description: An overview of Stalker
+description: An overview of Red Kite
 ---
 
 # Overview
 
-Stalker is an Attack Surface Management (ASM) tool with a big focus on extendability. It streamlines and automates reconnaissance operations
+Red Kite is an Attack Surface Management (ASM) tool with a big focus on extendability. It streamlines and automates reconnaissance operations
 while giving you the flexibility to expand its functionalities. Its web interface enables easy data access and sharing with all
 stakeholders.
 
-Stalker is powered by Kubernetes, enabling virtually infinite horizontal scaling. Combined with its flexibility, it makes it the ideal tool
+Red Kite is powered by Kubernetes, enabling virtually infinite horizontal scaling. Combined with its flexibility, it makes it the ideal tool
 for hands-on security professionals committed to staying in full control while getting a clear picture of their attack surface.
 
-Stalker's API can be used by third-party tools for automated consumption.
+Red Kite's API can be used by third-party tools for automated consumption.
 
 **Quick Links**
 
@@ -22,9 +22,9 @@ Stalker's API can be used by third-party tools for automated consumption.
 - [Findings](/docs/concepts/findings)
 - [Subscriptions](/docs/concepts/subscriptions)
 
-## Installing Stalker
+## Installing Red Kite
 
-You can use Stalker with your own production ready deployment. Simply follow the few following steps.
+You can use Red Kite with your own production ready deployment. Simply follow the few following steps.
 
 ### 1. Install the dependencies
 
@@ -50,11 +50,11 @@ git clone https://github.com/red-kite-solutions/Stalker && cd stalker
 
 ### 3. Setup your preferences
 
-Optionally edit your url and port in `setup.sh` to the URL and port that you will use to reach Stalker. The defaults are the following:
+Optionally edit your url and port in `setup.sh` to the URL and port that you will use to reach Red Kite. The defaults are the following:
 
 ```bash
-STALKER_HOSTNAME=stalker.lan
-STALKER_PORT=8443
+RK_HOSTNAME=stalker.lan
+RK_PORT=8443
 ```
 
 You can also set a custom size for your mongodb storage in `setup.sh`. The default size is 32 Gb. You may need more, depending on usage.
@@ -70,9 +70,9 @@ sudo groupadd docker
 sudo usermod -aG docker $USER
 ```
 
-### 5. Start Stalker
+### 5. Start Red Kite
 
-> When initializing for the first time, Stalker will prompt you several times for your root CA key's password.
+> When initializing for the first time, Red Kite will prompt you several times for your root CA key's password.
 
 ```bash
 chmod +x ./stalker && ./stalker
@@ -80,10 +80,10 @@ chmod +x ./stalker && ./stalker
 
 ### 6. Add stalker to your host file
 
-Add your `STALKER_HOSTNAME` to your `/etc/hosts` file.
+Add your `RK_HOSTNAME` to your `/etc/hosts` file.
 
 ```text
-# STALKER_HOSTNAME in /etc/hosts
+# RK_HOSTNAME in /etc/hosts
 127.0.0.1       stalker.lan
 ```
 
@@ -93,56 +93,56 @@ Add your `STALKER_HOSTNAME` to your `/etc/hosts` file.
 
 Add the `root_ca.crt` to your browser's accepted certificate authorities.
 
-### 8. Open up Stalker!
+### 8. Open up Red Kite!
 
-You are now ready to connect to Stalker at the following URL:
+You are now ready to connect to Red Kite at the following URL:
 
 https://stalker.lan:8443
 
 ### Notes
 
-Any time you want to start Stalker again in the future, simply run the start up script again:
+Any time you want to start Red Kite again in the future, simply run the start up script again:
 
 ```bash
 ./stalker
 ```
 
-> If something went wrong during the install, or you simply want to rerun the setup, you can run Stalker with the `--force-setup` flag.
+> If something went wrong during the install, or you simply want to rerun the setup, you can run Red Kite with the `--force-setup` flag.
 
 ## Core concepts
 
-The Stalker platform revolves around several key concepts, including projects, domains, hosts and ports.
+The Red Kite platform revolves around several key concepts, including projects, domains, hosts and ports.
 
 ### Ressources
 
-Efficiently organizing data and providing clear visualizations are key features of an Attack Surface Management tool. With Stalker, data
+Efficiently organizing data and providing clear visualizations are key features of an Attack Surface Management tool. With Red Kite, data
 organization is made simple and user-friendly, allowing you to focus on analysis and decision-making.
 
 #### Projects
 
-Stalker is designed to cater to the needs of large organizations with multiple subsidiaries, bug bounty hunters, and other use cases. A
+Red Kite is designed to cater to the needs of large organizations with multiple subsidiaries, bug bounty hunters, and other use cases. A
 project owns entities such as [domains](#domains), [hosts](#hosts) and [ports](#ports).
 
 #### Domains
 
-The domains contain DNS information given by domain names. When a domain resolves to an IP, or a [Host](#hosts), in Stalker's terminology,
+The domains contain DNS information given by domain names. When a domain resolves to an IP, or a [Host](#hosts), in Red Kite's terminology,
 they are linked.
 
 #### Hosts
 
-Hosts represent IP addresses found by Stalker. Hosts can expose [ports](#ports), which can be TCP or UDP. The hosts also link to the
+Hosts represent IP addresses found by Red Kite. Hosts can expose [ports](#ports), which can be TCP or UDP. The hosts also link to the
 [domains](#domains) that point to them.
 
 #### Ports
 
-Ports can either be TCP or UDP. When open, they expose servers and services that Stalker will attempt to detect, report, and monitor.
+Ports can either be TCP or UDP. When open, they expose servers and services that Red Kite will attempt to detect, report, and monitor.
 
 ### Extendability
 
 #### Jobs
 
 Jobs refer to small scripts that operate independently to gather information about a target. These scripts are produced locally and, upon
-successful execution, may be uploaded onto Stalker. [Subscriptions](#subscriptions) trigger the start of these jobs, which in turn produce
+successful execution, may be uploaded onto Red Kite. [Subscriptions](#subscriptions) trigger the start of these jobs, which in turn produce
 [findings](#findings).
 
 Jobs run in a [Kubernetes job](https://kubernetes.io/docs/concepts/workloads/controllers/job/) pod with configurable resources. A job can be
@@ -152,7 +152,7 @@ A guide with detailed [instructions on how to implement a job](/docs/tutorials/i
 
 #### Findings
 
-Findings are produced by [jobs](#jobs) and they represent information that Stalker needs to process and organize data. Findings can be
+Findings are produced by [jobs](#jobs) and they represent information that Red Kite needs to process and organize data. Findings can be
 built-in or custom. Depending on their type and content, findings can trigger [Subscriptions](#subscriptions).
 
 Read here for more in-depth [information about findings](/docs/concepts/findings).
@@ -174,7 +174,7 @@ Read here for additional [information on subscriptions](/docs/concepts/subscript
 
 ## Acknowledgements
 
-Stalker leverages multiple free and open source softwares for some of its capabilities. We believe that it is important to recognize their
+Red Kite leverages multiple free and open source softwares for some of its capabilities. We believe that it is important to recognize their
 hard work:
 
 - [Nuclei](https://github.com/projectdiscovery/nuclei)

@@ -378,7 +378,7 @@ export async function checkAuthorizationsCronApiKey(
   r = await call(
     null,
     headers.concat([
-      { header: cronHeaderName, value: process.env.STALKER_CRON_API_TOKEN },
+      { header: cronHeaderName, value: process.env.RK_CRON_API_TOKEN },
     ]),
     false,
   );

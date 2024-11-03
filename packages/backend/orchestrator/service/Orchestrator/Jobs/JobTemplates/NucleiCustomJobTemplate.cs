@@ -28,7 +28,7 @@ public class NucleiCustomJobTemplate : KubernetesJobTemplate
 
         if (!code.IsNullOrEmpty())
         {
-            EnvironmentVariable["STALKER_NUCLEI_YAML_TEMPLATE"] = code!;
+            EnvironmentVariable["RK_NUCLEI_YAML_TEMPLATE"] = code!;
         }
 
         if (!findingHandler.IsNullOrEmpty())
