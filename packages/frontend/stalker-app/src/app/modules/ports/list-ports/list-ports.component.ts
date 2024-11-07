@@ -1,22 +1,20 @@
 import { SelectionModel } from '@angular/cdk/collections';
 import { BreakpointObserver, BreakpointState, Breakpoints } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { DateRange } from '@angular/material/datepicker';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, map, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, combineLatest, firstValueFrom, map, shareReplay, switchMap, tap } from 'rxjs';
 import { ProjectsService } from 'src/app/api/projects/projects.service';
 import { TagsService } from 'src/app/api/tags/tags.service';
 import { ProjectCellComponent } from 'src/app/shared/components/project-cell/project-cell.component';
@@ -31,6 +29,10 @@ import { BlockedPillTagComponent } from 'src/app/shared/widget/pill-tag/blocked-
 import { PortsService } from '../../../api/ports/ports.service';
 import { SharedModule } from '../../../shared/shared.module';
 import { Port } from '../../../shared/types/ports/port.interface';
+import {
+  TableFiltersSource,
+  TableFiltersSourceBase,
+} from '../../../shared/widget/filtered-paginated-table/table-filters-source';
 import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-table/table-format/table-format.component';
 import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.component';
 import { PortsInteractionsService } from '../ports-interactions.service';
@@ -59,42 +61,35 @@ import { PortsInteractionsService } from '../ports-interactions.service';
   selector: 'app-list-ports',
   templateUrl: './list-ports.component.html',
   styleUrls: ['./list-ports.component.scss'],
+  providers: [{ provide: TableFiltersSourceBase, useClass: TableFiltersSource }],
 })
-export class ListPortsComponent {
+export class ListPortsComponent implements OnInit {
   dataLoading = true;
   displayedColumns: string[] = ['select', 'port', 'ip', 'project', 'tags', 'menu'];
   filterOptions: string[] = ['host', 'port', 'project', 'tags', 'is'];
   public readonly noDataMessage = $localize`:No port found|No port was found:No port found`;
 
-  dataSource = new MatTableDataSource<Port>();
-  currentPage: PageEvent = this.generateFirstPageEvent();
-  currentFilters: string[] = ['-is: blocked'];
-  currentPage$ = new BehaviorSubject<PageEvent>(this.currentPage);
-  count = 0;
   selection = new SelectionModel<Port>(true, []);
-  currentDateRange: DateRange<Date> = new DateRange<Date>(null, null);
   startDate: Date | null = null;
 
-  dataSource$ = this.currentPage$.pipe(
-    tap((currentPage) => {
-      this.currentPage = currentPage;
-    }),
-    switchMap((currentPage) => {
-      const filters = this.buildFilters(this.currentFilters);
+  private refresh$ = new BehaviorSubject(null);
+
+  public ports$ = combineLatest([this.filtersSource.filters$, this.refresh$]).pipe(
+    switchMap(([{ filters, dateRange, pagination }]) => {
       return this.portsService.getPage<Port>(
-        currentPage.pageIndex,
-        currentPage.pageSize,
-        filters,
-        this.currentDateRange,
+        pagination?.page ?? 0,
+        pagination?.pageSize ?? 25,
+        this.buildFilters(filters),
+        dateRange,
         'full'
       );
     }),
-    map((data: Page<Port>) => {
-      this.dataSource = new MatTableDataSource<Port>(data.items);
-      this.count = data.totalRecords;
-      this.dataLoading = false;
-      return data;
-    })
+    shareReplay(1)
+  );
+
+  dataSource$ = this.ports$.pipe(
+    tap(() => (this.dataLoading = false)),
+    map((data: Page<Port>) => new MatTableDataSource(data.items))
   );
 
   projects: ProjectSummary[] = [];
@@ -112,14 +107,6 @@ export class ListPortsComponent {
     })
   );
 
-  private generateFirstPageEvent(pageSize = 10) {
-    const p = new PageEvent();
-    p.pageIndex = 0;
-    p.pageSize = pageSize;
-    this.currentPage = p;
-    return p;
-  }
-
   private screenSize$ = this.bpObserver.observe([
     Breakpoints.XSmall,
     Breakpoints.Small,
@@ -136,11 +123,6 @@ export class ListPortsComponent {
     })
   );
 
-  pageChange(event: PageEvent) {
-    this.dataLoading = true;
-    this.currentPage$.next(event);
-  }
-
   constructor(
     private bpObserver: BreakpointObserver,
     private projectsService: ProjectsService,
@@ -149,19 +131,18 @@ export class ListPortsComponent {
     private toastr: ToastrService,
     private tagsService: TagsService,
     public dialog: MatDialog,
-    private titleService: Title
+    private titleService: Title,
+    @Inject(TableFiltersSourceBase) private filtersSource: TableFiltersSource
   ) {
     this.titleService.setTitle($localize`:Ports list page title|:Ports`);
   }
 
-  filtersChange(filters: string[]) {
-    this.currentFilters = filters;
-    this.dataLoading = true;
-  }
-
-  dateRangeFilterChange(range: DateRange<Date>) {
-    this.currentDateRange = range;
-    this.dataLoading = true;
+  async ngOnInit() {
+    // Set default filters
+    const { filters } = await firstValueFrom(this.filtersSource.filters$);
+    if (!filters.length) {
+      this.filtersSource.setFilters(['-is: blocked']);
+    }
   }
 
   buildFilters(stringFilters: string[]): any {
@@ -241,7 +222,7 @@ export class ListPortsComponent {
     const result = await this.portsInteractor.deleteBatch(domains, this.projects);
     if (result) {
       this.selection.clear();
-      this.currentPage$.next(this.currentPage);
+      this.refresh$.next(null);
     }
   }
 
@@ -249,7 +230,7 @@ export class ListPortsComponent {
     const result = await this.portsInteractor.blockBatch(domains, this.projects);
     if (result) {
       this.selection.clear();
-      this.currentPage$.next(this.currentPage);
+      this.refresh$.next(null);
     }
   }
 
@@ -257,7 +238,7 @@ export class ListPortsComponent {
     const result = await this.portsInteractor.block(domainId, block);
     if (result) {
       this.selection.clear();
-      this.currentPage$.next(this.currentPage);
+      this.refresh$.next(null);
     }
   }
 

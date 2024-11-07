@@ -8,7 +8,7 @@ export class PreviousRouteService {
     filter((x) => x?.type === EventType.NavigationEnd),
     pairwise(),
     map(([previousNavigation]) => (previousNavigation as NavigationEnd).url),
-    shareReplay()
+    shareReplay(1)
   );
 
   constructor(private router: Router) {

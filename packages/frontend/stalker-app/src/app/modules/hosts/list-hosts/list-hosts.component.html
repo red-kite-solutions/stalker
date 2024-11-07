@@ -23,21 +23,16 @@
   </mat-card-header>
 
   <mat-card-content>
-    @if (((dataSource$ | async) && (projects$ | async) && (tags$ | async)) || true) {
+    @if (((projects$ | async) && (tags$ | async)) || true) {
       <app-filtered-paginated-table
-        (pageChange)="pageChange($event)"
         [isLoading]="dataLoading"
         [length]="count"
         [filterOptions]="filterOptions"
         [negatableFilterOptions]="['is']"
-        (filtersChange)="filtersChange($event)"
-        (dateFiltersChange)="dateRangeFilterChange($event)"
         [dateSearchEnabled]="true"
-        [startDate]="startDate"
-        [filters]="currentFilters"
       >
         <app-table-format
-          [dataSource]="dataSource"
+          [dataSource]="dataSource$ | async"
           [columns]="displayColumns$ | async"
           [routerLinkPrefix]="'/hosts/'"
           (selectionChange)="selection = $event"

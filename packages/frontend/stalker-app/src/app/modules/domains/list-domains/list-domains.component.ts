@@ -1,7 +1,7 @@
 import { SelectionModel } from '@angular/cdk/collections';
 import { BreakpointObserver, BreakpointState, Breakpoints } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
-import { Component, TemplateRef } from '@angular/core';
+import { Component, Inject, OnInit, TemplateRef } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -10,13 +10,12 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, map, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, combineLatest, firstValueFrom, map, switchMap, tap } from 'rxjs';
 import { DomainsService } from 'src/app/api/domains/domains.service';
 import { ProjectsService } from 'src/app/api/projects/projects.service';
 import { TagsService } from 'src/app/api/tags/tags.service';
@@ -33,6 +32,10 @@ import {
 import { BlockedPillTagComponent } from 'src/app/shared/widget/pill-tag/blocked-pill-tag.component';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { SharedModule } from '../../../shared/shared.module';
+import {
+  TableFiltersSource,
+  TableFiltersSourceBase,
+} from '../../../shared/widget/filtered-paginated-table/table-filters-source';
 import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-table/table-format/table-format.component';
 import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.component';
 import { DomainsInteractionsService } from '../domains-interactions.service';
@@ -62,36 +65,34 @@ import { DomainsInteractionsService } from '../domains-interactions.service';
   selector: 'app-list-domains',
   templateUrl: './list-domains.component.html',
   styleUrls: ['./list-domains.component.scss'],
+  providers: [{ provide: TableFiltersSourceBase, useClass: TableFiltersSource }],
 })
-export class ListDomainsComponent {
+export class ListDomainsComponent implements OnInit {
   dataLoading = true;
   displayedColumns: string[] = ['select', 'domain', 'hosts', 'project', 'tags', 'menu'];
   filterOptions: string[] = ['host', 'domain', 'project', 'tags', 'is'];
   public readonly noDataMessage = $localize`:No domain found|No domain was found:No domain found`;
 
   maxHostsPerLine = 5;
-  dataSource = new MatTableDataSource<Domain>();
-  currentPage: PageEvent = this.generateFirstPageEvent();
-  currentFilters: string[] = ['-is: blocked'];
-  currentPage$ = new BehaviorSubject<PageEvent>(this.currentPage);
   count = 0;
   selection = new SelectionModel<Domain>(true, []);
-  currentDateRange: DateRange<Date> = new DateRange<Date>(null, null);
   startDate: Date | null = null;
 
-  dataSource$ = this.currentPage$.pipe(
-    tap((currentPage) => {
-      this.currentPage = currentPage;
-    }),
-    switchMap((currentPage) => {
-      const filters = this.buildFilters(this.currentFilters);
-      return this.domainsService.getPage(currentPage.pageIndex, currentPage.pageSize, filters, this.currentDateRange);
+  private refresh$ = new BehaviorSubject(null);
+  dataSource$ = combineLatest([this.filtersSource.filters$, this.refresh$]).pipe(
+    switchMap(([{ dateRange, filters, pagination }]) => {
+      console.log(filters, dateRange, pagination);
+      return this.domainsService.getPage(
+        pagination?.page || 0,
+        pagination?.pageSize || 25,
+        this.buildFilters(filters || []),
+        dateRange ?? new DateRange<Date>(null, null)
+      );
     }),
     map((data: Page<Domain>) => {
-      this.dataSource = new MatTableDataSource<Domain>(data.items);
       this.count = data.totalRecords;
       this.dataLoading = false;
-      return data;
+      return new MatTableDataSource<Domain>(data.items);
     })
   );
 
@@ -114,14 +115,6 @@ export class ListDomainsComponent {
   selectedProject = '';
   selectedNewDomains = '';
 
-  private generateFirstPageEvent(pageSize = 10) {
-    const p = new PageEvent();
-    p.pageIndex = 0;
-    p.pageSize = pageSize;
-    this.currentPage = p;
-    return p;
-  }
-
   private screenSize$ = this.bpObserver.observe([
     Breakpoints.XSmall,
     Breakpoints.Small,
@@ -138,16 +131,6 @@ export class ListDomainsComponent {
     })
   );
 
-  pageChange(event: PageEvent) {
-    this.dataLoading = true;
-    this.currentPage$.next(event);
-  }
-
-  dateRangeFilterChange(range: DateRange<Date>) {
-    this.currentDateRange = range;
-    this.dataLoading = true;
-  }
-
   constructor(
     private bpObserver: BreakpointObserver,
     private projectsService: ProjectsService,
@@ -156,14 +139,18 @@ export class ListDomainsComponent {
     private toastr: ToastrService,
     private tagsService: TagsService,
     public dialog: MatDialog,
-    private titleService: Title
+    private titleService: Title,
+    @Inject(TableFiltersSourceBase) private filtersSource: TableFiltersSource
   ) {
     this.titleService.setTitle($localize`:Domains list page title|:Domains`);
   }
 
-  filtersChange(filters: string[]) {
-    this.currentFilters = filters;
-    this.dataLoading = true;
+  async ngOnInit() {
+    // Set default filters
+    const { filters } = await firstValueFrom(this.filtersSource.filters$);
+    if (!filters.length) {
+      this.filtersSource.setFilters(['-is: blocked']);
+    }
   }
 
   buildFilters(stringFilters: string[]): any {
@@ -266,7 +253,7 @@ export class ListDomainsComponent {
       }
 
       this.dialog.closeAll();
-      this.currentPage$.next(this.currentPage);
+      this.refresh$.next(null);
       this.selectedProject = '';
       this.selectedNewDomains = '';
     } catch (err: any) {
@@ -284,7 +271,7 @@ export class ListDomainsComponent {
     const result = await this.domainsInteractor.deleteBatch(domains, this.projects);
     if (result) {
       this.selection.clear();
-      this.currentPage$.next(this.currentPage);
+      this.refresh$.next(null);
     }
   }
 
@@ -292,7 +279,7 @@ export class ListDomainsComponent {
     const result = await this.domainsInteractor.blockBatch(domains, this.projects);
     if (result) {
       this.selection.clear();
-      this.currentPage$.next(this.currentPage);
+      this.refresh$.next(null);
     }
   }
 
@@ -300,7 +287,7 @@ export class ListDomainsComponent {
     const result = await this.domainsInteractor.block(domainId, block);
     if (result) {
       this.selection.clear();
-      this.currentPage$.next(this.currentPage);
+      this.refresh$.next(null);
     }
   }
 
