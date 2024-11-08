@@ -27,6 +27,7 @@ export class CronSubscriptionSource {
   type: 'git';
   url: string;
   avatarUrl: string;
+  branch: string;
 }
 
 @Schema()

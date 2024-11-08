@@ -8,6 +8,7 @@ export class CustomJobTemplateSource {
   type: 'git';
   repoUrl: string;
   avatarUrl: string;
+  branch: string;
 }
 
 @Schema()
