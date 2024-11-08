@@ -14,7 +14,7 @@ export interface EventSubscriptionData extends SubscriptionData {
   cooldown: number;
   discriminator?: string;
   builtIn: boolean;
-  finding: string;
+  findings: string[];
 }
 
 export interface CronSubscriptionData extends SubscriptionData {

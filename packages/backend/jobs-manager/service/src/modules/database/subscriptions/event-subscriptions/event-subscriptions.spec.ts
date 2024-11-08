@@ -37,14 +37,14 @@ describe('Event Subscriptions Service', () => {
       // Arrange
       const c1 = await project('sub-c1');
       const c2 = await project('sub-c2');
-      const finding = 'HostnameFinding';
+      const finding = ['HostnameFinding'];
       const name = 'my special name';
 
       const subData: EventSubscriptionDto = {
         projectId: '',
         name: 'my sub',
         jobName: 'DomainNameResolvingJob',
-        finding: finding,
+        findings: finding,
         cooldown: 3600,
       };
 
@@ -61,7 +61,7 @@ describe('Event Subscriptions Service', () => {
       // Act
       const subs = await subscriptionsService.getAllForFinding(
         c2._id.toString(),
-        finding,
+        finding[0],
       );
 
       // Assert
@@ -74,14 +74,14 @@ describe('Event Subscriptions Service', () => {
       // Arrange
       const c1 = await project('sub-c12');
       const c2 = await project('sub-c22');
-      const finding = 'HostnameFinding';
-      const finding2 = 'HostnameIpFinding';
+      const finding = ['HostnameFinding'];
+      const finding2 = ['HostnameIpFinding'];
 
       const subData: EventSubscriptionDto = {
         projectId: '',
         name: 'my sub',
         jobName: 'DomainNameResolvingJob',
-        finding: finding,
+        findings: finding,
         cooldown: 3600,
       };
 
@@ -92,19 +92,19 @@ describe('Event Subscriptions Service', () => {
       const s2 = await subscription({
         ...subData,
         projectId: c2._id.toString(),
-        finding: finding2,
+        findings: finding2,
       });
 
       // Act
       const subs = await subscriptionsService.getAllForFinding(
         c2._id.toString(),
-        finding2,
+        finding2[0],
       );
 
       // Assert
       expect(subs.length).toStrictEqual(1);
       expect(subs[0].projectId).toStrictEqual(c2._id);
-      expect(subs[0].finding).toStrictEqual(finding2);
+      expect(subs[0].findings[0]).toStrictEqual(finding2[0]);
     });
   });
 

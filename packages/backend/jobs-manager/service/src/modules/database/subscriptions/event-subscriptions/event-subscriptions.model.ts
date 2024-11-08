@@ -40,7 +40,7 @@ export class EventSubscription {
   public projectId?: Types.ObjectId;
 
   @Prop()
-  public finding!: string;
+  public findings!: string[];
 
   @Prop()
   public jobName!: string;
