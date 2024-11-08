@@ -10,6 +10,7 @@ export interface DataSourceConfig {
     username: string;
     password: string;
   };
+  branch?: string;
 }
 
 export interface DataSource {
@@ -29,7 +30,7 @@ export class GitDataSource implements DataSource {
       url: this.config.url,
       dir: '/',
       onAuth: () => this.config.auth,
-      ref: 'main',
+      ref: this.config.branch ?? 'main',
       singleBranch: true,
       depth: 1,
     });
