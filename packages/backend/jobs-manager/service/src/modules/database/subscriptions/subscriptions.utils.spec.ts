@@ -854,7 +854,7 @@ describe('Findings Handler Base', () => {
       es.conditions[0] = es.conditions[0] as JobCondition;
       let yaml = [
         `name: ${es.name}`,
-        `finding: [${es.findings}]`,
+        `findings: ${JSON.stringify(es.findings)}`,
         `triggerInterval: ${es.cooldown}`,
         `job:`,
         `  name: ${es.jobName}`,

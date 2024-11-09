@@ -108,6 +108,76 @@ describe('Event Subscriptions Service', () => {
     });
   });
 
+  it('Should get the event subscriptions with multiple findings', async () => {
+    // Arrange
+    const c1 = await project('sub-c12');
+    const finding = ['IpFinding'];
+    const findings2 = ['HostnameIpFinding', 'IpFinding'];
+
+    const subData: EventSubscriptionDto = {
+      projectId: '',
+      name: 'my sub',
+      jobName: 'DomainNameResolvingJob',
+      findings: finding,
+      cooldown: 3600,
+    };
+
+    const s1 = await subscription({
+      ...subData,
+      projectId: c1._id.toString(),
+    });
+    const s2 = await subscription({
+      ...subData,
+      projectId: c1._id.toString(),
+      findings: findings2,
+    });
+
+    // Act
+    const subs = await subscriptionsService.getAllForFinding(
+      c1._id.toString(),
+      findings2[1],
+    );
+
+    // Assert
+    expect(subs.length).toStrictEqual(2);
+  });
+
+  it('Should get only the event subscriptions with multiple findings', async () => {
+    // Arrange
+    const c1 = await project('sub-c12');
+    const finding = ['IpFinding'];
+    const findings2 = ['HostnameIpFinding', 'IpFinding'];
+
+    const subData: EventSubscriptionDto = {
+      projectId: '',
+      name: 'my sub',
+      jobName: 'DomainNameResolvingJob',
+      findings: finding,
+      cooldown: 3600,
+    };
+
+    const s1 = await subscription({
+      ...subData,
+      projectId: c1._id.toString(),
+    });
+    const s2 = await subscription({
+      ...subData,
+      projectId: c1._id.toString(),
+      findings: findings2,
+    });
+
+    // Act
+    const subs = await subscriptionsService.getAllForFinding(
+      c1._id.toString(),
+      findings2[0],
+    );
+
+    // Assert
+    expect(subs.length).toStrictEqual(1);
+    expect(subs[0].projectId).toStrictEqual(c1._id);
+    expect(subs[0].findings[0]).toStrictEqual(findings2[0]);
+  });
+
   async function project(name: string) {
     return await projectService.addProject({
       name: name,
