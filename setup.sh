@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # This variable is used in the generation of the SSL certificate
-# Having "stalker.lan" here with port 8443 means that you will connect to Stalker using
-# https://stalker.lan:8443/
-RK_HOSTNAME=stalker.lan
+# Having "red-kite.lan" here with port 8443 means that you will connect to Stalker using
+# https://red-kite.lan:8443/
+RK_HOSTNAME=red-kite.lan
 RK_PORT=8443
 
 # Bind address indicates from where Stalker will accept connections
