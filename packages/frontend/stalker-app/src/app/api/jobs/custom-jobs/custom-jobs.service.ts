@@ -4,6 +4,7 @@ import { firstValueFrom, map, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { CustomJob, CustomJobData } from '../../../shared/types/jobs/custom-job.type';
 import { Page } from '../../../shared/types/page.type';
+import { normalizeSearchString } from '../../../utils/normalize-search-string';
 
 @Injectable({
   providedIn: 'root',
@@ -45,13 +46,6 @@ export class CustomJobsService {
 
   private filterJob(job: CustomJob, filters: string[]) {
     const parts = [job.name, job.findingHandlerLanguage, job.type];
-    return filters.some((filter) => this.normalizeString(parts.join(' ')).includes(filter));
-  }
-
-  private normalizeString(str: string) {
-    return str
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase();
+    return filters.some((filter) => normalizeSearchString(parts.join(' ')).includes(filter));
   }
 }

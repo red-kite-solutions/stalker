@@ -5,6 +5,7 @@ import { environment } from '../../../environments/environment';
 import { Page } from '../../shared/types/page.type';
 import { ProjectSummary } from '../../shared/types/project/project.summary';
 import { Secret } from '../../shared/types/secret.type';
+import { normalizeSearchString } from '../../utils/normalize-search-string';
 
 @Injectable({
   providedIn: 'root',
@@ -33,13 +34,6 @@ export class SecretService {
 
   private filterSecret(secret: Secret, filters: string[], projects: ProjectSummary[]) {
     const parts = [secret?.name, projects?.find((p) => p.id === secret._id)?.name, secret.description];
-    return filters.some((filter) => this.normalizeString(parts.join(' ')).includes(filter));
-  }
-
-  private normalizeString(str: string) {
-    return str
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase();
+    return filters.some((filter) => normalizeSearchString(parts.join(' ')).includes(filter));
   }
 }

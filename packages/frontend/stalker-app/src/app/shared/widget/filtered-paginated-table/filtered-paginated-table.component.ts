@@ -46,11 +46,8 @@ import * as moment from 'moment';
 import { Moment } from 'moment';
 import { NgxFileDropModule } from 'ngx-file-drop';
 import { Observable, debounceTime, distinctUntilChanged, filter, map, startWith } from 'rxjs';
-import { AvatarComponent } from '../../components/avatar/avatar.component';
 import { IdentifiedElement } from '../../types/identified-element.type';
-import { CodeEditorComponent } from '../code-editor/code-editor.component';
 import { TableFiltersSourceBase } from './table-filters-source';
-import { TableFormatComponent } from './table-format/table-format.component';
 
 export interface ElementMenuItems {
   label: string;
@@ -66,7 +63,6 @@ export interface ElementMenuItems {
   styleUrls: ['./filtered-paginated-table.component.scss'],
   imports: [
     CommonModule,
-    AvatarComponent,
     MatDividerModule,
     MatToolbarModule,
     MatIconModule,
@@ -86,13 +82,11 @@ export interface ElementMenuItems {
     MatChipsModule,
     MatAutocompleteModule,
     ReactiveFormsModule,
-    CodeEditorComponent,
     MatOptionModule,
     MatSelectModule,
     FormsModule,
     MatDatepickerModule,
     MatTooltipModule,
-    TableFormatComponent,
   ],
 })
 export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implements OnInit, OnDestroy {

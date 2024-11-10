@@ -8,6 +8,7 @@ import {
 } from 'src/app/shared/types/subscriptions/subscription.type';
 import { stringify } from 'yaml';
 import { Page } from '../../../shared/types/page.type';
+import { normalizeSearchString } from '../../../utils/normalize-search-string';
 import { CronSubscriptionsService } from './cron-subscriptions.service';
 import { EventSubscriptionsService } from './event-subscriptions.service';
 
@@ -115,13 +116,6 @@ export class SubscriptionService {
       cron.cronExpression ? 'cron' : 'event',
       subscription.isEnabled === false ? 'disabled' : 'enabled',
     ];
-    return filters.some((filter) => this.normalizeString(parts.join(' ')).includes(filter));
-  }
-
-  private normalizeString(str: string) {
-    return str
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase();
+    return filters.some((filter) => normalizeSearchString(parts.join(' ')).includes(filter));
   }
 }

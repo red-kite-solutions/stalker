@@ -15,7 +15,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, combineLatest, firstValueFrom, map, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, combineLatest, firstValueFrom, map, shareReplay, switchMap } from 'rxjs';
 import { DomainsService } from 'src/app/api/domains/domains.service';
 import { ProjectsService } from 'src/app/api/projects/projects.service';
 import { TagsService } from 'src/app/api/tags/tags.service';
@@ -23,15 +23,14 @@ import { ProjectCellComponent } from 'src/app/shared/components/project-cell/pro
 import { Domain } from 'src/app/shared/types/domain/domain.interface';
 import { HttpStatus } from 'src/app/shared/types/http-status.type';
 import { Page } from 'src/app/shared/types/page.type';
-import { ProjectSummary } from 'src/app/shared/types/project/project.summary';
-import { Tag } from 'src/app/shared/types/tag.type';
 import {
   ElementMenuItems,
   FilteredPaginatedTableComponent,
 } from 'src/app/shared/widget/filtered-paginated-table/filtered-paginated-table.component';
 import { BlockedPillTagComponent } from 'src/app/shared/widget/pill-tag/blocked-pill-tag.component';
-import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { SharedModule } from '../../../shared/shared.module';
+import { ProjectSummary } from '../../../shared/types/project/project.summary';
+import { Tag } from '../../../shared/types/tag.type';
 import {
   TableFiltersSource,
   TableFiltersSourceBase,
@@ -44,7 +43,6 @@ import { DomainsInteractionsService } from '../domains-interactions.service';
   standalone: true,
   imports: [
     CommonModule,
-    AppHeaderComponent,
     SharedModule,
     MatCardModule,
     MatIconModule,
@@ -78,14 +76,19 @@ export class ListDomainsComponent implements OnInit {
   selection = new SelectionModel<Domain>(true, []);
   startDate: Date | null = null;
 
+  projects$ = this.projectsService.getAllSummaries().pipe(shareReplay(1));
+  tags$ = this.tagsService.getTags().pipe(
+    map((tags) => tags.items),
+    shareReplay(1)
+  );
+
   private refresh$ = new BehaviorSubject(null);
-  dataSource$ = combineLatest([this.filtersSource.filters$, this.refresh$]).pipe(
-    switchMap(([{ dateRange, filters, pagination }]) => {
-      console.log(filters, dateRange, pagination);
+  dataSource$ = combineLatest([this.filtersSource.filters$, this.projects$, this.tags$, this.refresh$]).pipe(
+    switchMap(([{ dateRange, filters, pagination }, projects, tags]) => {
       return this.domainsService.getPage(
         pagination?.page || 0,
         pagination?.pageSize || 25,
-        this.buildFilters(filters || []),
+        this.buildFilters(filters || [], projects, tags),
         dateRange ?? new DateRange<Date>(null, null)
       );
     }),
@@ -93,21 +96,6 @@ export class ListDomainsComponent implements OnInit {
       this.count = data.totalRecords;
       this.dataLoading = false;
       return new MatTableDataSource<Domain>(data.items);
-    })
-  );
-
-  projects: ProjectSummary[] = [];
-  projects$ = this.projectsService.getAllSummaries().pipe(tap((x) => (this.projects = x)));
-
-  tags: Tag[] = [];
-  tags$ = this.tagsService.getTags().pipe(
-    map((next: any[]) => {
-      const tagsArr: Tag[] = [];
-      for (const tag of next) {
-        tagsArr.push({ _id: tag._id, text: tag.text, color: tag.color });
-      }
-      this.tags = tagsArr;
-      return this.tags;
     })
   );
 
@@ -153,13 +141,13 @@ export class ListDomainsComponent implements OnInit {
     }
   }
 
-  buildFilters(stringFilters: string[]): any {
+  buildFilters(stringFilters: string[], projects: ProjectSummary[], tags: Tag[]): any {
     const SEPARATOR = ':';
     const NEGATING_CHAR = '-';
     const filterObject: any = {};
-    const tags = [];
-    const domains = [];
-    const hosts = [];
+    const includedTags = [];
+    const includedDomains = [];
+    const includedHosts = [];
     let blocked: boolean | null = null;
 
     for (const filter of stringFilters) {
@@ -178,27 +166,31 @@ export class ListDomainsComponent implements OnInit {
 
       switch (key) {
         case 'project':
-          const project = this.projects.find((c) => c.name.trim().toLowerCase() === value.trim().toLowerCase());
+          const project = projects.find((c) => c.name.trim().toLowerCase() === value.trim().toLowerCase());
           if (project) filterObject['project'] = project.id;
           else
             this.toastr.warning(
               $localize`:Project does not exist|The given project name is not known to the application:Project name not recognized`
             );
           break;
+
         case 'host':
-          if (value) hosts.push(value.trim().toLowerCase());
+          if (value) includedHosts.push(value.trim().toLowerCase());
           break;
+
         case 'tags':
-          const tag = this.tags.find((t) => t.text.trim().toLowerCase() === value.trim().toLowerCase());
-          if (tag) tags.push(tag._id);
+          const tag = tags.find((t) => t.text.trim().toLowerCase() === value.trim().toLowerCase());
+          if (tag) includedTags.push(tag._id);
           else
             this.toastr.warning(
               $localize`:Tag does not exist|The given tag is not known to the application:Tag not recognized`
             );
           break;
+
         case 'domain':
-          domains.push(value);
+          includedDomains.push(value);
           break;
+
         case 'is':
           switch (value) {
             case 'blocked':
@@ -208,9 +200,9 @@ export class ListDomainsComponent implements OnInit {
           break;
       }
     }
-    if (tags) filterObject['tags'] = tags;
-    if (domains) filterObject['domain'] = domains;
-    if (hosts) filterObject['host'] = hosts;
+    if (includedTags) filterObject['tags'] = includedTags;
+    if (includedDomains) filterObject['domain'] = includedDomains;
+    if (includedHosts) filterObject['host'] = includedHosts;
     if (blocked !== null) filterObject['blocked'] = blocked;
     return filterObject;
   }
@@ -268,7 +260,8 @@ export class ListDomainsComponent implements OnInit {
   }
 
   public async deleteBatch(domains: Domain[]) {
-    const result = await this.domainsInteractor.deleteBatch(domains, this.projects);
+    const projects = await firstValueFrom(this.projects$);
+    const result = await this.domainsInteractor.deleteBatch(domains, projects);
     if (result) {
       this.selection.clear();
       this.refresh$.next(null);
@@ -276,7 +269,8 @@ export class ListDomainsComponent implements OnInit {
   }
 
   public async blockBatch(domains: Domain[]) {
-    const result = await this.domainsInteractor.blockBatch(domains, this.projects);
+    const projects = await firstValueFrom(this.projects$);
+    const result = await this.domainsInteractor.blockBatch(domains, projects);
     if (result) {
       this.selection.clear();
       this.refresh$.next(null);

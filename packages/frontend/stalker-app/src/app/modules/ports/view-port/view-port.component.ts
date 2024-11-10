@@ -185,6 +185,7 @@ export class ViewPortComponent implements OnDestroy {
 
   tags: (Tag & SelectItem)[] = [];
   allTags$ = this.tagsService.getTags().pipe(
+    map((x) => x.items),
     map((next: any[]) => {
       const tagsArr: Tag[] = [];
       for (const tag of next) {

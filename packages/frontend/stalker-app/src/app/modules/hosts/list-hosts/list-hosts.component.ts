@@ -98,9 +98,10 @@ export class ListHostsComponent implements OnInit {
 
   tags: Tag[] = [];
   tags$ = this.tagsService.getTags().pipe(
-    map((next: any[]) => {
+    map((tags) => tags.items),
+    map((tags) => {
       const tagsArr: Tag[] = [];
-      for (const tag of next) {
+      for (const tag of tags) {
         tagsArr.push({ _id: tag._id, text: tag.text, color: tag.color });
       }
       this.tags = tagsArr;

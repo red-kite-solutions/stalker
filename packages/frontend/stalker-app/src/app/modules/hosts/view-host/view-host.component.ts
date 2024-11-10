@@ -151,9 +151,9 @@ export class ViewHostComponent implements OnDestroy {
 
   tags: (Tag & SelectItem)[] = [];
   allTags$ = this.tagsService.getTags().pipe(
-    map((next: any[]) => {
+    map((tags: Page<Tag>) => {
       const tagsArr: Tag[] = [];
-      for (const tag of next) {
+      for (const tag of tags.items) {
         tagsArr.push({ _id: tag._id, text: tag.text, color: tag.color });
       }
       return tagsArr;

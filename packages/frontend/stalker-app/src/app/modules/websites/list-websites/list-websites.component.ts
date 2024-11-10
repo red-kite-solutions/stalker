@@ -151,6 +151,7 @@ export class ListWebsitesComponent {
 
   tags: Tag[] = [];
   tags$ = this.tagsService.getTags().pipe(
+    map((tags) => tags.items),
     map((next: any[]) => {
       const tagsArr: Tag[] = [];
       for (const tag of next) {
