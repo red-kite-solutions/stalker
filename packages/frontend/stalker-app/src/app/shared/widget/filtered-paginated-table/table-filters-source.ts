@@ -22,7 +22,7 @@ export abstract class TableFiltersSourceBase<T> {
 
   public filters$: Observable<TableFilters & T> = this.route.queryParamMap.pipe(
     map((queryParams) => this.extractFilters(queryParams)),
-    debounceTime(100),
+    debounceTime(250),
     shareReplay(1)
   );
 

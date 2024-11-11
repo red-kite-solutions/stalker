@@ -5,12 +5,10 @@ import {
   ContentChild,
   ContentChildren,
   ElementRef,
-  EventEmitter,
   Inject,
   Input,
   OnDestroy,
   OnInit,
-  Output,
   QueryList,
   ViewChild,
 } from '@angular/core';
@@ -114,10 +112,6 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
   @Input() datePickerLabel =
     $localize`:Default date picker|Date picker label, the first time an item was seen:First seen`;
 
-  @Output() pageChange = new EventEmitter<PageEvent>();
-  @Output() filtersChange = new EventEmitter<string[]>();
-  @Output() dateFiltersChange = new EventEmitter<DateRange<Date>>();
-
   @Input() currentPage = 0;
   @Input() pageSizeOptions: number[] = [5, 25, 50, 100];
   @Input() pageSize = 0;
@@ -202,13 +196,11 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
     this.pageSize = event.pageSize;
     this.currentPage = event.pageIndex;
     this.filterDiv.nativeElement.scrollIntoView({ behavior: 'instant', block: 'start' });
-    this.pageChange.emit(event);
     await this.filterSource.setPagination(event.pageIndex, event.pageSize);
   }
 
   async resetPaging() {
     this.currentPage = 0;
-    this.pageChange.emit({ length: this.length ?? 0, pageIndex: 0, pageSize: this.pageSize, previousPageIndex: 0 });
     await this.filterSource.setPagination(0, this.pageSize);
   }
 
