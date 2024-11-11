@@ -15,13 +15,12 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, combineLatest, firstValueFrom, map, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, combineLatest, firstValueFrom, map, shareReplay, switchMap, tap } from 'rxjs';
 import { ProjectsService } from 'src/app/api/projects/projects.service';
 import { TagsService } from 'src/app/api/tags/tags.service';
 import { ProjectCellComponent } from 'src/app/shared/components/project-cell/project-cell.component';
 import { Page } from 'src/app/shared/types/page.type';
 import { ProjectSummary } from 'src/app/shared/types/project/project.summary';
-import { Tag } from 'src/app/shared/types/tag.type';
 import {
   ElementMenuItems,
   FilteredPaginatedTableComponent,
@@ -31,6 +30,7 @@ import { HostsService } from '../../../api/hosts/hosts.service';
 import { SharedModule } from '../../../shared/shared.module';
 import { Host } from '../../../shared/types/host/host.interface';
 import { HttpStatus } from '../../../shared/types/http-status.type';
+import { Tag } from '../../../shared/types/tag.type';
 import {
   TableFiltersSource,
   TableFiltersSourceBase,
@@ -76,13 +76,15 @@ export class ListHostsComponent implements OnInit {
   selection = new SelectionModel<Host>(true, []);
   startDate: Date | null = null;
 
+  tags$ = this.tagsService.getAllTags().pipe(shareReplay(1));
+  
   private refresh$ = new BehaviorSubject(null);
-  dataSource$ = combineLatest([this.filtersSource.filters$, this.refresh$]).pipe(
-    switchMap(([{ dateRange, filters, pagination }]) => {
+  dataSource$ = combineLatest([this.filtersSource.filters$, this.tags$, this.refresh$]).pipe(
+    switchMap(([{ dateRange, filters, pagination }, tags]) => {
       return this.hostsService.getPage(
         pagination?.page || 0,
         pagination?.pageSize || 25,
-        this.buildFilters(filters || []),
+        this.buildFilters(filters || [], tags),
         dateRange ?? new DateRange<Date>(null, null)
       );
     }),
@@ -95,19 +97,6 @@ export class ListHostsComponent implements OnInit {
 
   projects: ProjectSummary[] = [];
   projects$ = this.projectsService.getAllSummaries().pipe(tap((x) => (this.projects = x)));
-
-  tags: Tag[] = [];
-  tags$ = this.tagsService.getTags().pipe(
-    map((tags) => tags.items),
-    map((tags) => {
-      const tagsArr: Tag[] = [];
-      for (const tag of tags) {
-        tagsArr.push({ _id: tag._id, text: tag.text, color: tag.color });
-      }
-      this.tags = tagsArr;
-      return this.tags;
-    })
-  );
 
   // #addHostsDialog template variables
   selectedProject = '';
@@ -151,11 +140,11 @@ export class ListHostsComponent implements OnInit {
     }
   }
 
-  buildFilters(stringFilters: string[]): any {
+  buildFilters(stringFilters: string[], tags: Tag[]): any {
     const SEPARATOR = ':';
     const NEGATING_CHAR = '-';
     const filterObject: any = {};
-    const tags = [];
+    const includedTags = [];
     const domains = [];
     const hosts = [];
     const projects = [];
@@ -188,8 +177,8 @@ export class ListHostsComponent implements OnInit {
           if (value) hosts.push(value.trim().toLowerCase());
           break;
         case 'tags':
-          const tag = this.tags.find((t) => t.text.trim().toLowerCase() === value.trim().toLowerCase());
-          if (tag) tags.push(tag._id);
+          const tag = tags.find((t) => t.text.trim().toLowerCase() === value.trim().toLowerCase());
+          if (tag) includedTags.push(tag._id);
           else
             this.toastr.warning(
               $localize`:Tag does not exist|The given tag is not known to the application:Tag not recognized`
@@ -207,7 +196,7 @@ export class ListHostsComponent implements OnInit {
           break;
       }
     }
-    if (tags?.length) filterObject['tags'] = tags;
+    if (includedTags?.length) filterObject['tags'] = includedTags;
     if (domains?.length) filterObject['domain'] = domains;
     if (hosts?.length) filterObject['host'] = hosts;
     if (projects?.length) filterObject['project'] = projects;

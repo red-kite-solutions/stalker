@@ -23,6 +23,10 @@ export class TagsService {
     );
   }
 
+  public getAllTags(): Observable<Tag[]> {
+    return this.http.get<Tag[]>(`${environment.fmUrl}/tags/`);
+  }
+
   public async createTag(text: string, color: string): Promise<Tag> {
     return await firstValueFrom(this.http.post<Tag>(`${environment.fmUrl}/tags/`, { text: text, color: color }));
   }

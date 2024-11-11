@@ -118,30 +118,18 @@ export class ViewDomainComponent implements OnDestroy {
     })
   );
 
-  tags: (Tag & SelectItem)[] = [];
-  allTags$ = this.tagsService.getTags().pipe(
-    map((tags: Page<Tag>) => {
-      const tagsArr: Tag[] = [];
-      for (const tag of tags.items) {
-        tagsArr.push({ _id: tag._id, text: tag.text, color: tag.color });
-      }
-      return tagsArr;
-    }),
-    shareReplay(1)
-  );
-
+  allTags$ = this.tagsService.getAllTags().pipe(shareReplay(1));
   public tagsSelectItems$ = combineLatest([this.domainTags$, this.allTags$]).pipe(
     map(([hostTags, allTags]) => {
-      const tagsArr: (Tag & SelectItem)[] = [];
+      const tags: (Tag & SelectItem)[] = [];
       for (const tag of allTags) {
         if (hostTags.includes(tag._id)) {
-          tagsArr.push({ _id: tag._id, text: tag.text, color: tag.color, isSelected: true });
+          tags.push({ _id: tag._id, text: tag.text, color: tag.color, isSelected: true });
         } else {
-          tagsArr.push({ _id: tag._id, text: tag.text, color: tag.color, isSelected: false });
+          tags.push({ _id: tag._id, text: tag.text, color: tag.color, isSelected: false });
         }
       }
-      this.tags = tagsArr;
-      return tagsArr;
+      return tags;
     })
   );
 

@@ -20,7 +20,6 @@ import { TagsService } from 'src/app/api/tags/tags.service';
 import { ProjectCellComponent } from 'src/app/shared/components/project-cell/project-cell.component';
 import { Page } from 'src/app/shared/types/page.type';
 import { ProjectSummary } from 'src/app/shared/types/project/project.summary';
-import { Tag } from 'src/app/shared/types/tag.type';
 import {
   ElementMenuItems,
   FilteredPaginatedTableComponent,
@@ -29,6 +28,7 @@ import { BlockedPillTagComponent } from 'src/app/shared/widget/pill-tag/blocked-
 import { PortsService } from '../../../api/ports/ports.service';
 import { SharedModule } from '../../../shared/shared.module';
 import { Port } from '../../../shared/types/ports/port.interface';
+import { Tag } from '../../../shared/types/tag.type';
 import {
   TableFiltersSource,
   TableFiltersSourceBase,
@@ -72,14 +72,15 @@ export class ListPortsComponent implements OnInit {
   selection = new SelectionModel<Port>(true, []);
   startDate: Date | null = null;
 
-  private refresh$ = new BehaviorSubject(null);
+  allTags$ = this.tagsService.getAllTags().pipe(shareReplay(1));
 
-  public ports$ = combineLatest([this.filtersSource.filters$, this.refresh$]).pipe(
-    switchMap(([{ filters, dateRange, pagination }]) => {
+  private refresh$ = new BehaviorSubject(null);
+  public ports$ = combineLatest([this.filtersSource.filters$, this.allTags$, this.refresh$]).pipe(
+    switchMap(([{ filters, dateRange, pagination }, tags]) => {
       return this.portsService.getPage<Port>(
         pagination?.page ?? 0,
         pagination?.pageSize ?? 25,
-        this.buildFilters(filters),
+        this.buildFilters(filters, tags),
         dateRange,
         'full'
       );
@@ -94,19 +95,6 @@ export class ListPortsComponent implements OnInit {
 
   projects: ProjectSummary[] = [];
   projects$ = this.projectsService.getAllSummaries().pipe(tap((x) => (this.projects = x)));
-
-  tags: Tag[] = [];
-  tags$ = this.tagsService.getTags().pipe(
-    map((tags) => tags.items),
-    map((tags: any[]) => {
-      const tagsArr: Tag[] = [];
-      for (const tag of tags) {
-        tagsArr.push({ _id: tag._id, text: tag.text, color: tag.color });
-      }
-      this.tags = tagsArr;
-      return this.tags;
-    })
-  );
 
   private screenSize$ = this.bpObserver.observe([
     Breakpoints.XSmall,
@@ -146,11 +134,11 @@ export class ListPortsComponent implements OnInit {
     }
   }
 
-  buildFilters(stringFilters: string[]): any {
+  buildFilters(stringFilters: string[], tags: Tag[]): any {
     const SEPARATOR = ':';
     const NEGATING_CHAR = '-';
     const filterObject: any = {};
-    const tags = [];
+    const includedTags = [];
     const ports = [];
     const hosts = [];
     const projects = [];
@@ -183,8 +171,8 @@ export class ListPortsComponent implements OnInit {
           if (value) hosts.push(value.trim().toLowerCase());
           break;
         case 'tags':
-          const tag = this.tags.find((t) => t.text.trim().toLowerCase() === value.trim().toLowerCase());
-          if (tag) tags.push(tag._id);
+          const tag = tags.find((t) => t.text.trim().toLowerCase() === value.trim().toLowerCase());
+          if (tag) includedTags.push(tag._id);
           else
             this.toastr.warning(
               $localize`:Tag does not exist|The given tag is not known to the application:Tag not recognized`
@@ -202,7 +190,7 @@ export class ListPortsComponent implements OnInit {
           break;
       }
     }
-    if (tags?.length) filterObject['tags'] = tags;
+    if (includedTags?.length) filterObject['tags'] = includedTags;
     if (ports?.length) filterObject['ports'] = ports;
     if (hosts?.length) filterObject['host'] = hosts;
     if (projects?.length) filterObject['project'] = projects;

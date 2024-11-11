@@ -77,10 +77,7 @@ export class ListDomainsComponent implements OnInit {
   startDate: Date | null = null;
 
   projects$ = this.projectsService.getAllSummaries().pipe(shareReplay(1));
-  tags$ = this.tagsService.getTags().pipe(
-    map((tags) => tags.items),
-    shareReplay(1)
-  );
+  tags$ = this.tagsService.getAllTags().pipe(shareReplay(1));
 
   private refresh$ = new BehaviorSubject(null);
   dataSource$ = combineLatest([this.filtersSource.filters$, this.projects$, this.tags$, this.refresh$]).pipe(

@@ -124,16 +124,18 @@ export class ListWebsitesComponent {
   startDate: Date | null = null;
   public readonly gridColumnsOptions: number[] = [1, 2, 3, 4, 5, 6, 7, 8];
 
+  allTags$ = this.tagsService.getAllTags().pipe(shareReplay(1));
+
   refresh$ = new BehaviorSubject(null);
-  websites$ = combineLatest([this.filtersSource.filters$, this.refresh$]).pipe(
-    switchMap(([{ filters, dateRange, pagination }]) => {
-      return this.websitesService.getPage(
+  websites$ = combineLatest([this.filtersSource.filters$, this.allTags$, this.refresh$]).pipe(
+    switchMap(([{ filters, dateRange, pagination }, tags]) =>
+      this.websitesService.getPage(
         pagination?.page ?? 0,
         pagination?.pageSize ?? 25,
-        this.buildFilters(filters),
+        this.buildFilters(filters, tags),
         dateRange
-      );
-    }),
+      )
+    ),
     tap(() => (this.dataLoading = false)),
     shareReplay(1)
   );
@@ -148,19 +150,6 @@ export class ListWebsitesComponent {
 
   projects: ProjectSummary[] = [];
   projects$ = this.projectsService.getAllSummaries().pipe(tap((x) => (this.projects = x)));
-
-  tags: Tag[] = [];
-  tags$ = this.tagsService.getTags().pipe(
-    map((tags) => tags.items),
-    map((next: any[]) => {
-      const tagsArr: Tag[] = [];
-      for (const tag of next) {
-        tagsArr.push({ _id: tag._id, text: tag.text, color: tag.color });
-      }
-      this.tags = tagsArr;
-      return this.tags;
-    })
-  );
 
   private screenSize$ = this.bpObserver.observe([
     Breakpoints.XSmall,
@@ -203,11 +192,11 @@ export class ListWebsitesComponent {
     }
   }
 
-  buildFilters(stringFilters: string[]): any {
+  buildFilters(stringFilters: string[], tags: Tag[]): any {
     const SEPARATOR = ':';
     const NEGATING_CHAR = '-';
     const filterObject: any = {};
-    const tags = [];
+    const includedTags = [];
     const ports = [];
     const hosts = [];
     const domains = [];
@@ -245,8 +234,8 @@ export class ListWebsitesComponent {
           if (value) domains.push(value.trim().toLowerCase());
           break;
         case 'tags':
-          const tag = this.tags.find((t) => t.text.trim().toLowerCase() === value.trim().toLowerCase());
-          if (tag) tags.push(tag._id);
+          const tag = tags.find((t) => t.text.trim().toLowerCase() === value.trim().toLowerCase());
+          if (tag) includedTags.push(tag._id);
           else
             this.toastr.warning(
               $localize`:Tag does not exist|The given tag is not known to the application:Tag not recognized`
@@ -267,7 +256,7 @@ export class ListWebsitesComponent {
           break;
       }
     }
-    if (tags?.length) filterObject['tags'] = tags;
+    if (includedTags?.length) filterObject['tags'] = includedTags;
     if (ports?.length) filterObject['ports'] = ports;
     if (hosts?.length) filterObject['hosts'] = hosts;
     if (domains?.length) filterObject['domains'] = domains;

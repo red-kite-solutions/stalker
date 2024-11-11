@@ -68,8 +68,8 @@
             }
             <div class="tw-pt-1 tw-flex tw-flex-wrap tw-gap-x-2 tw-gap-y-1">
               @for (tag of websiteTags; track tag) {
-                <app-pill-tag [color]="(tags | whereId: [tag])?.color">{{
-                  (tags | whereId: [tag])?.text
+                <app-pill-tag [color]="(tagsSelectItems$ | async | whereId: [tag])?.color">{{
+                  (tagsSelectItems$ | async | whereId: [tag])?.text
                 }}</app-pill-tag>
               }
               <app-new-pill-tag #newPillTag [createdAtMilliseconds]="wsite.createdAt"></app-new-pill-tag>

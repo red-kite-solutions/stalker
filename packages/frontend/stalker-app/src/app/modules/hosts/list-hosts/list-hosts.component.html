@@ -84,8 +84,8 @@
             <td mat-cell *matCellDef="let element">
               <div class="tw-pt-1 tw-flex tw-flex-wrap tw-gap-x-2 tw-gap-y-1">
                 @for (tag of element.tags; track tag) {
-                  <app-pill-tag [color]="(tags | whereId: [tag])?.color">{{
-                    (tags | whereId: [tag])?.text
+                  <app-pill-tag [color]="(tags$ | async | whereId: [tag])?.color">{{
+                    (tags$ | async | whereId: [tag])?.text
                   }}</app-pill-tag>
                 }
                 <app-new-pill-tag
