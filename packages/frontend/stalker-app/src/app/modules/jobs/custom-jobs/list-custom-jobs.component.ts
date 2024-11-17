@@ -23,6 +23,8 @@ import {
 import { AuthService } from '../../../api/auth/auth.service';
 import { CustomJobTemplatesService } from '../../../api/jobs/custom-job-templates/custom-job-templates.service';
 import {
+  TABLE_FILTERS_SOURCE_INITAL_FILTERS,
+  TableFilters,
   TableFiltersSource,
   TableFiltersSourceBase,
 } from '../../../shared/widget/filtered-paginated-table/table-filters-source';
@@ -53,7 +55,16 @@ import { CustomJobsInteractionService } from './custom-jobs-interaction.service'
     AuthModule,
     TableFormatComponent,
   ],
-  providers: [{ provide: TableFiltersSourceBase, useClass: TableFiltersSource }],
+  providers: [
+    { provide: TableFiltersSourceBase, useClass: TableFiltersSource },
+    {
+      provide: TABLE_FILTERS_SOURCE_INITAL_FILTERS,
+      useValue: {
+        filters: [],
+        pagination: { page: 0, pageSize: 5 },
+      } as TableFilters,
+    },
+  ],
 })
 export class ListCustomJobsComponent {
   public noDataMessage = $localize`:No job found|No job was found:No job found`;

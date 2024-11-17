@@ -27,6 +27,8 @@ import {
 } from 'src/app/shared/widget/filtered-paginated-table/filtered-paginated-table.component';
 import { DisabledPillTagComponent } from 'src/app/shared/widget/pill-tag/disabled-pill-tag.component';
 import {
+  TABLE_FILTERS_SOURCE_INITAL_FILTERS,
+  TableFilters,
   TableFiltersSource,
   TableFiltersSourceBase,
 } from '../../../shared/widget/filtered-paginated-table/table-filters-source';
@@ -58,7 +60,16 @@ import { subscriptionTypes } from './subscription-templates';
     DisabledPillTagComponent,
     TableFormatComponent,
   ],
-  providers: [{ provide: TableFiltersSourceBase, useClass: TableFiltersSource }],
+  providers: [
+    { provide: TableFiltersSourceBase, useClass: TableFiltersSource },
+    {
+      provide: TABLE_FILTERS_SOURCE_INITAL_FILTERS,
+      useValue: {
+        filters: [],
+        pagination: { page: 0, pageSize: 5 },
+      } as TableFilters,
+    },
+  ],
 })
 export class ListSubscriptionsComponent {
   public isLoading$ = new BehaviorSubject(true);

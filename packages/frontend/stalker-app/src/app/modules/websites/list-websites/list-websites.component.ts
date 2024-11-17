@@ -17,7 +17,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { ParamMap, RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, combineLatest, firstValueFrom, map, Observable, shareReplay, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, Observable, shareReplay, switchMap, tap } from 'rxjs';
 import { ProjectsService } from 'src/app/api/projects/projects.service';
 import { TagsService } from 'src/app/api/tags/tags.service';
 import { ProjectCellComponent } from 'src/app/shared/components/project-cell/project-cell.component';
@@ -36,7 +36,10 @@ import { CustomFinding, CustomFindingField } from '../../../shared/types/finding
 import { Website } from '../../../shared/types/websites/website.type';
 import { SecureIconComponent } from '../../../shared/widget/dynamic-icons/secure-icon.component';
 import { GridFormatComponent } from '../../../shared/widget/filtered-paginated-table/grid-format/grid-format.component';
-import { TableFiltersSourceBase } from '../../../shared/widget/filtered-paginated-table/table-filters-source';
+import {
+  TABLE_FILTERS_SOURCE_INITAL_FILTERS,
+  TableFiltersSourceBase,
+} from '../../../shared/widget/filtered-paginated-table/table-filters-source';
 import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-table/table-format/table-format.component';
 import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.component';
 import { FindingsModule } from '../../findings/findings.module';
@@ -56,25 +59,34 @@ class WebsiteFiltersSource extends TableFiltersSourceBase<WebsiteFilters> {
   private readonly VIEW_STYLE_KEY = 's';
   private readonly NUMBER_OF_COLUMNS_KEY = 'c';
 
-  protected override extractExtraFilters(params: ParamMap): WebsiteFilters {
-    const numberOfColumns = this.readNumber(params.get(this.NUMBER_OF_COLUMNS_KEY)) || 3;
-    let viewStyle = params.get(this.VIEW_STYLE_KEY) as ViewStyle;
-    if (viewStyle !== 'grid' && viewStyle !== 'table') {
-      viewStyle = 'grid';
-    }
+  public setViewStyle(style: ViewStyle) {
+    if (style == null) return;
 
+    this.setValues({ [this.VIEW_STYLE_KEY]: style });
+  }
+
+  public setNumberOfColumns(cols: number) {
+    if (cols == null) return;
+
+    this.setValues({ [this.NUMBER_OF_COLUMNS_KEY]: cols });
+  }
+
+  protected override extractExtraFilters(params: ParamMap): WebsiteFilters {
+    const numberOfColumns = this.readNumber(params.get(this.NUMBER_OF_COLUMNS_KEY)) as number;
+    let viewStyle = params.get(this.VIEW_STYLE_KEY) as ViewStyle;
     return {
       numberOfColumns,
       viewStyle,
     };
   }
 
-  public setViewStyle(style: ViewStyle) {
-    this.setValues({ [this.VIEW_STYLE_KEY]: style });
-  }
+  protected override formatExtraInitialFilters(initialFilters: WebsiteFilters) {
+    if (!initialFilters) return {};
 
-  public setNumberOfColumns(cols: number) {
-    this.setValues({ [this.NUMBER_OF_COLUMNS_KEY]: cols });
+    return {
+      [this.VIEW_STYLE_KEY]: initialFilters.viewStyle,
+      [this.NUMBER_OF_COLUMNS_KEY]: initialFilters.numberOfColumns,
+    };
   }
 }
 
@@ -110,7 +122,18 @@ class WebsiteFiltersSource extends TableFiltersSourceBase<WebsiteFilters> {
   selector: 'app-list-websites',
   templateUrl: './list-websites.component.html',
   styleUrls: ['./list-websites.component.scss'],
-  providers: [{ provide: TableFiltersSourceBase, useClass: WebsiteFiltersSource }],
+  providers: [
+    { provide: TableFiltersSourceBase, useClass: WebsiteFiltersSource },
+    {
+      provide: TABLE_FILTERS_SOURCE_INITAL_FILTERS,
+      useValue: {
+        filters: ['-is: blocked'],
+        pagination: { page: 0, pageSize: 5 },
+        numberOfColumns: 3,
+        viewStyle: 'grid',
+      } as WebsiteFilters,
+    },
+  ],
 })
 export class ListWebsitesComponent {
   readonly correlationKeysToLoad: BehaviorSubject<string>[] = [];
@@ -182,14 +205,6 @@ export class ListWebsitesComponent {
     @Inject(TableFiltersSourceBase) public filtersSource: WebsiteFiltersSource
   ) {
     this.titleService.setTitle($localize`:Websites list page title|:Websites`);
-  }
-
-  async ngOnInit() {
-    // Set default filters
-    const { filters } = await firstValueFrom(this.filtersSource.filters$);
-    if (!filters.length) {
-      this.filtersSource.setFilters(['-is: blocked', '-is: merged']);
-    }
   }
 
   buildFilters(stringFilters: string[], tags: Tag[]): any {

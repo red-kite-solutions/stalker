@@ -1,7 +1,7 @@
 import { SelectionModel } from '@angular/cdk/collections';
 import { BreakpointObserver, BreakpointState, Breakpoints } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnInit, TemplateRef } from '@angular/core';
+import { Component, Inject, TemplateRef } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -15,7 +15,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, combineLatest, firstValueFrom, map, shareReplay, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, shareReplay, switchMap, tap } from 'rxjs';
 import { ProjectsService } from 'src/app/api/projects/projects.service';
 import { TagsService } from 'src/app/api/tags/tags.service';
 import { ProjectCellComponent } from 'src/app/shared/components/project-cell/project-cell.component';
@@ -32,6 +32,8 @@ import { Host } from '../../../shared/types/host/host.interface';
 import { HttpStatus } from '../../../shared/types/http-status.type';
 import { Tag } from '../../../shared/types/tag.type';
 import {
+  TABLE_FILTERS_SOURCE_INITAL_FILTERS,
+  TableFilters,
   TableFiltersSource,
   TableFiltersSourceBase,
 } from '../../../shared/widget/filtered-paginated-table/table-filters-source';
@@ -63,9 +65,18 @@ import { HostsInteractionsService } from '../hosts-interactions.service';
   selector: 'app-list-hosts',
   templateUrl: './list-hosts.component.html',
   styleUrls: ['./list-hosts.component.scss'],
-  providers: [{ provide: TableFiltersSourceBase, useClass: TableFiltersSource }],
+  providers: [
+    { provide: TableFiltersSourceBase, useClass: TableFiltersSource },
+    {
+      provide: TABLE_FILTERS_SOURCE_INITAL_FILTERS,
+      useValue: {
+        filters: ['-is: blocked'],
+        pagination: { page: 0, pageSize: 5 },
+      } as TableFilters,
+    },
+  ],
 })
-export class ListHostsComponent implements OnInit {
+export class ListHostsComponent {
   maxDomainsPerHost = 35;
   dataLoading = true;
   displayedColumns: string[] = ['select', 'ip', 'domains', 'project', 'tags', 'menu'];
@@ -77,7 +88,7 @@ export class ListHostsComponent implements OnInit {
   startDate: Date | null = null;
 
   tags$ = this.tagsService.getAllTags().pipe(shareReplay(1));
-  
+
   private refresh$ = new BehaviorSubject(null);
   dataSource$ = combineLatest([this.filtersSource.filters$, this.tags$, this.refresh$]).pipe(
     switchMap(([{ dateRange, filters, pagination }, tags]) => {
@@ -130,14 +141,6 @@ export class ListHostsComponent implements OnInit {
     @Inject(TableFiltersSourceBase) private filtersSource: TableFiltersSource
   ) {
     this.titleService.setTitle($localize`:Hosts list page title|:Hosts`);
-  }
-
-  async ngOnInit() {
-    // Set default filters
-    const { filters } = await firstValueFrom(this.filtersSource.filters$);
-    if (!filters.length) {
-      this.filtersSource.setFilters(['-is: blocked']);
-    }
   }
 
   buildFilters(stringFilters: string[], tags: Tag[]): any {

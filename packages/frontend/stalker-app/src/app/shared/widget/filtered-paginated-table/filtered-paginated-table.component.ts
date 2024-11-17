@@ -112,9 +112,9 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
   @Input() datePickerLabel =
     $localize`:Default date picker|Date picker label, the first time an item was seen:First seen`;
 
-  @Input() currentPage = 0;
-  @Input() pageSizeOptions: number[] = [5, 25, 50, 100];
-  @Input() pageSize = 0;
+  currentPage = 0;
+  pageSizeOptions: number[] = [5, 25, 50, 100];
+  pageSize = 0;
   dateRange = new FormGroup({
     start: new FormControl<Moment | null>(null),
     end: new FormControl<Moment | null>(null),
@@ -127,10 +127,11 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
   }
 
   @Input() filterEnabled: boolean = true;
-  @Input() filters: string[] = [];
+  filters: string[] = [];
+  fullTextSearchValue = '';
   separatorKeysCodes: number[] = [TAB, ENTER];
   filterForm = new UntypedFormControl('');
-  filteredColumns$: Observable<string[] | null | undefined>;
+  filteredFilterOptions$: Observable<string[] | null | undefined>;
   masterToggleState = false;
 
   dateRangeChange$ = this.dateRange.valueChanges
@@ -154,6 +155,9 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
 
   private filterSourceSub = this.filterSource.filters$.subscribe(({ filters, dateRange, pagination }) => {
     this.filters = filters;
+    this.fullTextSearchValue = filters.join(' ');
+    this.filterForm.setValue(filters);
+
     this.dateRange.setValue({
       start: dateRange?.start ? moment(dateRange.start) : null,
       end: dateRange?.end ? moment(dateRange.end).add(-(1000 * 60 * 60 * 24 - 1), 'millisecond') : null,
@@ -169,7 +173,7 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
   });
 
   constructor(@Inject(TableFiltersSourceBase) private filterSource: TableFiltersSourceBase<unknown>) {
-    this.filteredColumns$ = this.filterForm.valueChanges.pipe(
+    this.filteredFilterOptions$ = this.filterForm.valueChanges.pipe(
       startWith(null),
       map((column: string) => this.autocompleteFilter(column))
     );
@@ -178,6 +182,7 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
   private autocompleteFilter(value: string) {
     if (!value) return this.filterOptions?.filter((col) => col !== 'select');
     let filterValue = value.toLowerCase().trimStart();
+
     const filterIsNegated = filterValue.length > 0 && filterValue[0] === '-';
     filterValue = filterIsNegated ? filterValue.slice(1) : filterValue;
     return this.filterOptions?.filter((col) => {

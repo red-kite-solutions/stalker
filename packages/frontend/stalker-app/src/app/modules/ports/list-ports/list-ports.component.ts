@@ -30,6 +30,8 @@ import { SharedModule } from '../../../shared/shared.module';
 import { Port } from '../../../shared/types/ports/port.interface';
 import { Tag } from '../../../shared/types/tag.type';
 import {
+  TABLE_FILTERS_SOURCE_INITAL_FILTERS,
+  TableFilters,
   TableFiltersSource,
   TableFiltersSourceBase,
 } from '../../../shared/widget/filtered-paginated-table/table-filters-source';
@@ -61,7 +63,16 @@ import { PortsInteractionsService } from '../ports-interactions.service';
   selector: 'app-list-ports',
   templateUrl: './list-ports.component.html',
   styleUrls: ['./list-ports.component.scss'],
-  providers: [{ provide: TableFiltersSourceBase, useClass: TableFiltersSource }],
+  providers: [
+    { provide: TableFiltersSourceBase, useClass: TableFiltersSource },
+    {
+      provide: TABLE_FILTERS_SOURCE_INITAL_FILTERS,
+      useValue: {
+        filters: ['-is: blocked'],
+        pagination: { page: 0, pageSize: 5 },
+      } as TableFilters,
+    },
+  ],
 })
 export class ListPortsComponent implements OnInit {
   dataLoading = true;

@@ -1,7 +1,7 @@
 import { SelectionModel } from '@angular/cdk/collections';
 import { BreakpointObserver, BreakpointState, Breakpoints } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnInit, TemplateRef } from '@angular/core';
+import { Component, Inject, TemplateRef } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -32,6 +32,8 @@ import { SharedModule } from '../../../shared/shared.module';
 import { ProjectSummary } from '../../../shared/types/project/project.summary';
 import { Tag } from '../../../shared/types/tag.type';
 import {
+  TABLE_FILTERS_SOURCE_INITAL_FILTERS,
+  TableFilters,
   TableFiltersSource,
   TableFiltersSourceBase,
 } from '../../../shared/widget/filtered-paginated-table/table-filters-source';
@@ -63,9 +65,18 @@ import { DomainsInteractionsService } from '../domains-interactions.service';
   selector: 'app-list-domains',
   templateUrl: './list-domains.component.html',
   styleUrls: ['./list-domains.component.scss'],
-  providers: [{ provide: TableFiltersSourceBase, useClass: TableFiltersSource }],
+  providers: [
+    { provide: TableFiltersSourceBase, useClass: TableFiltersSource },
+    {
+      provide: TABLE_FILTERS_SOURCE_INITAL_FILTERS,
+      useValue: {
+        filters: ['-is: blocked'],
+        pagination: { page: 0, pageSize: 5 },
+      } as TableFilters,
+    },
+  ],
 })
-export class ListDomainsComponent implements OnInit {
+export class ListDomainsComponent {
   dataLoading = true;
   displayedColumns: string[] = ['select', 'domain', 'hosts', 'project', 'tags', 'menu'];
   filterOptions: string[] = ['host', 'domain', 'project', 'tags', 'is'];
@@ -128,14 +139,6 @@ export class ListDomainsComponent implements OnInit {
     @Inject(TableFiltersSourceBase) private filtersSource: TableFiltersSource
   ) {
     this.titleService.setTitle($localize`:Domains list page title|:Domains`);
-  }
-
-  async ngOnInit() {
-    // Set default filters
-    const { filters } = await firstValueFrom(this.filtersSource.filters$);
-    if (!filters.length) {
-      this.filtersSource.setFilters(['-is: blocked']);
-    }
   }
 
   buildFilters(stringFilters: string[], projects: ProjectSummary[], tags: Tag[]): any {

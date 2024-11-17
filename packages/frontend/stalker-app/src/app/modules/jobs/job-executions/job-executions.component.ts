@@ -15,6 +15,8 @@ import { JobsService } from '../../../api/jobs/jobs/jobs.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { StartedJobViewModel } from '../../../shared/types/jobs/job.type';
 import {
+  TABLE_FILTERS_SOURCE_INITAL_FILTERS,
+  TableFilters,
   TableFiltersSource,
   TableFiltersSourceBase,
 } from '../../../shared/widget/filtered-paginated-table/table-filters-source';
@@ -39,7 +41,16 @@ import { JobStateComponent } from './job-execution-state.component';
     RouterModule,
     TableFormatComponent,
   ],
-  providers: [{ provide: TableFiltersSourceBase, useClass: TableFiltersSource }],
+  providers: [
+    { provide: TableFiltersSourceBase, useClass: TableFiltersSource },
+    {
+      provide: TABLE_FILTERS_SOURCE_INITAL_FILTERS,
+      useValue: {
+        filters: [],
+        pagination: { page: 0, pageSize: 5 },
+      } as TableFilters,
+    },
+  ],
 })
 export class JobExecutionsComponent {
   readonly displayColumns = ['name', 'project', 'time'];
