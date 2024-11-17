@@ -9,4 +9,7 @@ export class JobSourceDto {
 
   @IsString()
   avatarUrl: string;
+
+  @IsString()
+  branch: string;
 }

@@ -26,6 +26,7 @@ export class EventSubscriptionSource {
   type: 'git';
   url: string;
   avatarUrl: string;
+  branch: string;
 }
 
 @Schema()

@@ -24,24 +24,6 @@ async function exists(fs: FsPromisesApi, path: string) {
 export class JobReader {
   private logger = new Logger(JobReader.name);
 
-  public async validatePath(
-    path: string,
-    fileName: string,
-    fs?: FsPromisesApi,
-  ): Promise<boolean> {
-    fs ??= realFs.promises;
-
-    const fileSplit = fileName.split('.');
-    if (fileSplit.length <= 1) return false;
-
-    const ext = fileSplit[fileSplit.length - 1].toLowerCase();
-    if (ext !== 'yml' && ext !== 'yaml') return false;
-
-    if (!(await exists(fs, path + fileName))) return false;
-
-    return true;
-  }
-
   /** Reads a job configuration using the given file system. */
   public async readJob(
     jobsPath: string,
@@ -122,10 +104,11 @@ export class JobReader {
           type: dataSource.type,
           avatarUrl: dataSource.avatarUrl,
           repoUrl: dataSource.repoUrl,
+          branch: dataSource.branch,
         },
       };
 
-      if (await exists(fs, handlerPath)) {
+      if (handlerPath && (await exists(fs, handlerPath))) {
         job.findingHandler = (await fs.readFile(handlerPath)).toString();
         job.findingHandlerEnabled = true;
         job.findingHandlerLanguage = jobMetadata.findingHandlerLanguage;
