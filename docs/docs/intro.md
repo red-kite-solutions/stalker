@@ -53,7 +53,7 @@ git clone https://github.com/red-kite-solutions/Stalker && cd stalker
 Optionally edit your url and port in `setup.sh` to the URL and port that you will use to reach Red Kite. The defaults are the following:
 
 ```bash
-RK_HOSTNAME=stalker.lan
+RK_HOSTNAME=red-kite.lan
 RK_PORT=8443
 ```
 
@@ -84,7 +84,7 @@ Add your `RK_HOSTNAME` to your `/etc/hosts` file.
 
 ```text
 # RK_HOSTNAME in /etc/hosts
-127.0.0.1       stalker.lan
+127.0.0.1       red-kite.lan
 ```
 
 > Specify your server's IP if you want to access it from somewhere else than localhost.
@@ -97,7 +97,7 @@ Add the `root_ca.crt` to your browser's accepted certificate authorities.
 
 You are now ready to connect to Red Kite at the following URL:
 
-https://stalker.lan:8443
+https://red-kite.lan:8443
 
 ### Notes
 
