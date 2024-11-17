@@ -156,7 +156,7 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
   private filterSourceSub = this.filterSource.filters$.subscribe(({ filters, dateRange, pagination }) => {
     this.filters = filters;
     this.fullTextSearchValue = filters.join(' ');
-    this.filterForm.setValue(filters);
+    this.filterForm.setValue(this.fullTextSearchValue);
 
     this.dateRange.setValue({
       start: dateRange?.start ? moment(dateRange.start) : null,
@@ -182,7 +182,6 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
   private autocompleteFilter(value: string) {
     if (!value) return this.filterOptions?.filter((col) => col !== 'select');
     let filterValue = value.toLowerCase().trimStart();
-
     const filterIsNegated = filterValue.length > 0 && filterValue[0] === '-';
     filterValue = filterIsNegated ? filterValue.slice(1) : filterValue;
     return this.filterOptions?.filter((col) => {

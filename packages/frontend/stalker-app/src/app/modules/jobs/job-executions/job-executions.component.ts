@@ -63,7 +63,7 @@ export class JobExecutionsComponent {
 
   private refresh$ = new BehaviorSubject(null);
 
-  executions$ = combineLatest([this.filtersSource.filters$, this.refresh$]).pipe(
+  executions$ = combineLatest([this.filtersSource.debouncedFilters$, this.refresh$]).pipe(
     switchMap(([{ filters, pagination }]) =>
       this.jobsService.getJobExecutions(pagination?.page ?? 0, pagination?.pageSize ?? 25, this.buildFilters(filters))
     ),

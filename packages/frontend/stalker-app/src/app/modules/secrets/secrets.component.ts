@@ -79,7 +79,7 @@ export class SecretsComponent {
   });
 
   private refresh$ = new BehaviorSubject(null);
-  public secrets$ = combineLatest([this.filtersSource.filters$, this.projects$, this.refresh$]).pipe(
+  public secrets$ = combineLatest([this.filtersSource.debouncedFilters$, this.projects$, this.refresh$]).pipe(
     switchMap(([{ filters, pagination }, projects]) =>
       this.secretService.getSecrets(filters, pagination?.page ?? 0, pagination?.pageSize ?? 25, projects)
     ),

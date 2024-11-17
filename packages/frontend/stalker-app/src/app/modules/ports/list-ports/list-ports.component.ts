@@ -1,7 +1,7 @@
 import { SelectionModel } from '@angular/cdk/collections';
 import { BreakpointObserver, BreakpointState, Breakpoints } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -14,7 +14,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, combineLatest, firstValueFrom, map, shareReplay, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, shareReplay, switchMap, tap } from 'rxjs';
 import { ProjectsService } from 'src/app/api/projects/projects.service';
 import { TagsService } from 'src/app/api/tags/tags.service';
 import { ProjectCellComponent } from 'src/app/shared/components/project-cell/project-cell.component';
@@ -74,7 +74,7 @@ import { PortsInteractionsService } from '../ports-interactions.service';
     },
   ],
 })
-export class ListPortsComponent implements OnInit {
+export class ListPortsComponent {
   dataLoading = true;
   displayedColumns: string[] = ['select', 'port', 'ip', 'project', 'tags', 'menu'];
   filterOptions: string[] = ['host', 'port', 'project', 'tags', 'is'];
@@ -86,7 +86,7 @@ export class ListPortsComponent implements OnInit {
   allTags$ = this.tagsService.getAllTags().pipe(shareReplay(1));
 
   private refresh$ = new BehaviorSubject(null);
-  public ports$ = combineLatest([this.filtersSource.filters$, this.allTags$, this.refresh$]).pipe(
+  public ports$ = combineLatest([this.filtersSource.debouncedFilters$, this.allTags$, this.refresh$]).pipe(
     switchMap(([{ filters, dateRange, pagination }, tags]) => {
       return this.portsService.getPage<Port>(
         pagination?.page ?? 0,
@@ -135,14 +135,6 @@ export class ListPortsComponent implements OnInit {
     @Inject(TableFiltersSourceBase) private filtersSource: TableFiltersSource
   ) {
     this.titleService.setTitle($localize`:Ports list page title|:Ports`);
-  }
-
-  async ngOnInit() {
-    // Set default filters
-    const { filters } = await firstValueFrom(this.filtersSource.filters$);
-    if (!filters.length) {
-      this.filtersSource.setFilters(['-is: blocked']);
-    }
   }
 
   buildFilters(stringFilters: string[], tags: Tag[]): any {

@@ -72,7 +72,7 @@ export class ListCustomJobsComponent {
   public selection = new SelectionModel<CustomJob>(true, []);
 
   private refreshData$ = new BehaviorSubject<void>(undefined);
-  public customJobs$ = combineLatest([this.filtersSource.filters$, this.refreshData$]).pipe(
+  public customJobs$ = combineLatest([this.filtersSource.debouncedFilters$, this.refreshData$]).pipe(
     switchMap(([{ filters, pagination }]) =>
       this.customJobsService.getCustomJobs(filters, pagination?.page ?? 0, pagination?.pageSize ?? 25)
     ),

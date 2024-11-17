@@ -90,7 +90,7 @@ export class ListHostsComponent {
   tags$ = this.tagsService.getAllTags().pipe(shareReplay(1));
 
   private refresh$ = new BehaviorSubject(null);
-  dataSource$ = combineLatest([this.filtersSource.filters$, this.tags$, this.refresh$]).pipe(
+  dataSource$ = combineLatest([this.filtersSource.debouncedFilters$, this.tags$, this.refresh$]).pipe(
     switchMap(([{ dateRange, filters, pagination }, tags]) => {
       return this.hostsService.getPage(
         pagination?.page || 0,

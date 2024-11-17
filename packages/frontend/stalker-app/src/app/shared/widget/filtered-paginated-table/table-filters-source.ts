@@ -1,7 +1,7 @@
 import { Inject, Injectable, Optional } from '@angular/core';
 import { DateRange } from '@angular/material/datepicker';
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { concatMap, debounceTime, EMPTY, map, Observable, of, shareReplay } from 'rxjs';
+import { ActivatedRoute, NavigationEnd, ParamMap, Router } from '@angular/router';
+import { concatMap, debounceTime, EMPTY, filter, map, Observable, of, shareReplay, startWith } from 'rxjs';
 
 export const TABLE_FILTERS_SOURCE_INITAL_FILTERS = 'TABLE_FILTERS_SOURCE_INITAL_FILTERS';
 
@@ -17,14 +17,19 @@ export interface TableFilters {
 @Injectable()
 export abstract class TableFiltersSourceBase<T> {
   private readonly FILTERS_KEY = 'f';
+  private readonly FILTERS_SEPARATOR = '+';
   private readonly START_DATE_KEY = 'start';
   private readonly END_DATE_KEY = 'end';
   private readonly PAGE_SIZE_KEY = 'psize';
   private readonly PAGE_KEY = 'p';
 
-  public filtersz$ = this.route.queryParamMap.subscribe((x) => console.log(x));
+  private params$ = this.router.events.pipe(
+    filter((event) => event instanceof NavigationEnd),
+    map(() => this.route.snapshot.queryParamMap),
+    startWith(this.route.snapshot.queryParamMap)
+  );
 
-  public filters$: Observable<TableFilters & T> = this.route.queryParamMap.pipe(
+  public filters$: Observable<TableFilters & T> = this.params$.pipe(
     map((queryParams) => this.extractFilters(queryParams)),
     concatMap((filters, index) => {
       if (index > 0) return of(filters);
@@ -32,9 +37,10 @@ export abstract class TableFiltersSourceBase<T> {
 
       return of(this.initializeFilters()).pipe(concatMap(() => EMPTY));
     }),
-    debounceTime(100),
     shareReplay(1)
   );
+
+  public debouncedFilters$ = this.filters$.pipe(debounceTime(250));
 
   constructor(
     private router: Router,
@@ -63,8 +69,13 @@ export abstract class TableFiltersSourceBase<T> {
   }
 
   public formatFilters(filters: string[]) {
+    const separator = this.FILTERS_SEPARATOR;
     return {
-      [this.FILTERS_KEY]: filters?.length ? filters : null,
+      [this.FILTERS_KEY]: filters?.length
+        ? filters
+            .map((x) => x.replace(new RegExp(`\\${separator}`, 'g'), encodeURIComponent(separator)))
+            .join(separator)
+        : null,
     };
   }
 
@@ -94,8 +105,8 @@ export abstract class TableFiltersSourceBase<T> {
       filters: [],
     };
 
-    const filters = params.getAll(this.FILTERS_KEY);
-    tableFilters.filters = filters ?? [];
+    const filters = params.get(this.FILTERS_KEY);
+    tableFilters.filters = filters ? filters.split(this.FILTERS_SEPARATOR).map((x) => decodeURIComponent(x)) : [];
 
     const start = this.readDate(params.get(this.START_DATE_KEY));
     const end = this.readDate(params.get(this.END_DATE_KEY));

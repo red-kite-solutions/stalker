@@ -71,7 +71,7 @@ export class ApiKeyComponent {
   });
 
   private refresh$ = new BehaviorSubject(null);
-  public apiKeys$ = combineLatest([this.filtersSource.filters$, this.refresh$]).pipe(
+  public apiKeys$ = combineLatest([this.filtersSource.debouncedFilters$, this.refresh$]).pipe(
     switchMap(([{ pagination }]) =>
       this.apiKeyService.getPage(pagination?.page ?? 0, pagination?.pageSize ?? 25, this.userId)
     ),

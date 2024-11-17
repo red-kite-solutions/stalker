@@ -78,7 +78,7 @@ export class ListSubscriptionsComponent {
   public selection = new SelectionModel<CronSubscription | EventSubscription>(true, []);
 
   private refreshData$ = new BehaviorSubject<void>(undefined);
-  public subscriptions$ = combineLatest([this.filtersSource.filters$, this.refreshData$]).pipe(
+  public subscriptions$ = combineLatest([this.filtersSource.debouncedFilters$, this.refreshData$]).pipe(
     switchMap(([{ filters, pagination }]) =>
       this.subscriptionsService
         .getSubscriptions(filters, pagination?.page ?? 0, pagination?.pageSize ?? 25)

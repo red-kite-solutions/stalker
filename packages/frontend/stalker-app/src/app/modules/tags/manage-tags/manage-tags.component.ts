@@ -67,7 +67,7 @@ export class ManageTagsComponent {
   public readonly noDataMessage = $localize`:No tag found|No tag was found for this item:No tag found`;
 
   private refresh$ = new BehaviorSubject(null);
-  public tags$ = combineLatest([this.filtersSource.filters$, this.refresh$]).pipe(
+  public tags$ = combineLatest([this.filtersSource.debouncedFilters$, this.refresh$]).pipe(
     switchMap(([{ filters, pagination }]) =>
       this.tagsService.getTags(filters, pagination?.page ?? 0, pagination?.pageSize ?? 25)
     ),

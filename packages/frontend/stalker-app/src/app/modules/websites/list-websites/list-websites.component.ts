@@ -150,7 +150,7 @@ export class ListWebsitesComponent {
   allTags$ = this.tagsService.getAllTags().pipe(shareReplay(1));
 
   refresh$ = new BehaviorSubject(null);
-  websites$ = combineLatest([this.filtersSource.filters$, this.allTags$, this.refresh$]).pipe(
+  websites$ = combineLatest([this.filtersSource.debouncedFilters$, this.allTags$, this.refresh$]).pipe(
     switchMap(([{ filters, dateRange, pagination }, tags]) =>
       this.websitesService.getPage(
         pagination?.page ?? 0,
@@ -168,8 +168,8 @@ export class ListWebsitesComponent {
     map((x) => new MatTableDataSource<WebsiteWithPreview>(x))
   );
 
-  public viewStyle$ = this.filtersSource.filters$.pipe(map((x) => x.viewStyle));
-  public numberOfColumns$ = this.filtersSource.filters$.pipe(map((x) => x.numberOfColumns));
+  public viewStyle$ = this.filtersSource.debouncedFilters$.pipe(map((x) => x.viewStyle));
+  public numberOfColumns$ = this.filtersSource.debouncedFilters$.pipe(map((x) => x.numberOfColumns));
 
   projects: ProjectSummary[] = [];
   projects$ = this.projectsService.getAllSummaries().pipe(tap((x) => (this.projects = x)));
