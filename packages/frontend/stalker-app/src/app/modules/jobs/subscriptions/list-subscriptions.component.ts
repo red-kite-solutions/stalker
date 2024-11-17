@@ -124,6 +124,11 @@ export class ListSubscriptionsComponent {
     }
   }
 
+  public async duplicate(sub: EventSubscription | CronSubscription) {
+    await this.subscriptionInteractor.duplicate(sub);
+    this.refreshData$.next();
+  }
+
   public pageChange(e: PageEvent) {
     this.currentPage$.next(e);
   }
@@ -177,9 +182,20 @@ export class ListSubscriptionsComponent {
     }
 
     menuItems.push({
+      action: () => this.duplicate(element),
+      icon: 'file_copy',
+      label: $localize`:Duplicate a job|Duplicate a job:Duplicate`,
+    });
+
+    menuItems.push({
       action: () => this.deleteBatch([element]),
       icon: 'delete',
       label: $localize`:Delete subscription|Delete subscription:Delete`,
+      disabled: element.source != null,
+      tooltip:
+        element.source != null
+          ? $localize`:Cannot delete imported jobs|Cannot delete imported jobs:You cannot delete imported subscriptions.`
+          : undefined,
     });
 
     return menuItems;

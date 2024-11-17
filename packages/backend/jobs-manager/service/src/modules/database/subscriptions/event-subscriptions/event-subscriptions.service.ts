@@ -32,6 +32,29 @@ export class EventSubscriptionsService {
     return await this.subscriptionModel.create(sub);
   }
 
+  public async duplicate(eventSubscriptionId: string) {
+    const existingSub = await this.subscriptionModel.findById(
+      new Types.ObjectId(eventSubscriptionId),
+    );
+
+    const sub: EventSubscription = {
+      conditions: existingSub.conditions,
+      cooldown: existingSub.cooldown,
+      finding: existingSub.finding,
+      isEnabled: existingSub.isEnabled,
+      jobName: existingSub.jobName,
+      jobParameters: existingSub.jobParameters,
+      name: `${existingSub.name} Copy`,
+      builtIn: existingSub.builtIn,
+      discriminator: existingSub.discriminator,
+      file: existingSub.file,
+      projectId: existingSub.projectId,
+      source: undefined,
+    };
+
+    return await this.subscriptionModel.create(sub);
+  }
+
   public async updateEnabled(id: string, isEnabled: boolean) {
     const subUpdate: Partial<EventSubscription> = { isEnabled };
 

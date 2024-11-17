@@ -105,6 +105,7 @@ export class CustomJobsService {
   public async delete(id: string): Promise<DeleteResult> {
     return await this.customJobModel.deleteOne({
       _id: { $eq: new Types.ObjectId(id) },
+      source: { $eq: null },
     });
   }
 

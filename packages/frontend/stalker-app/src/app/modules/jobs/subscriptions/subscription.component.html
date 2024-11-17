@@ -87,7 +87,7 @@
               </button>
             }
 
-            <button mat-menu-item color="warn" class="tw-w-full" (click)="delete()">
+            <button mat-menu-item color="warn" class="tw-w-full" (click)="delete()" [disabled]="subSource">
               <mat-icon>delete</mat-icon>
               <label i18n="Delete|Delete an item">Delete</label>
             </button>

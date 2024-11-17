@@ -66,6 +66,28 @@ export class CronSubscriptionsService {
     return await this.subscriptionModel.create(sub);
   }
 
+  public async duplicate(cronSubscriptionId: string) {
+    const existingSub = await this.subscriptionModel.findById(
+      new Types.ObjectId(cronSubscriptionId),
+    );
+
+    const sub: CronSubscription = {
+      conditions: existingSub.conditions,
+      isEnabled: existingSub.isEnabled,
+      jobName: existingSub.jobName,
+      jobParameters: existingSub.jobParameters,
+      name: `${existingSub.name} Copy`,
+      builtIn: existingSub.builtIn,
+      file: existingSub.file,
+      projectId: existingSub.projectId,
+      cronExpression: existingSub.cronExpression,
+      input: existingSub.input,
+      source: undefined,
+    };
+
+    return await this.subscriptionModel.create(sub);
+  }
+
   public async updateEnabled(id: string, enabled: boolean) {
     const subUpdate: Partial<CronSubscription> = {
       isEnabled: enabled,

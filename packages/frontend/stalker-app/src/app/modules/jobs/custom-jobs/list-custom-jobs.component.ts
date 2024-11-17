@@ -138,7 +138,12 @@ export class ListCustomJobsComponent {
     menuItems.push({
       action: () => this.deleteBatch([element]),
       icon: 'delete',
-      label: $localize`:Delete custom jobs|Delete custom jobs:Delete`,
+      label: $localize`:Delete jobs|Delete jobs:Delete`,
+      disabled: element.source != null,
+      tooltip:
+        element.source != null
+          ? $localize`:Cannot delete imported jobs|Cannot delete imported jobs:You cannot delete imported jobs.`
+          : undefined,
     });
 
     return menuItems;

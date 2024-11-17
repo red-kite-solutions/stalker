@@ -125,7 +125,7 @@
       <panel-section class="tw-opacity-60">
         <app-text-menu i18n-buttonText="Manage job|Manage job" [buttonText]="'Manage job'" [iconName]="'settings'">
           <div class="tw-flex tw-flex-col tw-gap-2">
-            <button mat-menu-item color="warn" class="tw-w-full" (click)="delete()">
+            <button mat-menu-item color="warn" class="tw-w-full" (click)="delete()" [disabled]="jobSource">
               <mat-icon>delete</mat-icon>
               <label i18n="Delete|Delete an item">Delete</label>
             </button>

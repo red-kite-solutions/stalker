@@ -25,9 +25,11 @@ export class CustomJobsInteractionService {
     public templateService: CustomJobTemplatesService
   ) {}
 
-  public async delete(jobs: Pick<CustomJob, '_id' | 'name'>[]): Promise<boolean> {
+  public async delete(jobs: Pick<CustomJob, '_id' | 'name' | 'source'>[]): Promise<boolean> {
+    jobs = jobs.filter((x) => x.source == null);
+
     let data: ConfirmDialogData = {
-      text: $localize`:Select jobs again|No job was selected so there is nothing to delete:Select the jobs to delete and try again.`,
+      text: $localize`:Select jobs again|No job was selected so there is nothing to delete:Select the jobs to delete and try again. Imported jobs cannot be deleted.`,
       title: $localize`:Nothing to delete|Tried to delete something, but there was nothing to delete:Nothing to delete`,
       primaryButtonText: $localize`:Ok|Accept or confirm:Ok`,
       noDataSelectItem: true,

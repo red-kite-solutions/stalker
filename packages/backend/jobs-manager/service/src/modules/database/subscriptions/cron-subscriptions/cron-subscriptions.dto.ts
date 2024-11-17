@@ -20,6 +20,13 @@ import {
 import { JobParameterDto } from '../subscriptions.dto';
 import { InputSource, inputSources } from './cron-subscriptions.model';
 
+export class DuplicateCronSubscriptionDto {
+  @IsMongoId()
+  @IsNotEmpty()
+  @IsString()
+  public subscriptionId: string;
+}
+
 export class CronSubscriptionDto {
   @IsString()
   @IsNotEmpty()

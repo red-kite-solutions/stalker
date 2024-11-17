@@ -63,6 +63,10 @@ export class EventSubscriptionsService implements GenericSubscriptionService<Eve
     await firstValueFrom(this.http.delete(`${environment.fmUrl}/event-subscriptions/${id}`));
   }
 
+  public async duplicate(id: string) {
+    return await firstValueFrom(this.http.post(`${environment.fmUrl}/event-subscriptions`, { subscriptionId: id }));
+  }
+
   private parseSubscription(subscription: EventSubscriptionData) {
     const data: any = {
       name: subscription.name,

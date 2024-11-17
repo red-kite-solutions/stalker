@@ -36,7 +36,6 @@ import { HasUnsavedChanges } from 'src/app/shared/guards/unsaved-changes-can-dea
 import { SharedModule } from 'src/app/shared/shared.module';
 import { FileTab } from 'src/app/shared/widget/code-editor/code-editor.type';
 import { SavingButtonComponent } from 'src/app/shared/widget/spinner-button/saving-button.component';
-import { SpinnerButtonComponent } from 'src/app/shared/widget/spinner-button/spinner-button.component';
 import { TextMenuComponent } from 'src/app/shared/widget/text-menu/text-menu.component';
 import { CustomJobTemplatesService } from '../../../api/jobs/custom-job-templates/custom-job-templates.service';
 import { JobsService } from '../../../api/jobs/jobs/jobs.service';
@@ -89,7 +88,6 @@ import { nucleiFindingHandlerTemplate } from './nuclei-finding-handler-template'
     MatTooltipModule,
     MatCardModule,
     MatMenuModule,
-    SpinnerButtonComponent,
     TextMenuComponent,
     PanelSectionModule,
     MatDividerModule,

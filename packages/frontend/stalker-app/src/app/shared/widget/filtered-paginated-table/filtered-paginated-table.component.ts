@@ -48,13 +48,14 @@ import { Observable, debounceTime, filter, map, startWith } from 'rxjs';
 import { AvatarComponent } from '../../components/avatar/avatar.component';
 import { IdentifiedElement } from '../../types/identified-element.type';
 import { CodeEditorComponent } from '../code-editor/code-editor.component';
-import { TableFormatComponent } from './table-format/table-format.component';
 
 export interface ElementMenuItems {
   label: string;
   icon: string;
   action: () => Promise<unknown> | void;
   hidden?: boolean;
+  disabled?: boolean;
+  tooltip?: string;
 }
 
 @Component({
@@ -90,7 +91,6 @@ export interface ElementMenuItems {
     FormsModule,
     MatDatepickerModule,
     MatTooltipModule,
-    TableFormatComponent,
   ],
 })
 export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implements OnInit, OnDestroy {
