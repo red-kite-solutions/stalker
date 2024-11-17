@@ -11,6 +11,7 @@ export interface JobSourceConfig {
     username: string;
     password: string;
   };
+  branch: string;
 }
 
 export interface JobSource {
@@ -30,6 +31,7 @@ export class GitJobSource implements JobSource {
     includeTemplates: boolean = false,
   ): Promise<CustomJobEntry[]> {
     const jobs = await this.listJobs('/jobs');
+
     if (includeTemplates) {
       jobs.push(...(await this.listJobs('/job-templates')));
     }

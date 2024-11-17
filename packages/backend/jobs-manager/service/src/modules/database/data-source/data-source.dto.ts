@@ -9,4 +9,7 @@ export class DataSourceDto {
 
   @IsString()
   avatarUrl: string;
+
+  @IsString()
+  branch: string;
 }

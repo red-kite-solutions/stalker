@@ -8,6 +8,7 @@ export interface DataSource {
   repoUrl: string;
   avatarUrl: string;
   fs: FsPromisesApi;
+  branch: string;
 }
 
 interface DataSourceCacheEntry extends DataSource {
@@ -53,6 +54,7 @@ export class DataSources {
       fs,
       avatarUrl: this.inferAvatar(config.url),
       repoUrl: config.url,
+      branch: config.branch,
     };
   }
 

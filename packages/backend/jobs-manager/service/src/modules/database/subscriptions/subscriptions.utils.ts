@@ -427,6 +427,7 @@ export class SubscriptionsUtils {
       type: dataSource.type,
       avatarUrl: dataSource.avatarUrl,
       repoUrl: dataSource.repoUrl,
+      branch: dataSource.branch,
     };
 
     switch (yaml.triggerType) {
