@@ -5,6 +5,7 @@ import path from 'path';
 import { parse } from 'yaml';
 import { DataSource } from '../../datasources/data-sources';
 import { JobPodConfigurationDocument } from '../admin/config/job-pod-config/job-pod-config.model';
+import { ContainerDocument } from '../container/container.model';
 import { validCustomJobTypeDetails } from '../jobs/models/custom-job.model';
 import { CustomJobMetadata } from './custom-job-metadata.type';
 import { CustomJobEntry } from './custom-jobs.model';
@@ -30,6 +31,7 @@ export class JobReader {
     jobName: string,
     podConfigurations: JobPodConfigurationDocument[],
     dataSource: DataSource,
+    containers: ContainerDocument[],
   ): Promise<CustomJobEntry | null> {
     const fs = dataSource.fs ?? realFs.promises;
 
@@ -91,6 +93,14 @@ export class JobReader {
         return null;
       }
 
+      const container = containers.find((c) => c.image === jobMetadata.image);
+      if (!container) {
+        this.logger.debug(
+          `Job container image not found: ${jobMetadata.image}`,
+        );
+        return null;
+      }
+
       job = {
         name: jobMetadata.name,
         code: (await fs.readFile(codePath)).toString(),
@@ -105,6 +115,10 @@ export class JobReader {
           avatarUrl: dataSource.avatarUrl,
           repoUrl: dataSource.repoUrl,
           branch: dataSource.branch,
+        },
+        container: {
+          image: container.image,
+          id: container._id,
         },
       };
 

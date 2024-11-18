@@ -1,3 +1,4 @@
+import { ContainerSummary } from './container.type';
 import { CustomJobFindingHandlerLanguage, CustomJobLanguage, CustomJobType } from './custom-job.type';
 import { JobParameterDefinition } from './job.type';
 
@@ -22,4 +23,5 @@ export interface CustomJobTemplate extends CustomJobTemplateSummary {
     url: string;
     avatarUrl: string;
   };
+  container: ContainerSummary;
 }

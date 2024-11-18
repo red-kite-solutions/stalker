@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { JobParameterDefinition } from '../../../types/job-parameter-definition.type';
+import { ContainerSummary } from '../container/container.model';
 
 export type CustomJobsDocument = CustomJobEntry & Document;
 
@@ -48,6 +49,9 @@ export class CustomJobEntry {
 
   @Prop()
   public source?: CustomJobSource;
+
+  @Prop()
+  public container: ContainerSummary;
 }
 
 export const CustomJobsSchema = SchemaFactory.createForClass(CustomJobEntry);

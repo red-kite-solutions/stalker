@@ -11,5 +11,6 @@ namespace Orchestrator.Jobs.JobModelCache
         public string? Language { get; init; }
         public string? FindingHandler { get; init; }
         public string? FindingHandlerLanguage { get; init; }
+        public string? Image { get; init; }
     }
 }

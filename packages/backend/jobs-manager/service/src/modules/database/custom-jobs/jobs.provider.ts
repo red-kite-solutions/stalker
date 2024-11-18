@@ -6,6 +6,7 @@ import { DataSources } from '../../datasources/data-sources';
 import { JobModelUpdateQueue } from '../../job-queue/job-model-update-queue';
 import { DATABASE_INIT } from '../admin/config/config.provider';
 import { JobPodConfiguration } from '../admin/config/job-pod-config/job-pod-config.model';
+import { Container } from '../container/container.model';
 import { CustomJobEntry } from './custom-jobs.model';
 import { GitJobSource, JobSource, JobSourceConfig } from './jobs.source';
 
@@ -17,6 +18,7 @@ export const jobsInitProvider = [
     inject: [
       getModelToken('customJobs'),
       getModelToken('jobPodConfig'),
+      getModelToken('containers'),
       JobModelUpdateQueue,
       DataSources,
       { token: DATABASE_INIT, optional: false },
@@ -24,6 +26,7 @@ export const jobsInitProvider = [
     useFactory: async (
       jobsModel: Model<CustomJobEntry>,
       jpcModel: Model<JobPodConfiguration>,
+      containerModel: Model<Container>,
       jobCodeQueue: JobModelUpdateQueue,
       dataSources: DataSources,
     ) => {
@@ -43,8 +46,10 @@ export const jobsInitProvider = [
           sources.push(new GitJobSource(dataSource));
         }
 
+        const containers = await containerModel.find();
+
         for (const source of sources) {
-          const importedJobs = await source.synchronize(podConfigs);
+          const importedJobs = await source.synchronize(podConfigs, containers);
           for (const job of importedJobs) {
             const filter: UpdateFilter<CustomJobEntry> = {
               name: job.name,
