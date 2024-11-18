@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Container } from './container.model';
@@ -10,9 +11,10 @@ export const containerInitProvider = [
     inject: [getModelToken('containers')],
     useFactory: async (containerModel: Model<Container>) => {
       const CONTAINER_ENV = 'JM_JOB_CONTAINERS';
+      const logger = new Logger('containerInitProvider');
 
       if (!process.env[CONTAINER_ENV]) {
-        console.log(`Missing environment variable ${CONTAINER_ENV}`);
+        logger.warn(`Missing environment variable ${CONTAINER_ENV}`);
         return;
       }
 
