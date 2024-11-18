@@ -12,10 +12,6 @@ export class ContainerService {
     private readonly containerModel: Model<Container>,
   ) {}
 
-  public async getByImage(image: string) {
-    return await this.containerModel.find({ image: { $eq: image } });
-  }
-
   public async getAll() {
     return await this.containerModel.find();
   }

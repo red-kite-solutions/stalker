@@ -1,5 +1,6 @@
+import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Types } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { AppModule } from '../../app.module';
 import { HostnameCommand } from '../../findings/commands/Findings/hostname.command';
 import { CustomFindingCommand } from '../../findings/commands/JobFindings/custom.command';
@@ -10,6 +11,7 @@ import {
   PortFinding,
 } from '../../findings/findings.service';
 import { ConfigService } from '../admin/config/config.service';
+import { Container } from '../container/container.model';
 import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
 import { ProjectService } from '../reporting/project.service';
 import { CronSubscription } from './cron-subscriptions/cron-subscriptions.model';
@@ -27,6 +29,7 @@ describe('Findings Handler Base', () => {
   let projectService: ProjectService;
   let customJobsService: CustomJobsService;
   let configService: ConfigService;
+  let containerModel: Model<Container>;
 
   beforeAll(async () => {
     moduleFixture = await Test.createTestingModule({
@@ -36,6 +39,9 @@ describe('Findings Handler Base', () => {
     projectService = moduleFixture.get(ProjectService);
     customJobsService = moduleFixture.get(CustomJobsService);
     configService = moduleFixture.get(ConfigService);
+    containerModel = moduleFixture.get<Model<Container>>(
+      getModelToken('containers'),
+    );
   });
 
   beforeEach(async () => {
@@ -739,6 +745,10 @@ describe('Findings Handler Base', () => {
         milliCpuLimit: 10,
       });
 
+      const container = await containerModel.create({
+        image: 'mycontainerref',
+      });
+
       const cjName = 'fhb custom job';
       const cj = await customJobsService.create({
         name: cjName,
@@ -746,6 +756,7 @@ describe('Findings Handler Base', () => {
         type: 'code',
         language: 'python',
         jobPodConfigId: jpc._id.toString(),
+        containerId: container._id.toString(),
       });
       const cj2 = await customJobsService.create({
         name: cjName + ' 2',
@@ -753,6 +764,7 @@ describe('Findings Handler Base', () => {
         type: 'code',
         language: 'python',
         jobPodConfigId: jpc._id.toString(),
+        containerId: container._id.toString(),
       });
 
       const sub = new EventSubscription();

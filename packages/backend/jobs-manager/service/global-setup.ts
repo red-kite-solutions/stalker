@@ -17,4 +17,6 @@ module.exports = async function () {
     'LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0FRRUFzZjhKazZJcXpaMGJkcDQ2NFd0NQpvQlNoa1RxUWZJOTZaQ25FS0F0VFh0VkVPR254Z3VwRFNlN3lKU3BEbFo1bmptOVk1Nitpb1VlR1htQmt5QzVLClF0MzBncThGSzZXdFFQRWNOZCtzdVJhMWY3UVZpa0Q1YUs5WEVpN2lld1FGQ05oMFgzbVFaQ0R5OEhCalJrc1QKMTJiRmdhcC9NMHpyeWtkTnM0dUZxYXl5Rlk4YWxMVENRNlNhakZNemhJbHAxK0lTUTVFR011MjAvZUY3RkQwbwpZWGh4SjZZZEhaYUdIczYrSVdMT1NDYkZpcmdKTUFqdWZhMUdHb3N4WlJSd3lIdXRVTG11Z05YWWdaS2piQis0CldaNnNPZFRrb0tmQmtyNjlWcXNFeXZXeTlHd1g4cWFMV3dyTTM1c1owSWdiRk5RQTNEM2V5eGxacDh4K1R6R1EKZ1FJREFRQUIKLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCg==';
   process.env.STALKER_VERSION = 'a version string';
   globalThis.__IN_MEMORY_DB__ = mongo;
+  process.env.JM_JOB_CONTAINERS =
+    '["ghcr.io/red-kite-solutions/stalker-python-job-base:1", "ghcr.io/red-kite-solutions/stalker-nuclei-job-base:1"]';
 };
