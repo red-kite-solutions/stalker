@@ -10,6 +10,15 @@ import { CustomJob, CustomJobData } from '../../../shared/types/jobs/custom-job.
 export class CustomJobsService {
   constructor(private http: HttpClient) {}
 
+  private format(data: CustomJobData): Omit<CustomJobData, 'container'> & { containerId: string } {
+    const job = {
+      containerId: data.container.id,
+      ...data,
+      container: undefined,
+    };
+    return job;
+  }
+
   public getCustomJobs(): Observable<CustomJob[]> {
     return <Observable<CustomJob[]>>this.http.get(`${environment.fmUrl}/custom-jobs/`);
   }
@@ -23,11 +32,11 @@ export class CustomJobsService {
   }
 
   public async create(data: CustomJobData): Promise<CustomJob> {
-    return <CustomJob>await firstValueFrom(this.http.post(`${environment.fmUrl}/custom-jobs/`, data));
+    return <CustomJob>await firstValueFrom(this.http.post(`${environment.fmUrl}/custom-jobs/`, this.format(data)));
   }
 
   public async edit(id: string, data: CustomJobData) {
-    return await firstValueFrom(this.http.put(`${environment.fmUrl}/custom-jobs/${id}`, data));
+    return await firstValueFrom(this.http.put(`${environment.fmUrl}/custom-jobs/${id}`, this.format(data)));
   }
 
   public async delete(id: string) {

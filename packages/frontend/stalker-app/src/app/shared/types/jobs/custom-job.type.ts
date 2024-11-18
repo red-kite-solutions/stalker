@@ -1,3 +1,4 @@
+import { ContainerSummary } from './container.type';
 import { JobSource } from './job-source.type';
 
 export const customJobTypes = ['code', 'nuclei'] as const;
@@ -52,4 +53,5 @@ export interface CustomJobData {
   findingHandler?: string;
   findingHandlerLanguage?: CustomJobFindingHandlerLanguage;
   source?: JobSource;
+  container: ContainerSummary;
 }

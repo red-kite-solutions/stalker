@@ -251,6 +251,8 @@ deployments:
                 value: ${STALKER_APP_BASE_URL}
               - name: DATA_SOURCES
                 value: ${JM_DATA_SOURCES}
+              - name: JM_JOB_CONTAINERS
+                value: ${JM_JOB_CONTAINERS}
 
             volumeMounts:
               - containerPath: /certs

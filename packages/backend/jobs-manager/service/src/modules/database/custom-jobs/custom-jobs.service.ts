@@ -2,8 +2,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DeleteResult } from 'mongodb';
 import { Model, Types } from 'mongoose';
+import { HttpNotFoundException } from '../../../exceptions/http.exceptions';
 import { JobSummary } from '../../../types/job-summary.type';
 import { JobModelUpdateQueue } from '../../job-queue/job-model-update-queue';
+import { Container, ContainerDocument } from '../container/container.model';
 import { CustomJobDto } from './custom-jobs.dto';
 import { CustomJobEntry, CustomJobsDocument } from './custom-jobs.model';
 
@@ -14,10 +16,18 @@ export class CustomJobsService {
   constructor(
     @InjectModel('customJobs')
     private readonly customJobModel: Model<CustomJobEntry>,
+    @InjectModel('containers')
+    private readonly containersModel: Model<Container>,
     private readonly jobCodeQueue: JobModelUpdateQueue,
   ) {}
 
   public async create(dto: CustomJobDto) {
+    const container: ContainerDocument = await this.containersModel.findById(
+      dto.containerId,
+    );
+
+    if (!container) throw new HttpNotFoundException('Container id not found');
+
     const job: CustomJobEntry = {
       name: dto.name,
       code: dto.code,
@@ -28,6 +38,10 @@ export class CustomJobsService {
       findingHandler: dto.findingHandler ?? undefined,
       findingHandlerLanguage: dto.findingHandlerLanguage ?? undefined,
       parameters: [],
+      container: {
+        id: container._id,
+        image: container.image,
+      },
     };
     const r = await this.customJobModel.create(job);
     this.jobCodeQueue.publish(r);

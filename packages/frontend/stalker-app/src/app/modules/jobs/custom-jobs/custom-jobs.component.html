@@ -79,6 +79,17 @@
             }
           </mat-select>
         </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label i18n="Job container|Job container image">Job container image</mat-label>
+          <mat-select formControlName="container">
+            @for (container of containerOptions$ | async; track container._id) {
+              <mat-option value="{{ container._id }}">
+                <div class="tw-leading-5">{{ container.image }}</div>
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
       </div>
 
       @if (handlerFormEnabled$ | async) {

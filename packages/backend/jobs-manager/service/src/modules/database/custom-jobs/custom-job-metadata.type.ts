@@ -18,4 +18,5 @@ export interface CustomJobMetadata {
   findingHandlerLanguage?: CustomJobFindingHandlerLanguage;
   builtIn?: boolean;
   category?: string;
+  image: string;
 }

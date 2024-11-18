@@ -55,4 +55,8 @@ export class CustomJobTemplateDto {
 
   @IsOptional()
   public source?: JobSourceDto;
+
+  @IsMongoId()
+  @IsNotEmpty()
+  containerId: string;
 }
