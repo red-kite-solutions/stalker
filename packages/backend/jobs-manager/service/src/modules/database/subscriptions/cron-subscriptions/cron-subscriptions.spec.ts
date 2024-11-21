@@ -1923,7 +1923,7 @@ describe('Cron Subscriptions Service', () => {
       const [original, duplicate] = subs;
       expect(duplicate.source).toBeUndefined();
       expect(duplicate.name).toEqual(original.name);
-      expect(duplicate.isEnabled).toEqual(original.isEnabled);
+      expect(duplicate.isEnabled).toEqual(`${original.isEnabled} Copy`);
       expect(duplicate.projectId).toEqual(original.projectId);
       expect(duplicate.jobName).toEqual(original.jobName);
       expect(duplicate.jobParameters).toEqual(original.jobParameters);
