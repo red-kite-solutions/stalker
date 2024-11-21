@@ -132,7 +132,7 @@ describe('Event Subscriptions Service', () => {
 
       const [original, duplicate] = subs;
       expect(duplicate.source).toBeUndefined();
-      expect(duplicate.name).toEqual(original.name);
+      expect(duplicate.name).toEqual(`${original.name} Copy`);
       expect(duplicate.isEnabled).toEqual(original.isEnabled);
       expect(duplicate.projectId).toEqual(original.projectId);
       expect(duplicate.finding).toEqual(original.finding);
