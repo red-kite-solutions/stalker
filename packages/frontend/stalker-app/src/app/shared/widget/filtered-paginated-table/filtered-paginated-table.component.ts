@@ -113,7 +113,7 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
     $localize`:Default date picker|Date picker label, the first time an item was seen:First seen`;
 
   currentPage = 0;
-  pageSizeOptions: number[] = [5, 25, 50, 100];
+  pageSizeOptions: number[] = [25, 50, 100];
   pageSize = 0;
   dateRange = new FormGroup({
     start: new FormControl<Moment | null>(null),

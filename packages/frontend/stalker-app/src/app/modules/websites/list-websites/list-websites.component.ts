@@ -128,7 +128,7 @@ class WebsiteFiltersSource extends TableFiltersSourceBase<WebsiteFilters> {
       provide: TABLE_FILTERS_SOURCE_INITAL_FILTERS,
       useValue: {
         filters: ['-is: blocked'],
-        pagination: { page: 0, pageSize: 5 },
+        pagination: { page: 0, pageSize: 25 },
         numberOfColumns: 3,
         viewStyle: 'grid',
       } as WebsiteFilters,

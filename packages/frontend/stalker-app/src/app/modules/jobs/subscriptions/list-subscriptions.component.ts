@@ -66,7 +66,7 @@ import { subscriptionTypes } from './subscription-templates';
       provide: TABLE_FILTERS_SOURCE_INITAL_FILTERS,
       useValue: {
         filters: [],
-        pagination: { page: 0, pageSize: 5 },
+        pagination: { page: 0, pageSize: 25 },
       } as TableFilters,
     },
   ],

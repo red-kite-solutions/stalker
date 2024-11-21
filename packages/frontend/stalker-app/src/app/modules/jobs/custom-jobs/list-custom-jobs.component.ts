@@ -61,7 +61,7 @@ import { CustomJobsInteractionService } from './custom-jobs-interaction.service'
       provide: TABLE_FILTERS_SOURCE_INITAL_FILTERS,
       useValue: {
         filters: [],
-        pagination: { page: 0, pageSize: 5 },
+        pagination: { page: 0, pageSize: 25 },
       } as TableFilters,
     },
   ],
