@@ -9,7 +9,7 @@ description: What are secrets and how to use them
 Secrets are encrypted variables that can be given to jobs as parameters. The secrets are decrypted right before being given to the job. They
 can then be used to connect to third-party services.
 
-To create a secret in Stalker, you need to provide a secret name and a value. You can also provide a description to help you remember what
+To create a secret in Red Kite, you need to provide a secret name and a value. You can also provide a description to help you remember what
 the secret is about. A secret can be global or can be assigned to a project. You assign the secret to a project during creation by selecting
 the project in the drop-down menu. A global secret can be used with any project. A project secret with the same name will overwrite a global
 secret.

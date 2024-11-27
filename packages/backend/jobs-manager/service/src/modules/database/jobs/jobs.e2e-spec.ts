@@ -19,7 +19,7 @@ describe('Job Controller (e2e)', () => {
   let jobId: string;
   const domainNameResolvingJob = {
     task: 'DomainNameResolvingJob',
-    jobParameters: [{ name: 'domainName', value: 'stalker.is' }],
+    jobParameters: [{ name: 'domainName', value: 'red-kite.io' }],
   };
 
   beforeAll(async () => {

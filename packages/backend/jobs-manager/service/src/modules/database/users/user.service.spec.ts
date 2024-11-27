@@ -52,7 +52,7 @@ describe('Users Service', () => {
     it('Should create the first user', async () => {
       // Arrange
       const u: CreateFirstUserDto = {
-        email: `${getName(prefix)}@stalker.is`,
+        email: `${getName(prefix)}@red-kite.io`,
         firstName: getName(prefix),
         lastName: getName(prefix),
         password: getName(prefix),
@@ -69,7 +69,7 @@ describe('Users Service', () => {
     it('Should create the first user with proper values', async () => {
       // Arrange
       const u: CreateFirstUserDto = {
-        email: `${getName(prefix)}@stalker.is`,
+        email: `${getName(prefix)}@red-kite.io`,
         firstName: getName(prefix),
         lastName: getName(prefix),
         password: getName(prefix),
@@ -91,7 +91,7 @@ describe('Users Service', () => {
       // Arrange
       expect.assertions(1);
       const u: CreateFirstUserDto = {
-        email: `${getName(prefix)}@stalker.is`,
+        email: `${getName(prefix)}@red-kite.io`,
         firstName: getName(prefix),
         lastName: getName(prefix),
         password: getName(prefix),
@@ -110,7 +110,7 @@ describe('Users Service', () => {
 
     it('Should create a user', async () => {
       // Arrange
-      const email = `${getName(prefix)}@stalker.is`;
+      const email = `${getName(prefix)}@red-kite.io`;
 
       // Act
       const u1 = await user({ role: Role.Admin, email: email });
@@ -189,7 +189,7 @@ describe('Users Service', () => {
   describe('Edit users', () => {
     it('Should edit a user', async () => {
       // Arrange
-      const newEmail = `${getName(prefix)}@stalker.is}`;
+      const newEmail = `${getName(prefix)}@red-kite.io}`;
       const u1 = await user();
 
       // Act
@@ -415,7 +415,7 @@ describe('Users Service', () => {
    * @returns
    */
   async function user(u: Partial<User> = {}): Promise<UserDocument> {
-    if (!u.email) u.email = `${getName(prefix)}@stalker.is`;
+    if (!u.email) u.email = `${getName(prefix)}@red-kite.io`;
     if (!u.role) u.role = Role.Admin;
     if (!u.firstName) u.firstName = getName(prefix);
     if (!u.lastName) u.lastName = getName(prefix);

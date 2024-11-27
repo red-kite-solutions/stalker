@@ -36,12 +36,12 @@ describe('Finding utils', () => {
     // Act
     const correlationKey = CorrelationKeyUtils.domainCorrelationKey(
       '507f1f77bcf86cd799439011',
-      'www.stalker.is',
+      'www.red-kite.io',
     );
 
     // Assert
     expect(correlationKey).toBe(
-      `project:507f1f77bcf86cd799439011;domain:www.stalker.is`,
+      `project:507f1f77bcf86cd799439011;domain:www.red-kite.io`,
     );
   });
 
@@ -145,7 +145,7 @@ describe('Finding utils', () => {
       // Arrange
       const correlationKey = CorrelationKeyUtils.domainCorrelationKey(
         '507f1f77bcf86cd799439011',
-        'www.stalker.is',
+        'www.red-kite.io',
       );
 
       // Act
@@ -244,12 +244,12 @@ describe('Finding utils', () => {
       // Act
       const correlationKey = CorrelationKeyUtils.generateCorrelationKey(
         '507f1f77bcf86cd799439011',
-        'www.stalker.is',
+        'www.red-kite.io',
       );
 
       // Assert
       expect(correlationKey).toBe(
-        `project:507f1f77bcf86cd799439011;domain:www.stalker.is`,
+        `project:507f1f77bcf86cd799439011;domain:www.red-kite.io`,
       );
     });
 

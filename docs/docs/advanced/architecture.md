@@ -1,14 +1,14 @@
 ---
 sidebar_position: 1
 title: Network Architecture
-description: An overview of Stalker's network architecture
+description: An overview of Red Kite's network architecture
 ---
 
 # Network Architecture
 
-The Stalker application is deployed in a Kubernetes cluster on a one instance per cluster basis.
+The Red Kite application is deployed in a Kubernetes cluster on a one instance per cluster basis.
 [Kubernetes network policies](https://kubernetes.io/docs/concepts/services-networking/network-policies/) are used to segment the different
-pods. The Stalker jobs, which are [Kubernetes Jobs](https://kubernetes.io/docs/concepts/workloads/controllers/job/), are run in their own
+pods. The Red Kite jobs, which are [Kubernetes Jobs](https://kubernetes.io/docs/concepts/workloads/controllers/job/), are run in their own
 namespace called `stalker-jobs` to isolate them.
 
 > A **default deny all** network policy is in place for the `stalker`, `stalker-jobs` and `default` namespaces. Any pod in these namespaces
@@ -18,7 +18,7 @@ namespace called `stalker-jobs` to isolate them.
 
 Microsegmentation is implemented throughout the cluster in the production environment following this graph:
 
-![Production Stalker Network Architecture](/img/prod_network_architecture.png)
+![Production Red Kite Network Architecture](/img/prod_network_architecture.png)
 
 The following table goes over the main aspects of the graph :
 
@@ -32,13 +32,13 @@ The following table goes over the main aspects of the graph :
 | Orchestrator      | 80               | 53 (DNS), 443 (K8s API), 9092 (Kafka)                                                          |
 | Jobs              | Deny All         | 80 (Orchestrator), 0.0.0.0/0 except 169.254.169.254, 172.16.0.0/12, 192.168.0.0/16, 10.0.0.0/8 |
 
-> You can access your local production Stalker instance through https://127.0.0.1:8443/
+> You can access your local production Red Kite instance through https://127.0.0.1:8443/
 
 ## Development
 
 Microsegmentation is implemented throughout the cluster in the dev environment following this graph:
 
-![Development Stalker Network Architecture](/img/stalker_dev_arch.drawio.png)
+![Development v Network Architecture](/img/red_kite_dev_arch.drawio.png)
 
 The following table goes over the main aspects of the graph :
 
