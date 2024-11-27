@@ -26,11 +26,9 @@
 
   <mat-card-content>
     <app-filtered-paginated-table
-      (pageChange)="pageChange($event)"
       [isLoading]="(isLoading$ | async) || false"
-      [length]="(customJobs$ | async)?.length || 0"
+      [length]="(customJobs$ | async)?.totalRecords || 0"
       [filterType]="'fulltext'"
-      (filtersChange)="filterChange($event)"
     >
       <app-table-format
         [dataSource]="dataSource$ | async"
@@ -74,14 +72,17 @@
                 >coffee</mat-icon
               >
             }
-            @if (element.builtIn) {
+            @if (element.source) {
               <div class="center-image">
-                <avatar
-                  matTooltip="Stalker"
-                  i18n-matTooltip="Stalker|Stalker, the application's name"
-                  class="tw-block tw-w-8 tw-h-8"
-                  src="assets/red-kite-logo-only-color-circle.png"
-                ></avatar>
+                <a (click)="$event.stopPropagation()" [href]="element.source.repoUrl">
+                  <avatar
+                    [matTooltip]="element.source.repoUrl"
+                    [matTooltipShowDelay]="500"
+                    i18n-matTooltip="Stalker|Stalker, the application's name"
+                    class="tw-block tw-w-8 tw-h-8"
+                    [src]="element.source.avatarUrl"
+                  ></avatar>
+                </a>
               </div>
             }
           </td>

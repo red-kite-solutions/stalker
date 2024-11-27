@@ -33,6 +33,11 @@ export interface SubscriptionData {
     parameters?: JobParameter[] | undefined | null;
   };
   conditions?: Array<Condition | AndCondition | OrCondition> | undefined | null;
+  source?: {
+    type: 'git';
+    url: string;
+    avatarUrl: string;
+  };
 }
 
 export interface AndCondition {

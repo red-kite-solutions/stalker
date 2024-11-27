@@ -12,8 +12,7 @@ They are used to expand Red Kite's automation workflow.
 A subscription can belong to a project, in which case, they will only take effect on the mentionned project. If a project is not specified
 for a subscription, it will take effect on all the projects.
 
-Some subscriptions come built-in Red Kite. These subscriptions are marked as such, but they can still be modified by the users. When a
-built-in subscription is altered, it can be reverted back to its original state. Built-in subscriptions can even be deleted, but be sure to
+Some subscriptions come built-in Red Kite. These subscriptions are marked as such, but they can still be modified by the users. Built-in subscriptions can even be deleted, but be sure to
 know what you are doing.
 
 A susbcription, cron or event, will not trigger on a blocked resource.

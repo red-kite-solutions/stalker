@@ -6,6 +6,7 @@ import {
 } from '../jobs/models/custom-job.model';
 
 export interface CustomJobMetadata {
+  version: 2;
   name: string;
   code: string;
   type: CustomJobType;
@@ -16,7 +17,5 @@ export interface CustomJobMetadata {
   findingHandler?: string;
   findingHandlerLanguage?: CustomJobFindingHandlerLanguage;
   builtIn?: boolean;
-  codeFilePath: string;
-  handlerFilePath?: string;
-  templateOrdering?: string;
+  category?: string;
 }

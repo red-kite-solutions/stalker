@@ -249,6 +249,8 @@ deployments:
                 value: ${JM_EMAIL_RECIPIENTS_FILTER_LIST}
               - name: RK_APP_BASE_URL
                 value: ${RK_APP_BASE_URL}
+              - name: DATA_SOURCES
+                value: ${RK_DATA_SOURCES}
 
             volumeMounts:
               - containerPath: /certs

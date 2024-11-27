@@ -15,10 +15,7 @@ import {
 } from '../../../../test/e2e.utils';
 import { AppModule } from '../../../app.module';
 import { Role } from '../../../auth/constants';
-import {
-  CronSubscription,
-  CronSubscriptionsDocument,
-} from './cron-subscriptions.model';
+import { CronSubscription } from './cron-subscriptions.model';
 
 describe('Cron Subscriptions Controller (e2e)', () => {
   let app: INestApplication;
@@ -122,55 +119,6 @@ describe('Cron Subscriptions Controller (e2e)', () => {
     expect(foundSubscription).toBe(true);
   });
 
-  it('Should revert a built-in cron subscription (PATCH /cron-subscriptions/{id})', async () => {
-    // Arrange
-    let r = await getReq(app, testData.user.token, '/cron-subscriptions');
-    let builtInSub: CronSubscriptionsDocument;
-    for (const sub of r.body) {
-      if (sub.builtIn) {
-        builtInSub = sub;
-        break;
-      }
-    }
-
-    const changedName = 'My changed name';
-    r = await patchReq(
-      app,
-      testData.user.token,
-      `/cron-subscriptions/${builtInSub._id}`,
-      {
-        ...builtInSub,
-        _id: null,
-        builtIn: null,
-        name: changedName,
-        revert: true,
-      },
-    );
-
-    // Act
-    r = await patchReq(
-      app,
-      testData.user.token,
-      `/cron-subscriptions/${builtInSub._id}`,
-      { revert: true },
-    );
-
-    // Assert
-    expect(r.statusCode).toBe(HttpStatus.OK);
-
-    r = await getReq(app, testData.user.token, '/cron-subscriptions');
-    expect(r.statusCode).toBe(HttpStatus.OK);
-
-    let foundSubscription = false;
-    for (const sub of r.body) {
-      if (sub._id === builtInSub._id) {
-        foundSubscription = true;
-        expect(sub.name).not.toBe(changedName);
-      }
-    }
-    expect(foundSubscription).toBe(true);
-  });
-
   it('Should delete a subscription by id (DELETE /cron-subscriptions/{id})', async () => {
     // arrange & act
     const r = await deleteReq(
@@ -249,7 +197,6 @@ describe('Cron Subscriptions Controller (e2e)', () => {
           givenToken,
           `/cron-subscriptions/${subscriptionId}`,
           {
-            revert: true,
             isEnabled: false,
           },
         );

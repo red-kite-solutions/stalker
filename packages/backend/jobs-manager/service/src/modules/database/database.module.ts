@@ -10,6 +10,7 @@ import { ProjectModule } from './reporting/project.module';
 import { SecretsModule } from './secrets/secrets.module';
 import { CronSubscriptionsModule } from './subscriptions/cron-subscriptions/cron-subscriptions.module';
 import { EventSubscriptionsModule } from './subscriptions/event-subscriptions/event-subscriptions.module';
+import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { TagsModule } from './tags/tag.module';
 
 const mongooseModuleOptions: MongooseModuleOptions =
@@ -47,6 +48,7 @@ const mongooseModuleOptions: MongooseModuleOptions =
     TagsModule,
     EventSubscriptionsModule,
     CronSubscriptionsModule,
+    SubscriptionsModule,
     CustomJobsModule,
     SecretsModule,
     AlarmModule,

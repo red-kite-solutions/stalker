@@ -5,11 +5,10 @@ import {
   ContentChild,
   ContentChildren,
   ElementRef,
-  EventEmitter,
+  Inject,
   Input,
   OnDestroy,
   OnInit,
-  Output,
   QueryList,
   ViewChild,
 } from '@angular/core';
@@ -44,11 +43,9 @@ import { RouterModule } from '@angular/router';
 import * as moment from 'moment';
 import { Moment } from 'moment';
 import { NgxFileDropModule } from 'ngx-file-drop';
-import { Observable, debounceTime, filter, map, startWith } from 'rxjs';
-import { AvatarComponent } from '../../components/avatar/avatar.component';
+import { Observable, debounceTime, distinctUntilChanged, filter, map, startWith } from 'rxjs';
 import { IdentifiedElement } from '../../types/identified-element.type';
-import { CodeEditorComponent } from '../code-editor/code-editor.component';
-import { TableFormatComponent } from './table-format/table-format.component';
+import { TableFiltersSourceBase } from './table-filters-source';
 
 export interface ElementMenuItems {
   label: string;
@@ -64,7 +61,6 @@ export interface ElementMenuItems {
   styleUrls: ['./filtered-paginated-table.component.scss'],
   imports: [
     CommonModule,
-    AvatarComponent,
     MatDividerModule,
     MatToolbarModule,
     MatIconModule,
@@ -84,13 +80,11 @@ export interface ElementMenuItems {
     MatChipsModule,
     MatAutocompleteModule,
     ReactiveFormsModule,
-    CodeEditorComponent,
     MatOptionModule,
     MatSelectModule,
     FormsModule,
     MatDatepickerModule,
     MatTooltipModule,
-    TableFormatComponent,
   ],
 })
 export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implements OnInit, OnDestroy {
@@ -118,13 +112,9 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
   @Input() datePickerLabel =
     $localize`:Default date picker|Date picker label, the first time an item was seen:First seen`;
 
-  @Output() pageChange = new EventEmitter<PageEvent>();
-  @Output() filtersChange = new EventEmitter<string[]>();
-  @Output() dateFiltersChange = new EventEmitter<DateRange<Date>>();
-
-  @Input() currentPage = 0;
-  @Input() pageSizeOptions: number[] = [25, 50, 100];
-  @Input() pageSize = 0;
+  currentPage = 0;
+  pageSizeOptions: number[] = [25, 50, 100];
+  pageSize = 0;
   dateRange = new FormGroup({
     start: new FormControl<Moment | null>(null),
     end: new FormControl<Moment | null>(null),
@@ -137,31 +127,53 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
   }
 
   @Input() filterEnabled: boolean = true;
-  @Input() filters: string[] = [];
+  filters: string[] = [];
+  fullTextSearchValue = '';
   separatorKeysCodes: number[] = [TAB, ENTER];
   filterForm = new UntypedFormControl('');
-  filteredColumns$: Observable<string[] | null | undefined>;
+  filteredFilterOptions$: Observable<string[] | null | undefined>;
   masterToggleState = false;
 
   dateRangeChange$ = this.dateRange.valueChanges
     .pipe(
       debounceTime(100),
-      filter(() => {
-        return this.dateRange.valid;
-      })
+      filter(() => this.dateRange.valid),
+      distinctUntilChanged(
+        (a, b) => a.start?.toISOString() === b.start?.toISOString() && a.end?.toISOString() === b.end?.toISOString()
+      )
     )
-    .subscribe((dr) => {
+    .subscribe(async (dr) => {
       let endDate = dr.end?.toDate();
-      let endDateIncludingSelectedDay: Date | null = null;
+      let endDateInclusive: Date | null = null;
       if (endDate) {
-        endDateIncludingSelectedDay = new Date(endDate.getTime() + 1000 * 60 * 60 * 24 - 1); // 23:59:59:999
+        endDateInclusive = new Date(endDate.getTime() + 1000 * 60 * 60 * 24 - 1); // 23:59:59:999
       }
-      this.dateFiltersChange.emit(new DateRange<Date>(dr.start?.toDate() ?? null, endDateIncludingSelectedDay ?? null));
+      const dateRange = new DateRange<Date>(dr.start?.toDate() ?? null, endDateInclusive ?? null);
+      await this.filterSource.setDates(dateRange);
       this.resetPaging();
     });
 
-  constructor() {
-    this.filteredColumns$ = this.filterForm.valueChanges.pipe(
+  private filterSourceSub = this.filterSource.filters$.subscribe(({ filters, dateRange, pagination }) => {
+    this.filters = filters;
+    this.fullTextSearchValue = filters.join(' ');
+    this.filterForm.setValue(this.fullTextSearchValue);
+
+    this.dateRange.setValue({
+      start: dateRange?.start ? moment(dateRange.start) : null,
+      end: dateRange?.end ? moment(dateRange.end).add(-(1000 * 60 * 60 * 24 - 1), 'millisecond') : null,
+    });
+
+    if (pagination?.page != null) {
+      this.currentPage = pagination.page;
+    }
+
+    if (pagination?.pageSize != null) {
+      this.pageSize = pagination.pageSize;
+    }
+  });
+
+  constructor(@Inject(TableFiltersSourceBase) private filterSource: TableFiltersSourceBase<unknown>) {
+    this.filteredFilterOptions$ = this.filterForm.valueChanges.pipe(
       startWith(null),
       map((column: string) => this.autocompleteFilter(column))
     );
@@ -184,53 +196,55 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
     });
   }
 
-  pageChanged(event: PageEvent) {
+  async pageChanged(event: PageEvent) {
     this.pageSize = event.pageSize;
     this.currentPage = event.pageIndex;
     this.filterDiv.nativeElement.scrollIntoView({ behavior: 'instant', block: 'start' });
-    this.pageChange.emit(event);
+    await this.filterSource.setPagination(event.pageIndex, event.pageSize);
   }
 
-  resetPaging(): void {
+  async resetPaging() {
     this.currentPage = 0;
-    this.pageChange.emit({ length: this.length ?? 0, pageIndex: 0, pageSize: this.pageSize, previousPageIndex: 0 });
+    await this.filterSource.setPagination(0, this.pageSize);
   }
 
   ngOnInit(): void {
     if (!this.pageSize)
-      this.pageSize = this.pageSizeOptions && this.pageSizeOptions.length > 0 ? this.pageSizeOptions[0] : 10;
+      this.pageSize = this.pageSizeOptions && this.pageSizeOptions.length > 0 ? this.pageSizeOptions[0] : 25;
   }
 
-  ngOnDestroy(): void {}
+  ngOnDestroy(): void {
+    this.filterSourceSub.unsubscribe();
+  }
 
-  removeFilter(filter: string) {
+  async removeFilter(filter: string) {
     const index = this.filters.indexOf(filter);
-    if (index >= 0) {
-      this.filters.splice(index, 1);
-      this.filtersChange.emit(this.filters);
-      this.resetPaging();
-    }
+    if (index === -1) return;
+
+    this.filters.splice(index, 1);
+    await this.filterSource.setFilters(this.filters.map((x) => x));
+    this.resetPaging();
   }
 
-  addFilter(event: MatChipInputEvent) {
+  async addFilter(event: MatChipInputEvent) {
     const option = this.autocomplete.options.find((x) => x.active);
     let value = option ? option.viewValue.trim() : event.value;
     if (event.value.length > 0 && event.value[0] === '-' && value[0] !== '-') value = '-' + value;
 
-    this.addComplexFilter(value);
+    await this.addComplexFilter(value);
   }
 
   selected(event: MatAutocompleteSelectedEvent): void {
     this.addComplexFilter(event.option.viewValue);
   }
 
-  private addComplexFilter(value: string) {
+  private async addComplexFilter(value: string) {
     if (value?.includes(':')) {
       // filter is ready
       // More filter options could be treated here
       // if regex are ever supported
       this.filters.push(value);
-      this.filtersChange.emit(this.filters);
+      await this.filterSource.setFilters(this.filters.map((x) => x));
       this.resetPaging();
 
       this.filterInput.nativeElement.value = '';
@@ -261,8 +275,9 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
     this.refocusMatChipInput();
   }
 
-  fulltextSearchChange(value: string[]) {
-    this.filtersChange.next(value);
+  async fulltextSearchChange(value: string[]) {
+    this.filters = value;
+    await this.filterSource.setFilters(this.filters.map((x) => x));
     this.resetPaging();
   }
 
@@ -274,5 +289,6 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
 
   clearDates() {
     this.dateRange.reset();
+    this.filterSource.setDates(undefined);
   }
 }

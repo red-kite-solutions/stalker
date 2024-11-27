@@ -112,9 +112,9 @@ export class CustomJobsInteractionService {
         return this.templateService.getAllSummaries().pipe(
           map((templateSummaries: CustomJobTemplateSummary[]) => {
             const sortedTemplates = templateSummaries.sort((a, b) => {
-              const aOrdering = a.templateOrdering ? a.templateOrdering.toLowerCase() : '/';
-              const bOrdering = b.templateOrdering ? b.templateOrdering.toLowerCase() : '/';
-              return aOrdering.localeCompare(bOrdering);
+              const aCategory = a.category ? a.category.toLowerCase() : '/';
+              const bCategory = b.category ? b.category.toLowerCase() : '/';
+              return aCategory.localeCompare(bCategory);
             });
             const optionsTree: PickerOption[] = [];
 
@@ -126,7 +126,7 @@ export class CustomJobsInteractionService {
               depth: number = 0
             ) => {
               while (i < sortedTemplates.length) {
-                let folders = sortedTemplates[i].templateOrdering?.split('/') ?? [''];
+                let folders = sortedTemplates[i].category?.split('/') ?? [''];
                 folders = folders.filter((s, j) => j === 0 || s.length);
 
                 let arr: string[] = [];
