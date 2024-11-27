@@ -1,7 +1,10 @@
 import { Logger } from '@nestjs/common';
-import { existsSync, readFileSync } from 'node:fs';
+import * as realFs from 'fs';
+import { FsPromisesApi as MemfsFsPromisesApi } from 'memfs/lib/node/types';
 import { basename } from 'node:path';
+import * as path from 'path';
 import { parse } from 'yaml';
+import { DataSource } from '../../datasources/data-sources';
 import {
   executeDsl,
   prepareContext,
@@ -19,7 +22,19 @@ import {
   JobParameter,
   OrJobCondition,
 } from './event-subscriptions/event-subscriptions.model';
-import { Subscription } from './subscriptions.type';
+import { Subscription, SubscriptionWithType } from './subscriptions.type';
+
+type FsPromisesApi = MemfsFsPromisesApi | typeof realFs.promises;
+
+async function exists(fs: FsPromisesApi, path: string) {
+  try {
+    await fs.access(path);
+    return true;
+  } catch (e) {
+    console.log(e);
+    return false;
+  }
+}
 
 export class SubscriptionsUtils {
   public static readonly conditionOperators = [
@@ -365,37 +380,105 @@ export class SubscriptionsUtils {
 
   /**
    * Validates that the path + file name exists and is valid
-   * @param path a folder path ending with a '/'
+   * @param directory a folder path ending with a '/'
    * @param fileName must be `basename(fileName)` to make sure that it is a proper file name without path
    * @returns
    */
-  private static validateSubscriptionFileFullPath(
-    path: string,
+  private static async validateSubscriptionFileFullPath(
+    directory: string,
     fileName: string,
-  ): boolean {
+    fs: FsPromisesApi,
+  ): Promise<boolean> {
     const fileSplit = fileName.split('.');
     if (fileSplit.length <= 1) return false;
 
     const ext = fileSplit[fileSplit.length - 1].toLowerCase();
     if (ext !== 'yml' && ext !== 'yaml') return false;
 
-    if (!existsSync(path + fileName)) return false;
+    if (!exists(fs, path.join(directory, fileName))) return false;
 
     return true;
   }
 
-  public static readEventSubscriptionFile(
-    path: string,
+  public static async readSubscriptionFile(
+    directory: string,
     fileName: string,
-  ): EventSubscription | null {
+    dataSource: DataSource,
+  ): Promise<SubscriptionWithType | null> {
+    const fs = dataSource?.fs ?? realFs.promises;
+
     const baseName = basename(fileName);
-    if (!SubscriptionsUtils.validateSubscriptionFileFullPath(path, baseName))
+    const isFileNameValid =
+      await SubscriptionsUtils.validateSubscriptionFileFullPath(
+        directory,
+        baseName,
+        fs,
+      );
+    if (!isFileNameValid) {
+      return null;
+    }
+
+    const fileContent = (
+      await fs.readFile(path.join(directory, baseName))
+    ).toString();
+    const yaml = parse(fileContent);
+
+    const source = {
+      type: dataSource.type,
+      avatarUrl: dataSource.avatarUrl,
+      url: dataSource.repoUrl,
+      branch: dataSource.branch,
+    };
+
+    switch (yaml.triggerType) {
+      case 'cron':
+        const cron = await SubscriptionsUtils.readCronSubscriptionFile(
+          directory,
+          fileName,
+          fs,
+        );
+        return cron != null ? { ...cron, triggerType: 'cron', source } : null;
+
+      case 'event':
+        const event = await SubscriptionsUtils.readEventSubscriptionFile(
+          directory,
+          fileName,
+          fs,
+        );
+        return event != null
+          ? { ...event, triggerType: 'event', source }
+          : null;
+
+      default:
+        throw new Error(
+          `Unknown subscription trigger type ${yaml.triggerType}`,
+        );
+    }
+  }
+
+  public static async readEventSubscriptionFile(
+    directory: string,
+    fileName: string,
+    fs?: FsPromisesApi,
+  ): Promise<EventSubscription | null> {
+    fs ??= realFs.promises;
+
+    const baseName = basename(fileName);
+    if (
+      !(await SubscriptionsUtils.validateSubscriptionFileFullPath(
+        directory,
+        baseName,
+        fs,
+      ))
+    )
       return null;
 
-    const file_content = readFileSync(path + baseName).toString();
+    const fileContent = (
+      await fs.readFile(path.join(directory, baseName))
+    ).toString();
     let sub: EventSubscription | null = null;
     try {
-      sub = SubscriptionsUtils.parseEventSubscriptionYaml(file_content);
+      sub = SubscriptionsUtils.parseEventSubscriptionYaml(fileContent);
       sub.file = baseName;
     } catch (err) {
       console.log(err);
@@ -403,15 +486,26 @@ export class SubscriptionsUtils {
     return sub;
   }
 
-  public static readCronSubscriptionFile(
-    path: string,
+  public static async readCronSubscriptionFile(
+    directory: string,
     fileName: string,
-  ): CronSubscription | null {
+    fs?: FsPromisesApi,
+  ): Promise<CronSubscription | null> {
+    fs ??= realFs.promises;
+
     const baseName = basename(fileName);
-    if (!SubscriptionsUtils.validateSubscriptionFileFullPath(path, baseName))
+    if (
+      !(await SubscriptionsUtils.validateSubscriptionFileFullPath(
+        directory,
+        baseName,
+        fs,
+      ))
+    )
       return null;
 
-    const file_content = readFileSync(path + baseName).toString();
+    const file_content = (
+      await fs.readFile(path.join(directory, baseName))
+    ).toString();
     let sub: CronSubscription | null = null;
     try {
       sub = SubscriptionsUtils.parseCronSubscriptionYaml(file_content);

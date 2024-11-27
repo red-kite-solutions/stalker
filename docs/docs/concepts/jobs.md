@@ -16,7 +16,7 @@ A job can generate multiple findings of one or many finding types.
 
 ## Built-in jobs
 
-The built-in jobs come with a fresh Stalker installation. They can be fully modified and also reverted to their original value. They go
+The built-in jobs come with a fresh Stalker installation. They can be fully modified. They go
 hand-in-hand with the built-in subscriptions. Keep in mind that altering a built-in job's name may break a built-in subscription. That
 subscription would need to be adapted to the new name.
 

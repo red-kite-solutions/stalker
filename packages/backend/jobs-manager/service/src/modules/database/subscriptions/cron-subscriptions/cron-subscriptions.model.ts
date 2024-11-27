@@ -23,6 +23,13 @@ export const inputSources = [
 
 export type InputSource = (typeof inputSources)[number];
 
+export class CronSubscriptionSource {
+  type: 'git';
+  url: string;
+  avatarUrl: string;
+  branch: string;
+}
+
 @Schema()
 export class CronSubscription {
   @Prop()
@@ -55,6 +62,9 @@ export class CronSubscription {
 
   @Prop()
   public file?: string;
+
+  @Prop()
+  public source?: CronSubscriptionSource;
 }
 
 export const CronSubscriptionsSchema =
