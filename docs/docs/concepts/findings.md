@@ -42,7 +42,7 @@ Example:
 {
   "type": "HostnameFinding",
   "key": "HostnameFinding",
-  "domainName": "stalker.is"
+  "domainName": "red-kite.io"
 }
 ```
 
@@ -142,7 +142,7 @@ Example:
 {
   "type": "HostnameIpFinding",
   "key": "HostnameIpFinding",
-  "domainName": "stalker.is",
+  "domainName": "red-kite.io",
   "ip": "0.0.0.0"
 }
 ```
@@ -291,7 +291,7 @@ Examples:
 ```json
 {
   "type": "CustomFinding",
-  "domainName": "stalker.is",
+  "domainName": "red-kite.io",
   "fields": [
     {
       "type": "text",

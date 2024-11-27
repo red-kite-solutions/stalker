@@ -10,8 +10,8 @@ export class CronApiTokenGuard implements CanActivate {
 
     return (
       headers &&
-      headers['x-stalker-cron'] &&
-      headers['x-stalker-cron'] === process.env.RK_CRON_API_TOKEN
+      headers['x-red-kite-cron'] &&
+      headers['x-red-kite-cron'] === process.env.RK_CRON_API_TOKEN
     );
   }
 }

@@ -18,7 +18,7 @@ export const userInitProvider = [
       // In other environments, the user has to be set at startup
       try {
         await userModel.create({
-          email: 'admin@stalker.is',
+          email: 'admin@red-kite.io',
           firstName: 'stalker',
           lastName: 'admin',
           password:

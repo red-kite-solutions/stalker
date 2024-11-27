@@ -25,23 +25,23 @@ export interface TestingData {
 }
 
 const user: Partial<UserTestingData> = {
-  email: 'user@stalker.is',
-  password: 'user@stalker.is',
+  email: 'user@red-kite.io',
+  password: 'user@red-kite.io',
   role: Role.User,
   firstName: 'firstUser',
   lastName: 'lastUser',
 };
 
 const readonly: Partial<UserTestingData> = {
-  email: 'readonly@stalker.is',
-  password: 'readonly@stalker.is',
+  email: 'readonly@red-kite.io',
+  password: 'readonly@red-kite.io',
   role: Role.ReadOnly,
   firstName: 'firstReadonly',
   lastName: 'lastReadonly',
 };
 
 export const admin: Partial<UserTestingData> = {
-  email: 'admin@stalker.is',
+  email: 'admin@red-kite.io',
   password: 'admin',
   role: Role.Admin,
   firstName: 'stalker',
@@ -366,7 +366,7 @@ export async function checkAuthorizationsCronApiKey(
   r = await call('', undefined, undefined);
   if (r.statusCode !== HttpStatus.FORBIDDEN) return false;
 
-  const cronHeaderName = 'x-stalker-cron';
+  const cronHeaderName = 'x-red-kite-cron';
   const headers = [{ header: 'Content-Type', value: 'application/json' }];
   r = await call(
     null,

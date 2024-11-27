@@ -80,7 +80,7 @@ Then, generate secrets
 bash ./setup_secrets_dev.sh
 ```
 
-### 3. Run stalker
+### 3. Run Red Kite
 
 From the repository root, run
 
@@ -99,7 +99,7 @@ If you launched Red Kite with the default configuration, Red Kite will prompt yo
 If you have launched Red Kite with the `JM_ENVIRONMENT` variable set to `dev`, then you can use the following credentials:
 
 ```text
-Username: admin@stalker.is
+Username: admin@red-kite.io
 Password: admin
 ```
 

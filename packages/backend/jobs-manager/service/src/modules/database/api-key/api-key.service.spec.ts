@@ -38,7 +38,7 @@ describe('Api Key Service', () => {
 
   it('Should create an API key for a user and return its value', async () => {
     // Arrange
-    const u1 = await user('admin@stalker.is', Role.Admin);
+    const u1 = await user('admin@red-kite.io', Role.Admin);
 
     // Act
     const k1 = await apiKey(u1._id.toString(), Role.Admin);
@@ -50,7 +50,7 @@ describe('Api Key Service', () => {
   describe('Get API keys', () => {
     it('Should get an API key without its value', async () => {
       // Arrange
-      const u1 = await user('admin@stalker.is', Role.Admin);
+      const u1 = await user('admin@red-kite.io', Role.Admin);
       const k1 = await apiKey(u1._id.toString(), Role.Admin);
 
       // Act
@@ -63,8 +63,8 @@ describe('Api Key Service', () => {
 
     it('Should get an API key for user', async () => {
       // Arrange
-      const u1 = await user('admin@stalker.is', Role.Admin);
-      const u2 = await user('qwerty@stalker.is', Role.Admin);
+      const u1 = await user('admin@red-kite.io', Role.Admin);
+      const u2 = await user('qwerty@red-kite.io', Role.Admin);
       const k1 = await apiKey(u1._id.toString(), Role.Admin);
       const k2 = await apiKey(u2._id.toString(), Role.Admin);
 
@@ -81,8 +81,8 @@ describe('Api Key Service', () => {
 
     it('Should not get an API key for wrong user', async () => {
       // Arrange
-      const u1 = await user('admin@stalker.is', Role.Admin);
-      const u2 = await user('qwerty@stalker.is', Role.Admin);
+      const u1 = await user('admin@red-kite.io', Role.Admin);
+      const u2 = await user('qwerty@red-kite.io', Role.Admin);
       const k1 = await apiKey(u1._id.toString(), Role.Admin);
       const k2 = await apiKey(u2._id.toString(), Role.Admin);
 
@@ -98,8 +98,8 @@ describe('Api Key Service', () => {
 
     it('Should get all API keys', async () => {
       // Arrange
-      const u1 = await user('admin@stalker.is', Role.Admin);
-      const u2 = await user('qwerty@stalker.is', Role.Admin);
+      const u1 = await user('admin@red-kite.io', Role.Admin);
+      const u2 = await user('qwerty@red-kite.io', Role.Admin);
       const k1 = await apiKey(u1._id.toString(), Role.Admin);
       const k2 = await apiKey(u1._id.toString(), Role.Admin);
       const k3 = await apiKey(u2._id.toString(), Role.Admin);
@@ -113,8 +113,8 @@ describe('Api Key Service', () => {
 
     it('Should get all API keys (paging)', async () => {
       // Arrange
-      const u1 = await user('admin@stalker.is', Role.Admin);
-      const u2 = await user('qwerty@stalker.is', Role.Admin);
+      const u1 = await user('admin@red-kite.io', Role.Admin);
+      const u2 = await user('qwerty@red-kite.io', Role.Admin);
       const k1 = await apiKey(u1._id.toString(), Role.Admin);
       const k2 = await apiKey(u1._id.toString(), Role.Admin);
       const k3 = await apiKey(u2._id.toString(), Role.Admin);
@@ -128,8 +128,8 @@ describe('Api Key Service', () => {
 
     it('Should get all API keys for user', async () => {
       // Arrange
-      const u1 = await user('admin@stalker.is', Role.Admin);
-      const u2 = await user('qwerty@stalker.is', Role.Admin);
+      const u1 = await user('admin@red-kite.io', Role.Admin);
+      const u2 = await user('qwerty@red-kite.io', Role.Admin);
       const k1 = await apiKey(u1._id.toString(), Role.Admin);
       const k2 = await apiKey(u1._id.toString(), Role.Admin);
       const k3 = await apiKey(u2._id.toString(), Role.Admin);
@@ -147,8 +147,8 @@ describe('Api Key Service', () => {
   describe('API keys validation', () => {
     it('Should find a valid API key', async () => {
       // Arrange
-      const u1 = await user('admin@stalker.is', Role.Admin);
-      const u2 = await user('qwerty@stalker.is', Role.Admin);
+      const u1 = await user('admin@red-kite.io', Role.Admin);
+      const u2 = await user('qwerty@red-kite.io', Role.Admin);
       const k1 = await apiKey(u1._id.toString(), Role.Admin);
       const k2 = await apiKey(u1._id.toString(), Role.Admin);
       const k3 = await apiKey(u2._id.toString(), Role.Admin);
@@ -164,8 +164,8 @@ describe('Api Key Service', () => {
 
     it('Should not find an invalid API key', async () => {
       // Arrange
-      const u1 = await user('admin@stalker.is', Role.Admin);
-      const u2 = await user('qwerty@stalker.is', Role.Admin);
+      const u1 = await user('admin@red-kite.io', Role.Admin);
+      const u2 = await user('qwerty@red-kite.io', Role.Admin);
       const k1 = await apiKey(u1._id.toString(), Role.Admin);
       const k2 = await apiKey(u1._id.toString(), Role.Admin);
       const k3 = await apiKey(u2._id.toString(), Role.Admin);
@@ -179,8 +179,8 @@ describe('Api Key Service', () => {
 
     it('Should not find a valid API key for a deactivated user (admin)', async () => {
       // Arrange
-      const u1 = await user('admin@stalker.is', Role.Admin);
-      const u2 = await user('qwerty@stalker.is', Role.Admin);
+      const u1 = await user('admin@red-kite.io', Role.Admin);
+      const u2 = await user('qwerty@red-kite.io', Role.Admin);
       const k1 = await apiKey(u1._id.toString(), Role.Admin);
       const k2 = await apiKey(u1._id.toString(), Role.Admin);
       const k3 = await apiKey(u2._id.toString(), Role.Admin);
@@ -195,8 +195,8 @@ describe('Api Key Service', () => {
 
     it('Should not find a valid API key for a deactivated user (user)', async () => {
       // Arrange
-      const u1 = await user('admin@stalker.is', Role.Admin);
-      const u2 = await user('qwerty@stalker.is', Role.User);
+      const u1 = await user('admin@red-kite.io', Role.Admin);
+      const u2 = await user('qwerty@red-kite.io', Role.User);
       const k1 = await apiKey(u1._id.toString(), Role.Admin);
       const k2 = await apiKey(u1._id.toString(), Role.Admin);
       const k3 = await apiKey(u2._id.toString(), Role.User);
@@ -211,8 +211,8 @@ describe('Api Key Service', () => {
 
     it('Should find a valid API key for a reactivated user (admin)', async () => {
       // Arrange
-      const u1 = await user('admin@stalker.is', Role.Admin);
-      const u2 = await user('qwerty@stalker.is', Role.Admin);
+      const u1 = await user('admin@red-kite.io', Role.Admin);
+      const u2 = await user('qwerty@red-kite.io', Role.Admin);
       const k1 = await apiKey(u1._id.toString(), Role.Admin);
       const k2 = await apiKey(u1._id.toString(), Role.Admin);
       const k3 = await apiKey(u2._id.toString(), Role.Admin);
@@ -230,8 +230,8 @@ describe('Api Key Service', () => {
 
     it('Should find a valid API key for a reactivated user (user)', async () => {
       // Arrange
-      const u1 = await user('admin@stalker.is', Role.Admin);
-      const u2 = await user('qwerty@stalker.is', Role.User);
+      const u1 = await user('admin@red-kite.io', Role.Admin);
+      const u2 = await user('qwerty@red-kite.io', Role.User);
       const k1 = await apiKey(u1._id.toString(), Role.Admin);
       const k2 = await apiKey(u1._id.toString(), Role.Admin);
       const k3 = await apiKey(u2._id.toString(), Role.User);
@@ -249,8 +249,8 @@ describe('Api Key Service', () => {
 
     it('Should not find a valid expired API key', async () => {
       // Arrange
-      const u1 = await user('admin@stalker.is', Role.Admin);
-      const u2 = await user('qwerty@stalker.is', Role.User);
+      const u1 = await user('admin@red-kite.io', Role.Admin);
+      const u2 = await user('qwerty@red-kite.io', Role.User);
       const k1 = await apiKey(u1._id.toString(), Role.Admin);
       const k2 = await apiKey(u1._id.toString(), Role.Admin);
       const k3 = await apiKey(u2._id.toString(), Role.User, Date.now() - 1);
@@ -266,8 +266,8 @@ describe('Api Key Service', () => {
   describe('Delete API keys', () => {
     it('Should delete an API key', async () => {
       // Arrange
-      const u1 = await user('admin@stalker.is', Role.Admin);
-      const u2 = await user('qwerty@stalker.is', Role.User);
+      const u1 = await user('admin@red-kite.io', Role.Admin);
+      const u2 = await user('qwerty@red-kite.io', Role.User);
       const k1 = await apiKey(u1._id.toString(), Role.Admin);
       const k2 = await apiKey(u1._id.toString(), Role.Admin);
       const k3 = await apiKey(u2._id.toString(), Role.User, Date.now() - 1);
@@ -282,8 +282,8 @@ describe('Api Key Service', () => {
 
     it('Should delete an API key for a user', async () => {
       // Arrange
-      const u1 = await user('admin@stalker.is', Role.Admin);
-      const u2 = await user('qwerty@stalker.is', Role.User);
+      const u1 = await user('admin@red-kite.io', Role.Admin);
+      const u2 = await user('qwerty@red-kite.io', Role.User);
       const k1 = await apiKey(u1._id.toString(), Role.Admin);
       const k2 = await apiKey(u1._id.toString(), Role.Admin);
       const k3 = await apiKey(u2._id.toString(), Role.User, Date.now() - 1);
@@ -298,8 +298,8 @@ describe('Api Key Service', () => {
 
     it('Should not delete an API key (wrong user)', async () => {
       // Arrange
-      const u1 = await user('admin@stalker.is', Role.Admin);
-      const u2 = await user('qwerty@stalker.is', Role.User);
+      const u1 = await user('admin@red-kite.io', Role.Admin);
+      const u2 = await user('qwerty@red-kite.io', Role.User);
       const k1 = await apiKey(u1._id.toString(), Role.Admin);
       const k2 = await apiKey(u1._id.toString(), Role.Admin);
       const k3 = await apiKey(u2._id.toString(), Role.User, Date.now() - 1);
@@ -314,8 +314,8 @@ describe('Api Key Service', () => {
 
     it('Should delete all keys for a user', async () => {
       // Arrange
-      const u1 = await user('admin@stalker.is', Role.Admin);
-      const u2 = await user('qwerty@stalker.is', Role.User);
+      const u1 = await user('admin@red-kite.io', Role.Admin);
+      const u2 = await user('qwerty@red-kite.io', Role.User);
       const k1 = await apiKey(u1._id.toString(), Role.Admin);
       const k2 = await apiKey(u1._id.toString(), Role.Admin);
       const k3 = await apiKey(u2._id.toString(), Role.User, Date.now() - 1);
@@ -331,8 +331,8 @@ describe('Api Key Service', () => {
 
     it("Should delete all the user's keys when deleting the user", async () => {
       // Arrange
-      const u1 = await user('admin@stalker.is', Role.Admin);
-      const u2 = await user('qwerty@stalker.is', Role.Admin);
+      const u1 = await user('admin@red-kite.io', Role.Admin);
+      const u2 = await user('qwerty@red-kite.io', Role.Admin);
       const k1 = await apiKey(u1._id.toString(), Role.Admin);
       const k2 = await apiKey(u1._id.toString(), Role.Admin);
       const k3 = await apiKey(u2._id.toString(), Role.Admin, Date.now() - 1);
