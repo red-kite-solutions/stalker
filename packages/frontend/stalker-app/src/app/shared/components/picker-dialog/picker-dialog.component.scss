@@ -44,7 +44,7 @@
 .main-content {
   .grid-container {
     display: grid;
-    grid-template-columns: 1fr 5fr;
+    grid-template-columns: 216px 1fr;
     grid-template-rows: 1fr 9fr;
     width: calc(var(--mat-dialog-container-max-width) - 48px);
     height: calc(65vh - 20px);
@@ -66,15 +66,15 @@
       border-radius: 4px;
       display: block;
       height: 100%;
-      overflow: scroll;
+      overflow: auto;
 
       .grid-options-overflow {
-        overflow-x: scroll;
+        overflow-x: auto;
         width: fit-content;
         display: flex;
         flex-direction: column;
         height: 100%;
-        overflow-y: scroll;
+        overflow-y: auto;
         min-width: 100%;
 
         .search {
@@ -86,13 +86,13 @@
           flex: 1 1 auto;
           width: fit-content;
           min-width: 100%;
-          overflow-y: scroll;
+          overflow-y: auto;
           max-height: 100%;
 
           .grid-options-content {
             width: fit-content;
             min-width: 100%;
-            overflow-y: scroll;
+            overflow-y: auto;
           }
         }
       }

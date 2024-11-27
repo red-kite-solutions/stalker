@@ -115,8 +115,6 @@ export class ListSubscriptionsComponent {
     }
   }
 
-  public revertToDefault() {}
-
   public getSubscriptionQueryParams(row: SubscriptionData) {
     return { type: row.type };
   }

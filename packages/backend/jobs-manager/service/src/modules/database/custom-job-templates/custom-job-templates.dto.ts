@@ -14,6 +14,7 @@ import {
   CustomJobType,
   customJobTypes,
 } from '../jobs/models/custom-job.model';
+import { JobSourceDto } from './job-source.dto';
 
 export class CustomJobTemplateDto {
   @IsString()
@@ -50,5 +51,8 @@ export class CustomJobTemplateDto {
 
   @IsString()
   @IsOptional()
-  public templateOrdering?: string;
+  public category?: string;
+
+  @IsOptional()
+  public source?: JobSourceDto;
 }

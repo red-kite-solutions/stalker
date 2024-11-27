@@ -1,1 +1,0 @@
-This file allows the directory creation in git

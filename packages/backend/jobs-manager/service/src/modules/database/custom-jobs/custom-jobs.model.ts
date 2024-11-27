@@ -4,6 +4,13 @@ import { JobParameterDefinition } from '../../../types/job-parameter-definition.
 
 export type CustomJobsDocument = CustomJobEntry & Document;
 
+export class CustomJobSource {
+  type: 'git';
+  repoUrl: string;
+  avatarUrl: string;
+  branch: string;
+}
+
 @Schema()
 export class CustomJobEntry {
   @Prop({ unique: true, index: true })
@@ -37,7 +44,10 @@ export class CustomJobEntry {
   public findingHandlerLanguage?: string;
 
   @Prop()
-  builtInFilePath?: string;
+  public category?: string;
+
+  @Prop()
+  public source?: CustomJobSource;
 }
 
 export const CustomJobsSchema = SchemaFactory.createForClass(CustomJobEntry);
