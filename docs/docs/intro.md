@@ -40,7 +40,7 @@ If you use a `Ubuntu Server`, you can use the provided initialization script. Si
 curl https://raw.githubusercontent.com/red-kite-solutions/stalker/main/init_ubuntu.sh | bash
 ```
 
-If you ran the script successfully, you can log out and log back in, and then directly go to [start stalker](#5-start-stalker).
+If you ran the script successfully, you can log out and log back in, and then directly go to [Start Red Kite Community](#5-start-red-kite-community).
 
 ### 2. Clone the repository
 
@@ -70,15 +70,15 @@ sudo groupadd docker
 sudo usermod -aG docker $USER
 ```
 
-### 5. Start Red Kite
+### 5. Start Red Kite Community
 
 > When initializing for the first time, Red Kite will prompt you several times for your root CA key's password.
 
 ```bash
-chmod +x ./stalker && ./stalker
+chmod +x ./rk && ./rk
 ```
 
-### 6. Add stalker to your host file
+### 6. Add Red Kite to your host file
 
 Add your `RK_HOSTNAME` to your `/etc/hosts` file.
 
@@ -104,7 +104,7 @@ https://red-kite.lan:8443
 Any time you want to start Red Kite again in the future, simply run the start up script again:
 
 ```bash
-./stalker
+./rk
 ```
 
 > If something went wrong during the install, or you simply want to rerun the setup, you can run Red Kite with the `--force-setup` flag.

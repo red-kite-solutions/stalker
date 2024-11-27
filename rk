@@ -5,21 +5,21 @@ MINIKUBE_RAM=16384
 MINIKUBE_CPU=8
 
 if [[ $* == *--help* || $* == *-h* ]]; then
-  echo 'Stalker setup tool'
+  echo 'Red Kite Community setup tool'
   echo ''
   echo 'Description:'
-  echo 'This tool setups a basic production instance of Stalker, and starts the instance.'
+  echo 'This tool setups a basic production instance of Red Kite Community, and starts the instance.'
   echo ''
   echo 'Usage:'
-  echo './stalker [OPTIONS]'
+  echo './rk [OPTIONS]'
   echo ''
   echo 'Options:'
   echo '  --force-setup, -f   Forces a setup, ignoring the existing setup.'
   echo '  --help, -h          Display this help message.'
   echo ''
   echo 'Example:'
-  echo '  ./stalker                # Setups and starts Stalker.'
-  echo '  ./stalker --force-setup  # Forces a new setup of Stalker.'
+  echo '  ./rk                # Setups and starts Red Kite Community.'
+  echo '  ./rk --force-setup  # Forces a new setup of Red Kite Community.'
   exit
 fi
 

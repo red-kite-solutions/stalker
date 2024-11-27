@@ -14,7 +14,7 @@ public class NucleiCustomJobTemplate : KubernetesJobTemplate
         Id = id;
         Config = config;
         SetNamespace();
-        EnvironmentVariable["StalkerJobId"] = Id;
+        EnvironmentVariable["RedKiteJobId"] = Id;
 
         // Adding parameters as environment variables
         if (!jobParameters.IsNullOrEmpty())

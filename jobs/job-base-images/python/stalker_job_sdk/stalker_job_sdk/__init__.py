@@ -153,7 +153,7 @@ def log_error(message: str):
     
 
 def _log(prefix: str, message: str):
-    jobId = getenv('StalkerJobId')
+    jobId = getenv('RedKiteJobId')
     output = f"{prefix} {message}"
     if(not jobId):
         print(output)
@@ -168,7 +168,7 @@ def log_status(status: str):
     if status != JobStatus.SUCCESS and status != JobStatus.FAILED:
         return
     
-    jobId = getenv('StalkerJobId')
+    jobId = getenv('RedKiteJobId')
     
     if(not jobId):
         print(f"Status: {status}")
