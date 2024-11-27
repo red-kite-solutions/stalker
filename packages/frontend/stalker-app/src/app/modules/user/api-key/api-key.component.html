@@ -50,13 +50,12 @@
 <div class="tw-mt-2">
   @if (dataSource$ | async; as dataSource) {
     <app-filtered-paginated-table
-      (pageChange)="pageChange($event)"
       [isLoading]="dataLoading"
-      [length]="count"
+      [length]="(apiKeys$ | async)?.totalRecords ?? 0"
       [filterEnabled]="false"
     >
       <app-table-format
-        [dataSource]="dataSource"
+        [dataSource]="dataSource$ | async"
         [columns]="displayColumns"
         (selectionChange)="selection = $event"
         [noDataMessage]="noDataMessage"

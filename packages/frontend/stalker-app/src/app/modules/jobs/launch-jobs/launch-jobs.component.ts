@@ -41,6 +41,7 @@ import { ProjectsService } from '../../../api/projects/projects.service';
 import { JobListEntry, JobParameterDefinition, StartedJob } from '../../../shared/types/jobs/job.type';
 import { ProjectSummary } from '../../../shared/types/project/project.summary';
 import { CodeEditorComponent, CodeEditorTheme } from '../../../shared/widget/code-editor/code-editor.component';
+import { normalizeSearchString } from '../../../utils/normalize-search-string';
 import { FindingsModule } from '../../findings/findings.module';
 import { JobLogsSummaryComponent } from '../job-executions/job-execution-logs-summary.component';
 
@@ -216,13 +217,6 @@ export class LaunchJobsComponent {
 
   private filterJob(entry: JobListEntry, filter: string) {
     const parts = [entry.name];
-    return this.normalizeString(parts.join(' ')).includes(filter);
-  }
-
-  private normalizeString(str: string) {
-    return str
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase();
+    return normalizeSearchString(parts.join(' ')).includes(filter);
   }
 }

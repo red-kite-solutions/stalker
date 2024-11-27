@@ -8,6 +8,7 @@ import {
   IsMongoId,
   IsNotEmpty,
   IsOptional,
+  IsPort,
   Max,
   Min,
 } from 'class-validator';
@@ -82,4 +83,14 @@ export class BatchEditHostsDto {
   @IsOptional()
   @IsBoolean()
   block: boolean;
+}
+
+export class GetHostPortDto {
+  @IsMongoId()
+  @IsNotEmpty()
+  id: string;
+
+  @IsPort()
+  @IsNotEmpty()
+  portNumber: number;
 }

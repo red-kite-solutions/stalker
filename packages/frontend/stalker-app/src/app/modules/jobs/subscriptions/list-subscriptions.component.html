@@ -19,11 +19,9 @@
 
   <mat-card-content>
     <app-filtered-paginated-table
-      (pageChange)="pageChange($event)"
       [isLoading]="(isLoading$ | async) || false"
-      [length]="(subscriptions$ | async)?.length || 0"
+      [length]="(subscriptions$ | async)?.totalRecords || 0"
       [filterType]="'fulltext'"
-      (filtersChange)="filterChange($event)"
     >
       <app-table-format
         [dataSource]="dataSource$ | async"

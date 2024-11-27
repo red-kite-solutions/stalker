@@ -8,6 +8,6 @@ import { Title } from '@angular/platform-browser';
 })
 export class NotFoundComponent {
   constructor(private titleService: Title) {
-    this.titleService.setTitle($localize`:Not found page title|:Page not found · Stalker`);
+    this.titleService.setTitle($localize`:Not found page title|:Page not found · Red Kite`);
   }
 }
