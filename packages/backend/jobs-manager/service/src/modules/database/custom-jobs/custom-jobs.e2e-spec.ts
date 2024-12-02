@@ -1,5 +1,6 @@
 import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { randomUUID } from 'node:crypto';
 import {
   TestingData,
   checkAuthorizations,
@@ -88,7 +89,7 @@ describe('Custom Jobs Controller (e2e)', () => {
     const cj: JobDto = {
       language: 'python',
       type: 'code',
-      name: 'print secret',
+      name: randomUUID(),
       code: "import os\n\nprint(os.environ['secret'])",
       jobPodConfigId: '65b013faed7664d0b13d7e7c',
       findingHandlerEnabled: false,
@@ -106,7 +107,7 @@ describe('Custom Jobs Controller (e2e)', () => {
     const cj: JobDto = {
       language: 'python',
       type: 'code',
-      name: 'print secret',
+      name: randomUUID(),
       code: "import os\n\nprint(os.environ['secret'])",
       jobPodConfigId: '65b013faed7664d0b13d7e7c',
       findingHandlerEnabled: true,
@@ -247,6 +248,7 @@ describe('Custom Jobs Controller (e2e)', () => {
     // arrange & act
     const r = await postReq(app, testData.user.token, '/custom-jobs', {
       ...nucleiCustomJob,
+      name: randomUUID(),
       language: 'python',
     });
 
@@ -258,6 +260,7 @@ describe('Custom Jobs Controller (e2e)', () => {
     // arrange & act
     const r = await postReq(app, testData.user.token, '/custom-jobs', {
       ...nucleiCustomJob,
+      name: randomUUID(),
       findingHandler: 'handler content placeholder',
       findingHandlerLanguage: 'yaml',
     });
@@ -270,6 +273,7 @@ describe('Custom Jobs Controller (e2e)', () => {
     // arrange & act
     const r = await postReq(app, testData.user.token, '/custom-jobs', {
       ...nucleiCustomJob,
+      name: randomUUID(),
       findingHandler: 'handler content placeholder',
     });
 
@@ -281,6 +285,7 @@ describe('Custom Jobs Controller (e2e)', () => {
     // arrange & act
     const r = await postReq(app, testData.user.token, '/custom-jobs', {
       ...nucleiCustomJob,
+      name: randomUUID(),
       findingHandlerLanguage: 'yaml',
     });
 
