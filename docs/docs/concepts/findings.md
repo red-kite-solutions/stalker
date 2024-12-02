@@ -6,7 +6,7 @@ description: What are findings and how to use them
 
 # Findings
 
-Findings are pieces of information attached to a project and a core entity like a domain, a host or a port. They are reported by the jobs to the Orchestrator using Stalker's software development kit (SDK).
+Findings are pieces of information attached to a project and a core entity like a domain, a host or a port. They are reported by the jobs to the Orchestrator using Red Kite's software development kit (SDK).
 
 Findings come in different shapes and forms. Some findings will create new core entities, others may simply add data to existing ones.
 
@@ -42,7 +42,7 @@ Example:
 {
   "type": "HostnameFinding",
   "key": "HostnameFinding",
-  "domainName": "stalker.is"
+  "domainName": "red-kite.io"
 }
 ```
 
@@ -128,7 +128,7 @@ Which is equivalent to the following python code, but with more metadata:
 ## HostnameIpFinding
 
 The `HostnameIpFinding` is usually the result of resolving a hostname to an ip address. The hostname, `domainName`, must resolve to the IP
-address, and it has to be already known to Stalker as a valid domain. The hostname ip finding will create or update a host and attaches it
+address, and it has to be already known to Red Kite as a valid domain. The hostname ip finding will create or update a host and attaches it
 to the given existing domain.
 
 | Field        | Description                                |
@@ -142,7 +142,7 @@ Example:
 {
   "type": "HostnameIpFinding",
   "key": "HostnameIpFinding",
-  "domainName": "stalker.is",
+  "domainName": "red-kite.io",
   "ip": "0.0.0.0"
 }
 ```
@@ -163,7 +163,7 @@ log_finding(
 ## PortFinding
 
 The `PortFinding` is usually the result of a port scanning job. It signals that an open port, either `tcp` or `udp`, has been found on the
-host specified through the `ip` value. The `ip` must already be known to Stalker as a valid host. A port finding creates or updates a port
+host specified through the `ip` value. The `ip` must already be known to Red Kite as a valid host. A port finding creates or updates a port
 and attaches it to the given host.
 
 | Field      | Description                         |
@@ -207,9 +207,9 @@ log_finding(
 
 The `WebsiteFinding` will create a website resource. Websites are made from 4 characteristics: an IP address, a domain name, a port number and a path. Only the IP address and the port are mandatory. The domain can be empty and the path will default to `/`.
 
-To create a website, it must reference an existing port of a project. To reference a domain as well, it must also be a domain already known to Stalker.
+To create a website, it must reference an existing port of a project. To reference a domain as well, it must also be a domain already known to Red Kite.
 
-It signals that an open port running an http(s) service, either `tcp` or `udp`, has been found on the host specified through the `ip` value. The `ip` must already be known to Stalker as a valid host. A port finding creates or updates a port
+It signals that an open port running an http(s) service, either `tcp` or `udp`, has been found on the host specified through the `ip` value. The `ip` must already be known to Red Kite as a valid host. A port finding creates or updates a port
 and attaches it to the given host.
 
 > Emitting a `PortServiceFinding` with a `serviceName` of `http` and `https` will result in creating a `WebsiteFinding` per domain linked to the host, and one with an empty domain. [Learn more about PortServiceFinding and websites](#portservicefinding-and-websites)
@@ -291,7 +291,7 @@ Examples:
 ```json
 {
   "type": "CustomFinding",
-  "domainName": "stalker.is",
+  "domainName": "red-kite.io",
   "fields": [
     {
       "type": "text",

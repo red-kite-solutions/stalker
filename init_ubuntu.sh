@@ -1,6 +1,6 @@
 #!/usr/bin/bash 
 
-STALKER_REPO="https://github.com/red-kite-solutions/stalker"
+RK_REPO="https://github.com/red-kite-solutions/stalker"
 DOCKER_USER=$USER
 DOCKER_USER_HOME=${HOME}
 
@@ -48,7 +48,7 @@ npm install -g devspace@^6.3.0 > /dev/null
 echo "Installed devspace"
 
 # Cloning Stalker repository
-git clone ${STALKER_REPO} >/dev/null
+git clone ${RK_REPO} >/dev/null
 
 # Adding the current user to the docker group
 sudo groupadd docker

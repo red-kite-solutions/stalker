@@ -8,7 +8,7 @@
       }
       <avatar class="tw-max-w-8" src="assets/red-kite-logo-only-color-circle.png"></avatar>
       <span>
-        <span class="tw-text-lg" i18n="Main title|Main application title, the name of the product">Stalker</span>
+        <span class="tw-text-lg" i18n="Main title|Main application title, the name of the product">Red Kite</span>
         <span class="tw-text-lg tw-opacity-30 tw-font-light max-sm:tw-hidden"> | </span>
         <span
           class="tw-text-sm max-sm:tw-hidden tw-font-light tw-leading-[32px]"
@@ -34,7 +34,7 @@
   </button>
   <button mat-menu-item [matMenuTriggerFor]="subMenu">
     <mat-icon>format_paint</mat-icon>
-    <label i18n="Theme|Stalker theme">Theme</label>
+    <label i18n="Theme|Red Kite theme">Theme</label>
   </button>
   <button mat-menu-item [matMenuTriggerFor]="subMenuLanguages">
     <mat-icon>translate</mat-icon>
@@ -58,7 +58,8 @@
           <span
             class="color"
             [ngStyle]="{
-              background: 'linear-gradient(90deg, ' + theme.color1 + ' 50%, ' + (theme.color2 ?? theme.color1) + ' 50%)'
+              background:
+                'linear-gradient(90deg, ' + theme.color1 + ' 50%, ' + (theme.color2 ?? theme.color1) + ' 50%)',
             }"
           ></span>
           <span class="color-shine"></span>

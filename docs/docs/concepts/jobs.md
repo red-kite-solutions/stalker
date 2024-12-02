@@ -6,7 +6,7 @@ description: What are jobs and how to use them
 
 # Jobs
 
-A job is the way for Stalker to find new information. It is started by Stalker and runs in a contained environment. Different jobs will
+A job is the way for Red Kite to find new information. It is started by Red Kite and runs in a contained environment. Different jobs will
 generate different findings. It is possible to reference a Finding's output variable as a job parameter. A job parameter is one of a job's
 input variables.
 
@@ -16,7 +16,7 @@ A job can generate multiple findings of one or many finding types.
 
 ## Built-in jobs
 
-The built-in jobs come with a fresh Stalker installation. They can be fully modified. They go
+The built-in jobs come with a fresh Red Kite installation. They can be fully modified. They go
 hand-in-hand with the built-in subscriptions. Keep in mind that altering a built-in job's name may break a built-in subscription. That
 subscription would need to be adapted to the new name.
 
