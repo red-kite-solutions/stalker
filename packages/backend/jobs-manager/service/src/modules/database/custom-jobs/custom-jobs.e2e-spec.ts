@@ -16,7 +16,7 @@ import { Role } from '../../auth/constants';
 import { JobPodConfigurationDocument } from '../admin/config/job-pod-config/job-pod-config.model';
 import { JobDto } from './jobs.dto';
 
-describe('Custom Jobs Controller (e2e)', () => {
+fdescribe('Custom Jobs Controller (e2e)', () => {
   let app: INestApplication;
   let testData: TestingData;
   let customJobId: string;

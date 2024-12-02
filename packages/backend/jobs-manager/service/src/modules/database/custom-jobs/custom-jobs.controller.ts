@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -10,6 +11,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { plainToInstance } from 'class-transformer';
+import { validateOrReject } from 'class-validator';
 import { DeleteResult } from 'mongodb';
 import {
   HttpConflictException,
@@ -24,7 +27,12 @@ import { JwtStrategy } from '../../auth/strategies/jwt.strategy';
 import { MONGO_DUPLICATE_ERROR } from '../database.constants';
 import { CustomJobsDocument } from './custom-jobs.model';
 import { CustomJobsService } from './custom-jobs.service';
-import { DuplicateJobDto, JobDto } from './jobs.dto';
+import {
+  DuplicateJobDto,
+  isDuplicateJobDto,
+  isJobDto,
+  JobDto,
+} from './jobs.dto';
 
 @Controller('custom-jobs')
 export class CustomJobsController {
@@ -36,10 +44,16 @@ export class CustomJobsController {
   @Post()
   async create(@Body() dto: JobDto | DuplicateJobDto) {
     try {
-      if ('jobId' in dto) {
+      if (isDuplicateJobDto(dto)) {
+        const duplicateDto = plainToInstance(DuplicateJobDto, dto);
+        await validateOrReject(duplicateDto);
         return await this.customJobsService.duplicate(dto.jobId);
-      } else {
+      } else if (isJobDto(dto)) {
+        const jobDto = plainToInstance(JobDto, dto);
+        await validateOrReject(jobDto);
         return await this.customJobsService.create(dto);
+      } else {
+        throw new BadRequestException('Unknown request type.');
       }
     } catch (err) {
       if (err.code === MONGO_DUPLICATE_ERROR) {

@@ -15,6 +15,16 @@ import {
   customJobTypes,
 } from '../jobs/models/custom-job.model';
 
+export function isDuplicateJobDto(
+  dto: DuplicateJobDto | JobDto,
+): dto is DuplicateJobDto {
+  return 'jobId' in dto;
+}
+
+export function isJobDto(dto: DuplicateJobDto | JobDto): dto is JobDto {
+  return 'code' in dto;
+}
+
 export class DuplicateJobDto {
   @IsMongoId()
   @IsNotEmpty()
