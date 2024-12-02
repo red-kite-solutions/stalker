@@ -155,6 +155,7 @@ export class LaunchJobsComponent {
     const jobCopy = <Partial<JobListEntry>>JSON.parse(JSON.stringify(job));
     delete jobCopy.name;
     delete jobCopy.builtIn;
+    delete jobCopy.source;
     if (!jobCopy.parameters) return '';
 
     jobCopy.parameters = jobCopy.parameters.map((item: JobParameterDefinition) => {
