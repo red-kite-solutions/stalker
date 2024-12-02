@@ -33,7 +33,6 @@ import { JobLogsComponent } from 'src/app/shared/components/job-logs/job-logs.co
 import { AppHeaderComponent } from 'src/app/shared/components/page-header/page-header.component';
 import { PanelSectionModule } from 'src/app/shared/components/panel-section/panel-section.module';
 import { SharedModule } from 'src/app/shared/shared.module';
-import { SpinnerButtonComponent } from 'src/app/shared/widget/spinner-button/spinner-button.component';
 import { parse, parseDocument, stringify } from 'yaml';
 import { AuthService } from '../../../api/auth/auth.service';
 import { JobExecutionsService } from '../../../api/jobs/job-executions/job-executions.service';
@@ -43,7 +42,6 @@ import { ProjectSummary } from '../../../shared/types/project/project.summary';
 import { CodeEditorComponent, CodeEditorTheme } from '../../../shared/widget/code-editor/code-editor.component';
 import { normalizeSearchString } from '../../../utils/normalize-search-string';
 import { FindingsModule } from '../../findings/findings.module';
-import { JobLogsSummaryComponent } from '../job-executions/job-execution-logs-summary.component';
 
 @Component({
   standalone: true,
@@ -83,8 +81,6 @@ import { JobLogsSummaryComponent } from '../job-executions/job-execution-logs-su
     AppHeaderComponent,
     JobLogsComponent,
     CodeEditorComponent,
-    JobLogsSummaryComponent,
-    SpinnerButtonComponent,
     AvatarComponent,
   ],
 })
@@ -155,6 +151,7 @@ export class LaunchJobsComponent {
     const jobCopy = <Partial<JobListEntry>>JSON.parse(JSON.stringify(job));
     delete jobCopy.name;
     delete jobCopy.builtIn;
+    delete jobCopy.source;
     if (!jobCopy.parameters) return '';
 
     jobCopy.parameters = jobCopy.parameters.map((item: JobParameterDefinition) => {
