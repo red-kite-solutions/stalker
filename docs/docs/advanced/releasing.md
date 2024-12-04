@@ -1,12 +1,12 @@
 ---
 sidebar_position: 2
 title: Releasing
-description: Description of Stalker's release process
+description: Description of Red Kite's release process
 ---
 
 # Releasing
 
-In this guide, you will be provided with clear instructions on how to release a new version of Stalker.
+In this guide, you will be provided with clear instructions on how to release a new version of Red Kite.
 
 Micro-services and frontend have their own release cycle and version number. The software versions follow to the principles of semantic
 versioning, as outlined in https://semver.org. To indicate alpha or beta versions, the suffixes "-alpha.0", "alpha.1", "beta.0", etc. are

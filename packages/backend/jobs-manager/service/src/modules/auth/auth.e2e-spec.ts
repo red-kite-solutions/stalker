@@ -23,8 +23,8 @@ describe('Auth Controller (e2e)', () => {
   let refresh: string;
 
   const testAdmin = {
-    email: `testadmin-${randomUUID()}@stalker.is`,
-    password: 'testadmin@stalker.is',
+    email: `testadmin-${randomUUID()}@red-kite.io`,
+    password: 'testadmin@red-kite.io',
     role: Role.Admin,
     firstName: 'testadminfirst',
     lastName: 'testadminlast',
@@ -33,8 +33,8 @@ describe('Auth Controller (e2e)', () => {
   };
 
   const inactiveUser = {
-    email: `inactive-${randomUUID()}@stalker.is`,
-    password: 'inactive@stalker.is',
+    email: `inactive-${randomUUID()}@red-kite.io`,
+    password: 'inactive@red-kite.io',
     role: Role.Admin,
     firstName: 'InactiveFirst',
     lastName: 'InactiveLast',

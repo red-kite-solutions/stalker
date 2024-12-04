@@ -217,6 +217,14 @@ export class PortService {
     return await this.portsModel.findById(portId);
   }
 
+  public async getHostPort(hostId: string, portNumber: number) {
+    console.log(await this.portsModel.findOne());
+    return await this.portsModel.findOne({
+      'host.id': { $eq: new Types.ObjectId(hostId) },
+      port: { $eq: portNumber },
+    });
+  }
+
   public async deleteAllForProject(projectId: string): Promise<DeleteResult> {
     return await this.portsModel.deleteMany({
       projectId: { $eq: new Types.ObjectId(projectId) },

@@ -165,14 +165,10 @@ export class ViewPortComponent implements OnDestroy {
   );
 
   public portId = '';
-  public port$ = combineLatest([this.ports$, this.portTitle$]).pipe(
-    map(([ports, portNumber]) => ports.items.find((p) => p.port === +portNumber)),
-    switchMap((port: PortNumber | undefined) => {
-      if (port) {
-        this.portId = port._id;
-        return this.portsService.getPort(port._id);
-      }
-      throw new Error('Error getting the port');
+  public port$ = combineLatest([this.hostId$, this.portNumber$]).pipe(
+    switchMap(([hostId, portNumber]) => this.hostsService.getPort(hostId, +portNumber)),
+    tap((port) => {
+      this.portId = port._id;
     }),
     shareReplay(1),
     tap((p: Port) => (this.port = p))
@@ -187,16 +183,7 @@ export class ViewPortComponent implements OnDestroy {
     })
   );
 
-  tags: (Tag & SelectItem)[] = [];
-  allTags$ = this.tagsService.getTags().pipe(
-    map((next: any[]) => {
-      const tagsArr: Tag[] = [];
-      for (const tag of next) {
-        tagsArr.push({ _id: tag._id, text: tag.text, color: tag.color });
-      }
-      return tagsArr;
-    })
-  );
+  allTags$ = this.tagsService.getAllTags().pipe(shareReplay(1));
 
   public tagsSelectItems$ = combineLatest([this.portTags$, this.allTags$]).pipe(
     map(([portTags, allTags]) => {
@@ -208,7 +195,6 @@ export class ViewPortComponent implements OnDestroy {
           tagsArr.push({ _id: tag._id, text: tag.text, color: tag.color, isSelected: false });
         }
       }
-      this.tags = tagsArr;
       return tagsArr;
     })
   );

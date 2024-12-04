@@ -54,7 +54,7 @@ export class LoginComponent {
     private fb: FormBuilder,
     private cdr: ChangeDetectorRef
   ) {
-    this.titleService.setTitle($localize`:Sign in page title|:Sign in to Stalker`);
+    this.titleService.setTitle($localize`:Sign in page title|:Sign in to Red Kite`);
     this.authService.checkServerSetup(true);
   }
 

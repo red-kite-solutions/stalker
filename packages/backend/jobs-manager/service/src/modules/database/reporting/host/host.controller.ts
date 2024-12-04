@@ -20,9 +20,12 @@ import { Roles } from '../../../auth/decorators/roles.decorator';
 import { RolesGuard } from '../../../auth/guards/role.guard';
 import { ApiKeyStrategy } from '../../../auth/strategies/api-key.strategy';
 import { JwtStrategy } from '../../../auth/strategies/jwt.strategy';
+import { Port } from '../port/port.model';
+import { PortService } from '../port/port.service';
 import {
   BatchEditHostsDto,
   DeleteHostsDto,
+  GetHostPortDto,
   HostsFilterDto,
   SubmitHostsDto,
 } from './host.dto';
@@ -31,7 +34,10 @@ import { HostService } from './host.service';
 
 @Controller('hosts')
 export class HostController {
-  constructor(private readonly hostsService: HostService) {}
+  constructor(
+    private readonly hostsService: HostService,
+    private readonly portsService: PortService,
+  ) {}
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.User)
@@ -63,6 +69,13 @@ export class HostController {
   @Get(':id')
   async getHost(@Param() dto: MongoIdDto): Promise<HostDocument> {
     return await this.hostsService.getHost(dto.id);
+  }
+
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
+  @Roles(Role.ReadOnly)
+  @Get(':id/ports/:portNumber')
+  async getPort(@Param() dto: GetHostPortDto): Promise<Port> {
+    return await this.portsService.getHostPort(dto.id, dto.portNumber);
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)

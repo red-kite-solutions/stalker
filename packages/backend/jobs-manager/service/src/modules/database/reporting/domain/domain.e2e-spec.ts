@@ -43,7 +43,7 @@ describe('Domain Controller (e2e)', () => {
     ).body._id;
     let randomSub = Math.random().toString(36).substring(2, 12);
     randomSub += Math.random().toString(36).substring(2, 12);
-    domain = randomSub + '.stalker.is';
+    domain = randomSub + '.red-kite.io';
   });
 
   afterAll(async () => {
@@ -66,8 +66,8 @@ describe('Domain Controller (e2e)', () => {
   it('Should create multiple domains (POST /domains)', async () => {
     // Arrange
     const domains = [
-      'first.domain.addedasbatch.stalker.is',
-      'second.domain.addedasbatch.stalker.is',
+      'first.domain.addedasbatch.red-kite.io',
+      'second.domain.addedasbatch.red-kite.io',
     ];
 
     // Act

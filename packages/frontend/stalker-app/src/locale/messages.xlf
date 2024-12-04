@@ -12,7 +12,7 @@
         <note priority="1" from="meaning">Page not found</note>
       </trans-unit>
       <trans-unit id="9056672807582252477" datatype="html">
-        <source>Page not found · Stalker</source>
+        <source>Page not found · Red Kite</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/error-pages/not-found/not-found.component.ts</context>
           <context context-type="linenumber">11</context>
@@ -1068,7 +1068,7 @@
         <note priority="1" from="meaning">Read-only permission description</note>
       </trans-unit>
       <trans-unit id="1711489911893187207" datatype="html">
-        <source>The user role is a crucial part of any user. Their role will define what they can and cannot do in Stalker.</source>
+        <source>The user role is a crucial part of any user. Their role will define what they can and cannot do in Red Kite.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/admin/roles.ts</context>
           <context context-type="linenumber">30</context>
@@ -1217,13 +1217,13 @@
         <note priority="1" from="meaning">The form contains errors</note>
       </trans-unit>
       <trans-unit id="5780572663540319687" datatype="html">
-        <source>Stalker is now initialized</source>
+        <source>Red Kite is now initialized</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/auth/first/first.component.ts</context>
           <context context-type="linenumber">93</context>
         </context-group>
         <note priority="1" from="description">The platform is properly intialized</note>
-        <note priority="1" from="meaning">Stalker initialized</note>
+        <note priority="1" from="meaning">Red Kite initialized</note>
       </trans-unit>
       <trans-unit id="4928784736170248609" datatype="html">
         <source>Error submitting the form</source>
@@ -1271,7 +1271,7 @@
         <note priority="1" from="meaning">Login</note>
       </trans-unit>
       <trans-unit id="6974727832798723972" datatype="html">
-        <source>Sign in to Stalker</source>
+        <source>Sign in to Red Kite</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/auth/login/login.component.ts</context>
           <context context-type="linenumber">24</context>
@@ -1465,8 +1465,8 @@
       </trans-unit>
       <trans-unit id="6126448957585594930" datatype="html">
         <source>One domain name per line, ex:
-example.stalker.is
-another.stalker.is</source>
+example.Red Kite.is
+another.Red Kite.is</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/domains/list-domains/list-domains.component.html</context>
           <context context-type="linenumber">102,104</context>
@@ -2406,7 +2406,7 @@ another.stalker.is</source>
         <note priority="1" from="meaning">Custom</note>
       </trans-unit>
       <trans-unit id="3250791619874512325" datatype="html">
-        <source>Stalker</source>
+        <source>Red Kite</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/jobs/custom-jobs/list-custom-jobs.component.html</context>
           <context context-type="linenumber">68</context>
@@ -2419,8 +2419,8 @@ another.stalker.is</source>
           <context context-type="sourcefile">src/app/modules/jobs/subscriptions/list-subscriptions.component.html</context>
           <context context-type="linenumber">69</context>
         </context-group>
-        <note priority="1" from="description">Stalker, the application&apos;s name</note>
-        <note priority="1" from="meaning">Stalker</note>
+        <note priority="1" from="description">Red Kite, the application&apos;s name</note>
+        <note priority="1" from="meaning">Red Kite</note>
       </trans-unit>
       <trans-unit id="3591595019930580541" datatype="html">
         <source>No job found</source>
@@ -3601,11 +3601,11 @@ another.stalker.is</source>
           <context context-type="sourcefile">src/app/services/theme.service.ts</context>
           <context context-type="linenumber">29</context>
         </context-group>
-        <note priority="1" from="description">Keeps Stalker&apos;s theme synced with the system mode (either light or dark)</note>
+        <note priority="1" from="description">Keeps Red Kite&apos;s theme synced with the system mode (either light or dark)</note>
         <note priority="1" from="meaning">Sync with system</note>
       </trans-unit>
       <trans-unit id="2661620914039464065" datatype="html">
-        <source>Stalker</source>
+        <source>Red Kite</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/components/header/header.component.html</context>
           <context context-type="linenumber">11</context>
@@ -3628,7 +3628,7 @@ another.stalker.is</source>
           <context context-type="sourcefile">src/app/shared/components/header/header.component.html</context>
           <context context-type="linenumber">37</context>
         </context-group>
-        <note priority="1" from="description">Stalker theme</note>
+        <note priority="1" from="description">Red Kite theme</note>
         <note priority="1" from="meaning">Theme</note>
       </trans-unit>
       <trans-unit id="5892453008794116717" datatype="html">

@@ -1,19 +1,19 @@
 import { SelectionModel } from '@angular/cdk/collections';
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
-import { BehaviorSubject, combineLatest, debounceTime, map, shareReplay, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, shareReplay, switchMap, tap } from 'rxjs';
 import { SubscriptionService, SubscriptionType } from 'src/app/api/jobs/subscriptions/subscriptions.service';
 import { AvatarComponent } from 'src/app/shared/components/avatar/avatar.component';
 import {
@@ -26,6 +26,12 @@ import {
   FilteredPaginatedTableComponent,
 } from 'src/app/shared/widget/filtered-paginated-table/filtered-paginated-table.component';
 import { DisabledPillTagComponent } from 'src/app/shared/widget/pill-tag/disabled-pill-tag.component';
+import {
+  TABLE_FILTERS_SOURCE_INITAL_FILTERS,
+  TableFilters,
+  TableFiltersSource,
+  TableFiltersSourceBase,
+} from '../../../shared/widget/filtered-paginated-table/table-filters-source';
 import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-table/table-format/table-format.component';
 import { SubscriptionInteractionService } from './subscription-interaction.service';
 import { subscriptionTypes } from './subscription-templates';
@@ -54,6 +60,16 @@ import { subscriptionTypes } from './subscription-templates';
     DisabledPillTagComponent,
     TableFormatComponent,
   ],
+  providers: [
+    { provide: TableFiltersSourceBase, useClass: TableFiltersSource },
+    {
+      provide: TABLE_FILTERS_SOURCE_INITAL_FILTERS,
+      useValue: {
+        filters: [],
+        pagination: { page: 0, pageSize: 25 },
+      } as TableFilters,
+    },
+  ],
 })
 export class ListSubscriptionsComponent {
   public isLoading$ = new BehaviorSubject(true);
@@ -61,49 +77,26 @@ export class ListSubscriptionsComponent {
   public noDataMessage = $localize`:No subscription found|No subscriptions were found:No subscription found`;
   public selection = new SelectionModel<CronSubscription | EventSubscription>(true, []);
 
-  currentPage: PageEvent = this.generateFirstPageEvent();
-  public currentPage$ = new BehaviorSubject<PageEvent>(this.currentPage);
-  private filters$ = new BehaviorSubject<string[]>([]);
   private refreshData$ = new BehaviorSubject<void>(undefined);
-  public subscriptions$ = this.refreshData$.pipe(
-    switchMap(() =>
-      this.subscriptionsService.getSubscriptions().pipe(
-        map((subscriptions) => subscriptions.sort((a, b) => a._id.localeCompare(b._id))),
-        switchMap((subscriptions) =>
-          this.filters$.pipe(
-            debounceTime(250),
-            map((filters) => filters.map((filter) => this.normalizeString(filter))),
-            map((filters) => subscriptions.filter((sub) => !filters.length || this.filterSubscription(sub, filters)))
-          )
-        ),
-        shareReplay(1)
-      )
+  public subscriptions$ = combineLatest([this.filtersSource.debouncedFilters$, this.refreshData$]).pipe(
+    switchMap(([{ filters, pagination }]) =>
+      this.subscriptionsService
+        .getSubscriptions(filters, pagination?.page ?? 0, pagination?.pageSize ?? 25)
+        .pipe(shareReplay(1))
     )
   );
 
-  public dataSource$ = combineLatest([this.currentPage$, this.subscriptions$]).pipe(
-    map(([page, subscriptions]) => {
-      const start = page.pageIndex * page.pageSize;
-      let end = start + page.pageSize;
-      end = end < subscriptions.length ? end : subscriptions.length;
-      return new MatTableDataSource<EventSubscription | CronSubscription>(subscriptions.slice(start, end));
-    }),
+  public dataSource$ = this.subscriptions$.pipe(
+    map((subscriptions) => new MatTableDataSource<EventSubscription | CronSubscription>(subscriptions.items)),
     tap(() => this.isLoading$.next(false)),
     shareReplay(1)
   );
 
-  private generateFirstPageEvent(pageSize: number = 10) {
-    const p = new PageEvent();
-    p.pageIndex = 0;
-    p.pageSize = pageSize;
-    this.currentPage = p;
-    return p;
-  }
-
   constructor(
     private subscriptionsService: SubscriptionService,
     private titleService: Title,
-    private subscriptionInteractor: SubscriptionInteractionService
+    private subscriptionInteractor: SubscriptionInteractionService,
+    @Inject(TableFiltersSourceBase) private filtersSource: TableFiltersSource
   ) {
     this.titleService.setTitle($localize`:Subscriptions list page title|:Subscriptions`);
   }
@@ -122,37 +115,8 @@ export class ListSubscriptionsComponent {
     }
   }
 
-  public pageChange(e: PageEvent) {
-    this.currentPage$.next(e);
-  }
-
-  public filterChange(filters: string[]) {
-    this.filters$.next(filters);
-  }
-
   public getSubscriptionQueryParams(row: SubscriptionData) {
     return { type: row.type };
-  }
-
-  private filterSubscription(subscription: EventSubscription | CronSubscription, filters: string[]) {
-    const event = subscription as EventSubscription;
-    const cron = subscription as CronSubscription;
-    const parts = [
-      subscription.job?.name,
-      subscription.name,
-      cron.cronExpression,
-      event.findings,
-      cron.cronExpression ? 'cron' : 'event',
-      subscription.isEnabled === false ? 'disabled' : 'enabled',
-    ];
-    return filters.some((filter) => this.normalizeString(parts.join(' ')).includes(filter));
-  }
-
-  private normalizeString(str: string) {
-    return str
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase();
   }
 
   public generateMenuItem = (element: CronSubscription | EventSubscription): ElementMenuItems[] => {

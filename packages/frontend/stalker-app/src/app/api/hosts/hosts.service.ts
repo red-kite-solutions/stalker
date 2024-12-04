@@ -5,6 +5,7 @@ import { Observable, firstValueFrom } from 'rxjs';
 import { Host } from 'src/app/shared/types/host/host.interface';
 import { Page } from 'src/app/shared/types/page.type';
 import { environment } from 'src/environments/environment';
+import { Port } from '../../shared/types/ports/port.interface';
 import { filtersToParams } from '../../utils/filters-to-params';
 
 @Injectable({
@@ -51,5 +52,9 @@ export class HostsService {
 
   public async block(hostIds: string[], block: boolean) {
     return await firstValueFrom(this.http.patch(`${environment.fmUrl}/hosts/`, { hostIds, block }));
+  }
+
+  public getPort(hostId: string, portNumber: number): Observable<Port> {
+    return this.http.get<Port>(`${environment.fmUrl}/hosts/${hostId}/ports/${portNumber}`);
   }
 }

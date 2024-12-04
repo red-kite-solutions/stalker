@@ -21,11 +21,9 @@
     <div class="table-container">
       @if ((dataSource$ | async) || true) {
         <app-filtered-paginated-table
-          (pageChange)="pageChange($event)"
           [isLoading]="(isLoading$ | async) || false"
-          [length]="(tags$ | async)?.length || 0"
+          [length]="(tags$ | async)?.totalRecords ?? 0"
           [filterType]="'fulltext'"
-          (filtersChange)="filterChange($event)"
         >
           <app-table-format
             [dataSource]="dataSource$ | async"

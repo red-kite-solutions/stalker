@@ -4,7 +4,11 @@
       <mat-card-title class="tw-flex-1" i18n="Websites|Websites">Websites</mat-card-title>
 
       <div class="tw-flex tw-gap-sm tw-pb-4">
-        <mat-button-toggle-group [hideSingleSelectionIndicator]="true" [(value)]="viewStyle">
+        <mat-button-toggle-group
+          [hideSingleSelectionIndicator]="true"
+          (valueChange)="filtersSource.setViewStyle($event)"
+          [value]="viewStyle$ | async"
+        >
           <mat-button-toggle value="table">
             <mat-icon>view_list</mat-icon>
           </mat-button-toggle>
@@ -13,7 +17,12 @@
           </mat-button-toggle>
         </mat-button-toggle-group>
         <mat-form-field class="grid-select" appearance="outline">
-          <mat-select [(value)]="gridColumnsCount" hideSingleSelectionIndicator [disabled]="viewStyle !== 'grid'">
+          <mat-select
+            (valueChange)="filtersSource.setNumberOfColumns($event)"
+            hideSingleSelectionIndicator
+            [disabled]="(viewStyle$ | async) !== 'grid'"
+            [value]="numberOfColumns$ | async"
+          >
             @for (cols of gridColumnsOptions; track cols) {
               <mat-option [value]="cols">{{ cols }}</mat-option>
             }
@@ -41,23 +50,19 @@
   </mat-card-header>
 
   <mat-card-content>
-    @if (((dataSource$ | async) && (projects$ | async) && (tags$ | async)) || true) {
+    @if (((dataSource$ | async) && (projects$ | async) && (allTags$ | async)) || true) {
       <app-filtered-paginated-table
-        (pageChange)="pageChange($event)"
         [isLoading]="dataLoading"
-        [length]="count"
+        [length]="(websites$ | async)?.totalRecords ?? 0"
         [columns]="displayColumns$ | async"
         [filterOptions]="filterOptions"
         [negatableFilterOptions]="['is']"
-        (filtersChange)="filtersChange($event)"
-        (dateFiltersChange)="dateRangeFilterChange($event)"
         [dateSearchEnabled]="true"
         [startDate]="startDate"
-        [filters]="currentFilters"
       >
-        @if (viewStyle === 'table') {
+        @if ((viewStyle$ | async) === 'table') {
           <app-table-format
-            [dataSource]="dataSource"
+            [dataSource]="dataSource$ | async"
             [columns]="displayColumns$ | async"
             [routerLinkPrefix]="'/websites/'"
             (selectionChange)="selection = $event"
@@ -133,8 +138,8 @@
               <td mat-cell *matCellDef="let element">
                 <div class="tw-pt-1 tw-flex tw-flex-wrap tw-gap-x-2 tw-gap-y-1">
                   @for (tag of element.tags; track tag) {
-                    <app-pill-tag [color]="(tags | whereId: [tag])?.color">{{
-                      (tags | whereId: [tag])?.text
+                    <app-pill-tag [color]="(allTags$ | async | whereId: [tag])?.color">{{
+                      (allTags$ | async | whereId: [tag])?.text
                     }}</app-pill-tag>
                   }
                   <app-new-pill-tag
@@ -148,12 +153,12 @@
           </app-table-format>
         } @else {
           <app-grid-format
-            [dataSource]="dataSource"
+            [dataSource]="dataSource$ | async"
             [routerLinkPrefix]="'/websites/'"
             (selectionChange)="selection = $event"
             [noDataMessage]="noDataMessage"
             [menuFactory]="generateMenuItem"
-            [gridColumns]="_gridColumnsCount"
+            [gridColumns]="(numberOfColumns$ | async) || 3"
           >
             <ng-template #title let-element="element">
               <div class="tw-flex tw-flex-row">
@@ -170,12 +175,7 @@
             </ng-template>
 
             <ng-template #body let-element="element">
-              <div
-                class="tw-flex tw-flex-col tw-h-full"
-                appObserverChild
-                [observer]="this.observer"
-                id="{{ element._id }}"
-              >
+              <div class="tw-flex tw-flex-col tw-h-full" id="{{ element._id }}">
                 <div class="tw-flex tw-flex-row">
                   <div class="tw-grow tw-shrink ip-container">
                     <span>
@@ -200,8 +200,8 @@
                 </div>
                 <div class="tw-pt-1 tw-flex tw-flex-wrap tw-gap-x-2 tw-gap-y-1">
                   @for (tag of element.tags; track tag) {
-                    <app-pill-tag [color]="(tags | whereId: [tag])?.color">{{
-                      (tags | whereId: [tag])?.text
+                    <app-pill-tag [color]="(allTags$ | async | whereId: [tag])?.color">{{
+                      (allTags$ | async | whereId: [tag])?.text
                     }}</app-pill-tag>
                   }
                   <app-new-pill-tag
@@ -210,16 +210,14 @@
                   ></app-new-pill-tag>
                 </div>
                 <mat-divider color="accent"></mat-divider>
-                <div class="preview-image tw-grow">
-                  @if (images$[element._id] && images$[element._id] | async; as image) {
-                    <image-finding-field
-                      [data]="image"
-                      class="grid-image-height-{{ gridColumnsCount }}"
-                    ></image-finding-field>
-                  } @else {
-                    @if (imageLoading[element._id] || imageLoading[element._id] === undefined) {
-                      <mat-spinner color="accent"></mat-spinner>
-                    } @else {
+                <div class="preview-image tw-grow" intersection #intersection="intersection">
+                  @if (intersection._isIntersecting) {
+                    @if (element.image$ | async) {
+                      <image-finding-field
+                        [data]="element.image$ | async"
+                        class="grid-image-height-{{ (numberOfColumns$ | async) || 3 }}"
+                      ></image-finding-field>
+                    } @else if ((element.image$ | async) === null) {
                       <div
                         class="tw-w-full tw-h-full tw-text-center tw-align-middle tw-flex tw-flex-row tw-items-center tw-justify-center"
                       >
@@ -230,7 +228,11 @@
                           </p>
                         </div>
                       </div>
+                    } @else {
+                      <mat-spinner color="accent"></mat-spinner>
                     }
+                  } @else {
+                    <mat-spinner color="accent"></mat-spinner>
                   }
                 </div>
               </div>

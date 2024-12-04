@@ -27,7 +27,7 @@ export const roles: Role[] = [
 ];
 
 export const rolesInfoDialogText = {
-  text: $localize`:Application role description|Short description of what a user's role represents in the application:The user role is a crucial part of any user. Their role will define what they can and cannot do in Stalker.`,
+  text: $localize`:Application role description|Short description of what a user's role represents in the application:The user role is a crucial part of any user. Their role will define what they can and cannot do in Red Kite.`,
   title: $localize`:User roles|Title of the panel giving more info about roles:User roles`,
   primaryButtonText: $localize`:Got it|Accepting and aknowledging information:Got it`,
 };

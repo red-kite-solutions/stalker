@@ -7,6 +7,8 @@ import {
   EventSubscriptionData,
 } from 'src/app/shared/types/subscriptions/subscription.type';
 import { stringify } from 'yaml';
+import { Page } from '../../../shared/types/page.type';
+import { normalizeSearchString } from '../../../utils/normalize-search-string';
 import { CronSubscriptionsService } from './cron-subscriptions.service';
 import { EventSubscriptionsService } from './event-subscriptions.service';
 
@@ -21,7 +23,11 @@ export class SubscriptionService {
     private cronSubscriptionsService: CronSubscriptionsService
   ) {}
 
-  getSubscriptions(): Observable<(CronSubscription | EventSubscription)[]> {
+  getSubscriptions(
+    filters: string[],
+    page: number,
+    pageSize: number
+  ): Observable<Page<CronSubscription | EventSubscription>> {
     return combineLatest([
       this.eventsSubscriptionsService.getSubscriptions(),
       this.cronSubscriptionsService.getSubscriptions(),
@@ -29,7 +35,10 @@ export class SubscriptionService {
       map(([eventSubscriptions, cronSubscriptions]: [EventSubscription[], CronSubscription[]]) => [
         ...eventSubscriptions,
         ...cronSubscriptions,
-      ])
+      ]),
+      map((subs) => subs.sort((a, b) => a._id.localeCompare(b._id))),
+      map((subs) => subs.filter((sub) => !filters?.length || this.filterSubscription(sub, filters))),
+      map((subs) => ({ items: subs.slice(page * pageSize, page * pageSize + pageSize), totalRecords: subs.length }))
     );
   }
 
@@ -90,5 +99,19 @@ export class SubscriptionService {
     }
 
     return stringify(copy);
+  }
+
+  private filterSubscription(subscription: EventSubscription | CronSubscription, filters: string[]) {
+    const event = subscription as EventSubscription;
+    const cron = subscription as CronSubscription;
+    const parts = [
+      subscription.job?.name,
+      subscription.name,
+      cron.cronExpression,
+      event.findings,
+      cron.cronExpression ? 'cron' : 'event',
+      subscription.isEnabled === false ? 'disabled' : 'enabled',
+    ];
+    return filters.some((filter) => normalizeSearchString(parts.join(' ')).includes(filter));
   }
 }
