@@ -24,7 +24,7 @@ describe('Event Subscriptions Controller (e2e)', () => {
 
   const subscription: EventSubscriptionDto = {
     name: 'My test subscription',
-    finding: 'HostnameIpFinding',
+    findings: ['HostnameIpFinding'],
     jobName: 'TcpPortScanningJob',
     jobParameters: [
       {

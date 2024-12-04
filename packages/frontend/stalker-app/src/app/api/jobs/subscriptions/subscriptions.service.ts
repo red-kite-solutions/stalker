@@ -108,7 +108,7 @@ export class SubscriptionService {
       subscription.job?.name,
       subscription.name,
       cron.cronExpression,
-      event.finding,
+      event.findings,
       cron.cronExpression ? 'cron' : 'event',
       subscription.isEnabled === false ? 'disabled' : 'enabled',
     ];

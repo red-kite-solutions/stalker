@@ -572,7 +572,7 @@ export class SubscriptionsUtils {
     const sub: EventSubscription = {
       name: subYamlJson.name,
       isEnabled: true,
-      finding: subYamlJson.finding,
+      findings: subYamlJson.findings,
       jobName: subYamlJson.job.name,
       cooldown: subYamlJson.cooldown,
       projectId: null,

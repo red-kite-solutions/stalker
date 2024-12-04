@@ -758,7 +758,7 @@ describe('Findings Handler Base', () => {
       const sub = new EventSubscription();
       sub.projectId = new Types.ObjectId('507f1f77bcf86cd799439011');
       sub.conditions = [];
-      sub.finding = 'HostnameFinding';
+      sub.findings = ['HostnameFinding'];
       sub.jobName = cjName;
       const customParam = { name: 'custom-job-param', value: 'ASDF' };
       sub.jobParameters = [customParam];
@@ -843,7 +843,7 @@ describe('Findings Handler Base', () => {
         cooldown: 82800,
         builtIn: true,
         isEnabled: true,
-        finding: 'PortFinding',
+        findings: ['PortFinding'],
         jobName: 'HttpServerCheckJob',
         jobParameters: [
           { name: 'targetIp', value: '${ip}' },
@@ -854,7 +854,7 @@ describe('Findings Handler Base', () => {
       es.conditions[0] = es.conditions[0] as JobCondition;
       let yaml = [
         `name: ${es.name}`,
-        `finding: ${es.finding}`,
+        `findings: ${JSON.stringify(es.findings)}`,
         `triggerInterval: ${es.cooldown}`,
         `job:`,
         `  name: ${es.jobName}`,
@@ -874,7 +874,7 @@ describe('Findings Handler Base', () => {
       const sub = SubscriptionsUtils.parseEventSubscriptionYaml(yaml);
 
       // Assert
-      expect(sub.finding).toStrictEqual(es.finding);
+      expect(sub.findings).toStrictEqual(es.findings);
       expect(sub.name).toStrictEqual(es.name);
       expect(sub.jobName).toStrictEqual(es.jobName);
 

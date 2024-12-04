@@ -22,7 +22,7 @@ export class EventSubscriptionsService {
       projectId: dto.projectId ? new Types.ObjectId(dto.projectId) : null,
       isEnabled: dto.isEnabled != null ? dto.isEnabled : false,
       name: dto.name,
-      finding: dto.finding,
+      findings: dto.findings,
       jobName: dto.jobName,
       jobParameters: dto.jobParameters,
       conditions: dto.conditions,
@@ -56,7 +56,7 @@ export class EventSubscriptionsService {
     const sub: Partial<EventSubscription> = {
       projectId: dto.projectId ? new Types.ObjectId(dto.projectId) : null,
       name: dto.name,
-      finding: dto.finding,
+      findings: dto.findings,
       jobName: dto.jobName,
       jobParameters: dto.jobParameters,
       conditions: dto.conditions,
@@ -84,7 +84,7 @@ export class EventSubscriptionsService {
         { projectId: { $eq: new Types.ObjectId(projectId) } },
         { projectId: null },
       ],
-      finding: { $eq: finding },
+      findings: { $in: finding },
     });
   }
 

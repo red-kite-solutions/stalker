@@ -52,7 +52,16 @@
         <!-- Subscription trigger (Cron or Finding) -->
         <ng-container matColumnDef="trigger">
           <th mat-header-cell *matHeaderCellDef i18n="Subscription trigger|Subscription trigger">Trigger</th>
-          <td mat-cell *matCellDef="let element">{{ element.finding || element.cronExpression }}</td>
+          <td mat-cell *matCellDef="let element">
+            @if (element.cronExpression) {
+              {{ element.cronExpression }}
+            }
+            @if (element.findings) {
+              @for (finding of element.findings; track finding; let i = $index; let last = $last) {
+                {{ finding }}{{ !last ? ', ' : '' }}
+              }
+            }
+          </td>
         </ng-container>
 
         <!-- Job Column -->
