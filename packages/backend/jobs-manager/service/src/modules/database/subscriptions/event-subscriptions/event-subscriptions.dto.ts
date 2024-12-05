@@ -39,9 +39,10 @@ export class EventSubscriptionDto {
   @IsOptional()
   public projectId?: string; // if projectId is not set, the subscription is for all projects
 
-  @IsString()
+  @IsArray()
+  @IsString({ each: true })
   @IsNotEmpty()
-  public finding!: string;
+  public findings!: string[];
 
   @IsString()
   @IsNotEmpty()
