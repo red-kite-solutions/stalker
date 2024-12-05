@@ -40,7 +40,7 @@ export class EventSubscriptionsService {
     const sub: EventSubscription = {
       conditions: existingSub.conditions,
       cooldown: existingSub.cooldown,
-      finding: existingSub.finding,
+      findings: existingSub.findings,
       isEnabled: existingSub.isEnabled,
       jobName: existingSub.jobName,
       jobParameters: existingSub.jobParameters,
