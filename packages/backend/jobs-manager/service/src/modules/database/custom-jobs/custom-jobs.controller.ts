@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -27,12 +26,7 @@ import { JwtStrategy } from '../../auth/strategies/jwt.strategy';
 import { MONGO_DUPLICATE_ERROR } from '../database.constants';
 import { CustomJobsDocument } from './custom-jobs.model';
 import { CustomJobsService } from './custom-jobs.service';
-import {
-  DuplicateJobDto,
-  isDuplicateJobDto,
-  isJobDto,
-  JobDto,
-} from './jobs.dto';
+import { DuplicateJobDto, isDuplicateJobDto, JobDto } from './jobs.dto';
 
 @Controller('custom-jobs')
 export class CustomJobsController {
@@ -48,12 +42,10 @@ export class CustomJobsController {
         const duplicateDto = plainToInstance(DuplicateJobDto, dto);
         await validateOrReject(duplicateDto);
         return await this.customJobsService.duplicate(dto.jobId);
-      } else if (isJobDto(dto)) {
+      } else {
         const jobDto = plainToInstance(JobDto, dto);
         await validateOrReject(jobDto);
         return await this.customJobsService.create(dto);
-      } else {
-        throw new BadRequestException('Unknown request type.');
       }
     } catch (err) {
       if (err.code === MONGO_DUPLICATE_ERROR) {

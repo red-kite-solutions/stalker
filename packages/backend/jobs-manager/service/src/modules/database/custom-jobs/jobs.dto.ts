@@ -21,10 +21,6 @@ export function isDuplicateJobDto(
   return 'jobId' in dto;
 }
 
-export function isJobDto(dto: DuplicateJobDto | JobDto): dto is JobDto {
-  return 'code' in dto;
-}
-
 export class DuplicateJobDto {
   @IsMongoId()
   @IsNotEmpty()
