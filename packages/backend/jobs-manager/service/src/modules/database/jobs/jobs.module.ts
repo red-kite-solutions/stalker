@@ -5,9 +5,9 @@ import { ConfigModule } from '../admin/config/config.module';
 import { CustomJobsModule } from '../custom-jobs/custom-jobs.module';
 import { DatalayerModule } from '../datalayer.module';
 import { SecretsModule } from '../secrets/secrets.module';
+import { JobExecutionsService } from './job-executions.service';
 import { JobOutputGateway } from './job.gateway';
 import { JobsController } from './jobs.controller';
-import { JobsService } from './jobs.service';
 
 @Module({
   imports: [
@@ -19,7 +19,7 @@ import { JobsService } from './jobs.service';
     SecretsModule,
   ],
   controllers: [JobsController],
-  providers: [JobsService, JobOutputGateway],
-  exports: [JobsService],
+  providers: [JobExecutionsService, JobOutputGateway],
+  exports: [JobExecutionsService],
 })
 export class JobsModule {}

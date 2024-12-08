@@ -1,6 +1,6 @@
 import { IsString } from 'class-validator';
 
-export class JobSourceDto {
+export class DataSourceDto {
   @IsString()
   type: 'git';
 

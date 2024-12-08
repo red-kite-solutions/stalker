@@ -5,20 +5,20 @@ import { Model } from 'mongoose';
 import { AppModule } from '../../app.module';
 import { ProjectDocument } from '../reporting/project.model';
 import { ProjectService } from '../reporting/project.service';
-import { JobsService } from './jobs.service';
+import { JobExecutionsService } from './job-executions.service';
 import { Job } from './models/jobs.model';
 
 describe('Jobs Service', () => {
   let moduleFixture: TestingModule;
   let jobsModel: Model<Job>;
-  let jobsService: JobsService;
+  let jobsService: JobExecutionsService;
   let projectService: ProjectService;
 
   beforeAll(async () => {
     moduleFixture = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    jobsService = moduleFixture.get(JobsService);
+    jobsService = moduleFixture.get(JobExecutionsService);
     projectService = moduleFixture.get(ProjectService);
     jobsModel = moduleFixture.get<Model<Job>>(getModelToken('job'));
   });

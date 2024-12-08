@@ -2,7 +2,7 @@ import { Logger } from '@nestjs/common';
 import { CommandHandler } from '@nestjs/cqrs';
 import { ConfigService } from '../../../database/admin/config/config.service';
 import { CustomJobsService } from '../../../database/custom-jobs/custom-jobs.service';
-import { JobsService } from '../../../database/jobs/jobs.service';
+import { JobExecutionsService } from '../../../database/jobs/job-executions.service';
 import { WebsiteService } from '../../../database/reporting/websites/website.service';
 import { SecretsService } from '../../../database/secrets/secrets.service';
 import { EventSubscriptionsService } from '../../../database/subscriptions/event-subscriptions/event-subscriptions.service';
@@ -16,7 +16,7 @@ export class WebsiteHandler extends JobFindingHandlerBase<WebsiteCommand> {
 
   constructor(
     private websiteService: WebsiteService,
-    jobService: JobsService,
+    jobService: JobExecutionsService,
     subscriptionsService: EventSubscriptionsService,
     customJobsService: CustomJobsService,
     configService: ConfigService,

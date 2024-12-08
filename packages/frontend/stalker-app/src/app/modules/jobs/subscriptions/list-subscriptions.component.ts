@@ -33,6 +33,7 @@ import {
   TableFiltersSourceBase,
 } from '../../../shared/widget/filtered-paginated-table/table-filters-source';
 import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-table/table-format/table-format.component';
+import { DataSourceComponent } from '../../data-source/data-source/data-source.component';
 import { SubscriptionInteractionService } from './subscription-interaction.service';
 import { subscriptionTypes } from './subscription-templates';
 
@@ -59,6 +60,7 @@ import { subscriptionTypes } from './subscription-templates';
     MatTooltipModule,
     DisabledPillTagComponent,
     TableFormatComponent,
+    DataSourceComponent,
   ],
   providers: [
     { provide: TableFiltersSourceBase, useClass: TableFiltersSource },
@@ -115,6 +117,11 @@ export class ListSubscriptionsComponent {
     }
   }
 
+  public async duplicate(sub: EventSubscription | CronSubscription) {
+    await this.subscriptionInteractor.duplicate(sub);
+    this.refreshData$.next();
+  }
+
   public getSubscriptionQueryParams(row: SubscriptionData) {
     return { type: row.type };
   }
@@ -139,9 +146,20 @@ export class ListSubscriptionsComponent {
     }
 
     menuItems.push({
+      action: () => this.duplicate(element),
+      icon: 'file_copy',
+      label: $localize`:Duplicate a job|Duplicate a job:Duplicate`,
+    });
+
+    menuItems.push({
       action: () => this.deleteBatch([element]),
       icon: 'delete',
       label: $localize`:Delete subscription|Delete subscription:Delete`,
+      disabled: element.source != null,
+      tooltip:
+        element.source != null
+          ? $localize`:Cannot delete imported jobs|Cannot delete imported jobs:You cannot delete imported subscriptions.`
+          : undefined,
     });
 
     return menuItems;

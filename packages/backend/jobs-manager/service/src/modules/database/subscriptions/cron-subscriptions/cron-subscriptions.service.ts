@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DeleteResult, UpdateResult } from 'mongodb';
 import { FilterQuery, Model, Types } from 'mongoose';
+import { HttpNotFoundException } from '../../../../exceptions/http.exceptions';
 import {
   Finding,
   HostnameFinding,
@@ -12,8 +13,8 @@ import {
 } from '../../../findings/findings.service';
 import { ConfigService } from '../../admin/config/config.service';
 import { CustomJobsService } from '../../custom-jobs/custom-jobs.service';
+import { JobExecutionsService } from '../../jobs/job-executions.service';
 import { JobFactory } from '../../jobs/jobs.factory';
-import { JobsService } from '../../jobs/jobs.service';
 import { Job } from '../../jobs/models/jobs.model';
 import { Domain, DomainDocument } from '../../reporting/domain/domain.model';
 import { DomainsService } from '../../reporting/domain/domain.service';
@@ -44,7 +45,7 @@ export class CronSubscriptionsService {
     private readonly projectService: ProjectService,
     private readonly configService: ConfigService,
     private readonly customJobsService: CustomJobsService,
-    private readonly jobsService: JobsService,
+    private readonly jobsService: JobExecutionsService,
     private readonly domainsService: DomainsService,
     private readonly hostsService: HostService,
     private readonly portsService: PortService,
@@ -63,6 +64,34 @@ export class CronSubscriptionsService {
       jobParameters: dto.jobParameters,
       conditions: dto.conditions,
     };
+    return await this.subscriptionModel.create(sub);
+  }
+
+  public async duplicate(cronSubscriptionId: string) {
+    const existingSub = await this.subscriptionModel.findById(
+      new Types.ObjectId(cronSubscriptionId),
+    );
+
+    if (!existingSub) {
+      throw new HttpNotFoundException(
+        `EventSubscriptionId=${cronSubscriptionId} not found.`,
+      );
+    }
+
+    const sub: CronSubscription = {
+      conditions: existingSub.conditions,
+      isEnabled: existingSub.isEnabled,
+      jobName: existingSub.jobName,
+      jobParameters: existingSub.jobParameters,
+      name: `${existingSub.name} Copy`,
+      builtIn: existingSub.builtIn,
+      file: existingSub.file,
+      projectId: existingSub.projectId,
+      cronExpression: existingSub.cronExpression,
+      input: existingSub.input,
+      source: undefined,
+    };
+
     return await this.subscriptionModel.create(sub);
   }
 

@@ -1,4 +1,4 @@
-import { JobSource } from './job-source.type';
+import { DataSource } from '../data-source/data-source.type';
 
 export const customJobTypes = ['code', 'nuclei'] as const;
 export const customJobLanguages = ['python', 'yaml'] as const;
@@ -51,5 +51,5 @@ export interface CustomJobData {
   findingHandlerEnabled?: boolean;
   findingHandler?: string;
   findingHandlerLanguage?: CustomJobFindingHandlerLanguage;
-  source?: JobSource;
+  source?: DataSource;
 }

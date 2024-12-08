@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DeleteResult, UpdateResult } from 'mongodb';
 import { Model, Types } from 'mongoose';
+import { HttpNotFoundException } from '../../../../exceptions/http.exceptions';
 import { ProjectUnassigned } from '../../../../validators/is-project-id.validator';
 import { SubscriptionTriggersService } from '../subscription-triggers/subscription-triggers.service';
 import { EventSubscriptionDto } from './event-subscriptions.dto';
@@ -29,6 +30,35 @@ export class EventSubscriptionsService {
       cooldown: dto.cooldown,
       discriminator: dto.discriminator ?? null,
     };
+    return await this.subscriptionModel.create(sub);
+  }
+
+  public async duplicate(eventSubscriptionId: string) {
+    const existingSub = await this.subscriptionModel.findById(
+      new Types.ObjectId(eventSubscriptionId),
+    );
+
+    if (!existingSub) {
+      throw new HttpNotFoundException(
+        `EventSubscriptionId=${eventSubscriptionId} not found.`,
+      );
+    }
+
+    const sub: EventSubscription = {
+      conditions: existingSub.conditions,
+      cooldown: existingSub.cooldown,
+      findings: existingSub.findings,
+      isEnabled: existingSub.isEnabled,
+      jobName: existingSub.jobName,
+      jobParameters: existingSub.jobParameters,
+      name: `${existingSub.name} Copy`,
+      builtIn: existingSub.builtIn,
+      discriminator: existingSub.discriminator,
+      file: existingSub.file,
+      projectId: existingSub.projectId,
+      source: undefined,
+    };
+
     return await this.subscriptionModel.create(sub);
   }
 

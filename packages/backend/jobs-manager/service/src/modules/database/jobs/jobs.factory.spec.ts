@@ -9,14 +9,14 @@ import { ProjectService } from '../reporting/project.service';
 import { Secret } from '../secrets/secrets.model';
 import { SecretsService } from '../secrets/secrets.service';
 import { JobParameter } from '../subscriptions/event-subscriptions/event-subscriptions.model';
+import { JobExecutionsService } from './job-executions.service';
 import { JobFactoryUtils } from './jobs.factory';
-import { JobsService } from './jobs.service';
 import { Job } from './models/jobs.model';
 
 describe('Jobs Service', () => {
   let moduleFixture: TestingModule;
   let jobsModel: Model<Job>;
-  let jobsService: JobsService;
+  let jobsService: JobExecutionsService;
   let projectService: ProjectService;
   let configService: ConfigService;
   let jobPodConfigModel: Model<JobPodConfiguration>;
@@ -27,7 +27,7 @@ describe('Jobs Service', () => {
     moduleFixture = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    jobsService = moduleFixture.get(JobsService);
+    jobsService = moduleFixture.get(JobExecutionsService);
     projectService = moduleFixture.get(ProjectService);
     configService = moduleFixture.get(ConfigService);
     secretsService = moduleFixture.get(SecretsService);

@@ -1,7 +1,7 @@
 import { Kafka, KafkaMessage } from 'kafkajs';
 import { JobLogLevel } from '../../types/timestamped-string.type';
 import { orchestratorConstants } from '../auth/constants';
-import { JobsService } from '../database/jobs/jobs.service';
+import { JobExecutionsService } from '../database/jobs/job-executions.service';
 import { KafkaConsumer } from './kafka.consumer';
 
 export class JobLogsConsumer extends KafkaConsumer {
@@ -19,7 +19,7 @@ export class JobLogsConsumer extends KafkaConsumer {
 
   protected constructor(
     kafka: Kafka,
-    private jobService: JobsService,
+    private jobService: JobExecutionsService,
   ) {
     super(kafka);
   }
@@ -41,7 +41,7 @@ export class JobLogsConsumer extends KafkaConsumer {
     );
   }
 
-  public static async create(kafka: Kafka, jobService: JobsService) {
+  public static async create(kafka: Kafka, jobService: JobExecutionsService) {
     const consumer = new JobLogsConsumer(kafka, jobService);
     await consumer.start();
     return consumer;

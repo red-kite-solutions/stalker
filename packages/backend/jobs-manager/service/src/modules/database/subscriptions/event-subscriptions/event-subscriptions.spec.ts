@@ -108,6 +108,44 @@ describe('Event Subscriptions Service', () => {
     });
   });
 
+  describe('Duplicate', () => {
+    it('Should get rid of the source when duplicating', async () => {
+      // Arrange
+      const subData: EventSubscriptionDto = {
+        projectId: '',
+        name: 'my sub',
+        jobName: 'DomainNameResolvingJob',
+        findings: ['HostnameFinding'],
+        cooldown: 3600,
+      };
+
+      const sub = await subscription({
+        ...subData,
+      });
+
+      // Act
+      await subscriptionsService.duplicate(sub.id);
+
+      // Assert
+      const subs = await subscriptionsService.getAll();
+      expect(subs.length).toStrictEqual(2);
+
+      const [original, duplicate] = subs;
+      expect(duplicate.source).toBeUndefined();
+      expect(duplicate.name).toEqual(`${original.name} Copy`);
+      expect(duplicate.isEnabled).toEqual(original.isEnabled);
+      expect(duplicate.projectId).toEqual(original.projectId);
+      expect(duplicate.findings).toEqual(original.findings);
+      expect(duplicate.jobName).toEqual(original.jobName);
+      expect(duplicate.jobParameters).toEqual(original.jobParameters);
+      expect(duplicate.conditions).toEqual(original.conditions);
+      expect(duplicate.cooldown).toEqual(original.cooldown);
+      expect(duplicate.builtIn).toEqual(original.builtIn);
+      expect(duplicate.file).toEqual(original.file);
+      expect(duplicate.discriminator).toEqual(original.discriminator);
+    });
+  });
+
   it('Should get the event subscriptions with multiple findings', async () => {
     // Arrange
     const c1 = await project('sub-c12');
@@ -185,6 +223,7 @@ describe('Event Subscriptions Service', () => {
       logo: null,
     });
   }
+
   async function subscription(subscription: EventSubscriptionDto) {
     return await subscriptionsService.create(subscription);
   }

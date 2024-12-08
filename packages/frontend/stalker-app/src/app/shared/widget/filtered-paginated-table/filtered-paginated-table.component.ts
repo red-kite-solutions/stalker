@@ -52,6 +52,8 @@ export interface ElementMenuItems {
   icon: string;
   action: () => Promise<unknown> | void;
   hidden?: boolean;
+  disabled?: boolean;
+  tooltip?: string;
 }
 
 @Component({

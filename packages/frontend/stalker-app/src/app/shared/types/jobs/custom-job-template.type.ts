@@ -1,3 +1,4 @@
+import { DataSource } from '../data-source/data-source.type';
 import { CustomJobFindingHandlerLanguage, CustomJobLanguage, CustomJobType } from './custom-job.type';
 import { JobParameterDefinition } from './job.type';
 
@@ -17,9 +18,5 @@ export interface CustomJobTemplate extends CustomJobTemplateSummary {
   findingHandlerEnabled?: boolean;
   findingHandler?: string;
   findingHandlerLanguage?: CustomJobFindingHandlerLanguage;
-  source: {
-    type: 'git' | 'custom';
-    url: string;
-    avatarUrl: string;
-  };
+  source: DataSource;
 }

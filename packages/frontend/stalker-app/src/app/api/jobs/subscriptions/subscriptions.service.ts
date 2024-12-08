@@ -71,6 +71,10 @@ export class SubscriptionService {
     return this.getService(type).delete(id);
   }
 
+  duplicate(type: SubscriptionType, id: string) {
+    return this.getService(type).duplicate(id);
+  }
+
   updateIsEnabled(type: SubscriptionType, id: string, isEnabled: boolean): Promise<void> {
     return this.getService(type).updateIsEnabled(id, isEnabled);
   }

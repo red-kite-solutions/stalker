@@ -426,7 +426,7 @@ export class SubscriptionsUtils {
     const source = {
       type: dataSource.type,
       avatarUrl: dataSource.avatarUrl,
-      url: dataSource.repoUrl,
+      repoUrl: dataSource.repoUrl,
       branch: dataSource.branch,
     };
 

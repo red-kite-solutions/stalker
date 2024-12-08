@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { map, Observable, shareReplay, Subject, switchMap } from 'rxjs';
 import { ThemeService } from 'src/app/services/theme.service';
-import { JobsService } from '../../../api/jobs/jobs/jobs.service';
+import { JobExecutionsService } from '../../../api/jobs/job-executions/job-executions.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { CodeEditorTheme } from '../../../shared/widget/code-editor/code-editor.component';
 
@@ -28,7 +28,7 @@ export class JobExecutionDetailComponent {
   public logs$: Observable<string> = new Subject<string>();
 
   constructor(
-    private jobService: JobsService,
+    private jobService: JobExecutionsService,
     private projectsService: ProjectsService,
     private route: ActivatedRoute,
     private themeService: ThemeService

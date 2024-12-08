@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 import { MatListModule } from '@angular/material/list';
 import { RouterModule } from '@angular/router';
 import { map } from 'rxjs';
-import { JobsService } from 'src/app/api/jobs/jobs/jobs.service';
+import { JobExecutionsService } from 'src/app/api/jobs/job-executions/job-executions.service';
 import { JobLogsSummaryComponent } from '../../jobs/job-executions/job-execution-logs-summary.component';
 import { JobStateComponent } from '../../jobs/job-executions/job-execution-state.component';
 
@@ -28,5 +28,5 @@ import { JobStateComponent } from '../../jobs/job-executions/job-execution-state
 export class LatestJobs {
   public jobs$ = this.jobsService.getJobExecutions(0, 10).pipe(map((x) => x.items));
 
-  constructor(private jobsService: JobsService) {}
+  constructor(private jobsService: JobExecutionsService) {}
 }
