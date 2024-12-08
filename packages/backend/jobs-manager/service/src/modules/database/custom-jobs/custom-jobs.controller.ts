@@ -11,13 +11,13 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { plainToInstance } from 'class-transformer';
-import { validateOrReject } from 'class-validator';
 import { DeleteResult } from 'mongodb';
 import {
   HttpConflictException,
   HttpServerErrorException,
 } from '../../../exceptions/http.exceptions';
 import { MongoIdDto } from '../../../types/dto/mongo-id.dto';
+import { validateOrReject } from '../../../validators/validate-or-reject';
 import { Role } from '../../auth/constants';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { RolesGuard } from '../../auth/guards/role.guard';
@@ -44,6 +44,7 @@ export class CustomJobsController {
         return await this.customJobsService.duplicate(dto.jobId);
       } else {
         const jobDto = plainToInstance(JobDto, dto);
+        console.log(jobDto);
         await validateOrReject(jobDto);
         return await this.customJobsService.create(dto);
       }
@@ -51,6 +52,7 @@ export class CustomJobsController {
       if (err.code === MONGO_DUPLICATE_ERROR) {
         throw new HttpConflictException();
       }
+
       this.logger.error(err);
       throw new HttpServerErrorException();
     }
