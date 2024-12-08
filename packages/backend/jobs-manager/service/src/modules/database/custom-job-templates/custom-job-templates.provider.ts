@@ -1,12 +1,17 @@
+import { Logger } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
+import { UpdateFilter } from 'mongodb';
 import { Model } from 'mongoose';
-import { lstatSync, readdirSync } from 'node:fs';
+import { DataSources } from '../../datasources/data-sources';
 import { DATABASE_INIT } from '../admin/config/config.provider';
 import { JobPodConfiguration } from '../admin/config/job-pod-config/job-pod-config.model';
-import { ALL_JOB_FILE_PATHS } from '../custom-jobs/custom-jobs.constants';
-import { ALL_TEMPLATE_FILE_PATHS } from './custom-job-templates.constants';
+import { CustomJobEntry } from '../custom-jobs/custom-jobs.model';
+import {
+  GitJobSource,
+  JobSource,
+  JobSourceConfig,
+} from '../custom-jobs/jobs.source';
 import { CustomJobTemplate } from './custom-job-templates.model';
-import { CustomJobTemplateUtils } from './custom-job-templates.utils';
 
 export const JOBS_INIT = 'JOBS_INIT';
 
@@ -16,40 +21,47 @@ export const jobTemplatesInitProvider = [
     inject: [
       getModelToken('customJobTemplates'),
       getModelToken('jobPodConfig'),
+      DataSources,
       { token: DATABASE_INIT, optional: false },
     ],
     useFactory: async (
-      templateModel: Model<CustomJobTemplate>,
+      jobTemplatesModel: Model<CustomJobTemplate>,
       jpcModel: Model<JobPodConfiguration>,
+      dataSources: DataSources,
     ) => {
-      const initTemplates = async (
-        paths: string[],
-        source: 'custom jobs' | 'templates',
-      ) => {
-        for (const fp of paths) {
-          const files = readdirSync(fp);
+      const logger = new Logger('jobTemplatesInitProvider');
 
-          for (const file of files) {
-            if (lstatSync(fp + file).isDirectory()) continue;
-            const j = await CustomJobTemplateUtils.getCustomJob(
-              fp,
-              file,
-              source,
-              jpcModel,
-            );
+      try {
+        const podConfigs = await jpcModel.find();
 
-            if (!j) continue;
-            await templateModel.findOneAndUpdate(
-              { builtInFilePath: j.builtInFilePath },
-              j,
-              { upsert: true },
-            );
+        const sourceConfigs: JobSourceConfig[] =
+          process.env.DATA_SOURCES != null
+            ? JSON.parse(process.env.DATA_SOURCES) ?? undefined
+            : [];
+
+        const sources: JobSource[] = [];
+        for (const source of sourceConfigs) {
+          const dataSource = await dataSources.get(source);
+          sources.push(new GitJobSource(dataSource));
+        }
+
+        for (const source of sources) {
+          const importedJobs = await source.synchronize(podConfigs, true);
+          for (const job of importedJobs) {
+            const filter: UpdateFilter<CustomJobEntry> = {
+              name: job.name,
+              'source.repoUrl': job.source?.repoUrl,
+            };
+
+            await jobTemplatesModel.findOneAndUpdate(filter, job, {
+              upsert: true,
+              returnDocument: 'after',
+            });
           }
         }
-      };
-
-      await initTemplates(ALL_TEMPLATE_FILE_PATHS, 'templates');
-      await initTemplates(ALL_JOB_FILE_PATHS, 'custom jobs');
+      } catch (e) {
+        logger.error(e);
+      }
     },
   },
 ];

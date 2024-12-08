@@ -293,14 +293,4 @@ export class SubscriptionComponent implements OnInit, OnDestroy, HasUnsavedChang
     await this.subscriptionInteractor.updateIsEnabled(id!, type, isEnabled);
     this.refreshIsEnabled$.next(true);
   }
-
-  public async revertToOriginal() {
-    const id = await firstValueFrom(this.id$);
-    const type = await firstValueFrom(this.type$);
-
-    const result = await this.subscriptionInteractor.revertToOriginal(id!, type);
-    if (result) {
-      await this.initialize();
-    }
-  }
 }

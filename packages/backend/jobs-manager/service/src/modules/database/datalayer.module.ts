@@ -14,6 +14,7 @@ import { ProjectModelModule } from './reporting/project-model.module';
 import { WebsiteModelModule } from './reporting/websites/website-model.module';
 import { SecretsModelModule } from './secrets/secrets-model.module';
 import { CronSubscriptionModelModule } from './subscriptions/cron-subscriptions/cron-subscription-model.module';
+import { EventSubscriptionModelModule } from './subscriptions/event-subscriptions/event-subscription-model.module';
 import { TagModelModule } from './tags/tag-model.module';
 import { UserModelModule } from './users/users-model.module';
 
@@ -29,6 +30,7 @@ import { UserModelModule } from './users/users-model.module';
     PortModelModule,
     JobPodConfigModelModule,
     CronSubscriptionModelModule,
+    EventSubscriptionModelModule,
     SecretsModelModule,
     AlarmModelModule,
     CustomJobTemplateModelModule,
@@ -48,6 +50,7 @@ import { UserModelModule } from './users/users-model.module';
     PortModelModule,
     JobPodConfigModelModule,
     CronSubscriptionModelModule,
+    EventSubscriptionModelModule,
     SecretsModelModule,
     AlarmModelModule,
     CustomJobTemplateModelModule,

@@ -63,7 +63,7 @@ describe('Findings Handler Base', () => {
       ({ expected, isEnabled }) => {
         // Arrange
         const hnFinding = new HostnameFinding();
-        hnFinding.domainName = 'stalker.is';
+        hnFinding.domainName = 'red-kite.io';
         const hnCommand = new HostnameCommand(
           '',
           HostnameCommand.name,
@@ -266,7 +266,7 @@ describe('Findings Handler Base', () => {
                   {
                     lhs: '${domainName}',
                     operator: 'equals',
-                    rhs: 'stalker.is',
+                    rhs: 'red-kite.io',
                   },
                   {
                     lhs: 'asdf',
@@ -306,7 +306,7 @@ describe('Findings Handler Base', () => {
       (conditions: Array<JobCondition | OrJobCondition | AndJobCondition>) => {
         // Arrange
         const hnFinding = new HostnameFinding();
-        hnFinding.domainName = 'stalker.is';
+        hnFinding.domainName = 'red-kite.io';
         const hnCommand = new HostnameCommand(
           '',
           HostnameCommand.name,
@@ -574,7 +574,7 @@ describe('Findings Handler Base', () => {
             or: [
               {
                 and: [
-                  { lhs: 'asdf', operator: 'equals', rhs: 'stalker.is' },
+                  { lhs: 'asdf', operator: 'equals', rhs: 'red-kite.io' },
                   {
                     lhs: 'asdf',
                     operator: 'equals_i',
@@ -586,7 +586,7 @@ describe('Findings Handler Base', () => {
           },
           {
             or: [
-              { lhs: 'asdf', operator: 'equals', rhs: 'stalker.is' },
+              { lhs: 'asdf', operator: 'equals', rhs: 'red-kite.io' },
               {
                 and: [],
               },
@@ -638,7 +638,7 @@ describe('Findings Handler Base', () => {
       (paramValue: string) => {
         // Arrange
         const hnFinding = new HostnameFinding();
-        hnFinding.domainName = 'stalker.is';
+        hnFinding.domainName = 'red-kite.io';
         let valueCopy = paramValue;
 
         // Act
@@ -652,7 +652,7 @@ describe('Findings Handler Base', () => {
 
         // Arrange
         const hnipFinding = new HostnameIpFinding();
-        hnipFinding.domainName = 'www.stalker.is';
+        hnipFinding.domainName = 'www.red-kite.io';
         valueCopy = paramValue;
 
         // Act
@@ -701,7 +701,7 @@ describe('Findings Handler Base', () => {
       (paramValue: string) => {
         // Arrange
         const hnFinding = new HostnameFinding();
-        hnFinding.domainName = 'stalker.is';
+        hnFinding.domainName = 'red-kite.io';
         let valueCopy = paramValue;
 
         // Act
@@ -715,7 +715,7 @@ describe('Findings Handler Base', () => {
 
         // Arrange
         const hnipFinding = new HostnameIpFinding();
-        hnipFinding.domainName = 'www.stalker.is';
+        hnipFinding.domainName = 'www.red-kite.io';
         valueCopy = paramValue;
 
         // Act
@@ -758,7 +758,7 @@ describe('Findings Handler Base', () => {
       const sub = new EventSubscription();
       sub.projectId = new Types.ObjectId('507f1f77bcf86cd799439011');
       sub.conditions = [];
-      sub.finding = 'HostnameFinding';
+      sub.findings = ['HostnameFinding'];
       sub.jobName = cjName;
       const customParam = { name: 'custom-job-param', value: 'ASDF' };
       sub.jobParameters = [customParam];
@@ -843,7 +843,7 @@ describe('Findings Handler Base', () => {
         cooldown: 82800,
         builtIn: true,
         isEnabled: true,
-        finding: 'PortFinding',
+        findings: ['PortFinding'],
         jobName: 'HttpServerCheckJob',
         jobParameters: [
           { name: 'targetIp', value: '${ip}' },
@@ -854,7 +854,7 @@ describe('Findings Handler Base', () => {
       es.conditions[0] = es.conditions[0] as JobCondition;
       let yaml = [
         `name: ${es.name}`,
-        `finding: ${es.finding}`,
+        `findings: ${JSON.stringify(es.findings)}`,
         `triggerInterval: ${es.cooldown}`,
         `job:`,
         `  name: ${es.jobName}`,
@@ -874,7 +874,7 @@ describe('Findings Handler Base', () => {
       const sub = SubscriptionsUtils.parseEventSubscriptionYaml(yaml);
 
       // Assert
-      expect(sub.finding).toStrictEqual(es.finding);
+      expect(sub.findings).toStrictEqual(es.findings);
       expect(sub.name).toStrictEqual(es.name);
       expect(sub.jobName).toStrictEqual(es.jobName);
 

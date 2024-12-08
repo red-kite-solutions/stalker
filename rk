@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# Minikube resources
+MINIKUBE_RAM=16384
+MINIKUBE_CPU=8
+
+if [[ $* == *--help* || $* == *-h* ]]; then
+  echo 'Red Kite Community setup tool'
+  echo ''
+  echo 'Description:'
+  echo 'This tool setups a basic production instance of Red Kite Community, and starts the instance.'
+  echo ''
+  echo 'Usage:'
+  echo './rk [OPTIONS]'
+  echo ''
+  echo 'Options:'
+  echo '  --force-setup, -f   Forces a setup, ignoring the existing setup.'
+  echo '  --help, -h          Display this help message.'
+  echo ''
+  echo 'Example:'
+  echo '  ./rk                # Setups and starts Red Kite Community.'
+  echo '  ./rk --force-setup  # Forces a new setup of Red Kite Community.'
+  exit
+fi
+
+
+if [[ $* == *--force-setup* || $* == *-f* ]]; then
+  echo Force setup flag enabled, cleaning up.
+  rm index.txt* 2> /dev/null
+  rm devspace.prod.yaml 2> /dev/null
+fi
+
+
+if [ ! -f "devspace.prod.yaml" ]; then
+  echo "Initializing Stalker for its first deployment."
+  bash ./setup.sh
+fi
+
+if ! (minikube status &>/dev/null); then
+  minikube start --driver=docker --memory=$MINIKUBE_RAM --cpus=$MINIKUBE_CPU
+fi
+
+devspace --var="RK_ENVIRONMENT=prod-community" run-pipeline prod-community -n stalker

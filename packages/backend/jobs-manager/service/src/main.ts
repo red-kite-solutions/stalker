@@ -11,7 +11,7 @@ async function bootstrap() {
 
   const options: NestApplicationOptions = {
     cors: {
-      origin: process.env.STALKER_URL,
+      origin: process.env.RK_URL,
     },
     logger: ['debug', 'log', 'warn', 'error'],
   };
@@ -29,7 +29,7 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule, adapter, options);
   app.enableCors({
-    origin: process.env.STALKER_URL,
+    origin: process.env.RK_URL,
   });
   // https://github.com/red-kite-solutions/stalker/issues/94
   app.use(json({ limit: '10mb' }));

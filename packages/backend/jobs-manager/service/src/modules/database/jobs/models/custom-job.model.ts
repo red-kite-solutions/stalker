@@ -58,6 +58,12 @@ export const languageExtensionMapping = {
   yaml: 'yaml',
 };
 
+export interface JobSource {
+  type: 'git';
+  url: string;
+  avatarUrl: string;
+}
+
 @Schema()
 export class CustomJob {
   public task: string;

@@ -42,7 +42,7 @@ export class EventSubscriptionsService implements GenericSubscriptionService<Eve
       discriminator: newSub.discriminator ? newSub.discriminator : undefined,
       isEnabled: subscription.isEnabled,
       name: newSub.name,
-      finding: newSub.finding,
+      findings: newSub.findings,
       cooldown: newSub.cooldown,
       projectId: newSub.projectId ? newSub.projectId : allProjectsSubscriptions,
       job: {
@@ -68,7 +68,7 @@ export class EventSubscriptionsService implements GenericSubscriptionService<Eve
       name: subscription.name,
       isEnabled: subscription.isEnabled,
       discriminator: subscription.discriminator ? subscription.discriminator : undefined,
-      finding: subscription.finding,
+      findings: subscription.findings,
       cooldown: subscription.cooldown,
       jobName: subscription.job.name,
       projectId: subscription.projectId === allProjectsSubscriptions ? undefined : subscription.projectId,
@@ -84,10 +84,6 @@ export class EventSubscriptionsService implements GenericSubscriptionService<Eve
     return data;
   }
 
-  public async revert(id: string) {
-    await firstValueFrom(this.http.patch(`${environment.fmUrl}/event-subscriptions/${id}`, { revert: true }));
-  }
-
   public async updateIsEnabled(id: string, isEnabled: boolean) {
     await firstValueFrom(this.http.patch(`${environment.fmUrl}/event-subscriptions/${id}`, { isEnabled }));
   }
@@ -98,12 +94,13 @@ export class EventSubscriptionsService implements GenericSubscriptionService<Eve
       _id: data._id,
       isEnabled: data.isEnabled,
       name: data.name,
-      finding: data.finding,
+      findings: data.findings,
       projectId: data.projectId ? data.projectId : allProjectsSubscriptions,
       cooldown: data.cooldown,
       builtIn: data.builtIn,
       discriminator: data.discriminator ? data.discriminator : undefined,
       job: { name: data.jobName },
+      source: data.source,
     };
 
     if (data.jobParameters) {

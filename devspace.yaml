@@ -2,15 +2,15 @@ version: v2beta1
 name: stalker
 
 vars:
-  STALKER_ENVIRONMENT: dev
+  RK_ENVIRONMENT: dev
 
 imports:
   - path: devspace.dev.yaml
-    enabled: $(is_equal ${STALKER_ENVIRONMENT} "dev")
+    enabled: $(is_equal ${RK_ENVIRONMENT} "dev")
   - path: devspace.tests.yaml
-    enabled: $(is_equal ${STALKER_ENVIRONMENT} "tests")
+    enabled: $(is_equal ${RK_ENVIRONMENT} "tests")
   - path: devspace.prod.yaml
-    enabled: $(is_equal ${STALKER_ENVIRONMENT} "prod-community")
+    enabled: $(is_equal ${RK_ENVIRONMENT} "prod-community")
   - path: devspace.base.yaml
 
 pipelines:
@@ -223,22 +223,22 @@ deployments:
                 value: ${JM_REFRESH_SECRET}
               - name: KAFKA_URI
                 value: ${KAFKA_URI}
-              - name: STALKER_URL
-                value: ${STALKER_URL}
+              - name: RK_URL
+                value: ${RK_URL}
               - name: MONGO_REPLICA_SET_NAME
                 value: ${MONGO_REPLICA_SET_NAME}
               - name: JM_ENVIRONMENT
                 value: ${JM_ENVIRONMENT}
-              - name: STALKER_CRON_API_TOKEN
-                value: ${STALKER_CRON_API_TOKEN}
+              - name: RK_CRON_API_TOKEN
+                value: ${RK_CRON_API_TOKEN}
               - name: SECRET_PUBLIC_RSA_KEY
                 value: ${SECRET_PUBLIC_RSA_KEY}
               - name: JM_MONGO_KEY_PASSWORD
                 value: ${JM_MONGO_KEY_PASSWORD}
               - name: JM_KAFKA_KEY_PASSWORD
                 value: ${JM_KAFKA_KEY_PASSWORD}
-              - name: STALKER_VERSION
-                value: ${STALKER_VERSION}
+              - name: RK_VERSION
+                value: ${RK_VERSION}
               - name: EMAIL_SENDER
                 value: ${JM_EMAIL_SENDER}
               - name: MAILJET_API_KEY
@@ -247,8 +247,10 @@ deployments:
                 value: ${JM_MAILJET_API_SECRET}
               - name: EMAIL_RECIPIENTS_FILTER_LIST
                 value: ${JM_EMAIL_RECIPIENTS_FILTER_LIST}
-              - name: STALKER_APP_BASE_URL
-                value: ${STALKER_APP_BASE_URL}
+              - name: RK_APP_BASE_URL
+                value: ${RK_APP_BASE_URL}
+              - name: DATA_SOURCES
+                value: ${RK_DATA_SOURCES}
 
             volumeMounts:
               - containerPath: /certs
@@ -290,8 +292,8 @@ deployments:
                 value: ${JM_ENVIRONMENT} # Follows the same environment as JM since they work together
               - name: JM_URL
                 value: ${JM_URL}
-              - name: STALKER_CRON_API_TOKEN
-                value: ${STALKER_CRON_API_TOKEN}
+              - name: RK_CRON_API_TOKEN
+                value: ${RK_CRON_API_TOKEN}
               - name: CRON_MONGO_KEY_PASSWORD
                 value: ${CRON_MONGO_KEY_PASSWORD}
 
@@ -815,7 +817,7 @@ profiles:
   - name: e2e
     activation:
       - vars:
-          STALKER_ENVIRONMENT: tests
+          RK_ENVIRONMENT: tests
 
     patches:
       - op: replace
@@ -829,7 +831,7 @@ profiles:
   - name: prod
     activation:
       - vars:
-          STALKER_ENVIRONMENT: "^prod-?.*$"
+          RK_ENVIRONMENT: "^prod-?.*$"
 
     patches:
       # Orchestrator modifications
@@ -864,8 +866,8 @@ profiles:
       - op: replace
         path: dev.ui.ports
         value:
-          - port: "${STALKER_PORT}:443"
-            bindAddress: ${STALKER_BIND_ADDRESS}
+          - port: "${RK_PORT}:443"
+            bindAddress: ${RK_BIND_ADDRESS}
 
       - op: replace
         path: dev.ui.resources
@@ -930,5 +932,5 @@ profiles:
 
                 ports:
                   - containerPort: 443
-                    port: ${STALKER_PORT}
+                    port: ${RK_PORT}
                     protocol: TCP

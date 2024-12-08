@@ -1,19 +1,19 @@
 ---
 sidebar_position: 1
 title: Implementing Jobs
-description: How to implement Stalker jobs
+description: How to implement Red Kite jobs
 ---
 
 # Implementing jobs
 
-This article describes how to implement a job in Stalker. This process involves a few steps, but it is usually quite easy! There is
+This article describes how to implement a job in Red Kite. This process involves a few steps, but it is usually quite easy! There is
 currently two types of jobs: a _python job_ and a _Nuclei job_.
 
 There are a few ways a job can be started: manually (through user input or the Launch Job interface), or automatically (through configured subscriptions). In any case, when a job needs to be run, the Jobs Manager (JM) drops a message on the _Job Requests Queue_. The Orchestrator consumes requests and runs jobs inside [Kubernetes Jobs](https://kubernetes.io/docs/concepts/workloads/controllers/job/). The Orchestrator then waits for the job's _findings_ on its API.
 
 ## Python
 
-The `stalker_job_sdk` provides utilitary functions and classes to help you implement jobs.
+The `Red Kite_job_sdk` provides utilitary functions and classes to help you implement jobs.
 
 ### Local Setup
 
@@ -28,11 +28,11 @@ pip install -r requirements.txt
 ## Making contact with the outside world
 
 The goal of jobs is to produce _findings_. A job may also produce logs to inform the outside world whether things are going well or not.
-Jobs communicate with Stalker through the orchestrator's API.
+Jobs communicate with Red Kite through the orchestrator's API.
 
 ### Producing findings
 
-To give Stalker information about what was found in the job, you need to output findings in the proper format.
+To give Red Kite information about what was found in the job, you need to output findings in the proper format.
 
 To learn more about how to produce findings, [click here](/docs/concepts/findings).
 
@@ -41,7 +41,7 @@ To learn more about how to produce findings, [click here](/docs/concepts/finding
 Logs let jobs communicate miscellaneous information to the outside world. It could be a progress report, an error log, an inspirational
 quote, anything works.
 
-To output a log, simply send a string with a log level to the Orchestrator by using Stalker's python SDK.
+To output a log, simply send a string with a log level to the Orchestrator by using Red Kite's python SDK.
 
 Example:
 
@@ -79,7 +79,7 @@ Updating the status should be the last thing done by your job before exiting.
 
 ## Built-in Jobs
 
-Built-in jobs, often just called jobs, are implemented within Stalker's source code. They can still be modified by users when Stalker is
+Built-in jobs, often just called jobs, are implemented within Red Kite's source code. They can still be modified by users when Red Kite is
 running.
 
 To implement a `python` built-in job, the following files need to be created :
@@ -96,7 +96,7 @@ manually.
 
 ## Custom Jobs
 
-Custom jobs are implemented by a Stalker's user or administrator.
+Custom jobs are implemented by a Red Kite's user or administrator.
 
 Custom jobs can be run manually as a one time thing, or they can be run within the automation process through
 [subscriptions](/docs/concepts/subscriptions).
@@ -153,7 +153,7 @@ Custom jobs communicate in the exact same way as regular jobs. They print to std
 
 ### Types of custom jobs
 
-Several types of custom jobs are supported in Stalker. These custom job types have several advantages. Some types are more flexible, some
+Several types of custom jobs are supported in Red Kite. These custom job types have several advantages. Some types are more flexible, some
 are faster to implement.
 
 The types of custom jobs:
@@ -178,8 +178,8 @@ The python custom jobs come with a built-in SDK to help you properly [output fin
 | Nuclei | Yaml     |
 
 A Nuclei custom job uses [Project Discovery's Nuclei](https://github.com/projectdiscovery/nuclei) to run Nuclei templates and output
-findings understandable by Stalker. It comes with a built-in parser, but if it does not suit your needs, you can specify a custom finding
-handler. This custom finding handler will be responsible for parsing the Nuclei Findings as well as outputing the Stalker compatible
+findings understandable by Red Kite. It comes with a built-in parser, but if it does not suit your needs, you can specify a custom finding
+handler. This custom finding handler will be responsible for parsing the Nuclei Findings as well as outputing the Red Kite compatible
 findings. It is implemented in python. Don't worry though, a template, a custom class and the python SDK are avalailable to help you.
 
 To start a Nuclei custom job, a target is always required. You can provide the target with the following job parameter:

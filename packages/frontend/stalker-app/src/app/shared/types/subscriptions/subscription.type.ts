@@ -14,7 +14,7 @@ export interface EventSubscriptionData extends SubscriptionData {
   cooldown: number;
   discriminator?: string;
   builtIn: boolean;
-  finding: string;
+  findings: string[];
 }
 
 export interface CronSubscriptionData extends SubscriptionData {
@@ -33,6 +33,11 @@ export interface SubscriptionData {
     parameters?: JobParameter[] | undefined | null;
   };
   conditions?: Array<Condition | AndCondition | OrCondition> | undefined | null;
+  source?: {
+    type: 'git';
+    url: string;
+    avatarUrl: string;
+  };
 }
 
 export interface AndCondition {

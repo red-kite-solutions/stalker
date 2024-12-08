@@ -53,7 +53,7 @@ const validConditions: Array<
             {
               lhs: '${domainName}',
               operator: 'not_not_equals',
-              rhs: 'stalker.is',
+              rhs: 'red-kite.io',
             },
             {
               lhs: 'asdf',
