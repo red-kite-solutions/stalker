@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DeleteResult, UpdateResult } from 'mongodb';
 import { FilterQuery, Model, Types } from 'mongoose';
+import { HttpNotFoundException } from '../../../../exceptions/http.exceptions';
 import {
   Finding,
   HostnameFinding,
@@ -70,6 +71,12 @@ export class CronSubscriptionsService {
     const existingSub = await this.subscriptionModel.findById(
       new Types.ObjectId(cronSubscriptionId),
     );
+
+    if (!existingSub) {
+      throw new HttpNotFoundException(
+        `EventSubscriptionId=${cronSubscriptionId} not found.`,
+      );
+    }
 
     const sub: CronSubscription = {
       conditions: existingSub.conditions,

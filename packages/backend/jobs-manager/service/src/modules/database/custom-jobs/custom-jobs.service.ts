@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DeleteResult } from 'mongodb';
 import { Model, Types } from 'mongoose';
+import { HttpNotFoundException } from '../../../exceptions/http.exceptions';
 import { JobSummary } from '../../../types/job-summary.type';
 import { JobModelUpdateQueue } from '../../job-queue/job-model-update-queue';
 import { CustomJobEntry, CustomJobsDocument } from './custom-jobs.model';
@@ -38,6 +39,10 @@ export class CustomJobsService {
     const existingJob = await this.customJobModel.findById(
       new Types.ObjectId(jobId),
     );
+
+    if (!existingJob) {
+      throw new HttpNotFoundException(`JobId=${jobId} not found.`);
+    }
 
     const job: CustomJobEntry = {
       code: existingJob.code,
