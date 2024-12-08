@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -51,6 +52,10 @@ export class CustomJobsController {
     } catch (err) {
       if (err.code === MONGO_DUPLICATE_ERROR) {
         throw new HttpConflictException();
+      }
+
+      if (err instanceof BadRequestException) {
+        throw err;
       }
 
       this.logger.error(err);
