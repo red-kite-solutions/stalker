@@ -47,6 +47,7 @@ export const jobTemplatesInitProvider = [
 
         for (const source of sources) {
           const importedJobs = await source.synchronize(podConfigs, true);
+
           for (const job of importedJobs) {
             const filter: UpdateFilter<CustomJobEntry> = {
               name: job.name,

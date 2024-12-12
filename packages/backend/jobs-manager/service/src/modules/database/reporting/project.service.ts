@@ -4,7 +4,7 @@ import { isIP } from 'class-validator';
 import { DeleteResult, UpdateResult } from 'mongodb';
 import { Model, Types } from 'mongoose';
 import { HttpBadRequestException } from '../../../exceptions/http.exceptions';
-import { JobsService } from '../jobs/jobs.service';
+import { JobExecutionsService } from '../jobs/job-executions.service';
 import { SecretsService } from '../secrets/secrets.service';
 import { CronSubscription } from '../subscriptions/cron-subscriptions/cron-subscriptions.model';
 import { EventSubscriptionsService } from '../subscriptions/event-subscriptions/event-subscriptions.service';
@@ -23,7 +23,7 @@ export class ProjectService {
     @InjectModel('project') private readonly projectModel: Model<Project>,
     private readonly domainsService: DomainsService,
     private readonly hostsService: HostService,
-    private readonly jobsService: JobsService,
+    private readonly jobsService: JobExecutionsService,
     private readonly subscriptionsService: EventSubscriptionsService,
     @InjectModel('cronSubscriptions')
     private readonly cronSubscriptionModel: Model<CronSubscription>,

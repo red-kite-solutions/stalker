@@ -1899,6 +1899,41 @@ describe('Cron Subscriptions Service', () => {
     });
   });
 
+  describe('Duplicate', () => {
+    it('Should get rid of the source when duplicating', async () => {
+      // Arrange
+      const subData: CronSubscriptionDto = {
+        projectId: '',
+        name: 'my sub',
+        jobName: 'DomainNameResolvingJob',
+        cronExpression: '* * * * *',
+      };
+
+      const sub = await subscription({
+        ...subData,
+      });
+
+      // Act
+      await subscriptionsService.duplicate(sub.id);
+
+      // Assert
+      const subs = await subscriptionsService.getAll();
+      expect(subs.length).toStrictEqual(2);
+
+      const [original, duplicate] = subs;
+      expect(duplicate.source).toBeUndefined();
+      expect(duplicate.name).toEqual(`${original.name} Copy`);
+      expect(duplicate.isEnabled).toEqual(original.isEnabled);
+      expect(duplicate.projectId).toEqual(original.projectId);
+      expect(duplicate.jobName).toEqual(original.jobName);
+      expect(duplicate.jobParameters).toEqual(original.jobParameters);
+      expect(duplicate.conditions).toEqual(original.conditions);
+      expect(duplicate.builtIn).toEqual(original.builtIn);
+      expect(duplicate.file).toEqual(original.file);
+      expect(duplicate.cronExpression).toEqual(original.cronExpression);
+    });
+  });
+
   async function project(name: string) {
     return await projectService.addProject({
       name: name,

@@ -13,7 +13,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
 import { Router, RouterModule } from '@angular/router';
 import { BehaviorSubject, combineLatest, map, shareReplay, switchMap, tap } from 'rxjs';
-import { CustomJobsService } from 'src/app/api/jobs/custom-jobs/custom-jobs.service';
+import { JobsService } from 'src/app/api/jobs/jobs/jobs.service';
 import { AvatarComponent } from 'src/app/shared/components/avatar/avatar.component';
 import { CustomJob } from 'src/app/shared/types/jobs/custom-job.type';
 import {
@@ -30,6 +30,7 @@ import {
 } from '../../../shared/widget/filtered-paginated-table/table-filters-source';
 import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-table/table-format/table-format.component';
 import { AuthModule } from '../../auth/auth.module';
+import { DataSourceComponent } from '../../data-source/data-source/data-source.component';
 import { CustomJobsInteractionService } from './custom-jobs-interaction.service';
 
 @Component({
@@ -54,6 +55,7 @@ import { CustomJobsInteractionService } from './custom-jobs-interaction.service'
     MatTooltipModule,
     AuthModule,
     TableFormatComponent,
+    DataSourceComponent,
   ],
   providers: [
     { provide: TableFiltersSourceBase, useClass: TableFiltersSource },
@@ -74,7 +76,7 @@ export class ListCustomJobsComponent {
   private refreshData$ = new BehaviorSubject<void>(undefined);
   public customJobs$ = combineLatest([this.filtersSource.debouncedFilters$, this.refreshData$]).pipe(
     switchMap(([{ filters, pagination }]) =>
-      this.customJobsService.getCustomJobs(filters, pagination?.page ?? 0, pagination?.pageSize ?? 25)
+      this.jobsService.getCustomJobs(filters, pagination?.page ?? 0, pagination?.pageSize ?? 25)
     ),
     shareReplay(1)
   );
@@ -86,7 +88,7 @@ export class ListCustomJobsComponent {
   );
 
   constructor(
-    private customJobsService: CustomJobsService,
+    private jobsService: JobsService,
     public customJobsInteractor: CustomJobsInteractionService,
     private titleService: Title,
     public templateService: CustomJobTemplatesService,
@@ -102,6 +104,11 @@ export class ListCustomJobsComponent {
     if (result) this.refreshData$.next();
   }
 
+  public async duplicate(job: CustomJob) {
+    await this.customJobsInteractor.duplicate(job);
+    this.refreshData$.next();
+  }
+
   public async syncCache() {
     await this.customJobsInteractor.syncCache();
   }
@@ -111,9 +118,20 @@ export class ListCustomJobsComponent {
     const menuItems: ElementMenuItems[] = [];
 
     menuItems.push({
+      action: () => this.duplicate(element),
+      icon: 'file_copy',
+      label: $localize`:Duplicate a job|Duplicate a job:Duplicate`,
+    });
+
+    menuItems.push({
       action: () => this.deleteBatch([element]),
       icon: 'delete',
-      label: $localize`:Delete custom jobs|Delete custom jobs:Delete`,
+      label: $localize`:Delete jobs|Delete jobs:Delete`,
+      disabled: element.source != null,
+      tooltip:
+        element.source != null
+          ? $localize`:Cannot delete imported jobs|Cannot delete imported jobs:You cannot delete imported jobs.`
+          : undefined,
     });
 
     return menuItems;

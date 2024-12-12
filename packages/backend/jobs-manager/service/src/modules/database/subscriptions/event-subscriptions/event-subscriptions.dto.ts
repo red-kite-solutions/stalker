@@ -19,6 +19,13 @@ import {
   OrJobCondition,
 } from './event-subscriptions.model';
 
+export class DuplicateEventSubscriptionDto {
+  @IsMongoId()
+  @IsNotEmpty()
+  @IsString()
+  public subscriptionId: string;
+}
+
 export class EventSubscriptionDto {
   @IsString()
   @IsNotEmpty()

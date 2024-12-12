@@ -2,10 +2,11 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DeleteResult } from 'mongodb';
 import { Model, Types } from 'mongoose';
+import { HttpNotFoundException } from '../../../exceptions/http.exceptions';
 import { JobSummary } from '../../../types/job-summary.type';
 import { JobModelUpdateQueue } from '../../job-queue/job-model-update-queue';
-import { CustomJobDto } from './custom-jobs.dto';
 import { CustomJobEntry, CustomJobsDocument } from './custom-jobs.model';
+import { JobDto } from './jobs.dto';
 
 @Injectable()
 export class CustomJobsService {
@@ -17,7 +18,7 @@ export class CustomJobsService {
     private readonly jobCodeQueue: JobModelUpdateQueue,
   ) {}
 
-  public async create(dto: CustomJobDto) {
+  public async create(dto: JobDto) {
     const job: CustomJobEntry = {
       name: dto.name,
       code: dto.code,
@@ -29,6 +30,35 @@ export class CustomJobsService {
       findingHandlerLanguage: dto.findingHandlerLanguage ?? undefined,
       parameters: [],
     };
+    const r = await this.customJobModel.create(job);
+    this.jobCodeQueue.publish(r);
+    return r;
+  }
+
+  public async duplicate(jobId: string) {
+    const existingJob = await this.customJobModel.findById(
+      new Types.ObjectId(jobId),
+    );
+
+    if (!existingJob) {
+      throw new HttpNotFoundException(`JobId=${jobId} not found.`);
+    }
+
+    const job: CustomJobEntry = {
+      code: existingJob.code,
+      jobPodConfigId: existingJob.jobPodConfigId,
+      language: existingJob.language,
+      parameters: existingJob.parameters,
+      type: existingJob.type,
+      builtIn: false,
+      category: existingJob.category,
+      findingHandler: existingJob.findingHandler,
+      findingHandlerLanguage: existingJob.findingHandlerLanguage,
+      findingHandlerEnabled: existingJob.findingHandlerEnabled,
+      name: `${existingJob.name} Copy`,
+      source: undefined,
+    };
+
     const r = await this.customJobModel.create(job);
     this.jobCodeQueue.publish(r);
     return r;
@@ -55,10 +85,7 @@ export class CustomJobsService {
       .select(['-_id', 'name', 'parameters', 'builtIn', 'source']);
   }
 
-  public async edit(
-    id: string,
-    dto: CustomJobDto,
-  ): Promise<CustomJobsDocument> {
+  public async edit(id: string, dto: JobDto): Promise<CustomJobsDocument> {
     const job: Partial<CustomJobEntry> = {
       name: dto.name,
       code: dto.code,
@@ -83,6 +110,7 @@ export class CustomJobsService {
   public async delete(id: string): Promise<DeleteResult> {
     return await this.customJobModel.deleteOne({
       _id: { $eq: new Types.ObjectId(id) },
+      source: { $eq: null },
     });
   }
 

@@ -1,5 +1,6 @@
 import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { randomUUID } from 'node:crypto';
 import {
   TestingData,
   checkAuthorizations,
@@ -13,9 +14,9 @@ import {
 import { AppModule } from '../../app.module';
 import { Role } from '../../auth/constants';
 import { JobPodConfigurationDocument } from '../admin/config/job-pod-config/job-pod-config.model';
-import { CustomJobDto } from './custom-jobs.dto';
+import { JobDto } from './jobs.dto';
 
-describe('Custom Jobs Controller (e2e)', () => {
+fdescribe('Custom Jobs Controller (e2e)', () => {
   let app: INestApplication;
   let testData: TestingData;
   let customJobId: string;
@@ -29,7 +30,7 @@ describe('Custom Jobs Controller (e2e)', () => {
     jobPodConfigId: '',
   };
 
-  const nucleiCustomJob: CustomJobDto = {
+  const nucleiCustomJob: JobDto = {
     name: 'My nuclei custom job',
     type: 'nuclei',
     code: 'nuclei template placeholder',
@@ -85,10 +86,10 @@ describe('Custom Jobs Controller (e2e)', () => {
 
   it('Should create a custom job (handler enabled = false) (POST /custom-jobs)', async () => {
     // Arrange
-    const cj: CustomJobDto = {
+    const cj: JobDto = {
       language: 'python',
       type: 'code',
-      name: 'print secret',
+      name: randomUUID(),
       code: "import os\n\nprint(os.environ['secret'])",
       jobPodConfigId: '65b013faed7664d0b13d7e7c',
       findingHandlerEnabled: false,
@@ -103,10 +104,10 @@ describe('Custom Jobs Controller (e2e)', () => {
 
   it('Should not create a custom job (handler enabled = true) (POST /custom-jobs)', async () => {
     // Arrange
-    const cj: CustomJobDto = {
+    const cj: JobDto = {
       language: 'python',
       type: 'code',
-      name: 'print secret',
+      name: randomUUID(),
       code: "import os\n\nprint(os.environ['secret'])",
       jobPodConfigId: '65b013faed7664d0b13d7e7c',
       findingHandlerEnabled: true,
@@ -198,7 +199,7 @@ describe('Custom Jobs Controller (e2e)', () => {
 
   it('Should create a nuclei custom job with custom handler (POST /custom-jobs)', async () => {
     // arrange
-    const nucleiDto: CustomJobDto = {
+    const nucleiDto: JobDto = {
       ...nucleiCustomJob,
       name: 'Nuclei custom handler',
       findingHandler: 'handler content placeholder',
@@ -224,7 +225,7 @@ describe('Custom Jobs Controller (e2e)', () => {
 
   it('Should not create a nuclei custom job (name duplicate) (POST /custom-jobs)', async () => {
     // arrange
-    const nucleiDto: CustomJobDto = {
+    const nucleiDto: JobDto = {
       ...nucleiCustomJob,
       name: 'Nuclei custom handler',
       findingHandler: 'handler content placeholder',
@@ -247,6 +248,7 @@ describe('Custom Jobs Controller (e2e)', () => {
     // arrange & act
     const r = await postReq(app, testData.user.token, '/custom-jobs', {
       ...nucleiCustomJob,
+      name: randomUUID(),
       language: 'python',
     });
 
@@ -258,6 +260,7 @@ describe('Custom Jobs Controller (e2e)', () => {
     // arrange & act
     const r = await postReq(app, testData.user.token, '/custom-jobs', {
       ...nucleiCustomJob,
+      name: randomUUID(),
       findingHandler: 'handler content placeholder',
       findingHandlerLanguage: 'yaml',
     });
@@ -270,6 +273,7 @@ describe('Custom Jobs Controller (e2e)', () => {
     // arrange & act
     const r = await postReq(app, testData.user.token, '/custom-jobs', {
       ...nucleiCustomJob,
+      name: randomUUID(),
       findingHandler: 'handler content placeholder',
     });
 
@@ -281,6 +285,7 @@ describe('Custom Jobs Controller (e2e)', () => {
     // arrange & act
     const r = await postReq(app, testData.user.token, '/custom-jobs', {
       ...nucleiCustomJob,
+      name: randomUUID(),
       findingHandlerLanguage: 'yaml',
     });
 

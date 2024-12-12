@@ -11,7 +11,7 @@ import { ProjectCellComponent } from 'src/app/shared/components/project-cell/pro
 import { SharedModule } from 'src/app/shared/shared.module';
 import { Project } from 'src/app/shared/types/project/project.interface';
 import { FilteredPaginatedTableComponent } from 'src/app/shared/widget/filtered-paginated-table/filtered-paginated-table.component';
-import { JobsService } from '../../../api/jobs/jobs/jobs.service';
+import { JobExecutionsService } from '../../../api/jobs/job-executions/job-executions.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { StartedJobViewModel } from '../../../shared/types/jobs/job.type';
 import {
@@ -77,7 +77,7 @@ export class JobExecutionsComponent {
   projects$ = this.projectsService.getAll().pipe(tap((x) => (this.projects = x)));
 
   constructor(
-    private jobsService: JobsService,
+    private jobsService: JobExecutionsService,
     private projectsService: ProjectsService,
     private titleService: Title,
     private toastrService: ToastrService,

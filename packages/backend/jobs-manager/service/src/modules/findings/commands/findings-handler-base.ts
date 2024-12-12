@@ -2,8 +2,8 @@ import { Logger } from '@nestjs/common';
 import { ICommandHandler } from '@nestjs/cqrs';
 import { ConfigService } from '../../database/admin/config/config.service';
 import { CustomJobsService } from '../../database/custom-jobs/custom-jobs.service';
+import { JobExecutionsService } from '../../database/jobs/job-executions.service';
 import { JobFactory } from '../../database/jobs/jobs.factory';
-import { JobsService } from '../../database/jobs/jobs.service';
 import { Job } from '../../database/jobs/models/jobs.model';
 import { JobParameter } from '../../database/subscriptions/event-subscriptions/event-subscriptions.model';
 import { EventSubscriptionsService } from '../../database/subscriptions/event-subscriptions/event-subscriptions.service';
@@ -20,7 +20,7 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
 
   constructor(
     private subscriptionService: EventSubscriptionsService,
-    protected jobsService: JobsService,
+    protected jobsService: JobExecutionsService,
     private customJobsService: CustomJobsService,
     private configService: ConfigService,
     private subscriptionTriggersService: SubscriptionTriggersService,
