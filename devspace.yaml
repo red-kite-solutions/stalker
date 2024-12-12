@@ -435,11 +435,19 @@ deployments:
         repo: https://charts.bitnami.com/bitnami
         version: "28.0.0"
       values:
-        nodeSelector: $(echo ${KAFKA_K8S_NODE_SELECTOR})
-
         controller:
+          nodeSelector: $(echo ${KAFKA_K8S_NODE_SELECTOR})
           persistence:
             storageClass: ${KAFKA_STORAGE_CLASS}
+
+        resources:
+          nodeSelector: $(echo ${KAFKA_K8S_NODE_SELECTOR})
+
+        broker:
+          nodeSelector: $(echo ${KAFKA_K8S_NODE_SELECTOR})
+
+        metrics:
+          nodeSelector: $(echo ${KAFKA_K8S_NODE_SELECTOR})
 
         # The mapping rules extract the CN part of the certificate to be used as the username in ACL rules
         # kafka as a super user is the account used for provisioning and for inter-kafka communications.
@@ -476,6 +484,7 @@ deployments:
             value: "no"
         provisioning:
           enabled: true
+          nodeSelector: $(echo ${KAFKA_K8S_NODE_SELECTOR})
           auth:
             tls:
               type: jks
