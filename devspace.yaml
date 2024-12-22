@@ -272,6 +272,7 @@ deployments:
             - containerPort: 3000
               port: 3000
               protocol: TCP
+
   jobs-consumer:
     updateImageTags: $( echo ${UPDATE_IMAGE_TAGS} )
     helm:
@@ -281,6 +282,7 @@ deployments:
             secret:
               secretName: jm-certs
 
+        replicas: 2
         containers:
           - env:
               - name: MONGO_ADDRESS
@@ -977,8 +979,8 @@ profiles:
         path: dev.ui.resources
         value:
           limits:
-            memory: 2Gi
-            cpu: 1
+            memory: 1Gi
+            cpu: 0.5
 
       - op: replace
         path: deployments.ui
