@@ -1,17 +1,15 @@
+import { IntersectionType } from '@nestjs/swagger';
 import { Transform, Type, plainToClass } from 'class-transformer';
 import {
   IsArray,
   IsNotEmpty,
-  IsNumber,
-  IsNumberString,
   IsOptional,
   IsString,
-  Max,
-  Min,
   ValidateNested,
   isArray,
 } from 'class-validator';
 import { HttpBadRequestException } from '../../exceptions/http.exceptions';
+import { PagingDto } from '../database/database.dto';
 
 export type CustomFindingFieldDto = CustomFindingBaseDto &
   (CustomFindingImageFieldDto | CustomFindingTextFieldDto);
@@ -52,16 +50,7 @@ export class FieldFilterDto {
   data: unknown;
 }
 
-export class FindingsPagingDto {
-  @IsNumberString()
-  page: string = '1';
-
-  @IsNumber()
-  @Min(1)
-  @Max(100)
-  @Type(() => Number)
-  pageSize: string = '15';
-
+export class FindingsFilterDto {
   @IsNotEmpty()
   @IsString()
   target: string;
@@ -99,6 +88,11 @@ export class FindingsPagingDto {
   @IsOptional()
   fieldFilters: FieldFilterDto[];
 }
+
+export class FindingsPagingDto extends IntersectionType(
+  PagingDto,
+  FindingsFilterDto,
+) {}
 
 export class WebsiteEndpointFindingDto {
   @IsNotEmpty()

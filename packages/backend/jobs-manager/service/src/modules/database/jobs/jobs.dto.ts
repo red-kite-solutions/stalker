@@ -3,27 +3,15 @@ import {
   IsArray,
   IsMongoId,
   IsNotEmpty,
-  IsNumber,
-  IsNumberString,
   IsOptional,
   IsString,
-  Max,
-  Min,
   ValidateNested,
 } from 'class-validator';
+import { PagingDto } from '../database.dto';
 import { JobParameter } from '../subscriptions/event-subscriptions/event-subscriptions.model';
 import { JobParameterDto } from '../subscriptions/subscriptions.dto';
 
-export class JobExecutionsDto {
-  @IsNumberString()
-  page: string;
-
-  @IsNumber()
-  @Min(1)
-  @Max(100)
-  @Type(() => Number)
-  pageSize: string;
-
+export class JobExecutionsDto extends PagingDto {
   @IsMongoId()
   @IsOptional()
   project: string;

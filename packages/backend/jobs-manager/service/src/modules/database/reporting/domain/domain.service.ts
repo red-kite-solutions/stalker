@@ -397,9 +397,13 @@ export class DomainsService {
 
     // Filter by project
     if (dto.project) {
-      finalFilter['projectId'] = {
-        $eq: new Types.ObjectId(dto.project),
-      };
+      const projectIds = dto.project
+        .filter((x) => x)
+        .map((x) => new Types.ObjectId(x));
+
+      if (projectIds.length > 0) {
+        finalFilter['projectId'] = { $in: projectIds };
+      }
     }
 
     // Filter by tag

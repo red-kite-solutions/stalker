@@ -148,6 +148,7 @@ export class ListDomainsComponent {
     const includedTags = [];
     const includedDomains = [];
     const includedHosts = [];
+    const includedProjects = [];
     let blocked: boolean | null = null;
 
     for (const filter of stringFilters) {
@@ -167,7 +168,7 @@ export class ListDomainsComponent {
       switch (key) {
         case 'project':
           const project = projects.find((c) => c.name.trim().toLowerCase() === value.trim().toLowerCase());
-          if (project) filterObject['project'] = project.id;
+          if (project) includedProjects.push(project.id);
           else
             this.toastr.warning(
               $localize`:Project does not exist|The given project name is not known to the application:Project name not recognized`
@@ -200,9 +201,10 @@ export class ListDomainsComponent {
           break;
       }
     }
-    if (includedTags) filterObject['tags'] = includedTags;
-    if (includedDomains) filterObject['domain'] = includedDomains;
-    if (includedHosts) filterObject['host'] = includedHosts;
+    if (includedTags.length) filterObject['tags'] = includedTags;
+    if (includedDomains.length) filterObject['domain'] = includedDomains;
+    if (includedHosts.length) filterObject['host'] = includedHosts;
+    if (includedProjects.length) filterObject['project'] = includedProjects;
     if (blocked !== null) filterObject['blocked'] = blocked;
     return filterObject;
   }

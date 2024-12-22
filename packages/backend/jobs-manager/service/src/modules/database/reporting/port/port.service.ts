@@ -413,8 +413,8 @@ export class PortService {
     }
 
     // Filter by port
-    if (dto.ports) {
-      const validPorts = dto.ports.filter((x) => x);
+    if (dto.port) {
+      const validPorts = dto.port.filter((x) => x);
       finalFilter['port'] = { $in: validPorts };
     }
 

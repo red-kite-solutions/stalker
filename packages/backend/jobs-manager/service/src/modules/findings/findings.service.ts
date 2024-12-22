@@ -159,7 +159,7 @@ export class FindingsService {
     pageSize: number,
     dto: FindingsFilter = undefined,
   ): Promise<Page<CustomFinding & Document>> {
-    if (page < 1) throw new HttpBadRequestException('Page starts at 1.');
+    if (page < 0) throw new HttpBadRequestException('Page starts at 0.');
 
     const filters: FilterQuery<CustomFinding> = this.buildFilters(dto);
 
@@ -168,7 +168,7 @@ export class FindingsService {
       .sort({
         created: 'desc',
       })
-      .skip((page - 1) * pageSize)
+      .skip(page * pageSize)
       .limit(pageSize)
       .exec();
     const totalRecords = await this.findingModel.countDocuments(filters);
