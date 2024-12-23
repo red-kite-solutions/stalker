@@ -109,7 +109,7 @@ describe('Domain Controller (e2e)', () => {
     const r = await getReq(
       app,
       testData.admin.token,
-      '/domains?page=0&pageSize=10&tags[]=&domains[]=&projects[]=',
+      '/domains?page=0&pageSize=10&tags[]=&domains[]=',
     );
 
     // Assert
@@ -176,7 +176,7 @@ describe('Domain Controller (e2e)', () => {
     const r = await getReq(
       app,
       testData.admin.token,
-      `/domains?page=0&pageSize=10&projects=${projectId}`,
+      `/domains?page=0&pageSize=10&projects[]=${projectId}`,
     );
 
     // Assert
