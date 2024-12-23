@@ -1,9 +1,9 @@
 export class WebsiteFilterModel {
-  domain?: Array<string>;
-  tag?: Array<string>;
-  project?: Array<string>;
-  host?: Array<string>;
-  port?: Array<number>;
+  domains?: Array<string>;
+  tags?: Array<string>;
+  projects?: Array<string>;
+  hosts?: Array<string>;
+  ports?: Array<number>;
   firstSeenStartDate?: number;
   firstSeenEndDate?: number;
   blocked?: boolean;

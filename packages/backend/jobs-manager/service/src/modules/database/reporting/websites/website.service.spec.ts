@@ -290,7 +290,7 @@ describe('Website Service', () => {
       const websites = await bulkWebsites(ips, ports, domains);
       const websites2 = await bulkWebsites(['1.2.3.4'], [80], ['example.org']);
       const filter: WebsiteFilterModel = {
-        project: [websites2[0].projectId.toString()],
+        projects: [websites2[0].projectId.toString()],
       };
 
       // Act

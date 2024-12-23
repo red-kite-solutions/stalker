@@ -194,9 +194,9 @@ export class ListPortsComponent {
       }
     }
     if (includedTags?.length) filterObject['tags'] = includedTags;
-    if (ports?.length) filterObject['port'] = ports;
-    if (hosts?.length) filterObject['host'] = hosts;
-    if (projects?.length) filterObject['project'] = projects;
+    if (ports?.length) filterObject['ports'] = ports;
+    if (hosts?.length) filterObject['hosts'] = hosts;
+    if (projects?.length) filterObject['projects'] = projects;
     if (blocked !== null) filterObject['blocked'] = blocked;
     return filterObject;
   }

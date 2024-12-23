@@ -202,9 +202,9 @@ export class ListDomainsComponent {
       }
     }
     if (includedTags.length) filterObject['tags'] = includedTags;
-    if (includedDomains.length) filterObject['domain'] = includedDomains;
-    if (includedHosts.length) filterObject['host'] = includedHosts;
-    if (includedProjects.length) filterObject['project'] = includedProjects;
+    if (includedDomains.length) filterObject['domains'] = includedDomains;
+    if (includedHosts.length) filterObject['hosts'] = includedHosts;
+    if (includedProjects.length) filterObject['projects'] = includedProjects;
     if (blocked !== null) filterObject['blocked'] = blocked;
     return filterObject;
   }

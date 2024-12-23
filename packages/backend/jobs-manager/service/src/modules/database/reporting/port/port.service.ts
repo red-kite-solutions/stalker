@@ -352,8 +352,8 @@ export class PortService {
     }
 
     // Filter by host ip
-    if (dto.host && !dto.hostId) {
-      const hostsRegex = dto.host
+    if (dto.hosts && !dto.hostId) {
+      const hostsRegex = dto.hosts
         .filter((x) => x)
         .map((x) => x.toLowerCase().trim())
         .map((x) => escapeStringRegexp(x))
@@ -369,8 +369,8 @@ export class PortService {
     }
 
     // Filter by project
-    if (dto.project) {
-      const projectIds = dto.project
+    if (dto.projects) {
+      const projectIds = dto.projects
         .filter((x) => x)
         .map((x) => new Types.ObjectId(x));
 
@@ -413,8 +413,8 @@ export class PortService {
     }
 
     // Filter by port
-    if (dto.port) {
-      const validPorts = dto.port.filter((x) => x);
+    if (dto.ports) {
+      const validPorts = dto.ports.filter((x) => x);
       finalFilter['port'] = { $in: validPorts };
     }
 

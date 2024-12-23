@@ -303,8 +303,8 @@ export class WebsiteService {
     const finalFilter = {};
 
     // Filter by host ip
-    if (filter.host) {
-      const hostsRegex = filter.host
+    if (filter.hosts) {
+      const hostsRegex = filter.hosts
         .filter((x) => x)
         .map((x) => x.toLowerCase().trim())
         .map((x) => escapeStringRegexp(x))
@@ -320,8 +320,8 @@ export class WebsiteService {
     }
 
     // Filter by domain
-    if (filter.domain) {
-      const domainsRegex = filter.domain
+    if (filter.domains) {
+      const domainsRegex = filter.domains
         .filter((x) => x)
         .map((x) => x.toLowerCase().trim())
         .map((x) => escapeStringRegexp(x))
@@ -338,17 +338,17 @@ export class WebsiteService {
     }
 
     // Filter by port
-    if (filter.port) {
+    if (filter.ports) {
       const ports = await this.portModel.find(
-        { port: { $in: filter.port } },
+        { port: { $in: filter.ports } },
         '_id',
       );
       if (ports) finalFilter['port.id'] = { $in: ports.map((p) => p._id) };
     }
 
     // Filter by project
-    if (filter.project) {
-      const projectIds = filter.project
+    if (filter.projects) {
+      const projectIds = filter.projects
         .filter((x) => x)
         .map((x) => new Types.ObjectId(x));
 
@@ -358,8 +358,8 @@ export class WebsiteService {
     }
 
     // Filter by tag
-    if (filter.tag) {
-      const preppedTagsArray = filter.tag
+    if (filter.tags) {
+      const preppedTagsArray = filter.tags
         .filter((x) => x)
         .map((x) => x.toLowerCase())
         .map((x) => new Types.ObjectId(x));

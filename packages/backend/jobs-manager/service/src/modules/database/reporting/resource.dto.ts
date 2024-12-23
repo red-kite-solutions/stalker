@@ -1,3 +1,4 @@
+import { IntersectionType } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
@@ -14,24 +15,34 @@ export class FilterByDomainDto {
   @IsOptional()
   @IsString({ each: true })
   @IsArray()
-  domain: string[];
+  domains: string[];
 }
 
 export class FilterByHostDto {
   @IsOptional()
   @IsString({ each: true })
   @IsArray()
-  host: string[];
+  hosts: string[];
 }
 
 export class FilterByPortDto {
   @IsOptional()
   @IsPort({ each: true })
   @IsArray()
-  port: number[];
+  ports: number[];
 }
 
-export class ResourceFilterDto extends FilterByHostDto {
+export class FilterByProjectDto {
+  @IsOptional()
+  @IsMongoId({ each: true })
+  @IsArray()
+  projects: string[];
+}
+
+export class ResourceFilterDto extends IntersectionType(
+  FilterByHostDto,
+  FilterByProjectDto,
+) {
   @IsOptional()
   @IsInt()
   @Type(() => Number)
@@ -51,9 +62,4 @@ export class ResourceFilterDto extends FilterByHostDto {
   @IsMongoId({ each: true })
   @IsArray()
   tags: string[];
-
-  @IsOptional()
-  @IsMongoId({ each: true })
-  @IsArray()
-  project: string[];
 }

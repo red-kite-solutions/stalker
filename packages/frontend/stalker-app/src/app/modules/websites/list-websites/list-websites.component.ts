@@ -272,10 +272,10 @@ export class ListWebsitesComponent {
       }
     }
     if (includedTags?.length) filterObject['tags'] = includedTags;
-    if (ports?.length) filterObject['port'] = ports;
-    if (hosts?.length) filterObject['host'] = hosts;
-    if (domains?.length) filterObject['domain'] = domains;
-    if (projects?.length) filterObject['project'] = projects;
+    if (ports?.length) filterObject['ports'] = ports;
+    if (hosts?.length) filterObject['hosts'] = hosts;
+    if (domains?.length) filterObject['domains'] = domains;
+    if (projects?.length) filterObject['projects'] = projects;
     if (blocked !== null) filterObject['blocked'] = blocked;
     if (merged !== null) filterObject['merged'] = merged;
     return filterObject;
