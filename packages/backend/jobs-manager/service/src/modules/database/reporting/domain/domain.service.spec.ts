@@ -72,14 +72,15 @@ describe('Domain Service', () => {
 
       // Act
       const allDomains = await domainService.getAll(0, 10, {
-        domain: null,
+        domains: null,
         tags: null,
-        host: null,
-        project: c1._id.toString(),
+        hosts: null,
+        projects: [c1._id.toString()],
         page: 0,
         pageSize: 10,
         firstSeenStartDate: undefined,
         firstSeenEndDate: undefined,
+        blocked: undefined,
       });
 
       // Assert
@@ -120,14 +121,15 @@ describe('Domain Service', () => {
 
         // Act
         const allDomains = await domainService.getAll(0, 10, {
-          domain: domains,
+          domains: domains,
           tags: null,
-          project: null,
-          host: null,
+          projects: null,
+          hosts: null,
           page: 0,
           pageSize: 10,
           firstSeenStartDate: undefined,
           firstSeenEndDate: undefined,
+          blocked: undefined,
         });
 
         // Assert
@@ -167,14 +169,15 @@ describe('Domain Service', () => {
 
         // Act
         const allDomains = await domainService.getAll(0, 10, {
-          domain: null,
+          domains: null,
           tags: null,
-          project: null,
-          host: hosts,
+          projects: null,
+          hosts: hosts,
           page: 0,
           pageSize: 10,
           firstSeenStartDate: undefined,
           firstSeenEndDate: undefined,
+          blocked: undefined,
         });
 
         // Assert
@@ -203,14 +206,15 @@ describe('Domain Service', () => {
 
       // Act
       const allDomains = await domainService.getAll(0, 10, {
-        domain: null,
+        domains: null,
         tags: [t1._id.toString()],
-        project: null,
-        host: null,
+        projects: null,
+        hosts: null,
         page: 0,
         pageSize: 10,
         firstSeenStartDate: undefined,
         firstSeenEndDate: undefined,
+        blocked: undefined,
       });
 
       // Assert

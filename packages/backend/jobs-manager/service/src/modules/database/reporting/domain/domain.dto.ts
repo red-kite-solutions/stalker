@@ -1,62 +1,25 @@
-import { Transform, Type } from 'class-transformer';
+import { IntersectionType } from '@nestjs/swagger';
 import {
   IsArray,
   IsBoolean,
   IsFQDN,
-  IsInt,
   IsMongoId,
   IsNotEmpty,
   IsOptional,
-  Max,
-  Min,
-  ValidateIf,
 } from 'class-validator';
 import { Types } from 'mongoose';
-import { booleanStringToBoolean } from '../../../../utils/boolean-string-to-boolean';
+import { PagingDto } from '../../database.dto';
+import { FilterByDomainDto, ResourceFilterDto } from '../resource.dto';
 
-export class DomainsPagingDto {
-  @IsInt()
-  @Type(() => Number)
-  page: number;
+export class DomainFilterDto extends IntersectionType(
+  ResourceFilterDto,
+  FilterByDomainDto,
+) {}
 
-  @IsInt()
-  @Min(1)
-  @Max(100)
-  @Type(() => Number)
-  pageSize: number;
-
-  @IsArray()
-  @IsOptional()
-  domain: Array<string>;
-
-  @IsArray()
-  @IsOptional()
-  host: Array<string>;
-
-  @IsArray()
-  @IsOptional()
-  tags: Array<string>;
-
-  @ValidateIf((dto) => dto.project !== '')
-  @IsMongoId()
-  @IsOptional()
-  project: string;
-
-  @IsOptional()
-  @IsInt()
-  @Type(() => Number)
-  firstSeenStartDate: number;
-
-  @IsOptional()
-  @IsInt()
-  @Type(() => Number)
-  firstSeenEndDate: number;
-
-  @IsOptional()
-  @IsBoolean()
-  @Transform(booleanStringToBoolean)
-  blocked: boolean;
-}
+export class DomainsPagingDto extends IntersectionType(
+  PagingDto,
+  DomainFilterDto,
+) {}
 
 export class EditDomainDto {
   @IsArray()

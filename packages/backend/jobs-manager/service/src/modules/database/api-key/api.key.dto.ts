@@ -1,26 +1,13 @@
-import { Type } from 'class-transformer';
 import {
-  IsInt,
   IsMongoId,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
-  Max,
-  Min,
 } from 'class-validator';
+import { PagingDto } from '../database.dto';
 
-export class ApiKeyFilterDto {
-  @IsInt()
-  @Type(() => Number)
-  page: number = 0;
-
-  @IsInt()
-  @Min(1)
-  @Max(100)
-  @Type(() => Number)
-  pageSize: number = 10;
-
+export class ApiKeyFilterDto extends PagingDto {
   @IsOptional()
   @IsMongoId()
   userId: string;

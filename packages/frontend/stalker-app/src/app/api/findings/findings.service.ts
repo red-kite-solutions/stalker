@@ -12,8 +12,8 @@ import { Page } from '../../shared/types/page.type';
 export class FindingsService {
   constructor(private http: HttpClient) {}
 
-  public getFindings(
-    page = 1,
+  public getPage(
+    page = 0,
     pageSize = 25,
     filters: FindingsFilter | undefined = undefined
   ): Observable<Page<CustomFinding>> {
@@ -30,7 +30,7 @@ export class FindingsService {
   }
 
   public getLatestWebsiteEndpoint(target: string, endpoint: string): Observable<CustomFinding> {
-    return this.getFindings(1, 1, {
+    return this.getPage(0, 1, {
       target: target,
       findingAllowList: ['WebsitePathFinding'],
       fieldFilters: [{ key: 'endpoint', data: endpoint }],
@@ -38,7 +38,7 @@ export class FindingsService {
   }
 
   public getLatestWebsitePreview(target: string): Observable<CustomFinding> {
-    return this.getFindings(1, 1, {
+    return this.getPage(0, 1, {
       target: target,
       findingAllowList: ['WebsiteScreenshotFinding'],
     }).pipe(map((x) => x.items[0]));

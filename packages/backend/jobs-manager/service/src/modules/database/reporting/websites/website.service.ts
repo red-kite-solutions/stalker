@@ -347,8 +347,8 @@ export class WebsiteService {
     }
 
     // Filter by project
-    if (filter.project) {
-      const projectIds = filter.project
+    if (filter.projects) {
+      const projectIds = filter.projects
         .filter((x) => x)
         .map((x) => new Types.ObjectId(x));
 

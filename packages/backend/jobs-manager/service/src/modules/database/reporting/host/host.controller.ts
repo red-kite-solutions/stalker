@@ -26,7 +26,7 @@ import {
   BatchEditHostsDto,
   DeleteHostsDto,
   GetHostPortDto,
-  HostsFilterDto,
+  HostsPagingDto,
   SubmitHostsDto,
 } from './host.dto';
 import { HostDocument } from './host.model';
@@ -88,7 +88,7 @@ export class HostController {
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.ReadOnly)
   @Get()
-  async getAllHosts(@Query() dto: HostsFilterDto): Promise<Page<HostDocument>> {
+  async getAllHosts(@Query() dto: HostsPagingDto): Promise<Page<HostDocument>> {
     const totalRecords = await this.hostsService.count(dto);
     const items = await this.hostsService.getAll(dto.page, dto.pageSize, dto);
 

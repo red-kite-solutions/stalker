@@ -1,13 +1,8 @@
-export class HostsPagingModel {
-  page: string;
-  pageSize: string;
-}
-
 export class HostFilterModel {
-  domain?: Array<string>;
+  domains?: Array<string>;
   tags?: Array<string>;
-  project?: Array<string>;
-  host?: Array<string>;
+  projects?: Array<string>;
+  hosts?: Array<string>;
   firstSeenStartDate?: number;
   firstSeenEndDate?: number;
   blocked?: boolean;
