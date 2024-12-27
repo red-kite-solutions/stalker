@@ -21,7 +21,7 @@ public abstract class PythonJobTemplate : KubernetesJobTemplate
         Config = config;
         SetNamespace();
         PythonCommand = "";
-        EnvironmentVariable["StalkerJobId"] = Id;
+        EnvironmentVariable["RedKiteJobId"] = Id;
         Image = containerImage;
     }
 

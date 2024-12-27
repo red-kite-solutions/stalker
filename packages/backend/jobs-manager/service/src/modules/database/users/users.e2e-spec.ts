@@ -17,7 +17,7 @@ describe('Users Controller (e2e)', () => {
   let app: INestApplication;
   let testData: TestingData;
   const newUser = {
-    email: 'newuser@stalker.is',
+    email: 'newuser@red-kite.io',
     firstName: 'New',
     lastName: 'User',
     password: 'thisishispassword',
@@ -26,7 +26,7 @@ describe('Users Controller (e2e)', () => {
   };
 
   const newUserEdited = {
-    email: 'newuseredited@stalker.is',
+    email: 'newuseredited@red-kite.io',
     firstName: 'Newedited',
     lastName: 'Useredited',
     active: true,

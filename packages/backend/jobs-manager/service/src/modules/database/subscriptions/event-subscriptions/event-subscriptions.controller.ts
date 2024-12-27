@@ -19,7 +19,10 @@ import { RolesGuard } from '../../../auth/guards/role.guard';
 import { ApiKeyStrategy } from '../../../auth/strategies/api-key.strategy';
 import { JwtStrategy } from '../../../auth/strategies/jwt.strategy';
 import { PatchSubscriptionDto } from '../subscriptions.dto';
-import { EventSubscriptionDto } from './event-subscriptions.dto';
+import {
+  DuplicateEventSubscriptionDto,
+  EventSubscriptionDto,
+} from './event-subscriptions.dto';
 import { EventSubscriptionsDocument } from './event-subscriptions.model';
 import { EventSubscriptionsService } from './event-subscriptions.service';
 
@@ -30,8 +33,14 @@ export class EventSubscriptionsController {
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.User)
   @Post()
-  async create(@Body() dto: EventSubscriptionDto) {
-    return await this.subscriptionsService.create(dto);
+  async create(
+    @Body() dto: EventSubscriptionDto | DuplicateEventSubscriptionDto,
+  ) {
+    if ('subscriptionId' in dto) {
+      return await this.subscriptionsService.duplicate(dto.subscriptionId);
+    } else {
+      return await this.subscriptionsService.create(dto);
+    }
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)

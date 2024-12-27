@@ -153,7 +153,7 @@ def get_valid_args():
 
 def main():
     # Provided through the UI
-    template_content = os.environ.get('STALKER_NUCLEI_YAML_TEMPLATE')
+    template_content = os.environ.get('RK_NUCLEI_YAML_TEMPLATE')
     custom_parser_code = os.environ.get("NUCLEI_FINDING_HANDLER")
 
     stalker_output_type_str = 'stalkerOutputType'

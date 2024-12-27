@@ -56,6 +56,7 @@ export const jobTemplatesInitProvider = [
             containers,
             true,
           );
+
           for (const job of importedJobs) {
             const filter: UpdateFilter<CustomJobEntry> = {
               name: job.name,

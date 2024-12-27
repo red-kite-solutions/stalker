@@ -152,11 +152,28 @@ describe('Host Controller (e2e)', () => {
       const filtered = await getReq(
         app,
         testData.user.token,
-        `/hosts?page=0&pageSize=2&project[]=${project2._id}`,
+        `/hosts?page=0&pageSize=2&projects[]=${project2._id}`,
       );
 
       expect(filtered.body.totalRecords).toBe(4);
       expect(filtered.body.items.length).toBe(2);
+    });
+  });
+
+  describe('GET /hosts/:id/ports/:portNumber', () => {
+    it('Get host port - Not authorized - Should return 401', async () => {
+      const success = await checkAuthorizations(
+        testData,
+        Role.ReadOnly,
+        async (givenToken) => {
+          return await getReq(
+            app,
+            givenToken,
+            `/hosts/507f1f77bcf86cd799439011/ports/80`,
+          );
+        },
+      );
+      expect(success).toBe(true);
     });
   });
 

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -10,21 +11,23 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { plainToInstance } from 'class-transformer';
 import { DeleteResult } from 'mongodb';
 import {
   HttpConflictException,
   HttpServerErrorException,
 } from '../../../exceptions/http.exceptions';
 import { MongoIdDto } from '../../../types/dto/mongo-id.dto';
+import { validateOrReject } from '../../../validators/validate-or-reject';
 import { Role } from '../../auth/constants';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { RolesGuard } from '../../auth/guards/role.guard';
 import { ApiKeyStrategy } from '../../auth/strategies/api-key.strategy';
 import { JwtStrategy } from '../../auth/strategies/jwt.strategy';
 import { MONGO_DUPLICATE_ERROR } from '../database.constants';
-import { CustomJobDto } from './custom-jobs.dto';
 import { CustomJobsDocument } from './custom-jobs.model';
 import { CustomJobsService } from './custom-jobs.service';
+import { DuplicateJobDto, isDuplicateJobDto, JobDto } from './jobs.dto';
 
 @Controller('custom-jobs')
 export class CustomJobsController {
@@ -34,13 +37,27 @@ export class CustomJobsController {
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.User)
   @Post()
-  async create(@Body() dto: CustomJobDto) {
+  async create(@Body() dto: JobDto | DuplicateJobDto) {
     try {
-      return await this.customJobsService.create(dto);
+      if (isDuplicateJobDto(dto)) {
+        const duplicateDto = plainToInstance(DuplicateJobDto, dto);
+        await validateOrReject(duplicateDto);
+        return await this.customJobsService.duplicate(dto.jobId);
+      } else {
+        const jobDto = plainToInstance(JobDto, dto);
+        console.log(jobDto);
+        await validateOrReject(jobDto);
+        return await this.customJobsService.create(dto);
+      }
     } catch (err) {
       if (err.code === MONGO_DUPLICATE_ERROR) {
         throw new HttpConflictException();
       }
+
+      if (err instanceof BadRequestException) {
+        throw err;
+      }
+
       this.logger.error(err);
       throw new HttpServerErrorException();
     }
@@ -65,7 +82,7 @@ export class CustomJobsController {
   @Put(':id')
   async editCustomJob(
     @Param() IdDto: MongoIdDto,
-    @Body() dto: CustomJobDto,
+    @Body() dto: JobDto,
   ): Promise<CustomJobsDocument> {
     try {
       return await this.customJobsService.edit(IdDto.id, dto);

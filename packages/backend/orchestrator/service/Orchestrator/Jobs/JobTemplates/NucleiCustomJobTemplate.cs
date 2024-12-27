@@ -13,7 +13,7 @@ public class NucleiCustomJobTemplate : KubernetesJobTemplate
         Id = id;
         Config = config;
         SetNamespace();
-        EnvironmentVariable["StalkerJobId"] = Id;
+        EnvironmentVariable["RedKiteJobId"] = Id;
 
         // Adding parameters as environment variables
         if (!jobParameters.IsNullOrEmpty())
@@ -27,7 +27,7 @@ public class NucleiCustomJobTemplate : KubernetesJobTemplate
 
         if (!code.IsNullOrEmpty())
         {
-            EnvironmentVariable["STALKER_NUCLEI_YAML_TEMPLATE"] = code!;
+            EnvironmentVariable["RK_NUCLEI_YAML_TEMPLATE"] = code!;
         }
 
         if (!findingHandler.IsNullOrEmpty())

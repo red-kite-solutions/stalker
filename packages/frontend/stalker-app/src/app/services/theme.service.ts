@@ -26,7 +26,7 @@ export class ThemeService {
       color1: '#000000',
     },
     {
-      localizedName: $localize`:Sync with system|Keeps Stalker's theme synced with the system mode (either light or dark):Sync with system`,
+      localizedName: $localize`:Sync with system|Keeps Red Kite's theme synced with the system mode (either light or dark):Sync with system`,
       theme: undefined,
       color2: '#ffffff',
       color1: '#000000',

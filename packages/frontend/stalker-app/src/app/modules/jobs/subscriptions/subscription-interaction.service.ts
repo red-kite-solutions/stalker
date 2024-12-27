@@ -36,9 +36,13 @@ export class SubscriptionInteractionService {
     }
   }
 
-  public async deleteBatch(subscriptions: Pick<CronSubscription | EventSubscription, '_id' | 'type' | 'name'>[]) {
+  public async deleteBatch(
+    subscriptions: Pick<CronSubscription | EventSubscription, '_id' | 'type' | 'name' | 'source'>[]
+  ) {
+    subscriptions = subscriptions.filter((x) => x.source == null);
+
     let data: ConfirmDialogData = {
-      text: $localize`:Select subscriptions again|No subscription was selected so there is nothing to delete:Select the subscriptions to delete and try again.`,
+      text: $localize`:Select subscriptions again|No subscription was selected so there is nothing to delete:Select the subscriptions to delete and try again. Imported subscriptions cannot be deleted.`,
       title: $localize`:Nothing to delete|Tried to delete something, but there was nothing to delete:Nothing to delete`,
       primaryButtonText: $localize`:Ok|Accept or confirm:Ok`,
       noDataSelectItem: true,
@@ -85,5 +89,9 @@ export class SubscriptionInteractionService {
         })
         .afterClosed()
     );
+  }
+
+  public async duplicate(sub: Pick<CronSubscription | EventSubscription, '_id' | 'type' | 'name'>): Promise<void> {
+    await this.subscriptionService.duplicate(sub.type, sub._id);
   }
 }

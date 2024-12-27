@@ -8,13 +8,13 @@ import {
 import { CanEnableFindingHandler } from '../../../validators/can-enable-finding-handler.validator';
 import { IsValidCustomJobLanguage } from '../../../validators/is-valid-custom-job-language.validator';
 import { IsValidFindingHandlerLanguage } from '../../../validators/is-valid-finding-handler-language.validator';
+import { DataSourceDto } from '../data-source/data-source.dto';
 import {
   CustomJobFindingHandlerLanguage,
   CustomJobLanguage,
   CustomJobType,
   customJobTypes,
 } from '../jobs/models/custom-job.model';
-import { JobSourceDto } from './job-source.dto';
 
 export class CustomJobTemplateDto {
   @IsString()
@@ -54,9 +54,9 @@ export class CustomJobTemplateDto {
   public category?: string;
 
   @IsOptional()
-  public source?: JobSourceDto;
+  public source?: DataSourceDto;
 
   @IsMongoId()
   @IsNotEmpty()
-  containerId: string;
+  public containerId: string;
 }

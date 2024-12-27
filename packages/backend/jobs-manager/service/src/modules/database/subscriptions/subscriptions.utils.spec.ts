@@ -69,7 +69,7 @@ describe('Findings Handler Base', () => {
       ({ expected, isEnabled }) => {
         // Arrange
         const hnFinding = new HostnameFinding();
-        hnFinding.domainName = 'stalker.is';
+        hnFinding.domainName = 'red-kite.io';
         const hnCommand = new HostnameCommand(
           '',
           HostnameCommand.name,
@@ -272,7 +272,7 @@ describe('Findings Handler Base', () => {
                   {
                     lhs: '${domainName}',
                     operator: 'equals',
-                    rhs: 'stalker.is',
+                    rhs: 'red-kite.io',
                   },
                   {
                     lhs: 'asdf',
@@ -312,7 +312,7 @@ describe('Findings Handler Base', () => {
       (conditions: Array<JobCondition | OrJobCondition | AndJobCondition>) => {
         // Arrange
         const hnFinding = new HostnameFinding();
-        hnFinding.domainName = 'stalker.is';
+        hnFinding.domainName = 'red-kite.io';
         const hnCommand = new HostnameCommand(
           '',
           HostnameCommand.name,
@@ -580,7 +580,7 @@ describe('Findings Handler Base', () => {
             or: [
               {
                 and: [
-                  { lhs: 'asdf', operator: 'equals', rhs: 'stalker.is' },
+                  { lhs: 'asdf', operator: 'equals', rhs: 'red-kite.io' },
                   {
                     lhs: 'asdf',
                     operator: 'equals_i',
@@ -592,7 +592,7 @@ describe('Findings Handler Base', () => {
           },
           {
             or: [
-              { lhs: 'asdf', operator: 'equals', rhs: 'stalker.is' },
+              { lhs: 'asdf', operator: 'equals', rhs: 'red-kite.io' },
               {
                 and: [],
               },
@@ -644,7 +644,7 @@ describe('Findings Handler Base', () => {
       (paramValue: string) => {
         // Arrange
         const hnFinding = new HostnameFinding();
-        hnFinding.domainName = 'stalker.is';
+        hnFinding.domainName = 'red-kite.io';
         let valueCopy = paramValue;
 
         // Act
@@ -658,7 +658,7 @@ describe('Findings Handler Base', () => {
 
         // Arrange
         const hnipFinding = new HostnameIpFinding();
-        hnipFinding.domainName = 'www.stalker.is';
+        hnipFinding.domainName = 'www.red-kite.io';
         valueCopy = paramValue;
 
         // Act
@@ -707,7 +707,7 @@ describe('Findings Handler Base', () => {
       (paramValue: string) => {
         // Arrange
         const hnFinding = new HostnameFinding();
-        hnFinding.domainName = 'stalker.is';
+        hnFinding.domainName = 'red-kite.io';
         let valueCopy = paramValue;
 
         // Act
@@ -721,7 +721,7 @@ describe('Findings Handler Base', () => {
 
         // Arrange
         const hnipFinding = new HostnameIpFinding();
-        hnipFinding.domainName = 'www.stalker.is';
+        hnipFinding.domainName = 'www.red-kite.io';
         valueCopy = paramValue;
 
         // Act

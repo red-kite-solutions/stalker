@@ -2,15 +2,9 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { JobParameterDefinition } from '../../../types/job-parameter-definition.type';
 import { ContainerSummary } from '../container/container.model';
+import { DataSource } from '../data-source/data-source.model';
 
 export type CustomJobsDocument = CustomJobEntry & Document;
-
-export class CustomJobSource {
-  type: 'git';
-  repoUrl: string;
-  avatarUrl: string;
-  branch: string;
-}
 
 @Schema()
 export class CustomJobEntry {
@@ -48,7 +42,7 @@ export class CustomJobEntry {
   public category?: string;
 
   @Prop()
-  public source?: CustomJobSource;
+  public source?: DataSource;
 
   @Prop()
   public container: ContainerSummary;

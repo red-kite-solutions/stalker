@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
+import { DataSource } from '../../data-source/data-source.model';
 import {
   AndJobCondition,
   JobCondition,
@@ -22,13 +23,6 @@ export const inputSources = [
 ] as const;
 
 export type InputSource = (typeof inputSources)[number];
-
-export class CronSubscriptionSource {
-  type: 'git';
-  url: string;
-  avatarUrl: string;
-  branch: string;
-}
 
 @Schema()
 export class CronSubscription {
@@ -64,7 +58,7 @@ export class CronSubscription {
   public file?: string;
 
   @Prop()
-  public source?: CronSubscriptionSource;
+  public source?: DataSource;
 }
 
 export const CronSubscriptionsSchema =

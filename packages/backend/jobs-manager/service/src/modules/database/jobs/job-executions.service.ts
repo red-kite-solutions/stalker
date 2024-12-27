@@ -19,7 +19,7 @@ import { CustomJob } from './models/custom-job.model';
 import { Job, JobDocument } from './models/jobs.model';
 
 @Injectable()
-export class JobsService {
+export class JobExecutionsService {
   constructor(
     private configService: ConfigService,
     private jobQueue: JobQueue,

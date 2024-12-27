@@ -339,6 +339,7 @@ describe('Port Service', () => {
       expect(res.deletedCount).toStrictEqual(2);
     });
   });
+
   describe('Get all', () => {
     it.each([
       [
@@ -346,7 +347,7 @@ describe('Port Service', () => {
           { host: '1.1.1.1', ports: [1, 2, 3] },
           { host: '1.1.1.2', ports: [4, 5, 6] },
         ],
-        { host: ['1.1.1.1'] },
+        { hosts: ['1.1.1.1'] },
         [1, 2, 3],
       ],
       [
@@ -354,7 +355,7 @@ describe('Port Service', () => {
           { host: '1.1.1.1', ports: [1, 2, 3] },
           { host: '1.1.1.2', ports: [4, 5, 6] },
         ],
-        { host: ['1.2'] },
+        { hosts: ['1.2'] },
         [4, 5, 6],
       ],
       [
@@ -362,7 +363,7 @@ describe('Port Service', () => {
           { host: '1.2.1.1', ports: [1, 2, 3] },
           { host: '1.1.1.2', ports: [4, 5, 6] },
         ],
-        { host: ['1.2'] },
+        { hosts: ['1.2'] },
         [1, 2, 3, 4, 5, 6],
       ],
     ])(
@@ -421,7 +422,7 @@ describe('Port Service', () => {
           { host: '1.1.1.1', ports: [1, 2, 3], tags: ['asdf'] },
           { host: '1.1.1.2', ports: [4, 5, 6], tags: ['qwerty'] },
         ],
-        { host: ['1.2'], tags: ['qwerty'] },
+        { hosts: ['1.2'], tags: ['qwerty'] },
         [4, 5, 6],
         ['asdf', 'qwerty'],
       ],
@@ -439,7 +440,7 @@ describe('Port Service', () => {
           { host: '1.1.1.1', ports: [1, 2, 3], tags: ['asdf'] },
           { host: '1.1.1.2', ports: [4, 5, 6], tags: ['qwerty'] },
         ],
-        { host: ['1.2'], tags: ['asdf'] },
+        { hosts: ['1.2'], tags: ['asdf'] },
         [],
         ['asdf', 'qwerty'],
       ],
@@ -520,7 +521,7 @@ describe('Port Service', () => {
           { host: '1.1.1.1', ports: [1, 2, 3] },
           { host: '1.1.1.2', ports: [4, 5, 6] },
         ],
-        { host: ['1.1.1.1'], ports: [3] },
+        { hosts: ['1.1.1.1'], ports: [3] },
         [3],
       ],
       [
@@ -528,7 +529,7 @@ describe('Port Service', () => {
           { host: '1.1.1.1', ports: [1, 2, 3] },
           { host: '1.1.1.2', ports: [4, 5, 6] },
         ],
-        { host: ['1.1.1.1'], ports: [5] },
+        { hosts: ['1.1.1.1'], ports: [5] },
         [],
       ],
     ])(

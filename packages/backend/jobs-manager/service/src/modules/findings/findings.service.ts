@@ -9,7 +9,7 @@ import {
 import { Page } from '../../types/page.type';
 import { ProjectUnassigned } from '../../validators/is-project-id.validator';
 import { ConfigService } from '../database/admin/config/config.service';
-import { JobsService } from '../database/jobs/jobs.service';
+import { JobExecutionsService } from '../database/jobs/job-executions.service';
 import { CorrelationKeyUtils } from '../database/reporting/correlation.utils';
 import { CustomFinding } from '../database/reporting/findings/finding.model';
 import { ProjectService } from '../database/reporting/project.service';
@@ -134,7 +134,7 @@ export class FindingsService {
 
   constructor(
     private commandBus: CommandBus,
-    private jobsService: JobsService,
+    private jobsService: JobExecutionsService,
     private projectService: ProjectService,
     private configService: ConfigService,
     @InjectModel('finding')
@@ -159,7 +159,7 @@ export class FindingsService {
     pageSize: number,
     dto: FindingsFilter = undefined,
   ): Promise<Page<CustomFinding & Document>> {
-    if (page < 1) throw new HttpBadRequestException('Page starts at 1.');
+    if (page < 0) throw new HttpBadRequestException('Page starts at 0.');
 
     const filters: FilterQuery<CustomFinding> = this.buildFilters(dto);
 
@@ -168,7 +168,7 @@ export class FindingsService {
       .sort({
         created: 'desc',
       })
-      .skip((page - 1) * pageSize)
+      .skip(page * pageSize)
       .limit(pageSize)
       .exec();
     const totalRecords = await this.findingModel.countDocuments(filters);

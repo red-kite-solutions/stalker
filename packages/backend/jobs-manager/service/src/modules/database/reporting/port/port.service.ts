@@ -217,6 +217,14 @@ export class PortService {
     return await this.portsModel.findById(portId);
   }
 
+  public async getHostPort(hostId: string, portNumber: number) {
+    console.log(await this.portsModel.findOne());
+    return await this.portsModel.findOne({
+      'host.id': { $eq: new Types.ObjectId(hostId) },
+      port: { $eq: portNumber },
+    });
+  }
+
   public async deleteAllForProject(projectId: string): Promise<DeleteResult> {
     return await this.portsModel.deleteMany({
       projectId: { $eq: new Types.ObjectId(projectId) },
@@ -344,8 +352,8 @@ export class PortService {
     }
 
     // Filter by host ip
-    if (dto.host && !dto.hostId) {
-      const hostsRegex = dto.host
+    if (dto.hosts && !dto.hostId) {
+      const hostsRegex = dto.hosts
         .filter((x) => x)
         .map((x) => x.toLowerCase().trim())
         .map((x) => escapeStringRegexp(x))
@@ -361,8 +369,8 @@ export class PortService {
     }
 
     // Filter by project
-    if (dto.project) {
-      const projectIds = dto.project
+    if (dto.projects) {
+      const projectIds = dto.projects
         .filter((x) => x)
         .map((x) => new Types.ObjectId(x));
 

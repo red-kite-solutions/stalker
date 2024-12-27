@@ -17,7 +17,7 @@ export interface JobStatusUpdate {
   timestamp: number;
 }
 
-export class JobsSocketioClient {
+export class JobExecutionsSocketioClient {
   public readonly jobOutputResponse = 'JobOutputResponse';
   public readonly jobOutputRequest = 'JobOutputRequest';
   public readonly jobStatusUpdate = 'JobStatusUpdate';

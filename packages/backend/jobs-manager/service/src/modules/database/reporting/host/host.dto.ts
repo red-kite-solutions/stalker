@@ -1,62 +1,27 @@
 // import { Type } from 'class-transformer';
-import { Transform, Type } from 'class-transformer';
+import { IntersectionType } from '@nestjs/swagger';
 import {
   IsArray,
   IsBoolean,
   IsIP,
-  IsInt,
   IsMongoId,
   IsNotEmpty,
   IsOptional,
-  Max,
-  Min,
+  IsPort,
 } from 'class-validator';
 import { Types } from 'mongoose';
-import { booleanStringToBoolean } from '../../../../utils/boolean-string-to-boolean';
+import { PagingDto } from '../../database.dto';
+import { FilterByDomainDto, ResourceFilterDto } from '../resource.dto';
 
-export class HostsFilterDto {
-  @IsInt()
-  @Type(() => Number)
-  page: number = 0;
+export class HostsFilterDto extends IntersectionType(
+  ResourceFilterDto,
+  FilterByDomainDto,
+) {}
 
-  @IsInt()
-  @Min(1)
-  @Max(100)
-  @Type(() => Number)
-  pageSize: number = 10;
-
-  @IsOptional()
-  @IsMongoId({ each: true })
-  @Type(() => Array)
-  tags: string[];
-
-  @IsArray()
-  @IsOptional()
-  project: string[];
-
-  @IsArray()
-  @IsOptional()
-  domain: string[];
-
-  @IsArray()
-  @IsOptional()
-  host: string[];
-
-  @IsOptional()
-  @IsInt()
-  @Type(() => Number)
-  firstSeenStartDate: number;
-
-  @IsOptional()
-  @IsInt()
-  @Type(() => Number)
-  firstSeenEndDate: number;
-
-  @IsOptional()
-  @IsBoolean()
-  @Transform(booleanStringToBoolean)
-  blocked: boolean;
-}
+export class HostsPagingDto extends IntersectionType(
+  PagingDto,
+  HostsFilterDto,
+) {}
 
 export class DeleteHostsDto {
   @IsArray()
@@ -82,4 +47,14 @@ export class BatchEditHostsDto {
   @IsOptional()
   @IsBoolean()
   block: boolean;
+}
+
+export class GetHostPortDto {
+  @IsMongoId()
+  @IsNotEmpty()
+  id: string;
+
+  @IsPort()
+  @IsNotEmpty()
+  portNumber: number;
 }

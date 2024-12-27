@@ -62,6 +62,10 @@ export class CronSubscriptionsService implements GenericSubscriptionService<Cron
     await firstValueFrom(this.http.delete(`${environment.fmUrl}/cron-subscriptions/${id}`));
   }
 
+  public async duplicate(id: string) {
+    return await firstValueFrom(this.http.post(`${environment.fmUrl}/cron-subscriptions`, { subscriptionId: id }));
+  }
+
   private parseSubscription(subscription: CronSubscriptionData) {
     const data: any = {
       name: subscription.name,

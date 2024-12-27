@@ -11,7 +11,7 @@ import { HostnameFinding } from '../../../findings/findings.service';
 import { FindingsQueue } from '../../../job-queue/findings-queue';
 import { ConfigService } from '../../admin/config/config.service';
 import { MONGO_DUPLICATE_ERROR } from '../../database.constants';
-import { JobsService } from '../../jobs/jobs.service';
+import { JobExecutionsService } from '../../jobs/job-executions.service';
 import { TagsService } from '../../tags/tag.service';
 import { CorrelationKeyUtils } from '../correlation.utils';
 import { HostService } from '../host/host.service';
@@ -28,7 +28,7 @@ export class DomainsService {
   constructor(
     @InjectModel('domain') private readonly domainModel: Model<Domain>,
     @InjectModel('project') private readonly projectModel: Model<Project>,
-    private jobService: JobsService,
+    private jobService: JobExecutionsService,
     private configService: ConfigService,
     @Inject(forwardRef(() => HostService))
     private hostService: HostService,
@@ -229,7 +229,7 @@ export class DomainsService {
   public async getAll(
     page: number = null,
     pageSize: number = null,
-    filter: any = null,
+    filter: DomainsPagingDto = null,
   ): Promise<DomainDocument[]> {
     let query;
     if (filter) {
@@ -370,8 +370,8 @@ export class DomainsService {
   public buildFilters(dto: DomainsPagingDto) {
     const finalFilter = {};
     // Filter by domain
-    if (dto.domain) {
-      const preppedDomainArray = dto.domain
+    if (dto.domains) {
+      const preppedDomainArray = dto.domains
         .filter((x) => x)
         .map((x) => x.toLowerCase())
         .map((x) => escapeStringRegexp(x))
@@ -383,8 +383,8 @@ export class DomainsService {
     }
 
     // Filter by host
-    if (dto.host) {
-      const hosts = dto.host
+    if (dto.hosts) {
+      const hosts = dto.hosts
         .filter((x) => x)
         .map((x) => x.toLowerCase().trim())
         .map((x) => escapeStringRegexp(x))
@@ -396,10 +396,14 @@ export class DomainsService {
     }
 
     // Filter by project
-    if (dto.project) {
-      finalFilter['projectId'] = {
-        $eq: new Types.ObjectId(dto.project),
-      };
+    if (dto.projects) {
+      const projectIds = dto.projects
+        .filter((x) => x)
+        .map((x) => new Types.ObjectId(x));
+
+      if (projectIds.length > 0) {
+        finalFilter['projectId'] = { $in: projectIds };
+      }
     }
 
     // Filter by tag

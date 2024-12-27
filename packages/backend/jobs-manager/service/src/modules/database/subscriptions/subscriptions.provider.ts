@@ -45,7 +45,7 @@ export const subscriptionsInitProvider = [
           for (const subscription of importedSubscriptions) {
             const filter: UpdateFilter<CronSubscription | EventSubscription> = {
               jobName: subscription.jobName,
-              'source.url': subscription.source?.url,
+              'source.repoUrl': subscription.source?.repoUrl,
             };
 
             switch (subscription.triggerType) {

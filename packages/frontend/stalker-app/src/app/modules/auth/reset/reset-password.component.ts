@@ -50,7 +50,7 @@ export class ResetPasswordComponent {
     tap((isAuthorized) => {
       if (!isAuthorized) this.router.navigate(['/auth', 'request-reset'], { queryParams: { invalidToken: true } });
     }),
-    shareReplay()
+    shareReplay(1)
   );
 
   constructor(

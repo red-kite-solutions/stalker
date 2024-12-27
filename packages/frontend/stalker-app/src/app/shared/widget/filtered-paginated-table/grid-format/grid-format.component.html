@@ -1,4 +1,11 @@
 <div class="grid-view" [class]="gridClassesMapping[gridColumns - 1]">
+  @if (!_dataSource.data.length) {
+    <mat-card class="nodata" appearance="outlined">
+      <mat-card-content>
+        {{ noDataMessage }}
+      </mat-card-content>
+    </mat-card>
+  }
   @for (element of _dataSource.data; track element) {
     <mat-card class="grid-item" appearance="outlined">
       <mat-card-title>
@@ -19,7 +26,6 @@
       <mat-card-content>
         <ng-container *ngTemplateOutlet="bodyTemplate; context: { element: element }"></ng-container>
       </mat-card-content>
-      <!-- <img mat-card-image /> -->
     </mat-card>
   }
 </div>

@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ElementMenuItems } from '../filtered-paginated-table/filtered-paginated-table.component';
 
 @Component({
@@ -19,7 +20,12 @@ import { ElementMenuItems } from '../filtered-paginated-table/filtered-paginated
       <mat-menu #menu="matMenu">
         @for (menuItem of menuFactory(item); track $index) {
           @if (!menuItem.hidden) {
-            <button mat-menu-item (click)="menuItem.action()">
+            <button
+              mat-menu-item
+              (click)="menuItem.action()"
+              [disabled]="menuItem.disabled === true"
+              [matTooltip]="menuItem.tooltip || ''"
+            >
               @if (menuItem.icon) {
                 <mat-icon>{{ menuItem.icon }}</mat-icon>
               }
@@ -31,7 +37,7 @@ import { ElementMenuItems } from '../filtered-paginated-table/filtered-paginated
     }
   `,
   styles: [``],
-  imports: [MatIconModule, MatMenuModule],
+  imports: [MatIconModule, MatMenuModule, MatTooltipModule],
 })
 export class MenuIconComponent {
   @Input() orientation: 'vertical' | 'horizontal' = 'vertical';

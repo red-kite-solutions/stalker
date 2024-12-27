@@ -26,11 +26,9 @@
 
   <mat-card-content>
     <app-filtered-paginated-table
-      (pageChange)="pageChange($event)"
       [isLoading]="(isLoading$ | async) || false"
-      [length]="(customJobs$ | async)?.length || 0"
+      [length]="(customJobs$ | async)?.totalRecords || 0"
       [filterType]="'fulltext'"
-      (filtersChange)="filterChange($event)"
     >
       <app-table-format
         [dataSource]="dataSource$ | async"
@@ -64,29 +62,9 @@
 
         <!-- Source Column -->
         <ng-container matColumnDef="source">
-          <th mat-header-cell *matHeaderCellDef i18n="Source|Source" class="center-icon">Source</th>
-          <td mat-cell *matCellDef="let element" class="center-icon">
-            @if (!element.builtIn) {
-              <mat-icon
-                matTooltip="Custom"
-                i18n-matTooltip="Custom|Custom element"
-                class="material-symbols-outlined-filled"
-                >coffee</mat-icon
-              >
-            }
-            @if (element.source) {
-              <div class="center-image">
-                <a (click)="$event.stopPropagation()" [href]="element.source.repoUrl">
-                  <avatar
-                    [matTooltip]="element.source.repoUrl"
-                    [matTooltipShowDelay]="500"
-                    i18n-matTooltip="Stalker|Stalker, the application's name"
-                    class="tw-block tw-w-8 tw-h-8"
-                    [src]="element.source.avatarUrl"
-                  ></avatar>
-                </a>
-              </div>
-            }
+          <th mat-header-cell *matHeaderCellDef i18n="Source|Source" class="tw-w-24">Source</th>
+          <td mat-cell *matCellDef="let element" class="tw-w-24">
+            <data-source [source]="element.source"></data-source>
           </td>
         </ng-container>
 

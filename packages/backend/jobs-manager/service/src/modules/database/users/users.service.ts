@@ -140,7 +140,7 @@ export class UsersService {
   }
 
   /**
-   * Edits a user and avoids the role/active modification of the last admin to prevent bricking Stalker
+   * Edits a user and avoids the role/active modification of the last admin to prevent bricking Red Kite
    * @param id
    * @param userEdits
    */
@@ -397,7 +397,7 @@ export class UsersService {
       expirationDate: expirationDate.getTime(),
     });
 
-    const link = `${process.env.STALKER_APP_BASE_URL}/auth/reset?token=${token}`;
+    const link = `${process.env.RK_APP_BASE_URL}/auth/reset?token=${token}`;
     await this.emailService.sendResetPassword(
       {
         link,

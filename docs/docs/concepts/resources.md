@@ -6,7 +6,7 @@ description: What are resources
 
 # Resources
 
-Resources represent the core entities of an exposed network. They are used to store and show the data found by [Stalker's jobs](/docs/concepts/jobs). A resource can also often be created through the user interface and the API.
+Resources represent the core entities of an exposed network. They are used to store and show the data found by [Red Kite's jobs](/docs/concepts/jobs). A resource can also often be created through the user interface and the API.
 
 All the resources belong to projects, and the resources are unique on a per-project basis. Deleting a project results in the deletion of its resources.
 
@@ -50,7 +50,7 @@ A port represents a `tcp` or `udp` port. Ports are used, combined with a *host*'
 
 A port is a numerical value between `1` and `65535` inclusively. Ports can run any kind of network services or servers. Some examples could be a SSH server, a FTP server, a HTTP server, etc.
 
-Stalker reports a *host*'s `open` ports. `Tcp` ports are considered `open` when they can complete a full `tcp handshake`.
+Red Kite reports a *host*'s `open` ports. `Tcp` ports are considered `open` when they can complete a full `tcp handshake`.
 
 > At the moment, only TCP ports are officially supported.
 
@@ -95,7 +95,7 @@ To tag a resource in the user interface, simply open the resource's specific vie
 
 ### Deleting a resource
 
-Deleting a resource will remove it from the database. It will no longer exist in Stalker. If the same resource is encountered again by Stalker in the future, it will be recreated and it will reappear.
+Deleting a resource will remove it from the database. It will no longer exist in Red Kite. If the same resource is encountered again by Red Kite in the future, it will be recreated and it will reappear.
 
 It is useful to remove a resource that is not present anymore, but that we would like to see again if it ever comes back.
 
@@ -107,11 +107,11 @@ While deleted resources are removed from the database, blocked resources will st
 
 Blocked resources can be seen in the user interface by removing the default filter `-is: blocked`. Every resource will be shown that way, blocked or not. If you wish to only see the blocked resources, use the `is: blocked` filter.
 
-Blocking a resource is useful if, through automation, Stalker found a resource that does not belong in the project. Deleting it would likely result in it reappearing later and jobs being run on it. Blocking it will ensure that jobs are not automatically run on the resource by remembering its existence.
+Blocking a resource is useful if, through automation, Red Kite found a resource that does not belong in the project. Deleting it would likely result in it reappearing later and jobs being run on it. Blocking it will ensure that jobs are not automatically run on the resource by remembering its existence.
 
 ### Merging websites
 
-Merging website resources into a single entity is often feasible because Stalker generates multiple potential websites that may actually be identical. For example, if Stalker creates two different websites for ports 80 and 443 on the same IP address, they are likely to be the same site accessible through different ports.
+Merging website resources into a single entity is often feasible because Red Kite generates multiple potential websites that may actually be identical. For example, if Red Kite creates two different websites for ports 80 and 443 on the same IP address, they are likely to be the same site accessible through different ports.
 
 By merging these websites, automated workflows can treat them as a single entity, reducing the amount of work required. In other words, a merged website will be ignored by the automated workflows and will point to the other website in which it is merged.
 

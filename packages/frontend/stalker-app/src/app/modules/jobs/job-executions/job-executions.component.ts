@@ -1,20 +1,25 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild } from '@angular/core';
+import { Component, Inject, ViewChild } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, map, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, shareReplay, switchMap, tap } from 'rxjs';
 import { ProjectCellComponent } from 'src/app/shared/components/project-cell/project-cell.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { Project } from 'src/app/shared/types/project/project.interface';
 import { FilteredPaginatedTableComponent } from 'src/app/shared/widget/filtered-paginated-table/filtered-paginated-table.component';
-import { JobsService } from '../../../api/jobs/jobs/jobs.service';
+import { JobExecutionsService } from '../../../api/jobs/job-executions/job-executions.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { StartedJobViewModel } from '../../../shared/types/jobs/job.type';
-import { Page } from '../../../shared/types/page.type';
+import {
+  TABLE_FILTERS_SOURCE_INITAL_FILTERS,
+  TableFilters,
+  TableFiltersSource,
+  TableFiltersSourceBase,
+} from '../../../shared/widget/filtered-paginated-table/table-filters-source';
 import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-table/table-format/table-format.component';
 import { JobLogsSummaryComponent } from './job-execution-logs-summary.component';
 import { JobStateComponent } from './job-execution-state.component';
@@ -36,6 +41,16 @@ import { JobStateComponent } from './job-execution-state.component';
     RouterModule,
     TableFormatComponent,
   ],
+  providers: [
+    { provide: TableFiltersSourceBase, useClass: TableFiltersSource },
+    {
+      provide: TABLE_FILTERS_SOURCE_INITAL_FILTERS,
+      useValue: {
+        filters: [],
+        pagination: { page: 0, pageSize: 25 },
+      } as TableFilters,
+    },
+  ],
 })
 export class JobExecutionsComponent {
   readonly displayColumns = ['name', 'project', 'time'];
@@ -45,59 +60,30 @@ export class JobExecutionsComponent {
   @ViewChild(MatPaginator, { static: true }) paginator!: MatPaginator;
 
   dataLoading = true;
-  dataSource = new MatTableDataSource<StartedJobViewModel>();
-  currentPage: PageEvent = this.generateFirstPageEvent();
-  currentFilters: string[] = [];
-  currentPage$ = new BehaviorSubject<PageEvent>(this.currentPage);
-  count = 0;
 
-  dataSource$ = this.currentPage$.pipe(
-    tap((currentPage) => {
-      this.currentPage = currentPage;
-    }),
-    switchMap((currentPage) => {
-      const filters = this.buildFilters(this.currentFilters);
-      return this.jobsService.getJobExecutions(currentPage.pageIndex, currentPage.pageSize, filters);
-    }),
-    map((data: Page<StartedJobViewModel>) => {
-      if (!this.dataSource) {
-        this.dataSource = new MatTableDataSource<StartedJobViewModel>();
-      }
-      this.dataSource.data = data.items;
-      this.count = data.totalRecords;
-      this.dataLoading = false;
-      return data;
-    })
+  private refresh$ = new BehaviorSubject(null);
+
+  executions$ = combineLatest([this.filtersSource.debouncedFilters$, this.refresh$]).pipe(
+    switchMap(([{ filters, pagination }]) =>
+      this.jobsService.getJobExecutions(pagination?.page ?? 0, pagination?.pageSize ?? 25, this.buildFilters(filters))
+    ),
+    tap(() => (this.dataLoading = false)),
+    shareReplay(1)
   );
+
+  dataSource$ = this.executions$.pipe(map((x) => new MatTableDataSource<StartedJobViewModel>(x.items)));
 
   projects: Project[] = [];
   projects$ = this.projectsService.getAll().pipe(tap((x) => (this.projects = x)));
 
   constructor(
-    private jobsService: JobsService,
+    private jobsService: JobExecutionsService,
     private projectsService: ProjectsService,
     private titleService: Title,
-    private toastrService: ToastrService
+    private toastrService: ToastrService,
+    @Inject(TableFiltersSourceBase) private filtersSource: TableFiltersSource
   ) {
     this.titleService.setTitle($localize`:Job executions|:Job executions`);
-  }
-
-  private generateFirstPageEvent(pageSize = 10) {
-    const p = new PageEvent();
-    p.pageIndex = 0;
-    p.pageSize = pageSize;
-    this.currentPage = p;
-    return p;
-  }
-
-  filtersChange(filters: string[]) {
-    this.currentFilters = filters;
-    this.dataLoading = true;
-  }
-
-  pageChange(event: PageEvent) {
-    this.dataLoading = true;
-    this.currentPage$.next(event);
   }
 
   buildFilters(stringFilters: string[]): any {

@@ -1,9 +1,9 @@
-import { JobOutputResponse } from '../../../api/jobs/jobs/jobs.socketio-client';
-import { JobSource } from './job-source.type';
+import { JobOutputResponse } from '../../../api/jobs/job-executions/job-executions.socketio-client';
+import { DataSource } from '../data-source/data-source.type';
 
 export interface JobListEntry extends JobInput {
   builtIn: boolean;
-  source: JobSource;
+  source: DataSource;
 }
 
 export interface JobParameterDefinition {

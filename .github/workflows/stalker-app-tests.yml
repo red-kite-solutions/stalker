@@ -1,4 +1,4 @@
-name: Stalker App
+name: Red Kite App
 
 on:
   pull_request:

@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, firstValueFrom, map } from 'rxjs';
-import { CustomJobsService } from 'src/app/api/jobs/custom-jobs/custom-jobs.service';
+import { JobsService } from 'src/app/api/jobs/jobs/jobs.service';
 import { CustomJob } from 'src/app/shared/types/jobs/custom-job.type';
 import {
   ConfirmDialogComponent,
@@ -18,16 +18,18 @@ import { FileTab } from '../../../shared/widget/code-editor/code-editor.type';
 @Injectable({ providedIn: 'root' })
 export class CustomJobsInteractionService {
   constructor(
-    private customJobsService: CustomJobsService,
+    private customJobsService: JobsService,
     private dialog: MatDialog,
     private toastr: ToastrService,
     public router: Router,
     public templateService: CustomJobTemplatesService
   ) {}
 
-  public async delete(jobs: Pick<CustomJob, '_id' | 'name'>[]): Promise<boolean> {
+  public async delete(jobs: Pick<CustomJob, '_id' | 'name' | 'source'>[]): Promise<boolean> {
+    jobs = jobs.filter((x) => x.source == null);
+
     let data: ConfirmDialogData = {
-      text: $localize`:Select jobs again|No job was selected so there is nothing to delete:Select the jobs to delete and try again.`,
+      text: $localize`:Select jobs again|No job was selected so there is nothing to delete:Select the jobs to delete and try again. Imported jobs cannot be deleted.`,
       title: $localize`:Nothing to delete|Tried to delete something, but there was nothing to delete:Nothing to delete`,
       primaryButtonText: $localize`:Ok|Accept or confirm:Ok`,
       noDataSelectItem: true,
@@ -71,6 +73,10 @@ export class CustomJobsInteractionService {
         })
         .afterClosed()
     );
+  }
+
+  public async duplicate(job: Pick<CustomJob, '_id' | 'name'>): Promise<void> {
+    await this.customJobsService.duplicate(job._id);
   }
 
   public async syncCache() {
