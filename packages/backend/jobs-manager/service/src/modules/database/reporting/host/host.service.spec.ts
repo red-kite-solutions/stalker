@@ -96,7 +96,7 @@ describe('Host Service', () => {
 
       // Act
       const allHosts = await hostService.getAll(0, 10, {
-        project: [c1.id],
+        projects: [c1.id],
       });
 
       // Assert
@@ -135,7 +135,7 @@ describe('Host Service', () => {
 
         // Act
         const allHosts = await hostService.getAll(0, 10, {
-          domain: domains,
+          domains: domains,
         });
 
         // Assert
@@ -169,7 +169,7 @@ describe('Host Service', () => {
 
       // Act
       const allHosts = await hostService.getAll(0, 10, {
-        host: hosts,
+        hosts: hosts,
       });
 
       // Assert

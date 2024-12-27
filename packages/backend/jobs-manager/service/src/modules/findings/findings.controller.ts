@@ -25,6 +25,6 @@ export class FindingsController {
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Get()
   async get(@Query() dto: FindingsPagingDto): Promise<Page<CustomFinding>> {
-    return await this.findingsService.getAll(+dto.page, +dto.pageSize, dto);
+    return await this.findingsService.getAll(dto.page, dto.pageSize, dto);
   }
 }

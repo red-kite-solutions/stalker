@@ -78,10 +78,10 @@ describe('Findings Service Spec', () => {
     ]);
 
     // Act
-    const firstPage = await findingsService.getAll(1, 3, {
+    const firstPage = await findingsService.getAll(0, 3, {
       target: 'my-target',
     });
-    const secondPage = await findingsService.getAll(2, 3, {
+    const secondPage = await findingsService.getAll(1, 3, {
       target: 'my-target',
     });
 
@@ -174,7 +174,7 @@ describe('Findings Service Spec', () => {
       c.id,
       'example.org',
     );
-    const findings = await findingsService.getAll(1, 100, {
+    const findings = await findingsService.getAll(0, 100, {
       target: correlationKey,
     });
     expect(findings.totalRecords).toBe(1);
@@ -213,7 +213,7 @@ describe('Findings Service Spec', () => {
       c.id,
       'example.org',
     );
-    const findings = await findingsService.getAll(1, 100, {
+    const findings = await findingsService.getAll(0, 100, {
       target: correlationKey,
       findingDenyList: [filteredKey],
     });
@@ -244,7 +244,7 @@ describe('Findings Service Spec', () => {
       c.id,
       'example.org',
     );
-    const findings = await findingsService.getAll(1, 100, {
+    const findings = await findingsService.getAll(0, 100, {
       target: correlationKey,
       findingAllowList: [nonFilteredKey],
     });
@@ -310,7 +310,7 @@ describe('Findings Service Spec', () => {
       '/',
     );
     const endpoint = (
-      await findingsService.getAll(1, 1, {
+      await findingsService.getAll(0, 1, {
         target: correlationKey,
         fieldFilters: [
           {

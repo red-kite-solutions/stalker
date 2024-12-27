@@ -1,29 +1,22 @@
+import { IntersectionType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsArray,
   IsMongoId,
   IsNotEmpty,
-  IsNumber,
-  IsNumberString,
   IsOptional,
   IsString,
-  Max,
-  Min,
   ValidateNested,
 } from 'class-validator';
+import { PagingDto } from '../database.dto';
+import { FilterByProjectDto } from '../reporting/resource.dto';
 import { JobParameter } from '../subscriptions/event-subscriptions/event-subscriptions.model';
 import { JobParameterDto } from '../subscriptions/subscriptions.dto';
 
-export class JobExecutionsDto {
-  @IsNumberString()
-  page: string;
-
-  @IsNumber()
-  @Min(1)
-  @Max(100)
-  @Type(() => Number)
-  pageSize: string;
-
+export class JobExecutionsDto extends IntersectionType(
+  PagingDto,
+  FilterByProjectDto,
+) {
   @IsMongoId()
   @IsOptional()
   project: string;
