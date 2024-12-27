@@ -45,9 +45,9 @@ export class FindingsListComponent {
 
     this.findings$ = this.loadMoreFindings$.pipe(
       tap(() => this.isLoadingMoreFindings$.next(true)),
-      scan((acc) => acc + 1, 0),
+      scan((acc) => acc + 1, -1),
       concatMap((page) =>
-        this.findingsService.getFindings(page, 15, {
+        this.findingsService.getPage(page, 15, {
           target: correlationKey,
           findingDenyList: this._filterFindingKeys,
         })

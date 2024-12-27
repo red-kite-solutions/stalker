@@ -324,8 +324,8 @@ export class HostService {
     const finalFilter = {};
 
     // Filter by domain
-    if (dto.domain) {
-      const domainRegexes = dto.domain
+    if (dto.domains) {
+      const domainRegexes = dto.domains
         .filter((x) => x)
         .map((x) => x.toLowerCase())
         .map((x) => escapeStringRegexp(x))
@@ -337,8 +337,8 @@ export class HostService {
     }
 
     // Filter by host
-    if (dto.host) {
-      const hosts = dto.host
+    if (dto.hosts) {
+      const hosts = dto.hosts
         .filter((x) => x)
         .map((x) => x.toLowerCase().trim())
         .map((x) => escapeStringRegexp(x))
@@ -350,8 +350,8 @@ export class HostService {
     }
 
     // Filter by project
-    if (dto.project) {
-      const projectIds = dto.project
+    if (dto.projects) {
+      const projectIds = dto.projects
         .filter((x) => x)
         .map((x) => new Types.ObjectId(x));
 

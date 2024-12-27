@@ -275,7 +275,7 @@ export class ListWebsitesComponent {
     if (ports?.length) filterObject['ports'] = ports;
     if (hosts?.length) filterObject['hosts'] = hosts;
     if (domains?.length) filterObject['domains'] = domains;
-    if (projects?.length) filterObject['project'] = projects;
+    if (projects?.length) filterObject['projects'] = projects;
     if (blocked !== null) filterObject['blocked'] = blocked;
     if (merged !== null) filterObject['merged'] = merged;
     return filterObject;
