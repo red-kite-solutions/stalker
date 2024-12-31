@@ -60,4 +60,8 @@ export class JobDto {
 
   @IsValidFindingHandlerLanguage()
   public findingHandlerLanguage?: CustomJobFindingHandlerLanguage;
+
+  @IsMongoId()
+  @IsNotEmpty()
+  public containerId: string;
 }
