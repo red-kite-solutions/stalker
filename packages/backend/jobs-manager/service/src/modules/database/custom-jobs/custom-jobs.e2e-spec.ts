@@ -29,18 +29,10 @@ fdescribe('Custom Jobs Controller (e2e)', () => {
     code: 'print("custom job controller e2e")',
     language: 'python',
     jobPodConfigId: '',
+    containerId: '',
   };
 
-  const nucleiCustomJob: Pick<
-    JobDto,
-    | 'name'
-    | 'type'
-    | 'code'
-    | 'language'
-    | 'jobPodConfigId'
-    | 'findingHandler'
-    | 'findingHandlerLanguage'
-  > = {
+  const nucleiCustomJob: JobDto = {
     name: 'My nuclei custom job',
     type: 'nuclei',
     code: 'nuclei template placeholder',
@@ -48,6 +40,7 @@ fdescribe('Custom Jobs Controller (e2e)', () => {
     jobPodConfigId: '',
     findingHandler: undefined,
     findingHandlerLanguage: undefined,
+    containerId: '',
   };
 
   beforeAll(async () => {
@@ -72,6 +65,13 @@ fdescribe('Custom Jobs Controller (e2e)', () => {
     jobPodConfigs = res.body;
     customJob.jobPodConfigId = jobPodConfigs[0]._id.toString();
     nucleiCustomJob.jobPodConfigId = jobPodConfigs[0]._id.toString();
+
+    const containers: JobContainerDocument[] = (
+      await getReq(app, testData.user.token, '/job-containers')
+    ).body;
+
+    nucleiCustomJob.containerId = containers[0]._id;
+    customJob.containerId = containers[0]._id;
   });
 
   afterAll(async () => {
@@ -220,17 +220,11 @@ fdescribe('Custom Jobs Controller (e2e)', () => {
 
   it('Should create a nuclei custom job with custom handler (POST /custom-jobs)', async () => {
     // Arrange
-    const containers: JobContainerDocument[] = (
-      await getReq(app, testData.user.token, '/job-containers')
-    ).body;
-
-    // arrange
     const nucleiDto: JobDto = {
       ...nucleiCustomJob,
       name: 'Nuclei custom handler',
       findingHandler: 'handler content placeholder',
       findingHandlerLanguage: 'python',
-      containerId: containers[0]._id,
     };
 
     // act
@@ -252,17 +246,11 @@ fdescribe('Custom Jobs Controller (e2e)', () => {
 
   it('Should not create a nuclei custom job (name duplicate) (POST /custom-jobs)', async () => {
     // Arrange
-    const containers: JobContainerDocument[] = (
-      await getReq(app, testData.user.token, '/job-containers')
-    ).body;
-
-    // arrange
     const nucleiDto: JobDto = {
       ...nucleiCustomJob,
       name: 'Nuclei custom handler',
       findingHandler: 'handler content placeholder',
       findingHandlerLanguage: 'python',
-      containerId: containers[0]._id,
     };
 
     // act
