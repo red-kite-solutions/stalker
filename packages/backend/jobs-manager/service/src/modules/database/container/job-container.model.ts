@@ -1,17 +1,17 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 
-export type ContainerDocument = Container & Document;
+export type JobContainerDocument = JobContainer & Document;
 
-export class ContainerSummary {
+export class JobContainerSummary {
   id: Types.ObjectId;
   image: string;
 }
 
 @Schema()
-export class Container {
+export class JobContainer {
   @Prop({ unique: true })
   public image!: string;
 }
 
-export const ContainerSchema = SchemaFactory.createForClass(Container);
+export const JobContainerSchema = SchemaFactory.createForClass(JobContainer);

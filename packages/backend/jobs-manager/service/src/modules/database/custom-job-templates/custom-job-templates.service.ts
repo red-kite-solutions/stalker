@@ -4,7 +4,10 @@ import { DeleteResult } from 'mongodb';
 import { Model, Types } from 'mongoose';
 import { HttpNotFoundException } from '../../../exceptions/http.exceptions';
 import { CustomJobTemplateSummary } from '../../../types/custom-job-template-summary.type';
-import { Container, ContainerDocument } from '../container/container.model';
+import {
+  JobContainer,
+  JobContainerDocument,
+} from '../container/job-container.model';
 import { CustomJobTemplateDto } from './custom-job-templates.dto';
 import { CustomJobTemplate } from './custom-job-templates.model';
 
@@ -15,12 +18,12 @@ export class CustomJobTemplateService {
   constructor(
     @InjectModel('customJobTemplates')
     private readonly templateModel: Model<CustomJobTemplate>,
-    @InjectModel('containers')
-    private readonly containersModel: Model<Container>,
+    @InjectModel('jobContainers')
+    private readonly containersModel: Model<JobContainer>,
   ) {}
 
   public async create(dto: CustomJobTemplateDto) {
-    const container: ContainerDocument = await this.containersModel.findById(
+    const container: JobContainerDocument = await this.containersModel.findById(
       dto.containerId,
     );
 

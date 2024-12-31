@@ -5,7 +5,10 @@ import { Model, Types } from 'mongoose';
 import { HttpNotFoundException } from '../../../exceptions/http.exceptions';
 import { JobSummary } from '../../../types/job-summary.type';
 import { JobModelUpdateQueue } from '../../job-queue/job-model-update-queue';
-import { Container, ContainerDocument } from '../container/container.model';
+import {
+  JobContainer,
+  JobContainerDocument,
+} from '../container/job-container.model';
 import { CustomJobEntry, CustomJobsDocument } from './custom-jobs.model';
 import { JobDto } from './jobs.dto';
 
@@ -16,13 +19,13 @@ export class CustomJobsService {
   constructor(
     @InjectModel('customJobs')
     private readonly customJobModel: Model<CustomJobEntry>,
-    @InjectModel('containers')
-    private readonly containersModel: Model<Container>,
+    @InjectModel('jobContainers')
+    private readonly containersModel: Model<JobContainer>,
     private readonly jobCodeQueue: JobModelUpdateQueue,
   ) {}
 
   public async create(dto: JobDto) {
-    const container: ContainerDocument = await this.containersModel.findById(
+    const container: JobContainerDocument = await this.containersModel.findById(
       dto.containerId,
     );
 

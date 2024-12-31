@@ -5,7 +5,7 @@ import path from 'path';
 import { parse } from 'yaml';
 import { DataSource } from '../../datasources/data-sources';
 import { JobPodConfigurationDocument } from '../admin/config/job-pod-config/job-pod-config.model';
-import { ContainerDocument } from '../container/container.model';
+import { JobContainerDocument } from '../container/job-container.model';
 import { validCustomJobTypeDetails } from '../jobs/models/custom-job.model';
 import { CustomJobMetadata } from './custom-job-metadata.type';
 import { CustomJobEntry } from './custom-jobs.model';
@@ -31,7 +31,7 @@ export class JobReader {
     jobName: string,
     podConfigurations: JobPodConfigurationDocument[],
     dataSource: DataSource,
-    containers: ContainerDocument[],
+    containers: JobContainerDocument[],
   ): Promise<CustomJobEntry | null> {
     const fs = dataSource.fs ?? realFs.promises;
 

@@ -6,25 +6,27 @@ import { Roles } from '../../auth/decorators/roles.decorator';
 import { RolesGuard } from '../../auth/guards/role.guard';
 import { ApiKeyStrategy } from '../../auth/strategies/api-key.strategy';
 import { JwtStrategy } from '../../auth/strategies/jwt.strategy';
-import { ContainerDocument } from './container.model';
-import { ContainerService } from './container.service';
+import { JobContainerDocument } from './job-container.model';
+import { JobContainerService } from './job-container.service';
 
-@Controller('containers')
-export class ContainerController {
-  private logger = new Logger(ContainerController.name);
-  constructor(private containerService: ContainerService) {}
+@Controller('job-containers')
+export class JobContainerController {
+  private logger = new Logger(JobContainerController.name);
+  constructor(private containerService: JobContainerService) {}
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.ReadOnly)
   @Get()
-  async getAll(): Promise<ContainerDocument[]> {
+  async getAll(): Promise<JobContainerDocument[]> {
     return await this.containerService.getAll();
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.ReadOnly)
   @Get(':id')
-  async getContainer(@Param() IdDto: MongoIdDto): Promise<ContainerDocument> {
+  async getContainer(
+    @Param() IdDto: MongoIdDto,
+  ): Promise<JobContainerDocument> {
     return await this.containerService.get(IdDto.id);
   }
 }

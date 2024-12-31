@@ -11,7 +11,7 @@ import {
   PortFinding,
 } from '../../findings/findings.service';
 import { ConfigService } from '../admin/config/config.service';
-import { Container } from '../container/container.model';
+import { JobContainer } from '../container/job-container.model';
 import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
 import { ProjectService } from '../reporting/project.service';
 import { CronSubscription } from './cron-subscriptions/cron-subscriptions.model';
@@ -29,7 +29,7 @@ describe('Findings Handler Base', () => {
   let projectService: ProjectService;
   let customJobsService: CustomJobsService;
   let configService: ConfigService;
-  let containerModel: Model<Container>;
+  let containerModel: Model<JobContainer>;
 
   beforeAll(async () => {
     moduleFixture = await Test.createTestingModule({
@@ -39,8 +39,8 @@ describe('Findings Handler Base', () => {
     projectService = moduleFixture.get(ProjectService);
     customJobsService = moduleFixture.get(CustomJobsService);
     configService = moduleFixture.get(ConfigService);
-    containerModel = moduleFixture.get<Model<Container>>(
-      getModelToken('containers'),
+    containerModel = moduleFixture.get<Model<JobContainer>>(
+      getModelToken('jobContainers'),
     );
   });
 

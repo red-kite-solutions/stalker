@@ -5,7 +5,7 @@ import { Model } from 'mongoose';
 import { DataSources } from '../../datasources/data-sources';
 import { DATABASE_INIT } from '../admin/config/config.provider';
 import { JobPodConfiguration } from '../admin/config/job-pod-config/job-pod-config.model';
-import { Container } from '../container/container.model';
+import { JobContainer } from '../container/job-container.model';
 import { CustomJobEntry } from '../custom-jobs/custom-jobs.model';
 import {
   GitJobSource,
@@ -22,14 +22,14 @@ export const jobTemplatesInitProvider = [
     inject: [
       getModelToken('customJobTemplates'),
       getModelToken('jobPodConfig'),
-      getModelToken('containers'),
+      getModelToken('jobContainers'),
       DataSources,
       { token: DATABASE_INIT, optional: false },
     ],
     useFactory: async (
       jobTemplatesModel: Model<CustomJobTemplate>,
       jpcModel: Model<JobPodConfiguration>,
-      containerModel: Model<Container>,
+      containerModel: Model<JobContainer>,
       dataSources: DataSources,
     ) => {
       const logger = new Logger('jobTemplatesInitProvider');

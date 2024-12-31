@@ -11,10 +11,10 @@ export class ContainerService {
   constructor(private http: HttpClient) {}
 
   public getContainers(): Observable<Container[]> {
-    return this.http.get<Array<Container>>(`${environment.fmUrl}/containers/`);
+    return this.http.get<Array<Container>>(`${environment.fmUrl}/job-containers/`);
   }
 
   public getContainer(id: string) {
-    return this.http.get<Container>(`${environment.fmUrl}/containers/${id}`);
+    return this.http.get<Container>(`${environment.fmUrl}/job-containers/${id}`);
   }
 }

@@ -40,18 +40,18 @@ describe('Custom Job Templates Controller (e2e)', () => {
   // ########## Authorizations ##########
   // ####################################
 
-  it('Should have proper authorizations (GET /containers)', async () => {
+  it('Should have proper authorizations (GET /job-containers)', async () => {
     const success = await checkAuthorizations(
       testData,
       Role.ReadOnly,
       async (givenToken: string) => {
-        return await getReq(app, givenToken, `/containers`);
+        return await getReq(app, givenToken, `/job-containers`);
       },
     );
     expect(success).toBe(true);
   });
 
-  it('Should have proper authorizations (GET /containers/{id})', async () => {
+  it('Should have proper authorizations (GET /job-containers/{id})', async () => {
     const success = await checkAuthorizations(
       testData,
       Role.ReadOnly,
@@ -59,7 +59,7 @@ describe('Custom Job Templates Controller (e2e)', () => {
         return await getReq(
           app,
           givenToken,
-          `/containers/65c387dee7ab9b4085a3f872`,
+          `/job-containers/65c387dee7ab9b4085a3f872`,
         );
       },
     );
