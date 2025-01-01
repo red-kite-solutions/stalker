@@ -4,6 +4,7 @@ import { databaseConfigInitProvider } from './admin/config/config.provider';
 import { JobPodConfigModelModule } from './admin/config/job-pod-config/job-pod-config-model.module';
 import { AlarmModelModule } from './alarm/alarm-model.module';
 import { ApiKeyModelModule } from './api-key/api-key-model.module';
+import { JobContainerModelModule } from './container/job-container-model.module';
 import { CustomJobTemplateModelModule } from './custom-job-templates/custom-job-templates-model.module';
 import { JobModelModule } from './jobs/job-model.module';
 import { DomainModelModule } from './reporting/domain/domain-model.module';
@@ -37,6 +38,7 @@ import { UserModelModule } from './users/users-model.module';
     WebsiteModelModule,
     ApiKeyModelModule,
     UserModelModule,
+    JobContainerModelModule,
   ],
   providers: [...databaseConfigInitProvider],
   exports: [
@@ -57,6 +59,7 @@ import { UserModelModule } from './users/users-model.module';
     WebsiteModelModule,
     DomainModelModule,
     ApiKeyModelModule,
+    JobContainerModelModule,
   ],
 })
 export class DatalayerModule {}

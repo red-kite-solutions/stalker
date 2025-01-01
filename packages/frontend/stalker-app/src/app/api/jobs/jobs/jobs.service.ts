@@ -12,6 +12,15 @@ import { normalizeSearchString } from '../../../utils/normalize-search-string';
 export class JobsService {
   constructor(private http: HttpClient) {}
 
+  private format(data: CustomJobData): Omit<CustomJobData, 'container'> & { containerId: string } {
+    const job = {
+      containerId: data.container.id,
+      ...data,
+      container: undefined,
+    };
+    return job;
+  }
+
   public getCustomJobs(filters: string[], page: number, pageSize: number): Observable<Page<CustomJob>> {
     return this.http.get<CustomJob[]>(`${environment.fmUrl}/custom-jobs/`).pipe(
       map((jobs) => jobs.sort((a, b) => a._id.localeCompare(b._id))),
@@ -33,7 +42,7 @@ export class JobsService {
   }
 
   public async edit(id: string, data: CustomJobData) {
-    return await firstValueFrom(this.http.put(`${environment.fmUrl}/custom-jobs/${id}`, data));
+    return await firstValueFrom(this.http.put(`${environment.fmUrl}/custom-jobs/${id}`, this.format(data)));
   }
 
   public async delete(id: string) {

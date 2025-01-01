@@ -5,6 +5,10 @@ import { Model, Types } from 'mongoose';
 import { HttpNotFoundException } from '../../../exceptions/http.exceptions';
 import { JobSummary } from '../../../types/job-summary.type';
 import { JobModelUpdateQueue } from '../../job-queue/job-model-update-queue';
+import {
+  JobContainer,
+  JobContainerDocument,
+} from '../container/job-container.model';
 import { CustomJobEntry, CustomJobsDocument } from './custom-jobs.model';
 import { JobDto } from './jobs.dto';
 
@@ -15,10 +19,18 @@ export class CustomJobsService {
   constructor(
     @InjectModel('customJobs')
     private readonly customJobModel: Model<CustomJobEntry>,
+    @InjectModel('jobContainers')
+    private readonly containersModel: Model<JobContainer>,
     private readonly jobCodeQueue: JobModelUpdateQueue,
   ) {}
 
   public async create(dto: JobDto) {
+    const container: JobContainerDocument = await this.containersModel.findById(
+      dto.containerId,
+    );
+
+    if (!container) throw new HttpNotFoundException('Container id not found');
+
     const job: CustomJobEntry = {
       name: dto.name,
       code: dto.code,
@@ -29,6 +41,10 @@ export class CustomJobsService {
       findingHandler: dto.findingHandler ?? undefined,
       findingHandlerLanguage: dto.findingHandlerLanguage ?? undefined,
       parameters: [],
+      container: {
+        id: container._id,
+        image: container.image,
+      },
     };
     const r = await this.customJobModel.create(job);
     this.jobCodeQueue.publish(r);
@@ -57,6 +73,7 @@ export class CustomJobsService {
       findingHandlerEnabled: existingJob.findingHandlerEnabled,
       name: `${existingJob.name} Copy`,
       source: undefined,
+      container: existingJob.container,
     };
 
     const r = await this.customJobModel.create(job);
