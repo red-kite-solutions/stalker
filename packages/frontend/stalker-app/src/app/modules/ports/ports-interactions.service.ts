@@ -2,13 +2,13 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { firstValueFrom } from 'rxjs';
-import { PortsService } from 'src/app/api/ports/ports.service';
-import { Port } from 'src/app/shared/types/ports/port.interface';
-import { ProjectSummary } from 'src/app/shared/types/project/project.summary';
+import { PortsService } from '../../api/ports/ports.service';
+import { Port } from '../../shared/types/ports/port.interface';
+import { ProjectSummary } from '../../shared/types/project/project.summary';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
-} from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
+} from '../../shared/widget/confirm-dialog/confirm-dialog.component';
 
 @Injectable({ providedIn: 'root' })
 export class PortsInteractionsService {

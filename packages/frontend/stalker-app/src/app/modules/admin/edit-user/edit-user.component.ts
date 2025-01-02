@@ -22,15 +22,15 @@ import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { map, shareReplay, startWith, switchMap, tap } from 'rxjs';
-import { UsersService } from 'src/app/api/users/users.service';
-import { AppHeaderComponent } from 'src/app/shared/components/page-header/page-header.component';
-import { SharedModule } from 'src/app/shared/shared.module';
-import { HttpStatus } from 'src/app/shared/types/http-status.type';
-import { User } from 'src/app/shared/types/user.interface';
+import { UsersService } from '../../../api/users/users.service';
+import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { SharedModule } from '../../../shared/shared.module';
+import { HttpStatus } from '../../../shared/types/http-status.type';
+import { User } from '../../../shared/types/user.interface';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
-} from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
+} from '../../../shared/widget/confirm-dialog/confirm-dialog.component';
 import { Role, roles, rolesInfoDialogText } from '../roles';
 
 @Component({

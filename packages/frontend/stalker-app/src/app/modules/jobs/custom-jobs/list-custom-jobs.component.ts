@@ -13,13 +13,13 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
 import { Router, RouterModule } from '@angular/router';
 import { BehaviorSubject, combineLatest, map, shareReplay, switchMap, tap } from 'rxjs';
-import { JobsService } from 'src/app/api/jobs/jobs/jobs.service';
-import { AvatarComponent } from 'src/app/shared/components/avatar/avatar.component';
-import { CustomJob } from 'src/app/shared/types/jobs/custom-job.type';
+import { JobsService } from '../../../api/jobs/jobs/jobs.service';
+import { AvatarComponent } from '../../../shared/components/avatar/avatar.component';
+import { CustomJob } from '../../../shared/types/jobs/custom-job.type';
 import {
   ElementMenuItems,
   FilteredPaginatedTableComponent,
-} from 'src/app/shared/widget/filtered-paginated-table/filtered-paginated-table.component';
+} from '../../../shared/widget/filtered-paginated-table/filtered-paginated-table.component';
 import { AuthService } from '../../../api/auth/auth.service';
 import { CustomJobTemplatesService } from '../../../api/jobs/custom-job-templates/custom-job-templates.service';
 import {

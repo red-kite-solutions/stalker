@@ -12,8 +12,8 @@ import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { map, of, shareReplay, switchMap, tap } from 'rxjs';
-import { AuthService } from 'src/app/api/auth/auth.service';
-import { UsersService } from 'src/app/api/users/users.service';
+import { AuthService } from '../../../api/auth/auth.service';
+import { UsersService } from '../../../api/users/users.service';
 
 @Component({
   standalone: true,

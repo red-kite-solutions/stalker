@@ -11,7 +11,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { firstValueFrom, map } from 'rxjs';
-import { AuthService } from 'src/app/api/auth/auth.service';
+import { AuthService } from '../../../api/auth/auth.service';
 
 @Component({
   standalone: true,

@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { SubscriptionData } from 'src/app/shared/types/subscriptions/subscription.type';
+import { SubscriptionData } from '../../../shared/types/subscriptions/subscription.type';
 
 export const cronSubscriptionKey = 'cron';
 

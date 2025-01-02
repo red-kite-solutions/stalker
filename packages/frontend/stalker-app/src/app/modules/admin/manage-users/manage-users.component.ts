@@ -15,12 +15,12 @@ import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { map } from 'rxjs';
-import { UsersService } from 'src/app/api/users/users.service';
-import { User } from 'src/app/shared/types/user.interface';
+import { UsersService } from '../../../api/users/users.service';
+import { User } from '../../../shared/types/user.interface';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
-} from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
+} from '../../../shared/widget/confirm-dialog/confirm-dialog.component';
 import { RolesName, rolesName } from '../roles';
 
 @Component({

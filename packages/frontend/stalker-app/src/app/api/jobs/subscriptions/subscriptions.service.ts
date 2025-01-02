@@ -5,7 +5,7 @@ import {
   CronSubscriptionData,
   EventSubscription,
   EventSubscriptionData,
-} from 'src/app/shared/types/subscriptions/subscription.type';
+} from '../../../shared/types/subscriptions/subscription.type';
 import { stringify } from 'yaml';
 import { Page } from '../../../shared/types/page.type';
 import { normalizeSearchString } from '../../../utils/normalize-search-string';

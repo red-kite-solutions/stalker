@@ -2,12 +2,12 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { firstValueFrom } from 'rxjs';
-import { SubscriptionService, SubscriptionType } from 'src/app/api/jobs/subscriptions/subscriptions.service';
-import { CronSubscription, EventSubscription } from 'src/app/shared/types/subscriptions/subscription.type';
+import { SubscriptionService, SubscriptionType } from '../../../api/jobs/subscriptions/subscriptions.service';
+import { CronSubscription, EventSubscription } from '../../../shared/types/subscriptions/subscription.type';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
-} from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
+} from '../../../shared/widget/confirm-dialog/confirm-dialog.component';
 
 @Injectable({ providedIn: 'root' })
 export class SubscriptionInteractionService {

@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
 import { firstValueFrom } from 'rxjs';
-import { environment } from 'src/environments/environment';
+import { environment } from '../../../environments/environment';
 import { getReturnUrl } from '../../utils/return-url';
 import { refreshTokenName, tokenName } from '../constants';
 

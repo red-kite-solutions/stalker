@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom, map, Observable } from 'rxjs';
-import { environment } from 'src/environments/environment';
+import { environment } from '../../../../environments/environment';
 import { CustomJob, CustomJobData } from '../../../shared/types/jobs/custom-job.type';
 import { Page } from '../../../shared/types/page.type';
 import { normalizeSearchString } from '../../../utils/normalize-search-string';

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { map, Observable, shareReplay, Subject, switchMap } from 'rxjs';
-import { ThemeService } from 'src/app/services/theme.service';
+import { ThemeService } from '../../../services/theme.service';
 import { JobExecutionsService } from '../../../api/jobs/job-executions/job-executions.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { CodeEditorTheme } from '../../../shared/widget/code-editor/code-editor.component';
