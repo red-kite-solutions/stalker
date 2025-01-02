@@ -1,7 +1,7 @@
 import { Logger, Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { Kafka } from 'kafkajs';
-import { isTest } from '../app.constants';
+import { isConsumerMode, isTest } from '../app.constants';
 import { ConfigModule } from '../database/admin/config/config.module';
 import { CustomJobsModule } from '../database/custom-jobs/custom-jobs.module';
 import { DatalayerModule } from '../database/datalayer.module';
@@ -53,11 +53,12 @@ export class FindingsModule {
   ) {}
 
   public async onApplicationBootstrap() {
-    if (!isTest()) {
-      const kafka = new Kafka(kafkaConfig);
+    if (isTest()) return;
+    if (!isConsumerMode()) return;
 
-      await FindingsConsumer.create(kafka, this.findingsService);
-      await JobLogsConsumer.create(kafka, this.jobService);
-    }
+    const kafka = new Kafka(kafkaConfig);
+
+    await FindingsConsumer.create(kafka, this.findingsService);
+    await JobLogsConsumer.create(kafka, this.jobService);
   }
 }
