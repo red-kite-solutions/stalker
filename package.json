@@ -6,7 +6,8 @@
   "workspaces": [
     "packages/frontend/stalker-app",
     "packages/backend/jobs-manager/service",
-    "packages/backend/cron/service"
+    "packages/backend/cron/service",
+    "packages/common"
   ],
   "scripts": {
     "prepare": "husky install"

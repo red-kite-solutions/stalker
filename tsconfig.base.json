@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".", // root of your "paths" below. Required if "paths" is defined
+    "paths": {
+      "@red-kite/common/*": ["./packages/common/src/*"],
+      "@red-kite/frontend/app/*": ["./packages/frontend/stalker-app/src/app/*"]
+    }
+  }
+}

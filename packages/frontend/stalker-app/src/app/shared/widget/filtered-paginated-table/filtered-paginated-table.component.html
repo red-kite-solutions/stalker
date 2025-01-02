@@ -9,6 +9,9 @@
         @case ('fulltext') {
           <ng-container *ngTemplateOutlet="fulltextSearch"> </ng-container>
         }
+        @case ('grammar') {
+          <ng-container *ngTemplateOutlet="grammarSearch"> </ng-container>
+        }
       }
     }
     @if (dateSearchEnabled) {
@@ -91,6 +94,35 @@
       [(ngModel)]="fullTextSearchValue"
       (keyup)="fulltextSearchChange([fulltextInput.value])"
     />
+  </mat-form-field>
+</ng-template>
+
+<ng-template #grammarSearch>
+  <mat-form-field class="filter-chip-list" appearance="fill" [floatLabel]="'always'">
+    <mat-label i18n="Search filter|Filter your search to get more precise results">Search filter</mat-label>
+
+    <input
+      matInput
+      type="text"
+      i18n-placeholder="New filter|Creating a new filter"
+      placeholder="New filter..."
+      [matAutocomplete]="auto"
+      #grammarInput
+      [(ngModel)]="grammarSearchValue"
+      (keyup)="grammarSearchChange(grammarInput.value)"
+    />
+    <mat-autocomplete
+      placeholder="New filter..."
+      #auto="matAutocomplete"
+      (optionSelected)="grammarSuggestionSelected($event, grammarInput)"
+      [autoActiveFirstOption]="true"
+    >
+      @for (option of grammarSuggestions; track option) {
+        <mat-option [value]="option">
+          {{ option }}
+        </mat-option>
+      }
+    </mat-autocomplete>
   </mat-form-field>
 </ng-template>
 
