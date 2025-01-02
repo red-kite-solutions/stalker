@@ -2,13 +2,13 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { firstValueFrom } from 'rxjs';
-import { DomainsService } from 'src/app/api/domains/domains.service';
-import { Domain } from 'src/app/shared/types/domain/domain.interface';
-import { ProjectSummary } from 'src/app/shared/types/project/project.summary';
+import { DomainsService } from '../../api/domains/domains.service';
+import { Domain } from '../../shared/types/domain/domain.interface';
+import { ProjectSummary } from '../../shared/types/project/project.summary';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
-} from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
+} from '../../shared/widget/confirm-dialog/confirm-dialog.component';
 
 @Injectable({ providedIn: 'root' })
 export class DomainsInteractionsService {

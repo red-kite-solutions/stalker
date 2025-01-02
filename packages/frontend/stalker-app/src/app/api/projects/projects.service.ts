@@ -1,9 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom, map, Observable } from 'rxjs';
-import { Project } from 'src/app/shared/types/project/project.interface';
-import { ProjectSummary } from 'src/app/shared/types/project/project.summary';
-import { environment } from 'src/environments/environment';
+import { Project } from '../../shared/types/project/project.interface';
+import { ProjectSummary } from '../../shared/types/project/project.summary';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',

@@ -1,6 +1,7 @@
 import Dirent from 'memfs/lib/Dirent';
 import { DataSource } from '../../datasources/data-sources';
 import { JobPodConfigurationDocument } from '../admin/config/job-pod-config/job-pod-config.model';
+import { JobContainerDocument } from '../container/job-container.model';
 import { CustomJobEntry } from './custom-jobs.model';
 import { JobReader } from './job-reader';
 
@@ -17,6 +18,7 @@ export interface JobSourceConfig {
 export interface JobSource {
   synchronize(
     podConfigs: JobPodConfigurationDocument[],
+    containers: JobContainerDocument[],
     includeTemplates?: boolean,
   ): Promise<CustomJobEntry[]>;
 }
@@ -28,6 +30,7 @@ export class GitJobSource implements JobSource {
 
   public async synchronize(
     podConfigs: JobPodConfigurationDocument[],
+    containers: JobContainerDocument[],
     includeTemplates: boolean = false,
   ): Promise<CustomJobEntry[]> {
     const jobs = await this.listJobs('/jobs');
@@ -43,6 +46,7 @@ export class GitJobSource implements JobSource {
         job.name,
         podConfigs,
         this.dataSource,
+        containers,
       );
 
       importedJobs.push(importedJob);

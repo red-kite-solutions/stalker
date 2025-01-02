@@ -14,6 +14,7 @@ import {
 import { AppModule } from '../../app.module';
 import { Role } from '../../auth/constants';
 import { JobPodConfigurationDocument } from '../admin/config/job-pod-config/job-pod-config.model';
+import { JobContainerDocument } from '../container/job-container.model';
 import { JobDto } from './jobs.dto';
 
 fdescribe('Custom Jobs Controller (e2e)', () => {
@@ -22,12 +23,13 @@ fdescribe('Custom Jobs Controller (e2e)', () => {
   let customJobId: string;
   let jobPodConfigs: JobPodConfigurationDocument[];
 
-  const customJob = {
+  const customJob: Partial<JobDto> = {
     name: 'My custom job',
     type: 'code',
     code: 'print("custom job controller e2e")',
     language: 'python',
     jobPodConfigId: '',
+    containerId: '',
   };
 
   const nucleiCustomJob: JobDto = {
@@ -38,6 +40,7 @@ fdescribe('Custom Jobs Controller (e2e)', () => {
     jobPodConfigId: '',
     findingHandler: undefined,
     findingHandlerLanguage: undefined,
+    containerId: '',
   };
 
   beforeAll(async () => {
@@ -62,6 +65,13 @@ fdescribe('Custom Jobs Controller (e2e)', () => {
     jobPodConfigs = res.body;
     customJob.jobPodConfigId = jobPodConfigs[0]._id.toString();
     nucleiCustomJob.jobPodConfigId = jobPodConfigs[0]._id.toString();
+
+    const containers: JobContainerDocument[] = (
+      await getReq(app, testData.user.token, '/job-containers')
+    ).body;
+
+    nucleiCustomJob.containerId = containers[0]._id;
+    customJob.containerId = containers[0]._id;
   });
 
   afterAll(async () => {
@@ -86,6 +96,10 @@ fdescribe('Custom Jobs Controller (e2e)', () => {
 
   it('Should create a custom job (handler enabled = false) (POST /custom-jobs)', async () => {
     // Arrange
+    const containers: JobContainerDocument[] = (
+      await getReq(app, testData.user.token, '/job-containers')
+    ).body;
+
     const cj: JobDto = {
       language: 'python',
       type: 'code',
@@ -93,6 +107,7 @@ fdescribe('Custom Jobs Controller (e2e)', () => {
       code: "import os\n\nprint(os.environ['secret'])",
       jobPodConfigId: '65b013faed7664d0b13d7e7c',
       findingHandlerEnabled: false,
+      containerId: containers[0]._id,
     };
 
     // Act
@@ -104,6 +119,11 @@ fdescribe('Custom Jobs Controller (e2e)', () => {
 
   it('Should not create a custom job (handler enabled = true) (POST /custom-jobs)', async () => {
     // Arrange
+    const containers: JobContainerDocument[] = (
+      await getReq(app, testData.user.token, '/job-containers')
+    ).body;
+
+    // Arrange
     const cj: JobDto = {
       language: 'python',
       type: 'code',
@@ -111,6 +131,7 @@ fdescribe('Custom Jobs Controller (e2e)', () => {
       code: "import os\n\nprint(os.environ['secret'])",
       jobPodConfigId: '65b013faed7664d0b13d7e7c',
       findingHandlerEnabled: true,
+      containerId: containers[0]._id,
     };
 
     // Act
@@ -198,7 +219,7 @@ fdescribe('Custom Jobs Controller (e2e)', () => {
   });
 
   it('Should create a nuclei custom job with custom handler (POST /custom-jobs)', async () => {
-    // arrange
+    // Arrange
     const nucleiDto: JobDto = {
       ...nucleiCustomJob,
       name: 'Nuclei custom handler',
@@ -224,7 +245,7 @@ fdescribe('Custom Jobs Controller (e2e)', () => {
   });
 
   it('Should not create a nuclei custom job (name duplicate) (POST /custom-jobs)', async () => {
-    // arrange
+    // Arrange
     const nucleiDto: JobDto = {
       ...nucleiCustomJob,
       name: 'Nuclei custom handler',

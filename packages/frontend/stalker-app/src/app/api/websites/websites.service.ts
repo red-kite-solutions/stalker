@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { DateRange } from '@angular/material/datepicker';
 import { Observable, firstValueFrom, map } from 'rxjs';
-import { environment } from 'src/environments/environment';
+import { environment } from '../../../environments/environment';
 import { Page } from '../../shared/types/page.type';
 import { Website } from '../../shared/types/websites/website.type';
 import { filtersToParams } from '../../utils/filters-to-params';

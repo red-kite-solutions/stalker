@@ -32,14 +32,14 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
-import { ProjectsService } from 'src/app/api/projects/projects.service';
-import { TagsService } from 'src/app/api/tags/tags.service';
-import { Domain } from 'src/app/shared/types/domain/domain.interface';
-import { DomainSummary } from 'src/app/shared/types/domain/domain.summary';
-import { ProjectSummary } from 'src/app/shared/types/project/project.summary';
-import { Tag } from 'src/app/shared/types/tag.type';
-import { BlockedPillTagComponent } from 'src/app/shared/widget/pill-tag/blocked-pill-tag.component';
-import { TextMenuComponent } from 'src/app/shared/widget/text-menu/text-menu.component';
+import { ProjectsService } from '../../../api/projects/projects.service';
+import { TagsService } from '../../../api/tags/tags.service';
+import { Domain } from '../../../shared/types/domain/domain.interface';
+import { DomainSummary } from '../../../shared/types/domain/domain.summary';
+import { ProjectSummary } from '../../../shared/types/project/project.summary';
+import { Tag } from '../../../shared/types/tag.type';
+import { BlockedPillTagComponent } from '../../../shared/widget/pill-tag/blocked-pill-tag.component';
+import { TextMenuComponent } from '../../../shared/widget/text-menu/text-menu.component';
 import { FindingsService } from '../../../api/findings/findings.service';
 import { PortsService } from '../../../api/ports/ports.service';
 import { WebsitesService } from '../../../api/websites/websites.service';

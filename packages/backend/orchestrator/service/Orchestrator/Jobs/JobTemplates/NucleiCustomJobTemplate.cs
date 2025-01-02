@@ -6,10 +6,9 @@ namespace Orchestrator.Jobs.JobTemplates;
 
 public class NucleiCustomJobTemplate : KubernetesJobTemplate
 {
-    public override string Image => "ghcr.io/red-kite-solutions/stalker-nuclei-job-base:2";
     protected IConfiguration Config { get; init; }
 
-    public NucleiCustomJobTemplate(string? id, IConfiguration config, JobParameter[]? jobParameters, string? code, int? jobPodMilliCpuLimit, ulong? jobPodMemoryKbLimit, string? findingHandler)
+    public NucleiCustomJobTemplate(string? id, IConfiguration config, JobParameter[]? jobParameters, string? code, int? jobPodMilliCpuLimit, ulong? jobPodMemoryKbLimit, string? findingHandler, string containerImage)
     {
         Id = id;
         Config = config;
@@ -49,6 +48,8 @@ public class NucleiCustomJobTemplate : KubernetesJobTemplate
         if (timeout == null) throw new NullReferenceException("Setting Timeout is missing.");
 
         Timeout = timeout;
+
+        Image = containerImage;
     }
 
     private void SetNamespace()

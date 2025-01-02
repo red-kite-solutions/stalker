@@ -2,7 +2,7 @@ import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/c
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { EMPTY, from, mergeMap, Observable, tap } from 'rxjs';
-import { environment } from 'src/environments/environment';
+import { environment } from '../../environments/environment';
 import { AuthService } from '../api/auth/auth.service';
 import { getReturnUrl } from '../utils/return-url';
 

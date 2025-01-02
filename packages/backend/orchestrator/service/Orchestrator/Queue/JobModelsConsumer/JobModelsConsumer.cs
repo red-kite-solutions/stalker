@@ -59,7 +59,8 @@ namespace Orchestrator.Queue.JobModelsConsumer
                     Type = request.Model.Type,
                     Language = request.Model.Language,
                     FindingHandler = request.Model.FindingHandler,
-                    FindingHandlerLanguage = request.Model.FindingHandlerLanguage
+                    FindingHandlerLanguage = request.Model.FindingHandlerLanguage,
+                    Image = request.Model.Image
                 };
                 JobModelCache.AddOrUpdate(request.Id, jm);
             }

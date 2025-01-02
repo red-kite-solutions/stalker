@@ -251,6 +251,8 @@ deployments:
                 value: ${RK_APP_BASE_URL}
               - name: DATA_SOURCES
                 value: ${RK_DATA_SOURCES}
+              - name: JM_JOB_CONTAINERS
+                value: ${JM_JOB_CONTAINERS}
 
             volumeMounts:
               - containerPath: /certs

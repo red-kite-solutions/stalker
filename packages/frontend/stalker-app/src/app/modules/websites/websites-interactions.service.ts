@@ -2,11 +2,11 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { firstValueFrom } from 'rxjs';
-import { ProjectSummary } from 'src/app/shared/types/project/project.summary';
+import { ProjectSummary } from '../../shared/types/project/project.summary';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
-} from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
+} from '../../shared/widget/confirm-dialog/confirm-dialog.component';
 import { WebsitesService } from '../../api/websites/websites.service';
 import { Website } from '../../shared/types/websites/website.type';
 import {

@@ -2,9 +2,9 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { DateRange } from '@angular/material/datepicker';
 import { Observable, firstValueFrom } from 'rxjs';
-import { Host } from 'src/app/shared/types/host/host.interface';
-import { Page } from 'src/app/shared/types/page.type';
-import { environment } from 'src/environments/environment';
+import { environment } from '../../../environments/environment';
+import { Host } from '../../shared/types/host/host.interface';
+import { Page } from '../../shared/types/page.type';
 import { Port } from '../../shared/types/ports/port.interface';
 import { filtersToParams } from '../../utils/filters-to-params';
 
