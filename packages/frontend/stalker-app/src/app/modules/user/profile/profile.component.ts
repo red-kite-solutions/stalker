@@ -20,9 +20,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
 import { map, shareReplay } from 'rxjs';
-import { AuthService } from 'src/app/api/auth/auth.service';
-import { UsersService } from 'src/app/api/users/users.service';
-import { HttpStatus } from 'src/app/shared/types/http-status.type';
+import { AuthService } from '../../../api/auth/auth.service';
+import { UsersService } from '../../../api/users/users.service';
+import { HttpStatus } from '../../../shared/types/http-status.type';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { ApiKeyComponent } from '../api-key/api-key.component';
 

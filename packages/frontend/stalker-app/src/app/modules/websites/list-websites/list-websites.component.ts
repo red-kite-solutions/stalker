@@ -18,16 +18,16 @@ import { Title } from '@angular/platform-browser';
 import { ParamMap, RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, combineLatest, map, Observable, shareReplay, switchMap, tap } from 'rxjs';
-import { ProjectsService } from 'src/app/api/projects/projects.service';
-import { TagsService } from 'src/app/api/tags/tags.service';
-import { ProjectCellComponent } from 'src/app/shared/components/project-cell/project-cell.component';
-import { ProjectSummary } from 'src/app/shared/types/project/project.summary';
-import { Tag } from 'src/app/shared/types/tag.type';
+import { ProjectsService } from '../../../api/projects/projects.service';
+import { TagsService } from '../../../api/tags/tags.service';
+import { ProjectCellComponent } from '../../../shared/components/project-cell/project-cell.component';
+import { ProjectSummary } from '../../../shared/types/project/project.summary';
+import { Tag } from '../../../shared/types/tag.type';
 import {
   ElementMenuItems,
   FilteredPaginatedTableComponent,
-} from 'src/app/shared/widget/filtered-paginated-table/filtered-paginated-table.component';
-import { BlockedPillTagComponent } from 'src/app/shared/widget/pill-tag/blocked-pill-tag.component';
+} from '../../../shared/widget/filtered-paginated-table/filtered-paginated-table.component';
+import { BlockedPillTagComponent } from '../../../shared/widget/pill-tag/blocked-pill-tag.component';
 import { FindingsService } from '../../../api/findings/findings.service';
 import { WebsitesService } from '../../../api/websites/websites.service';
 import { IntersectionDirective } from '../../../shared/directives/intersection.directive';

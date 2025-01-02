@@ -12,7 +12,7 @@ import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, filter, map, tap, timer } from 'rxjs';
-import { UsersService } from 'src/app/api/users/users.service';
+import { UsersService } from '../../../api/users/users.service';
 
 @Component({
   standalone: true,

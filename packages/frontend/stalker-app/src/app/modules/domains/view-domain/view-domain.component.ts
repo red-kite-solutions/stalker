@@ -20,13 +20,13 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
-import { DomainsService } from 'src/app/api/domains/domains.service';
-import { ProjectsService } from 'src/app/api/projects/projects.service';
-import { TagsService } from 'src/app/api/tags/tags.service';
-import { ProjectSummary } from 'src/app/shared/types/project/project.summary';
-import { Tag } from 'src/app/shared/types/tag.type';
-import { BlockedPillTagComponent } from 'src/app/shared/widget/pill-tag/blocked-pill-tag.component';
-import { TextMenuComponent } from 'src/app/shared/widget/text-menu/text-menu.component';
+import { DomainsService } from '../../../api/domains/domains.service';
+import { ProjectsService } from '../../../api/projects/projects.service';
+import { TagsService } from '../../../api/tags/tags.service';
+import { ProjectSummary } from '../../../shared/types/project/project.summary';
+import { Tag } from '../../../shared/types/tag.type';
+import { BlockedPillTagComponent } from '../../../shared/widget/pill-tag/blocked-pill-tag.component';
+import { TextMenuComponent } from '../../../shared/widget/text-menu/text-menu.component';
 import { PortsService } from '../../../api/ports/ports.service';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PanelSectionModule } from '../../../shared/components/panel-section/panel-section.module';

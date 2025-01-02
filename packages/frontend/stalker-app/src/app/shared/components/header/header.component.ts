@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from 'src/app/api/auth/auth.service';
-import { ThemeService } from 'src/app/services/theme.service';
+import { AuthService } from '../../../api/auth/auth.service';
+import { ThemeService } from '../../../services/theme.service';
 
 @Component({
   selector: 'app-header',

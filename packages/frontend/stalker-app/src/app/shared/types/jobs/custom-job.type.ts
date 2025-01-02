@@ -1,4 +1,5 @@
 import { DataSource } from '../data-source/data-source.type';
+import { ContainerSummary } from './container.type';
 
 export const customJobTypes = ['code', 'nuclei'] as const;
 export const customJobLanguages = ['python', 'yaml'] as const;
@@ -52,4 +53,5 @@ export interface CustomJobData {
   findingHandler?: string;
   findingHandlerLanguage?: CustomJobFindingHandlerLanguage;
   source?: DataSource;
+  container: ContainerSummary;
 }

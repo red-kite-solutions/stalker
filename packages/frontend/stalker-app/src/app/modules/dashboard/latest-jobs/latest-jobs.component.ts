@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 import { MatListModule } from '@angular/material/list';
 import { RouterModule } from '@angular/router';
 import { map } from 'rxjs';
-import { JobExecutionsService } from 'src/app/api/jobs/job-executions/job-executions.service';
+import { JobExecutionsService } from '../../../api/jobs/job-executions/job-executions.service';
 import { JobLogsSummaryComponent } from '../../jobs/job-executions/job-execution-logs-summary.component';
 import { JobStateComponent } from '../../jobs/job-executions/job-execution-state.component';
 

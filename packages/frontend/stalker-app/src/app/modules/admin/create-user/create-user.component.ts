@@ -4,12 +4,12 @@ import { MatDialog } from '@angular/material/dialog';
 import { Title } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
 import { map, startWith } from 'rxjs';
-import { UsersService } from 'src/app/api/users/users.service';
-import { HttpStatus } from 'src/app/shared/types/http-status.type';
+import { UsersService } from '../../../api/users/users.service';
+import { HttpStatus } from '../../../shared/types/http-status.type';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
-} from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
+} from '../../../shared/widget/confirm-dialog/confirm-dialog.component';
 import { Role, roles, rolesInfoDialogText } from '../roles';
 
 @Component({

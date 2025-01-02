@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom, map, Observable } from 'rxjs';
-import { CronSubscription, CronSubscriptionData } from 'src/app/shared/types/subscriptions/subscription.type';
-import { environment } from 'src/environments/environment';
+import { CronSubscription, CronSubscriptionData } from '../../../shared/types/subscriptions/subscription.type';
+import { environment } from '../../../../environments/environment';
 import { allProjectsSubscriptions } from '../../constants';
 import { GenericSubscriptionService } from './base-subscription.service';
 
