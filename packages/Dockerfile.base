@@ -18,6 +18,7 @@ COPY packages/backend/jobs-manager/service/package.json packages/backend/jobs-ma
 COPY packages/backend/cron/service/package.json packages/backend/cron/service/package.json 
 COPY packages/backend/orchestrator/service/package.json packages/backend/orchestrator/service/package.json 
 COPY .yarnrc.yml .yarnrc.yml
+COPY tsconfig.base.json tsconfig.base.json
 
 RUN yarn install --immutable
 

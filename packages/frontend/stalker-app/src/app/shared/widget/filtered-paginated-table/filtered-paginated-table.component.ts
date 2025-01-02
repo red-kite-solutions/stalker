@@ -40,12 +40,65 @@ import {
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
+import { SearchQueryParser } from '@red-kite/common/search-query';
 import * as moment from 'moment';
 import { Moment } from 'moment';
 import { NgxFileDropModule } from 'ngx-file-drop';
 import { Observable, debounceTime, distinctUntilChanged, filter, map, startWith } from 'rxjs';
 import { IdentifiedElement } from '../../types/identified-element.type';
 import { TableFiltersSourceBase } from './table-filters-source';
+
+export class GrammarSuggester {
+  private parser = new SearchQueryParser();
+
+  public suggest(query: string): string[] {
+    try {
+      if (!query.length) return this.suggestTypes();
+
+      const result = this.parser.parse(query);
+      if (!result.length) return this.suggestTypes();
+
+      const last = result[result.length - 1];
+      const isComplete = !last.incomplete;
+      if (isComplete && /[^:] $/.test(query)) return this.suggestTypes();
+
+      if (!isComplete) {
+        if (!last.type) {
+          return this.suggestTypes(last.key);
+        }
+
+        if (last.type === 'finding') {
+          return this.suggestFindings(last.key.findingKey);
+        }
+      } else {
+        if (query[query.length - 1]) return [];
+      }
+    } catch (_) {
+      // ignore
+    }
+
+    return [];
+  }
+
+  private suggestTypes(filter: string = '') {
+    return ['domain: ', 'host: ', 'port: ', 'tags: ', 'is: ', 'finding.'].filter((x) => x.startsWith(filter));
+  }
+
+  private suggestFindings(filter: string = '') {
+    return [
+      'HostnameFinding',
+      'IpFinding',
+      'IpRangeFinding',
+      'HostnameIpFinding',
+      'PortFinding',
+      'WebsiteFinding',
+      'CustomFinding',
+      'PortServiceFinding',
+      'WebsitePathFinding',
+      'TagFinding',
+    ].filter((x) => x.startsWith(filter));
+  }
+}
 
 export interface ElementMenuItems {
   label: string;
@@ -90,6 +143,9 @@ export interface ElementMenuItems {
   ],
 })
 export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implements OnInit, OnDestroy {
+  private seachParser = new SearchQueryParser();
+  private grammarSuggester = new GrammarSuggester();
+
   @ContentChildren(MatHeaderRowDef) headerRowDefs!: QueryList<MatHeaderRowDef>;
   @ContentChildren(MatRowDef) rowDefs!: QueryList<MatRowDef<T>>;
   @ContentChildren(MatColumnDef) columnDefs!: QueryList<MatColumnDef>;
@@ -104,7 +160,7 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
 
   @Input() noDataMessage: string =
     $localize`:No data|No data is matching the filter, the array is empty:No matching data.`;
-  @Input() filterType: 'tokens' | 'fulltext' = 'tokens';
+  @Input() filterType: 'tokens' | 'fulltext' | 'grammar' = 'tokens';
   @Input() columns!: string[] | null;
   @Input() filterOptions!: string[] | null;
   @Input() negatableFilterOptions = this.filterOptions;
@@ -131,9 +187,11 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
   @Input() filterEnabled: boolean = true;
   filters: string[] = [];
   fullTextSearchValue = '';
+  grammarSearchValue = '';
   separatorKeysCodes: number[] = [TAB, ENTER];
   filterForm = new UntypedFormControl('');
   filteredFilterOptions$: Observable<string[] | null | undefined>;
+  grammarSuggestions: string[] = [];
   masterToggleState = false;
 
   dateRangeChange$ = this.dateRange.valueChanges
@@ -281,6 +339,43 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
     this.filters = value;
     await this.filterSource.setFilters(this.filters.map((x) => x));
     this.resetPaging();
+  }
+
+  async grammarSearchChange(value: string) {
+    const filters = this.seachParser.parse(value);
+    this.grammarSuggestions = this.grammarSuggester.suggest(value);
+    await this.filterSource.setFilters(
+      filters
+        .filter((x) => !x.incomplete && x.value != null)
+        .map((x) => {
+          if (x.type === 'finding') {
+            return `${x.not ? '-' : ''}finding.${x.key.findingKey}: ${x.value}`;
+          }
+
+          if (x.type === 'findingField') {
+            return `${x.not ? '-' : ''}finding.${x.key.findingKey}.${x.key.fieldKey}: ${x.value}`;
+          }
+
+          return `${x.not ? '-' : ''}${x.type}: ${x.value}`;
+        })
+    );
+    this.resetPaging();
+  }
+
+  public grammarSuggestionSelected(event: MatAutocompleteSelectedEvent, inputElement: HTMLInputElement): void {
+    const selectedValue = event.option.value.trim();
+
+    // Split existing input into parts, trim whitespace, and add the new value if it's not already included.
+    const currentValues = this.grammarSearchValue.split(',').map((v) => v.trim());
+    if (!currentValues.includes(selectedValue)) {
+      currentValues.push(selectedValue);
+    }
+
+    // Update the input with the joined values.
+    this.grammarSearchValue = currentValues.join(', ');
+
+    // Clear the input field but leave the appended values in the model.
+    inputElement.value = '';
   }
 
   private refocusMatChipInput() {
