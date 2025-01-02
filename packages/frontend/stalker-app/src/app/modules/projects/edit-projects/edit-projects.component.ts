@@ -5,14 +5,14 @@ import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Subscription, combineLatest, debounceTime, filter, firstValueFrom, map, merge, switchMap, tap } from 'rxjs';
-import { ProjectsService } from 'src/app/api/projects/projects.service';
-import { HttpStatus } from 'src/app/shared/types/http-status.type';
-import { Ipv4Subnet } from 'src/app/shared/types/ipv4-subnet';
-import { Project } from 'src/app/shared/types/project/project.interface';
+import { ProjectsService } from '../../../api/projects/projects.service';
+import { HttpStatus } from '../../../shared/types/http-status.type';
+import { Ipv4Subnet } from '../../../shared/types/ipv4-subnet';
+import { Project } from '../../../shared/types/project/project.interface';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
-} from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
+} from '../../../shared/widget/confirm-dialog/confirm-dialog.component';
 import { Md5 } from 'ts-md5';
 
 @Component({

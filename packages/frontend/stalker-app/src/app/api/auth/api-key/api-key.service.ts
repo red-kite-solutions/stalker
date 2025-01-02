@@ -1,8 +1,8 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom, Observable } from 'rxjs';
-import { Page } from 'src/app/shared/types/page.type';
-import { environment } from 'src/environments/environment';
+import { Page } from '../../../shared/types/page.type';
+import { environment } from '../../../../environments/environment';
 import { ApiKey } from '../../../shared/types/api-key.type';
 
 @Injectable({

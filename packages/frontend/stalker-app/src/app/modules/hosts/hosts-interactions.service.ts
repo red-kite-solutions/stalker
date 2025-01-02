@@ -2,13 +2,13 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { firstValueFrom } from 'rxjs';
-import { HostsService } from 'src/app/api/hosts/hosts.service';
-import { Host } from 'src/app/shared/types/host/host.interface';
-import { ProjectSummary } from 'src/app/shared/types/project/project.summary';
+import { HostsService } from '../../api/hosts/hosts.service';
+import { Host } from '../../shared/types/host/host.interface';
+import { ProjectSummary } from '../../shared/types/project/project.summary';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
-} from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
+} from '../../shared/widget/confirm-dialog/confirm-dialog.component';
 
 @Injectable({ providedIn: 'root' })
 export class HostsInteractionsService {

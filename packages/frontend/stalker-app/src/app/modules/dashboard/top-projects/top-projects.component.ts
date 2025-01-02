@@ -3,8 +3,8 @@ import { Component } from '@angular/core';
 import { MatListModule } from '@angular/material/list';
 import { RouterModule } from '@angular/router';
 import { map } from 'rxjs';
-import { ProjectsService } from 'src/app/api/projects/projects.service';
-import { ProjectAvatarComponent } from 'src/app/shared/components/project-avatar/project-avatar.component';
+import { ProjectsService } from '../../../api/projects/projects.service';
+import { ProjectAvatarComponent } from '../../../shared/components/project-avatar/project-avatar.component';
 
 @Component({
   standalone: true,

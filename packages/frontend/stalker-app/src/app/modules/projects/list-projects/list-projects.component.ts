@@ -11,12 +11,12 @@ import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { map } from 'rxjs';
-import { ProjectsService } from 'src/app/api/projects/projects.service';
-import { ProjectAvatarComponent } from 'src/app/shared/components/project-avatar/project-avatar.component';
-import { SharedModule } from 'src/app/shared/shared.module';
-import { HttpStatus } from 'src/app/shared/types/http-status.type';
-import { Project } from 'src/app/shared/types/project/project.interface';
-import { SpinnerButtonComponent } from 'src/app/shared/widget/spinner-button/spinner-button.component';
+import { ProjectsService } from '../../../api/projects/projects.service';
+import { ProjectAvatarComponent } from '../../../shared/components/project-avatar/project-avatar.component';
+import { SharedModule } from '../../../shared/shared.module';
+import { HttpStatus } from '../../../shared/types/http-status.type';
+import { Project } from '../../../shared/types/project/project.interface';
+import { SpinnerButtonComponent } from '../../../shared/widget/spinner-button/spinner-button.component';
 
 @Component({
   standalone: true,

@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { map } from 'rxjs';
-import { HostsService } from 'src/app/api/hosts/hosts.service';
+import { HostsService } from '../../../api/hosts/hosts.service';
 import { SimpleMetric } from '../simple-metric/simple-metric.component';
 
 @Component({

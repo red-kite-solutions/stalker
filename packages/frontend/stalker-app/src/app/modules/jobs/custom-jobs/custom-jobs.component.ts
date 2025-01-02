@@ -29,18 +29,15 @@ import {
   pairwise,
   startWith,
 } from 'rxjs';
-import { ThemeService } from 'src/app/services/theme.service';
-import { AppHeaderComponent } from 'src/app/shared/components/page-header/page-header.component';
-import { PanelSectionModule } from 'src/app/shared/components/panel-section/panel-section.module';
-import { HasUnsavedChanges } from 'src/app/shared/guards/unsaved-changes-can-deactivate.component';
-import { SharedModule } from 'src/app/shared/shared.module';
-import { FileTab } from 'src/app/shared/widget/code-editor/code-editor.type';
-import { SavingButtonComponent } from 'src/app/shared/widget/spinner-button/saving-button.component';
-import { TextMenuComponent } from 'src/app/shared/widget/text-menu/text-menu.component';
-import { ContainerService } from '../../../api/containers/container.service';
+import { ContainerService } from 'src/app/api/containers/container.service';
 import { CustomJobTemplatesService } from '../../../api/jobs/custom-job-templates/custom-job-templates.service';
 import { JobsService } from '../../../api/jobs/jobs/jobs.service';
 import { SettingsService } from '../../../api/settings/settings.service';
+import { ThemeService } from '../../../services/theme.service';
+import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { PanelSectionModule } from '../../../shared/components/panel-section/panel-section.module';
+import { HasUnsavedChanges } from '../../../shared/guards/unsaved-changes-can-deactivate.component';
+import { SharedModule } from '../../../shared/shared.module';
 import { DataSource } from '../../../shared/types/data-source/data-source.type';
 import { CustomJobTemplate } from '../../../shared/types/jobs/custom-job-template.type';
 import {
@@ -55,6 +52,9 @@ import {
   validCustomJobTypeDetails,
 } from '../../../shared/types/jobs/custom-job.type';
 import { CodeEditorComponent, CodeEditorTheme } from '../../../shared/widget/code-editor/code-editor.component';
+import { FileTab } from '../../../shared/widget/code-editor/code-editor.type';
+import { SavingButtonComponent } from '../../../shared/widget/spinner-button/saving-button.component';
+import { TextMenuComponent } from '../../../shared/widget/text-menu/text-menu.component';
 import { DataSourceComponent } from '../../data-source/data-source/data-source.component';
 import { CustomJobsInteractionService } from './custom-jobs-interaction.service';
 import { nucleiFindingHandlerTemplate } from './nuclei-finding-handler-template';
