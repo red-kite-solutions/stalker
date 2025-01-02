@@ -29,7 +29,7 @@ import {
   pairwise,
   startWith,
 } from 'rxjs';
-import { ContainerService } from 'src/app/api/containers/container.service';
+import { ContainerService } from '../../../api/containers/container.service';
 import { CustomJobTemplatesService } from '../../../api/jobs/custom-job-templates/custom-job-templates.service';
 import { JobsService } from '../../../api/jobs/jobs/jobs.service';
 import { SettingsService } from '../../../api/settings/settings.service';
