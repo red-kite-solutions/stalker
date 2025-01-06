@@ -123,6 +123,7 @@ pipelines:
   prod:
     run: |-
       create_deployments namespaces
+      create_deployments orchestrator-service-account
       run_pipelines setup-certificates
 
       # Start mongo and kafka
@@ -132,7 +133,7 @@ pipelines:
       wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 600
       wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 600
 
-      create_deployments jobs-manager jobs-consumer orchestrator-service-account orchestrator ui --sequential
+      create_deployments jobs-manager jobs-consumer orchestrator ui --sequential
 
       # Wait for services before applying network policies
       wait_pod --label-selector app.kubernetes.io/component=ui --timeout 600
