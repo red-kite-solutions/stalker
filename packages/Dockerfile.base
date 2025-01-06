@@ -20,6 +20,7 @@ COPY packages/backend/cron/service/package.json packages/backend/cron/service/pa
 COPY packages/backend/orchestrator/service/package.json packages/backend/orchestrator/service/package.json 
 COPY .yarnrc.yml .yarnrc.yml
 COPY tsconfig.base.json tsconfig.base.json
+COPY tsconfig.json tsconfig.json
 
 RUN yarn install --immutable
 

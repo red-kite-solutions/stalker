@@ -3,6 +3,9 @@
     "baseUrl": ".", // root of your "paths" below. Required if "paths" is defined
     "paths": {
       "@red-kite/common/*": ["./packages/common/src/*"],
+      "@red-kite/jobs-manager/common-duplicates/*": [
+        "./packages/backend/jobs-manager/service/src/common-duplicates/*"
+      ],
       "@red-kite/frontend/app/*": ["./packages/frontend/stalker-app/src/app/*"]
     }
   }

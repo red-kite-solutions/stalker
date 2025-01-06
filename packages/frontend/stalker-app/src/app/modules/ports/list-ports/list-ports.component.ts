@@ -1,5 +1,5 @@
 import { SelectionModel } from '@angular/cdk/collections';
-import { BreakpointObserver, BreakpointState, Breakpoints } from '@angular/cdk/layout';
+import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -14,21 +14,20 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, combineLatest, map, shareReplay, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, catchError, combineLatest, EMPTY, map, shareReplay, switchMap, tap } from 'rxjs';
+import { PortsService } from '../../../api/ports/ports.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { TagsService } from '../../../api/tags/tags.service';
 import { ProjectCellComponent } from '../../../shared/components/project-cell/project-cell.component';
+import { SharedModule } from '../../../shared/shared.module';
 import { Page } from '../../../shared/types/page.type';
+import { Port } from '../../../shared/types/ports/port.interface';
 import { ProjectSummary } from '../../../shared/types/project/project.summary';
+import { Tag } from '../../../shared/types/tag.type';
 import {
   ElementMenuItems,
   FilteredPaginatedTableComponent,
 } from '../../../shared/widget/filtered-paginated-table/filtered-paginated-table.component';
-import { BlockedPillTagComponent } from '../../../shared/widget/pill-tag/blocked-pill-tag.component';
-import { PortsService } from '../../../api/ports/ports.service';
-import { SharedModule } from '../../../shared/shared.module';
-import { Port } from '../../../shared/types/ports/port.interface';
-import { Tag } from '../../../shared/types/tag.type';
 import {
   TABLE_FILTERS_SOURCE_INITAL_FILTERS,
   TableFilters,
@@ -36,6 +35,7 @@ import {
   TableFiltersSourceBase,
 } from '../../../shared/widget/filtered-paginated-table/table-filters-source';
 import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-table/table-format/table-format.component';
+import { BlockedPillTagComponent } from '../../../shared/widget/pill-tag/blocked-pill-tag.component';
 import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.component';
 import { PortsInteractionsService } from '../ports-interactions.service';
 
@@ -87,15 +87,12 @@ export class ListPortsComponent {
 
   private refresh$ = new BehaviorSubject(null);
   public ports$ = combineLatest([this.filtersSource.debouncedFilters$, this.allTags$, this.refresh$]).pipe(
-    switchMap(([{ filters, dateRange, pagination }, tags]) => {
-      return this.portsService.getPage<Port>(
-        pagination?.page ?? 0,
-        pagination?.pageSize ?? 25,
-        this.buildFilters(filters, tags),
-        dateRange,
-        'full'
-      );
-    }),
+    tap((x) => console.log(x)),
+    switchMap(([{ filters, dateRange, pagination }, tags]) =>
+      this.portsService
+        .getPage<Port>(pagination?.page ?? 0, pagination?.pageSize ?? 25, filters[0], dateRange, 'full')
+        .pipe(catchError(() => EMPTY))
+    ),
     shareReplay(1)
   );
 

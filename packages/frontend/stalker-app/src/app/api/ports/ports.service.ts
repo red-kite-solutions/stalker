@@ -1,26 +1,29 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { DateRange } from '@angular/material/datepicker';
+import { SearchQueryParser, SearchTerms } from '@red-kite/common/search-query';
 import { Observable, firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Page } from '../../shared/types/page.type';
 import { Port, PortNumber } from '../../shared/types/ports/port.interface';
-import { filtersToParams } from '../../utils/filters-to-params';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PortsService {
+  private searchParser = new SearchQueryParser();
+
   constructor(private http: HttpClient) {}
 
   public getPage<T extends Port | PortNumber>(
     page: number,
     pageSize: number,
-    filters: any = undefined,
+    query: string | SearchTerms,
     firstSeenDateRange: DateRange<Date> = new DateRange<Date>(null, null),
     detailsLevel: 'full' | 'summary' | 'number' = 'full'
   ): Observable<Page<T>> {
-    let params = filtersToParams(filters);
+    let params = new HttpParams();
+    params = params.append('query', this.searchParser.toQueryString(query));
     params = params.append('page', page);
     params = params.append('pageSize', pageSize);
 

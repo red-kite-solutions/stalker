@@ -6,11 +6,11 @@ import {
   HttpBadRequestException,
   HttpNotFoundException,
 } from '../../../../exceptions/http.exceptions';
-import escapeStringRegexp from '../../../../utils/escape-string-regexp';
 import { TagsService } from '../../tags/tag.service';
 import { CorrelationKeyUtils } from '../correlation.utils';
 import { Host, HostDocument } from '../host/host.model';
 import { WebsiteService } from '../websites/website.service';
+import { PortSearchQuery } from './port-search-query';
 import { BatchEditPortsDto, GetPortsDto } from './port.dto';
 import { Port, PortDocument } from './port.model';
 
@@ -23,6 +23,7 @@ export class PortService {
     private tagsService: TagsService,
     @InjectModel('port') private readonly portsModel: Model<Port>,
     private readonly websiteService: WebsiteService,
+    private readonly portSearchQuery: PortSearchQuery,
   ) {}
 
   private readonly hostNotFoundError = 'Invalid host and project combination.';
@@ -323,7 +324,10 @@ export class PortService {
 
     let query;
     if (filter) {
-      query = this.portsModel.find(await this.buildFilters(filter), projection);
+      query = this.portsModel.find(
+        await this.portSearchQuery.toMongoFilters(filter.query),
+        projection,
+      );
     } else {
       query = this.portsModel.find({}, projection);
     }
@@ -339,101 +343,9 @@ export class PortService {
       return await this.portsModel.estimatedDocumentCount();
     } else {
       return await this.portsModel.countDocuments(
-        await this.buildFilters(filter),
+        await this.portSearchQuery.toMongoFilters(filter.query),
       );
     }
-  }
-
-  public async buildFilters(dto: Partial<GetPortsDto>) {
-    const finalFilter = {};
-    // Filter by host id
-    if (dto.hostId) {
-      finalFilter['host.id'] = { $eq: new Types.ObjectId(dto.hostId) };
-    }
-
-    // Filter by host ip
-    if (dto.hosts && !dto.hostId) {
-      const hostsRegex = dto.hosts
-        .filter((x) => x)
-        .map((x) => x.toLowerCase().trim())
-        .map((x) => escapeStringRegexp(x))
-        .map((x) => new RegExp(`.*${x}.*`));
-
-      if (hostsRegex.length > 0) {
-        const hosts = await this.hostModel.find(
-          { ip: { $in: hostsRegex } },
-          '_id',
-        );
-        if (hosts) finalFilter['host.id'] = { $in: hosts.map((h) => h._id) };
-      }
-    }
-
-    // Filter by project
-    if (dto.projects) {
-      const projectIds = dto.projects
-        .filter((x) => x)
-        .map((x) => new Types.ObjectId(x));
-
-      if (projectIds.length > 0) {
-        finalFilter['projectId'] = { $in: projectIds };
-      }
-    }
-
-    // Filter by tag
-    if (dto.tags) {
-      const preppedTagsArray = dto.tags
-        .filter((x) => x)
-        .map((x) => x.toLowerCase())
-        .map((x) => new Types.ObjectId(x));
-
-      if (preppedTagsArray.length > 0) {
-        finalFilter['tags'] = {
-          $all: preppedTagsArray.map((t) => new Types.ObjectId(t)),
-        };
-      }
-    }
-
-    // Filter by createdAt
-    if (dto.firstSeenStartDate || dto.firstSeenEndDate) {
-      let createdAtFilter = {};
-
-      if (dto.firstSeenStartDate && dto.firstSeenEndDate) {
-        createdAtFilter = [
-          { createdAt: { $gte: dto.firstSeenStartDate } },
-          { createdAt: { $lte: dto.firstSeenEndDate } },
-        ];
-        finalFilter['$and'] = createdAtFilter;
-      } else {
-        if (dto.firstSeenStartDate)
-          createdAtFilter = { $gte: dto.firstSeenStartDate };
-        else if (dto.firstSeenEndDate)
-          createdAtFilter = { $lte: dto.firstSeenEndDate };
-        finalFilter['createdAt'] = createdAtFilter;
-      }
-    }
-
-    // Filter by port
-    if (dto.ports) {
-      const validPorts = dto.ports.filter((x) => x);
-      finalFilter['port'] = { $in: validPorts };
-    }
-
-    // Filter by protocol
-    if (dto.protocol) {
-      finalFilter['layer4Protocol'] = { $eq: dto.protocol };
-    }
-
-    // Filter by blocked
-    if (dto.blocked === false) {
-      finalFilter['$or'] = [
-        { blocked: { $exists: false } },
-        { blocked: { $eq: false } },
-      ];
-    } else if (dto.blocked === true) {
-      finalFilter['blocked'] = { $eq: true };
-    }
-
-    return finalFilter;
   }
 
   public async batchEdit(dto: BatchEditPortsDto) {
