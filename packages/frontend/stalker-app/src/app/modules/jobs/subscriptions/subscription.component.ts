@@ -33,18 +33,18 @@ import {
   switchMap,
   timer,
 } from 'rxjs';
-import { eventSubscriptionKey } from 'src/app/api/jobs/subscriptions/event-subscriptions.service';
-import { SubscriptionService, SubscriptionType } from 'src/app/api/jobs/subscriptions/subscriptions.service';
-import { ThemeService } from 'src/app/services/theme.service';
-import { AppHeaderComponent } from 'src/app/shared/components/page-header/page-header.component';
-import { PanelSectionModule } from 'src/app/shared/components/panel-section/panel-section.module';
-import { HasUnsavedChanges } from 'src/app/shared/guards/unsaved-changes-can-deactivate.component';
-import { SharedModule } from 'src/app/shared/shared.module';
-import { Subscription } from 'src/app/shared/types/subscriptions/subscription.type';
-import { DisabledPillTagComponent } from 'src/app/shared/widget/pill-tag/disabled-pill-tag.component';
-import { SavingButtonComponent } from 'src/app/shared/widget/spinner-button/saving-button.component';
-import { SpinnerButtonComponent } from 'src/app/shared/widget/spinner-button/spinner-button.component';
-import { TextMenuComponent } from 'src/app/shared/widget/text-menu/text-menu.component';
+import { eventSubscriptionKey } from '../../../api/jobs/subscriptions/event-subscriptions.service';
+import { SubscriptionService, SubscriptionType } from '../../../api/jobs/subscriptions/subscriptions.service';
+import { ThemeService } from '../../../services/theme.service';
+import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { PanelSectionModule } from '../../../shared/components/panel-section/panel-section.module';
+import { HasUnsavedChanges } from '../../../shared/guards/unsaved-changes-can-deactivate.component';
+import { SharedModule } from '../../../shared/shared.module';
+import { Subscription } from '../../../shared/types/subscriptions/subscription.type';
+import { DisabledPillTagComponent } from '../../../shared/widget/pill-tag/disabled-pill-tag.component';
+import { SavingButtonComponent } from '../../../shared/widget/spinner-button/saving-button.component';
+import { SpinnerButtonComponent } from '../../../shared/widget/spinner-button/spinner-button.component';
+import { TextMenuComponent } from '../../../shared/widget/text-menu/text-menu.component';
 import { parse } from 'yaml';
 import { allProjectsSubscriptions } from '../../../api/constants';
 import { cronSubscriptionKey } from '../../../api/jobs/subscriptions/cron-subscriptions.service';

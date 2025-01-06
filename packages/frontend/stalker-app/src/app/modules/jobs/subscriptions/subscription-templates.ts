@@ -1,6 +1,6 @@
-import { cronSubscriptionKey } from 'src/app/api/jobs/subscriptions/cron-subscriptions.service';
-import { eventSubscriptionKey } from 'src/app/api/jobs/subscriptions/event-subscriptions.service';
-import { LocalizedOption } from 'src/app/shared/types/localized-option.type';
+import { cronSubscriptionKey } from '../../../api/jobs/subscriptions/cron-subscriptions.service';
+import { eventSubscriptionKey } from '../../../api/jobs/subscriptions/event-subscriptions.service';
+import { LocalizedOption } from '../../../shared/types/localized-option.type';
 
 export const subscriptionTypes: LocalizedOption[] = [
   {

@@ -14,18 +14,18 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { BehaviorSubject, combineLatest, map, shareReplay, switchMap, tap } from 'rxjs';
-import { SubscriptionService, SubscriptionType } from 'src/app/api/jobs/subscriptions/subscriptions.service';
-import { AvatarComponent } from 'src/app/shared/components/avatar/avatar.component';
+import { SubscriptionService, SubscriptionType } from '../../../api/jobs/subscriptions/subscriptions.service';
+import { AvatarComponent } from '../../../shared/components/avatar/avatar.component';
 import {
   CronSubscription,
   EventSubscription,
   SubscriptionData,
-} from 'src/app/shared/types/subscriptions/subscription.type';
+} from '../../../shared/types/subscriptions/subscription.type';
 import {
   ElementMenuItems,
   FilteredPaginatedTableComponent,
-} from 'src/app/shared/widget/filtered-paginated-table/filtered-paginated-table.component';
-import { DisabledPillTagComponent } from 'src/app/shared/widget/pill-tag/disabled-pill-tag.component';
+} from '../../../shared/widget/filtered-paginated-table/filtered-paginated-table.component';
+import { DisabledPillTagComponent } from '../../../shared/widget/pill-tag/disabled-pill-tag.component';
 import {
   TABLE_FILTERS_SOURCE_INITAL_FILTERS,
   TableFilters,

@@ -3,12 +3,12 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, firstValueFrom, map } from 'rxjs';
-import { JobsService } from 'src/app/api/jobs/jobs/jobs.service';
-import { CustomJob } from 'src/app/shared/types/jobs/custom-job.type';
+import { JobsService } from '../../../api/jobs/jobs/jobs.service';
+import { CustomJob } from '../../../shared/types/jobs/custom-job.type';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
-} from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
+} from '../../../shared/widget/confirm-dialog/confirm-dialog.component';
 import { CustomJobTemplatesService } from '../../../api/jobs/custom-job-templates/custom-job-templates.service';
 import { PickerData, PickerDialogComponent } from '../../../shared/components/picker-dialog/picker-dialog.component';
 import { CodePickerData, PickerOption } from '../../../shared/components/picker-dialog/picker-dialog.type';

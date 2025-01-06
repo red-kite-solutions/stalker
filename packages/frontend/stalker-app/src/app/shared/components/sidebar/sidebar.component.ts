@@ -1,7 +1,7 @@
 import { BreakpointObserver, BreakpointState, Breakpoints } from '@angular/cdk/layout';
 import { Component, Input } from '@angular/core';
 import { map } from 'rxjs';
-import { AuthService } from 'src/app/api/auth/auth.service';
+import { AuthService } from '../../../api/auth/auth.service';
 
 @Component({
   selector: 'app-sidebar',

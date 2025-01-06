@@ -16,12 +16,12 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, combineLatest, map, shareReplay, switchMap, tap } from 'rxjs';
-import { TagsService } from 'src/app/api/tags/tags.service';
-import { Tag } from 'src/app/shared/types/tag.type';
+import { TagsService } from '../../../api/tags/tags.service';
+import { Tag } from '../../../shared/types/tag.type';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
-} from 'src/app/shared/widget/confirm-dialog/confirm-dialog.component';
+} from '../../../shared/widget/confirm-dialog/confirm-dialog.component';
 import { SharedModule } from '../../../shared/shared.module';
 import { FilteredPaginatedTableComponent } from '../../../shared/widget/filtered-paginated-table/filtered-paginated-table.component';
 import {
