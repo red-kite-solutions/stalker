@@ -1,6 +1,6 @@
 {
-  "label": "Core concepts",
-  "position": 2,
+  "label": "General concepts",
+  "position": 1,
   "link": {
     "type": "generated-index",
     "description": "Learn the most important Red Kite concepts."

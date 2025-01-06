@@ -14,18 +14,19 @@ To produce a finding, the job must create an object containing the necessary inf
 
 The finding object must contain the `type` field. Here is a list of available types.
 
-| Type                                      | Description                                                  |
-| ----------------------------------------- | ------------------------------------------------------------ |
-| [HostnameFinding](#hostnamefinding)       | Creates a new domain.                                        |
-| [IpFinding](#ipfinding)                   | Creates a new host.                                          |
-| [IpRangeFinding](#iprangefinding)         | Creates a new IP range.                                      |
-| [HostnameIpFinding](#hostnameipfinding)   | Creates a new host, attaches it to a given domain.           |
-| [PortFinding](#portfinding)               | Creates a new port, attaches it to the given host.           |
-| [WebsiteFinding](#websitefinding)         | Creates a new website, with the proper host, domain and port |
-| [CustomFinding](#customfinding)           | Attaches custom finding data to a given entity.              |
-| [PortServiceFinding](#portservicefinding) | Fills the `service` field of a port.                         |
-| [WebsitePathFinding](#websitepathfinding) | Adds an endpoint to a website's sitemap.                     |
-| [TagFinding](#tagfinding)                 | Tags a ressource.                                            |
+| Type                                                  | Description                                                  |
+| ----------------------------------------------------- | ------------------------------------------------------------ |
+| [HostnameFinding](#hostnamefinding)                   | Creates a new domain.                                        |
+| [IpFinding](#ipfinding)                               | Creates a new host.                                          |
+| [IpRangeFinding](#iprangefinding)                     | Creates a new IP range.                                      |
+| [HostnameIpFinding](#hostnameipfinding)               | Creates a new host, attaches it to a given domain.           |
+| [PortFinding](#portfinding)                           | Creates a new port, attaches it to the given host.           |
+| [WebsiteFinding](#websitefinding)                     | Creates a new website, with the proper host, domain and port |
+| [CustomFinding](#customfinding)                       | Attaches custom finding data to a given entity.              |
+| [PortServiceFinding](#portservicefinding)             | Fills the `service` field of a port.                         |
+| [WebsitePathFinding](#websitepathfinding)             | Adds an endpoint to a website's sitemap.                     |
+| [TagFinding](#tagfinding)                             | Tags a ressource.                                            |
+| [WebsiteScreenshotFinding](#websitescreenshotfinding) | A photo of a rendered website.                               |
 
 ## HostnameFinding
 

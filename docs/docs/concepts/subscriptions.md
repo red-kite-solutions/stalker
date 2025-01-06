@@ -227,7 +227,7 @@ An event subscription can contain these main elements :
 | Element    | Description                                                                                             | Mandatory |
 | ---------- | ------------------------------------------------------------------------------------------------------- | --------- |
 | name       | The name of the subscription, for future reference                                                      | Yes       |
-| finding    | The finding to react to.                                                                                | Yes       |
+| findings   | The findings to react to. A list of the finding names.                                                  | Yes       |
 | cooldown   | The minimum amount of time, in seconds, before a subscription can be retriggered for the same ressource | Yes       |
 | job        | The job to launch when the finding and conditions are met                                               | Yes       |
 | conditions | The preconditions to launching the job                                                                  | No        |
@@ -235,7 +235,7 @@ An event subscription can contain these main elements :
 > N.B. Additonnal details on these elements are given in the following sections
 
 - The `name` element can be anything and is only used to distinguish the Subscription from the others.
-- The `finding` element must be a existing Finding's type. See the Findings section for the list.
+- The `findings` elements must be existing Finding's types. See [the Findings documentation](./findings) for the list.
 - The `cooldown` is a number in seconds for which to wait before relaunching the job for the same ressource.
 - The `job` element contains multiple values:
   - `name` : mandatory, must be an existing Job's type. See the Jobs section for the list of valid values.
@@ -273,7 +273,8 @@ subscription.
 
 ```yaml
 name: Domain name resolution
-finding: HostnameFinding
+findings: 
+  - HostnameFinding
 cooldown: 82800
 job:
   name: DomainNameResolvingJob
@@ -298,7 +299,67 @@ maximum of around 100 seconds.
 
 ```yaml
 name: My complex subscription
-finding: HostnameIpFinding
+findings: 
+  - HostnameIpFinding
+cooldown: 82800
+job:
+  name: TcpPortScanningJob
+  parameters:
+    - name: targetIp
+      value: ${ip}
+    - name: threads
+      value: 10
+    - name: socketTimeoutSeconds
+      value: 1
+    - name: portMin
+      value: 1
+    - name: portMax
+      value: 1000
+    - name: ports
+      value: [1234, 3389, 8080]
+conditions:
+  - lhs: ${ip}
+    operator: contains_i
+    rhs: "13.37"
+  - lhs: 5
+    operator: gte
+    rhs: 3
+```
+
+#### Mutliple Findings In Subscriptions
+
+An event subscription can be triggered by multiple finding types, as long as the values referenced in the subscription are available in the two finding types.
+
+For instance, a subscription can be triggered from both an `HostnameIpFinding` as well as an `IpFinding` and use the overlapping fields.
+
+The `HostnameIpFinding`:
+
+```json
+{
+  "type": "HostnameIpFinding",
+  "key": "HostnameIpFinding",
+  "domainName": "red-kite.io",
+  "ip": "0.0.0.0"
+}
+```
+
+The `IpFinding`:
+
+```json
+{
+  "type": "IpFinding",
+  "key": "IpFinding",
+  "ip": "0.0.0.0"
+}
+```
+
+Since both the `HostnameIpFinding` and the `IpFinding` have an  `ip` field, it can be used in the subscription.
+
+```yaml
+name: My complex subscription
+findings: 
+  - HostnameIpFinding
+  - IpFinding
 cooldown: 82800
 job:
   name: TcpPortScanningJob

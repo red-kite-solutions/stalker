@@ -6,15 +6,42 @@ description: What are jobs and how to use them
 
 # Jobs
 
-A job is the way for Red Kite to find new information. It is started by Red Kite and runs in a contained environment. Different jobs will
-generate different findings. It is possible to reference a Finding's output variable as a job parameter. A job parameter is one of a job's
-input variables.
+A job is the way for Red Kite to find new information. It is started by Red Kite and runs in a contained environment. Different jobs will generate different findings. It is possible to reference a Finding's output variable as a job parameter. A job parameter is one of a job's input variables.
 
 When referencing a Finding's output variable by name (ex: `${domainName}`), the variable name is case insensitive.
 
 A job can generate multiple findings of one or many finding types.
 
-## Built-in jobs
+## Types Of Jobs
+
+Multiple types of jobs are supported in Red Kite.
+
+The types of jobs are:
+
+- [Python job](#python-job)
+- [Nuclei job](#nuclei-job)
+
+> More information about the implementation of jobs is available in the [development section of the documentation.](../development/implementing-jobs)
+
+### Python Job
+
+| Type | Language |
+| ---- | -------- |
+| Code | Python   |
+
+A python job is the standard way of making a job. It gives you full flexibility, but you have to implement it yourself.
+
+The python jobs come with a built-in SDK to help you properly [output findings and logs](/docs/concepts/findings).
+
+### Nuclei Job
+
+| Type   | Language |
+| ------ | -------- |
+| Nuclei | Yaml     |
+
+A Nuclei job uses [Project Discovery's Nuclei](https://github.com/projectdiscovery/nuclei) to run Nuclei templates and output findings that Red Kite understands. It comes with a built-in parser, but if it does not suit your needs, you can specify a custom finding handler. This custom finding handler will be responsible for parsing the Nuclei Findings as well as outputing the Red Kite compatible findings. It is implemented in python. Don't worry though, a template, a custom class and the python SDK are avalailable to help you.
+
+## Built-in Jobs
 
 The built-in jobs come with a fresh Red Kite installation. They can be fully modified. They go
 hand-in-hand with the built-in subscriptions. Keep in mind that altering a built-in job's name may break a built-in subscription. That
@@ -28,6 +55,7 @@ subscription would need to be adapted to the new name.
 | [BannerGrabbingJob](#bannergrabbingjob)           | Identifies the service running on a port | Code   | Python   |
 | [WebsiteCrawlingJob](#websitecrawlingjob)         | Crawls a website for its valid endpoints | Code   | Python   |
 | [LoginDetectionJob](#logindetectionjob)           | Detects login portals on websites        | Nuclei | Yaml     |
+| [WebsiteScreenshotJob](#websitescreenshotjob)     | Takes a screenshot of a web page.        | Code   | Python   |
 
 ### DomainNameResolvingJob
 

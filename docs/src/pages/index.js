@@ -18,7 +18,7 @@ function HomepageHeader() {
         <p className="hero__subtitle">{siteConfig.tagline}</p>
         <div className={styles.buttons}>
           <Link className="button button--secondary button--lg" to="/docs/intro">
-            Learn more about Stalker 🔍
+            Learn more about Red Kite 🔍
           </Link>
         </div>
       </div>
@@ -29,7 +29,7 @@ function HomepageHeader() {
 export default function Home() {
   const { siteConfig } = useDocusaurusContext();
   return (
-    <Layout title={siteConfig.title} description="Stalker, the Extensible Attack Surface Management tool">
+    <Layout title={siteConfig.title} description="Red Kite, the Extensible Attack Surface Management tool">
       <HomepageHeader />
       <main>
         <HomepageFeatures />
