@@ -37,6 +37,7 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { FileTab } from 'src/app/shared/widget/code-editor/code-editor.type';
 import { SavingButtonComponent } from 'src/app/shared/widget/spinner-button/saving-button.component';
 import { TextMenuComponent } from 'src/app/shared/widget/text-menu/text-menu.component';
+import { ContainerService } from '../../../api/containers/container.service';
 import { CustomJobTemplatesService } from '../../../api/jobs/custom-job-templates/custom-job-templates.service';
 import { JobsService } from '../../../api/jobs/jobs/jobs.service';
 import { SettingsService } from '../../../api/settings/settings.service';
@@ -138,11 +139,14 @@ export class CustomJobsComponent implements OnInit, OnDestroy, HasUnsavedChanges
       value: this.findingHandlerLanguageDefault,
       disabled: true,
     }),
+    container: this.fb.control<string>(''),
   });
 
   get customJobName() {
     return this.customJobForm.get('customJobName')?.value;
   }
+
+  containerOptions$ = this.containerService.getContainers();
 
   customJobLanguage$ = this.customJobForm.get('customJobLanguage')?.valueChanges.pipe(startWith(this.languageDefault));
 
@@ -160,7 +164,8 @@ export class CustomJobsComponent implements OnInit, OnDestroy, HasUnsavedChanges
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private themeService: ThemeService,
-    private templateService: CustomJobTemplatesService
+    private templateService: CustomJobTemplatesService,
+    private containerService: ContainerService
   ) {
     this.titleService.setTitle($localize`:Custom Jobs|:Custom Jobs`);
   }
@@ -186,12 +191,14 @@ export class CustomJobsComponent implements OnInit, OnDestroy, HasUnsavedChanges
       }
 
       const settingOptions = await firstValueFrom(this.podSettingOptions$);
+      const containerOptions = await firstValueFrom(this.containerOptions$);
 
       if (template) {
         customJob = {
           _id: undefined!,
           code: template.code,
           jobPodConfigId: template.jobPodConfigId ?? settingOptions[0]._id,
+          container: template.container,
           language: template.language,
           name:
             $localize`:Template|Prefixing with Template when creating a new job from a template:Template` +
@@ -209,6 +216,7 @@ export class CustomJobsComponent implements OnInit, OnDestroy, HasUnsavedChanges
           language: 'python',
           name: $localize`:New job|A job's name when creating a new job:New job`,
           type: 'code',
+          container: { id: containerOptions[0]._id, image: containerOptions[0].image },
         };
       }
     } else {
@@ -220,6 +228,7 @@ export class CustomJobsComponent implements OnInit, OnDestroy, HasUnsavedChanges
       customJobName: customJob.name,
       customJobType: customJob.type,
       podSettings: customJob.jobPodConfigId,
+      container: customJob?.container.id,
       findingHandlerEnabled: customJob.findingHandlerEnabled || false,
       findingHandlerLanguage: customJob.findingHandlerLanguage || null,
     });
@@ -381,6 +390,13 @@ export class CustomJobsComponent implements OnInit, OnDestroy, HasUnsavedChanges
       return;
     }
 
+    if (!this.customJobForm.value.container) {
+      this.toastr.error(
+        $localize`:Empty container|Select a container image before submitting:Missing container image configurations`
+      );
+      return;
+    }
+
     const {
       customJobLanguage,
       customJobName,
@@ -388,7 +404,15 @@ export class CustomJobsComponent implements OnInit, OnDestroy, HasUnsavedChanges
       findingHandlerEnabled,
       findingHandlerLanguage,
       podSettings,
+      container,
     } = this.customJobForm.value;
+
+    const containerOption = (await firstValueFrom(this.containerOptions$)).find((cOption) => cOption._id === container);
+
+    if (!containerOption) {
+      this.toastr.error($localize`:Container not found|Container not found:Container not found`);
+      return;
+    }
 
     const job: CustomJobData = {
       language: customJobLanguage ?? 'python',
@@ -396,6 +420,7 @@ export class CustomJobsComponent implements OnInit, OnDestroy, HasUnsavedChanges
       name: customJobName ?? '',
       code: code,
       jobPodConfigId: podSettings,
+      container: { id: containerOption._id, image: containerOption.image },
       findingHandler: undefined,
       findingHandlerLanguage: undefined,
       findingHandlerEnabled: undefined,

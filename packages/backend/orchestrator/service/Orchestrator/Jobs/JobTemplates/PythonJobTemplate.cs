@@ -6,8 +6,6 @@ public abstract class PythonJobTemplate : KubernetesJobTemplate
 {
     public override string[] Command => new[] { "python", "-c", PythonCommand };
 
-    public override string Image => "ghcr.io/red-kite-solutions/stalker-python-job-base:2";
-
     protected virtual string PythonCommand { get; set; }
 
     protected IConfiguration Config { get; init; }
@@ -17,13 +15,14 @@ public abstract class PythonJobTemplate : KubernetesJobTemplate
     /// </summary>
     /// <param name="id"></param>
     /// <param name="config"></param>
-    public PythonJobTemplate(string? id, IConfiguration config)
+    public PythonJobTemplate(string? id, IConfiguration config, string containerImage)
     {
         Id = id!;
         Config = config;
         SetNamespace();
         PythonCommand = "";
         EnvironmentVariable["RedKiteJobId"] = Id;
+        Image = containerImage;
     }
 
     private void SetNamespace()

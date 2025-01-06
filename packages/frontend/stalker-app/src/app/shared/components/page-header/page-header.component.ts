@@ -2,7 +2,7 @@ import { CommonModule, Location } from '@angular/common';
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { RouterModule } from '@angular/router';
+import { Params, RouterModule } from '@angular/router';
 import { PreviousRouteService } from '../../../services/previous-route.service';
 import { BreadcrumbComponent } from '../breadcrumb/breadcrumb.component';
 
@@ -39,7 +39,8 @@ import { BreadcrumbComponent } from '../breadcrumb/breadcrumb.component';
       <a
         type="button"
         mat-icon-button
-        [routerLink]="(previousRouteService.previousRoute$ | async) || backRoute"
+        [routerLink]="(previousRouteService.previousRoute$ | async)?.url || backRoute"
+        [queryParams]="(previousRouteService.previousRoute$ | async)?.queryParams"
         (click)="back($event)"
       >
         <mat-icon
@@ -59,6 +60,7 @@ import { BreadcrumbComponent } from '../breadcrumb/breadcrumb.component';
 export class AppHeaderComponent {
   @Input() public parts: string[] = [];
   @Input() public backRoute: unknown[] | undefined = ['..'];
+  @Input() public queryParams: Params = {};
 
   constructor(
     public previousRouteService: PreviousRouteService,
