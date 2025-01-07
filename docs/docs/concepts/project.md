@@ -1,3 +1,9 @@
+---
+sidebar_position: 2
+title: Projects
+description: Organizing your data through projects
+---
+
 # Projects
 
 Projects are the way to organize and centralize resources. Resources are unique per project, and deleting the project will delete all its resources and related information.

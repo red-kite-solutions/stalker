@@ -1,3 +1,9 @@
+---
+sidebar_position: 7
+title: Topology
+description: A graph view of your resources
+---
+
 # Topology
 
 The topology view, or graph view, represents the different resources through a graph. It allows for better data visualization to quickly get the global portrait of an attack surface.

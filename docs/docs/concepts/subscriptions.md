@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 5
 title: Subscriptions
 description: What are subscriptions and how to use them
 ---

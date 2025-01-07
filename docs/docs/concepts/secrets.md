@@ -1,5 +1,5 @@
 ---
-sidebar_position: 5
+sidebar_position: 6
 title: Secrets
 description: What are secrets and how to use them
 ---
