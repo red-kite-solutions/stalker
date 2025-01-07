@@ -43,9 +43,9 @@ A Nuclei job uses [Project Discovery's Nuclei](https://github.com/projectdiscove
 
 ## Built-in Jobs
 
-The built-in jobs come with a fresh Red Kite installation. They can be fully modified. They go
-hand-in-hand with the built-in subscriptions. Keep in mind that altering a built-in job's name may break a built-in subscription. That
-subscription would need to be adapted to the new name.
+The built-in jobs come with a fresh Red Kite installation. They go hand-in-hand with the built-in subscriptions. Keep in mind that altering a built-in job's name may break a built-in subscription. 
+
+Built-in jobs come from Red Kite Solutions' repositories, and therefore cannot be modified within Red Kite. However, you can duplicate it and modify its copy. When you are ready, use the copy and disable the original.
 
 | Name                                              | Description                              | Type   | Language |
 | ------------------------------------------------- | ---------------------------------------- | ------ | -------- |
@@ -56,6 +56,8 @@ subscription would need to be adapted to the new name.
 | [WebsiteCrawlingJob](#websitecrawlingjob)         | Crawls a website for its valid endpoints | Code   | Python   |
 | [LoginDetectionJob](#logindetectionjob)           | Detects login portals on websites        | Nuclei | Yaml     |
 | [WebsiteScreenshotJob](#websitescreenshotjob)     | Takes a screenshot of a web page.        | Code   | Python   |
+
+While 
 
 ### DomainNameResolvingJob
 
