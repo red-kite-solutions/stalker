@@ -4,6 +4,8 @@ import { ExpressAdapter } from '@nestjs/platform-express';
 import { useContainer } from 'class-validator';
 import { json } from 'express';
 import { readFileSync } from 'node:fs';
+import { KeepAliveStrategy } from './keep-alive-strategy';
+import { isConsumerMode } from './modules/app.constants';
 import { AppModule } from './modules/app.module';
 
 async function bootstrap() {
@@ -27,20 +29,28 @@ async function bootstrap() {
     };
   }
 
-  const app = await NestFactory.create(AppModule, adapter, options);
-  app.enableCors({
-    origin: process.env.RK_URL,
-  });
-  // https://github.com/red-kite-solutions/stalker/issues/94
-  app.use(json({ limit: '10mb' }));
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-    }),
-  );
-  useContainer(app.select(AppModule), { fallbackOnErrors: true });
-  await app.listen(3000);
+  if (isConsumerMode()) {
+    const workerApp = await NestFactory.createMicroservice(AppModule, {
+      strategy: new KeepAliveStrategy(),
+    });
+
+    await workerApp.listen();
+  } else {
+    const app = await NestFactory.create(AppModule, adapter, options);
+    app.enableCors({
+      origin: process.env.RK_URL,
+    });
+    // https://github.com/red-kite-solutions/stalker/issues/94
+    app.use(json({ limit: '10mb' }));
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+      }),
+    );
+    useContainer(app.select(AppModule), { fallbackOnErrors: true });
+    await app.listen(3000);
+  }
 }
 
 bootstrap();
