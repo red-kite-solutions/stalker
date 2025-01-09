@@ -69,16 +69,6 @@ describe('Users Controller (e2e)', () => {
     expect(r.statusCode).toBe(HttpStatus.FORBIDDEN);
   });
 
-  it('Should not create a user (email conflict) (POST /users)', async () => {
-    let r = await postReq(app, testData.admin.token, '/users', {
-      currentPassword: testData.admin.password,
-      ...newUser,
-      email: testData.readonly.email,
-    });
-
-    expect(r.statusCode).toBe(HttpStatus.CONFLICT);
-  });
-
   it('Should create a user (POST /users)', async () => {
     let r = await postReq(app, testData.admin.token, '/users', {
       currentPassword: testData.admin.password,
@@ -109,25 +99,6 @@ describe('Users Controller (e2e)', () => {
       ...newUserEdited,
     });
     expect(r.statusCode).toBe(HttpStatus.FORBIDDEN);
-
-    r = await getReq(app, testData.admin.token, `/users/${newUserId}`);
-
-    expect(r.statusCode).toBe(HttpStatus.OK);
-    expect(r.body.firstName).toBe(newUser.firstName);
-    expect(r.body.lastName).toBe(newUser.lastName);
-    expect(r.body.email).toBe(newUser.email);
-    expect(r.body.role).toBe(newUser.role);
-    expect(r.body.password).toBeFalsy();
-    expect(r.body.active).toBe(newUser.active);
-  });
-
-  it('Should not edit a user by id (email conflict) (PUT /users/:id)', async () => {
-    let r = await putReq(app, testData.admin.token, `/users/${newUserId}`, {
-      currentPassword: testData.admin.password,
-      ...newUserEdited,
-      email: testData.readonly.email,
-    });
-    expect(r.statusCode).toBe(HttpStatus.CONFLICT);
 
     r = await getReq(app, testData.admin.token, `/users/${newUserId}`);
 

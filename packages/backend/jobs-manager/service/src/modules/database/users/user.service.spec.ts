@@ -118,6 +118,18 @@ describe('Users Service', () => {
       // Assert
       expect(u1.email).toStrictEqual(email);
     });
+
+    it('Should not create a user (email conflict) (POST /users)', async () => {
+      // Arrange
+      const email = `${getName(prefix)}@red-kite.io`;
+      const u1 = await user({ role: Role.Admin, email: email });
+
+      // Act
+      const act = async () => await user({ role: Role.Admin, email: email });
+
+      // Assert
+      await expect(act).toThrow();
+    });
   });
 
   describe('Delete users', () => {
@@ -336,6 +348,19 @@ describe('Users Service', () => {
       // Assert
       const u2Ng = await userService.findOneById(u2._id.toString());
       expect(u2Ng.active).toStrictEqual(false);
+    });
+
+    it('Should not edit when email exists', async () => {
+      // Arrange
+      const u1 = await user();
+      const u2 = await user();
+
+      // Act
+      const act = async () =>
+        await userService.editUserById(u2._id.toString(), { email: u1.email });
+
+      // Assert
+      expect(act).toThrow();
     });
   });
 
