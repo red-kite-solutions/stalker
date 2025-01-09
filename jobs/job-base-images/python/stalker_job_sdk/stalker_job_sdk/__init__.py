@@ -154,6 +154,7 @@ def log_error(message: str):
 
 def _log(prefix: str, message: str):
     jobId = getenv('RedKiteJobId')
+    orchestratorUrl = getenv('RedKiteOrchestratorUrl') or 'http://orchestrator.stalker.svc.cluster.local'
     output = f"{prefix} {message}"
     if(not jobId):
         print(output)
@@ -161,7 +162,7 @@ def _log(prefix: str, message: str):
         return
     
     with httpx.Client(verify=False, http2=True) as client:
-        client.post(f"http://orchestrator.stalker:80/Jobs/{jobId}/Finding", json={ "Finding": output})
+        client.post(f"{orchestratorUrl}/Jobs/{jobId}/Finding", json={ "Finding": output})
 
 def log_status(status: str):
     """Reports the status to the orchestrator. Status can be Success of Failed."""
@@ -169,6 +170,7 @@ def log_status(status: str):
         return
     
     jobId = getenv('RedKiteJobId')
+    orchestratorUrl = getenv('RedKiteOrchestratorUrl') or 'http://orchestrator.stalker.svc.cluster.local'
     
     if(not jobId):
         print(f"Status: {status}")
@@ -176,7 +178,7 @@ def log_status(status: str):
         return
     
     with httpx.Client(verify=False, http2=True) as client:
-        client.post(f"http://orchestrator.stalker:80/Jobs/{jobId}/Status", json={ "Status": status})
+        client.post(f"{orchestratorUrl}/Jobs/{jobId}/Status", json={ "Status": status})
 
     
 def is_valid_ip(ip: str):
