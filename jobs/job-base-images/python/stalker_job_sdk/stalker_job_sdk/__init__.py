@@ -154,7 +154,7 @@ def log_error(message: str):
 
 def _log(prefix: str, message: str):
     jobId = getenv('RedKiteJobId')
-    orchestratorUrl = getenv('RedKiteOrchestratorUrl') or 'http://orchestrator.stalker.svc.cluster.local'
+    orchestratorUrl = getenv('RedKiteOrchestratorUrl') or 'http://orchestrator.stalker.svc.cluster.local.'
     output = f"{prefix} {message}"
     if(not jobId):
         print(output)
@@ -170,7 +170,7 @@ def log_status(status: str):
         return
     
     jobId = getenv('RedKiteJobId')
-    orchestratorUrl = getenv('RedKiteOrchestratorUrl') or 'http://orchestrator.stalker.svc.cluster.local'
+    orchestratorUrl = getenv('RedKiteOrchestratorUrl') or 'http://orchestrator.stalker.svc.cluster.local.'
     
     if(not jobId):
         print(f"Status: {status}")
