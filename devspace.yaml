@@ -325,7 +325,7 @@ deployments:
               - name: RK_APP_BASE_URL
                 value: ${RK_APP_BASE_URL}
               - name: DATA_SOURCES
-                value: ${RK_DATA_SOURCES}
+                value: "[]"
               - name: JM_CONSUMER_MODE
                 value: "true"
 
