@@ -2,6 +2,7 @@ import { Logger } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { UpdateFilter } from 'mongodb';
 import { Model } from 'mongoose';
+import { isConsumerMode } from '../../app.constants';
 import { DataSources } from '../../datasources/data-sources';
 import { DATABASE_INIT } from '../admin/config/config.provider';
 import { JobPodConfiguration } from '../admin/config/job-pod-config/job-pod-config.model';
@@ -32,6 +33,7 @@ export const jobTemplatesInitProvider = [
       containerModel: Model<JobContainer>,
       dataSources: DataSources,
     ) => {
+      if (isConsumerMode()) return;
       const logger = new Logger('jobTemplatesInitProvider');
 
       try {

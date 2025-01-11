@@ -1,6 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { isConsumerMode } from '../../app.constants';
 import { JobContainer } from './job-container.model';
 
 export const JOB_CONTAINERS_INIT = 'JOB_CONTAINERS_INIT';
@@ -10,6 +11,7 @@ export const jobContainerInitProvider = [
     provide: JOB_CONTAINERS_INIT,
     inject: [getModelToken('jobContainers')],
     useFactory: async (containerModel: Model<JobContainer>) => {
+      if (isConsumerMode()) return;
       const CONTAINER_ENV = 'JM_JOB_CONTAINERS';
       const logger = new Logger('containerInitProvider');
 
