@@ -1,6 +1,6 @@
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { isProd } from '../../app.constants';
+import { isConsumerMode, isProd } from '../../app.constants';
 import { MONGO_DUPLICATE_ERROR } from '../database.constants';
 import { User } from './users.model';
 
@@ -11,6 +11,7 @@ export const userInitProvider = [
     provide: USER_INIT,
     inject: [getModelToken('users')],
     useFactory: async (userModel: Model<User>) => {
+      if (isConsumerMode()) return;
       const user = await userModel.findOne({});
       if (user || isProd()) return;
 

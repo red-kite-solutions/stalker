@@ -2,6 +2,7 @@ import { Logger } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { UpdateFilter } from 'mongodb';
 import { Model } from 'mongoose';
+import { isConsumerMode } from '../../app.constants';
 import { DataSources } from '../../datasources/data-sources';
 import { JobModelUpdateQueue } from '../../job-queue/job-model-update-queue';
 import { DATABASE_INIT } from '../admin/config/config.provider';
@@ -30,6 +31,7 @@ export const jobsInitProvider = [
       jobCodeQueue: JobModelUpdateQueue,
       dataSources: DataSources,
     ) => {
+      if (isConsumerMode()) return;
       const logger = new Logger('jobsInitProvider');
 
       try {

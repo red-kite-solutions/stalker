@@ -1,5 +1,6 @@
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { isConsumerMode } from '../../app.constants';
 import { DEFAULT_TAGS } from './tag.constants';
 import { Tag } from './tag.model';
 
@@ -10,6 +11,7 @@ export const tagsInitProvider = [
     provide: TAGS_INIT,
     inject: [getModelToken('tags')],
     useFactory: async (tagsModel: Model<Tag>) => {
+      if (isConsumerMode()) return;
       const anyTag = await tagsModel.findOne();
 
       if (anyTag) return;

@@ -2,6 +2,7 @@ import { Logger } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { UpdateFilter } from 'mongodb';
 import { Model } from 'mongoose';
+import { isConsumerMode } from '../../app.constants';
 import { DataSources } from '../../datasources/data-sources';
 import { GitDataSourceConfig } from '../../datasources/git-data-source';
 import { CronSubscription } from './cron-subscriptions/cron-subscriptions.model';
@@ -26,6 +27,7 @@ export const subscriptionsInitProvider = [
       eventSubscriptionModel: Model<EventSubscription>,
       dataSources: DataSources,
     ) => {
+      if (isConsumerMode()) return;
       const logger = new Logger('subscriptionsInitProvider');
 
       try {

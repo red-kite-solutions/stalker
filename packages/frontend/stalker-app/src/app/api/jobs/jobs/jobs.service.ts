@@ -38,7 +38,7 @@ export class JobsService {
   }
 
   public async create(data: CustomJobData): Promise<CustomJob> {
-    return <CustomJob>await firstValueFrom(this.http.post(`${environment.fmUrl}/custom-jobs/`, data));
+    return <CustomJob>await firstValueFrom(this.http.post(`${environment.fmUrl}/custom-jobs/`, this.format(data)));
   }
 
   public async edit(id: string, data: CustomJobData) {

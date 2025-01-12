@@ -191,7 +191,7 @@ images:
     dockerfile: jobs/job-base-images/python/Dockerfile
     tags:
       - "latest"
-      - "1"
+      - "2"
     context: jobs/job-base-images/python
     rebuildStrategy: always
 
@@ -200,7 +200,7 @@ images:
     dockerfile: jobs/job-base-images/python/Dockerfile.nuclei
     tags:
       - "latest"
-      - "1"
+      - "2"
     context: jobs/job-base-images/python/
     rebuildStrategy: always
 
@@ -325,7 +325,7 @@ deployments:
               - name: RK_APP_BASE_URL
                 value: ${RK_APP_BASE_URL}
               - name: DATA_SOURCES
-                value: ${RK_DATA_SOURCES}
+                value: "[]"
               - name: JM_CONSUMER_MODE
                 value: "true"
 
