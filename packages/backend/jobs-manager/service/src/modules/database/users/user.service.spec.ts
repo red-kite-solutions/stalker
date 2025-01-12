@@ -128,7 +128,7 @@ describe('Users Service', () => {
       const act = async () => await user({ role: Role.Admin, email: email });
 
       // Assert
-      await expect(act).toThrow();
+      await expect(act).rejects.toThrow();
     });
   });
 
@@ -360,7 +360,7 @@ describe('Users Service', () => {
         await userService.editUserById(u2._id.toString(), { email: u1.email });
 
       // Assert
-      expect(act).toThrow();
+      await expect(act).rejects.toThrow();
     });
   });
 
@@ -447,8 +447,6 @@ describe('Users Service', () => {
     if (!u.password) u.password = getName(prefix);
     if (typeof u.active === 'undefined') u.active = true;
 
-    return await userService.createUser({
-      ...u,
-    });
+    return await userService.createUser(u);
   }
 });
