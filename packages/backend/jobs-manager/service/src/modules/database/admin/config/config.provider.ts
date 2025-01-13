@@ -1,5 +1,6 @@
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { isConsumerMode } from '../../../app.constants';
 import {
   DEFAULT_GENERAL_CONFIG,
   DEFAULT_JOB_POD_CONFIG,
@@ -17,6 +18,7 @@ export const databaseConfigInitProvider = [
       jobPodConfigModel: Model<JobPodConfiguration>,
       config: Model<Config>,
     ) => {
+      if (isConsumerMode()) return;
       const jpConf = await jobPodConfigModel.findOne();
       if (!jpConf) {
         const jobPodConfigs: JobPodConfiguration[] = JSON.parse(

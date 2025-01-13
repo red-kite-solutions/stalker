@@ -52,7 +52,7 @@ vars:
   JM_JWT_SECRET: "123456" # The secret used to sign JWT for users
   JM_REFRESH_SECRET: "123456" # The secret used to sign JWT refresh token for users
   JM_MONGO_ADDRESS: mongodb://${MONGO_JM_USER}:${MONGO_JM_PASSWORD}@mongo-mongodb-headless:27017/ # The address of the FM's mongo database
-  JM_JOB_CONTAINERS: '["ghcr.io/red-kite-solutions/stalker-python-job-base:1", "ghcr.io/red-kite-solutions/stalker-nuclei-job-base:1"]'
+  JM_JOB_CONTAINERS: '["ghcr.io/red-kite-solutions/stalker-python-job-base:2", "ghcr.io/red-kite-solutions/stalker-nuclei-job-base:2"]'
   RK_DATA_SOURCES: '[{"type": "git", "url": "https://github.com/red-kite-solutions/stalker-templates-community", "branch": "main"}]'
 
   # Cron

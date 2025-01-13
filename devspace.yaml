@@ -34,7 +34,7 @@ pipelines:
   deploy:
     run: |-
       run_pipelines build
-      create_deployments mongo ui jobs-manager kafka orchestrator-service-account orchestrator --sequential
+      create_deployments mongo ui jobs-manager jobs-consumer kafka orchestrator-service-account orchestrator --sequential
 
   jobs-manager-e2e:
     flags:
@@ -44,7 +44,7 @@ pipelines:
     run: |-
       create_deployments namespaces
       run_pipelines setup-certificates setup-kafka build
-      create_deployments mongo kafka orchestrator-service-account orchestrator jobs-manager --sequential
+      create_deployments mongo kafka orchestrator-service-account orchestrator jobs-manager jobs-consumer --sequential
 
       # Wait for kafka and mongo to be ready
       wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 600
@@ -54,11 +54,11 @@ pipelines:
       if [ $(get_flag "watch") == "true" ]; 
       then
         echo "Running tests in watch mode."
-        start_dev jobs-manager mongo
+        start_dev jobs-manager jobs-consumer mongo
         exec_container --label-selector app.kubernetes.io/component=jobs-manager -n stalker -- /bin/sh -c 'yarn workspace @red-kite/jobs-manager test:e2e:watch'
       else
         echo "Running tests in ci mode."
-        start_dev jobs-manager
+        start_dev jobs-manager jobs-consumer
         exec_container --label-selector app.kubernetes.io/component=jobs-manager -n stalker -- /bin/sh -c 'yarn workspace @red-kite/jobs-manager test:e2e:cicd' 2>&1
       fi
       stop_dev --all
@@ -66,7 +66,7 @@ pipelines:
   purge:
     run: |-
       stop_dev --all
-      purge_deployments mongo ui jobs-manager jobs-manager kafka orchestrator-service-account orchestrator cron --sequential
+      purge_deployments mongo ui jobs-consumer jobs-manager kafka orchestrator-service-account orchestrator cron --sequential
 
   jobs-manager-e2e-cicd-deploy:
     run: |-
@@ -74,7 +74,7 @@ pipelines:
       create_deployments namespaces 
       run_pipelines setup-certificates setup-kafka
 
-      create_deployments mongo kafka orchestrator-service-account orchestrator jobs-manager --sequential
+      create_deployments mongo kafka orchestrator-service-account orchestrator jobs-manager jobs-consumer --sequential
 
       # Wait for kafka and mongo to be ready
       wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 600
@@ -83,7 +83,7 @@ pipelines:
   jobs-manager-e2e-cicd-run:
     run: |-
       # Running jobs-manager-e2e-cicd-deploy pipeline is required before running this
-      start_dev jobs-manager
+      start_dev jobs-manager 
       exec_container --label-selector app.kubernetes.io/component=jobs-manager -n stalker -- /bin/sh -c 'yarn workspace @red-kite/jobs-manager test:e2e:cicd'
       stop_dev --all
 
@@ -100,18 +100,19 @@ pipelines:
       wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 600
       wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 600
 
-      create_deployments ui jobs-manager orchestrator-service-account orchestrator --sequential
+      create_deployments ui jobs-manager jobs-consumer orchestrator-service-account orchestrator --sequential
 
       # Wait for services before applying network policies
       wait_pod --label-selector app.kubernetes.io/component=ui --timeout 600
       wait_pod --label-selector app.kubernetes.io/component=jobs-manager --timeout 600
+      wait_pod --label-selector app.kubernetes.io/component=jobs-consumer --timeout 600
       wait_pod --label-selector app.kubernetes.io/component=orchestrator --timeout 600
 
       create_deployments network-policies
       create_deployments resource-quotas
 
       # Start microservices + ui
-      start_dev orchestrator jobs-manager ui
+      start_dev orchestrator jobs-manager jobs-consumer ui
 
       create_deployments cron
 
@@ -122,6 +123,7 @@ pipelines:
   prod:
     run: |-
       create_deployments namespaces
+      create_deployments orchestrator-service-account
       run_pipelines setup-certificates
 
       # Start mongo and kafka
@@ -131,11 +133,12 @@ pipelines:
       wait_pod --label-selector app.kubernetes.io/component=mongodb --timeout 600
       wait_pod --label-selector app.kubernetes.io/instance=kafka --timeout 600
 
-      create_deployments jobs-manager orchestrator-service-account orchestrator ui --sequential
+      create_deployments jobs-manager jobs-consumer orchestrator ui --sequential
 
       # Wait for services before applying network policies
       wait_pod --label-selector app.kubernetes.io/component=ui --timeout 600
       wait_pod --label-selector app.kubernetes.io/component=jobs-manager --timeout 600
+      wait_pod --label-selector app.kubernetes.io/component=jobs-consumer --timeout 600
       wait_pod --label-selector app.kubernetes.io/component=orchestrator --timeout 600
 
       create_deployments network-policies resource-quotas
@@ -148,7 +151,7 @@ pipelines:
       create_deployments namespaces
       run_pipelines setup-kafka build
       run_pipelines prod
-      start_dev ui orchestrator jobs-manager cron
+      start_dev ui orchestrator jobs-manager jobs-consumer cron
 
 images:
   stalker-base:
@@ -188,7 +191,7 @@ images:
     dockerfile: jobs/job-base-images/python/Dockerfile
     tags:
       - "latest"
-      - "1"
+      - "2"
     context: jobs/job-base-images/python
     rebuildStrategy: always
 
@@ -197,7 +200,7 @@ images:
     dockerfile: jobs/job-base-images/python/Dockerfile.nuclei
     tags:
       - "latest"
-      - "1"
+      - "2"
     context: jobs/job-base-images/python/
     rebuildStrategy: always
 
@@ -272,6 +275,70 @@ deployments:
             - containerPort: 3000
               port: 3000
               protocol: TCP
+
+  jobs-consumer:
+    updateImageTags: $( echo ${UPDATE_IMAGE_TAGS} )
+    helm:
+      values:
+        volumes:
+          - name: certs
+            secret:
+              secretName: jm-certs
+
+        replicas: 2
+        containers:
+          - env:
+              - name: MONGO_ADDRESS
+                value: ${JM_MONGO_ADDRESS}
+              - name: MONGO_DATABASE_NAME
+                value: ${JM_MONGO_DATABASE_NAME}
+              - name: JM_JWT_SECRET
+                value: ${JM_JWT_SECRET}
+              - name: JM_REFRESH_SECRET
+                value: ${JM_REFRESH_SECRET}
+              - name: KAFKA_URI
+                value: ${KAFKA_URI}
+              - name: RK_URL
+                value: ${RK_URL}
+              - name: MONGO_REPLICA_SET_NAME
+                value: ${MONGO_REPLICA_SET_NAME}
+              - name: JM_ENVIRONMENT
+                value: ${JM_ENVIRONMENT}
+              - name: RK_CRON_API_TOKEN
+                value: ${RK_CRON_API_TOKEN}
+              - name: SECRET_PUBLIC_RSA_KEY
+                value: ${SECRET_PUBLIC_RSA_KEY}
+              - name: JM_MONGO_KEY_PASSWORD
+                value: ${JM_MONGO_KEY_PASSWORD}
+              - name: JM_KAFKA_KEY_PASSWORD
+                value: ${JM_KAFKA_KEY_PASSWORD}
+              - name: RK_VERSION
+                value: ${RK_VERSION}
+              - name: EMAIL_SENDER
+                value: ${JM_EMAIL_SENDER}
+              - name: MAILJET_API_KEY
+                value: ${JM_MAILJET_API_KEY}
+              - name: MAILJET_API_SECRET
+                value: ${JM_MAILJET_API_SECRET}
+              - name: EMAIL_RECIPIENTS_FILTER_LIST
+                value: ${JM_EMAIL_RECIPIENTS_FILTER_LIST}
+              - name: RK_APP_BASE_URL
+                value: ${RK_APP_BASE_URL}
+              - name: DATA_SOURCES
+                value: "[]"
+              - name: JM_CONSUMER_MODE
+                value: "true"
+
+            volumeMounts:
+              - containerPath: /certs
+                volume:
+                  name: certs
+                  readOnly: true
+
+            image: ghcr.io/red-kite-solutions/stalker-jobs-manager:${JM_VERSION}
+            name: jobs-consumer-container
+
+        nodeSelector: $(echo ${JM_K8S_NODE_SELECTOR})
 
   cron:
     updateImageTags: $( echo ${UPDATE_IMAGE_TAGS} )
@@ -696,6 +763,27 @@ dev:
     ports:
       - port: "3000"
 
+  jobs-consumer:
+    labelSelector:
+      app.kubernetes.io/component: jobs-consumer
+    container: jobs-consumer-container
+    logs:
+      enabled: true
+    sync:
+      - path: ./package.json:/app/package.json
+        disableDownload: true
+      - path: ./yarn.lock:/app/yarn.lock
+        disableDownload: true
+      - path: ./packages:/app/packages
+        disableDownload: true
+        excludePaths:
+          - node_modules/
+          - "**/.angular/**/*"
+          - "**/dist/**/*"
+          - "**/node_modules/**/*"
+    restartHelper:
+      inject: false
+
   cron:
     labelSelector:
       app.kubernetes.io/component: cron
@@ -783,6 +871,16 @@ hooks:
       labelSelector:
         app.kubernetes.io/component: jobs-manager
       containerName: jobs-manager-container
+
+  - events:
+      - after:deploy:jobs-consumer
+    wait:
+      running: true
+      terminatedWithCode: 0
+    container:
+      labelSelector:
+        app.kubernetes.io/component: jobs-consumer
+      containerName: jobs-consumer-container
 
   - events:
       - after:deploy:cron
@@ -884,8 +982,8 @@ profiles:
         path: dev.ui.resources
         value:
           limits:
-            memory: 2Gi
-            cpu: 1
+            memory: 1Gi
+            cpu: 0.5
 
       - op: replace
         path: deployments.ui
