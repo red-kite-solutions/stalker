@@ -2,8 +2,6 @@
 sidebar_position: 2
 title: Projects
 description: Organizing your data through projects
-customProps:
-  className: enterprise-feature
 ---
 
 # Projects

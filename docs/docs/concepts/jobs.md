@@ -14,7 +14,7 @@ When referencing a Finding's output variable by name (ex: `${domainName}`), the 
 
 A job can generate multiple findings of one or many finding types.
 
-## Types Of Jobs
+## Types of Jobs
 
 Multiple types of jobs are supported in Red Kite.
 
