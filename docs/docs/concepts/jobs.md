@@ -1,5 +1,5 @@
 ---
-sidebar_position: 2
+sidebar_position: 3
 title: Jobs
 description: What are jobs and how to use them
 ---
@@ -14,11 +14,46 @@ When referencing a Finding's output variable by name (ex: `${domainName}`), the 
 
 A job can generate multiple findings of one or many finding types.
 
-## Built-in jobs
+## Types of Jobs
 
-The built-in jobs come with a fresh Red Kite installation. They can be fully modified. They go
-hand-in-hand with the built-in subscriptions. Keep in mind that altering a built-in job's name may break a built-in subscription. That
-subscription would need to be adapted to the new name.
+Multiple types of jobs are supported in Red Kite.
+
+The types of jobs are:
+
+- [Python job](#python-job)
+- [Nuclei job](#nuclei-job)
+
+> More information about the implementation of jobs is available in the
+> [development section of the documentation.](../development/implementing-jobs)
+
+### Python Job
+
+| Type | Language |
+| ---- | -------- |
+| Code | Python   |
+
+A python job is the standard way of making a job. It gives you full flexibility, but you have to implement it yourself.
+
+The python jobs come with a built-in SDK to help you properly [output findings and logs](/docs/concepts/findings).
+
+### Nuclei Job
+
+| Type   | Language |
+| ------ | -------- |
+| Nuclei | Yaml     |
+
+A Nuclei job uses [Project Discovery's Nuclei](https://github.com/projectdiscovery/nuclei) to run Nuclei templates and output findings that
+Red Kite understands. It comes with a built-in parser, but if it does not suit your needs, you can specify a custom finding handler. This
+custom finding handler will be responsible for parsing the Nuclei Findings as well as outputing the Red Kite compatible findings. It is
+implemented in python. Don't worry though, a template, a custom class and the python SDK are avalailable to help you.
+
+## Built-in Jobs
+
+Red Kite comes preloaded with a robust selection of built-in jobs directly sourced from our
+[official jobs repository](https://github.com/red-kite-solutions/stalker-templates-community).
+
+Built-in jobs are managed by Red Kite and therefore cannot be modified. If you wish to tweak one of our jobs, you may simply duplicate it
+and edit the copy. When you are ready, use the copy and disable the original.
 
 | Name                                              | Description                              | Type   | Language |
 | ------------------------------------------------- | ---------------------------------------- | ------ | -------- |
@@ -28,6 +63,9 @@ subscription would need to be adapted to the new name.
 | [BannerGrabbingJob](#bannergrabbingjob)           | Identifies the service running on a port | Code   | Python   |
 | [WebsiteCrawlingJob](#websitecrawlingjob)         | Crawls a website for its valid endpoints | Code   | Python   |
 | [LoginDetectionJob](#logindetectionjob)           | Detects login portals on websites        | Nuclei | Yaml     |
+| [WebsiteScreenshotJob](#websitescreenshotjob)     | Takes a screenshot of a web page.        | Code   | Python   |
+
+While
 
 ### DomainNameResolvingJob
 
@@ -84,7 +122,8 @@ Scans an IP range (ex: `1.2.3.4/24`) for open ports. It discovers hosts that way
 
 ### BannerGrabbingJob
 
-Identifies the service running on a port and grabs the banner. It may occasionally find which OS the host is running on and sometimes other domain names as well.
+Identifies the service running on a port and grabs the banner. It may occasionally find which OS the host is running on and sometimes other
+domain names as well.
 
 **Input variables:**
 

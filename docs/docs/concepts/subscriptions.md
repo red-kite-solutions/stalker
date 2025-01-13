@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 5
 title: Subscriptions
 description: What are subscriptions and how to use them
 ---
@@ -12,8 +12,8 @@ They are used to expand Red Kite's automation workflow.
 A subscription can belong to a project, in which case, they will only take effect on the mentionned project. If a project is not specified
 for a subscription, it will take effect on all the projects.
 
-Some subscriptions come built-in Red Kite. These subscriptions are marked as such, but they can still be modified by the users. Built-in subscriptions can even be deleted, but be sure to
-know what you are doing.
+Some subscriptions come built-in Red Kite. These subscriptions are marked as such, but they can still be modified by the users. Built-in
+subscriptions can even be deleted, but be sure to know what you are doing.
 
 A susbcription, cron or event, will not trigger on a blocked resource.
 
@@ -27,10 +27,7 @@ dropdown menu.
 Cron subscriptions are started based on a cron expression. They are the most simple subscriptions and only require the information necessary
 to start a job.
 
-Cron subscriptions can be reliably triggered as often as every twenty (20) seconds. The cron service, who is in charge of notifying the jobs
-manager when a cron subscription triggers, checks its local cache of cron subscriptions every 10 seconds. The local cache is synchronized
-with the subscriptions database every 60 seconds. A new cron subscription added from the UI will therefore be up and running at the latest
-one 1 minute 20 seconds after the save.
+Cron subscriptions can be reliably triggered as often as every twenty (20) seconds.
 
 Even though cron subscriptions do not require a project to be set, they require at least one project to exist at the moment it is triggered
 to properly start at least one job.
@@ -50,8 +47,8 @@ A cron subscription contains the following main elements :
 
 - The `name` element can be anything and is only used to distinguish the subscription from the others.
 - The `cronExpression` element has to be a valid cron expression. It is used to trigger the job launch.
-- The `input` element is either `ALL_DOMAINS`, `ALL_HOSTS`, `ALL_IP_RANGES`, `ALL_TCP_PORTS` or `ALL_WEBSITES`. These values represent all the ressources of
-  the corresponding type.
+- The `input` element is either `ALL_DOMAINS`, `ALL_HOSTS`, `ALL_IP_RANGES`, `ALL_TCP_PORTS` or `ALL_WEBSITES`. These values represent all
+  the ressources of the corresponding type.
 - The `job` element contains multiple values:
   - `name` : mandatory, must be an existing Job's type. See the Jobs section for the list of valid values.
   - `parameters` : optionnal, but almost always needed. It describes the input values of the job by the parameter `name` and its `value` in
@@ -175,8 +172,8 @@ job:
       value: []
 ```
 
-When you specify the `ALL_WEBSITES` input, you have access to the `${domainName}`, `${ip}`, `${port}`, `${path}` and `${ssl}` injectable variables. Red Kite will apply the subscription for all the websites, and the websites's different values will be injected where specified.
-
+When you specify the `ALL_WEBSITES` input, you have access to the `${domainName}`, `${ip}`, `${port}`, `${path}` and `${ssl}` injectable
+variables. Red Kite will apply the subscription for all the websites, and the websites's different values will be injected where specified.
 
 ```yaml
 name: Recrawling websites
@@ -207,7 +204,6 @@ job:
       value: -jc -kf all -duc -j -or -ob -silent
 ```
 
-
 ## Event Subscriptions
 
 When Red Kite finds some information, either through the output of a Job or through user input, a Finding is emitted. This Finding contains
@@ -227,7 +223,7 @@ An event subscription can contain these main elements :
 | Element    | Description                                                                                             | Mandatory |
 | ---------- | ------------------------------------------------------------------------------------------------------- | --------- |
 | name       | The name of the subscription, for future reference                                                      | Yes       |
-| finding    | The finding to react to.                                                                                | Yes       |
+| findings   | The findings to react to. A list of the finding names.                                                  | Yes       |
 | cooldown   | The minimum amount of time, in seconds, before a subscription can be retriggered for the same ressource | Yes       |
 | job        | The job to launch when the finding and conditions are met                                               | Yes       |
 | conditions | The preconditions to launching the job                                                                  | No        |
@@ -235,7 +231,7 @@ An event subscription can contain these main elements :
 > N.B. Additonnal details on these elements are given in the following sections
 
 - The `name` element can be anything and is only used to distinguish the Subscription from the others.
-- The `finding` element must be a existing Finding's type. See the Findings section for the list.
+- The `findings` elements must be existing Finding's types. See [the Findings documentation](./findings) for the list.
 - The `cooldown` is a number in seconds for which to wait before relaunching the job for the same ressource.
 - The `job` element contains multiple values:
   - `name` : mandatory, must be an existing Job's type. See the Jobs section for the list of valid values.
@@ -254,9 +250,12 @@ You can add dynamic input to an event subscription either by referencing a findi
 You can reference a Finding's output variable by name in a Job parameter's value or in a condition's operand using the following syntax:
 `${parameterName}`. The variable name is case insensitive.
 
-In a finding, you can find [dynamic fields](/docs/concepts/findings#dynamic-fields) in the `fields` array. The text based dynamic fields' values can be injected in the same way as a regular field, with the `${parameterName}` syntax. Simply reference the `key` part of a dynamic field as the variable name, and its `data` will be injected.
+In a finding, you can find [dynamic fields](/docs/concepts/findings#dynamic-fields) in the `fields` array. The text based dynamic fields'
+values can be injected in the same way as a regular field, with the `${parameterName}` syntax. Simply reference the `key` part of a dynamic
+field as the variable name, and its `data` will be injected.
 
-You can also inject a secret as a parameter value with the `${secrets.secretName}` syntax. You can [learn more about secrets here](/docs/concepts/secrets).
+You can also inject a secret as a parameter value with the `${secrets.secretName}` syntax. You can
+[learn more about secrets here](/docs/concepts/secrets).
 
 #### Event Subscription Simple Example
 
@@ -273,7 +272,8 @@ subscription.
 
 ```yaml
 name: Domain name resolution
-finding: HostnameFinding
+findings:
+  - HostnameFinding
 cooldown: 82800
 job:
   name: DomainNameResolvingJob
@@ -298,7 +298,68 @@ maximum of around 100 seconds.
 
 ```yaml
 name: My complex subscription
-finding: HostnameIpFinding
+findings:
+  - HostnameIpFinding
+cooldown: 82800
+job:
+  name: TcpPortScanningJob
+  parameters:
+    - name: targetIp
+      value: ${ip}
+    - name: threads
+      value: 10
+    - name: socketTimeoutSeconds
+      value: 1
+    - name: portMin
+      value: 1
+    - name: portMax
+      value: 1000
+    - name: ports
+      value: [1234, 3389, 8080]
+conditions:
+  - lhs: ${ip}
+    operator: contains_i
+    rhs: "13.37"
+  - lhs: 5
+    operator: gte
+    rhs: 3
+```
+
+#### Mutliple Findings In Subscriptions
+
+An event subscription can be triggered by multiple finding types, as long as the values referenced in the subscription are available in the
+two finding types.
+
+For instance, a subscription can be triggered from both an `HostnameIpFinding` as well as an `IpFinding` and use the overlapping fields.
+
+The `HostnameIpFinding`:
+
+```json
+{
+  "type": "HostnameIpFinding",
+  "key": "HostnameIpFinding",
+  "domainName": "red-kite.io",
+  "ip": "0.0.0.0"
+}
+```
+
+The `IpFinding`:
+
+```json
+{
+  "type": "IpFinding",
+  "key": "IpFinding",
+  "ip": "0.0.0.0"
+}
+```
+
+Since both the `HostnameIpFinding` and the `IpFinding` have an `ip` field, it can be used in the subscription.
+
+```yaml
+name: My complex subscription
+findings:
+  - HostnameIpFinding
+  - IpFinding
 cooldown: 82800
 job:
   name: TcpPortScanningJob
@@ -339,12 +400,14 @@ To learn more about findings, [click here](/docs/concepts/findings).
 By default, an event subscription's Job will always start when the specified Finding is found. However, it is not always the desired
 behavior. Sometimes, the Job should only start if the Finding's output respect some established conditions.
 
-A condition is usually made of three elements: a left-hand side parameter (`lhs`), an `operator`, and a right-hand side parameter (`rhs`). The `lhs`
-parameter is compared to the `rhs` parameter using the `operator`. A Finding's output variable can be used as a Condition's `lhs` or `rhs`
-parameter when referenced using the syntax `${paramName}`.
+A condition is usually made of three elements: a left-hand side parameter (`lhs`), an `operator`, and a right-hand side parameter (`rhs`).
+The `lhs` parameter is compared to the `rhs` parameter using the `operator`. A Finding's output variable can be used as a Condition's `lhs`
+or `rhs` parameter when referenced using the syntax `${paramName}`.
 
 The primitive type of the parameters must match together and must match with the operator for the condition to return `true`. The allowed
-types of an operand are `string`, `number`, `boolean`, or an `array` of these types. When two arrays are provided, every element of the `lhs` array will be compared with every element of the `rhs` array. If all the condtions return true, then the specified job will be started.
+types of an operand are `string`, `number`, `boolean`, or an `array` of these types. When two arrays are provided, every element of the
+`lhs` array will be compared with every element of the `rhs` array. If all the condtions return true, then the specified job will be
+started.
 
 | Operator     | Accepted Operand Types  | Description                                                                                                                                        |
 | ------------ | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -360,27 +423,29 @@ types of an operand are `string`, `number`, `boolean`, or an `array` of these ty
 | startsWith_i | string                  | Validates if the `lhs` string starts with the `rhs` string. Case insensitive.                                                                      |
 | endsWith     | string                  | Validates if the `lhs` string ends with the `rhs` string.                                                                                          |
 | endsWith_i   | string                  | Validates if the `lhs` string ends with the `rhs` string. Case insensitive.                                                                        |
-| not_         | string, number, boolean | Prefix `not_` to another operator to have the result negated. For instance, `not_equals` would be true when two operands are not considered equal. |
-| or_          | string, number, boolean | Use with arrays to change the boolean operator between array elements from `and` to `or`.                                                          |
+| not\_        | string, number, boolean | Prefix `not_` to another operator to have the result negated. For instance, `not_equals` would be true when two operands are not considered equal. |
+| or\_         | string, number, boolean | Use with arrays to change the boolean operator between array elements from `and` to `or`.                                                          |
 
 > Arrays of the corresponding type can be used on any operator
 
-By default, conditions are linked with an `and` operator. It means that all conditions have to be met to launch the job. However, you can use the `and` and `or` operators in the condition yaml to change the operator applied on the different conditions. In the following example, even though the condition `4 >= 5` will be `false`, since it is in an `or` operator, the whole operator will return `true`. Since the `or` operator will return `true` and `1 <= 2` will be `true` as well, the job will start. 
-
+By default, conditions are linked with an `and` operator. It means that all conditions have to be met to launch the job. However, you can
+use the `and` and `or` operators in the condition yaml to change the operator applied on the different conditions. In the following example,
+even though the condition `4 >= 5` will be `false`, since it is in an `or` operator, the whole operator will return `true`. Since the `or`
+operator will return `true` and `1 <= 2` will be `true` as well, the job will start.
 
 ```yaml
 conditions:
   - or:
-    - and:
-      - lhs: asdf
-        operator: endsWith
-        rhs: df
-      - lhs: qwerty
-        operator: startsWith
-        rhs: qwe
-    - lhs: 4
-      operator: gte
-      rhs: 5
+      - and:
+          - lhs: asdf
+            operator: endsWith
+            rhs: df
+          - lhs: qwerty
+            operator: startsWith
+            rhs: qwe
+      - lhs: 4
+        operator: gte
+        rhs: 5
   - lhs: 1
     operator: lte
     rhs: 2

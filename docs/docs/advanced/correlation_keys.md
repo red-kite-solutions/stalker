@@ -6,11 +6,12 @@ Correlation keys are used by event subscriptions to know if their cooldown for a
 
 Examples of correlation keys for a project with the identifier `65f123fc861a16c1a9698357`:
 
-| Resource | Correlation key example                                                |
-| -------- | ---------------------------------------------------------------------- |
-| Domain   | `project:65f123fc861a16c1a9698357;domain:example.com`                  |
-| Host     | `project:65f123fc861a16c1a9698357;host:127.0.0.1`                      |
-| Port     | `project:65f123fc861a16c1a9698357;host:127.0.0.1;port:22;protocol:tcp` |
+| Resource | Correlation key example                                                                            |
+| -------- | -------------------------------------------------------------------------------------------------- |
+| Domain   | `project:65f123fc861a16c1a9698357;domain:example.com`                                              |
+| Host     | `project:65f123fc861a16c1a9698357;host:127.0.0.1`                                                  |
+| Port     | `project:65f123fc861a16c1a9698357;host:127.0.0.1;port:22;protocol:tcp`                             |
+| Website  | `project:65f123fc861a16c1a9698357;host:206.189.173.197;port:80;protocol:tcp;domain:a1b2.ca;path:/` |
 
 A correlation key also exists for a different concept that is not really a resource per say. This concept is the `IP ranges`. IP ranges are stored on the project itself, and they represent an IPv4 subnet range.
 
