@@ -148,7 +148,7 @@ successful execution, may be uploaded onto Red Kite. [Subscriptions](#subscripti
 Jobs run in a [Kubernetes job](https://kubernetes.io/docs/concepts/workloads/controllers/job/) pod with configurable resources. A job can be
 as simple as resolving an IP address, and as complex as scraping a web server.
 
-A guide with detailed [instructions on how to implement a job](/docs/tutorials/implementing-jobs) is available.
+Detailed information [about jobs](/docs/concepts/jobs) is available.
 
 #### Findings
 
