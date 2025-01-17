@@ -1,5 +1,13 @@
 {
   "collection": "@nestjs/schematics",
   "sourceRoot": "src",
-  "entryFile": "./src/main.js"
+  "entryFile": "./src/main.js",
+  "compilerOptions": {
+    "assets": [
+      {
+        "include": "**/*.mjml",
+        "outDir": "dist/src"
+      }
+    ]
+  }
 }
