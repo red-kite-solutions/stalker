@@ -27,12 +27,12 @@ import { ProjectService } from '../../reporting/project.service';
 import { WebsiteDocument } from '../../reporting/websites/website.model';
 import { WebsiteService } from '../../reporting/websites/website.service';
 import { SecretsService } from '../../secrets/secrets.service';
+import { JobParameter } from '../subscriptions.type';
 import { SubscriptionsUtils } from '../subscriptions.utils';
 import { CronSubscriptionDto } from './cron-subscriptions.dto';
 import {
   CronSubscription,
   CronSubscriptionsDocument,
-  JobParameter,
 } from './cron-subscriptions.model';
 
 @Injectable()
@@ -59,6 +59,7 @@ export class CronSubscriptionsService {
       isEnabled: dto.isEnabled == null ? dto.isEnabled : true,
       name: dto.name,
       input: dto.input ? dto.input : null,
+      batch: dto.batch,
       cronExpression: dto.cronExpression,
       jobName: dto.jobName,
       jobParameters: dto.jobParameters,
@@ -89,6 +90,7 @@ export class CronSubscriptionsService {
       projectId: existingSub.projectId,
       cronExpression: existingSub.cronExpression,
       input: existingSub.input,
+      batch: existingSub.batch,
       source: undefined,
     };
 
@@ -122,6 +124,7 @@ export class CronSubscriptionsService {
       projectId: dto.projectId ? new Types.ObjectId(dto.projectId) : null,
       name: dto.name,
       input: dto.input ? dto.input : null,
+      batch: dto.batch ? dto.batch : null,
       cronExpression: dto.cronExpression,
       jobName: dto.jobName,
       jobParameters: dto.jobParameters,

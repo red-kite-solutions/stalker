@@ -13,7 +13,7 @@ import {
   CustomJobsDocument,
 } from '../custom-jobs/custom-jobs.model';
 import { SecretsService } from '../secrets/secrets.service';
-import { JobParameter } from '../subscriptions/event-subscriptions/event-subscriptions.model';
+import { JobParameter } from '../subscriptions/subscriptions.type';
 import { JobDefinitions } from './job-model.module';
 import { CustomJob } from './models/custom-job.model';
 import { Job } from './models/jobs.model';

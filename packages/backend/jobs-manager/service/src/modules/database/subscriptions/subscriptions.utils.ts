@@ -15,14 +15,15 @@ import { ConfigService } from '../admin/config/config.service';
 import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
 import { JobFactoryUtils } from '../jobs/jobs.factory';
 import { CronSubscription } from './cron-subscriptions/cron-subscriptions.model';
+import { EventSubscription } from './event-subscriptions/event-subscriptions.model';
 import {
   AndJobCondition,
-  EventSubscription,
   JobCondition,
   JobParameter,
   OrJobCondition,
-} from './event-subscriptions/event-subscriptions.model';
-import { Subscription, SubscriptionWithType } from './subscriptions.type';
+  Subscription,
+  SubscriptionWithType,
+} from './subscriptions.type';
 
 type FsPromisesApi = MemfsFsPromisesApi | typeof realFs.promises;
 

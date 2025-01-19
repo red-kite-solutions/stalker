@@ -1,27 +1,14 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { DataSource } from '../../data-source/data-source.model';
+import {
+  AndJobCondition,
+  JobCondition,
+  JobParameter,
+  OrJobCondition,
+} from '../subscriptions.type';
 
 export type EventSubscriptionsDocument = EventSubscription & Document;
-
-export class JobParameter {
-  public name!: string;
-  public value!: unknown;
-}
-
-export class JobCondition {
-  public lhs!: string | number | boolean | Array<boolean | string | number>;
-  public operator: string;
-  public rhs!: string | number | boolean | Array<boolean | string | number>;
-}
-
-export class AndJobCondition {
-  public and!: Array<AndJobCondition | OrJobCondition | JobCondition>;
-}
-
-export class OrJobCondition {
-  public or!: Array<AndJobCondition | OrJobCondition | JobCondition>;
-}
 
 @Schema()
 export class EventSubscription {
@@ -49,7 +36,7 @@ export class EventSubscription {
   @Prop()
   public cooldown: number;
 
-  // true for a built-in subsctiption, false otherwise
+  // true for a built-in subscription, false otherwise
   @Prop()
   public builtIn?: boolean;
 

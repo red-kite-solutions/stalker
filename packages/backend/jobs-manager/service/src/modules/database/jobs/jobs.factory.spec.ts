@@ -8,7 +8,7 @@ import { JobPodConfiguration } from '../admin/config/job-pod-config/job-pod-conf
 import { ProjectService } from '../reporting/project.service';
 import { Secret } from '../secrets/secrets.model';
 import { SecretsService } from '../secrets/secrets.service';
-import { JobParameter } from '../subscriptions/event-subscriptions/event-subscriptions.model';
+import { JobParameter } from '../subscriptions/subscriptions.type';
 import { JobExecutionsService } from './job-executions.service';
 import { JobFactoryUtils } from './jobs.factory';
 import { Job } from './models/jobs.model';

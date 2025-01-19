@@ -10,8 +10,8 @@ import {
 } from 'class-validator';
 import { PagingDto } from '../database.dto';
 import { FilterByProjectDto } from '../reporting/resource.dto';
-import { JobParameter } from '../subscriptions/event-subscriptions/event-subscriptions.model';
 import { JobParameterDto } from '../subscriptions/subscriptions.dto';
+import { JobParameter } from '../subscriptions/subscriptions.type';
 
 export class JobExecutionsDto extends IntersectionType(
   PagingDto,
