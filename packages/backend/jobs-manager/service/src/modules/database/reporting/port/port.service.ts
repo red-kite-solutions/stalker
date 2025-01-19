@@ -325,7 +325,11 @@ export class PortService {
     let query;
     if (filter) {
       query = this.portsModel.find(
-        await this.portSearchQuery.toMongoFilters(filter.query),
+        await this.portSearchQuery.toMongoFilters(
+          filter.query,
+          filter.firstSeenStartDate,
+          filter.firstSeenEndDate,
+        ),
         projection,
       );
     } else {
@@ -343,7 +347,11 @@ export class PortService {
       return await this.portsModel.estimatedDocumentCount();
     } else {
       return await this.portsModel.countDocuments(
-        await this.portSearchQuery.toMongoFilters(filter.query),
+        await this.portSearchQuery.toMongoFilters(
+          filter.query,
+          filter.firstSeenStartDate,
+          filter.firstSeenEndDate,
+        ),
       );
     }
   }

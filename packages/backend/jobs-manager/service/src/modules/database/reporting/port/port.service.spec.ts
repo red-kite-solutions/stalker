@@ -4,10 +4,12 @@ import { AppModule } from '../../../app.module';
 import { TagsDocument } from '../../tags/tag.model';
 import { TagsService } from '../../tags/tag.service';
 import { DomainsService } from '../domain/domain.service';
+import { HostDocument } from '../host/host.model';
 import { HostService } from '../host/host.service';
 import { CreateProjectDto } from '../project.dto';
+import { ProjectDocument } from '../project.model';
 import { ProjectService } from '../project.service';
-import { GetPortsDto } from './port.dto';
+import { PortDocument } from './port.model';
 import { PortService } from './port.service';
 
 describe('Port Service', () => {
@@ -18,6 +20,8 @@ describe('Port Service', () => {
   let tagsService: TagsService;
   let portService: PortService;
   const testPrefix = 'port-service-ut';
+
+  let project1: ProjectDocument;
 
   beforeAll(async () => {
     moduleFixture = await Test.createTestingModule({
@@ -39,24 +43,25 @@ describe('Port Service', () => {
     for (const t of tags) {
       await tagsService.delete(t._id);
     }
+
+    project1 = await project('project 1');
   });
 
   describe('Add ports', () => {
     it('Should add ports to a host', async () => {
       // Arrange
-      const c = await project();
-      const h = await host('1.1.1.1', c._id.toString());
+      const h = await host('1.1.1.1', project1);
 
       // Act
       const p1 = await portService.addPort(
-        h[0]._id.toString(),
-        c._id.toString(),
+        h._id.toString(),
+        project1._id.toString(),
         22,
         'tcp',
       );
       const p2 = await portService.addPort(
-        h[0]._id.toString(),
-        c._id.toString(),
+        h._id.toString(),
+        project1._id.toString(),
         21,
         'tcp',
       );
@@ -64,29 +69,28 @@ describe('Port Service', () => {
       // Assert
       expect(p1._id).toBeTruthy();
       expect(p1.port).toStrictEqual(22);
-      expect(p1.host.id.toString()).toStrictEqual(h[0]._id.toString());
+      expect(p1.host.id.toString()).toStrictEqual(h._id.toString());
 
       expect(p2._id).toBeTruthy();
       expect(p2.port).toStrictEqual(21);
-      expect(p2.host.id.toString()).toStrictEqual(h[0]._id.toString());
+      expect(p2.host.id.toString()).toStrictEqual(h._id.toString());
     });
 
     it('Should add ports to a host IP', async () => {
       // Arrange
       const hostIp = '1.1.1.1';
-      const c = await project();
-      const h = await host(hostIp, c._id.toString());
+      const h = await host(hostIp, project1);
 
       // Act
       const p1 = await portService.addPortByIp(
         hostIp,
-        c._id.toString(),
+        project1._id.toString(),
         22,
         'tcp',
       );
       const p2 = await portService.addPortByIp(
         hostIp,
-        c._id.toString(),
+        project1._id.toString(),
         21,
         'tcp',
       );
@@ -94,24 +98,23 @@ describe('Port Service', () => {
       // Assert
       expect(p1._id).toBeTruthy();
       expect(p1.port).toStrictEqual(22);
-      expect(p1.host.id.toString()).toStrictEqual(h[0]._id.toString());
+      expect(p1.host.id.toString()).toStrictEqual(h._id.toString());
 
       expect(p2._id).toBeTruthy();
       expect(p2.port).toStrictEqual(21);
-      expect(p2.host.id.toString()).toStrictEqual(h[0]._id.toString());
+      expect(p2.host.id.toString()).toStrictEqual(h._id.toString());
     });
 
     it('Should add ports with a service to a host IP', async () => {
       // Arrange
       const hostIp = '1.1.1.1';
       const service = 'ssh';
-      const c = await project();
-      const h = await host(hostIp, c._id.toString());
+      const h = await host(hostIp, project1);
 
       // Act
       const p1 = await portService.addPortByIp(
         hostIp,
-        c._id.toString(),
+        project1._id.toString(),
         22,
         'tcp',
         service,
@@ -120,7 +123,7 @@ describe('Port Service', () => {
       // Assert
       expect(p1._id).toBeTruthy();
       expect(p1.port).toStrictEqual(22);
-      expect(p1.host.id.toString()).toStrictEqual(h[0]._id.toString());
+      expect(p1.host.id.toString()).toStrictEqual(h._id.toString());
       expect(p1.service).toStrictEqual(service);
     });
 
@@ -128,20 +131,19 @@ describe('Port Service', () => {
       // Arrange
       const hostIp = '1.1.1.1';
       const service = 'ssh';
-      const c = await project();
-      const h = await host(hostIp, c._id.toString());
+      const h = await host(hostIp, project1);
 
       // Act
       let p1 = await portService.addPortByIp(
         hostIp,
-        c._id.toString(),
+        project1._id.toString(),
         22,
         'tcp',
       );
 
       p1 = await portService.addPortByIp(
         hostIp,
-        c._id.toString(),
+        project1._id.toString(),
         22,
         'tcp',
         service,
@@ -150,19 +152,18 @@ describe('Port Service', () => {
       // Assert
       expect(p1._id).toBeTruthy();
       expect(p1.port).toStrictEqual(22);
-      expect(p1.host.id.toString()).toStrictEqual(h[0]._id.toString());
+      expect(p1.host.id.toString()).toStrictEqual(h._id.toString());
       expect(p1.service).toStrictEqual(service);
     });
 
     it('Should update a port that already exists instead of creating it', async () => {
       // Arrange
-      const c = await project();
-      const h = await host('1.1.1.1', c._id.toString());
+      const h = await host('1.1.1.1', project1);
       const portNumber = 80;
       const samePort = async () => {
         return await portService.addPort(
-          h[0]._id.toString(),
-          c._id.toString(),
+          h._id.toString(),
+          project1._id.toString(),
           portNumber,
           'tcp',
         );
@@ -179,21 +180,21 @@ describe('Port Service', () => {
 
     it('Should add the same port to a different host', async () => {
       // Arrange
-      const c = await project();
-      const h1 = await host('1.1.1.1', c._id.toString());
-      const h2 = await host('1.1.1.2', c._id.toString());
+      const p = await project();
+      const h1 = await host('1.1.1.1', p);
+      const h2 = await host('1.1.1.2', p);
       const portNumber = 80;
 
       // Act
       const p1 = await portService.addPort(
-        h1[0]._id.toString(),
-        c._id.toString(),
+        h1._id.toString(),
+        p._id.toString(),
         portNumber,
         'tcp',
       );
       const p2 = await portService.addPort(
-        h2[0]._id.toString(),
-        c._id.toString(),
+        h2._id.toString(),
+        p._id.toString(),
         portNumber,
         'tcp',
       );
@@ -205,57 +206,49 @@ describe('Port Service', () => {
 
     it('Should add the same port to two hosts with the same ip for a different project', async () => {
       // Arrange
-      const c = await project('project 1');
-      const c2 = await project('project 2');
-      const h1 = await host('1.1.1.1', c._id.toString());
-      const h2 = await host('1.1.1.1', c2._id.toString());
+      const proj1 = await project('project 1');
+      const proj2 = await project('project 2');
+      const h1 = await host('1.1.1.1', proj1);
+      const h2 = await host('1.1.1.1', proj2);
       const portNumber = 80;
 
       // Act
       const p1 = await portService.addPort(
-        h1[0]._id.toString(),
-        c._id.toString(),
+        h1._id.toString(),
+        proj1._id.toString(),
         portNumber,
         'tcp',
       );
       const p2 = await portService.addPort(
-        h2[0]._id.toString(),
-        c2._id.toString(),
+        h2._id.toString(),
+        proj2._id.toString(),
         portNumber,
         'tcp',
       );
 
       // Assert
       expect(p1.port).toStrictEqual(80);
-      expect(p1.host.ip).toStrictEqual(h1[0].ip);
-      expect(p1.projectId.toString()).toStrictEqual(c._id.toString());
+      expect(p1.host.ip).toStrictEqual(h1.ip);
+      expect(p1.projectId.toString()).toStrictEqual(proj1._id.toString());
       expect(p2.port).toStrictEqual(80);
-      expect(p2.host.ip).toStrictEqual(h2[0].ip);
-      expect(p2.projectId.toString()).toStrictEqual(c2._id.toString());
+      expect(p2.host.ip).toStrictEqual(h2.ip);
+      expect(p2.projectId.toString()).toStrictEqual(proj2._id.toString());
     });
   });
 
   describe('Get ports', () => {
     it('Should get the TCP ports in an arbitrary order', async () => {
       // Arrange
-      const c = await project();
-      const h = await host('1.1.1.1', c._id.toString());
-      const portNumbers = [22, 8080, 21, 443, 80];
-      const portsAdded = [];
-      for (let portNumber of portNumbers) {
-        portsAdded.push(
-          await portService.addPort(
-            h[0]._id.toString(),
-            c._id.toString(),
-            portNumber,
-            'tcp',
-          ),
-        );
-      }
+      const h = await host('1.1.1.1', project1);
+      await port(22, h, project1);
+      await port(8080, h, project1);
+      await port(21, h, project1);
+      await port(443, h, project1);
+      await port(80, h, project1);
 
       // Act
       const ports = await portService.getHostPorts(
-        h[0]._id.toString(),
+        h._id.toString(),
         0,
         10,
         'tcp',
@@ -263,28 +256,25 @@ describe('Port Service', () => {
 
       // Assert
       expect(ports.length).toStrictEqual(5);
+      expect(ports.map((x) => x.port)).toContain(22);
+      expect(ports.map((x) => x.port)).toContain(8080);
+      expect(ports.map((x) => x.port)).toContain(21);
+      expect(ports.map((x) => x.port)).toContain(443);
+      expect(ports.map((x) => x.port)).toContain(80);
     });
 
     it('Should get the TCP ports in an arbitrary order with paging', async () => {
       // Arrange
-      const c = await project();
-      const h = await host('1.1.1.1', c._id.toString());
-      const portNumbers = [22, 8080, 21, 443, 80];
-      const portsAdded = [];
-      for (let portNumber of portNumbers) {
-        portsAdded.push(
-          await portService.addPort(
-            h[0]._id.toString(),
-            c._id.toString(),
-            portNumber,
-            'tcp',
-          ),
-        );
-      }
+      const h = await host('1.1.1.1', project1);
+      await port(22, h, project1);
+      await port(8080, h, project1);
+      await port(21, h, project1);
+      await port(443, h, project1);
+      await port(80, h, project1);
 
       // Act
       const ports = await portService.getHostPorts(
-        h[0]._id.toString(),
+        h._id.toString(),
         0,
         3,
         'tcp',
@@ -298,14 +288,8 @@ describe('Port Service', () => {
   describe('Delete ports', () => {
     it('Should delete a port by id', async () => {
       // Arrange
-      const c = await project();
-      const h = await host('1.1.1.1', c._id.toString());
-      const p1 = await portService.addPort(
-        h[0]._id.toString(),
-        c._id.toString(),
-        22,
-        'tcp',
-      );
+      const h = await host('1.1.1.1', project1);
+      const [p1] = await port(22, h, project1);
 
       // Act
       const res = await portService.delete(p1._id.toString());
@@ -316,24 +300,12 @@ describe('Port Service', () => {
 
     it('Should delete all ports for a host', async () => {
       // Arrange
-      const c = await project();
-      const h = await host('1.1.1.1', c._id.toString());
-      const p1 = await portService.addPort(
-        h[0]._id.toString(),
-        c._id.toString(),
-        22,
-        'tcp',
-      );
-
-      const p2 = await portService.addPort(
-        h[0]._id.toString(),
-        c._id.toString(),
-        80,
-        'tcp',
-      );
+      const h = await host('1.1.1.1', project1);
+      await port(22, h, project1);
+      await port(80, h, project1);
 
       // Act
-      const res = await portService.deleteAllForHost(h[0]._id.toString());
+      const res = await portService.deleteAllForHost(h._id.toString());
 
       // Assert
       expect(res.deletedCount).toStrictEqual(2);
@@ -342,230 +314,53 @@ describe('Port Service', () => {
 
   describe('Get all', () => {
     it.each([
-      [
-        [
-          { host: '1.1.1.1', ports: [1, 2, 3] },
-          { host: '1.1.1.2', ports: [4, 5, 6] },
-        ],
-        { hosts: ['1.1.1.1'] },
-        [1, 2, 3],
-      ],
-      [
-        [
-          { host: '1.1.1.1', ports: [1, 2, 3] },
-          { host: '1.1.1.2', ports: [4, 5, 6] },
-        ],
-        { hosts: ['1.2'] },
-        [4, 5, 6],
-      ],
-      [
-        [
-          { host: '1.2.1.1', ports: [1, 2, 3] },
-          { host: '1.1.1.2', ports: [4, 5, 6] },
-        ],
-        { hosts: ['1.2'] },
-        [1, 2, 3, 4, 5, 6],
-      ],
-    ])(
-      'Filter by host',
-      async (
-        hosts: { host: string; ports: number[] }[],
-        dto: Partial<GetPortsDto>,
-        expectedPorts: number[],
-      ) => {
-        // Arrange
-        const p1 = await project('p1');
+      ['', [1, 2, 3, 4, 5, 6]],
+      ['project: "project 1"', [1, 2, 3, 4]],
+      ['project: "project 2"', [5, 6]],
+      ['-project: "project 2"', [1, 2, 3, 4]],
+      ['project: "project*"', [1, 2, 3, 4, 5, 6]],
+      ['host: 1.1.1.1', [1, 2]],
+      ['host.ip: 1.1.1.1', [1, 2]],
+      ['host: 1.*', [1, 2, 3, 4, 5, 6]],
+      ['host: 1.2.2*', [3, 4, 5, 6]],
+      ['-host: 1.1.1.1', [3, 4, 5, 6]],
+      ['-host: 1.2.2*', [1, 2]],
+      ['port: 1', [1]],
+      ['port.number: 1', [1]],
+      ['-port: 1', [2, 3, 4, 5, 6]],
+      ['port.protocol: tcp', [1, 2, 3, 4, 5]],
+      ['-port.protocol: tcp', [6]],
+      ['port.protocol: udp', [6]],
+      ['-port.protocol: udp', [1, 2, 3, 4, 5]],
+      ['tag: foo', [1, 2]],
+      ['-tag: ba*', [1, 2]],
+      ['-tag: foo', [3, 4, 5, 6]],
+      ['tag: qux', [1, 2, 3, 4, 5, 6]],
+      ['tag: foo tag: qux', [1, 2]],
+      ['-tag: foo tag: qux', [3, 4, 5, 6]],
+      ['is: blocked', [6]],
+      ['-is: blocked', [1, 2, 3, 4, 5]],
+    ])('Filter by "%s"', async (query: string, expected: number[]) => {
+      // Arrange
+      const project2 = await project('project 2');
+      const [foo, bar, baz, qux] = await tags('foo', 'bar', 'baz', 'qux');
 
-        for (const h of hosts) {
-          const htmp = await host(h.host, p1._id.toString());
-          for (const p of h.ports) {
-            await portService.addPort(
-              htmp[0]._id.toString(),
-              p1._id.toString(),
-              p,
-              'tcp',
-            );
-          }
-        }
+      const h1 = await host('1.1.1.1', project1);
+      await port([1, 2], h1, project1, [foo, qux]);
 
-        // Act
-        const allPorts = await portService.getAll(0, 10, dto);
+      const h2 = await host('1.2.2.2', project1);
+      await port([3, 4], h2, project1, [bar, qux]);
 
-        // Assert
-        expect(allPorts.map((x) => x.port).sort()).toStrictEqual(
-          expectedPorts.sort(),
-        );
-      },
-    );
+      const h3 = await host('1.2.2.3', project2);
+      await port([5], h3, project2, [baz, qux]);
+      await block(...(await port([6], h3, project2, [baz, qux], 'udp')));
 
-    it.each([
-      [
-        [
-          { host: '1.1.1.1', ports: [1, 2, 3], tags: ['asdf'] },
-          { host: '1.1.1.2', ports: [4, 5, 6], tags: ['qwerty'] },
-        ],
-        { tags: ['asdf'] },
-        [1, 2, 3],
-        ['asdf', 'qwerty'],
-      ],
-      [
-        [
-          { host: '1.1.1.1', ports: [1, 2, 3], tags: ['asdf'] },
-          { host: '1.1.1.2', ports: [4, 5, 6], tags: ['qwerty'] },
-        ],
-        { tags: ['qwerty'] },
-        [4, 5, 6],
-        ['asdf', 'qwerty'],
-      ],
-      [
-        [
-          { host: '1.1.1.1', ports: [1, 2, 3], tags: ['asdf'] },
-          { host: '1.1.1.2', ports: [4, 5, 6], tags: ['qwerty'] },
-        ],
-        { hosts: ['1.2'], tags: ['qwerty'] },
-        [4, 5, 6],
-        ['asdf', 'qwerty'],
-      ],
-      [
-        [
-          { host: '1.1.1.1', ports: [1, 2, 3], tags: ['asdf'] },
-          { host: '1.1.1.2', ports: [4, 5, 6], tags: ['qwerty', 'asdf'] },
-        ],
-        { tags: ['asdf'] },
-        [1, 2, 3, 4, 5, 6],
-        ['asdf', 'qwerty'],
-      ],
-      [
-        [
-          { host: '1.1.1.1', ports: [1, 2, 3], tags: ['asdf'] },
-          { host: '1.1.1.2', ports: [4, 5, 6], tags: ['qwerty'] },
-        ],
-        { hosts: ['1.2'], tags: ['asdf'] },
-        [],
-        ['asdf', 'qwerty'],
-      ],
-    ])(
-      'Filter by tag',
-      async (
-        hosts: { host: string; ports: number[]; tags: string[] }[],
-        dto: Partial<GetPortsDto>,
-        expectedPorts: number[],
-        tags: string[],
-      ) => {
-        // Arrange
-        const p1 = await project('p1');
+      // Act
+      const allPorts = await portService.getAll(0, 10, { query });
 
-        const tagsMap: Map<string, TagsDocument> = new Map<
-          string,
-          TagsDocument
-        >();
-        for (const t of tags) {
-          tagsMap.set(t, await tagsService.create(t, '#ffffff'));
-        }
-
-        const hDocs = [];
-
-        for (let j = 0; j < hosts.length; ++j) {
-          const htmp = await host(hosts[j].host, p1._id.toString());
-          hDocs.push(htmp[0]);
-          for (let i = 0; i < hosts[j].tags.length; ++i) {
-            hosts[j].tags[i] = tagsMap.get(hosts[j].tags[i])._id.toString();
-          }
-
-          for (const p of hosts[j].ports) {
-            const ptmp = await portService.addPort(
-              htmp[0]._id.toString(),
-              p1._id.toString(),
-              p,
-              'tcp',
-            );
-            for (const t of hosts[j].tags) {
-              await portService.tagPort(ptmp._id.toString(), t, true);
-            }
-          }
-        }
-
-        for (let i = 0; i < dto.tags.length; ++i) {
-          dto.tags[i] = tagsMap.get(dto.tags[i])._id.toString();
-        }
-
-        // Act
-        const allPorts = await portService.getAll(0, 10, dto);
-
-        // Assert
-        expect(allPorts.map((x) => x.port).sort()).toStrictEqual(
-          expectedPorts.sort(),
-        );
-      },
-    );
-
-    it.each([
-      [
-        [
-          { host: '1.1.1.1', ports: [1, 2, 3] },
-          { host: '1.1.1.2', ports: [4, 5, 6] },
-        ],
-        { ports: [5] },
-        [5],
-      ],
-      [
-        [
-          { host: '1.2.1.1', ports: [1, 2, 3] },
-          { host: '1.1.1.2', ports: [4, 5, 6] },
-        ],
-        { ports: [3] },
-        [3],
-      ],
-      [
-        [
-          { host: '1.1.1.1', ports: [1, 2, 3] },
-          { host: '1.1.1.2', ports: [4, 5, 6] },
-        ],
-        { hosts: ['1.1.1.1'], ports: [3] },
-        [3],
-      ],
-      [
-        [
-          { host: '1.1.1.1', ports: [1, 2, 3] },
-          { host: '1.1.1.2', ports: [4, 5, 6] },
-        ],
-        { hosts: ['1.1.1.1'], ports: [5] },
-        [],
-      ],
-    ])(
-      'Filter by port',
-      async (
-        hosts: { host: string; ports: number[] }[],
-        dto: Partial<GetPortsDto>,
-        expectedPorts: number[],
-      ) => {
-        // Arrange
-        const p1 = await project('p1');
-
-        const hDocs = [];
-
-        for (const h of hosts) {
-          const htmp = await host(h.host, p1._id.toString());
-          hDocs.push(htmp[0]);
-          for (const p of h.ports) {
-            await portService.addPort(
-              htmp[0]._id.toString(),
-              p1._id.toString(),
-              p,
-              'tcp',
-            );
-          }
-        }
-
-        // Act
-        const allPorts = await portService.getAll(0, 10, dto);
-
-        // Assert
-        expect(allPorts.map((x) => x.port).sort()).toStrictEqual(
-          expectedPorts.sort(),
-        );
-      },
-    );
+      // Assert
+      expect(allPorts.map((x) => x.port).sort()).toStrictEqual(expected.sort());
+    });
   });
 
   async function project(name: string = '') {
@@ -573,8 +368,70 @@ describe('Port Service', () => {
     return await projectService.addProject(ccDto);
   }
 
-  async function host(ip: string, projectId: string) {
-    return await hostService.addHosts([ip], projectId);
+  async function host(
+    ip: string,
+    project: ProjectDocument,
+    tags: TagsDocument[] = [],
+  ) {
+    const h = (await hostService.addHosts([ip], project._id.toString()))[0];
+
+    for (const t of tags) {
+      await hostService.tagHost(h._id.toString(), t._id.toString(), true);
+    }
+
+    return h;
+  }
+
+  async function tags(...tags: string[]) {
+    const createdTags = [];
+    for (const tag of tags) {
+      createdTags.push(await tagsService.create(tag, '#ffffff'));
+    }
+
+    return createdTags;
+  }
+
+  async function port(
+    ports: number | number[],
+    host: HostDocument,
+    project: ProjectDocument,
+    tags: TagsDocument[] = [],
+    protocol: 'tcp' | 'udp' = 'tcp',
+  ) {
+    if (typeof ports === 'number') {
+      ports = [ports];
+    }
+
+    const portDocuments = [];
+    for (const p of ports) {
+      const bobbyNewport = await portService.addPort(
+        host._id.toString(),
+        project._id.toString(),
+        p,
+        protocol,
+      );
+
+      portDocuments.push(bobbyNewport);
+
+      for (const t of tags) {
+        await portService.tagPort(
+          bobbyNewport._id.toString(),
+          t._id.toString(),
+          true,
+        );
+      }
+    }
+
+    return portDocuments;
+  }
+
+  async function block(...ports: PortDocument[]) {
+    for (const port of ports) {
+      await portService.batchEdit({
+        block: true,
+        portIds: [port._id],
+      });
+    }
   }
 
   afterAll(async () => {

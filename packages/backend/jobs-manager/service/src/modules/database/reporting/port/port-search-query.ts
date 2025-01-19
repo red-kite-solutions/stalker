@@ -11,7 +11,7 @@ import { ObjectId } from 'mongodb';
 import { FilterQuery, Model, Types } from 'mongoose';
 import { BadRequestError } from 'passport-headerapikey';
 import escapeStringRegexp from '../../../../utils/escape-string-regexp';
-import { TagsService } from '../../tags/tag.service';
+import { Tag } from '../../tags/tag.model';
 import { Host } from '../host/host.model';
 import { Project } from '../project.model';
 import { WebsiteService } from '../websites/website.service';
@@ -24,13 +24,17 @@ export class PortSearchQuery {
   constructor(
     @InjectModel('host') private readonly hostModel: Model<Host>,
     @InjectModel('project') private readonly projectModel: Model<Project>,
-    private tagsService: TagsService,
+    @InjectModel('tags') private readonly tagModel: Model<Tag>,
     @InjectModel('port') private readonly portsModel: Model<Port>,
     private readonly websiteService: WebsiteService,
   ) {}
 
-  public async toMongoFilters(query: string): Promise<FilterQuery<Port>> {
-    const terms = this.queryParser.parse(query, {
+  public async toMongoFilters(
+    query: string,
+    firstSeenStartDate: number,
+    firstSeenEndDate: number,
+  ): Promise<FilterQuery<Port>> {
+    const terms = this.queryParser.parse(query || '', {
       completeTermsOnly: true,
       excludeEmptyValues: true,
     });
@@ -38,9 +42,6 @@ export class PortSearchQuery {
     if (!terms.length) return {};
 
     this.ensureTerms(terms);
-
-    console.log('-----------------------');
-    console.log(terms);
 
     const finalFilter: FilterQuery<Port> = { $and: [] };
 
@@ -86,7 +87,7 @@ export class PortSearchQuery {
           '_id',
         );
 
-        finalFilter.$and.push({ 'host.id': { $in: hosts.map((h) => h._id) } });
+        finalFilter.$and.push({ 'host.id': { $in: hosts.map((x) => x._id) } });
       }
     }
 
@@ -100,7 +101,7 @@ export class PortSearchQuery {
         );
 
         finalFilter.$and.push({
-          'host.id': { $not: { $in: hosts.map((h) => h._id) } },
+          'host.id': { $not: { $in: hosts.map((x) => x._id) } },
         });
       }
     }
@@ -133,7 +134,7 @@ export class PortSearchQuery {
         );
 
         finalFilter.$and.push({
-          projectId: { $in: projects.map((h) => h._id) },
+          projectId: { $in: projects.map((x) => x._id) },
         });
       }
     }
@@ -142,79 +143,131 @@ export class PortSearchQuery {
     {
       const t = this.consumeTerms(terms, '-', 'project.name');
       if (t.length) {
-        console.log(this.toInclusionList(t));
         const projects = await this.projectModel.find(
           { name: { $in: this.toInclusionList(t) } },
           '_id',
         );
 
         finalFilter.$and.push({
-          projectId: { $not: { $in: projects.map((h) => h._id) } },
+          projectId: { $not: { $in: projects.map((x) => x._id) } },
         });
       }
     }
 
-    // // Filter by tag
-    // if (dto.tags) {
-    //   const preppedTagsArray = dto.tags
-    //     .filter((x) => x)
-    //     .map((x) => x.toLowerCase())
-    //     .map((x) => new Types.ObjectId(x));
+    // "tag.name" filters
+    {
+      const t = this.consumeTerms(terms, '', 'tag.name');
+      if (t.length) {
+        const tags = await this.tagModel.find({
+          text: { $in: this.toInclusionList(t, { lowercase: true }) },
+        });
 
-    //   if (preppedTagsArray.length > 0) {
-    //     finalFilter['tags'] = {
-    //       $all: preppedTagsArray.map((t) => new Types.ObjectId(t)),
-    //     };
-    //   }
-    // }
+        finalFilter.$and.push({
+          tags: { $all: tags.map((x) => x._id) },
+        });
+      }
+    }
 
-    // // Filter by createdAt
-    // if (dto.firstSeenStartDate || dto.firstSeenEndDate) {
-    //   let createdAtFilter = {};
+    // "-tag.name" filters
+    {
+      const t = this.consumeTerms(terms, '-', 'tag.name');
+      if (t.length) {
+        const tags = await this.tagModel.find(
+          { text: { $in: this.toInclusionList(t, { lowercase: true }) } },
+          '_id',
+        );
 
-    //   if (dto.firstSeenStartDate && dto.firstSeenEndDate) {
-    //     createdAtFilter = [
-    //       { createdAt: { $gte: dto.firstSeenStartDate } },
-    //       { createdAt: { $lte: dto.firstSeenEndDate } },
-    //     ];
-    //     finalFilter['$and'] = createdAtFilter;
-    //   } else {
-    //     if (dto.firstSeenStartDate)
-    //       createdAtFilter = { $gte: dto.firstSeenStartDate };
-    //     else if (dto.firstSeenEndDate)
-    //       createdAtFilter = { $lte: dto.firstSeenEndDate };
-    //     finalFilter['createdAt'] = createdAtFilter;
-    //   }
-    // }
+        finalFilter.$and.push({
+          tags: { $nin: tags.map((x) => x._id) },
+        });
+      }
+    }
 
-    // // Filter by port
-    // if (dto.ports) {
-    //   const validPorts = dto.ports.filter((x) => x);
-    //   finalFilter['port'] = { $in: validPorts };
-    // }
+    // "port.number" filters
+    {
+      const t = this.consumeTerms(terms, '', 'port.number');
+      const ports = t.map((x) => +x.value);
+      if (t.length) {
+        finalFilter.$and.push({
+          port: { $in: ports },
+        });
+      }
+    }
 
-    // // Filter by protocol
-    // if (dto.protocol) {
-    //   finalFilter['layer4Protocol'] = { $eq: dto.protocol };
-    // }
+    // "-port.number" filters
+    {
+      const t = this.consumeTerms(terms, '-', 'port.number');
+      if (t.length) {
+        const ports = t.map((x) => +x.value);
+
+        finalFilter.$and.push({
+          port: { $not: { $in: ports } },
+        });
+      }
+    }
+
+    // "port.protocol" filters
+    {
+      const t = this.consumeTerms(terms, '', 'port.protocol');
+      if (t.length) {
+        const protocols = this.toInclusionList(t, { lowercase: true });
+        finalFilter.$and.push({
+          layer4Protocol: { $in: protocols },
+        });
+      }
+    }
+
+    // "-port.protocol" filters
+    {
+      const t = this.consumeTerms(terms, '-', 'port.protocol');
+      if (t.length) {
+        const protocols = this.toInclusionList(t, { lowercase: true });
+        finalFilter.$and.push({
+          layer4Protocol: { $not: { $in: protocols } },
+        });
+      }
+    }
+
+    // "is: blocked" filter
+    {
+      const t = this.consumeTerms(terms, '', 'is', 'blocked');
+      if (t.length) {
+        finalFilter.$and.push({ blocked: true });
+      }
+    }
+
+    // "-is: blocked" filter
+    {
+      const t = this.consumeTerms(terms, '-', 'is', 'blocked');
+      if (t.length) {
+        finalFilter.$and.push({ $not: { blocked: true } });
+      }
+    }
 
     // // Filter by blocked
-    // if (dto.blocked === false) {
+    // if (blocked === false) {
     //   finalFilter['$or'] = [
     //     { blocked: { $exists: false } },
     //     { blocked: { $eq: false } },
     //   ];
-    // } else if (dto.blocked === true) {
+    // } else if (blocked === true) {
     //   finalFilter['blocked'] = { $eq: true };
     // }
+
+    // Filter by createdAt
+    if (firstSeenStartDate) {
+      finalFilter.$and.push({ createdAt: { $gte: firstSeenStartDate } });
+    }
+
+    if (firstSeenEndDate) {
+      finalFilter.$and.push({ createdAt: { $lt: firstSeenEndDate } });
+    }
 
     if (terms.length) {
       throw new BadRequestError(
         `Some search terms were not handled: ${JSON.stringify(terms)}`,
       );
     }
-
-    console.log(JSON.stringify(finalFilter, null, 2));
 
     return finalFilter;
   }
@@ -224,7 +277,7 @@ export class PortSearchQuery {
     not: '-' | '',
     type: TermTypes,
     value?: string,
-  ) {
+  ): SearchTerms {
     const selected = [];
 
     for (let i = 0; i < terms.length; ) {
@@ -260,15 +313,13 @@ export class PortSearchQuery {
         case 'port.number':
           return this.ensureNumber(term);
 
-        case 'host.ip':
-          return this.ensureIp(term);
-
         case 'port.protocol':
-          return this.ensureAllowedValues(term, ['utc', 'tcp']);
+          return this.ensureAllowedValues(term, ['udp', 'tcp']);
 
         case 'finding':
           return this.ensureAllowedValues(term, ['exists']);
 
+        case 'host.ip':
         case 'domain.name':
         case 'tag.name':
         case 'project.name':
@@ -308,15 +359,22 @@ export class PortSearchQuery {
   }
 
   private ensureIp({ value, type }: SearchTerm) {
-    if (isIP(value, 4)) return;
+    if (isIP(value, 4) || isIP(value.replace(/\*$/, ''))) return;
 
     throw new BadRequestError(
       `Value should be a valid IP address for ${type} filter, but got "${value}".`,
     );
   }
 
-  private toInclusionList(terms: SearchTerm[]): (string | RegExp)[] {
-    const values = terms.map((x) => x.value).map((x) => x.trim());
+  private toInclusionList(
+    terms: SearchTerm[],
+    options?: { lowercase: boolean },
+  ): (string | RegExp)[] {
+    let values = terms.map((x) => x.value).map((x) => x.trim());
+    if (options?.lowercase) {
+      values = values.map((x) => x.toLowerCase());
+    }
+
     if (values.some((x) => x[x.length - 1] === '*')) {
       return values
         .map((x) => escapeStringRegexp(x))
