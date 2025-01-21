@@ -6,7 +6,7 @@ import { themes as prismThemes } from "prism-react-renderer";
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: "Stalker",
+  title: "Red Kite",
   tagline: "Extensible Attack Surface Management",
   favicon: "img/favicon.ico",
 
@@ -70,7 +70,7 @@ const config = {
       // Replace with your project's social card
       image: "img/social-card.png",
       navbar: {
-        title: "Stalker",
+        title: "Red Kite",
         logo: {
           alt: "Red Kite Solutions logo",
           src: "img/logo.svg",

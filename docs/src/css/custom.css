@@ -38,3 +38,21 @@
   --ifm-font-color-base-inverse: white;
   --ifm-hero-background-color: #a60503 !important;
 }
+
+.enterprise {
+  position: relative;
+}
+
+.enterprise::after {
+  content: "Enterprise";
+  font-size: 0.65rem;
+  font-weight: bold;
+  background: linear-gradient(117deg, #c85d5d, #a60503);
+  color: #fefefe;
+  border-radius: 100px;
+  padding: 1px 5px 2px 5px;
+  position: absolute;
+  right: 8px;
+  top: 6px;
+  pointer-events: none;
+}

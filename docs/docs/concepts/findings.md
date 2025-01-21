@@ -1,31 +1,33 @@
 ---
-sidebar_position: 3
+sidebar_position: 4
 title: Findings
 description: What are findings and how to use them
 ---
 
 # Findings
 
-Findings are pieces of information attached to a project and a core entity like a domain, a host or a port. They are reported by the jobs to the Orchestrator using Red Kite's software development kit (SDK).
+Findings are pieces of information attached to a project and a resource like a domain, a host or a port. They are created using Red Kite's
+software development kit (SDK).
 
-Findings come in different shapes and forms. Some findings will create new core entities, others may simply add data to existing ones.
+Findings come in different shapes and forms. Some findings will create new resources, others may simply add data to existing ones.
 
 To produce a finding, the job must create an object containing the necessary information and serialize it as JSON.
 
 The finding object must contain the `type` field. Here is a list of available types.
 
-| Type                                      | Description                                                  |
-| ----------------------------------------- | ------------------------------------------------------------ |
-| [HostnameFinding](#hostnamefinding)       | Creates a new domain.                                        |
-| [IpFinding](#ipfinding)                   | Creates a new host.                                          |
-| [IpRangeFinding](#iprangefinding)         | Creates a new IP range.                                      |
-| [HostnameIpFinding](#hostnameipfinding)   | Creates a new host, attaches it to a given domain.           |
-| [PortFinding](#portfinding)               | Creates a new port, attaches it to the given host.           |
-| [WebsiteFinding](#websitefinding)         | Creates a new website, with the proper host, domain and port |
-| [CustomFinding](#customfinding)           | Attaches custom finding data to a given entity.              |
-| [PortServiceFinding](#portservicefinding) | Fills the `service` field of a port.                         |
-| [WebsitePathFinding](#websitepathfinding) | Adds an endpoint to a website's sitemap.                     |
-| [TagFinding](#tagfinding)                 | Tags a ressource.                                            |
+| Type                                                  | Description                                                  |
+| ----------------------------------------------------- | ------------------------------------------------------------ |
+| [HostnameFinding](#hostnamefinding)                   | Creates a new domain.                                        |
+| [IpFinding](#ipfinding)                               | Creates a new host.                                          |
+| [IpRangeFinding](#iprangefinding)                     | Creates a new IP range.                                      |
+| [HostnameIpFinding](#hostnameipfinding)               | Creates a new host, attaches it to a given domain.           |
+| [PortFinding](#portfinding)                           | Creates a new port, attaches it to the given host.           |
+| [WebsiteFinding](#websitefinding)                     | Creates a new website, with the proper host, domain and port |
+| [CustomFinding](#customfinding)                       | Attaches custom finding data to a given entity.              |
+| [PortServiceFinding](#portservicefinding)             | Fills the `service` field of a port.                         |
+| [WebsitePathFinding](#websitepathfinding)             | Adds an endpoint to a website's sitemap.                     |
+| [TagFinding](#tagfinding)                             | Tags a ressource.                                            |
+| [WebsiteScreenshotFinding](#websitescreenshotfinding) | A photo of a rendered website.                               |
 
 ## HostnameFinding
 
@@ -205,14 +207,17 @@ log_finding(
 
 ## WebsiteFinding
 
-The `WebsiteFinding` will create a website resource. Websites are made from 4 characteristics: an IP address, a domain name, a port number and a path. Only the IP address and the port are mandatory. The domain can be empty and the path will default to `/`.
+The `WebsiteFinding` will create a website resource. Websites are made from 4 characteristics: an IP address, a domain name, a port number
+and a path. Only the IP address and the port are mandatory. The domain can be empty and the path will default to `/`.
 
-To create a website, it must reference an existing port of a project. To reference a domain as well, it must also be a domain already known to Red Kite.
+To create a website, it must reference an existing port of a project. To reference a domain as well, it must also be a domain already known
+to Red Kite.
 
-It signals that an open port running an http(s) service, either `tcp` or `udp`, has been found on the host specified through the `ip` value. The `ip` must already be known to Red Kite as a valid host. A port finding creates or updates a port
-and attaches it to the given host.
+It signals that an open port running an http(s) service, either `tcp` or `udp`, has been found on the host specified through the `ip` value.
+The `ip` must already be known to Red Kite as a valid host. A port finding creates or updates a port and attaches it to the given host.
 
-> Emitting a `PortServiceFinding` with a `serviceName` of `http` and `https` will result in creating a `WebsiteFinding` per domain linked to the host, and one with an empty domain. [Learn more about PortServiceFinding and websites](#portservicefinding-and-websites)
+> Emitting a `PortServiceFinding` with a `serviceName` of `http` and `https` will result in creating a `WebsiteFinding` per domain linked to
+> the host, and one with an empty domain. [Learn more about PortServiceFinding and websites](#portservicefinding-and-websites)
 
 | Field        | Description                                             |
 | ------------ | ------------------------------------------------------- |
@@ -263,7 +268,7 @@ log_finding(
 
 ## CustomFinding
 
-Dynamic findings allow jobs to attach custom data to core entities.
+Dynamic findings allow jobs to attach custom data to resources.
 
 | Field        | Description                                                     |
 | ------------ | --------------------------------------------------------------- |
@@ -325,7 +330,8 @@ Dynamic fields give flexiblity to jobs so they can output complex data. Here is 
 | Text  | A label with some text |
 | Image | An image               |
 
-Each field consist of at least a `key`, a `type` and `data`. The type is generally automatically populated by the SDK, and the `key` is used like a variable name, and the `data` should contain the interesting values extracted by the job.
+Each field consist of at least a `key`, a `type` and `data`. The type is generally automatically populated by the SDK, and the `key` is used
+like a variable name, and the `data` should contain the interesting values extracted by the job.
 
 > The `key` field can be used to inject the content of `data` as an input to a new job in an event subscription.
 
@@ -373,7 +379,8 @@ It will result in a json like the following:
 
 ## PortServiceFinding
 
-A `PortServiceFinding` is type of `CustomFinding` that fills a port's `service` database field with the `serviceName` text field label. It will then be shown in the interface under the `Service` field.
+A `PortServiceFinding` is type of `CustomFinding` that fills a port's `service` database field with the `serviceName` text field label. It
+will then be shown in the interface under the `Service` field.
 
 | Field      | Description                                                      |
 | ---------- | ---------------------------------------------------------------- |
@@ -407,11 +414,14 @@ Upon receiving this finding, the backend will set the service database field of 
 
 ### PortServiceFinding and websites
 
-When publishing a `PortServiceFinding` with the service name of `http` or `https`, the `Jobs Manager` will understand that a website is located on that port.
+When publishing a `PortServiceFinding` with the service name of `http` or `https`, the platform will understand that a website is located on
+that port.
 
-The `Jobs Manager` will therefore create and publish several `WebsiteFinding`s, one for each of the host's linked domain name, and one for the IP address alone.
+The platform will therefore create and publish several `WebsiteFinding`s, one for each of the host's linked domain name, and one for the IP
+address alone.
 
-These website findings will allow further investigation of the http(s) port with the different domain names, in case the port supporting multiple virutal hosts.
+These website findings will allow further investigation of the http(s) port with the different domain names, in case the port supporting
+multiple virutal hosts.
 
 For instance, imagine a host with the IP address `1.2.3.4`. This host has the linked domains `example.com` and `dev.example.com`.
 
@@ -444,11 +454,13 @@ We would create the following three websites:
 | example.com     | 1.2.3.4 | 443  | `/`  |
 | dev.example.com | 1.2.3.4 | 443  | `/`  |
 
-That way, a website at `dev.example.com`, which may be different than the one at `example.com`, will be found. The same goes for the website through direct IP access.
+That way, a website at `dev.example.com`, which may be different than the one at `example.com`, will be found. The same goes for the website
+through direct IP access.
 
 ## WebsitePathFinding
 
-A `WebsitePathFinding` is type of `CustomFinding` that fills a website's `paths` database field with the `endpoint` text field label. It will then be shown in the interface as the website's site map.
+A `WebsitePathFinding` is type of `CustomFinding` that fills a website's `paths` database field with the `endpoint` text field label. It
+will then be shown in the interface as the website's site map.
 
 | Field        | Description                                                   |
 | ------------ | ------------------------------------------------------------- |
@@ -485,7 +497,8 @@ Upon receiving this finding, the backend will populate the proper website's path
 
 ## WebsiteScreenshotFinding
 
-A `WebsiteScreenshotFinding` is type of `CustomFinding` that should contain an `ImageField` named `image`. This image will be considered the landing page of the website and will be shown on the different website views.
+A `WebsiteScreenshotFinding` is type of `CustomFinding` that should contain an `ImageField` named `image`. This image will be considered the
+landing page of the website and will be shown on the different website views.
 
 | Field        | Description                                                |
 | ------------ | ---------------------------------------------------------- |
@@ -507,7 +520,7 @@ port = 443
 path = '/'
 ssl = True
 data = b64encode(image_bytes).decode('utf-8')
-image_data = 
+image_data =
 endpoint = '/example/endpoint.html'
 
 fields = [
@@ -553,7 +566,8 @@ log_finding(
 )
 ```
 
-Upon receiving this finding, the backend will tag the found resource. The resource will be identified with the given values. The valid combinations are:
+Upon receiving this finding, the backend will tag the found resource. The resource will be identified with the given values. The valid
+combinations are:
 
 | Valid combination                  | Resource type |
 | ---------------------------------- | ------------- |
