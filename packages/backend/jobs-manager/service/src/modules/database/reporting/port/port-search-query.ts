@@ -15,7 +15,7 @@ import { Tag } from '../../tags/tag.model';
 import { Host } from '../host/host.model';
 import { Project } from '../project.model';
 import { WebsiteService } from '../websites/website.service';
-import { Port } from './port.model';
+import { Port, PortDocument } from './port.model';
 
 @Injectable()
 export class PortSearchQuery {
@@ -33,7 +33,7 @@ export class PortSearchQuery {
     query: string,
     firstSeenStartDate: number,
     firstSeenEndDate: number,
-  ): Promise<FilterQuery<Port>> {
+  ): Promise<FilterQuery<PortDocument>> {
     const terms = this.queryParser.parse(query || '', {
       completeTermsOnly: true,
       excludeEmptyValues: true,
@@ -43,7 +43,7 @@ export class PortSearchQuery {
 
     this.ensureTerms(terms);
 
-    const finalFilter: FilterQuery<Port> = { $and: [] };
+    const finalFilter: FilterQuery<PortDocument> = { $and: [] };
 
     // "is" filters
     {
@@ -183,6 +183,28 @@ export class PortSearchQuery {
       }
     }
 
+    // "tag.id" filters
+    {
+      const t = this.consumeTerms(terms, '', 'tag.id');
+      if (t.length) {
+        const tagIds = t.map((x) => new Types.ObjectId(x.value));
+        finalFilter.$and.push({
+          tags: { $all: tagIds },
+        });
+      }
+    }
+
+    // "-tag.id" filters
+    {
+      const t = this.consumeTerms(terms, '-', 'tag.id');
+      if (t.length) {
+        const tagIds = t.map((x) => new Types.ObjectId(x.value));
+        finalFilter.$and.push({
+          tags: { $nin: tagIds },
+        });
+      }
+    }
+
     // "port.number" filters
     {
       const t = this.consumeTerms(terms, '', 'port.number');
@@ -202,6 +224,28 @@ export class PortSearchQuery {
 
         finalFilter.$and.push({
           port: { $not: { $in: ports } },
+        });
+      }
+    }
+
+    // "port.id" filters
+    {
+      const t = this.consumeTerms(terms, '', 'port.id');
+      if (t.length) {
+        const portIds = t.map((x) => new Types.ObjectId(x.value));
+        finalFilter.$and.push({
+          _id: { $in: portIds },
+        });
+      }
+    }
+
+    // "-port.id" filters
+    {
+      const t = this.consumeTerms(terms, '-', 'port.id');
+      if (t.length) {
+        const portIds = t.map((x) => new Types.ObjectId(x.value));
+        finalFilter.$and.push({
+          _id: { $not: { $in: portIds } },
         });
       }
     }

@@ -1,5 +1,4 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { getName } from '../../../../test/test.utils';
 import { AppModule } from '../../../app.module';
 import { TagsDocument } from '../../tags/tag.model';
 import { TagsService } from '../../tags/tag.service';
@@ -44,7 +43,7 @@ describe('Port Service', () => {
       await tagsService.delete(t._id);
     }
 
-    project1 = await project('project 1');
+    project1 = await project('my first project');
   });
 
   describe('Add ports', () => {
@@ -313,58 +312,113 @@ describe('Port Service', () => {
   });
 
   describe('Get all', () => {
+    let project1: ProjectDocument;
+    let project2: ProjectDocument;
+
+    let foo: TagsDocument;
+    let bar: TagsDocument;
+    let baz: TagsDocument;
+    let qux: TagsDocument;
+
+    let h1: HostDocument;
+    let h2: HostDocument;
+    let h3: HostDocument;
+
+    let p1: PortDocument;
+    let p2: PortDocument;
+    let p3: PortDocument;
+    let p4: PortDocument;
+    let p5: PortDocument;
+    let p6: PortDocument;
+
+    beforeEach(async () => {
+      // Arrange
+      project1 = await project('project 1');
+      project2 = await project('project 2');
+      [foo, bar, baz, qux] = await tags('foo', 'bar', 'baz', 'qux');
+
+      h1 = await host('1.1.1.1', project1);
+      [p1, p2] = await port([1, 2], h1, project1, [foo, qux]);
+
+      h2 = await host('1.2.2.2', project1);
+      [p3, p4] = await port([3, 4], h2, project1, [bar, qux]);
+
+      h3 = await host('1.2.2.3', project2);
+      [p5] = await port([5], h3, project2, [baz, qux]);
+      [p6] = await port([6], h3, project2, [baz, qux], 'udp');
+      await block(p6);
+    });
+
     it.each([
       ['', [1, 2, 3, 4, 5, 6]],
+
+      // Projects
+      ['project: "project*"', [1, 2, 3, 4, 5, 6]],
       ['project: "project 1"', [1, 2, 3, 4]],
       ['project: "project 2"', [5, 6]],
       ['-project: "project 2"', [1, 2, 3, 4]],
-      ['project: "project*"', [1, 2, 3, 4, 5, 6]],
+      ['project.name: "project*"', [1, 2, 3, 4, 5, 6]],
+      ['project.name: "project 1"', [1, 2, 3, 4]],
+      ['project.name: "project 2"', [5, 6]],
+      ['-project.name: "project 2"', [1, 2, 3, 4]],
+      [() => `project.id: ${project1.id}`, [1, 2, 3, 4]],
+      [() => `project.id: ${project2.id}`, [5, 6]],
+      [() => `-project.id: ${project2.id}`, [1, 2, 3, 4]],
+
+      // Host
       ['host: 1.1.1.1', [1, 2]],
       ['host.ip: 1.1.1.1', [1, 2]],
+      [() => `host.id: ${h1._id}`, [1, 2]],
       ['host: 1.*', [1, 2, 3, 4, 5, 6]],
       ['host: 1.2.2*', [3, 4, 5, 6]],
       ['-host: 1.1.1.1', [3, 4, 5, 6]],
+      ['-host.ip: 1.1.1.1', [3, 4, 5, 6]],
+      [() => `-host.id: ${h1.id}`, [3, 4, 5, 6]],
       ['-host: 1.2.2*', [1, 2]],
+
+      // Port
       ['port: 1', [1]],
       ['port.number: 1', [1]],
+      [() => `port.id: ${p1.id}`, [1]],
+      [() => `-port.id: ${p1.id} -port.id: ${p3.id}`, [2, 4, 5, 6]],
       ['-port: 1', [2, 3, 4, 5, 6]],
       ['port.protocol: tcp', [1, 2, 3, 4, 5]],
       ['-port.protocol: tcp', [6]],
       ['port.protocol: udp', [6]],
       ['-port.protocol: udp', [1, 2, 3, 4, 5]],
+
+      // Tag
       ['tag: foo', [1, 2]],
+      [() => `tag.id: ${foo._id}`, [1, 2]],
+      [() => `-tag.id: ${foo._id}`, [3, 4, 5, 6]],
       ['-tag: ba*', [1, 2]],
       ['-tag: foo', [3, 4, 5, 6]],
       ['tag: qux', [1, 2, 3, 4, 5, 6]],
       ['tag: foo tag: qux', [1, 2]],
       ['-tag: foo tag: qux', [3, 4, 5, 6]],
+
+      // Is
       ['is: blocked', [6]],
       ['-is: blocked', [1, 2, 3, 4, 5]],
-    ])('Filter by "%s"', async (query: string, expected: number[]) => {
-      // Arrange
-      const project2 = await project('project 2');
-      const [foo, bar, baz, qux] = await tags('foo', 'bar', 'baz', 'qux');
+    ])(
+      'Filter by "%s"',
+      async (query: string | (() => string), expected: number[]) => {
+        // Arrange
+        if (typeof query !== 'string') query = query();
 
-      const h1 = await host('1.1.1.1', project1);
-      await port([1, 2], h1, project1, [foo, qux]);
+        // Act
+        const allPorts = await portService.getAll(0, 10, { query });
 
-      const h2 = await host('1.2.2.2', project1);
-      await port([3, 4], h2, project1, [bar, qux]);
-
-      const h3 = await host('1.2.2.3', project2);
-      await port([5], h3, project2, [baz, qux]);
-      await block(...(await port([6], h3, project2, [baz, qux], 'udp')));
-
-      // Act
-      const allPorts = await portService.getAll(0, 10, { query });
-
-      // Assert
-      expect(allPorts.map((x) => x.port).sort()).toStrictEqual(expected.sort());
-    });
+        // Assert
+        expect(allPorts.map((x) => x.port).sort()).toStrictEqual(
+          expected.sort(),
+        );
+      },
+    );
   });
 
   async function project(name: string = '') {
-    const ccDto: CreateProjectDto = { name: `${getName(testPrefix)}` };
+    const ccDto: CreateProjectDto = { name };
     return await projectService.addProject(ccDto);
   }
 
@@ -383,7 +437,7 @@ describe('Port Service', () => {
   }
 
   async function tags(...tags: string[]) {
-    const createdTags = [];
+    const createdTags: TagsDocument[] = [];
     for (const tag of tags) {
       createdTags.push(await tagsService.create(tag, '#ffffff'));
     }
