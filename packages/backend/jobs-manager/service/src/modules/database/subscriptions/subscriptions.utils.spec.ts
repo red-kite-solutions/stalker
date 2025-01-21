@@ -15,13 +15,13 @@ import { JobContainer } from '../container/job-container.model';
 import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
 import { ProjectService } from '../reporting/project.service';
 import { CronSubscription } from './cron-subscriptions/cron-subscriptions.model';
+import { EventSubscription } from './event-subscriptions/event-subscriptions.model';
 import {
   AndJobCondition,
-  EventSubscription,
   JobCondition,
   JobParameter,
   OrJobCondition,
-} from './event-subscriptions/event-subscriptions.model';
+} from './subscriptions.type';
 import { SubscriptionsUtils } from './subscriptions.utils';
 
 describe('Findings Handler Base', () => {

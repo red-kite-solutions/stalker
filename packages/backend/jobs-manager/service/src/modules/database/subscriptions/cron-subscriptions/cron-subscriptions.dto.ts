@@ -38,5 +38,5 @@ export class CronSubscriptionDto extends BaseSubscriptionDto {
   @DependsOn('input')
   @IsOptional()
   @Type(() => CronSubscriptionBatchingDto)
-  public batch: CronSubscriptionBatchingDto;
+  public batch?: CronSubscriptionBatchingDto;
 }

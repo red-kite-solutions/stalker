@@ -1,13 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../../../app.module';
+import { DomainDocument } from '../../reporting/domain/domain.model';
 import { DomainsService } from '../../reporting/domain/domain.service';
+import { HostDocument } from '../../reporting/host/host.model';
 import { HostService } from '../../reporting/host/host.service';
+import { PortDocument } from '../../reporting/port/port.model';
 import { PortService } from '../../reporting/port/port.service';
 import { ProjectService } from '../../reporting/project.service';
 import { WebsiteDocument } from '../../reporting/websites/website.model';
 import { WebsiteService } from '../../reporting/websites/website.service';
+import { JobParameter } from '../subscriptions.type';
 import { CronSubscriptionDto } from './cron-subscriptions.dto';
-import { CronSubscription, JobParameter } from './cron-subscriptions.model';
+import { CronSubscription } from './cron-subscriptions.model';
 import { CronSubscriptionsService } from './cron-subscriptions.service';
 
 describe('Cron Subscriptions Service', () => {
@@ -463,7 +467,7 @@ describe('Cron Subscriptions Service', () => {
       expect(spy).toHaveBeenCalledTimes(3);
     });
 
-    it('Should have (2) pages from (2) domains (pageSize=2)', async () => {
+    it('Should have (1) page from (2) domains (pageSize=2)', async () => {
       // Arrange
       const c = await project('Test project');
       allDomainsCronSub.projectId = c._id;
@@ -493,7 +497,7 @@ describe('Cron Subscriptions Service', () => {
       );
 
       // Assert
-      expect(spy).toHaveBeenCalledTimes(2);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
 
     it('Should have (1) page from (1) domain (pageSize=2)', async () => {
@@ -981,7 +985,7 @@ describe('Cron Subscriptions Service', () => {
       expect(spy).toHaveBeenCalledTimes(3);
     });
 
-    it('Should have (2) pages from (2) hosts (pageSize=2)', async () => {
+    it('Should have (1) page from (2) hosts (pageSize=2)', async () => {
       // Arrange
       const c = await project('Test project');
       allHostsCronSub.projectId = c._id;
@@ -1008,7 +1012,7 @@ describe('Cron Subscriptions Service', () => {
       );
 
       // Assert
-      expect(spy).toHaveBeenCalledTimes(2);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
 
     it('Should have (1) page from (1) host (pageSize=2)', async () => {
@@ -1934,6 +1938,812 @@ describe('Cron Subscriptions Service', () => {
     });
   });
 
+  describe('Cron subscription batching jobs', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+      jest.resetAllMocks();
+      jest.restoreAllMocks();
+
+      //@ts-expect-error
+      subscriptionsService.publishJob = () => {};
+    });
+
+    // ALL_DOMAINS
+    const allDomainsCronSub: Partial<CronSubscription> = {
+      name: 'test subscription all domains',
+      input: 'ALL_DOMAINS',
+      builtIn: true,
+      cronExpression: '* * * * *',
+      jobName: 'DomainNameResolvingJob',
+      conditions: [],
+    };
+
+    it.each([
+      {
+        batchEnabled: true,
+        batchSize: undefined,
+        domains: ['www.example.com'],
+      },
+      {
+        batchEnabled: true,
+        batchSize: undefined,
+        domains: ['www.example.com', 'example.com', 'other.example.com'],
+      },
+      {
+        batchEnabled: true,
+        batchSize: 3,
+        domains: ['www.example.com', 'example.com', 'other.example.com'],
+      },
+      {
+        batchEnabled: true,
+        batchSize: 100,
+        domains: ['www.example.com', 'example.com', 'other.example.com'],
+      },
+    ])(
+      'Should publish jobs from input ALL_DOMAINS (one batch)',
+      async ({ batchEnabled, batchSize, domains }) => {
+        // Arrange
+        const c = await project('Test project');
+        allDomainsCronSub.projectId = c._id;
+        allDomainsCronSub.batch = {
+          enabled: batchEnabled,
+          size: batchSize,
+        };
+
+        allDomainsCronSub.jobParameters = [
+          {
+            name: 'domainNames',
+            value: '${domainBatch}',
+          },
+          {
+            name: 'projectId',
+            value: c._id.toString(),
+          },
+        ];
+
+        const domainObjects: DomainDocument[] = [];
+        for (const d of domains) {
+          domainObjects.push(...(await domain(d, c._id.toString())));
+        }
+
+        const spy = jest //@ts-expect-error
+          .spyOn(subscriptionsService, 'publishJob') //@ts-expect-error
+          .mockImplementation(() => {});
+
+        // Act
+        //@ts-expect-error
+        await subscriptionsService.publishJobsFromInput(
+          <CronSubscription>allDomainsCronSub,
+          c._id.toString(),
+        );
+
+        // Assert
+        expect(spy).toHaveBeenCalled();
+        expect(spy).toHaveBeenCalledWith(
+          allDomainsCronSub.jobName,
+          [
+            {
+              name: 'domainNames',
+              value: domainObjects.map((d) => d.name),
+            },
+            {
+              name: 'projectId',
+              value: c._id.toString(),
+            },
+          ],
+          c._id.toString(),
+        );
+      },
+    );
+
+    it.each([
+      {
+        batchEnabled: true,
+        batchSize: 1,
+        domains: ['www.example.com', 'example.com', 'other.example.com'],
+        expectedCalls: 3,
+      },
+      {
+        batchEnabled: true,
+        batchSize: 2,
+        domains: ['www.example.com', 'example.com', 'other.example.com'],
+        expectedCalls: 2,
+      },
+    ])(
+      'Should publish jobs from input ALL_DOMAINS (multiple batches)',
+      async ({ batchEnabled, batchSize, domains, expectedCalls }) => {
+        // Arrange
+        const c = await project('Test project');
+        allDomainsCronSub.projectId = c._id;
+        allDomainsCronSub.batch = {
+          enabled: batchEnabled,
+          size: batchSize,
+        };
+
+        allDomainsCronSub.jobParameters = [
+          {
+            name: 'domainNames',
+            value: '${domainBatch}',
+          },
+          {
+            name: 'projectId',
+            value: c._id.toString(),
+          },
+        ];
+
+        const domainObjects: DomainDocument[] = [];
+        for (const d of domains) {
+          domainObjects.push(...(await domain(d, c._id.toString())));
+        }
+
+        const spy = jest //@ts-expect-error
+          .spyOn(subscriptionsService, 'publishJob') //@ts-expect-error
+          .mockImplementation(() => {});
+
+        // Act
+        //@ts-expect-error
+        await subscriptionsService.publishJobsFromInput(
+          <CronSubscription>allDomainsCronSub,
+          c._id.toString(),
+        );
+
+        // Assert
+        expect(spy).toHaveBeenCalledTimes(expectedCalls);
+      },
+    );
+
+    // ALL_HOSTS
+    const tcpPortScanningJobParams: JobParameter[] = [
+      {
+        name: 'threads',
+        value: 10,
+      },
+      {
+        name: 'socketTimeoutSeconds',
+        value: 1,
+      },
+      {
+        name: 'portMin',
+        value: 1,
+      },
+      {
+        name: 'portMax',
+        value: 1000,
+      },
+      {
+        name: 'ports',
+        value: [3000, 3389, 8080],
+      },
+    ];
+
+    const allHostsCronSub: Partial<CronSubscription> = {
+      name: 'test subscription all hosts',
+      input: 'ALL_HOSTS',
+      builtIn: true,
+      cronExpression: '* * * * *',
+      jobName: 'TcpPortScanningJob',
+      conditions: [],
+    };
+
+    it.each([
+      {
+        batchEnabled: true,
+        batchSize: undefined,
+        ips: ['1.1.1.1'],
+      },
+      {
+        batchEnabled: true,
+        batchSize: undefined,
+        ips: ['1.1.1.1', '2.2.2.2', '3.3.3.3'],
+      },
+      {
+        batchEnabled: true,
+        batchSize: 3,
+        ips: ['1.1.1.1', '2.2.2.2', '3.3.3.3'],
+      },
+      {
+        batchEnabled: true,
+        batchSize: 100,
+        ips: ['1.1.1.1', '2.2.2.2', '3.3.3.3'],
+      },
+    ])(
+      'Should publish jobs from input ALL_HOSTS (one batch)',
+      async ({ batchEnabled, batchSize, ips }) => {
+        // Arrange
+        const c = await project('Test project');
+        allHostsCronSub.projectId = c._id;
+        allHostsCronSub.jobParameters = tcpPortScanningJobParams.concat([
+          {
+            name: 'projectId',
+            value: c._id.toString(),
+          },
+          { name: 'targetIp', value: '${ipBatch}' },
+        ]);
+        allHostsCronSub.batch = {
+          enabled: batchEnabled,
+          size: batchSize,
+        };
+
+        const allHosts: HostDocument[] = [];
+        for (const ip of ips) {
+          allHosts.push(...(await host(ip, c._id.toString())));
+        }
+
+        const spy = jest //@ts-expect-error
+          .spyOn(subscriptionsService, 'publishJob') //@ts-expect-error
+          .mockImplementation(() => {});
+
+        // Act
+        //@ts-expect-error
+        await subscriptionsService.publishJobsFromInput(
+          <CronSubscription>allHostsCronSub,
+          c._id.toString(),
+        );
+
+        // Assert
+        expect(spy).toHaveBeenCalled();
+        expect(spy).toHaveBeenCalledWith(
+          allHostsCronSub.jobName,
+          tcpPortScanningJobParams.concat([
+            {
+              name: 'projectId',
+              value: c._id.toString(),
+            },
+            { name: 'targetIp', value: allHosts.map((h) => h.ip) },
+          ]),
+          c._id.toString(),
+        );
+      },
+    );
+
+    it.each([
+      {
+        batchEnabled: true,
+        batchSize: 1,
+        ips: ['1.1.1.1', '2.2.2.2', '3.3.3.3'],
+        expectedCalls: 3,
+      },
+      {
+        batchEnabled: true,
+        batchSize: 2,
+        ips: ['1.1.1.1', '2.2.2.2', '3.3.3.3'],
+        expectedCalls: 2,
+      },
+    ])(
+      'Should publish jobs from input ALL_HOSTS (multiple batches)',
+      async ({ batchEnabled, batchSize, ips, expectedCalls }) => {
+        // Arrange
+        const c = await project('Test project');
+        allHostsCronSub.projectId = c._id;
+        allHostsCronSub.jobParameters = tcpPortScanningJobParams.concat([
+          {
+            name: 'projectId',
+            value: c._id.toString(),
+          },
+          { name: 'targetIp', value: '${ipBatch}' },
+        ]);
+        allHostsCronSub.batch = {
+          enabled: batchEnabled,
+          size: batchSize,
+        };
+
+        const allHosts: HostDocument[] = [];
+        for (const ip of ips) {
+          allHosts.push(...(await host(ip, c._id.toString())));
+        }
+
+        const spy = jest //@ts-expect-error
+          .spyOn(subscriptionsService, 'publishJob') //@ts-expect-error
+          .mockImplementation(() => {});
+
+        // Act
+        //@ts-expect-error
+        await subscriptionsService.publishJobsFromInput(
+          <CronSubscription>allHostsCronSub,
+          c._id.toString(),
+        );
+
+        // Assert
+        expect(spy).toHaveBeenCalledTimes(expectedCalls);
+      },
+    );
+
+    // ALL_TCP_PORTS
+    const allTcpPortsCronSub: Partial<CronSubscription> = {
+      name: 'test subscription all tcp ports',
+      input: 'ALL_TCP_PORTS',
+      builtIn: true,
+      cronExpression: '* * * * *',
+      jobName: 'HttpServerCheckJob',
+      conditions: [],
+    };
+
+    it.each([
+      {
+        batchEnabled: true,
+        batchSize: undefined,
+        ports: [22],
+      },
+      {
+        batchEnabled: true,
+        batchSize: undefined,
+        ports: [22, 80, 443],
+      },
+      {
+        batchEnabled: true,
+        batchSize: 3,
+        ports: [22, 80, 443],
+      },
+      {
+        batchEnabled: true,
+        batchSize: 100,
+        ports: [22, 80, 443],
+      },
+    ])(
+      'Should publish job from input ALL_TCP_PORTS (one batch)',
+      async ({ batchEnabled, batchSize, ports }) => {
+        // Arrange
+        const c = await project('Test project');
+        allTcpPortsCronSub.projectId = c._id;
+        allTcpPortsCronSub.jobParameters = [
+          { name: 'projectId', value: c._id.toString() },
+          { name: 'targetIp', value: '${ipBatch}' },
+          { name: 'ports', value: '${portBatch}' },
+          { name: 'protocol', value: '${protocolBatch}' },
+        ];
+        allTcpPortsCronSub.batch = {
+          enabled: batchEnabled,
+          size: batchSize,
+        };
+
+        const h1 = await host('1.1.1.1', c._id.toString());
+
+        const allPorts: PortDocument[] = [];
+        for (const p of ports) {
+          allPorts.push(await port(p, h1[0]._id.toString(), c._id.toString()));
+        }
+
+        const spy = jest //@ts-expect-error
+          .spyOn(subscriptionsService, 'publishJob') //@ts-expect-error
+          .mockImplementation(() => {});
+
+        // Act
+        //@ts-expect-error
+        await subscriptionsService.publishJobsFromInput(
+          <CronSubscription>allTcpPortsCronSub,
+          c._id.toString(),
+        );
+
+        // Assert
+        expect(spy).toHaveBeenCalled();
+        expect(spy).toHaveBeenCalledWith(
+          allTcpPortsCronSub.jobName,
+          [
+            { name: 'projectId', value: c._id.toString() },
+            { name: 'targetIp', value: allPorts.map((p) => p.host.ip) },
+            { name: 'ports', value: allPorts.map((p) => p.port) },
+            { name: 'protocol', value: allPorts.map((p) => p.layer4Protocol) },
+          ],
+          c._id.toString(),
+        );
+      },
+    );
+
+    it.each([
+      {
+        batchEnabled: true,
+        batchSize: 1,
+        ports: [22, 80, 443],
+        expectedCalls: 3,
+      },
+      {
+        batchEnabled: true,
+        batchSize: 2,
+        ports: [22, 80, 443],
+        expectedCalls: 2,
+      },
+    ])(
+      'Should publish job from input ALL_TCP_PORTS (multiple batches)',
+      async ({ batchEnabled, batchSize, ports, expectedCalls }) => {
+        // Arrange
+        const c = await project('Test project');
+        allTcpPortsCronSub.projectId = c._id;
+        allTcpPortsCronSub.jobParameters = [
+          { name: 'projectId', value: c._id.toString() },
+          { name: 'targetIp', value: '${ipBatch}' },
+          { name: 'ports', value: '${portBatch}' },
+          { name: 'protocol', value: '${protocolBatch}' },
+        ];
+        allTcpPortsCronSub.batch = {
+          enabled: batchEnabled,
+          size: batchSize,
+        };
+
+        const h1 = await host('1.1.1.1', c._id.toString());
+
+        const allPorts: PortDocument[] = [];
+        for (const p of ports) {
+          allPorts.push(await port(p, h1[0]._id.toString(), c._id.toString()));
+        }
+
+        const spy = jest //@ts-expect-error
+          .spyOn(subscriptionsService, 'publishJob') //@ts-expect-error
+          .mockImplementation(() => {});
+
+        // Act
+        //@ts-expect-error
+        await subscriptionsService.publishJobsFromInput(
+          <CronSubscription>allTcpPortsCronSub,
+          c._id.toString(),
+        );
+
+        // Assert
+        expect(spy).toHaveBeenCalledTimes(expectedCalls);
+      },
+    );
+
+    // ALL_IP_RANGES
+    const ipRangeScanCronSub: Partial<CronSubscription> = {
+      name: 'test subscription scan ranges',
+      input: 'ALL_IP_RANGES',
+      builtIn: true,
+      cronExpression: '* * * * *',
+      jobName: 'TcpIpRangeScanningJob',
+      conditions: [],
+    };
+
+    it.each([
+      {
+        batchEnabled: true,
+        batchSize: undefined,
+        ips: ['1.1.1.1'],
+        masks: [24],
+      },
+      {
+        batchEnabled: true,
+        batchSize: undefined,
+        ips: ['1.1.1.1', '2.2.2.2', '3.3.3.3'],
+        masks: [32, 24, 23],
+      },
+      {
+        batchEnabled: true,
+        batchSize: 3,
+        ips: ['1.1.1.1', '2.2.2.2', '3.3.3.3'],
+        masks: [32, 24, 23],
+      },
+      {
+        batchEnabled: true,
+        batchSize: 100,
+        ips: ['1.1.1.1', '2.2.2.2', '3.3.3.3'],
+        masks: [32, 24, 23],
+      },
+    ])(
+      'Should publish jobs from input ALL_IP_RANGES (one batch)',
+      async ({ batchEnabled, batchSize, ips, masks }) => {
+        // Arrange
+        const c = await project('Test project');
+        ipRangeScanCronSub.projectId = c._id;
+        ipRangeScanCronSub.jobParameters = [
+          { name: 'projectId', value: c._id.toString() },
+          { name: 'targetIps', value: '${ipBatch}' },
+          { name: 'targetMasks', value: '${maskBatch}' },
+          { name: 'rate', value: 100000 },
+          { name: 'portMin', value: 1 },
+          { name: 'portMax', value: 1000 },
+          { name: 'ports', value: [] },
+        ];
+
+        ipRangeScanCronSub.batch = {
+          enabled: batchEnabled,
+          size: batchSize,
+        };
+
+        for (let i = 0; i < ips.length; ++i) {
+          await projectService.addIpRangeWithMask(
+            c._id.toString(),
+            ips[i],
+            masks[i],
+          );
+        }
+
+        const spy = jest //@ts-expect-error
+          .spyOn(subscriptionsService, 'publishJob') //@ts-expect-error
+          .mockImplementation(() => {});
+
+        // Act
+        //@ts-expect-error
+        await subscriptionsService.publishJobsFromInput(
+          <CronSubscription>ipRangeScanCronSub,
+          c._id.toString(),
+        );
+
+        // Assert
+        expect(spy).toHaveBeenCalled();
+        expect(spy).toHaveBeenCalledWith(
+          ipRangeScanCronSub.jobName,
+          [
+            { name: 'projectId', value: c._id.toString() },
+            { name: 'targetIps', value: ips },
+            { name: 'targetMasks', value: masks },
+            { name: 'rate', value: 100000 },
+            { name: 'portMin', value: 1 },
+            { name: 'portMax', value: 1000 },
+            { name: 'ports', value: [] },
+          ],
+          c._id.toString(),
+        );
+      },
+    );
+
+    it.each([
+      {
+        batchEnabled: true,
+        batchSize: 1,
+        ips: ['1.1.1.1', '2.2.2.2', '3.3.3.3'],
+        masks: [32, 24, 23],
+        expectedCalls: 3,
+      },
+      {
+        batchEnabled: true,
+        batchSize: 2,
+        ips: ['1.1.1.1', '2.2.2.2', '3.3.3.3'],
+        masks: [32, 24, 23],
+        expectedCalls: 2,
+      },
+    ])(
+      'Should publish jobs from input ALL_IP_RANGES (multiple batches)',
+      async ({ batchEnabled, batchSize, ips, masks, expectedCalls }) => {
+        // Arrange
+        const c = await project('Test project');
+        ipRangeScanCronSub.projectId = c._id;
+        ipRangeScanCronSub.jobParameters = [
+          { name: 'projectId', value: c._id.toString() },
+          { name: 'targetIps', value: '${ipBatch}' },
+          { name: 'targetMasks', value: '${maskBatch}' },
+          { name: 'rate', value: 100000 },
+          { name: 'portMin', value: 1 },
+          { name: 'portMax', value: 1000 },
+          { name: 'ports', value: [] },
+        ];
+
+        ipRangeScanCronSub.batch = {
+          enabled: batchEnabled,
+          size: batchSize,
+        };
+
+        for (let i = 0; i < ips.length; ++i) {
+          await projectService.addIpRangeWithMask(
+            c._id.toString(),
+            ips[i],
+            masks[i],
+          );
+        }
+
+        const spy = jest //@ts-expect-error
+          .spyOn(subscriptionsService, 'publishJob') //@ts-expect-error
+          .mockImplementation(() => {});
+
+        // Act
+        //@ts-expect-error
+        await subscriptionsService.publishJobsFromInput(
+          <CronSubscription>ipRangeScanCronSub,
+          c._id.toString(),
+        );
+
+        // Assert
+        expect(spy).toHaveBeenCalledTimes(expectedCalls);
+      },
+    );
+
+    // ALL_WEBSITES
+    const websiteCrawlingJobParams: JobParameter[] = [
+      {
+        name: 'crawlDurationSeconds',
+        value: 1800,
+      },
+      {
+        name: 'fetcherConcurrency',
+        value: 10,
+      },
+      {
+        name: 'inputParallelism',
+        value: 10,
+      },
+      {
+        name: 'extraOptions',
+        value: '-jc -kf all -duc -j -or -ob -silent',
+      },
+    ];
+    const allWebsitesCronSub: Partial<CronSubscription> = {
+      name: 'test subscription all websites',
+      input: 'ALL_WEBSITES',
+      builtIn: true,
+      cronExpression: '* * * * *',
+      jobName: 'WebsiteCrawlingJob',
+      conditions: [],
+    };
+
+    it.each([
+      {
+        batchEnabled: true,
+        batchSize: undefined,
+        domains: ['example.com'],
+        ips: ['1.1.1.1'],
+        ports: [80],
+        paths: ['/'],
+        ssls: [false],
+      },
+      {
+        batchEnabled: true,
+        batchSize: undefined,
+        domains: ['example.com', 'www.example.com', 'test.example.com'],
+        ips: ['1.1.1.1', '2.2.2.2', '3.3.3.3'],
+        ports: [80, 443, 8080],
+        paths: ['/', '/2', '/asdf'],
+        ssls: [false, true, true],
+      },
+      {
+        batchEnabled: true,
+        batchSize: 3,
+        domains: ['example.com', 'www.example.com', 'test.example.com'],
+        ips: ['1.1.1.1', '2.2.2.2', '3.3.3.3'],
+        ports: [80, 443, 8080],
+        paths: ['/', '/2', '/asdf'],
+        ssls: [false, true, true],
+      },
+      {
+        batchEnabled: true,
+        batchSize: 100,
+        domains: ['example.com', 'www.example.com', 'test.example.com'],
+        ips: ['1.1.1.1', '2.2.2.2', '3.3.3.3'],
+        ports: [80, 443, 8080],
+        paths: ['/', '/2', '/asdf'],
+        ssls: [false, true, true],
+      },
+    ])(
+      'Should publish jobs from input ALL_WEBSITES (one batch)',
+      async ({ batchEnabled, batchSize, domains, ips, ports, paths, ssls }) => {
+        // Arrange
+        const c = await project('Test project');
+        allWebsitesCronSub.projectId = c._id;
+        allWebsitesCronSub.jobParameters = websiteCrawlingJobParams.concat([
+          {
+            name: 'projectId',
+            value: c._id.toString(),
+          },
+          { name: 'targetIps', value: '${ipBatch}' },
+          { name: 'domainNames', value: '${domainBatch}' },
+          { name: 'ports', value: '${portBatch}' },
+          { name: 'paths', value: '${pathBatch}' },
+          { name: 'ssls', value: '${sslBatch}' },
+        ]);
+        allWebsitesCronSub.batch = {
+          enabled: batchEnabled,
+          size: batchSize,
+        };
+
+        for (let i = 0; i < ips.length; ++i) {
+          await website(
+            c._id.toString(),
+            ips[i],
+            ports[i],
+            domains[i],
+            paths[i],
+            ssls[i],
+          );
+        }
+
+        const spy = jest //@ts-expect-error
+          .spyOn(subscriptionsService, 'publishJob') //@ts-expect-error
+          .mockImplementation(() => {});
+
+        // Act
+        //@ts-expect-error
+        await subscriptionsService.publishJobsFromInput(
+          <CronSubscription>allWebsitesCronSub,
+          c._id.toString(),
+        );
+
+        // Assert
+        expect(spy).toHaveBeenCalled();
+        expect(spy).toHaveBeenCalledWith(
+          allWebsitesCronSub.jobName,
+          websiteCrawlingJobParams.concat([
+            {
+              name: 'projectId',
+              value: c._id.toString(),
+            },
+            { name: 'targetIps', value: ips },
+            { name: 'domainNames', value: domains },
+            { name: 'ports', value: ports },
+            { name: 'paths', value: paths },
+            { name: 'ssls', value: ssls },
+          ]),
+          c._id.toString(),
+        );
+      },
+    );
+
+    it.each([
+      {
+        batchEnabled: true,
+        batchSize: 1,
+        domains: ['example.com', 'www.example.com', 'test.example.com'],
+        ips: ['1.1.1.1', '2.2.2.2', '3.3.3.3'],
+        ports: [80, 443, 8080],
+        paths: ['/', '/2', '/asdf'],
+        ssls: [false, true, true],
+        expectedCalls: 3,
+      },
+      {
+        batchEnabled: true,
+        batchSize: 2,
+        domains: ['example.com', 'www.example.com', 'test.example.com'],
+        ips: ['1.1.1.1', '2.2.2.2', '3.3.3.3'],
+        ports: [80, 443, 8080],
+        paths: ['/', '/2', '/asdf'],
+        ssls: [false, true, true],
+        expectedCalls: 2,
+      },
+    ])(
+      'Should publish jobs from input ALL_WEBSITES (multiple batches)',
+      async ({
+        batchEnabled,
+        batchSize,
+        domains,
+        ips,
+        ports,
+        paths,
+        ssls,
+        expectedCalls,
+      }) => {
+        // Arrange
+        const c = await project('Test project');
+        allWebsitesCronSub.projectId = c._id;
+        allWebsitesCronSub.jobParameters = websiteCrawlingJobParams.concat([
+          {
+            name: 'projectId',
+            value: c._id.toString(),
+          },
+          { name: 'targetIps', value: '${ipBatch}' },
+          { name: 'domainNames', value: '${domainBatch}' },
+          { name: 'ports', value: '${portBatch}' },
+          { name: 'paths', value: '${pathBatch}' },
+          { name: 'ssls', value: '${sslBatch}' },
+        ]);
+        allWebsitesCronSub.batch = {
+          enabled: batchEnabled,
+          size: batchSize,
+        };
+
+        for (let i = 0; i < ips.length; ++i) {
+          await website(
+            c._id.toString(),
+            ips[i],
+            ports[i],
+            domains[i],
+            paths[i],
+            ssls[i],
+          );
+        }
+
+        const spy = jest //@ts-expect-error
+          .spyOn(subscriptionsService, 'publishJob') //@ts-expect-error
+          .mockImplementation(() => {});
+
+        // Act
+        //@ts-expect-error
+        await subscriptionsService.publishJobsFromInput(
+          <CronSubscription>allWebsitesCronSub,
+          c._id.toString(),
+        );
+
+        // Assert
+        expect(spy).toHaveBeenCalledTimes(expectedCalls);
+      },
+    );
+  });
+
   async function project(name: string) {
     return await projectService.addProject({
       name: name,
@@ -1996,6 +2806,8 @@ describe('Cron Subscriptions Service', () => {
     ip: string,
     portNumber: number,
     domainName: string,
+    path = '/',
+    ssl = false,
   ): Promise<WebsiteDocument> {
     const h = await host(ip, projectId);
     const p = await port(portNumber, h[0]._id, projectId);
@@ -2006,8 +2818,8 @@ describe('Cron Subscriptions Service', () => {
       ip,
       portNumber,
       domainName,
-      '/',
-      false,
+      path,
+      ssl,
     );
   }
 });

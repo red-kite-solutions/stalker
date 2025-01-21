@@ -5,7 +5,7 @@ import {
   AndJobCondition,
   JobCondition,
   OrJobCondition,
-} from '../modules/database/subscriptions/event-subscriptions/event-subscriptions.model';
+} from '../modules/database/subscriptions/subscriptions.type';
 import { isValidJobConditionsArray } from './is-valid-job-conditions-array.validator';
 
 const validConditions: Array<
