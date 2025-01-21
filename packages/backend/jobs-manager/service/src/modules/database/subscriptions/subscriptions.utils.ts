@@ -14,7 +14,10 @@ import { Finding } from '../../findings/findings.service';
 import { ConfigService } from '../admin/config/config.service';
 import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
 import { JobFactoryUtils } from '../jobs/jobs.factory';
-import { CronSubscription } from './cron-subscriptions/cron-subscriptions.model';
+import {
+  CronSubscription,
+  CronSubscriptionBatching,
+} from './cron-subscriptions/cron-subscriptions.model';
 import { EventSubscription } from './event-subscriptions/event-subscriptions.model';
 import {
   AndJobCondition,
@@ -536,6 +539,15 @@ export class SubscriptionsUtils {
       }
     }
 
+    let batch: CronSubscriptionBatching = undefined;
+
+    if (subYamlJson.batch) {
+      batch = {
+        enabled: subYamlJson.batch.enabled,
+        size: subYamlJson.batch.size ?? undefined,
+      };
+    }
+
     const sub: CronSubscription = {
       name: subYamlJson.name,
       isEnabled: true,
@@ -546,6 +558,7 @@ export class SubscriptionsUtils {
       projectId: null,
       jobParameters: params,
       conditions: conditions,
+      batch: batch,
     };
 
     return sub;
