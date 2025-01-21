@@ -133,7 +133,7 @@ export class HostService {
 
     let hostSummaries: HostSummary[] = [];
     let newIps: string[] = [];
-    let newHosts: Partial<HostDocument>[] = [];
+    let newHosts: HostDocument[] = [];
 
     for (let ip of ips) {
       const ds: DomainSummary = {
@@ -167,13 +167,7 @@ export class HostService {
       if (!hostResult) {
         // inserted
         newIps.push(ip);
-        newHosts.push({
-          ip: ip,
-          _id: mongoId.toString(),
-          domains: [ds],
-          projectId: new Types.ObjectId(projectId),
-          correlationKey: CorrelationKeyUtils.hostCorrelationKey(projectId, ip),
-        });
+        newHosts.push(hostResult);
         hostSummaries.push({ id: mongoId, ip: ip });
       } else if (
         !hostResult.domains ||

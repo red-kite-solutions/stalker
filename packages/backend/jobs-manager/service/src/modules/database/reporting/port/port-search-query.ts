@@ -288,16 +288,6 @@ export class PortSearchQuery {
       }
     }
 
-    // // Filter by blocked
-    // if (blocked === false) {
-    //   finalFilter['$or'] = [
-    //     { blocked: { $exists: false } },
-    //     { blocked: { $eq: false } },
-    //   ];
-    // } else if (blocked === true) {
-    //   finalFilter['blocked'] = { $eq: true };
-    // }
-
     // Filter by createdAt
     if (firstSeenStartDate) {
       finalFilter.$and.push({ createdAt: { $gte: firstSeenStartDate } });
