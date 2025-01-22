@@ -1,5 +1,5 @@
 ---
-sidebar_position: 1
+sidebar_position: 0
 title: Overview
 description: An overview of Red Kite
 ---
