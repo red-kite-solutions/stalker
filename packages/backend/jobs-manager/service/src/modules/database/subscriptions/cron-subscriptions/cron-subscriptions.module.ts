@@ -10,6 +10,7 @@ import { PortModule } from '../../reporting/port/port.module';
 import { ProjectModule } from '../../reporting/project.module';
 import { WebsiteModule } from '../../reporting/websites/website.module';
 import { SecretsModule } from '../../secrets/secrets.module';
+import { SubscriptionTriggersModule } from '../subscription-triggers/subscription-triggers.module';
 import { CronSubscriptionsController } from './cron-subscriptions.controller';
 import { CronSubscriptionsService } from './cron-subscriptions.service';
 
@@ -26,6 +27,7 @@ import { CronSubscriptionsService } from './cron-subscriptions.service';
     SecretsModule,
     CustomJobsModule,
     WebsiteModule,
+    SubscriptionTriggersModule,
   ],
   controllers: [CronSubscriptionsController],
   providers: [CronSubscriptionsService, CustomJobNameExistsRule],

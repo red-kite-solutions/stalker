@@ -21,6 +21,7 @@ import { CustomJobsService } from '../../custom-jobs/custom-jobs.service';
 import { JobExecutionsService } from '../../jobs/job-executions.service';
 import { JobFactory } from '../../jobs/jobs.factory';
 import { Job } from '../../jobs/models/jobs.model';
+import { CorrelationKeyUtils } from '../../reporting/correlation.utils';
 import { Domain, DomainDocument } from '../../reporting/domain/domain.model';
 import { DomainsService } from '../../reporting/domain/domain.service';
 import { HostDocument } from '../../reporting/host/host.model';
@@ -32,6 +33,7 @@ import { ProjectService } from '../../reporting/project.service';
 import { WebsiteDocument } from '../../reporting/websites/website.model';
 import { WebsiteService } from '../../reporting/websites/website.service';
 import { SecretsService } from '../../secrets/secrets.service';
+import { SubscriptionTriggersService } from '../subscription-triggers/subscription-triggers.service';
 import { JobParameter } from '../subscriptions.type';
 import { SubscriptionsUtils } from '../subscriptions.utils';
 import { CronSubscriptionDto } from './cron-subscriptions.dto';
@@ -56,6 +58,7 @@ export class CronSubscriptionsService {
     private readonly portsService: PortService,
     private readonly secretsService: SecretsService,
     private readonly websitesService: WebsiteService,
+    private readonly subscriptionTriggerService: SubscriptionTriggersService,
   ) {}
 
   public async create(dto: CronSubscriptionDto) {
@@ -69,6 +72,7 @@ export class CronSubscriptionsService {
       jobName: dto.jobName,
       jobParameters: dto.jobParameters,
       conditions: dto.conditions,
+      cooldown: dto.cooldown,
     };
     return await this.subscriptionModel.create(sub);
   }
@@ -96,6 +100,7 @@ export class CronSubscriptionsService {
       cronExpression: existingSub.cronExpression,
       input: existingSub.input,
       batch: existingSub.batch,
+      cooldown: existingSub.cooldown,
       source: undefined,
     };
 
@@ -130,6 +135,7 @@ export class CronSubscriptionsService {
       name: dto.name,
       input: dto.input ? dto.input : null,
       batch: dto.batch ? dto.batch : null,
+      cooldown: dto.cooldown ?? null,
       cronExpression: dto.cronExpression,
       jobName: dto.jobName,
       jobParameters: dto.jobParameters,
@@ -193,13 +199,26 @@ export class CronSubscriptionsService {
     await this.setupSubscriptionsForProjects(sub);
   }
 
-  private async setupSubscriptionsForProjects(sub: CronSubscription) {
+  private async setupSubscriptionsForProjects(sub: CronSubscriptionsDocument) {
     // if no project id, it launches for all projects
     const projectIds = sub.projectId
       ? [sub.projectId.toString()]
       : await this.projectService.getAllIds();
 
     for (const projectId of projectIds) {
+      // Check for cooldown readiness
+      if (
+        sub.cooldown &&
+        !(await this.subscriptionTriggerService.attemptTrigger(
+          sub._id.toString(),
+          CorrelationKeyUtils.generateCorrelationKey(projectId),
+          sub.cooldown,
+          null,
+        ))
+      ) {
+        continue;
+      }
+
       const projectIdParameter = new JobParameter();
       projectIdParameter.name = 'projectId';
       projectIdParameter.value = projectId;

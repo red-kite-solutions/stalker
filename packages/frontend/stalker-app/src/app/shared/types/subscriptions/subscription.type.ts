@@ -29,6 +29,7 @@ export interface CronSubscriptionData extends SubscriptionData {
   cronExpression: string;
   input?: 'ALL_DOMAINS' | 'ALL_HOSTS' | 'ALL_TCP_PORTS' | 'ALL_IP_RANGES' | 'ALL_WEBSITES';
   batch?: CronSubscriptionBatching;
+  cooldown?: number;
 }
 
 export interface SubscriptionData {

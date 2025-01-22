@@ -42,6 +42,7 @@ export class CronSubscriptionsService implements GenericSubscriptionService<Cron
       builtIn: false,
       name: newSub.name,
       cronExpression: newSub.cronExpression,
+      cooldown: newSub.cooldown ?? undefined,
       projectId: newSub.projectId ? newSub.projectId : allProjectsSubscriptions,
       input: newSub.input ?? undefined,
       batch: newSub.batch ?? undefined,
@@ -87,6 +88,10 @@ export class CronSubscriptionsService implements GenericSubscriptionService<Cron
       data['batch'] = subscription.batch;
     }
 
+    if (subscription.cooldown) {
+      data['cooldown'] = subscription.cooldown;
+    }
+
     if (subscription.conditions) {
       data['conditions'] = subscription.conditions;
     }
@@ -105,6 +110,7 @@ export class CronSubscriptionsService implements GenericSubscriptionService<Cron
       isEnabled: data.isEnabled,
       name: data.name,
       cronExpression: data.cronExpression,
+      cooldown: data.cooldown ?? undefined,
       input: data.input ?? undefined,
       batch: data.batch ?? undefined,
       projectId: data.projectId ? data.projectId : allProjectsSubscriptions,
