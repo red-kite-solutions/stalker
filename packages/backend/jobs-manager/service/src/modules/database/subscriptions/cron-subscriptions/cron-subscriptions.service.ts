@@ -196,10 +196,13 @@ export class CronSubscriptionsService {
 
     if (!sub.jobParameters) return;
 
-    await this.setupSubscriptionsForProjects(sub);
+    await this.setupSubscriptionsForProjects(sub, sub._id.toString());
   }
 
-  private async setupSubscriptionsForProjects(sub: CronSubscriptionsDocument) {
+  private async setupSubscriptionsForProjects(
+    sub: CronSubscription,
+    subId: string,
+  ) {
     // if no project id, it launches for all projects
     const projectIds = sub.projectId
       ? [sub.projectId.toString()]
@@ -210,7 +213,7 @@ export class CronSubscriptionsService {
       if (
         sub.cooldown &&
         !(await this.subscriptionTriggerService.attemptTrigger(
-          sub._id.toString(),
+          subId,
           CorrelationKeyUtils.generateCorrelationKey(projectId),
           sub.cooldown,
           null,

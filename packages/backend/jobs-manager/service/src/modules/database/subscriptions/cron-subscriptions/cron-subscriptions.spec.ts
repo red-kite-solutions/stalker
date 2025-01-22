@@ -1709,6 +1709,7 @@ describe('Cron Subscriptions Service', () => {
       //@ts-expect-error
       await subscriptionsService.setupSubscriptionsForProjects(
         <CronSubscription>ipRangeScanCronSub,
+        '',
       );
 
       // Assert

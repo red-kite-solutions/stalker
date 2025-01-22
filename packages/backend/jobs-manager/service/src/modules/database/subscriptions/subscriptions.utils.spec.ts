@@ -860,6 +860,7 @@ describe('Findings Handler Base', () => {
         conditions: [],
         input: 'ALL_WEBSITES',
         batch: { enabled: true, size: 100 },
+        cooldown: 123456,
       };
 
       let yaml = [
@@ -871,6 +872,7 @@ describe('Findings Handler Base', () => {
         `    - name: ${cs.jobParameters[0].name}`,
         `      value: ${cs.jobParameters[0].value}`,
         `input: ALL_WEBSITES`,
+        `cooldown: ${cs.cooldown}`,
         `batch:`,
         `  enabled: ${cs.batch.enabled}`,
         `  size: ${cs.batch.size}`,
@@ -883,6 +885,7 @@ describe('Findings Handler Base', () => {
       expect(sub.input).toStrictEqual(cs.input);
       expect(sub.batch.enabled).toStrictEqual(cs.batch.enabled);
       expect(sub.batch.size).toStrictEqual(cs.batch.size);
+      expect(sub.cooldown).toStrictEqual(cs.cooldown);
     });
 
     it('Should return an EventSubscription', async () => {

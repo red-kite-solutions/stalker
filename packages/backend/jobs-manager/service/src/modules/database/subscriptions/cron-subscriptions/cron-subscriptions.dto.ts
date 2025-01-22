@@ -44,5 +44,5 @@ export class CronSubscriptionDto extends BaseSubscriptionDto {
   @IsOptional()
   @IsInt()
   @Min(0)
-  public cooldown: number;
+  public cooldown?: number;
 }
