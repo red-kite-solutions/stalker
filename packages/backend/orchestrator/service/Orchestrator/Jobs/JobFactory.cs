@@ -1,10 +1,12 @@
-﻿using Orchestrator.Events;
+﻿using Microsoft.IdentityModel.Tokens;
+using Orchestrator.Events;
 using Orchestrator.Jobs.Commands;
 using Orchestrator.Jobs.JobModelCache;
 using Orchestrator.K8s;
 using Orchestrator.Queue;
 using Orchestrator.Queue.JobsConsumer;
 using Orchestrator.Queue.JobsConsumer.JobRequests;
+using Orchestrator.Utils;
 using System.Text.Json;
 
 namespace Orchestrator.Jobs;
@@ -13,7 +15,7 @@ public class JobFactory : IJobFactory
 {
     private IKubernetesFacade Kubernetes { get; }
     private IMessagesProducer<JobEventMessage> EventsProducer { get; }
-    private IMessagesProducer<JobLogMessage> JobLogsProducer { get; }
+    private JobLogsProducer JobLogsProducer { get; }
     private IFindingsParser Parser { get; }
     private ILoggerFactory LoggerFactory { get; }
     private ILogger<JobFactory> Logger { get; }
@@ -21,7 +23,7 @@ public class JobFactory : IJobFactory
 
     public JobFactory(IKubernetesFacade kubernetes, IMessagesProducer<JobEventMessage> eventsProducer, IMessagesProducer<JobLogMessage> jobLogsProducer, IFindingsParser parser, ILoggerFactory loggerFactoryFactory, IConfiguration config)
     {
-        JobLogsProducer = jobLogsProducer;
+        JobLogsProducer = jobLogsProducer as JobLogsProducer;
         Kubernetes = kubernetes;
         EventsProducer = eventsProducer;
         Parser = parser;
@@ -45,7 +47,33 @@ public class JobFactory : IJobFactory
     {
         if (request.JobModelId == null) throw new InvalidOperationException();
 
+        int maxParamValueDisplayLength = 100;
+        string truncatedString = "[REDACTED]";
+
         var model = JobModelCache.JobModelCache.Get(request.JobModelId);
+
+        if (!request.CustomJobParameters.IsNullOrEmpty())
+        {
+            List<string> logInfo = new List<string>();
+            JobLogsProducer.LogDebug(request.JobId!, "Job started with the following input:");
+            foreach (var parameter in request.CustomJobParameters!)
+            {
+                string value = parameter.Value ?? "";
+                if (CryptoUtils.IsSecret(value))
+                {
+                    value = truncatedString;
+                }
+                else if (value.Length > maxParamValueDisplayLength) 
+                {
+                    value = string.Concat(value.AsSpan(0, maxParamValueDisplayLength), "[...]");
+                }
+                JobLogsProducer.LogDebug(request.JobId!, string.Concat("- ", parameter.Name, ": ", value));
+            }
+        } 
+        else
+        {
+            JobLogsProducer.LogDebug(request.JobId!, "No parameters provided");
+        }
 
         if (model.Type?.ToLower() == "code")
         {
