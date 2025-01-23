@@ -109,15 +109,6 @@ public class KubernetesFacade : IKubernetesFacade
     }
 
     /// <summary>
-    /// Deletes a jobTemplate.
-    /// </summary>
-    public async Task DeleteJob(string jobName, string jobNamespace = "default")
-    {
-        using var client = new Kubernetes(KubernetesConfiguration);
-        // await RetryableCall(() => client.DeleteCollectionNamespacedJobAsync(jobNamespace, fieldSelector: $"metadata.name={jobName}", propagationPolicy: "Foreground"));
-    }
-
-    /// <summary>
     /// True if the pod is in the status "Failed" or "Succeeded", false otherwise
     /// </summary>
     public async Task<bool> IsJobPodFinished(string jobName, string jobNamespace = "default")
