@@ -57,7 +57,7 @@ A cron subscription contains the following main elements :
     a list.
 - The optional `batch` element is an object containing two other values:
   - `enabled`: `true` or `false`, enabling or disabling the batching of data
-  - `size`: an optional number greater than 0, which represents the maximum size of input arrays when batching
+  - `size`: an optional number greater than 0, which represents the maximum size of input arrays when batching. When size is not specified, all the resources are used.
 - The optional `cooldown` element is the time in seconds between two successful calls to the job. It is evaluated after the `cronExpression` and ensures that a job is only started for a project if the cooldown period is done.
 
 #### Cron Subscription Simple Example
