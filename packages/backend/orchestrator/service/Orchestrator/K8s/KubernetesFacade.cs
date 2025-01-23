@@ -53,36 +53,47 @@ public class KubernetesFacade : IKubernetesFacade
             }
         }
 
-
         var kubernetesJob = new V1Job("batch/v1", "Job",
             new V1ObjectMeta
             {
                 Name = jobName,
+                Labels = new Dictionary<string, string>()
+                {
+                    ["red-kite.io/component"] = "job"
+                }
             },
             new V1JobSpec
             {
                 Template = new V1PodTemplateSpec
                 {
+                    Metadata = new V1ObjectMeta
+                    {
+                        Labels = new Dictionary<string, string>()
+                        {
+                            ["red-kite.io/component"] = "job"
+                        }
+                    },
                     Spec = new V1PodSpec
                     {
                         Containers = new List<V1Container>
                         {
-                                new()
+                                new ()
                                 {
                                     Name = "jobtemplate",
                                     Image = jobTemplate.Image,
                                     Command = jobTemplate.Command,
                                     Env = jobTemplate.EnvironmentVariable.Select(x => new V1EnvVar(x.Key, x.Value)).ToList(),
                                     Resources = resources,
-                                }
-                        },
+}
+                    },
                         NodeSelector = nodeSelector,
                         RestartPolicy = "Never",
+                        TerminationGracePeriodSeconds = 100
                     },
                 },
                 BackoffLimit = jobTemplate.MaxRetries,
                 ActiveDeadlineSeconds = jobTemplate.Timeout,
-                TtlSecondsAfterFinished = 1
+                TtlSecondsAfterFinished = 120
             });
 
         Logger.LogInformation($"Creating job {jobName} in namespace {jobTemplate.Namespace}");
@@ -98,29 +109,12 @@ public class KubernetesFacade : IKubernetesFacade
     }
 
     /// <summary>
-    /// Gets the stream of logs for the given jobTemplate's pod.
-    /// </summary>
-    public async Task<Stream> GetJobLogs(string jobName, string jobNamespace = "default")
-    {
-        using var client = new Kubernetes(KubernetesConfiguration);
-        V1PodList pods;
-        do
-        {
-            Thread.Sleep(100);
-            pods = await RetryableCall(() => client.ListNamespacedPodAsync(labelSelector: $"job-name={jobName}", limit: 1, namespaceParameter: jobNamespace));
-
-        } while (pods?.Items == null || pods.Items.Count < 1 || pods.Items.FirstOrDefault()?.Status?.Phase == "Pending");
-
-        return await RetryableCall(() => client.ReadNamespacedPodLogAsync(pods.Items.FirstOrDefault().Metadata.Name, jobNamespace, follow: true));
-    }
-
-    /// <summary>
     /// Deletes a jobTemplate.
     /// </summary>
     public async Task DeleteJob(string jobName, string jobNamespace = "default")
     {
         using var client = new Kubernetes(KubernetesConfiguration);
-        await RetryableCall(() => client.DeleteCollectionNamespacedJobAsync(jobNamespace, fieldSelector: $"metadata.name={jobName}", propagationPolicy: "Foreground"));
+        // await RetryableCall(() => client.DeleteCollectionNamespacedJobAsync(jobNamespace, fieldSelector: $"metadata.name={jobName}", propagationPolicy: "Foreground"));
     }
 
     /// <summary>

@@ -1,11 +1,16 @@
+import httpx
 import json
 import sys
 from abc import ABC
 from ipaddress import ip_address
 from os import getenv
+from functools import lru_cache
 
-import httpx
 
+
+@lru_cache
+def get_http_client():
+    return httpx.Client(verify=False, http2=True)
 
 class Field(ABC):
     def __init__(self, key: str, type: str):
@@ -160,9 +165,9 @@ def _log(prefix: str, message: str):
         print(output)
         sys.stdout.flush()
         return
-    
-    with httpx.Client(verify=False, http2=True) as client:
-        client.post(f"{orchestratorUrl}/Jobs/{jobId}/Finding", json={ "Finding": output})
+
+    client = get_http_client()
+    client.post(f"{orchestratorUrl}/Jobs/{jobId}/Finding", json={ "Finding": output})
 
 def log_status(status: str):
     """Reports the status to the orchestrator. Status can be Success of Failed."""
@@ -177,9 +182,22 @@ def log_status(status: str):
         sys.stdout.flush()
         return
     
-    with httpx.Client(verify=False, http2=True) as client:
-        client.post(f"{orchestratorUrl}/Jobs/{jobId}/Status", json={ "Status": status})
+    client = get_http_client()
+    client.post(f"{orchestratorUrl}/Jobs/{jobId}/Status", json={ "Status": status})
 
+
+def log_done():
+    """Reports the job has ended."""
+    jobId = getenv('RedKiteJobId')
+    orchestratorUrl = getenv('RedKiteOrchestratorUrl') or 'http://orchestrator.stalker.svc.cluster.local.'
+    
+    if(not jobId):
+        print(f"Status: Ended")
+        sys.stdout.flush()
+        return
+    
+    client = get_http_client()
+    client.post(f"{orchestratorUrl}/Jobs/{jobId}/Status", json={ "Status": "Ended"})
     
 def is_valid_ip(ip: str):
     """Validates an IP address. Returns false if the IP is invalid, true otherwise."""

@@ -4,7 +4,10 @@ namespace Orchestrator.Jobs.JobTemplates;
 
 public abstract class PythonJobTemplate : KubernetesJobTemplate
 {
-    public override string[] Command => new[] { "python", "-c", PythonCommand };
+    public override string[] Command => new[] { "python", "/usr/src/main.py", PythonCommand };
+
+
+    public override string[] PreStopCommand => new[] { "echo", "ILO MILO" };
 
     protected virtual string PythonCommand { get; set; }
 

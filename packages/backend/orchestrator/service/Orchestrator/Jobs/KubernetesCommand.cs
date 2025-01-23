@@ -26,47 +26,6 @@ public abstract class KubernetesCommand<T> : JobCommand where T : JobRequest
         Logger = logger;
     }
 
-    /// <summary>
-    /// Waits for a scaling amount of time everytime you call it, according to the iteration parameter
-    /// Does not wait for the first iteration
-    /// During 10 seconds, wait for 100ms for every call (100i)
-    /// During 20 seconds, wait for 200ms for every call (100i)
-    /// During 30 seconds, wait for 300ms for every call (100i)
-    /// During 4 minutes, wait for 1000ms for every call (240i)
-    /// During 5 minutes, wait for 5000ms for every call (60i)
-    /// During 20 minutes, wait for 20000ms for every call (60i)
-    /// If the function is called more than 660 times total (660i), wait for 30000ms for every call
-    /// </summary>
-    private static void ScalingSleep(int iteration)
-    {
-        int waitTime;
-        if (iteration == 0)
-        {
-            waitTime = 0;
-        }
-        else if (iteration <= 300)
-        {
-            waitTime = (iteration / 100) + 100;
-        }
-        else if (iteration > 300 && iteration <= 540)
-        {
-            waitTime = 1000;
-        }
-        else if (iteration > 540 && iteration <= 600)
-        {
-            waitTime = 5000;
-        }
-        else if (iteration > 600 && iteration <= 660)
-        {
-            waitTime = 20000;
-        }
-        else
-        {
-            waitTime = 30000;
-        }
-        Thread.Sleep(waitTime);
-    }
-
     private long CurrentTimeMs()
     {
         DateTimeOffset dto = new DateTimeOffset(DateTime.Now.ToUniversalTime());
