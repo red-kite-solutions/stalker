@@ -48,13 +48,14 @@ public class JobFactory : IJobFactory
         if (request.JobModelId == null) throw new InvalidOperationException();
 
         int maxParamValueDisplayLength = 100;
-        string truncatedString = "[TRUNCATED]";
+        string truncatedString = "[REDACTED]";
 
         var model = JobModelCache.JobModelCache.Get(request.JobModelId);
 
         if (!request.CustomJobParameters.IsNullOrEmpty())
         {
             List<string> logInfo = new List<string>();
+            JobLogsProducer.LogDebug(request.JobId!, "Job started with the following input:");
             foreach (var parameter in request.CustomJobParameters!)
             {
                 string value = parameter.Value ?? "";
@@ -66,12 +67,8 @@ public class JobFactory : IJobFactory
                 {
                     value = string.Concat(value.AsSpan(0, maxParamValueDisplayLength), "[...]");
                 }
-                logInfo.Add(string.Concat(parameter.Name, ":", value));
+                JobLogsProducer.LogDebug(request.JobId!, string.Concat("- ", parameter.Name, ": ", value));
             }
-
-            string output = string.Concat("Parameters: ", string.Join(", ", logInfo));
-
-            JobLogsProducer.LogDebug(request.JobId!, output);
         } 
         else
         {
