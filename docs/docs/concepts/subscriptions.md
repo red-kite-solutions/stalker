@@ -36,12 +36,14 @@ to properly start at least one job.
 
 A cron subscription contains the following main elements :
 
-| Element        | Description                                              | Mandatory |
-| -------------- | -------------------------------------------------------- | --------- |
-| name           | The name of the subscription, for future reference       | Yes       |
-| cronExpression | The cron expression that specifies when to start the job | Yes       |
-| input          | A value representing all the ressources of a type        | No        |
-| job            | The job to launch when the cron expression is triggered  | Yes       |
+| Element        | Description                                                                                                       | Mandatory |
+| -------------- | ----------------------------------------------------------------------------------------------------------------- | --------- |
+| name           | The name of the subscription, for future reference                                                                | Yes       |
+| cronExpression | The cron expression that specifies when to start the job                                                          | Yes       |
+| input          | A value representing all the ressources of a type                                                                 | No        |
+| job            | The job to launch when the cron expression is triggered                                                           | Yes       |
+| cooldown       | The minimum amount of time, in seconds, before a subscription can be retriggered for the same project (default=0) | No        |
+| batch          | An object allowing the batching of data to start the job with multiple resources                                  | No        |
 
 > N.B. Additonnal details on these elements are given in the following sections
 
@@ -53,6 +55,10 @@ A cron subscription contains the following main elements :
   - `name` : mandatory, must be an existing Job's type. See the Jobs section for the list of valid values.
   - `parameters` : optionnal, but almost always needed. It describes the input values of the job by the parameter `name` and its `value` in
     a list.
+- The optional `batch` element is an object containing two other values:
+  - `enabled`: `true` or `false`, enabling or disabling the batching of data
+  - `size`: an optional number greater than 0, which represents the maximum size of input arrays when batching
+- The optional `cooldown` element is the time in seconds between two successful calls to the job. It is evaluated after the `cronExpression` and ensures that a job is only started for a project if the cooldown period is done.
 
 #### Cron Subscription Simple Example
 
@@ -67,6 +73,24 @@ It will start again the next day at noon.
 ```yaml
 name: my cron subscription
 cronExpression: 0 0 12 * * ?
+job:
+  name: DomainNameResolvingJob
+  parameters:
+    - name: domainName
+      value: example.com
+```
+
+#### Cron Subscription Cooldown
+
+The cooldown value ensures that a job is only started as often as the cooldown allows it. For instance, a job started at 10:00:00AM for a project, with a cron subscription cooldown period of 3600 seconds (1 hour), could not be started by the same subscription for the same project before 11:00:00AM, even if the cron expression triggers more often.
+
+Another example would be the following subscription. Its cron expression triggers every hour, but its cooldown period is of 86400 seconds, or 24 hours. Therefore, for a project, the `DomainNameResolvingJob` would only be started once a day. However, it will check every hour if it can start because of the cron expression.
+
+```yaml
+name: my cron subscription
+cronExpression: "0 */1 * * *"
+input: ALL_DOMAINS
+cooldown: 86400
 job:
   name: DomainNameResolvingJob
   parameters:
