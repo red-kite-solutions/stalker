@@ -20,17 +20,16 @@ import { DomainsService } from '../../../api/domains/domains.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { TagsService } from '../../../api/tags/tags.service';
 import { ProjectCellComponent } from '../../../shared/components/project-cell/project-cell.component';
+import { SharedModule } from '../../../shared/shared.module';
 import { Domain } from '../../../shared/types/domain/domain.interface';
 import { HttpStatus } from '../../../shared/types/http-status.type';
 import { Page } from '../../../shared/types/page.type';
+import { ProjectSummary } from '../../../shared/types/project/project.summary';
+import { Tag } from '../../../shared/types/tag.type';
 import {
   ElementMenuItems,
   FilteredPaginatedTableComponent,
 } from '../../../shared/widget/filtered-paginated-table/filtered-paginated-table.component';
-import { BlockedPillTagComponent } from '../../../shared/widget/pill-tag/blocked-pill-tag.component';
-import { SharedModule } from '../../../shared/shared.module';
-import { ProjectSummary } from '../../../shared/types/project/project.summary';
-import { Tag } from '../../../shared/types/tag.type';
 import {
   TABLE_FILTERS_SOURCE_INITAL_FILTERS,
   TableFilters,
@@ -38,7 +37,13 @@ import {
   TableFiltersSourceBase,
 } from '../../../shared/widget/filtered-paginated-table/table-filters-source';
 import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-table/table-format/table-format.component';
+import { BlockedPillTagComponent } from '../../../shared/widget/pill-tag/blocked-pill-tag.component';
 import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.component';
+import {
+  getGlobalProjectFilter,
+  globalProjectFilter$,
+  hasGlobalProjectFilter,
+} from '../../../utils/global-project-filter';
 import { DomainsInteractionsService } from '../domains-interactions.service';
 
 @Component({
@@ -91,7 +96,13 @@ export class ListDomainsComponent {
   tags$ = this.tagsService.getAllTags().pipe(shareReplay(1));
 
   private refresh$ = new BehaviorSubject(null);
-  dataSource$ = combineLatest([this.filtersSource.debouncedFilters$, this.projects$, this.tags$, this.refresh$]).pipe(
+  dataSource$ = combineLatest([
+    this.filtersSource.debouncedFilters$,
+    this.projects$,
+    this.tags$,
+    this.refresh$,
+    globalProjectFilter$,
+  ]).pipe(
     switchMap(([{ dateRange, filters, pagination }, projects, tags]) => {
       return this.domainsService.getPage(
         pagination?.page || 0,
@@ -201,6 +212,9 @@ export class ListDomainsComponent {
           break;
       }
     }
+
+    if (hasGlobalProjectFilter()) includedProjects.push(getGlobalProjectFilter()?.id);
+
     if (includedTags.length) filterObject['tags'] = includedTags;
     if (includedDomains.length) filterObject['domains'] = includedDomains;
     if (includedHosts.length) filterObject['hosts'] = includedHosts;
