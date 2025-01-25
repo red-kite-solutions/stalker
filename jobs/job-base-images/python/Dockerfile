@@ -5,6 +5,7 @@ RUN python -m pip install "poetry==1.3.2"
 RUN python -m pip install pillow
 
 COPY stalker_job_sdk /usr/src/stalker_job_sdk
+COPY main.py /usr/src
 
 RUN python -m pip install -e /usr/src/stalker_job_sdk
 RUN apt-get update && apt-get install -y nmap libpcap0.8 wget gnupg libc6 

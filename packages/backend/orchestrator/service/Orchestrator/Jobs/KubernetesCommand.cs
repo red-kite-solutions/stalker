@@ -26,7 +26,6 @@ public abstract class KubernetesCommand<T> : JobCommand where T : JobRequest
         Logger = logger;
     }
 
-
     public override async Task Execute()
     {
         Logger.LogInformation(Request.JobId, "Creating job.");
