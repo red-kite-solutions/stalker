@@ -36,29 +36,92 @@ to properly start at least one job.
 
 A cron subscription contains the following main elements :
 
-| Element        | Description                                                                                                       | Mandatory |
-| -------------- | ----------------------------------------------------------------------------------------------------------------- | --------- |
-| name           | The name of the subscription, for future reference                                                                | Yes       |
-| cronExpression | The cron expression that specifies when to start the job                                                          | Yes       |
-| input          | A value representing all the ressources of a type                                                                 | No        |
-| job            | The job to launch when the cron expression is triggered                                                           | Yes       |
-| cooldown       | The minimum amount of time, in seconds, before a subscription can be retriggered for the same project (default=0) | No        |
-| batch          | An object allowing the batching of data to start the job with multiple resources                                  | No        |
+| Element        | Description                                                                                                       | Required |
+| -------------- | ----------------------------------------------------------------------------------------------------------------- | -------- |
+| [name](#name)  | The name of the subscription, for future reference                                                                | Yes      |
+| [cronExpression](#cronexpression) | The cron expression that specifies when to start the job                                                          | Yes      |
+| [input](#input)          | A value representing all the ressources of a type                                                                 | No       |
+| [job](#job)            | The job to launch when the cron expression is triggered                                                           | Yes      |
+| [cooldown](#cooldown)       | The minimum amount of time, in seconds, before a subscription can be retriggered for the same project (default=0) | No       |
+| [batch](#batch)          | An object allowing the batching of data to start the job with multiple resources                                  | No       |
 
 > N.B. Additonnal details on these elements are given in the following sections
 
-- The `name` element can be anything and is only used to distinguish the subscription from the others.
-- The `cronExpression` element has to be a valid cron expression. It is used to trigger the job launch.
-- The `input` element is either `ALL_DOMAINS`, `ALL_HOSTS`, `ALL_IP_RANGES`, `ALL_TCP_PORTS` or `ALL_WEBSITES`. These values represent all
-  the ressources of the corresponding type.
-- The `job` element contains multiple values:
-  - `name` : mandatory, must be an existing Job's type. See the Jobs section for the list of valid values.
-  - `parameters` : optionnal, but almost always needed. It describes the input values of the job by the parameter `name` and its `value` in
-    a list.
-- The optional `batch` element is an object containing two other values:
-  - `enabled`: `true` or `false`, enabling or disabling the batching of data
-  - `size`: an optional number greater than 0, which represents the maximum size of input arrays when batching. When size is not specified, all the resources are used.
-- The optional `cooldown` element is the time in seconds between two successful calls to the job. It is evaluated after the `cronExpression` and ensures that a job is only started for a project if the cooldown period is done.
+#### `name`
+
+- Can be any string value.
+- Used to distinguish the subscription from others.
+- Example
+
+```yaml
+name: my-first-cron-subscription
+```
+
+#### `cronExpression`
+
+- Must be a valid cron expression.
+- Specifies the schedule for triggering the job.
+- Example (Runs every day at midnight):
+
+```yaml
+cronExpression: "0 0 * * *"
+```
+
+#### `input`
+
+- Optional element defining the resource type to process.
+- Supported values:
+  - ALL_DOMAINS
+  - ALL_HOSTS
+  - ALL_IP_RANGES
+  - ALL_TCP_PORTS
+  - ALL_WEBSITES
+- Example
+
+```yaml
+input: ALL_WEBSITES
+```
+
+#### `job`
+
+- The job element specifies the task to execute and its parameters.
+
+  | Sub-element  | Description                                         | Required |
+  | ------------ | --------------------------------------------------- | -------- |
+  | `name`       | The name of the job (must match a predefined type). | Yes      |
+  | `parameters` | A list of parameters required by the job.           | No       |
+
+- Example
+
+```yaml
+job:
+  name: resourceCheck
+  parameters:
+    - name: domain
+      value: example.com
+```
+
+#### `cooldown`
+- Specifies the minimum time in seconds before the job can be triggered again for the same project.
+- Default value: 0 (no cooldown).
+- Example (1-hour cooldown):
+```yaml
+cooldown: 3600
+```
+
+#### `batch`
+- The batch element enables grouping of resources for job execution.
+
+  | Sub-element  | Description                                         | Required |
+  | ------------ | --------------------------------------------------- | -------- |
+  | `enabled`       | Boolean value to enable or disable batching.	 | Yes      |
+  | `size` | Maximum size of input arrays in each batch. Optional, defaults to no limit.	           | No       |
+- Example (Batch enabled with a size of 50):
+```yaml
+batch:
+  enabled: true
+  size: 50
+```
 
 #### Cron Subscription Simple Example
 
@@ -104,7 +167,6 @@ The `input` variable specifies an input source. There are multiple input sources
 optionnal. The variables can be injected in the job parameters as well as in the conditions.
 
 If a project is specified for the subscription, only the ressources of the targeted project will be used.
-
 
 | Input source  | Variables                                                               | Batching variables                                                                                |
 | ------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
@@ -269,8 +331,8 @@ And a cron subscription like the following:
 name: Example cron subscription
 input: ALL_TCP_PORTS
 batch:
-  enabled: true   # Input batching is enabled
-  size: 100       # with a max size of 100 items per array per job
+  enabled: true # Input batching is enabled
+  size: 100 # with a max size of 100 items per array per job
 cronExpression: "0 0 */7 * *"
 job:
   name: PortExampleJob
@@ -286,13 +348,13 @@ job:
 You would end up with the following parameters after the injection of values by the backend:
 
 ```yaml
-  parameters:
-    - name: targetIps
-      value: ['1.1.1.1', '2.2.2.2', '3.3.3.3']
-    - name: ports
-      value: [22, 80, 443]
-    - name: protocols
-      value: ['tcp', 'tcp', 'tcp']
+parameters:
+  - name: targetIps
+    value: ["1.1.1.1", "2.2.2.2", "3.3.3.3"]
+  - name: ports
+    value: [22, 80, 443]
+  - name: protocols
+    value: ["tcp", "tcp", "tcp"]
 ```
 
 Which would be usable in the following way, in python:
@@ -306,7 +368,7 @@ ports = json.loads(os.environ.get("ports"))         # [22, 80, 443]
 protocols = json.loads(os.environ.get("protocols")) # ['tcp', 'tcp', 'tcp']
 ```
 
-The batch size of 100, with only three ports in the database, resulted in the launch of only one job. However, if we had 10 ports in the database, and a batch size of 3, you would end up starting 4 jobs, following the logic 
+The batch size of 100, with only three ports in the database, resulted in the launch of only one job. However, if we had 10 ports in the database, and a batch size of 3, you would end up starting 4 jobs, following the logic
 
 ```text
 ceiling(10 / 3) => 4
