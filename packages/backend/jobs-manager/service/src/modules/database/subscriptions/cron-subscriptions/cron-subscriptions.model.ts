@@ -66,6 +66,9 @@ export class CronSubscription {
 
   @Prop()
   public source?: DataSource;
+
+  @Prop()
+  public cooldown?: number;
 }
 
 export const CronSubscriptionsSchema =

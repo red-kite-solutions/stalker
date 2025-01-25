@@ -558,6 +558,7 @@ export class SubscriptionsUtils {
       projectId: null,
       jobParameters: params,
       conditions: conditions,
+      cooldown: subYamlJson.cooldown ?? undefined,
       batch: batch,
     };
 

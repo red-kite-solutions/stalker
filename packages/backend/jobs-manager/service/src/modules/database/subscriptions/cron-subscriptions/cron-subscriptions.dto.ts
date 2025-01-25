@@ -2,6 +2,7 @@ import { Type } from 'class-transformer';
 import {
   IsBoolean,
   IsIn,
+  IsInt,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -39,4 +40,9 @@ export class CronSubscriptionDto extends BaseSubscriptionDto {
   @IsOptional()
   @Type(() => CronSubscriptionBatchingDto)
   public batch?: CronSubscriptionBatchingDto;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  public cooldown?: number;
 }
