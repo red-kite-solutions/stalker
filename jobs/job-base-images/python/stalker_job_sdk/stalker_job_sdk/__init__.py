@@ -186,7 +186,7 @@ def log_status(status: str):
     client.post(f"{orchestratorUrl}/Jobs/{jobId}/Status", json={ "Status": status})
 
 
-def log_done():
+def _log_done():
     """Reports the job has ended."""
     jobId = getenv('RedKiteJobId')
     orchestratorUrl = getenv('RedKiteOrchestratorUrl') or 'http://orchestrator.stalker.svc.cluster.local.'

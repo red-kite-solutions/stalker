@@ -93,7 +93,7 @@ public class KubernetesFacade : IKubernetesFacade
                 },
                 BackoffLimit = jobTemplate.MaxRetries,
                 ActiveDeadlineSeconds = jobTemplate.Timeout,
-                TtlSecondsAfterFinished = 120
+                TtlSecondsAfterFinished = 1
             });
 
         Logger.LogInformation($"Creating job {jobName} in namespace {jobTemplate.Namespace}");

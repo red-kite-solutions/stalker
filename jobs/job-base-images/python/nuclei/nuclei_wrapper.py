@@ -10,7 +10,7 @@ from stalker_job_sdk import (DomainFinding, Field, IpFinding, JobStatus,
                              PortFinding, TextField, WebsiteFinding, build_url,
                              is_valid_ip, is_valid_port, log_debug, log_error,
                              log_finding, log_info, log_status, log_warning,
-                             to_boolean, log_done)
+                             to_boolean, _log_done)
 
 
 def handle_port_finding(finding: NucleiFinding, all_fields: 'list[Field]', output_finding_name: str):
@@ -297,4 +297,4 @@ if __name__ == "__main__":
         log_error(err)
         log_status(JobStatus.FAILED)
     finally:
-        log_done()
+        _log_done()
