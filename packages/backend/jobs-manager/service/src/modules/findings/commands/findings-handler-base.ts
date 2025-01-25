@@ -5,12 +5,12 @@ import { CustomJobsService } from '../../database/custom-jobs/custom-jobs.servic
 import { JobExecutionsService } from '../../database/jobs/job-executions.service';
 import { JobFactory } from '../../database/jobs/jobs.factory';
 import { Job } from '../../database/jobs/models/jobs.model';
-import { JobParameter } from '../../database/subscriptions/event-subscriptions/event-subscriptions.model';
 import { EventSubscriptionsService } from '../../database/subscriptions/event-subscriptions/event-subscriptions.service';
 import { SubscriptionsUtils } from '../../database/subscriptions/subscriptions.utils';
 
 import { SecretsService } from '../../database/secrets/secrets.service';
 import { SubscriptionTriggersService } from '../../database/subscriptions/subscription-triggers/subscription-triggers.service';
+import { JobParameter } from '../../database/subscriptions/subscriptions.type';
 import { FindingCommand } from './findings.command';
 
 export abstract class FindingHandlerBase<T extends FindingCommand>

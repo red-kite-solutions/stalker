@@ -1,66 +1,42 @@
 import { Type } from 'class-transformer';
 import {
-  IsArray,
   IsBoolean,
   IsIn,
-  IsMongoId,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
+  Min,
   ValidateNested,
 } from 'class-validator';
-import { CustomJobNameExists } from '../../../../validators/custom-job-name-exists.validator';
+import { DependsOn } from '../../../../validators/depends-on.validator';
 import { IsCronExpression } from '../../../../validators/is-cron-expression.validator';
-import { IsValidJobConditionsArray } from '../../../../validators/is-valid-job-conditions-array.validator';
-import {
-  AndJobCondition,
-  JobCondition,
-  OrJobCondition,
-} from '../event-subscriptions/event-subscriptions.model';
-import { JobParameterDto } from '../subscriptions.dto';
+import { BaseSubscriptionDto } from '../subscriptions.dto';
 import { InputSource, inputSources } from './cron-subscriptions.model';
 
-export class DuplicateCronSubscriptionDto {
-  @IsMongoId()
-  @IsNotEmpty()
-  @IsString()
-  public subscriptionId: string;
+export class CronSubscriptionBatchingDto {
+  @IsBoolean()
+  enabled: boolean;
+
+  @Min(1)
+  @IsNumber()
+  @IsOptional()
+  size?: number;
 }
 
-export class CronSubscriptionDto {
-  @IsString()
-  @IsNotEmpty()
-  public name!: string;
-
-  @IsBoolean()
-  @IsOptional()
-  public isEnabled?: boolean;
-
-  @IsMongoId()
-  @IsOptional()
-  public projectId?: string; // if projectId is not set, the subscription is for all projects
-
+export class CronSubscriptionDto extends BaseSubscriptionDto {
   @IsString()
   @IsNotEmpty()
   @IsCronExpression()
   public cronExpression!: string;
 
-  @IsString()
-  @IsNotEmpty()
-  @CustomJobNameExists()
-  public jobName!: string;
-
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => JobParameterDto)
-  @IsOptional()
-  public jobParameters?: JobParameterDto[];
-
   @IsIn(inputSources)
   @IsOptional()
   public input?: InputSource;
 
-  @IsValidJobConditionsArray()
+  @ValidateNested()
+  @DependsOn('input')
   @IsOptional()
-  public conditions?: Array<JobCondition | OrJobCondition | AndJobCondition>;
+  @Type(() => CronSubscriptionBatchingDto)
+  public batch?: CronSubscriptionBatchingDto;
 }

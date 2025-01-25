@@ -4,15 +4,11 @@ import { DataSource } from '../../data-source/data-source.model';
 import {
   AndJobCondition,
   JobCondition,
+  JobParameter,
   OrJobCondition,
-} from '../event-subscriptions/event-subscriptions.model';
+} from '../subscriptions.type';
 
 export type CronSubscriptionsDocument = CronSubscription & Document;
-
-export class JobParameter {
-  public name!: string;
-  public value!: unknown;
-}
 
 export const inputSources = [
   'ALL_DOMAINS',
@@ -23,6 +19,14 @@ export const inputSources = [
 ] as const;
 
 export type InputSource = (typeof inputSources)[number];
+
+export class CronSubscriptionBatching {
+  @Prop()
+  enabled: boolean;
+
+  @Prop()
+  size?: number;
+}
 
 @Schema()
 export class CronSubscription {
@@ -37,6 +41,9 @@ export class CronSubscription {
 
   @Prop()
   public input?: InputSource;
+
+  @Prop()
+  public batch?: CronSubscriptionBatching;
 
   @Prop()
   public cronExpression!: string;

@@ -33,25 +33,24 @@ import {
   switchMap,
   timer,
 } from 'rxjs';
+import { parse } from 'yaml';
+import { allProjectsSubscriptions } from '../../../api/constants';
+import { cronSubscriptionKey } from '../../../api/jobs/subscriptions/cron-subscriptions.service';
 import { eventSubscriptionKey } from '../../../api/jobs/subscriptions/event-subscriptions.service';
 import { SubscriptionService, SubscriptionType } from '../../../api/jobs/subscriptions/subscriptions.service';
+import { ProjectsService } from '../../../api/projects/projects.service';
 import { ThemeService } from '../../../services/theme.service';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PanelSectionModule } from '../../../shared/components/panel-section/panel-section.module';
 import { HasUnsavedChanges } from '../../../shared/guards/unsaved-changes-can-deactivate.component';
 import { SharedModule } from '../../../shared/shared.module';
-import { Subscription } from '../../../shared/types/subscriptions/subscription.type';
-import { DisabledPillTagComponent } from '../../../shared/widget/pill-tag/disabled-pill-tag.component';
-import { SavingButtonComponent } from '../../../shared/widget/spinner-button/saving-button.component';
-import { SpinnerButtonComponent } from '../../../shared/widget/spinner-button/spinner-button.component';
-import { TextMenuComponent } from '../../../shared/widget/text-menu/text-menu.component';
-import { parse } from 'yaml';
-import { allProjectsSubscriptions } from '../../../api/constants';
-import { cronSubscriptionKey } from '../../../api/jobs/subscriptions/cron-subscriptions.service';
-import { ProjectsService } from '../../../api/projects/projects.service';
 import { DataSource } from '../../../shared/types/data-source/data-source.type';
 import { ProjectSummary } from '../../../shared/types/project/project.summary';
+import { Subscription } from '../../../shared/types/subscriptions/subscription.type';
 import { CodeEditorComponent, CodeEditorTheme } from '../../../shared/widget/code-editor/code-editor.component';
+import { DisabledPillTagComponent } from '../../../shared/widget/pill-tag/disabled-pill-tag.component';
+import { SavingButtonComponent } from '../../../shared/widget/spinner-button/saving-button.component';
+import { TextMenuComponent } from '../../../shared/widget/text-menu/text-menu.component';
 import { DataSourceComponent } from '../../data-source/data-source/data-source.component';
 import { SubscriptionInteractionService } from './subscription-interaction.service';
 import { cronSubscriptionTemplate, eventSubscriptionTemplate } from './subscription-templates';
@@ -92,7 +91,6 @@ import { cronSubscriptionTemplate, eventSubscriptionTemplate } from './subscript
     MatTabsModule,
     MatTooltipModule,
     MatCardModule,
-    SpinnerButtonComponent,
     TextMenuComponent,
     PanelSectionModule,
     MatDividerModule,

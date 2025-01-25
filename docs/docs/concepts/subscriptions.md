@@ -79,13 +79,16 @@ job:
 The `input` variable specifies an input source. There are multiple input sources described in the following table. The `input` variable is
 optionnal. The variables can be injected in the job parameters as well as in the conditions.
 
-If a project is specified, only the ressources of the targeted project will be used.
+If a project is specified for the subscription, only the ressources of the targeted project will be used.
 
-| Input source  | Variables                         |
-| ------------- | --------------------------------- |
-| ALL_DOMAINS   | `${domainName}`                   |
-| ALL_HOSTS     | `${ip}`                           |
-| ALL_TCP_PORTS | `${ip}`, `${port}`, `${protocol}` |
+
+| Input source  | Variables                                                               | Batching variables                                                                                |
+| ------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| ALL_DOMAINS   | `${domainName}`                                                         | `${domainBatch}`                                                                                  |
+| ALL_HOSTS     | `${ip}`                                                                 | `${ipBatch}`                                                                                      |
+| ALL_TCP_PORTS | `${ip}`, `${port}`, `${protocol}`                                       | `${ipBatch}`, `${portBatch}`, `${protocolBatch}`                                                  |
+| ALL_IP_RANGES | `${ip}`, `${mask}`                                                      | `${ipBatch}`, `${maskBatch}`                                                                      |
+| ALL_WEBSITES  | `${domainName}`, `${ip}`, `${port}`, `${protocol}`, `${ssl}`, `${path}` | `${domainBatch}`, `${ipBatch}`, `${portBatch}`, `${protocolBatch}`, `${sslBatch}`, `${pathBatch}` |
 
 When you specify the `ALL_DOMAINS` input, you have access to the `${domainName}` injectable variable. Red Kite will apply the subscription
 for all the domains, and the domain's value will be injected where specified.
@@ -202,6 +205,87 @@ job:
       value: 10
     - name: extraOptions
       value: -jc -kf all -duc -j -or -ob -silent
+```
+
+##### Batching job inputs
+
+The cron subscription batching syntax can be used to launch a job with mulitple values as input. Instead of giving a standard string as input like the standard way of making a cron subscription, the batching syntax would give you an array of strings up to the specified size.
+
+For instance, the following subscription will start a `DomainNameResolvingJob` by giving an array of up to 100 domain names in the `domainNames` parameter using the `domainBatch` input variable.
+
+> [All the possible input variables are listed in the table here.](#input-variable)
+
+```yaml
+name: Refreshing all domain names
+input: ALL_DOMAINS
+batch:
+  enabled: true
+  size: 100
+cronExpression: "0 0 */7 * *"
+job:
+  name: DomainNameResolvingJob
+  parameters:
+    - name: domainNames
+      value: ${domainBatch}
+```
+
+Some ressources, like ports, provide multiple values as input to a cron subscription. When the batching syntax is used, all the values will be given in seperate arrays, and all the values at an index `i` belong to the same resource. Therefore, all the arrays will have the same length.
+
+For instance, if you have three ports in the database with the following characteristics:
+
+| Index | Port | IP      | Protocol |
+| ----- | ---- | ------- | -------- |
+| 0     | 22   | 1.1.1.1 | tcp      |
+| 1     | 80   | 2.2.2.2 | tcp      |
+| 2     | 443  | 3.3.3.3 | tcp      |
+
+And a cron subscription like the following:
+
+```yaml
+name: Example cron subscription
+input: ALL_TCP_PORTS
+batch:
+  enabled: true   # Input batching is enabled
+  size: 100       # with a max size of 100 items per array per job
+cronExpression: "0 0 */7 * *"
+job:
+  name: PortExampleJob
+  parameters:
+    - name: targetIps
+      value: ${ipBatch}
+    - name: ports
+      value: ${portBatch}
+    - name: protocols
+      value: ${protocolBatch}
+```
+
+You would end up with the following parameters after the injection of values by the backend:
+
+```yaml
+  parameters:
+    - name: targetIps
+      value: ['1.1.1.1', '2.2.2.2', '3.3.3.3']
+    - name: ports
+      value: [22, 80, 443]
+    - name: protocols
+      value: ['tcp', 'tcp', 'tcp']
+```
+
+Which would be usable in the following way, in python:
+
+```python
+import os
+import json
+
+ips = json.loads(os.environ.get("targetIps"))       # ['1.1.1.1', '2.2.2.2', '3.3.3.3']
+ports = json.loads(os.environ.get("ports"))         # [22, 80, 443]
+protocols = json.loads(os.environ.get("protocols")) # ['tcp', 'tcp', 'tcp']
+```
+
+The batch size of 100, with only three ports in the database, resulted in the launch of only one job. However, if we had 10 ports in the database, and a batch size of 3, you would end up starting 4 jobs, following the logic 
+
+```text
+ceiling(10 / 3) => 4
 ```
 
 ## Event Subscriptions

@@ -15,13 +15,13 @@ import { JobContainer } from '../container/job-container.model';
 import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
 import { ProjectService } from '../reporting/project.service';
 import { CronSubscription } from './cron-subscriptions/cron-subscriptions.model';
+import { EventSubscription } from './event-subscriptions/event-subscriptions.model';
 import {
   AndJobCondition,
-  EventSubscription,
   JobCondition,
   JobParameter,
   OrJobCondition,
-} from './event-subscriptions/event-subscriptions.model';
+} from './subscriptions.type';
 import { SubscriptionsUtils } from './subscriptions.utils';
 
 describe('Findings Handler Base', () => {
@@ -845,6 +845,44 @@ describe('Findings Handler Base', () => {
         cs.jobParameters[0].value,
       );
       expect(sub.jobParameters[0].name).toStrictEqual(cs.jobParameters[0].name);
+    });
+
+    it('Should return a CronSubscription with batching enabled', async () => {
+      // Arrange
+      const cs: CronSubscription = {
+        name: 'Yaml to parse',
+        file: 'not a file.yaml',
+        builtIn: true,
+        isEnabled: true,
+        cronExpression: '*/30 * * * * *',
+        jobName: 'HostnameResolvingJob',
+        jobParameters: [{ name: 'domainName', value: 'example.com' }],
+        conditions: [],
+        input: 'ALL_WEBSITES',
+        batch: { enabled: true, size: 100 },
+      };
+
+      let yaml = [
+        `name: ${cs.name}`,
+        `cronExpression: "${cs.cronExpression}"`,
+        `job:`,
+        `  name: ${cs.jobName}`,
+        `  parameters:`,
+        `    - name: ${cs.jobParameters[0].name}`,
+        `      value: ${cs.jobParameters[0].value}`,
+        `input: ALL_WEBSITES`,
+        `batch:`,
+        `  enabled: ${cs.batch.enabled}`,
+        `  size: ${cs.batch.size}`,
+      ].join('\n');
+
+      // Act
+      const sub = SubscriptionsUtils.parseCronSubscriptionYaml(yaml);
+
+      // Assert
+      expect(sub.input).toStrictEqual(cs.input);
+      expect(sub.batch.enabled).toStrictEqual(cs.batch.enabled);
+      expect(sub.batch.size).toStrictEqual(cs.batch.size);
     });
 
     it('Should return an EventSubscription', async () => {

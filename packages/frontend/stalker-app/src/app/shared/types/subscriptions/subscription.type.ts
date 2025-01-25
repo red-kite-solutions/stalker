@@ -19,10 +19,16 @@ export interface EventSubscriptionData extends SubscriptionData {
   findings: string[];
 }
 
+export interface CronSubscriptionBatching {
+  enabled: boolean;
+  size?: number;
+}
+
 export interface CronSubscriptionData extends SubscriptionData {
   type: 'cron';
   cronExpression: string;
-  input?: 'ALL_DOMAINS' | 'ALL_HOSTS' | 'ALL_TCP_PORTS';
+  input?: 'ALL_DOMAINS' | 'ALL_HOSTS' | 'ALL_TCP_PORTS' | 'ALL_IP_RANGES' | 'ALL_WEBSITES';
+  batch?: CronSubscriptionBatching;
 }
 
 export interface SubscriptionData {
