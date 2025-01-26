@@ -16,21 +16,20 @@ import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, combineLatest, map, shareReplay, switchMap, tap } from 'rxjs';
+import { HostsService } from '../../../api/hosts/hosts.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { TagsService } from '../../../api/tags/tags.service';
 import { ProjectCellComponent } from '../../../shared/components/project-cell/project-cell.component';
+import { SharedModule } from '../../../shared/shared.module';
+import { Host } from '../../../shared/types/host/host.interface';
+import { HttpStatus } from '../../../shared/types/http-status.type';
 import { Page } from '../../../shared/types/page.type';
 import { ProjectSummary } from '../../../shared/types/project/project.summary';
+import { Tag } from '../../../shared/types/tag.type';
 import {
   ElementMenuItems,
   FilteredPaginatedTableComponent,
 } from '../../../shared/widget/filtered-paginated-table/filtered-paginated-table.component';
-import { BlockedPillTagComponent } from '../../../shared/widget/pill-tag/blocked-pill-tag.component';
-import { HostsService } from '../../../api/hosts/hosts.service';
-import { SharedModule } from '../../../shared/shared.module';
-import { Host } from '../../../shared/types/host/host.interface';
-import { HttpStatus } from '../../../shared/types/http-status.type';
-import { Tag } from '../../../shared/types/tag.type';
 import {
   TABLE_FILTERS_SOURCE_INITAL_FILTERS,
   TableFilters,
@@ -38,7 +37,13 @@ import {
   TableFiltersSourceBase,
 } from '../../../shared/widget/filtered-paginated-table/table-filters-source';
 import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-table/table-format/table-format.component';
+import { BlockedPillTagComponent } from '../../../shared/widget/pill-tag/blocked-pill-tag.component';
 import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.component';
+import {
+  getGlobalProjectFilter,
+  globalProjectFilter$,
+  hasGlobalProjectFilter,
+} from '../../../utils/global-project-filter';
 import { HostsInteractionsService } from '../hosts-interactions.service';
 
 @Component({
@@ -90,7 +95,12 @@ export class ListHostsComponent {
   tags$ = this.tagsService.getAllTags().pipe(shareReplay(1));
 
   private refresh$ = new BehaviorSubject(null);
-  dataSource$ = combineLatest([this.filtersSource.debouncedFilters$, this.tags$, this.refresh$]).pipe(
+  dataSource$ = combineLatest([
+    this.filtersSource.debouncedFilters$,
+    this.tags$,
+    this.refresh$,
+    globalProjectFilter$,
+  ]).pipe(
     switchMap(([{ dateRange, filters, pagination }, tags]) => {
       return this.hostsService.getPage(
         pagination?.page || 0,
@@ -199,6 +209,9 @@ export class ListHostsComponent {
           break;
       }
     }
+
+    if (hasGlobalProjectFilter()) projects.push(getGlobalProjectFilter()?.id);
+
     if (includedTags?.length) filterObject['tags'] = includedTags;
     if (domains?.length) filterObject['domains'] = domains;
     if (hosts?.length) filterObject['hosts'] = hosts;

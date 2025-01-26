@@ -18,30 +18,35 @@ import { Title } from '@angular/platform-browser';
 import { ParamMap, RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, combineLatest, map, Observable, shareReplay, switchMap, tap } from 'rxjs';
+import { FindingsService } from '../../../api/findings/findings.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { TagsService } from '../../../api/tags/tags.service';
+import { WebsitesService } from '../../../api/websites/websites.service';
 import { ProjectCellComponent } from '../../../shared/components/project-cell/project-cell.component';
+import { IntersectionDirective } from '../../../shared/directives/intersection.directive';
+import { SharedModule } from '../../../shared/shared.module';
+import { CustomFinding, CustomFindingField } from '../../../shared/types/finding/finding.type';
 import { ProjectSummary } from '../../../shared/types/project/project.summary';
 import { Tag } from '../../../shared/types/tag.type';
+import { Website } from '../../../shared/types/websites/website.type';
+import { SecureIconComponent } from '../../../shared/widget/dynamic-icons/secure-icon.component';
 import {
   ElementMenuItems,
   FilteredPaginatedTableComponent,
 } from '../../../shared/widget/filtered-paginated-table/filtered-paginated-table.component';
-import { BlockedPillTagComponent } from '../../../shared/widget/pill-tag/blocked-pill-tag.component';
-import { FindingsService } from '../../../api/findings/findings.service';
-import { WebsitesService } from '../../../api/websites/websites.service';
-import { IntersectionDirective } from '../../../shared/directives/intersection.directive';
-import { SharedModule } from '../../../shared/shared.module';
-import { CustomFinding, CustomFindingField } from '../../../shared/types/finding/finding.type';
-import { Website } from '../../../shared/types/websites/website.type';
-import { SecureIconComponent } from '../../../shared/widget/dynamic-icons/secure-icon.component';
 import { GridFormatComponent } from '../../../shared/widget/filtered-paginated-table/grid-format/grid-format.component';
 import {
   TABLE_FILTERS_SOURCE_INITAL_FILTERS,
   TableFiltersSourceBase,
 } from '../../../shared/widget/filtered-paginated-table/table-filters-source';
 import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-table/table-format/table-format.component';
+import { BlockedPillTagComponent } from '../../../shared/widget/pill-tag/blocked-pill-tag.component';
 import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.component';
+import {
+  getGlobalProjectFilter,
+  globalProjectFilter$,
+  hasGlobalProjectFilter,
+} from '../../../utils/global-project-filter';
 import { FindingsModule } from '../../findings/findings.module';
 import { WebsiteInteractionsService } from '../websites-interactions.service';
 
@@ -150,7 +155,12 @@ export class ListWebsitesComponent {
   allTags$ = this.tagsService.getAllTags().pipe(shareReplay(1));
 
   refresh$ = new BehaviorSubject(null);
-  websites$ = combineLatest([this.filtersSource.debouncedFilters$, this.allTags$, this.refresh$]).pipe(
+  websites$ = combineLatest([
+    this.filtersSource.debouncedFilters$,
+    this.allTags$,
+    this.refresh$,
+    globalProjectFilter$,
+  ]).pipe(
     switchMap(([{ filters, dateRange, pagination }, tags]) =>
       this.websitesService.getPage(
         pagination?.page ?? 0,
@@ -271,6 +281,9 @@ export class ListWebsitesComponent {
           break;
       }
     }
+
+    if (hasGlobalProjectFilter()) projects.push(getGlobalProjectFilter()?.id);
+
     if (includedTags?.length) filterObject['tags'] = includedTags;
     if (ports?.length) filterObject['ports'] = ports;
     if (hosts?.length) filterObject['hosts'] = hosts;
