@@ -25,8 +25,8 @@ export class SidebarComponent {
   expanded = true;
 
   sections: Section[] = [
-    {
-      name: undefined,
+   {
+      name: $localize`:Visualization|Title for the Visualization section of the sidenav:Visualization`,
       items: [
         {
           icon: 'dashboard',
@@ -65,7 +65,7 @@ export class SidebarComponent {
       items: [
         {
           icon: 'precision_manufacturing',
-          routerLink: '/subscriptions',
+          routerLink: '/jobs/subscriptions',
           name: $localize`:Subscriptions|Sidenav button for subscriptions:Subscriptions`,
         },
         {
