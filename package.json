@@ -6,7 +6,8 @@
   "workspaces": [
     "packages/frontend/stalker-app",
     "packages/backend/jobs-manager/service",
-    "packages/backend/cron/service"
+    "packages/backend/cron/service",
+    "packages/common"
   ],
   "scripts": {
     "prepare": "husky install"
@@ -22,6 +23,8 @@
   "homepage": "https://github.com/lm-sec/Stalker#readme",
   "devDependencies": {
     "husky": "^7.0.4",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
     "typescript": "^5.0.0"
   },
   "dependencies": {

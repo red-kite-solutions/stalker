@@ -7,6 +7,7 @@ import {
   IsMongoId,
   IsNotEmpty,
   IsOptional,
+  IsString,
 } from 'class-validator';
 import { Types } from 'mongoose';
 import { DetailsLevel, detailsLevel } from '../../database.constants';
@@ -25,9 +26,14 @@ export class PortFilterDto extends IntersectionType(
   @IsIn(detailsLevel)
   detailsLevel: DetailsLevel = 'full';
 
+  /** @deprecated : Use query instead */
   @IsOptional()
   @IsMongoId()
   hostId: string;
+
+  @IsOptional()
+  @IsString()
+  query: string;
 }
 
 export class GetPortsDto extends IntersectionType(PagingDto, PortFilterDto) {}

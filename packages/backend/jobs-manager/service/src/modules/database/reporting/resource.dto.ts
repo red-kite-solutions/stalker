@@ -19,6 +19,8 @@ export class FilterByDomainDto {
 }
 
 export class FilterByHostDto {
+  // TODO 319: REMOVE ME
+  /** @deprecated : Use query instead */
   @IsOptional()
   @IsString({ each: true })
   @IsArray()
@@ -26,6 +28,8 @@ export class FilterByHostDto {
 }
 
 export class FilterByPortDto {
+  // TODO 319: REMOVE ME
+  /** @deprecated: use "query" syntax instead */
   @IsOptional()
   @IsPort({ each: true })
   @IsArray()
@@ -33,6 +37,7 @@ export class FilterByPortDto {
 }
 
 export class FilterByProjectDto {
+  /** @deprecated: use "query" syntax instead */
   @IsOptional()
   @IsMongoId({ each: true })
   @IsArray()
@@ -53,11 +58,15 @@ export class ResourceFilterDto extends IntersectionType(
   @Type(() => Number)
   firstSeenEndDate: number;
 
+  // TODO 319: REMOVE ME
+  /** @deprecated: use "query" syntax instead */
   @IsOptional()
   @IsBoolean()
   @Transform(booleanStringToBoolean)
   blocked: boolean;
 
+  // TODO 319: REMOVE ME
+  /** @deprecated: use "query" syntax instead */
   @IsOptional()
   @IsMongoId({ each: true })
   @IsArray()
