@@ -23,7 +23,6 @@ import { MatTreeModule } from '@angular/material/tree';
 import { RouterModule } from '@angular/router';
 import { NgxFileDropModule } from 'ngx-file-drop';
 import { AvatarComponent } from './components/avatar/avatar.component';
-import { HeaderComponent } from './components/header/header.component';
 import { PickerDialogComponent } from './components/picker-dialog/picker-dialog.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { HumanizeDatePipe } from './pipes/humanize-date.pipe';
@@ -44,7 +43,6 @@ import { TextSelectMenuComponent } from './widget/text-select-menu/text-select-m
 
 @NgModule({
   declarations: [
-    HeaderComponent,
     SidebarComponent,
     ConfirmDialogComponent,
     ImageUploadComponent,
@@ -91,7 +89,6 @@ import { TextSelectMenuComponent } from './widget/text-select-menu/text-select-m
     NoDataSelectItemComponent,
   ],
   exports: [
-    HeaderComponent,
     SidebarComponent,
     ConfirmDialogComponent,
     ImageUploadComponent,

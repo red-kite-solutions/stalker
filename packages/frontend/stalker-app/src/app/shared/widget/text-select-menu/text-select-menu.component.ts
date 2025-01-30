@@ -27,6 +27,7 @@ export class TextSelectMenuComponent {
   shownItems: SelectItem[] | undefined | null = this.items;
   @Input() filterEnabled = true;
   @Input() colorEnabled = true;
+  @Input() multiSelect = true;
   @Input()
   set filter(value: string) {
     this._filter = value;
@@ -35,15 +36,23 @@ export class TextSelectMenuComponent {
   get filter(): string {
     return this._filter;
   }
-  @Input() buttonText = $localize`:Click Here|:Click Here`;
+  @Input() buttonText: string | undefined = $localize`:Click Here|:Click Here`;
+  @Input() buttonIcon: string | undefined = undefined;
   @Input() filterText = $localize`:Filter Items|Filter the items of a list:Filter Items`;
   @Input() emptyText = $localize`:No Items|The list is empty:No items available`;
   @Output() itemSelection = new EventEmitter<SelectItem>();
+  @Output() open = new EventEmitter();
 
   /** Used to determine the menu width. Otherwise, uses the button width. */
   @Input() containerElement: HTMLElement | undefined = undefined;
 
   selectItem(event: Event, item: SelectItem) {
+    if (!this.multiSelect) {
+      for (const item of this.items || []) {
+        item.isSelected = false;
+      }
+    }
+
     event.stopPropagation();
     item.isSelected = !item.isSelected;
     this.itemSelection.emit(item);

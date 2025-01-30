@@ -1,4 +1,10 @@
-<app-text-menu [buttonText]="buttonText" [xPosition]="'before'" [containerElement]="containerElement">
+<app-text-menu
+  [buttonText]="buttonText"
+  [buttonIcon]="buttonIcon"
+  [xPosition]="'before'"
+  [containerElement]="containerElement"
+  (open)="open.emit()"
+>
   @if (filterEnabled) {
     <div
       class="app-text-select-menu-search-container"

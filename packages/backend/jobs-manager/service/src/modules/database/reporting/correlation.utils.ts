@@ -64,6 +64,7 @@ export class CorrelationKeyUtils {
   /**
    * Valid combinations are:
    *
+   * - project correlation key: requires only the projectId
    * - domain correlation key: [domainName]
    * - host correlation key: [ip]
    * - ip range correlation key: [ip,mask]
@@ -93,6 +94,10 @@ export class CorrelationKeyUtils {
       throw new HttpBadRequestException(
         'ProjectId is required in order to create a correlation key.',
       );
+    }
+
+    if (!domainName && !ip && !port && !protocol && !mask && !path) {
+      return CorrelationKeyUtils.projectCorrelationKey(projectId);
     }
 
     if (path && !domainName) {

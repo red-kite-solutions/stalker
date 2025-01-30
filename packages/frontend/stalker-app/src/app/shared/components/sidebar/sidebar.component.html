@@ -1,229 +1,28 @@
 @if (!(isSmallScreen$ | async) || expanded) {
   <mat-nav-list>
-    @if (expanded) {
-      <h3 matSubheader i18n="Pages|The different pages of the application">Pages</h3>
-    }
-    <a
-      mat-list-item
-      routerLinkActive="list-item-active"
-      [routerLinkActiveOptions]="{ exact: true }"
-      routerLink="/"
-      [matTooltip]="expanded ? '' : dashboard"
-      [matTooltipShowDelay]="700"
-      matTooltipPosition="right"
-    >
-      <mat-icon class="material-symbols-outlined-filled">dashboard</mat-icon>
-      @if (expanded) {
-        <span>{{ dashboard }}</span>
+    @for (section of sections; track $index) {
+      @if (expanded && section.name) {
+        <h3 matSubheader>{{ section.name }}</h3>
       }
-    </a>
-    <a
-      mat-list-item
-      routerLinkActive="list-item-active"
-      [routerLinkActiveOptions]="{ exact: false }"
-      routerLink="/projects"
-      [matTooltip]="expanded ? '' : projects"
-      [matTooltipShowDelay]="700"
-      matTooltipPosition="right"
-    >
-      <mat-icon class="material-symbols-outlined-filled">folder_open</mat-icon>
-      @if (expanded) {
-        <span>{{ projects }}</span>
-      }
-    </a>
-    <a
-      mat-list-item
-      routerLinkActive="list-item-active"
-      [routerLinkActiveOptions]="{ exact: false }"
-      routerLink="/domains"
-      [matTooltip]="expanded ? '' : domains"
-      [matTooltipShowDelay]="700"
-      matTooltipPosition="right"
-    >
-      <mat-icon
-        style="
-          font-variation-settings:
-            'FILL' 1,
-            'wght' 300,
-            'GRAD' 0,
-            'opsz' 24;
-        "
-        >language</mat-icon
-      >
-      @if (expanded) {
-        <span>{{ domains }}</span>
-      }
-    </a>
-    <a
-      mat-list-item
-      routerLinkActive="list-item-active"
-      [routerLinkActiveOptions]="{ exact: false }"
-      routerLink="/hosts"
-      [matTooltip]="expanded ? '' : hosts"
-      [matTooltipShowDelay]="700"
-      matTooltipPosition="right"
-    >
-      <mat-icon>storage</mat-icon>
-      @if (expanded) {
-        <span>{{ hosts }}</span>
-      }
-    </a>
-    <a
-      mat-list-item
-      routerLinkActive="list-item-active"
-      [routerLinkActiveOptions]="{ exact: false }"
-      routerLink="/ports"
-      [matTooltip]="expanded ? '' : ports"
-      [matTooltipShowDelay]="700"
-      matTooltipPosition="right"
-    >
-      <mat-icon>fingerprints</mat-icon>
-      @if (expanded) {
-        <span>{{ ports }}</span>
-      }
-    </a>
 
-    <a
-      mat-list-item
-      routerLinkActive="list-item-active"
-      [routerLinkActiveOptions]="{ exact: false }"
-      routerLink="/websites"
-      [matTooltip]="expanded ? '' : websites"
-      [matTooltipShowDelay]="700"
-      matTooltipPosition="right"
-    >
-      <mat-icon>web</mat-icon>
-      @if (expanded) {
-        <span>{{ websites }}</span>
-      }
-    </a>
-
-    <a
-      mat-list-item
-      routerLinkActive="list-item-active"
-      [routerLinkActiveOptions]="{ exact: false }"
-      routerLink="/tags"
-      [matTooltip]="expanded ? '' : tags"
-      [matTooltipShowDelay]="700"
-      matTooltipPosition="right"
-    >
-      <mat-icon class="material-symbols-outlined-filled">sell</mat-icon>
-      @if (expanded) {
-        <span>{{ tags }}</span>
-      }
-    </a>
-    <!-- Jobs -->
-    <mat-divider></mat-divider>
-    @if (expanded) {
-      <h3 matSubheader i18n="Jobs|Jobs done by the backend">Jobs</h3>
-    }
-    <a
-      mat-list-item
-      routerLinkActive="list-item-active"
-      [routerLinkActiveOptions]="{ exact: false }"
-      routerLink="/jobs/subscriptions"
-      [matTooltip]="expanded ? '' : subscriptions"
-      [matTooltipShowDelay]="700"
-      matTooltipPosition="right"
-    >
-      <mat-icon class="material-symbols-outlined-filled">precision_manufacturing</mat-icon>
-      @if (expanded) {
-        <span>{{ subscriptions }}</span>
-      }
-    </a>
-    <a
-      mat-list-item
-      routerLinkActive="list-item-active"
-      [routerLinkActiveOptions]="{ exact: false }"
-      routerLink="/jobs/custom"
-      [matTooltip]="expanded ? '' : customJobs"
-      [matTooltipShowDelay]="700"
-      matTooltipPosition="right"
-    >
-      <mat-icon class="material-symbols-outlined-filled">coffee</mat-icon>
-      @if (expanded) {
-        <span>{{ customJobs }}</span>
-      }
-    </a>
-    <a
-      mat-list-item
-      routerLinkActive="list-item-active"
-      [routerLinkActiveOptions]="{ exact: false }"
-      routerLink="/jobs/launch"
-      [matTooltip]="expanded ? '' : launchJobs"
-      [matTooltipShowDelay]="700"
-      matTooltipPosition="right"
-    >
-      <mat-icon class="material-symbols-outlined-filled">rocket_launch</mat-icon>
-      @if (expanded) {
-        <span>{{ launchJobs }}</span>
-      }
-    </a>
-    <a
-      mat-list-item
-      routerLinkActive="list-item-active"
-      [routerLinkActiveOptions]="{ exact: false }"
-      routerLink="/jobs/executions"
-      [matTooltip]="expanded ? '' : jobExecutions"
-      [matTooltipShowDelay]="700"
-      matTooltipPosition="right"
-    >
-      <mat-icon class="material-symbols-outlined-filled">play_circle</mat-icon>
-      @if (expanded) {
-        <span>{{ jobExecutions }}</span>
-      }
-    </a>
-    <a
-      mat-list-item
-      routerLinkActive="list-item-active"
-      routerLink="/secrets"
-      [matTooltip]="expanded ? '' : secrets"
-      [matTooltipShowDelay]="700"
-      matTooltipPosition="right"
-    >
-      <mat-icon class="material-symbols-outlined-filled">password</mat-icon>
-      @if (expanded) {
-        <span>{{ secrets }}</span>
-      }
-    </a>
-    <!-- Administration -->
-    @if (this.authService.role === 'admin') {
-      <div>
-        <mat-divider></mat-divider>
-        @if (expanded) {
-          <h3 matSubheader i18n="Administration|Administration subsection of the menu">Administration</h3>
-        }
-        <a
-          mat-list-item
-          routerLinkActive="list-item-active"
-          [routerLinkActiveOptions]="{ exact: false }"
-          routerLink="/admin/users"
-          [matTooltip]="expanded ? '' : users"
-          [matTooltipShowDelay]="700"
-          matTooltipPosition="right"
-        >
-          <mat-icon class="material-symbols-outlined-filled">manage_accounts</mat-icon>
-          @if (expanded) {
-            <span>{{ users }}</span>
-          }
-        </a>
-        <!-- This is not supported for now. -->
-        <!-- <a
-          mat-list-item
-          
-      routerLinkActive="list-item-active"
-      [routerLinkActiveOptions]="{ exact: false }"
-          routerLink="/admin/settings"
-          [matTooltip]="expanded ? '' : settings"
-          [matTooltipShowDelay]="700"
-          matTooltipPosition="right"
+      @for (item of section.items; track $index) {
+        @if (!item.isAdmin || this.authService.role === 'admin') {
+          <a
+            mat-list-item
+            routerLinkActive="list-item-active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            [routerLink]="item.routerLink"
+            [matTooltip]="expanded ? '' : item.name"
+            [matTooltipShowDelay]="700"
+            matTooltipPosition="right"
           >
-          <mat-icon class="material-symbols-outlined-filled">settings</mat-icon>
-          @if (expanded) {
-            <span>{{ settings }}</span>
-          }
-        </a> -->
-      </div>
+            <mat-icon class="material-symbols-outlined-filled">{{ item.icon }}</mat-icon>
+            @if (expanded) {
+              <span>{{ item.name }}</span>
+            }
+          </a>
+        }
+      }
     }
   </mat-nav-list>
 }

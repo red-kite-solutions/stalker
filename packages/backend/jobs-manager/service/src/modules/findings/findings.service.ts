@@ -27,10 +27,15 @@ import { FindingsFilter } from './findings-filter.type';
 export type Finding =
   | HostnameIpFinding
   | HostnameFinding
+  | HostnameBatchFinding
   | IpFinding
+  | IpBatchFinding
   | IpRangeFinding
+  | IpRangeBatchFinding
   | PortFinding
+  | PortBatchFinding
   | WebsiteFinding
+  | WebsiteBatchFinding
   | JobStatusFinding
   | CreateCustomFinding
   | TagFinding;
@@ -56,6 +61,21 @@ export class PortFinding extends FindingBase {
   ];
 }
 
+export class PortBatchFinding extends FindingBase {
+  type: 'PortBatchFinding';
+  key: 'PortBatchFinding';
+  ipBatch: string[];
+  portBatch: number[];
+  protocolBatch: ('tcp' | 'udp')[];
+
+  constructor() {
+    super();
+    this.ipBatch = [];
+    this.portBatch = [];
+    this.protocolBatch = [];
+  }
+}
+
 export class ResourceFinding extends FindingBase {
   domainName?: string;
   ip?: string;
@@ -70,6 +90,27 @@ export class WebsiteFinding extends ResourceFinding {
   path: string = '/';
   ssl?: boolean;
   protocol: 'tcp' = 'tcp';
+}
+
+export class WebsiteBatchFinding extends FindingBase {
+  type: 'WebsiteBatchFinding';
+  key: 'WebsiteBatchFinding';
+  sslBatch: boolean[];
+  pathBatch: string[];
+  ipBatch: string[];
+  protocolBatch: 'tcp'[];
+  portBatch: number[];
+  domainBatch: string[];
+
+  constructor() {
+    super();
+    this.domainBatch = [];
+    this.ipBatch = [];
+    this.portBatch = [];
+    this.protocolBatch = [];
+    this.pathBatch = [];
+    this.sslBatch = [];
+  }
 }
 
 export class CreateCustomFinding extends ResourceFinding {
@@ -97,11 +138,35 @@ export class HostnameFinding extends FindingBase {
   domainName: string;
 }
 
+export class HostnameBatchFinding extends FindingBase {
+  type: 'HostnameBatchFinding';
+  key: 'HostnameBatchFinding';
+  projectId: string;
+  domainBatch: string[];
+
+  constructor() {
+    super();
+    this.domainBatch = [];
+  }
+}
+
 export class IpFinding extends FindingBase {
   type: 'IpFinding';
   key: 'IpFinding';
   projectId: string;
   ip: string;
+}
+
+export class IpBatchFinding extends FindingBase {
+  type: 'IpBatchFinding';
+  key: 'IpBatchFinding';
+  projectId: string;
+  ipBatch: string[];
+
+  constructor() {
+    super();
+    this.ipBatch = [];
+  }
 }
 
 export class IpRangeFinding extends FindingBase {
@@ -110,6 +175,20 @@ export class IpRangeFinding extends FindingBase {
   projectId: string;
   ip: string;
   mask: number; // ex: 24
+}
+
+export class IpRangeBatchFinding extends FindingBase {
+  type: 'IpRangeBatchFinding';
+  key: 'IpRangeBatchFinding';
+  projectId: string;
+  ipBatch: string[];
+  maskBatch: number[]; // ex: 24
+
+  constructor() {
+    super();
+    this.ipBatch = [];
+    this.maskBatch = [];
+  }
 }
 
 export class HostnameIpFinding extends FindingBase {

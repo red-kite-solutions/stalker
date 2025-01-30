@@ -27,17 +27,18 @@ import { RouterModule } from '@angular/router';
 import { NgxFileDropModule } from 'ngx-file-drop';
 import { CreateUserComponent } from '../../modules/admin/create-user/create-user.component';
 import { SettingsComponent } from '../../modules/admin/settings/settings.component';
+import { FindingsModule } from '../../modules/findings/findings.module';
+import { JobExecutionDetailComponent } from '../../modules/jobs/job-executions/job-execution-detail.component';
 import { JobLogsSummaryComponent } from '../../modules/jobs/job-executions/job-execution-logs-summary.component';
 import { EditProjectsComponent } from '../../modules/projects/edit-projects/edit-projects.component';
 import { AvatarComponent } from '../../shared/components/avatar/avatar.component';
-import { SharedModule } from '../../shared/shared.module';
-import { SpinnerButtonComponent } from '../../shared/widget/spinner-button/spinner-button.component';
-import { FindingsModule } from '../../modules/findings/findings.module';
-import { JobExecutionDetailComponent } from '../../modules/jobs/job-executions/job-execution-detail.component';
+import { HeaderComponent } from '../../shared/components/header/header.component';
 import { JobLogsComponent } from '../../shared/components/job-logs/job-logs.component';
 import { AppHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { PanelSectionModule } from '../../shared/components/panel-section/panel-section.module';
+import { SharedModule } from '../../shared/shared.module';
 import { CodeEditorComponent } from '../../shared/widget/code-editor/code-editor.component';
+import { SpinnerButtonComponent } from '../../shared/widget/spinner-button/spinner-button.component';
 import { DefaultComponent } from './default.component';
 
 @NgModule({
@@ -49,6 +50,7 @@ import { DefaultComponent } from './default.component';
     JobExecutionDetailComponent,
   ],
   imports: [
+    HeaderComponent,
     CommonModule,
     RouterModule,
     SharedModule,

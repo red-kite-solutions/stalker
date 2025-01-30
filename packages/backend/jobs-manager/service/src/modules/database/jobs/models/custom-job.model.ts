@@ -18,7 +18,7 @@ import {
   environmentVariableRegex,
 } from '../../../../utils/linux-environment-variables.utils';
 import { isProjectId } from '../../../../validators/is-project-id.validator';
-import { JobParameter } from '../../subscriptions/event-subscriptions/event-subscriptions.model';
+import { JobParameter } from '../../subscriptions/subscriptions.type';
 import { JobFactoryUtils } from '../jobs.factory';
 import { Job } from './jobs.model';
 

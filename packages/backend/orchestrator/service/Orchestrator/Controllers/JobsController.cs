@@ -12,13 +12,13 @@ namespace Orchestrator.Controllers
         private IMessagesProducer<JobLogMessage> LogsProducer { get; set; }
         private IFindingsParser Parser { get; set; }
 
-        private static long CurrentTimeMs 
-        { 
-            get 
-            { 
+        private static long CurrentTimeMs
+        {
+            get
+            {
                 DateTimeOffset dto = new DateTimeOffset(DateTime.Now.ToUniversalTime());
                 return dto.ToUnixTimeMilliseconds();
-            } 
+            }
         }
 
         /// <summary>
@@ -28,12 +28,12 @@ namespace Orchestrator.Controllers
         /// <returns></returns>
         private static bool IsValidJobId(string jobId)
         {
-            if(string.IsNullOrEmpty(jobId)) return false;
+            if (string.IsNullOrEmpty(jobId)) return false;
             if (!Regex.IsMatch(jobId, @"^[a-f0-9]{24}$")) return false;
             return true;
         }
 
-        public JobsController(IMessagesProducer<JobEventMessage> eventsProducer, IMessagesProducer<JobLogMessage> jobLogsProducer, IFindingsParser parser) 
+        public JobsController(IMessagesProducer<JobEventMessage> eventsProducer, IMessagesProducer<JobLogMessage> jobLogsProducer, IFindingsParser parser)
         {
             EventsProducer = eventsProducer;
             LogsProducer = jobLogsProducer;
@@ -66,7 +66,7 @@ namespace Orchestrator.Controllers
 
         // POST /Jobs/Finding
         [HttpPost]
-        public async Task<ActionResult> Finding([FromBody]JobFindingDto dto, string id = "")
+        public async Task<ActionResult> Finding([FromBody] JobFindingDto dto, string id = "")
         {
             if (!IsValidJobId(id)) return BadRequest("Job id is invalid");
             try
@@ -86,16 +86,17 @@ namespace Orchestrator.Controllers
 
         // POST /Jobs/Status
         [HttpPost]
-        public async Task<ActionResult> Status([FromBody]StatusUpdateDto dto, string id = "")
+        public async Task<ActionResult> Status([FromBody] StatusUpdateDto dto, string id = "")
         {
-            if (dto.Status != "Success" && dto.Status != "Failed")
+            var acceptableStatuses = new HashSet<string>() { "Success", "Failed", "Ended" };
+            if (!acceptableStatuses.Contains(dto.Status))
             {
                 Console.WriteLine("bad status");
                 return BadRequest("Status should be Success or Failed");
             }
 
             if (!IsValidJobId(id)) return BadRequest("Job id is invalid");
-            
+
             await EventsProducer.Produce(new JobEventMessage
             {
                 JobId = id,

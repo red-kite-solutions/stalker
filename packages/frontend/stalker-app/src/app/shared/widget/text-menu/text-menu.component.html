@@ -1,9 +1,15 @@
-<a #button class="clickable-text" [matMenuTriggerFor]="menu">
-  @if (iconName) {
-    <mat-icon>{{ iconName }}</mat-icon>
-  }
-  <label>{{ buttonText }}</label>
-</a>
+@if (buttonText != null) {
+  <a #button class="clickable-text" [matMenuTriggerFor]="menu" (click)="open.emit()">
+    @if (iconName) {
+      <mat-icon>{{ iconName }}</mat-icon>
+    }
+    <label>{{ buttonText }}</label>
+  </a>
+} @else {
+  <button mat-icon-button [matMenuTriggerFor]="menu" (click)="open.emit()">
+    <mat-icon>{{ buttonIcon }}</mat-icon>
+  </button>
+}
 
 <mat-menu #menu="matMenu" [xPosition]="xPosition">
   <div [style.minWidth.px]="width">
