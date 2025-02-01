@@ -1,2 +1,9 @@
-<span class="label">{{ _data?.label }}</span
-><span>: {{ _data?.data }}</span>
+@if (_data?.label) {
+  <span class="label">{{ _data?.label }}</span>
+}
+@if (_data?.label && _data?.data) {
+  <span>: </span>
+}
+@if (_data?.data) {
+  <span>{{ _data?.data }}</span>
+}

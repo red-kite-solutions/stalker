@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import Dirent from 'memfs/lib/Dirent';
 import { DataSource } from '../../datasources/data-sources';
 import { JobPodConfigurationDocument } from '../admin/config/job-pod-config/job-pod-config.model';
@@ -25,6 +26,7 @@ export interface JobSource {
 
 export class GitJobSource implements JobSource {
   private jobReader = new JobReader();
+  private logger = new Logger(GitJobSource.name);
 
   constructor(private dataSource: DataSource) {}
 
@@ -56,9 +58,17 @@ export class GitJobSource implements JobSource {
   }
 
   private async listJobs(directory: string) {
-    const directoryContent = (await this.dataSource.fs.readdir(directory, {
-      withFileTypes: true,
-    })) as Dirent[];
+    let directoryContent: Dirent[] = [];
+    try {
+      directoryContent = (await this.dataSource.fs.readdir(directory, {
+        withFileTypes: true,
+      })) as Dirent[];
+    } catch (err) {
+      this.logger.warn(
+        `Unable to read directory ${directory} from data source ${this.dataSource.repoUrl} (branch: ${this.dataSource.branch})`,
+      );
+      return [];
+    }
 
     return directoryContent
       .filter((x) => x.isDirectory())
