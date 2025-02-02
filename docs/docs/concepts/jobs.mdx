@@ -80,7 +80,7 @@ A `DomainNameResolvingJob` takes a domain name and resolves it to one or more IP
 | ------------- | ------ | ----------------------------------- |
 | domainName    | string | An FQDN to resolve to an IP address |
 
-**Possible findings generated :**
+**Possible generated findings :**
 
 - HostnameIpFinding
 
@@ -99,7 +99,7 @@ Scans the TCP ports of a host.
 | portMax              | number   | The last port to scan. `portMin < portMax <= 65535`                                                                            |
 | ports                | number[] | A JSON array. Every port mentionned in it will be scanned. Ex: `[3389, 8000, 8080, 8443]`                                      |
 
-**Possible findings generated :**
+**Possible generated findings :**
 
 - PortFinding
 
@@ -118,7 +118,7 @@ Scans an IP range (ex: `1.2.3.4/24`) for open ports. It discovers hosts that way
 | portMax       | number   | The last port to scan. `portMin < portMax <= 65535`                                      |
 | ports         | number[] | A JSON array. Every port mentionned in it will be scanned. Ex: `[3389, 8000, 8080, 8443] |
 
-**Possible findings generated :**
+**Possible generated findings :**
 
 - HostFinding
 - PortFinding
@@ -128,7 +128,7 @@ Scans an IP range (ex: `1.2.3.4/24`) for open ports. It discovers hosts that way
 Identifies the service running on a port and grabs the banner. It may occasionally find which OS the host is running on and sometimes other
 domain names as well.
 
-**Input variables:**
+**Input variables :**
 
 | Variable Name | Type     | Value description                                  |
 | ------------- | -------- | -------------------------------------------------- |
@@ -136,7 +136,7 @@ domain names as well.
 | ports         | number[] | The ports to check for a service                   |
 | nmapOptions   | string   | A long string containing the options given to nmap |
 
-**Possible findings generated :**
+**Possible generated findings :**
 
 - PortServiceFinding
 - HostnameIpFinding
@@ -146,7 +146,7 @@ domain names as well.
 
 Crawls a website for its differents valid endpoints. It can also find website technology information.
 
-**Input variables:**
+**Input variables :**
 
 | Variable Name        | Type   | Value description                             |
 | -------------------- | ------ | --------------------------------------------- |
@@ -161,7 +161,7 @@ Crawls a website for its differents valid endpoints. It can also find website te
 | inputParallelism     | number | The number of concurrent inputs pprocessor    |
 | extraOptions         | string | Katana extra options to adapt execution       |
 
-**Possible findings generated :**
+**Possible generated findings :**
 
 - WebsitePathFinding
 - WebsiteTechnologyFinding
@@ -169,6 +169,8 @@ Crawls a website for its differents valid endpoints. It can also find website te
 ### LoginDetectionJob
 
 Detects a login page based on regex and word match.
+
+**Input variables :**
 
 | Variable Name | Type   | Value description                |
 | ------------- | ------ | -------------------------------- |
@@ -179,9 +181,16 @@ Detects a login page based on regex and word match.
 | ssl           | bool   | If the website is https          |
 | endpoint      | string | The website's endpoint to target |
 
+**Possible generated findings :**
+
+- WebsiteLoginPortal
+- Login
+
 ### WebsiteScreenshotJob
 
 Takes a screenshot of a web page.
+
+**Input variables :**
 
 | Variable Name | Type   | Value description                                                             |
 | ------------- | ------ | ----------------------------------------------------------------------------- |
@@ -194,20 +203,33 @@ Takes a screenshot of a web page.
 | finding       | string | (Optional, default: WebsiteScreenshotFinding) The name of the emitted finding |
 | findingTitle  | string | (Optional, default: Website screenshot) The title of the emitted finding      |
 
+**Possible generated findings :**
+
+- WebsiteScreenshotFinding
+
 ### AmassDomainDiscoveryJob
 
 <EnterpriseNotice />
 
 Leverages OWASP's Amass to find domain relationships, subdomains, IP addresses, organizations, etc.
 
+**Input variables :**
 
 | Variable Name  | Type     | Value Description                        |
 | -------------- | -------- | ---------------------------------------- |
 | domainNames    | string[] | An FQDN array to resolve to IP addresses |
 | timeoutMinutes | number   | A timeout for Amass, in minutes          |
 
+**Possible generated findings :**
 
-Amass also uses a the `datasources.yaml` file, used to store the API keys of several possible data sources. To use this feature in Red Kite, you can dynamically provide the `datasources.yaml` values as parameters from [Red Kite secrets](./secrets) by following the proper syntax.
+- HostnameFinding
+- HostnameIpFinding
+- IpFinding
+- AmassDomainReportFinding
+- AmassHostReportFinding
+- RirOrgFinding
+
+Also, Amass uses the `datasources.yaml` file to store the API keys of several possible data sources. To use this feature in Red Kite's job, you can dynamically provide the `datasources.yaml` values as parameters from [Red Kite secrets](./secrets) by following the proper syntax.
 
 #### Setting a datasource API key for Amass
 
