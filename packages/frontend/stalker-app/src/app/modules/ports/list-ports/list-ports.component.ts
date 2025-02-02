@@ -1,5 +1,5 @@
 import { SelectionModel } from '@angular/cdk/collections';
-import { BreakpointObserver, BreakpointState, Breakpoints } from '@angular/cdk/layout';
+import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -14,12 +14,14 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, combineLatest, map, shareReplay, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, combineLatest, forkJoin, map, Observable, shareReplay, switchMap, tap } from 'rxjs';
+import { HostsService } from '../../../api/hosts/hosts.service';
 import { PortsService } from '../../../api/ports/ports.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { TagsService } from '../../../api/tags/tags.service';
 import { ProjectCellComponent } from '../../../shared/components/project-cell/project-cell.component';
 import { SharedModule } from '../../../shared/shared.module';
+import { DomainSummary } from '../../../shared/types/domain/domain.summary';
 import { Page } from '../../../shared/types/page.type';
 import { Port } from '../../../shared/types/ports/port.interface';
 import { ProjectSummary } from '../../../shared/types/project/project.summary';
@@ -74,18 +76,18 @@ import { PortsInteractionsService } from '../ports-interactions.service';
       provide: TABLE_FILTERS_SOURCE_INITAL_FILTERS,
       useValue: {
         filters: ['-is: blocked'],
-        pagination: { page: 0, pageSize: 25 },
+        pagination: { constpage: 0, pageSize: 25 },
       } as TableFilters,
     },
   ],
 })
 export class ListPortsComponent {
   dataLoading = true;
-  displayedColumns: string[] = ['select', 'port', 'ip', 'project', 'tags', 'menu'];
+  displayedColumns: string[] = ['select', 'port', 'ip', 'domains', 'project', 'tags', 'menu'];
   filterOptions: string[] = ['host', 'port', 'project', 'tags', 'is'];
   public readonly noDataMessage = $localize`:No port found|No port was found:No port found`;
 
-  selection = new SelectionModel<Port>(true, []);
+  selection = new SelectionModel<Port & { domains: DomainSummary[] }>(true, []);
   startDate: Date | null = null;
 
   allTags$ = this.tagsService.getAllTags().pipe(shareReplay(1));
@@ -110,9 +112,24 @@ export class ListPortsComponent {
   );
 
   dataSource$ = this.ports$.pipe(
-    tap(() => (this.dataLoading = false)),
-    map((data: Page<Port>) => new MatTableDataSource(data.items))
+    tap(() => {
+      this.dataLoading = false;
+    }),
+    switchMap((page: Page<Port>) => {
+      return forkJoin(page.items.map((p) => this.extendPortsWithDomains(p.host.id, p)));
+    }),
+    map((extendedPorts) => new MatTableDataSource(extendedPorts))
   );
+
+  maxDomainsPerHost = 35;
+  public extendPortsWithDomains(hostId: string, port: Port): Observable<Port & { domains: DomainSummary[] }> {
+    return this.hostsService.get(hostId).pipe(
+      map((host) => {
+        return { domains: host.domains, ...port };
+      }),
+      shareReplay(1)
+    );
+  }
 
   projects: ProjectSummary[] = [];
   projects$ = this.projectsService.getAllSummaries().pipe(tap((x) => (this.projects = x)));
@@ -127,8 +144,10 @@ export class ListPortsComponent {
   public displayColumns$ = this.screenSize$.pipe(
     map((screen: BreakpointState) => {
       if (screen.breakpoints[Breakpoints.XSmall]) return ['select', 'port', 'ip', 'project', 'menu'];
-      else if (screen.breakpoints[Breakpoints.Small]) return ['select', 'port', 'ip', 'project', 'tags', 'menu'];
-      else if (screen.breakpoints[Breakpoints.Medium]) return ['select', 'port', 'ip', 'project', 'tags', 'menu'];
+      else if (screen.breakpoints[Breakpoints.Small])
+        return ['select', 'port', 'ip', 'domains', 'project', 'tags', 'menu'];
+      else if (screen.breakpoints[Breakpoints.Medium])
+        return ['select', 'port', 'ip', 'domains', 'project', 'tags', 'menu'];
       return this.displayedColumns;
     })
   );
@@ -142,6 +161,7 @@ export class ListPortsComponent {
     private tagsService: TagsService,
     public dialog: MatDialog,
     private titleService: Title,
+    private hostsService: HostsService,
     @Inject(TableFiltersSourceBase) private filtersSource: TableFiltersSource
   ) {
     this.titleService.setTitle($localize`:Ports list page title|:Ports`);
