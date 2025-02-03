@@ -4,7 +4,7 @@ import { DateRange } from '@angular/material/datepicker';
 import { Observable, firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Page } from '../../shared/types/page.type';
-import { Port, PortNumber } from '../../shared/types/ports/port.interface';
+import { ExtendedPort, Port, PortNumber } from '../../shared/types/ports/port.interface';
 import { filtersToParams } from '../../utils/filters-to-params';
 
 @Injectable({
@@ -13,12 +13,12 @@ import { filtersToParams } from '../../utils/filters-to-params';
 export class PortsService {
   constructor(private http: HttpClient) {}
 
-  public getPage<T extends Port | PortNumber>(
+  public getPage<T extends Port | PortNumber | ExtendedPort>(
     page: number,
     pageSize: number,
     filters: any = undefined,
     firstSeenDateRange: DateRange<Date> = new DateRange<Date>(null, null),
-    detailsLevel: 'full' | 'summary' | 'number' = 'full'
+    detailsLevel: 'extended' | 'full' | 'summary' | 'number' = 'full'
   ): Observable<Page<T>> {
     let params = filtersToParams(filters);
     params = params.append('page', page);

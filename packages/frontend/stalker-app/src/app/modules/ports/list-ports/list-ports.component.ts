@@ -14,7 +14,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, combineLatest, forkJoin, map, Observable, shareReplay, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, shareReplay, switchMap, tap } from 'rxjs';
 import { HostsService } from '../../../api/hosts/hosts.service';
 import { PortsService } from '../../../api/ports/ports.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
@@ -22,8 +22,7 @@ import { TagsService } from '../../../api/tags/tags.service';
 import { ProjectCellComponent } from '../../../shared/components/project-cell/project-cell.component';
 import { SharedModule } from '../../../shared/shared.module';
 import { DomainSummary } from '../../../shared/types/domain/domain.summary';
-import { Page } from '../../../shared/types/page.type';
-import { Port } from '../../../shared/types/ports/port.interface';
+import { ExtendedPort, Port } from '../../../shared/types/ports/port.interface';
 import { ProjectSummary } from '../../../shared/types/project/project.summary';
 import { Tag } from '../../../shared/types/tag.type';
 import {
@@ -76,7 +75,7 @@ import { PortsInteractionsService } from '../ports-interactions.service';
       provide: TABLE_FILTERS_SOURCE_INITAL_FILTERS,
       useValue: {
         filters: ['-is: blocked'],
-        pagination: { constpage: 0, pageSize: 25 },
+        pagination: { page: 0, pageSize: 25 },
       } as TableFilters,
     },
   ],
@@ -100,12 +99,12 @@ export class ListPortsComponent {
     globalProjectFilter$,
   ]).pipe(
     switchMap(([{ filters, dateRange, pagination }, tags]) => {
-      return this.portsService.getPage<Port>(
+      return this.portsService.getPage<ExtendedPort>(
         pagination?.page ?? 0,
         pagination?.pageSize ?? 25,
         this.buildFilters(filters, tags),
         dateRange,
-        'full'
+        'extended'
       );
     }),
     shareReplay(1)
@@ -115,21 +114,11 @@ export class ListPortsComponent {
     tap(() => {
       this.dataLoading = false;
     }),
-    switchMap((page: Page<Port>) => {
-      return forkJoin(page.items.map((p) => this.extendPortsWithDomains(p.host.id, p)));
-    }),
-    map((extendedPorts) => new MatTableDataSource(extendedPorts))
+    map((page) => new MatTableDataSource(page.items)),
+    shareReplay(1)
   );
 
   maxDomainsPerHost = 35;
-  public extendPortsWithDomains(hostId: string, port: Port): Observable<Port & { domains: DomainSummary[] }> {
-    return this.hostsService.get(hostId).pipe(
-      map((host) => {
-        return { domains: host.domains, ...port };
-      }),
-      shareReplay(1)
-    );
-  }
 
   projects: ProjectSummary[] = [];
   projects$ = this.projectsService.getAllSummaries().pipe(tap((x) => (this.projects = x)));
