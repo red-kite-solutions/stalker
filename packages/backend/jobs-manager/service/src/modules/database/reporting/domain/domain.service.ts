@@ -6,7 +6,6 @@ import {
   HttpNotFoundException,
   HttpNotImplementedException,
 } from '../../../../exceptions/http.exceptions';
-import escapeStringRegexp from '../../../../utils/escape-string-regexp';
 import { HostnameFinding } from '../../../findings/findings.service';
 import { FindingsQueue } from '../../../job-queue/findings-queue';
 import { ConfigService } from '../../admin/config/config.service';
@@ -20,6 +19,7 @@ import { Project } from '../project.model';
 import { WebsiteService } from '../websites/website.service';
 import { BatchEditDomainsDto, DomainsPagingDto } from './domain.dto';
 import { Domain, DomainDocument } from './domain.model';
+import { DomainsFilterParser } from './domains-filter-parser';
 
 @Injectable()
 export class DomainsService {
@@ -35,6 +35,7 @@ export class DomainsService {
     private findingsQueue: FindingsQueue,
     private tagsService: TagsService,
     private websiteService: WebsiteService,
+    private readonly domainsFilterParser: DomainsFilterParser,
   ) {}
 
   /**
@@ -233,7 +234,13 @@ export class DomainsService {
   ): Promise<DomainDocument[]> {
     let query;
     if (filter) {
-      query = this.domainModel.find(this.buildFilters(filter));
+      query = this.domainModel.find(
+        await this.domainsFilterParser.buildFilter(
+          filter.query,
+          filter.firstSeenStartDate,
+          filter.firstSeenEndDate,
+        ),
+      );
     } else {
       query = this.domainModel.find({});
     }
@@ -248,7 +255,13 @@ export class DomainsService {
     if (!filter) {
       return await this.domainModel.estimatedDocumentCount();
     } else {
-      return await this.domainModel.countDocuments(this.buildFilters(filter));
+      return await this.domainModel.countDocuments(
+        await this.domainsFilterParser.buildFilter(
+          filter.query,
+          filter.firstSeenStartDate,
+          filter.firstSeenEndDate,
+        ),
+      );
     }
   }
 
@@ -367,88 +380,88 @@ export class DomainsService {
     }
   }
 
-  public buildFilters(dto: DomainsPagingDto) {
-    const finalFilter = {};
-    // Filter by domain
-    if (dto.domains) {
-      const preppedDomainArray = dto.domains
-        .filter((x) => x)
-        .map((x) => x.toLowerCase())
-        .map((x) => escapeStringRegexp(x))
-        .map((x) => new RegExp(x, 'i'));
+  // // public buildFilters(dto: DomainsPagingDto) {
+  // //   const finalFilter = {};
+  // //   // Filter by domain
+  // //   if (dto.domains) {
+  // //     const preppedDomainArray = dto.domains
+  // //       .filter((x) => x)
+  // //       .map((x) => x.toLowerCase())
+  // //       .map((x) => escapeStringRegexp(x))
+  // //       .map((x) => new RegExp(x, 'i'));
 
-      if (preppedDomainArray.length > 0) {
-        finalFilter['name'] = { $all: preppedDomainArray };
-      }
-    }
+  // //     if (preppedDomainArray.length > 0) {
+  // //       finalFilter['name'] = { $all: preppedDomainArray };
+  // //     }
+  // //   }
 
-    // Filter by host
-    if (dto.hosts) {
-      const hosts = dto.hosts
-        .filter((x) => x)
-        .map((x) => x.toLowerCase().trim())
-        .map((x) => escapeStringRegexp(x))
-        .map((x) => new RegExp(`.*${x}.*`));
+  // //   // Filter by host
+  // //   if (dto.hosts) {
+  // //     const hosts = dto.hosts
+  // //       .filter((x) => x)
+  // //       .map((x) => x.toLowerCase().trim())
+  // //       .map((x) => escapeStringRegexp(x))
+  // //       .map((x) => new RegExp(`.*${x}.*`));
 
-      if (hosts.length > 0) {
-        finalFilter['hosts.ip'] = { $in: hosts };
-      }
-    }
+  // //     if (hosts.length > 0) {
+  // //       finalFilter['hosts.ip'] = { $in: hosts };
+  // //     }
+  // //   }
 
-    // Filter by project
-    if (dto.projects) {
-      const projectIds = dto.projects
-        .filter((x) => x)
-        .map((x) => new Types.ObjectId(x));
+  // //   // Filter by project
+  // //   if (dto.projects) {
+  // //     const projectIds = dto.projects
+  // //       .filter((x) => x)
+  // //       .map((x) => new Types.ObjectId(x));
 
-      if (projectIds.length > 0) {
-        finalFilter['projectId'] = { $in: projectIds };
-      }
-    }
+  // //     if (projectIds.length > 0) {
+  // //       finalFilter['projectId'] = { $in: projectIds };
+  // //     }
+  // //   }
 
-    // Filter by tag
-    if (dto.tags) {
-      const preppedTagsArray = dto.tags
-        .filter((x) => x)
-        .map((x) => x.toLowerCase())
-        .map((x) => new Types.ObjectId(x));
+  // //   // Filter by tag
+  // //   if (dto.tags) {
+  // //     const preppedTagsArray = dto.tags
+  // //       .filter((x) => x)
+  // //       .map((x) => x.toLowerCase())
+  // //       .map((x) => new Types.ObjectId(x));
 
-      if (preppedTagsArray.length > 0) {
-        finalFilter['tags'] = { $all: preppedTagsArray };
-      }
-    }
+  // //     if (preppedTagsArray.length > 0) {
+  // //       finalFilter['tags'] = { $all: preppedTagsArray };
+  // //     }
+  // //   }
 
-    // Filter by createdAt
-    if (dto.firstSeenStartDate || dto.firstSeenEndDate) {
-      let createdAtFilter = {};
+  // //   // Filter by createdAt
+  // //   if (dto.firstSeenStartDate || dto.firstSeenEndDate) {
+  // //     let createdAtFilter = {};
 
-      if (dto.firstSeenStartDate && dto.firstSeenEndDate) {
-        createdAtFilter = [
-          { createdAt: { $gte: dto.firstSeenStartDate } },
-          { createdAt: { $lte: dto.firstSeenEndDate } },
-        ];
-        finalFilter['$and'] = createdAtFilter;
-      } else {
-        if (dto.firstSeenStartDate)
-          createdAtFilter = { $gte: dto.firstSeenStartDate };
-        else if (dto.firstSeenEndDate)
-          createdAtFilter = { $lte: dto.firstSeenEndDate };
-        finalFilter['createdAt'] = createdAtFilter;
-      }
-    }
+  // //     if (dto.firstSeenStartDate && dto.firstSeenEndDate) {
+  // //       createdAtFilter = [
+  // //         { createdAt: { $gte: dto.firstSeenStartDate } },
+  // //         { createdAt: { $lte: dto.firstSeenEndDate } },
+  // //       ];
+  // //       finalFilter['$and'] = createdAtFilter;
+  // //     } else {
+  // //       if (dto.firstSeenStartDate)
+  // //         createdAtFilter = { $gte: dto.firstSeenStartDate };
+  // //       else if (dto.firstSeenEndDate)
+  // //         createdAtFilter = { $lte: dto.firstSeenEndDate };
+  // //       finalFilter['createdAt'] = createdAtFilter;
+  // //     }
+  // //   }
 
-    // Filter by blocked
-    if (dto.blocked === false) {
-      finalFilter['$or'] = [
-        { blocked: { $exists: false } },
-        { blocked: { $eq: false } },
-      ];
-    } else if (dto.blocked === true) {
-      finalFilter['blocked'] = { $eq: true };
-    }
+  // //   // Filter by blocked
+  // //   if (dto.blocked === false) {
+  // //     finalFilter['$or'] = [
+  // //       { blocked: { $exists: false } },
+  // //       { blocked: { $eq: false } },
+  // //     ];
+  // //   } else if (dto.blocked === true) {
+  // //     finalFilter['blocked'] = { $eq: true };
+  // //   }
 
-    return finalFilter;
-  }
+  // //   return finalFilter;
+  // // }
 
   public async batchEdit(dto: BatchEditDomainsDto) {
     const update: Partial<Domain> = {};

@@ -21,20 +21,20 @@ import {
   tap,
 } from 'rxjs';
 import { DomainsService } from '../../../api/domains/domains.service';
+import { PortsService } from '../../../api/ports/ports.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { TagsService } from '../../../api/tags/tags.service';
-import { ProjectSummary } from '../../../shared/types/project/project.summary';
-import { Tag } from '../../../shared/types/tag.type';
-import { BlockedPillTagComponent } from '../../../shared/widget/pill-tag/blocked-pill-tag.component';
-import { TextMenuComponent } from '../../../shared/widget/text-menu/text-menu.component';
-import { PortsService } from '../../../api/ports/ports.service';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PanelSectionModule } from '../../../shared/components/panel-section/panel-section.module';
 import { SharedModule } from '../../../shared/shared.module';
 import { Domain } from '../../../shared/types/domain/domain.interface';
 import { Page } from '../../../shared/types/page.type';
 import { PortNumber } from '../../../shared/types/ports/port.interface';
+import { ProjectSummary } from '../../../shared/types/project/project.summary';
+import { Tag } from '../../../shared/types/tag.type';
+import { BlockedPillTagComponent } from '../../../shared/widget/pill-tag/blocked-pill-tag.component';
 import { NewPillTagComponent } from '../../../shared/widget/pill-tag/new-pill-tag.component';
+import { TextMenuComponent } from '../../../shared/widget/text-menu/text-menu.component';
 import { SelectItem } from '../../../shared/widget/text-select-menu/text-select-menu.component';
 import { FindingsModule } from '../../findings/findings.module';
 import { DomainsInteractionsService } from '../domains-interactions.service';
@@ -159,7 +159,13 @@ export class ViewDomainComponent implements OnDestroy {
     const page$ = new BehaviorSubject<number>(0);
     return page$.pipe(
       concatMap((page: number) => {
-        return this.portsService.getPage(page, pageSize, { hostId: hostId }, undefined, 'number');
+        return this.portsService.getPage(
+          page,
+          pageSize,
+          [{ type: 'host.id', value: hostId, not: false }],
+          undefined,
+          'number'
+        );
       }),
       scan((acc: Page<PortNumber>, value: Page<PortNumber>) => {
         return { items: acc.items.concat(value.items), totalRecords: value.totalRecords };

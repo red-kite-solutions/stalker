@@ -1,14 +1,9 @@
 {
   "exclude": ["**/node_modules/**"],
   "references": [
-    {
-      "path": "./packages/frontend/stalker-app"
-    },
-    {
-      "path": "./packages/backend/jobs-manager/service"
-    },
-    {
-      "path": "./packages/backend/cron/service"
-    }
+    { "path": "./packages/frontend/stalker-app" },
+    { "path": "./packages/backend/jobs-manager/service" },
+    { "path": "./packages/backend/cron/service" },
+    { "path": "./packages/common" }
   ]
 }

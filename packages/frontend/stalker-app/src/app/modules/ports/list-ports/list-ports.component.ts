@@ -1,5 +1,5 @@
 import { SelectionModel } from '@angular/cdk/collections';
-import { BreakpointObserver, BreakpointState, Breakpoints } from '@angular/cdk/layout';
+import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -14,7 +14,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, combineLatest, map, shareReplay, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, catchError, combineLatest, EMPTY, map, shareReplay, switchMap, tap } from 'rxjs';
 import { PortsService } from '../../../api/ports/ports.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { TagsService } from '../../../api/tags/tags.service';
@@ -23,7 +23,6 @@ import { SharedModule } from '../../../shared/shared.module';
 import { Page } from '../../../shared/types/page.type';
 import { Port } from '../../../shared/types/ports/port.interface';
 import { ProjectSummary } from '../../../shared/types/project/project.summary';
-import { Tag } from '../../../shared/types/tag.type';
 import {
   ElementMenuItems,
   FilteredPaginatedTableComponent,
@@ -37,11 +36,7 @@ import {
 import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-table/table-format/table-format.component';
 import { BlockedPillTagComponent } from '../../../shared/widget/pill-tag/blocked-pill-tag.component';
 import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.component';
-import {
-  getGlobalProjectFilter,
-  globalProjectFilter$,
-  hasGlobalProjectFilter,
-} from '../../../utils/global-project-filter';
+import { appendGlobalFiltersToQuery, globalProjectFilter$ } from '../../../utils/global-project-filter';
 import { PortsInteractionsService } from '../ports-interactions.service';
 
 @Component({
@@ -91,21 +86,20 @@ export class ListPortsComponent {
   allTags$ = this.tagsService.getAllTags().pipe(shareReplay(1));
 
   private refresh$ = new BehaviorSubject(null);
-  public ports$ = combineLatest([
-    this.filtersSource.debouncedFilters$,
-    this.allTags$,
-    this.refresh$,
-    globalProjectFilter$,
-  ]).pipe(
-    switchMap(([{ filters, dateRange, pagination }, tags]) => {
-      return this.portsService.getPage<Port>(
-        pagination?.page ?? 0,
-        pagination?.pageSize ?? 25,
-        this.buildFilters(filters, tags),
-        dateRange,
-        'full'
-      );
-    }),
+  public ports$ = combineLatest([this.filtersSource.debouncedFilters$, this.refresh$, globalProjectFilter$]).pipe(
+    tap((x) => console.log(x)),
+    switchMap(([{ filters, dateRange, pagination }]) =>
+      this.portsService
+        .getPage<Port>(
+          pagination?.page ?? 0,
+          pagination?.pageSize ?? 25,
+          appendGlobalFiltersToQuery(filters[0]),
+          dateRange,
+          'full'
+        )
+        .pipe(catchError(() => EMPTY))
+    ),
+
     shareReplay(1)
   );
 
@@ -145,73 +139,6 @@ export class ListPortsComponent {
     @Inject(TableFiltersSourceBase) private filtersSource: TableFiltersSource
   ) {
     this.titleService.setTitle($localize`:Ports list page title|:Ports`);
-  }
-
-  buildFilters(stringFilters: string[], tags: Tag[]): any {
-    const SEPARATOR = ':';
-    const NEGATING_CHAR = '-';
-    const filterObject: any = {};
-    const includedTags = [];
-    const ports = [];
-    const hosts = [];
-    const projects = [];
-    let blocked: boolean | null = null;
-
-    for (const filter of stringFilters) {
-      if (filter.indexOf(SEPARATOR) === -1) continue;
-
-      const keyValuePair = filter.split(SEPARATOR);
-
-      if (keyValuePair.length !== 2) continue;
-
-      let key = keyValuePair[0].trim().toLowerCase();
-      const value = keyValuePair[1].trim().toLowerCase();
-      const negated = key.length > 0 && key[0] === NEGATING_CHAR;
-      if (negated) key = key.substring(1);
-
-      if (!key || !value) continue;
-
-      switch (key) {
-        case 'project':
-          const project = this.projects.find((c) => c.name.trim().toLowerCase() === value.trim().toLowerCase());
-          if (project) projects.push(project.id);
-          else
-            this.toastr.warning(
-              $localize`:Project does not exist|The given project name is not known to the application:Project name not recognized`
-            );
-          break;
-        case 'host':
-          if (value) hosts.push(value.trim().toLowerCase());
-          break;
-        case 'tags':
-          const tag = tags.find((t) => t.text.trim().toLowerCase() === value.trim().toLowerCase());
-          if (tag) includedTags.push(tag._id);
-          else
-            this.toastr.warning(
-              $localize`:Tag does not exist|The given tag is not known to the application:Tag not recognized`
-            );
-          break;
-        case 'port':
-          ports.push(value);
-          break;
-        case 'is':
-          switch (value) {
-            case 'blocked':
-              blocked = !negated;
-              break;
-          }
-          break;
-      }
-    }
-
-    if (hasGlobalProjectFilter()) projects.push(getGlobalProjectFilter()?.id);
-
-    if (includedTags?.length) filterObject['tags'] = includedTags;
-    if (ports?.length) filterObject['ports'] = ports;
-    if (hosts?.length) filterObject['hosts'] = hosts;
-    if (projects?.length) filterObject['projects'] = projects;
-    if (blocked !== null) filterObject['blocked'] = blocked;
-    return filterObject;
   }
 
   dateFilter(event: MouseEvent) {
