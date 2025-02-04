@@ -13,6 +13,11 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,6 +40,7 @@ jobs:
         uses: actions/configure-pages@v3
 
       - name: Upload artifact
+        id: upload
         uses: actions/upload-pages-artifact@v3
         with:
           # 👇 Specify build output path
@@ -43,6 +49,8 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v3
+        with:
+          artifact_name: ${{ steps.upload.outputs.artifact_id }}
 
       - name: Update search index
         uses: algolia/algoliasearch-crawler-github-actions@v1.0.10
@@ -53,4 +61,4 @@ jobs:
           algolia-app-id: ${{ secrets.ALGOLIA_APP_ID }}
           algolia-api-key: ${{ secrets.ALGOLIA_API_KEY }}
           crawler-name: stalker-red-kite
-          site-url: 'https://wiki.stalker.red-kite.io/docs/intro/'
+          site-url: "https://wiki.stalker.red-kite.io/docs/intro/"
