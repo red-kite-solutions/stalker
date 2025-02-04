@@ -18,6 +18,10 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
 
+    permissions:
+      pages: write
+      id-token: write
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -49,8 +53,6 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v3
-        with:
-          artifact_name: ${{ steps.upload.outputs.artifact_id }}
 
       - name: Update search index
         uses: algolia/algoliasearch-crawler-github-actions@v1.0.10
