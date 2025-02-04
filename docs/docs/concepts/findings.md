@@ -28,9 +28,9 @@ The finding object must contain the `type` field. Here is a list of default type
 | [WebsitePathFinding](#websitepathfinding)             | Adds an endpoint to a website's sitemap.                     | Community  |
 | [TagFinding](#tagfinding)                             | Tags a ressource.                                            | Community  |
 | [WebsiteScreenshotFinding](#websitescreenshotfinding) | A photo of a rendered website.                               | Community  |
-| [AmassDomainReportFinding]()                          | A report of a domain's relationships.                        | Enterprise |
-| [AmassHostReportFinding]()                            | A report of a host's relationships.                          | Enterprise |
-| [RirOrgFinding]()                                     | The organization responsible for managing an IP.             | Enterprise |
+| [AmassDomainReportFinding](#AmassDomainReportFinding) | A report of a domain's relationships.                        | Enterprise |
+| [AmassHostReportFinding](#AmassHostReportFinding)     | A report of a host's relationships.                          | Enterprise |
+| [RirOrgFinding](#RirOrgFinding)                       | The organization responsible for managing an IP.             | Enterprise |
 
 ## HostnameFinding
 
@@ -578,7 +578,6 @@ combinations are:
 | ip                                 | Host          |
 | ip, port, protocol                 | Port          |
 | (domain), ip, port, protocol, path | Website       |
-
 
 ## AmassDomainReportFinding
 
