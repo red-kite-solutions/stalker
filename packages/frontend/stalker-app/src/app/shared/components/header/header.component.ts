@@ -1,14 +1,39 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { ActivatedRoute, Router } from '@angular/router';
+import { map, Observable } from 'rxjs';
 import { AuthService } from '../../../api/auth/auth.service';
+import { ProjectsService } from '../../../api/projects/projects.service';
 import { ThemeService } from '../../../services/theme.service';
+import { getGlobalProjectFilter, setGlobalProjectFilter } from '../../../utils/global-project-filter';
+import { SharedModule } from '../../shared.module';
+import { ProjectSummary } from '../../types/project/project.summary';
+import { SelectItem } from '../../widget/text-select-menu/text-select-menu.component';
+import { AvatarComponent } from '../avatar/avatar.component';
 
 @Component({
+  standalone: true,
   selector: 'app-header',
+  imports: [
+    MatToolbarModule,
+    MatIconModule,
+    AvatarComponent,
+    SharedModule,
+    CommonModule,
+    MatMenuModule,
+    MatButtonModule,
+  ],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit {
+  public filterProjects: string = $localize`:Filter projects|Filter projects:Filter projects`;
+  public emptyProjects: string = $localize`:No projects yet|List of projects is empty:No projects yet`;
+
   @Output()
   toggleSideBarEvent: EventEmitter<any> = new EventEmitter();
 
@@ -16,8 +41,8 @@ export class HeaderComponent {
   public showRouting = true;
 
   public currentLanguageLocale = '';
-
   public email = '';
+  public selectedProject: SelectItem | undefined;
 
   public readonly languages: {
     locale: string;
@@ -33,13 +58,27 @@ export class HeaderComponent {
     },
   ];
 
+  public projects$: Observable<(SelectItem & { id: string })[]> | undefined = undefined;
+
   constructor(
     private authService: AuthService,
     private router: Router,
+    private route: ActivatedRoute,
+    private projectsService: ProjectsService,
     public themeService: ThemeService
   ) {
     this.email = this.authService.email;
     this.currentLanguageLocale = window.location.pathname.split('/')[1];
+    this.refreshProjects();
+  }
+
+  ngOnInit(): void {
+    if (this.showRouting) {
+      const globalProjectFilter = getGlobalProjectFilter();
+      if (globalProjectFilter) {
+        this.selectedProject = { ...globalProjectFilter, isSelected: true };
+      }
+    }
   }
 
   toggleSideBar() {
@@ -57,5 +96,26 @@ export class HeaderComponent {
     const r = new RegExp(`^/${this.currentLanguageLocale}/`);
 
     window.location.pathname = window.location.pathname.replace(r, `/${locale}/`);
+  }
+
+  refreshProjects() {
+    this.projects$ = this.projectsService.getAllSummaries().pipe(
+      map((projects) =>
+        projects.map((x) => ({
+          ...x,
+          isSelected: false,
+          text: x.name,
+        }))
+      )
+    );
+  }
+
+  selectProject(project: SelectItem | undefined) {
+    this.selectedProject = project;
+    setGlobalProjectFilter(project as SelectItem & ProjectSummary);
+  }
+
+  clearProject() {
+    this.selectProject(undefined);
   }
 }

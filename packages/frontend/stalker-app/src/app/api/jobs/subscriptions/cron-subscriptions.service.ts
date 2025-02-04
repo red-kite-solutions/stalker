@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom, map, Observable } from 'rxjs';
-import { CronSubscription, CronSubscriptionData } from '../../../shared/types/subscriptions/subscription.type';
 import { environment } from '../../../../environments/environment';
+import { CronSubscription, CronSubscriptionData } from '../../../shared/types/subscriptions/subscription.type';
 import { allProjectsSubscriptions } from '../../constants';
 import { GenericSubscriptionService } from './base-subscription.service';
 
@@ -42,8 +42,10 @@ export class CronSubscriptionsService implements GenericSubscriptionService<Cron
       builtIn: false,
       name: newSub.name,
       cronExpression: newSub.cronExpression,
+      cooldown: newSub.cooldown ?? undefined,
       projectId: newSub.projectId ? newSub.projectId : allProjectsSubscriptions,
       input: newSub.input ?? undefined,
+      batch: newSub.batch ?? undefined,
       job: {
         name: newSub.jobName,
       },
@@ -82,6 +84,14 @@ export class CronSubscriptionsService implements GenericSubscriptionService<Cron
       data['input'] = subscription.input;
     }
 
+    if (subscription.input) {
+      data['batch'] = subscription.batch;
+    }
+
+    if (subscription.cooldown) {
+      data['cooldown'] = subscription.cooldown;
+    }
+
     if (subscription.conditions) {
       data['conditions'] = subscription.conditions;
     }
@@ -100,7 +110,9 @@ export class CronSubscriptionsService implements GenericSubscriptionService<Cron
       isEnabled: data.isEnabled,
       name: data.name,
       cronExpression: data.cronExpression,
+      cooldown: data.cooldown ?? undefined,
       input: data.input ?? undefined,
+      batch: data.batch ?? undefined,
       projectId: data.projectId ? data.projectId : allProjectsSubscriptions,
       job: { name: data.jobName },
       builtIn: data.builtIn,

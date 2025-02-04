@@ -1,12 +1,11 @@
 FROM python:3.12.4-slim-bullseye AS base
 
-RUN python -m pip install httpx[http2]
-RUN python -m pip install "poetry==1.3.2"
-RUN python -m pip install pillow
-
+COPY requirements.txt /usr/src
 COPY stalker_job_sdk /usr/src/stalker_job_sdk
+RUN python -m pip install -r /usr/src/requirements.txt
 
-RUN python -m pip install -e /usr/src/stalker_job_sdk
+COPY main.py /usr/src
+
 RUN apt-get update && apt-get install -y nmap libpcap0.8 wget gnupg libc6 
 
 FROM base AS build

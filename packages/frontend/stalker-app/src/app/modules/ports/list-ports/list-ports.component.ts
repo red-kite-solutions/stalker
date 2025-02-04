@@ -15,20 +15,19 @@ import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, combineLatest, map, shareReplay, switchMap, tap } from 'rxjs';
+import { PortsService } from '../../../api/ports/ports.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { TagsService } from '../../../api/tags/tags.service';
 import { ProjectCellComponent } from '../../../shared/components/project-cell/project-cell.component';
+import { SharedModule } from '../../../shared/shared.module';
 import { Page } from '../../../shared/types/page.type';
+import { Port } from '../../../shared/types/ports/port.interface';
 import { ProjectSummary } from '../../../shared/types/project/project.summary';
+import { Tag } from '../../../shared/types/tag.type';
 import {
   ElementMenuItems,
   FilteredPaginatedTableComponent,
 } from '../../../shared/widget/filtered-paginated-table/filtered-paginated-table.component';
-import { BlockedPillTagComponent } from '../../../shared/widget/pill-tag/blocked-pill-tag.component';
-import { PortsService } from '../../../api/ports/ports.service';
-import { SharedModule } from '../../../shared/shared.module';
-import { Port } from '../../../shared/types/ports/port.interface';
-import { Tag } from '../../../shared/types/tag.type';
 import {
   TABLE_FILTERS_SOURCE_INITAL_FILTERS,
   TableFilters,
@@ -36,7 +35,13 @@ import {
   TableFiltersSourceBase,
 } from '../../../shared/widget/filtered-paginated-table/table-filters-source';
 import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-table/table-format/table-format.component';
+import { BlockedPillTagComponent } from '../../../shared/widget/pill-tag/blocked-pill-tag.component';
 import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.component';
+import {
+  getGlobalProjectFilter,
+  globalProjectFilter$,
+  hasGlobalProjectFilter,
+} from '../../../utils/global-project-filter';
 import { PortsInteractionsService } from '../ports-interactions.service';
 
 @Component({
@@ -86,7 +91,12 @@ export class ListPortsComponent {
   allTags$ = this.tagsService.getAllTags().pipe(shareReplay(1));
 
   private refresh$ = new BehaviorSubject(null);
-  public ports$ = combineLatest([this.filtersSource.debouncedFilters$, this.allTags$, this.refresh$]).pipe(
+  public ports$ = combineLatest([
+    this.filtersSource.debouncedFilters$,
+    this.allTags$,
+    this.refresh$,
+    globalProjectFilter$,
+  ]).pipe(
     switchMap(([{ filters, dateRange, pagination }, tags]) => {
       return this.portsService.getPage<Port>(
         pagination?.page ?? 0,
@@ -193,6 +203,9 @@ export class ListPortsComponent {
           break;
       }
     }
+
+    if (hasGlobalProjectFilter()) projects.push(getGlobalProjectFilter()?.id);
+
     if (includedTags?.length) filterObject['tags'] = includedTags;
     if (ports?.length) filterObject['ports'] = ports;
     if (hosts?.length) filterObject['hosts'] = hosts;

@@ -5,10 +5,15 @@ import { FilterQuery, Model, Types } from 'mongoose';
 import { HttpNotFoundException } from '../../../../exceptions/http.exceptions';
 import {
   Finding,
+  HostnameBatchFinding,
   HostnameFinding,
+  IpBatchFinding,
   IpFinding,
+  IpRangeBatchFinding,
   IpRangeFinding,
+  PortBatchFinding,
   PortFinding,
+  WebsiteBatchFinding,
   WebsiteFinding,
 } from '../../../findings/findings.service';
 import { ConfigService } from '../../admin/config/config.service';
@@ -16,6 +21,7 @@ import { CustomJobsService } from '../../custom-jobs/custom-jobs.service';
 import { JobExecutionsService } from '../../jobs/job-executions.service';
 import { JobFactory } from '../../jobs/jobs.factory';
 import { Job } from '../../jobs/models/jobs.model';
+import { CorrelationKeyUtils } from '../../reporting/correlation.utils';
 import { Domain, DomainDocument } from '../../reporting/domain/domain.model';
 import { DomainsService } from '../../reporting/domain/domain.service';
 import { HostDocument } from '../../reporting/host/host.model';
@@ -27,12 +33,13 @@ import { ProjectService } from '../../reporting/project.service';
 import { WebsiteDocument } from '../../reporting/websites/website.model';
 import { WebsiteService } from '../../reporting/websites/website.service';
 import { SecretsService } from '../../secrets/secrets.service';
+import { SubscriptionTriggersService } from '../subscription-triggers/subscription-triggers.service';
+import { JobParameter } from '../subscriptions.type';
 import { SubscriptionsUtils } from '../subscriptions.utils';
 import { CronSubscriptionDto } from './cron-subscriptions.dto';
 import {
   CronSubscription,
   CronSubscriptionsDocument,
-  JobParameter,
 } from './cron-subscriptions.model';
 
 @Injectable()
@@ -51,6 +58,7 @@ export class CronSubscriptionsService {
     private readonly portsService: PortService,
     private readonly secretsService: SecretsService,
     private readonly websitesService: WebsiteService,
+    private readonly subscriptionTriggerService: SubscriptionTriggersService,
   ) {}
 
   public async create(dto: CronSubscriptionDto) {
@@ -59,10 +67,12 @@ export class CronSubscriptionsService {
       isEnabled: dto.isEnabled == null ? dto.isEnabled : true,
       name: dto.name,
       input: dto.input ? dto.input : null,
+      batch: dto.batch,
       cronExpression: dto.cronExpression,
       jobName: dto.jobName,
       jobParameters: dto.jobParameters,
       conditions: dto.conditions,
+      cooldown: dto.cooldown,
     };
     return await this.subscriptionModel.create(sub);
   }
@@ -89,6 +99,8 @@ export class CronSubscriptionsService {
       projectId: existingSub.projectId,
       cronExpression: existingSub.cronExpression,
       input: existingSub.input,
+      batch: existingSub.batch,
+      cooldown: existingSub.cooldown,
       source: undefined,
     };
 
@@ -122,6 +134,8 @@ export class CronSubscriptionsService {
       projectId: dto.projectId ? new Types.ObjectId(dto.projectId) : null,
       name: dto.name,
       input: dto.input ? dto.input : null,
+      batch: dto.batch ? dto.batch : null,
+      cooldown: dto.cooldown ?? null,
       cronExpression: dto.cronExpression,
       jobName: dto.jobName,
       jobParameters: dto.jobParameters,
@@ -182,16 +196,32 @@ export class CronSubscriptionsService {
 
     if (!sub.jobParameters) return;
 
-    await this.setupSubscriptionsForProjects(sub);
+    await this.setupSubscriptionsForProjects(sub, sub._id.toString());
   }
 
-  private async setupSubscriptionsForProjects(sub: CronSubscription) {
+  private async setupSubscriptionsForProjects(
+    sub: CronSubscription,
+    subId: string,
+  ) {
     // if no project id, it launches for all projects
     const projectIds = sub.projectId
       ? [sub.projectId.toString()]
       : await this.projectService.getAllIds();
 
     for (const projectId of projectIds) {
+      // Check for cooldown readiness
+      if (
+        sub.cooldown &&
+        !(await this.subscriptionTriggerService.attemptTrigger(
+          subId,
+          CorrelationKeyUtils.generateCorrelationKey(projectId),
+          sub.cooldown,
+          null,
+        ))
+      ) {
+        continue;
+      }
+
       const projectIdParameter = new JobParameter();
       projectIdParameter.name = 'projectId';
       projectIdParameter.value = projectId;
@@ -234,6 +264,13 @@ export class CronSubscriptionsService {
       blocked: { $ne: true },
     };
 
+    let batchEnabled = false;
+
+    if (sub.batch && sub.batch.enabled) {
+      batchEnabled = true;
+      pageSize = sub.batch.size ?? null;
+    }
+
     let page = 0;
     switch (sub.input) {
       case 'ALL_DOMAINS':
@@ -244,17 +281,26 @@ export class CronSubscriptionsService {
             pageSize,
             filter,
           );
-          this.publishJobsFromDomainsPage(sub, domains, projectId);
+          if (domains.length) {
+            this.publishJobsFromDomainsPage(
+              sub,
+              domains,
+              projectId,
+              batchEnabled,
+            );
+          }
           page++;
-        } while (domains.length >= pageSize);
+        } while (domains.length >= pageSize && pageSize !== null);
         break;
       case 'ALL_HOSTS':
         let hosts: Pick<HostDocument, '_id' | 'ip'>[];
         do {
           hosts = await this.hostsService.getIps(page, pageSize, filter);
-          this.publishJobsFromHostsPage(sub, hosts, projectId);
+          if (hosts.length) {
+            this.publishJobsFromHostsPage(sub, hosts, projectId, batchEnabled);
+          }
           page++;
-        } while (hosts.length >= pageSize);
+        } while (hosts.length >= pageSize && pageSize !== null);
         break;
       case 'ALL_TCP_PORTS':
         let ports: Pick<Port, 'port' | 'layer4Protocol' | 'host'>[];
@@ -264,13 +310,21 @@ export class CronSubscriptionsService {
             pageSize,
             tcpPortFilter,
           );
-          this.publishJobsFromPortsPage(sub, ports, projectId);
+          if (ports.length) {
+            this.publishJobsFromPortsPage(sub, ports, projectId, batchEnabled);
+          }
           page++;
-        } while (ports.length >= pageSize);
+        } while (ports.length >= pageSize && pageSize !== null);
         break;
       case 'ALL_IP_RANGES':
         const ranges = await this.projectService.getIpRanges(projectId);
-        this.publishJobsFromIpRanges(sub, ranges, projectId);
+        this.publishJobsFromIpRanges(
+          sub,
+          ranges,
+          projectId,
+          batchEnabled,
+          pageSize,
+        );
         break;
       case 'ALL_WEBSITES':
         let websites: Pick<
@@ -282,9 +336,16 @@ export class CronSubscriptionsService {
             ...filter,
             mergedInId: { $eq: null },
           });
-          this.publishJobsFromWebsitesPage(sub, websites, projectId);
+          if (websites.length) {
+            this.publishJobsFromWebsitesPage(
+              sub,
+              websites,
+              projectId,
+              batchEnabled,
+            );
+          }
           page++;
-        } while (websites.length >= pageSize);
+        } while (websites.length >= pageSize && pageSize !== null);
         break;
       default:
         this.logger.error(
@@ -297,10 +358,17 @@ export class CronSubscriptionsService {
     sub: CronSubscription,
     domains: Pick<DomainDocument, 'name'>[],
     projectId: string,
+    batchEnabled: boolean,
   ) {
-    for (const domain of domains) {
-      const finding = new HostnameFinding();
-      finding.domainName = domain.name;
+    if (!batchEnabled) {
+      for (const domain of domains) {
+        const finding = new HostnameFinding();
+        finding.domainName = domain.name;
+        this.publishJobForFinding(sub, finding, projectId);
+      }
+    } else {
+      const finding = new HostnameBatchFinding();
+      finding.domainBatch = domains.map((d) => d.name);
       this.publishJobForFinding(sub, finding, projectId);
     }
   }
@@ -309,10 +377,17 @@ export class CronSubscriptionsService {
     sub: CronSubscription,
     hosts: Pick<HostDocument, 'ip'>[],
     projectId: string,
+    batchEnabled: boolean,
   ) {
-    for (const host of hosts) {
-      const finding = new IpFinding();
-      finding.ip = host.ip;
+    if (!batchEnabled) {
+      for (const host of hosts) {
+        const finding = new IpFinding();
+        finding.ip = host.ip;
+        this.publishJobForFinding(sub, finding, projectId);
+      }
+    } else {
+      const finding = new IpBatchFinding();
+      finding.ipBatch = hosts.map((h) => h.ip);
       this.publishJobForFinding(sub, finding, projectId);
     }
   }
@@ -324,14 +399,28 @@ export class CronSubscriptionsService {
       '_id' | 'domain' | 'host' | 'port' | 'path' | 'ssl'
     >[],
     projectId: string,
+    batchEnabled: boolean,
   ) {
-    for (const website of websites) {
-      const finding = new WebsiteFinding();
-      finding.ip = website.host.ip;
-      finding.domainName = website.domain?.name ?? '';
-      finding.port = website.port.port;
-      finding.ssl = website.ssl;
-      finding.path = website.path;
+    if (!batchEnabled) {
+      for (const website of websites) {
+        const finding = new WebsiteFinding();
+        finding.ip = website.host.ip;
+        finding.domainName = website.domain?.name ?? '';
+        finding.port = website.port.port;
+        finding.ssl = website.ssl;
+        finding.path = website.path;
+        this.publishJobForFinding(sub, finding, projectId);
+      }
+    } else {
+      const finding = new WebsiteBatchFinding();
+      for (const website of websites) {
+        finding.domainBatch.push(website.domain?.name ?? '');
+        finding.ipBatch.push(website.host.ip);
+        finding.portBatch.push(website.port.port);
+        finding.pathBatch.push(website.path);
+        finding.sslBatch.push(website.ssl ?? false);
+        finding.protocolBatch.push('tcp');
+      }
       this.publishJobForFinding(sub, finding, projectId);
     }
   }
@@ -340,15 +429,20 @@ export class CronSubscriptionsService {
     sub: CronSubscription,
     project: Pick<ProjectDocument, 'ipRanges'>,
     projectId: string,
+    batchEnabled: boolean,
+    batchSize: number,
   ) {
     if (!project.ipRanges) return;
 
+    let batchFinding = new IpRangeBatchFinding();
+    let counter = 0;
     for (const range of project.ipRanges) {
-      const finding = new IpRangeFinding();
       const ipMask = range.split('/');
+      let ip = '';
+      let mask = -1;
       try {
-        finding.ip = ipMask[0];
-        finding.mask = Number(ipMask[1]);
+        ip = ipMask[0];
+        mask = Number(ipMask[1]);
       } catch (err) {
         this.logger.error(err);
         this.logger.error(
@@ -356,7 +450,21 @@ export class CronSubscriptionsService {
         );
         continue;
       }
-      this.publishJobForFinding(sub, finding, projectId);
+
+      if (!batchEnabled) {
+        const finding = new IpRangeFinding();
+        finding.ip = ip;
+        finding.mask = mask;
+        this.publishJobForFinding(sub, finding, projectId);
+      } else {
+        counter++;
+        batchFinding.ipBatch.push(ip);
+        batchFinding.maskBatch.push(mask);
+        if (counter % batchSize == 0 || counter === project.ipRanges.length) {
+          this.publishJobForFinding(sub, batchFinding, projectId);
+          batchFinding = new IpRangeBatchFinding();
+        }
+      }
     }
   }
 
@@ -364,19 +472,30 @@ export class CronSubscriptionsService {
     sub: CronSubscription,
     ports: Pick<Port, 'port' | 'layer4Protocol' | 'host'>[],
     projectId: string,
+    batchEnabled: boolean,
   ) {
-    for (const port of ports) {
-      const finding = new PortFinding();
-      finding.ip = port.host.ip;
-      finding.port = port.port;
-      finding.fields = [
-        {
-          data: <'tcp' | 'udp'>port.layer4Protocol,
-          key: 'protocol',
-          label: '',
-          type: 'text',
-        },
-      ];
+    if (!batchEnabled) {
+      for (const port of ports) {
+        const finding = new PortFinding();
+        finding.ip = port.host.ip;
+        finding.port = port.port;
+        finding.fields = [
+          {
+            data: <'tcp' | 'udp'>port.layer4Protocol,
+            key: 'protocol',
+            label: '',
+            type: 'text',
+          },
+        ];
+        this.publishJobForFinding(sub, finding, projectId);
+      }
+    } else {
+      const finding = new PortBatchFinding();
+      for (const p of ports) {
+        finding.ipBatch.push(p.host.ip);
+        finding.portBatch.push(p.port);
+        finding.protocolBatch.push(p.layer4Protocol === 'tcp' ? 'tcp' : 'udp');
+      }
       this.publishJobForFinding(sub, finding, projectId);
     }
   }

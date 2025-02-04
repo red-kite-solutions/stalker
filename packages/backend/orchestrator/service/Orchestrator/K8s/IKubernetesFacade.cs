@@ -9,16 +9,6 @@ public interface IKubernetesFacade
     Task<KubernetesJob> CreateJob(KubernetesJobTemplate jobTemplate);
 
     /// <summary>
-    /// Gets the stream of logs for the given jobTemplate's pod.
-    /// </summary>
-    Task<Stream> GetJobLogs(string jobName, string jobNamespace = "default");
-
-    /// <summary>
-    /// Deletes a jobTemplate.
-    /// </summary>
-    Task DeleteJob(string jobName, string jobNamespace = "default");
-
-    /// <summary>
     /// True if the pod is in the status "Failed" or "Succeeded", false otherwise
     /// </summary>
     Task<bool> IsJobPodFinished(string jobName, string jobNamespace = "default");

@@ -52,3 +52,16 @@ ul li {
 .check-icon {
   margin-right: 8px !important;
 }
+
+.clear-button {
+  font-size: 1.65em;
+  cursor: pointer;
+  font-weight: 100;
+  margin-top: -2px;
+  padding-right: 3px;
+  opacity: 0.8;
+
+  &:hover {
+    opacity: 1;
+  }
+}

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
-  <file datatype="plaintext" original="ng2.template" source-language="en" target-language="fr-FR">
+  <file datatype="plaintext" original="ng2.template" source-language="en" target-language="fr-CA">
     <body>
       <trans-unit id="6815247123494849365" datatype="html">
         <source>Page not found !</source>
@@ -823,7 +823,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/components/sidebar/sidebar.component.ts</context>
-          <context context-type="linenumber">16</context>
+          <context context-type="linenumber">109</context>
         </context-group>
         <note priority="1" from="description">Users list page title</note>
         <note priority="1" from="meaning">Users</note>
@@ -1214,10 +1214,6 @@
           <context context-type="sourcefile">src/app/modules/admin/settings/settings.component.html</context>
           <context context-type="linenumber">4</context>
         </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/shared/components/sidebar/sidebar.component.ts</context>
-          <context context-type="linenumber">17</context>
-        </context-group>
         <note priority="1" from="description">Settings page title to edit the application configuration</note>
         <note priority="1" from="meaning">Settings</note>
       </trans-unit>
@@ -1570,17 +1566,37 @@
         <target>Dernières tâches</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/dashboard/latest-jobs/latest-jobs.component.ts</context>
-          <context context-type="linenumber">15</context>
+          <context context-type="linenumber">17</context>
         </context-group>
         <note priority="1" from="description">Latest jobs that ran</note>
         <note priority="1" from="meaning">Latest jobs</note>
+      </trans-unit>
+      <trans-unit id="5855230246994137028" datatype="html">
+        <source>No executions yet. Start by</source>
+        <target>Pas d'exécutions pour le moment. Commencer par</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/dashboard/latest-jobs/latest-jobs.component.ts</context>
+          <context context-type="linenumber">31</context>
+        </context-group>
+        <note priority="1" from="description">No executions yet. Start by</note>
+        <note priority="1" from="meaning">No executions yet. Start by</note>
+      </trans-unit>
+      <trans-unit id="4056209968897964412" datatype="html">
+        <source>adding domains</source>
+        <target>ajouter des domaines</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/dashboard/latest-jobs/latest-jobs.component.ts</context>
+          <context context-type="linenumber">32</context>
+        </context-group>
+        <note priority="1" from="description">Adding a domain</note>
+        <note priority="1" from="meaning">Adding a domain</note>
       </trans-unit>
       <trans-unit id="8859171491503661591" datatype="html">
         <source>Number of domains</source>
         <target>Nombre de domaines</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/dashboard/number-of-domains-metric/number-of-domains-metric.component.ts</context>
-          <context context-type="linenumber">17</context>
+          <context context-type="linenumber">24</context>
         </context-group>
         <note priority="1" from="meaning">Number of domains</note>
       </trans-unit>
@@ -1589,7 +1605,7 @@
         <target>Nombre d'hôtes</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/dashboard/number-of-hosts-metric/number-of-hosts-metric.component.ts</context>
-          <context context-type="linenumber">17</context>
+          <context context-type="linenumber">24</context>
         </context-group>
         <note priority="1" from="meaning">Number of hosts</note>
       </trans-unit>
@@ -1602,7 +1618,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/components/sidebar/sidebar.component.ts</context>
-          <context context-type="linenumber">18</context>
+          <context context-type="linenumber">94</context>
         </context-group>
         <note priority="1" from="description">Projects list</note>
         <note priority="1" from="meaning">Projects</note>
@@ -1962,7 +1978,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/components/sidebar/sidebar.component.ts</context>
-          <context context-type="linenumber">19</context>
+          <context context-type="linenumber">44</context>
         </context-group>
         <note priority="1" from="description">Domain names</note>
         <note priority="1" from="meaning">Domains</note>
@@ -2020,7 +2036,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/components/sidebar/sidebar.component.ts</context>
-          <context context-type="linenumber">22</context>
+          <context context-type="linenumber">49</context>
         </context-group>
         <note priority="1" from="description">Multiple server hosts</note>
         <note priority="1" from="meaning">Hosts</note>
@@ -2114,7 +2130,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/components/sidebar/sidebar.component.ts</context>
-          <context context-type="linenumber">20</context>
+          <context context-type="linenumber">99</context>
         </context-group>
         <note priority="1" from="description">Multiple tags describing somthing</note>
         <note priority="1" from="meaning">Tags</note>
@@ -2168,7 +2184,7 @@ another.red-kite.io</target>
         <target>Aucun domaine trouvé</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/domains/list-domains/list-domains.component.ts</context>
-          <context context-type="linenumber">83</context>
+          <context context-type="linenumber">88</context>
         </context-group>
         <note priority="1" from="description">No domain was found</note>
         <note priority="1" from="meaning">No domain found</note>
@@ -2178,7 +2194,7 @@ another.red-kite.io</target>
         <target>Domaines</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/domains/list-domains/list-domains.component.ts</context>
-          <context context-type="linenumber">141</context>
+          <context context-type="linenumber">152</context>
         </context-group>
         <note priority="1" from="meaning">Domains list page title</note>
       </trans-unit>
@@ -2187,11 +2203,11 @@ another.red-kite.io</target>
         <target>Nom du projet introuvable</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/domains/list-domains/list-domains.component.ts</context>
-          <context context-type="linenumber">174</context>
+          <context context-type="linenumber">185</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/hosts/list-hosts/list-hosts.component.ts</context>
-          <context context-type="linenumber">176</context>
+          <context context-type="linenumber">186</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/jobs/job-executions/job-executions.component.ts</context>
@@ -2199,11 +2215,11 @@ another.red-kite.io</target>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/ports/list-ports/list-ports.component.ts</context>
-          <context context-type="linenumber">170</context>
+          <context context-type="linenumber">180</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/websites/list-websites/list-websites.component.ts</context>
-          <context context-type="linenumber">242</context>
+          <context context-type="linenumber">252</context>
         </context-group>
         <note priority="1" from="description">The given project name is not known to the application</note>
         <note priority="1" from="meaning">Project does not exist</note>
@@ -2213,19 +2229,19 @@ another.red-kite.io</target>
         <target>Étiquette non reconnue</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/domains/list-domains/list-domains.component.ts</context>
-          <context context-type="linenumber">187</context>
+          <context context-type="linenumber">198</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/hosts/list-hosts/list-hosts.component.ts</context>
-          <context context-type="linenumber">187</context>
+          <context context-type="linenumber">197</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/ports/list-ports/list-ports.component.ts</context>
-          <context context-type="linenumber">181</context>
+          <context context-type="linenumber">191</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/websites/list-websites/list-websites.component.ts</context>
-          <context context-type="linenumber">256</context>
+          <context context-type="linenumber">266</context>
         </context-group>
         <note priority="1" from="description">The given tag is not known to the application</note>
         <note priority="1" from="meaning">Tag does not exist</note>
@@ -2235,11 +2251,11 @@ another.red-kite.io</target>
         <target>Projet manquant</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/domains/list-domains/list-domains.component.ts</context>
-          <context context-type="linenumber">221</context>
+          <context context-type="linenumber">235</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/hosts/list-hosts/list-hosts.component.ts</context>
-          <context context-type="linenumber">219</context>
+          <context context-type="linenumber">232</context>
         </context-group>
         <note priority="1" from="description">The data selected is missing the project id</note>
         <note priority="1" from="meaning">Missing project</note>
@@ -2249,7 +2265,7 @@ another.red-kite.io</target>
         <target>Nom de domaine manquant</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/domains/list-domains/list-domains.component.ts</context>
-          <context context-type="linenumber">227</context>
+          <context context-type="linenumber">241</context>
         </context-group>
         <note priority="1" from="description">The data selected is missing the new domain names</note>
         <note priority="1" from="meaning">Missing domain</note>
@@ -2259,11 +2275,11 @@ another.red-kite.io</target>
         <target>Changements sauvegardés avec succès</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/domains/list-domains/list-domains.component.ts</context>
-          <context context-type="linenumber">241</context>
+          <context context-type="linenumber">255</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/hosts/list-hosts/list-hosts.component.ts</context>
-          <context context-type="linenumber">237</context>
+          <context context-type="linenumber">250</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/projects/edit-projects/edit-projects.component.ts</context>
@@ -2277,7 +2293,7 @@ another.red-kite.io</target>
         <target>Certains domaines n'ont pas été ajoutés</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/domains/list-domains/list-domains.component.ts</context>
-          <context context-type="linenumber">245</context>
+          <context context-type="linenumber">259</context>
         </context-group>
         <note priority="1" from="description">Some domains were not added to the database</note>
         <note priority="1" from="meaning">Domains not added</note>
@@ -2287,7 +2303,7 @@ another.red-kite.io</target>
         <target>Erreur lors de l'envoi des domaines, vérifiez les formats</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/domains/list-domains/list-domains.component.ts</context>
-          <context context-type="linenumber">256</context>
+          <context context-type="linenumber">270</context>
         </context-group>
         <note priority="1" from="description">Error while submitting the new domain names to the backend. Most likely a domain formatting error</note>
         <note priority="1" from="meaning">Check domain format</note>
@@ -2297,7 +2313,7 @@ another.red-kite.io</target>
         <target>Débloquer</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/domains/list-domains/list-domains.component.ts</context>
-          <context context-type="linenumber">303</context>
+          <context context-type="linenumber">317</context>
         </context-group>
         <note priority="1" from="description">Unblock domain</note>
         <note priority="1" from="meaning">Unblock domain</note>
@@ -2307,7 +2323,7 @@ another.red-kite.io</target>
         <target>Bloquer</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/domains/list-domains/list-domains.component.ts</context>
-          <context context-type="linenumber">304</context>
+          <context context-type="linenumber">318</context>
         </context-group>
         <note priority="1" from="description">Block domain</note>
         <note priority="1" from="meaning">Block domain</note>
@@ -2317,7 +2333,7 @@ another.red-kite.io</target>
         <target>Supprimer</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/domains/list-domains/list-domains.component.ts</context>
-          <context context-type="linenumber">310</context>
+          <context context-type="linenumber">324</context>
         </context-group>
         <note priority="1" from="description">Delete domain</note>
         <note priority="1" from="meaning">Delete domain</note>
@@ -2782,7 +2798,7 @@ another.red-kite.io</target>
         <target>Aucun hôte trouvé</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/hosts/list-hosts/list-hosts.component.ts</context>
-          <context context-type="linenumber">84</context>
+          <context context-type="linenumber">89</context>
         </context-group>
         <note priority="1" from="description">No host was found</note>
         <note priority="1" from="meaning">No host found</note>
@@ -2792,7 +2808,7 @@ another.red-kite.io</target>
         <target>Hôtes</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/hosts/list-hosts/list-hosts.component.ts</context>
-          <context context-type="linenumber">143</context>
+          <context context-type="linenumber">153</context>
         </context-group>
         <note priority="1" from="meaning">Hosts list page title</note>
       </trans-unit>
@@ -2801,7 +2817,7 @@ another.red-kite.io</target>
         <target>Adresses IP d'hôte manquantes</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/hosts/list-hosts/list-hosts.component.ts</context>
-          <context context-type="linenumber">224</context>
+          <context context-type="linenumber">237</context>
         </context-group>
         <note priority="1" from="description">The data selected is missing the new hosts</note>
         <note priority="1" from="meaning">Missing host</note>
@@ -2811,7 +2827,7 @@ another.red-kite.io</target>
         <target>Certains hôtes n'ont pas été ajoutés</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/hosts/list-hosts/list-hosts.component.ts</context>
-          <context context-type="linenumber">241</context>
+          <context context-type="linenumber">254</context>
         </context-group>
         <note priority="1" from="description">Some hosts were not added to the database</note>
         <note priority="1" from="meaning">Hosts not added</note>
@@ -2821,7 +2837,7 @@ another.red-kite.io</target>
         <target>Erreur lors de la soumission des hôtes, vérifiez les formats</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/hosts/list-hosts/list-hosts.component.ts</context>
-          <context context-type="linenumber">252</context>
+          <context context-type="linenumber">265</context>
         </context-group>
         <note priority="1" from="description">Error while submitting the new hosts to the backend. Most likely a host formatting error</note>
         <note priority="1" from="meaning">Check host format</note>
@@ -2831,7 +2847,7 @@ another.red-kite.io</target>
         <target>Débloquer</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/hosts/list-hosts/list-hosts.component.ts</context>
-          <context context-type="linenumber">296</context>
+          <context context-type="linenumber">309</context>
         </context-group>
         <note priority="1" from="description">Unblock host</note>
         <note priority="1" from="meaning">Unblock host</note>
@@ -2841,7 +2857,7 @@ another.red-kite.io</target>
         <target>Bloquer</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/hosts/list-hosts/list-hosts.component.ts</context>
-          <context context-type="linenumber">296</context>
+          <context context-type="linenumber">309</context>
         </context-group>
         <note priority="1" from="description">Block host</note>
         <note priority="1" from="meaning">Block host</note>
@@ -2851,7 +2867,7 @@ another.red-kite.io</target>
         <target>Supprimer</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/hosts/list-hosts/list-hosts.component.ts</context>
-          <context context-type="linenumber">302</context>
+          <context context-type="linenumber">315</context>
         </context-group>
         <note priority="1" from="description">Delete host</note>
         <note priority="1" from="meaning">Delete host</note>
@@ -2897,7 +2913,7 @@ another.red-kite.io</target>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/components/sidebar/sidebar.component.ts</context>
-          <context context-type="linenumber">27</context>
+          <context context-type="linenumber">54</context>
         </context-group>
         <note priority="1" from="description">An IP's related ports</note>
         <note priority="1" from="meaning">Ports</note>
@@ -3318,10 +3334,6 @@ another.red-kite.io</target>
           <context context-type="sourcefile">src/app/modules/jobs/custom-jobs/list-custom-jobs.component.html</context>
           <context context-type="linenumber">4</context>
         </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/shared/components/sidebar/sidebar.component.ts</context>
-          <context context-type="linenumber">23</context>
-        </context-group>
         <note priority="1" from="description">Custom jobs</note>
         <note priority="1" from="meaning">Custom jobs</note>
       </trans-unit>
@@ -3493,10 +3505,6 @@ another.red-kite.io</target>
           <context context-type="sourcefile">src/app/modules/jobs/job-executions/job-executions.component.ts</context>
           <context context-type="linenumber">86</context>
         </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/shared/components/sidebar/sidebar.component.ts</context>
-          <context context-type="linenumber">25</context>
-        </context-group>
         <note priority="1" from="description">List of jobs</note>
         <note priority="1" from="meaning">Job executions</note>
       </trans-unit>
@@ -3615,10 +3623,6 @@ another.red-kite.io</target>
           <context context-type="sourcefile">src/app/modules/jobs/launch-jobs/launch-jobs.component.ts</context>
           <context context-type="linenumber">129</context>
         </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/shared/components/sidebar/sidebar.component.ts</context>
-          <context context-type="linenumber">24</context>
-        </context-group>
         <note priority="1" from="meaning">Launch jobs</note>
       </trans-unit>
       <trans-unit id="2738460630869002158" datatype="html">
@@ -3674,7 +3678,7 @@ another.red-kite.io</target>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/components/sidebar/sidebar.component.ts</context>
-          <context context-type="linenumber">21</context>
+          <context context-type="linenumber">69</context>
         </context-group>
         <note priority="1" from="description">Findings Event Subscriptions</note>
         <note priority="1" from="meaning">Subscriptions</note>
@@ -3950,7 +3954,7 @@ another.red-kite.io</target>
         <target>Aucun port trouvé</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/ports/list-ports/list-ports.component.ts</context>
-          <context context-type="linenumber">81</context>
+          <context context-type="linenumber">86</context>
         </context-group>
         <note priority="1" from="description">No port was found</note>
         <note priority="1" from="meaning">No port found</note>
@@ -3960,7 +3964,7 @@ another.red-kite.io</target>
         <target>Ports</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/ports/list-ports/list-ports.component.ts</context>
-          <context context-type="linenumber">137</context>
+          <context context-type="linenumber">147</context>
         </context-group>
         <note priority="1" from="meaning">Ports list page title</note>
       </trans-unit>
@@ -3969,7 +3973,7 @@ another.red-kite.io</target>
         <target>Débloquer</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/ports/list-ports/list-ports.component.ts</context>
-          <context context-type="linenumber">244</context>
+          <context context-type="linenumber">257</context>
         </context-group>
         <note priority="1" from="description">Unblock port</note>
         <note priority="1" from="meaning">Unblock port</note>
@@ -3979,7 +3983,7 @@ another.red-kite.io</target>
         <target>Bloquer</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/ports/list-ports/list-ports.component.ts</context>
-          <context context-type="linenumber">244</context>
+          <context context-type="linenumber">257</context>
         </context-group>
         <note priority="1" from="description">Block port</note>
         <note priority="1" from="meaning">Block port</note>
@@ -3989,7 +3993,7 @@ another.red-kite.io</target>
         <target>Supprimer</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/ports/list-ports/list-ports.component.ts</context>
-          <context context-type="linenumber">250</context>
+          <context context-type="linenumber">263</context>
         </context-group>
         <note priority="1" from="description">Delete port</note>
         <note priority="1" from="meaning">Delete port</note>
@@ -4641,7 +4645,7 @@ another.red-kite.io</target>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/components/sidebar/sidebar.component.ts</context>
-          <context context-type="linenumber">26</context>
+          <context context-type="linenumber">104</context>
         </context-group>
         <note priority="1" from="description">Job Secrets</note>
         <note priority="1" from="meaning">Secrets</note>
@@ -5164,7 +5168,7 @@ another.red-kite.io</target>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/components/header/header.component.html</context>
-          <context context-type="linenumber">33</context>
+          <context context-type="linenumber">58</context>
         </context-group>
         <note priority="1" from="description">Profile</note>
         <note priority="1" from="meaning">Profile</note>
@@ -5207,7 +5211,7 @@ another.red-kite.io</target>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/components/sidebar/sidebar.component.ts</context>
-          <context context-type="linenumber">28</context>
+          <context context-type="linenumber">59</context>
         </context-group>
         <note priority="1" from="description">Websites</note>
         <note priority="1" from="meaning">Websites</note>
@@ -5261,7 +5265,7 @@ another.red-kite.io</target>
         <target>Aucun site web trouvé</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/websites/list-websites/list-websites.component.ts</context>
-          <context context-type="linenumber">144</context>
+          <context context-type="linenumber">149</context>
         </context-group>
         <note priority="1" from="description">No website was found</note>
         <note priority="1" from="meaning">No website found</note>
@@ -5271,7 +5275,7 @@ another.red-kite.io</target>
         <target>Sites web</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/websites/list-websites/list-websites.component.ts</context>
-          <context context-type="linenumber">207</context>
+          <context context-type="linenumber">217</context>
         </context-group>
         <note priority="1" from="meaning">Websites list page title</note>
       </trans-unit>
@@ -5280,7 +5284,7 @@ another.red-kite.io</target>
         <target>Débloquer</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/websites/list-websites/list-websites.component.ts</context>
-          <context context-type="linenumber">321</context>
+          <context context-type="linenumber">334</context>
         </context-group>
         <note priority="1" from="description">Unblock website</note>
         <note priority="1" from="meaning">Unblock website</note>
@@ -5290,7 +5294,7 @@ another.red-kite.io</target>
         <target>Bloquer</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/websites/list-websites/list-websites.component.ts</context>
-          <context context-type="linenumber">322</context>
+          <context context-type="linenumber">335</context>
         </context-group>
         <note priority="1" from="description">Block website</note>
         <note priority="1" from="meaning">Block website</note>
@@ -5300,7 +5304,7 @@ another.red-kite.io</target>
         <target>Supprimer</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/websites/list-websites/list-websites.component.ts</context>
-          <context context-type="linenumber">328</context>
+          <context context-type="linenumber">341</context>
         </context-group>
         <note priority="1" from="description">Delete website</note>
         <note priority="1" from="meaning">Delete website</note>
@@ -5310,7 +5314,7 @@ another.red-kite.io</target>
         <target>Dé-fusionner</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/websites/list-websites/list-websites.component.ts</context>
-          <context context-type="linenumber">334</context>
+          <context context-type="linenumber">347</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/modules/websites/view-website/view-website.component.html</context>
@@ -6011,7 +6015,7 @@ another.red-kite.io</target>
         <target>Thème</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/components/header/header.component.html</context>
-          <context context-type="linenumber">37</context>
+          <context context-type="linenumber">62</context>
         </context-group>
         <note priority="1" from="description">Red Kite theme</note>
         <note priority="1" from="meaning">Theme</note>
@@ -6021,7 +6025,7 @@ another.red-kite.io</target>
         <target>Langue</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/components/header/header.component.html</context>
-          <context context-type="linenumber">41</context>
+          <context context-type="linenumber">66</context>
         </context-group>
         <note priority="1" from="description">The application's language</note>
         <note priority="1" from="meaning">Language selector</note>
@@ -6031,10 +6035,30 @@ another.red-kite.io</target>
         <target>Déconnexion</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/components/header/header.component.html</context>
-          <context context-type="linenumber">45</context>
+          <context context-type="linenumber">70</context>
         </context-group>
         <note priority="1" from="description">Link for a user to log out</note>
         <note priority="1" from="meaning">Sign out</note>
+      </trans-unit>
+      <trans-unit id="5693941812191716794" datatype="html">
+        <source>Filter projects</source>
+        <target>Filtrer les projets</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/header/header.component.ts</context>
+          <context context-type="linenumber">34</context>
+        </context-group>
+        <note priority="1" from="description">Filter projects</note>
+        <note priority="1" from="meaning">Filter projects</note>
+      </trans-unit>
+      <trans-unit id="653082128822759017" datatype="html">
+        <source>No projects yet</source>
+        <target>Pas de projets pour le moment</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/header/header.component.ts</context>
+          <context context-type="linenumber">35</context>
+        </context-group>
+        <note priority="1" from="description">List of projects is empty</note>
+        <note priority="1" from="meaning">No projects yet</note>
       </trans-unit>
       <trans-unit id="3471141138004040625" datatype="html">
         <source>Continue without template</source>
@@ -6056,45 +6080,75 @@ another.red-kite.io</target>
         <note priority="1" from="description">Select</note>
         <note priority="1" from="meaning">Select</note>
       </trans-unit>
-      <trans-unit id="2229124788598372100" datatype="html">
-        <source>Pages</source>
-        <target>Pages</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/shared/components/sidebar/sidebar.component.html</context>
-          <context context-type="linenumber">4</context>
-        </context-group>
-        <note priority="1" from="description">The different pages of the application</note>
-        <note priority="1" from="meaning">Pages</note>
-      </trans-unit>
-      <trans-unit id="465414230784887194" datatype="html">
-        <source>Jobs</source>
-        <target>Tâches</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/shared/components/sidebar/sidebar.component.html</context>
-          <context context-type="linenumber">118</context>
-        </context-group>
-        <note priority="1" from="description">Jobs done by the backend</note>
-        <note priority="1" from="meaning">Jobs</note>
-      </trans-unit>
-      <trans-unit id="5087373960546818238" datatype="html">
-        <source>Administration</source>
-        <target>Administration</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/shared/components/sidebar/sidebar.component.html</context>
-          <context context-type="linenumber">194</context>
-        </context-group>
-        <note priority="1" from="description">Administration subsection of the menu</note>
-        <note priority="1" from="meaning">Administration</note>
-      </trans-unit>
       <trans-unit id="1264344965728668944" datatype="html">
         <source>Dashboard</source>
         <target>Tableau de bord</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/components/sidebar/sidebar.component.ts</context>
-          <context context-type="linenumber">15</context>
+          <context context-type="linenumber">34</context>
         </context-group>
-        <note priority="1" from="description">The application's dashboard</note>
+        <note priority="1" from="description">Sidenav dashboard button</note>
         <note priority="1" from="meaning">Dashboard</note>
+      </trans-unit>
+      <trans-unit id="7338353372077439016" datatype="html">
+        <source>Resources</source>
+        <target>Ressources</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/sidebar/sidebar.component.ts</context>
+          <context context-type="linenumber">39</context>
+        </context-group>
+        <note priority="1" from="description">Title for the Resources section of the sidenav</note>
+        <note priority="1" from="meaning">Resources</note>
+      </trans-unit>
+      <trans-unit id="262799458739255832" datatype="html">
+        <source>Automation</source>
+        <target>Automatismes</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/sidebar/sidebar.component.ts</context>
+          <context context-type="linenumber">64</context>
+        </context-group>
+        <note priority="1" from="description">Title for the Automation section of the sidenav</note>
+        <note priority="1" from="meaning">Automation</note>
+      </trans-unit>
+      <trans-unit id="465414230784887194" datatype="html">
+        <source>Jobs</source>
+        <target>Tâches</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/sidebar/sidebar.component.ts</context>
+          <context context-type="linenumber">74</context>
+        </context-group>
+        <note priority="1" from="description">Sidenav button for jobs</note>
+        <note priority="1" from="meaning">Jobs</note>
+      </trans-unit>
+      <trans-unit id="1858129043729429159" datatype="html">
+        <source>Launch</source>
+        <target>Lancer</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/sidebar/sidebar.component.ts</context>
+          <context context-type="linenumber">79</context>
+        </context-group>
+        <note priority="1" from="description">Sidenav button for launch jobs</note>
+        <note priority="1" from="meaning">Launch</note>
+      </trans-unit>
+      <trans-unit id="371756581256294263" datatype="html">
+        <source>Executions </source>
+        <target>Exécutions</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/sidebar/sidebar.component.ts</context>
+          <context context-type="linenumber">84</context>
+        </context-group>
+        <note priority="1" from="description">Sidenav button for job executions</note>
+        <note priority="1" from="meaning">Executions</note>
+      </trans-unit>
+      <trans-unit id="4398697588473736229" datatype="html">
+        <source>Management</source>
+        <target>Gestion</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/sidebar/sidebar.component.ts</context>
+          <context context-type="linenumber">89</context>
+        </context-group>
+        <note priority="1" from="description">Title for the Management section of the sidenav</note>
+        <note priority="1" from="meaning">Management</note>
       </trans-unit>
       <trans-unit id="5907848337831726767" datatype="html">
         <source>You have unsaved changes that will be lost if you proceed. Are you sure you want to leave without saving?</source>
@@ -6363,7 +6417,7 @@ another.red-kite.io</target>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/widget/text-select-menu/text-select-menu.component.ts</context>
-          <context context-type="linenumber">38</context>
+          <context context-type="linenumber">39</context>
         </context-group>
         <note priority="1" from="meaning">Click Here</note>
       </trans-unit>
@@ -6372,7 +6426,7 @@ another.red-kite.io</target>
         <target>Filtrer les éléments</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/widget/text-select-menu/text-select-menu.component.ts</context>
-          <context context-type="linenumber">39</context>
+          <context context-type="linenumber">41</context>
         </context-group>
         <note priority="1" from="description">Filter the items of a list</note>
         <note priority="1" from="meaning">Filter Items</note>
@@ -6382,7 +6436,7 @@ another.red-kite.io</target>
         <target>Aucun item disponible</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/widget/text-select-menu/text-select-menu.component.ts</context>
-          <context context-type="linenumber">40</context>
+          <context context-type="linenumber">42</context>
         </context-group>
         <note priority="1" from="description">The list is empty</note>
         <note priority="1" from="meaning">No Items</note>

@@ -125,7 +125,7 @@ describe('Findings Service Spec', () => {
   });
 
   it.each([
-    [undefined, undefined, undefined],
+    ['example.org', '2.2.2.2', undefined],
     ['example.org', undefined, 80],
     ['example.org', '1.1.1.1', undefined],
     [undefined, undefined, 1],

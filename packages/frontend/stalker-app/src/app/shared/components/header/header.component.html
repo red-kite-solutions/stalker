@@ -1,5 +1,5 @@
 <mat-toolbar color="primary" class="mat-elevation-z6">
-  <mat-toolbar-row class="tw-flex tw-gap-4">
+  <mat-toolbar-row class="tw-flex">
     <div class="tw-flex tw-flex-1 tw-items-center tw-gap-2">
       @if (showRouting) {
         <button mat-icon-button (click)="toggleSideBar()">
@@ -17,6 +17,31 @@
         >
       </span>
     </div>
+
+    @if (showRouting) {
+      @if (selectedProject != null) {
+        <app-pill-tag [color]="'#ff9900'">
+          <div class="tw-flex tw-ml-1 tw-gap-1">
+            <span class="tw-max-w-48 tw-text-ellipsis tw-overflow-hidden">project: {{ selectedProject.text }}</span>
+            <span class="clear-button" (click)="clearProject()">×</span>
+          </div>
+        </app-pill-tag>
+      } @else {
+        <app-text-select-menu
+          class="tw-translate-y-[2px]"
+          [items]="projects$ | async"
+          [buttonIcon]="'filter_alt'"
+          [buttonText]="undefined"
+          [filterText]="filterProjects"
+          [filterEnabled]="true"
+          [colorEnabled]="true"
+          [emptyText]="emptyProjects"
+          [multiSelect]="false"
+          (open)="refreshProjects()"
+          (itemSelection)="selectProject($event)"
+        ></app-text-select-menu>
+      }
+    }
 
     <div [hidden]="!showRouting">
       <button mat-button [matMenuTriggerFor]="menu">

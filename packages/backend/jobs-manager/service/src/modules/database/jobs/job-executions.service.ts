@@ -177,8 +177,8 @@ export class JobExecutionsService {
     const select = { _id: { $eq: new Types.ObjectId(jobId) } };
     switch (status.toLowerCase()) {
       case 'started':
-        await this.addJobOutputLine(jobId, timestamp, 'Job started.', 'debug');
         return await this.jobModel.updateOne(select, { startTime: timestamp });
+
       case 'success':
         await this.addJobOutputLine(
           jobId,
@@ -187,8 +187,13 @@ export class JobExecutionsService {
           'debug',
         );
         return await this.jobModel.updateOne(select, { endTime: timestamp });
+
       case 'failed':
         await this.addJobOutputLine(jobId, timestamp, 'Job failed.', 'debug');
+        return await this.jobModel.updateOne(select, { endTime: timestamp });
+
+      case 'ended':
+        await this.addJobOutputLine(jobId, timestamp, 'Job ended.', 'debug');
         return await this.jobModel.updateOne(select, { endTime: timestamp });
       default:
         return null;

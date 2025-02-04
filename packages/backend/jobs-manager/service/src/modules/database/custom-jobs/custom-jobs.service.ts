@@ -103,6 +103,11 @@ export class CustomJobsService {
   }
 
   public async edit(id: string, dto: JobDto): Promise<CustomJobsDocument> {
+    const container: JobContainerDocument = await this.containersModel.findById(
+      dto.containerId,
+    );
+    if (!container) throw new HttpNotFoundException('Container id not found');
+
     const job: Partial<CustomJobEntry> = {
       name: dto.name,
       code: dto.code,
@@ -112,6 +117,10 @@ export class CustomJobsService {
       findingHandlerEnabled: dto.findingHandlerEnabled,
       findingHandler: dto.findingHandler ?? undefined,
       findingHandlerLanguage: dto.findingHandlerLanguage ?? undefined,
+      container: {
+        id: container._id,
+        image: container.image,
+      },
     };
     const r = await this.customJobModel.findOneAndUpdate(
       {

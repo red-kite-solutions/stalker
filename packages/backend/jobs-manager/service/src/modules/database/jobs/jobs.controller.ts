@@ -29,7 +29,7 @@ import { ConfigService } from '../admin/config/config.service';
 import { JobPodConfiguration } from '../admin/config/job-pod-config/job-pod-config.model';
 import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
 import { SecretsService } from '../secrets/secrets.service';
-import { JobParameter } from '../subscriptions/event-subscriptions/event-subscriptions.model';
+import { JobParameter } from '../subscriptions/subscriptions.type';
 import { JobExecutionsService } from './job-executions.service';
 import { JobDefinitions } from './job-model.module';
 import { JobExecutionsDto, StartJobDto } from './jobs.dto';

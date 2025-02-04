@@ -7,7 +7,7 @@ namespace Orchestrator.Utils
     {
         private static readonly string PrivateKeyEnvironementVariable = "SECRET_PRIVATE_RSA_KEY";
         private static readonly RSACryptoServiceProvider RSA = InitRsa();
-        public static readonly string SecretPrefix = "$$secret$$";
+        private static readonly string SecretPrefix = "$$secret$$";
 
         private static RSACryptoServiceProvider InitRsa()
         {
@@ -25,7 +25,7 @@ namespace Orchestrator.Utils
         /// <returns>The decrypted value, or the value unchanged if it did not start with <see cref="CryptoUtils.SecretPrefix"/></returns>
         public static string Decrypt(string value)
         {
-            if (!value.StartsWith(SecretPrefix)) return value;
+            if (!IsSecret(value)) return value;
 
             var returnValue = value;
 
@@ -42,6 +42,11 @@ namespace Orchestrator.Utils
             }
 
             return returnValue;
+        }
+
+        public static bool IsSecret(string value)
+        {
+            return value.StartsWith(SecretPrefix);
         }
 
     }

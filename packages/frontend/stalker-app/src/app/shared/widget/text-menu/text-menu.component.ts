@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, ElementRef, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule, MenuPositionX } from '@angular/material/menu';
@@ -13,12 +13,15 @@ import { MatMenuModule, MenuPositionX } from '@angular/material/menu';
   imports: [CommonModule, MatButtonModule, MatMenuModule, MatIconModule],
 })
 export class TextMenuComponent {
-  @Input() buttonText = $localize`:Click Here|:Click Here`;
+  @Input() buttonText: string | undefined = $localize`:Click Here|:Click Here`;
+  @Input() buttonIcon: string | undefined = undefined;
   @Input() iconName = '';
   @Input() xPosition: MenuPositionX = 'after';
 
   /** Used to determine the menu width. Otherwise, uses the button width. */
   @Input() containerElement: HTMLElement | undefined = undefined;
+
+  @Output() open = new EventEmitter();
 
   public get width() {
     return this.containerElement?.offsetWidth ?? this.element.nativeElement.offsetWidth;

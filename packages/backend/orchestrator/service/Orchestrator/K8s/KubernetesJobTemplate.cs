@@ -20,6 +20,10 @@ public class KubernetesJobTemplate
     public virtual string[] Command { get; init; }
 
     /// <summary>
+    /// Command executed before the container stops.
+    /// </summary>
+    public virtual IList<string> PreStopCommand { get; init; } = Array.Empty<string>();
+    /// <summary>
     /// Gets the environment variables for this job.
     /// </summary>
     public Dictionary<string, string> EnvironmentVariable { get; } = new();

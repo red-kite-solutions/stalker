@@ -19,11 +19,11 @@ import { CronApiTokenGuard } from '../../../auth/guards/cron-api-token.guard';
 import { RolesGuard } from '../../../auth/guards/role.guard';
 import { ApiKeyStrategy } from '../../../auth/strategies/api-key.strategy';
 import { JwtStrategy } from '../../../auth/strategies/jwt.strategy';
-import { PatchSubscriptionDto } from '../subscriptions.dto';
 import {
-  CronSubscriptionDto,
-  DuplicateCronSubscriptionDto,
-} from './cron-subscriptions.dto';
+  DuplicateSubscriptionDto,
+  PatchSubscriptionDto,
+} from '../subscriptions.dto';
+import { CronSubscriptionDto } from './cron-subscriptions.dto';
 import { CronSubscriptionsDocument } from './cron-subscriptions.model';
 import { CronSubscriptionsService } from './cron-subscriptions.service';
 
@@ -34,9 +34,7 @@ export class CronSubscriptionsController {
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.User)
   @Post()
-  async create(
-    @Body() dto: CronSubscriptionDto | DuplicateCronSubscriptionDto,
-  ) {
+  async create(@Body() dto: CronSubscriptionDto | DuplicateSubscriptionDto) {
     if ('subscriptionId' in dto) {
       return await this.subscriptionsService.duplicate(dto.subscriptionId);
     } else {
