@@ -69,7 +69,7 @@ finding_key
       return { findingKey: finding_key };
     }
 
-key = project / domain / host / port / tag / is
+key = project / domain / host / port / tags / other / is
 
 project 
   = "project.name" { return "project.name"; }
@@ -92,10 +92,13 @@ port
   / "port.protocol" { return "port.protocol"; }
   / "port" { return "port.number"; }
 
-tag
+tags 
   = "tag.id" { return "tag.id"; }
   / "tag.name" { return "tag.name"; }
   / "tag" { return "tag.name"; }
+
+other
+  = "mergedIn.id" { return "mergedIn.id" }
 
 is = "is" { return "is"; }
 

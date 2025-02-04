@@ -59,6 +59,7 @@
         [negatableFilterOptions]="['is']"
         [dateSearchEnabled]="true"
         [startDate]="startDate"
+        [filterType]="'grammar'"
       >
         @if ((viewStyle$ | async) === 'table') {
           <app-table-format

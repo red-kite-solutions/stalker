@@ -86,14 +86,9 @@ export class ListPortsComponent {
   allTags$ = this.tagsService.getAllTags().pipe(shareReplay(1));
 
   private refresh$ = new BehaviorSubject(null);
-  public ports$ = combineLatest([
-    this.filtersSource.debouncedFilters$,
-    this.allTags$,
-    this.refresh$,
-    globalProjectFilter$,
-  ]).pipe(
+  public ports$ = combineLatest([this.filtersSource.debouncedFilters$, this.refresh$, globalProjectFilter$]).pipe(
     tap((x) => console.log(x)),
-    switchMap(([{ filters, dateRange, pagination }, tags]) =>
+    switchMap(([{ filters, dateRange, pagination }]) =>
       this.portsService
         .getPage<Port>(
           pagination?.page ?? 0,

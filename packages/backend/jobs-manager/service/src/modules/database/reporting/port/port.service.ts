@@ -10,9 +10,9 @@ import { TagsService } from '../../tags/tag.service';
 import { CorrelationKeyUtils } from '../correlation.utils';
 import { Host, HostDocument } from '../host/host.model';
 import { WebsiteService } from '../websites/website.service';
-import { PortSearchQuery } from './port-search-query';
 import { BatchEditPortsDto, GetPortsDto } from './port.dto';
 import { Port, PortDocument } from './port.model';
+import { PortsFilterParser } from './ports-filter-parser';
 
 @Injectable()
 export class PortService {
@@ -23,7 +23,7 @@ export class PortService {
     private tagsService: TagsService,
     @InjectModel('port') private readonly portsModel: Model<Port>,
     private readonly websiteService: WebsiteService,
-    private readonly portSearchQuery: PortSearchQuery,
+    private readonly portsFilterParser: PortsFilterParser,
   ) {}
 
   private readonly hostNotFoundError = 'Invalid host and project combination.';
@@ -325,7 +325,7 @@ export class PortService {
     let query;
     if (filter) {
       query = this.portsModel.find(
-        await this.portSearchQuery.toMongoFilters(
+        await this.portsFilterParser.buildFilter(
           filter.query,
           filter.firstSeenStartDate,
           filter.firstSeenEndDate,
@@ -347,7 +347,7 @@ export class PortService {
       return await this.portsModel.estimatedDocumentCount();
     } else {
       return await this.portsModel.countDocuments(
-        await this.portSearchQuery.toMongoFilters(
+        await this.portsFilterParser.buildFilter(
           filter.query,
           filter.firstSeenStartDate,
           filter.firstSeenEndDate,

@@ -1,17 +1,19 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { DateRange } from '@angular/material/datepicker';
+import { SearchQueryParser, SearchTerms } from '@red-kite/common/search-query';
 import { Observable, firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Host } from '../../shared/types/host/host.interface';
 import { Page } from '../../shared/types/page.type';
 import { Port } from '../../shared/types/ports/port.interface';
-import { filtersToParams } from '../../utils/filters-to-params';
 
 @Injectable({
   providedIn: 'root',
 })
 export class HostsService {
+  private searchParser = new SearchQueryParser();
+
   constructor(private http: HttpClient) {}
 
   public get(hostId: string): Observable<Host> {
@@ -21,10 +23,11 @@ export class HostsService {
   public getPage(
     page: number,
     pageSize: number,
-    filters: any = undefined,
+    query: string | SearchTerms,
     firstSeenDateRange: DateRange<Date> = new DateRange<Date>(null, null)
   ): Observable<Page<Host>> {
-    let params = filtersToParams(filters);
+    let params = new HttpParams();
+    params = params.append('query', this.searchParser.toQueryString(query));
     params = params.append('page', page);
     params = params.append('pageSize', pageSize);
     if (firstSeenDateRange.start) params = params.append('firstSeenStartDate', firstSeenDateRange.start.getTime());

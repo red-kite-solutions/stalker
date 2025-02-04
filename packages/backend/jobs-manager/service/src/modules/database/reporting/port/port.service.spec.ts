@@ -18,7 +18,6 @@ describe('Port Service', () => {
   let projectService: ProjectService;
   let tagsService: TagsService;
   let portService: PortService;
-  const testPrefix = 'port-service-ut';
 
   let project1: ProjectDocument;
 
@@ -480,12 +479,10 @@ describe('Port Service', () => {
   }
 
   async function block(...ports: PortDocument[]) {
-    for (const port of ports) {
-      await portService.batchEdit({
-        block: true,
-        portIds: [port._id],
-      });
-    }
+    await portService.batchEdit({
+      block: true,
+      portIds: ports.map((x) => x.id),
+    });
   }
 
   afterAll(async () => {

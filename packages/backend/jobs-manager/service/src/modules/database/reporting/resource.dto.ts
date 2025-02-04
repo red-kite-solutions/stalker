@@ -11,6 +11,7 @@ import {
 } from 'class-validator';
 import { booleanStringToBoolean } from '../../../utils/boolean-string-to-boolean';
 
+// TODO 319: REMOVE ME
 export class FilterByDomainDto {
   @IsOptional()
   @IsString({ each: true })
@@ -24,7 +25,7 @@ export class FilterByHostDto {
   @IsOptional()
   @IsString({ each: true })
   @IsArray()
-  hosts: string[];
+  hosts?: string[];
 }
 
 export class FilterByPortDto {
@@ -41,7 +42,7 @@ export class FilterByProjectDto {
   @IsOptional()
   @IsMongoId({ each: true })
   @IsArray()
-  projects: string[];
+  projects?: string[];
 }
 
 export class ResourceFilterDto extends IntersectionType(
@@ -51,24 +52,28 @@ export class ResourceFilterDto extends IntersectionType(
   @IsOptional()
   @IsInt()
   @Type(() => Number)
-  firstSeenStartDate: number;
+  firstSeenStartDate?: number;
 
   @IsOptional()
   @IsInt()
   @Type(() => Number)
-  firstSeenEndDate: number;
+  firstSeenEndDate?: number;
+
+  @IsOptional()
+  @IsString()
+  query: string;
 
   // TODO 319: REMOVE ME
   /** @deprecated: use "query" syntax instead */
   @IsOptional()
   @IsBoolean()
   @Transform(booleanStringToBoolean)
-  blocked: boolean;
+  blocked?: boolean;
 
   // TODO 319: REMOVE ME
   /** @deprecated: use "query" syntax instead */
   @IsOptional()
   @IsMongoId({ each: true })
   @IsArray()
-  tags: string[];
+  tags?: string[];
 }

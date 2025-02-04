@@ -1,28 +1,30 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { DateRange } from '@angular/material/datepicker';
+import { SearchQueryParser, SearchTerms } from '@red-kite/common/search-query';
 import { Observable, firstValueFrom, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Page } from '../../shared/types/page.type';
 import { Website } from '../../shared/types/websites/website.type';
-import { filtersToParams } from '../../utils/filters-to-params';
 
 @Injectable({
   providedIn: 'root',
 })
 export class WebsitesService {
+  private searchParser = new SearchQueryParser();
+
   constructor(private http: HttpClient) {}
 
   public getPage(
     page: number,
     pageSize: number,
-    filters: any = undefined,
+    query: string | SearchTerms,
     firstSeenDateRange: DateRange<Date> = new DateRange<Date>(null, null)
   ): Observable<Page<Website>> {
-    let params = filtersToParams(filters);
+    let params = new HttpParams();
+    params = params.append('query', this.searchParser.toQueryString(query));
     params = params.append('page', page);
     params = params.append('pageSize', pageSize);
-
     if (firstSeenDateRange.start) params = params.append('firstSeenStartDate', firstSeenDateRange.start.getTime());
     if (firstSeenDateRange.end) params = params.append('firstSeenEndDate', firstSeenDateRange.end.getTime());
 
