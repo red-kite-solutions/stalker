@@ -49,6 +49,7 @@ jobs:
         with:
           # 👇 Specify build output path
           path: ./docs/build
+          name: github-pages
 
       - name: Deploy to GitHub Pages
         id: deployment
