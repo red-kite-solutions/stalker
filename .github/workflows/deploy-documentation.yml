@@ -28,14 +28,12 @@ jobs:
       - name: Build
         working-directory: ./docs
         run: npm run build
-
-      - name: Upload artifact
+          
+      - name: Upload static files as artifact
         id: upload
         uses: actions/upload-pages-artifact@v3
         with:
-          # 👇 Specify build output path
-          path: ./docs/build
-          name: github-pages
+          path:  ./docs/build
 
   deploy:
     needs: build
