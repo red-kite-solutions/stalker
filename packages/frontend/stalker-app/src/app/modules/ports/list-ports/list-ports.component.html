@@ -60,6 +60,25 @@
             </td>
           </ng-container>
 
+          <!-- Domain Column -->
+          <ng-container matColumnDef="domains">
+            <th mat-header-cell *matHeaderCellDef i18n="Domain|A domain name">Domain</th>
+            <td mat-cell *matCellDef="let element">
+              @for (domain of element.domains; track domain; let i = $index; let last = $last) {
+                @if (i < maxDomainsPerHost) {
+                  <a [routerLink]="'/domains/' + domain.id" (click)="$event.stopPropagation()"> {{ domain.name }}</a
+                  >{{ !last ? ', ' : '' }}
+                }
+                @if (i === maxDomainsPerHost && maxDomainsPerHost + 1 === element.domains.length) {
+                  <a [routerLink]="'/domains/' + domain.id" (click)="$event.stopPropagation()"> {{ domain.name }}</a>
+                }
+                @if (i === maxDomainsPerHost && maxDomainsPerHost + 1 !== element.domains.length) {
+                  <span i18n="total ellipsis|total elements">... ({{ element.domains.length }} total)</span>
+                }
+              }
+            </td>
+          </ng-container>
+
           <!-- Project Column -->
           <ng-container matColumnDef="project">
             <th mat-header-cell *matHeaderCellDef i18n="Project|A business">Project</th>

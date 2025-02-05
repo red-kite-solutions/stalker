@@ -20,7 +20,7 @@ import { RolesGuard } from '../../../auth/guards/role.guard';
 import { ApiKeyStrategy } from '../../../auth/strategies/api-key.strategy';
 import { JwtStrategy } from '../../../auth/strategies/jwt.strategy';
 import { BatchEditPortsDto, DeleteManyPortsDto, GetPortsDto } from './port.dto';
-import { Port, PortDocument } from './port.model';
+import { ExtendedPort, Port, PortDocument } from './port.model';
 import { PortService } from './port.service';
 
 @Controller('ports')
@@ -32,7 +32,7 @@ export class PortController {
   @Get()
   async getHostTopTcpPorts(
     @Query() dto: GetPortsDto,
-  ): Promise<Port[] | Page<PortDocument>> {
+  ): Promise<Port[] | Page<PortDocument | ExtendedPort>> {
     if (dto.detailsLevel === 'summary') throw new HttpNotImplementedException();
 
     const totalRecords = await this.portsService.count(dto);

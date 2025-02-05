@@ -1,3 +1,4 @@
+import { DomainSummary } from '../domain/domain.summary';
 import { HostSummary } from '../host/host.summary';
 
 export interface PortNumber {
@@ -17,4 +18,8 @@ export interface Port extends PortNumber {
   blocked: boolean;
   blockedAt: number;
   service: string;
+}
+
+export interface ExtendedPort extends Port {
+  domains: DomainSummary[];
 }
