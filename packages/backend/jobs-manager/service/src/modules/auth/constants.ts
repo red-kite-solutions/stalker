@@ -2,7 +2,7 @@ import { UnauthorizedException } from '@nestjs/common';
 
 export const jwtConstants = {
   secret: process.env['JM_JWT_SECRET'],
-  expirationTime: '300s',
+  expirationTime: '12h',
 };
 
 export const resetPasswordConstants = {
@@ -11,7 +11,7 @@ export const resetPasswordConstants = {
 
 export const rtConstants = {
   secret: process.env['JM_REFRESH_SECRET'],
-  expirationTime: '25200s',
+  expirationTime: '5 days',
 };
 
 export const orchestratorConstants = {
