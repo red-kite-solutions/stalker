@@ -223,13 +223,18 @@ export class FindingsService {
   /**
    * Deletes all the findings runs older than `config.jobRunRetentionTimeSeconds`.
    */
-  public async cleanup(): Promise<void> {
-    const config = await this.configService.getConfig();
-    const ttlMilliseconds = config.findingRetentionTimeSeconds * 1000;
-    const now = Date.now();
+  public async cleanup(
+    now: number = Date.now(),
+    ttlMilliseconds: number | undefined = undefined,
+  ): Promise<void> {
+    if (ttlMilliseconds === undefined) {
+      const config = await this.configService.getConfig();
+      ttlMilliseconds = config.findingRetentionTimeSeconds * 1000;
+    }
+
     const oldestValidCreationDate = now - ttlMilliseconds;
     await this.findingModel.deleteMany({
-      $or: [{ created: { $lte: new Date(oldestValidCreationDate) } }],
+      created: { $lte: new Date(oldestValidCreationDate) },
     });
   }
 

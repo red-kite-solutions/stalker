@@ -104,7 +104,7 @@ export class ProjectService {
     await this.websiteService.deleteAllForProject(id);
     await this.triggerService.deleteAllForProject(id);
     await this.findingModel.deleteMany({
-      projectId: { $eq: new Types.ObjectId(id) },
+      correlationKey: { $regex: new RegExp(`^project:${id}`) },
     });
     await this.cronSubscriptionModel.deleteMany({
       projectId: { $eq: new Types.ObjectId(id) },
