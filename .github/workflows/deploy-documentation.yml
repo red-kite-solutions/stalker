@@ -28,31 +28,32 @@ jobs:
       - name: Build
         working-directory: ./docs
         run: npm run build
-
-      - name: Upload artifact
+          
+      - name: Upload static files as artifact
         id: upload
         uses: actions/upload-pages-artifact@v3
         with:
-          # 👇 Specify build output path
-          path: ./docs/build
-          name: github-pages
+          path:  ./docs/build
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
 
+    permissions:
+      pages: write
+      id-token: write
+      
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
 
-    permissions:
-      pages: write
-      id-token: write
-
     steps:
+      - name: Configure Pages
+        uses: actions/configure-pages@v4
+      
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v3
+        uses: actions/deploy-pages@v4
 
   reindex:
     needs: deploy
