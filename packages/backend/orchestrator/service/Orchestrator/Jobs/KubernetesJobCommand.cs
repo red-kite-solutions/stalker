@@ -5,7 +5,7 @@ using Orchestrator.Queue.JobsConsumer;
 
 namespace Orchestrator.Jobs;
 
-public abstract class KubernetesCommand<T> : JobCommand where T : JobRequest
+public abstract class KubernetesJobCommand<T> : JobCommand where T : JobRequest
 {
     private IKubernetesFacade Kubernetes { get; }
     private IMessagesProducer<JobEventMessage> EventsProducer { get; }
@@ -16,7 +16,7 @@ public abstract class KubernetesCommand<T> : JobCommand where T : JobRequest
 
     protected abstract KubernetesJobTemplate JobTemplate { get; }
 
-    protected KubernetesCommand(T request, IKubernetesFacade kubernetes, IMessagesProducer<JobEventMessage> eventsProducer, JobLogsProducer jobLogsProducer, IFindingsParser parser, ILogger logger)
+    protected KubernetesJobCommand(T request, IKubernetesFacade kubernetes, IMessagesProducer<JobEventMessage> eventsProducer, JobLogsProducer jobLogsProducer, IFindingsParser parser, ILogger logger)
     {
         Request = request;
         Kubernetes = kubernetes;

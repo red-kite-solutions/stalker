@@ -1,11 +1,15 @@
 ﻿using k8s;
 using k8s.Models;
+using Orchestrator.Events;
+using Orchestrator.Queue;
 
 namespace Orchestrator.K8s;
 
 public class KubernetesFacade : IKubernetesFacade
 {
     private readonly ILogger<KubernetesFacade> Logger;
+    private JobEventsProducer JobEventsProducer { get; }
+    private JobLogsProducer JobLogsProducer { get; }
 
     /// <summary>
     /// Gets or sets the Kubernetes configuration.
@@ -13,8 +17,10 @@ public class KubernetesFacade : IKubernetesFacade
     //// private KubernetesClientConfiguration KubernetesConfiguration => KubernetesClientConfiguration.BuildConfigFromConfigFile(Environment.GetEnvironmentVariable("KUBECONFIG"));
     private static KubernetesClientConfiguration KubernetesConfiguration => KubernetesClientConfiguration.InClusterConfig();
 
-    public KubernetesFacade(ILogger<KubernetesFacade> logger)
+    public KubernetesFacade(ILogger<KubernetesFacade> logger, IMessagesProducer<JobEventMessage> jobEventsProducer, IMessagesProducer<JobLogMessage> jobLogsProducer)
     {
+        JobEventsProducer = jobEventsProducer as JobEventsProducer;
+        JobLogsProducer = jobLogsProducer as JobLogsProducer;
         Logger = logger;
     }
 
@@ -59,7 +65,8 @@ public class KubernetesFacade : IKubernetesFacade
                 Name = jobName,
                 Labels = new Dictionary<string, string>()
                 {
-                    ["red-kite.io/component"] = "job"
+                    ["red-kite.io/component"] = "job",
+                    ["red-kite.io/jobid"] = jobTemplate.Id
                 }
             },
             new V1JobSpec
@@ -70,7 +77,8 @@ public class KubernetesFacade : IKubernetesFacade
                     {
                         Labels = new Dictionary<string, string>()
                         {
-                            ["red-kite.io/component"] = "job"
+                            ["red-kite.io/component"] = "job",
+                            ["red-kite.io/jobid"] = jobTemplate.Id
                         }
                     },
                     Spec = new V1PodSpec
@@ -120,6 +128,33 @@ public class KubernetesFacade : IKubernetesFacade
             return false;
 
         return RetryableCall(() => pods.Items.FirstOrDefault()?.Status?.Phase == "Succeeded" || pods.Items.FirstOrDefault()?.Status?.Phase == "Failed");
+    }
+
+    /// <summary>
+    /// Terminates a job by deleting its pod
+    /// </summary>
+    /// <param name="jobId"></param>
+    /// <param name="jobNamespace"></param>
+    /// <returns>true if the job was running and terminated, false if it was not running.</returns>
+    public Task TerminateJob(string jobId, string jobNamespace = "default")
+    {
+        using var client = new Kubernetes(KubernetesConfiguration);
+        string labelSelector = "red-kite.io/jobid=" + jobId;
+        var jobs = RetryableCall(() => client.ListNamespacedJob(jobNamespace, labelSelector: labelSelector));
+
+        var runningJob = jobs.Items.FirstOrDefault(job => job.Status.Active > 0);
+
+        if (runningJob != null)
+        {
+            RetryableCall(() => client.DeleteNamespacedJob(runningJob.Metadata.Name, jobNamespace));
+            JobLogsProducer.LogDebug(jobId, $"Job terminated");
+        } 
+        else
+        {
+            JobLogsProducer.LogDebug(jobId, "Tried to terminate, but no corresponding job was runnning");
+        }
+        _ = JobEventsProducer.LogStatus(jobId, JobEventsProducer.JobStatus.Ended);
+        return Task.CompletedTask;
     }
 
     /// <summary>

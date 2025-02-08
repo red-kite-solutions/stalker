@@ -1,9 +1,12 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using Orchestrator.Events;
 using Orchestrator.Jobs.Commands;
+using Orchestrator.Jobs.JobManagementCommand;
 using Orchestrator.Jobs.JobModelCache;
 using Orchestrator.K8s;
 using Orchestrator.Queue;
+using Orchestrator.Queue.JobManagementConsumer;
+using Orchestrator.Queue.JobManagementConsumer.JobManagementRequests;
 using Orchestrator.Queue.JobsConsumer;
 using Orchestrator.Queue.JobsConsumer.JobRequests;
 using Orchestrator.Utils;
@@ -39,6 +42,17 @@ public class JobFactory : IJobFactory
         return request switch
         {
             CustomJobRequest customJob => CreateCustomJobCommand(customJob),
+            _ => throw new InvalidOperationException(),
+        };
+    }
+
+    public JobCommand Create(JobManagementRequest request)
+    {
+        Logger.LogInformation(JsonSerializer.Serialize(request));
+
+        return request switch
+        {
+            TerminateJobRequest managementRequest => new TerminateJobCommand(managementRequest, Kubernetes, EventsProducer, JobLogsProducer, Parser, LoggerFactory.CreateLogger<TerminateJobCommand>(), Config),
             _ => throw new InvalidOperationException(),
         };
     }

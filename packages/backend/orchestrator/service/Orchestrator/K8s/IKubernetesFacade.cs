@@ -1,4 +1,6 @@
-﻿namespace Orchestrator.K8s;
+﻿using k8s.Models;
+
+namespace Orchestrator.K8s;
 
 public interface IKubernetesFacade
 {
@@ -7,6 +9,12 @@ public interface IKubernetesFacade
     /// </summary>
     /// <returns></returns>
     Task<KubernetesJob> CreateJob(KubernetesJobTemplate jobTemplate);
+
+    /// <summary>
+    /// Creates a jobTemplate.
+    /// </summary>
+    /// <returns></returns>
+    Task TerminateJob(string jobId, string jobNamespace = "default");
 
     /// <summary>
     /// True if the pod is in the status "Failed" or "Succeeded", false otherwise

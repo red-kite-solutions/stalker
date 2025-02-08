@@ -7,7 +7,7 @@ using Orchestrator.Queue.JobsConsumer.JobRequests;
 
 namespace Orchestrator.Jobs.Commands;
 
-public class PythonCustomJobCommand : KubernetesCommand<CustomJobRequest>
+public class PythonCustomJobCommand : KubernetesJobCommand<CustomJobRequest>
 {
     protected override KubernetesJobTemplate JobTemplate { get; }
 
