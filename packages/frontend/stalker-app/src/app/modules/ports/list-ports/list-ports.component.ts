@@ -21,7 +21,6 @@ import { ProjectsService } from '../../../api/projects/projects.service';
 import { TagsService } from '../../../api/tags/tags.service';
 import { ProjectCellComponent } from '../../../shared/components/project-cell/project-cell.component';
 import { SharedModule } from '../../../shared/shared.module';
-import { DomainSummary } from '../../../shared/types/domain/domain.summary';
 import { Port } from '../../../shared/types/ports/port.interface';
 import { ProjectSummary } from '../../../shared/types/project/project.summary';
 import {
@@ -81,7 +80,7 @@ export class ListPortsComponent {
   filterOptions: string[] = ['host', 'port', 'project', 'tags', 'is'];
   public readonly noDataMessage = $localize`:No port found|No port was found:No port found`;
 
-  selection = new SelectionModel<Port & { domains: DomainSummary[] }>(true, []);
+  selection = new SelectionModel<Port>(true, []);
   startDate: Date | null = null;
 
   allTags$ = this.tagsService.getAllTags().pipe(shareReplay(1));
