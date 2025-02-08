@@ -13,21 +13,24 @@ Findings come in different shapes and forms. Some findings will create new resou
 
 To produce a finding, the job must create an object containing the necessary information and serialize it as JSON.
 
-The finding object must contain the `type` field. Here is a list of available types.
+The finding object must contain the `type` field. Here is a list of default types that come with the default jobs.
 
-| Type                                                  | Description                                                  |
-| ----------------------------------------------------- | ------------------------------------------------------------ |
-| [HostnameFinding](#hostnamefinding)                   | Creates a new domain.                                        |
-| [IpFinding](#ipfinding)                               | Creates a new host.                                          |
-| [IpRangeFinding](#iprangefinding)                     | Creates a new IP range.                                      |
-| [HostnameIpFinding](#hostnameipfinding)               | Creates a new host, attaches it to a given domain.           |
-| [PortFinding](#portfinding)                           | Creates a new port, attaches it to the given host.           |
-| [WebsiteFinding](#websitefinding)                     | Creates a new website, with the proper host, domain and port |
-| [CustomFinding](#customfinding)                       | Attaches custom finding data to a given entity.              |
-| [PortServiceFinding](#portservicefinding)             | Fills the `service` field of a port.                         |
-| [WebsitePathFinding](#websitepathfinding)             | Adds an endpoint to a website's sitemap.                     |
-| [TagFinding](#tagfinding)                             | Tags a ressource.                                            |
-| [WebsiteScreenshotFinding](#websitescreenshotfinding) | A photo of a rendered website.                               |
+| Type                                                  | Description                                                  | Tier       |
+| ----------------------------------------------------- | ------------------------------------------------------------ | ---------- |
+| [HostnameFinding](#hostnamefinding)                   | Creates a new domain.                                        | Community  |
+| [IpFinding](#ipfinding)                               | Creates a new host.                                          | Community  |
+| [IpRangeFinding](#iprangefinding)                     | Creates a new IP range.                                      | Community  |
+| [HostnameIpFinding](#hostnameipfinding)               | Creates a new host, attaches it to a given domain.           | Community  |
+| [PortFinding](#portfinding)                           | Creates a new port, attaches it to the given host.           | Community  |
+| [WebsiteFinding](#websitefinding)                     | Creates a new website, with the proper host, domain and port | Community  |
+| [CustomFinding](#customfinding)                       | Attaches custom finding data to a given entity.              | Community  |
+| [PortServiceFinding](#portservicefinding)             | Fills the `service` field of a port.                         | Community  |
+| [WebsitePathFinding](#websitepathfinding)             | Adds an endpoint to a website's sitemap.                     | Community  |
+| [TagFinding](#tagfinding)                             | Tags a ressource.                                            | Community  |
+| [WebsiteScreenshotFinding](#websitescreenshotfinding) | A photo of a rendered website.                               | Community  |
+| [AmassDomainReportFinding](#AmassDomainReportFinding) | A report of a domain's relationships.                        | Enterprise |
+| [AmassHostReportFinding](#AmassHostReportFinding)     | A report of a host's relationships.                          | Enterprise |
+| [RirOrgFinding](#RirOrgFinding)                       | The organization responsible for managing an IP.             | Enterprise |
 
 ## HostnameFinding
 
@@ -575,3 +578,86 @@ combinations are:
 | ip                                 | Host          |
 | ip, port, protocol                 | Port          |
 | (domain), ip, port, protocol, path | Website       |
+
+## AmassDomainReportFinding
+
+Attaches a domain relationship report to a domain resource.
+
+Here is an example of how you could emit one using the python SDK.
+
+```python
+from stalker_job_sdk import log_finding, DomainFinding, TextField
+
+domain = "example.com"
+content = "report content"
+fields = [TextField("report", "Report", content)]
+title = "Domain Relationship Report"
+
+log_finding(
+    DomainFinding(
+        "AmassDomainReportFinding", domain, None, title, fields
+    )
+)
+```
+
+| Field        | Description                          |
+| ------------ | ------------------------------------ |
+| `domainName` | The domain name                      |
+| `fields`     | A list of [fields](#dynamic-fields). |
+
+All the fields have the `report` key and contain text information meant to inform users on the resource's realtionships.
+
+## AmassHostReportFinding
+
+Attaches a host relationship report to a host resource.
+
+Here is an example of how you could emit one using the python SDK.
+
+```python
+from stalker_job_sdk import log_finding, IpFinding, TextField
+
+ip = "1.1.1.1"
+content = "report content"
+fields = [TextField("report", "Report", content)]
+title = "Host Relationship Report"
+
+log_finding(
+    IpFinding(
+        "AmassHostReportFinding", ip, title, fields
+    )
+)
+```
+
+| Field    | Description                          |
+| -------- | ------------------------------------ |
+| `ip`     | The host's ip address                |
+| `fields` | A list of [fields](#dynamic-fields). |
+
+All the fields have the `report` key and contain text information meant to inform users on the resource's realtionships.
+
+## RirOrgFinding
+
+The organization responsible for managing an IP address, determined by the ASN.
+
+Here is an example of how you could emit one using the python SDK.
+
+```python
+from stalker_job_sdk import log_finding, IpFinding, TextField
+
+fields = [TextField("name", "Name", org_info)]
+ip = "1.1.1.1"
+title = "Regional Internet registry organization"
+
+log_finding(
+    IpFinding(
+        "RirOrgFinding", ip, title, fields
+    )
+)
+```
+
+| Field    | Description                          |
+| -------- | ------------------------------------ |
+| `ip`     | The host's ip address                |
+| `fields` | A list of [fields](#dynamic-fields). |
+
+All the fields have the `name` key and contain the name of the organization responsible for managing the IP address.

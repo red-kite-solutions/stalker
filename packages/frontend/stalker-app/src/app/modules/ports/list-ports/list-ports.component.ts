@@ -15,12 +15,13 @@ import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, catchError, combineLatest, EMPTY, map, shareReplay, switchMap, tap } from 'rxjs';
+import { HostsService } from '../../../api/hosts/hosts.service';
 import { PortsService } from '../../../api/ports/ports.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { TagsService } from '../../../api/tags/tags.service';
 import { ProjectCellComponent } from '../../../shared/components/project-cell/project-cell.component';
 import { SharedModule } from '../../../shared/shared.module';
-import { Page } from '../../../shared/types/page.type';
+import { DomainSummary } from '../../../shared/types/domain/domain.summary';
 import { Port } from '../../../shared/types/ports/port.interface';
 import { ProjectSummary } from '../../../shared/types/project/project.summary';
 import {
@@ -76,11 +77,11 @@ import { PortsInteractionsService } from '../ports-interactions.service';
 })
 export class ListPortsComponent {
   dataLoading = true;
-  displayedColumns: string[] = ['select', 'port', 'ip', 'project', 'tags', 'menu'];
+  displayedColumns: string[] = ['select', 'port', 'ip', 'domains', 'project', 'tags', 'menu'];
   filterOptions: string[] = ['host', 'port', 'project', 'tags', 'is'];
   public readonly noDataMessage = $localize`:No port found|No port was found:No port found`;
 
-  selection = new SelectionModel<Port>(true, []);
+  selection = new SelectionModel<Port & { domains: DomainSummary[] }>(true, []);
   startDate: Date | null = null;
 
   allTags$ = this.tagsService.getAllTags().pipe(shareReplay(1));
@@ -95,18 +96,22 @@ export class ListPortsComponent {
           pagination?.pageSize ?? 25,
           appendGlobalFiltersToQuery(filters[0]),
           dateRange,
-          'full'
+          'extended'
         )
         .pipe(catchError(() => EMPTY))
     ),
-
     shareReplay(1)
   );
 
   dataSource$ = this.ports$.pipe(
-    tap(() => (this.dataLoading = false)),
-    map((data: Page<Port>) => new MatTableDataSource(data.items))
+    tap(() => {
+      this.dataLoading = false;
+    }),
+    map((page) => new MatTableDataSource(page.items)),
+    shareReplay(1)
   );
+
+  maxDomainsPerHost = 35;
 
   projects: ProjectSummary[] = [];
   projects$ = this.projectsService.getAllSummaries().pipe(tap((x) => (this.projects = x)));
@@ -121,8 +126,10 @@ export class ListPortsComponent {
   public displayColumns$ = this.screenSize$.pipe(
     map((screen: BreakpointState) => {
       if (screen.breakpoints[Breakpoints.XSmall]) return ['select', 'port', 'ip', 'project', 'menu'];
-      else if (screen.breakpoints[Breakpoints.Small]) return ['select', 'port', 'ip', 'project', 'tags', 'menu'];
-      else if (screen.breakpoints[Breakpoints.Medium]) return ['select', 'port', 'ip', 'project', 'tags', 'menu'];
+      else if (screen.breakpoints[Breakpoints.Small])
+        return ['select', 'port', 'ip', 'domains', 'project', 'tags', 'menu'];
+      else if (screen.breakpoints[Breakpoints.Medium])
+        return ['select', 'port', 'ip', 'domains', 'project', 'tags', 'menu'];
       return this.displayedColumns;
     })
   );
@@ -136,6 +143,7 @@ export class ListPortsComponent {
     private tagsService: TagsService,
     public dialog: MatDialog,
     private titleService: Title,
+    private hostsService: HostsService,
     @Inject(TableFiltersSourceBase) private filtersSource: TableFiltersSource
   ) {
     this.titleService.setTitle($localize`:Ports list page title|:Ports`);

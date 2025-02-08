@@ -1,7 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { MONGO_TIMESTAMP_SCHEMA_CONFIG } from '../../database.constants';
+import { DomainSummary } from '../domain/domain.summary';
 import { HostSummary, HostSummaryType } from '../host/host.summary';
+
+export interface ExtendedPort extends Port {
+  domains?: DomainSummary[];
+}
 
 export type PortDocument = Port & Document;
 

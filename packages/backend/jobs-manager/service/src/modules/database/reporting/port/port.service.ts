@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DeleteResult, UpdateResult } from 'mongodb';
-import { FilterQuery, Model, Types } from 'mongoose';
+import { FilterQuery, Model, Query, Types } from 'mongoose';
 import {
   HttpBadRequestException,
   HttpNotFoundException,
@@ -11,7 +11,7 @@ import { CorrelationKeyUtils } from '../correlation.utils';
 import { Host, HostDocument } from '../host/host.model';
 import { WebsiteService } from '../websites/website.service';
 import { BatchEditPortsDto, GetPortsDto } from './port.dto';
-import { Port, PortDocument } from './port.model';
+import { ExtendedPort, Port, PortDocument } from './port.model';
 import { PortsFilterParser } from './ports-filter-parser';
 
 @Injectable()
@@ -219,7 +219,6 @@ export class PortService {
   }
 
   public async getHostPort(hostId: string, portNumber: number) {
-    console.log(await this.portsModel.findOne());
     return await this.portsModel.findOne({
       'host.id': { $eq: new Types.ObjectId(hostId) },
       port: { $eq: portNumber },
@@ -316,13 +315,13 @@ export class PortService {
     page: number = null,
     pageSize: number = null,
     filter: Partial<GetPortsDto> = null,
-  ): Promise<PortDocument[]> {
+  ): Promise<(PortDocument | ExtendedPort)[]> {
     const projection =
       filter.detailsLevel === 'number'
         ? '_id port layer4Protocol correlationKey'
         : undefined;
 
-    let query;
+    let query: Query<PortDocument[], any> = null;
     if (filter) {
       query = this.portsModel.find(
         await this.portsFilterParser.buildFilter(
@@ -339,7 +338,25 @@ export class PortService {
     if (page != null && pageSize != null) {
       query = query.skip(page * pageSize).limit(pageSize);
     }
-    return await query;
+
+    let ports = await query.exec();
+    if (filter.detailsLevel === 'extended') {
+      const hostIds: Types.ObjectId[] = ports.map((p) => p.host.id);
+      const summaries: Pick<HostDocument, '_id' | 'domains'>[] =
+        await this.hostModel.find({ _id: { $in: hostIds } }, '_id domains');
+      const extendedPorts: ExtendedPort[] = [];
+      for (const p of ports) {
+        extendedPorts.push({
+          ...JSON.parse(JSON.stringify(p)),
+          domains: summaries.find(
+            (s) => s._id.toString() === p.host.id.toString(),
+          )?.domains,
+        });
+      }
+      return extendedPorts;
+    }
+
+    return ports;
   }
 
   public async count(filter: GetPortsDto = null) {

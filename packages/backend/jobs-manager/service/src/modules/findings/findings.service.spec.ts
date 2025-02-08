@@ -35,7 +35,7 @@ describe('Findings Service Spec', () => {
   });
 
   beforeEach(async () => {
-    findingsModel.deleteMany();
+    await findingsModel.deleteMany({});
   });
 
   afterAll(async () => {
@@ -324,6 +324,70 @@ describe('Findings Service Spec', () => {
     // Assert
     expect(endpoint._id.toString()).toStrictEqual(f2._id.toString());
     expect(endpoint.fields[0].data).toStrictEqual('/example/file.html');
+  });
+
+  describe('Cleanup findings', () => {
+    beforeEach(() => {
+      findingsModel.deleteMany({});
+    });
+
+    it('Should preserve findings that are not older than the time limit', async () => {
+      // Arrange
+      const c = await project();
+
+      const j = await jobsModel.create({
+        projectId: c.id,
+        task: 'CustomJob',
+      });
+
+      const nonFilteredKey = 'my-finding-1';
+      const filteredKey = 'my-finding-2';
+
+      const f1 = await customDomainFinding(c.id, j.id, filteredKey);
+      const f2 = await customDomainFinding(c.id, j.id, nonFilteredKey);
+      const now = Date.now();
+      const yearMs = 60 * 60 * 24 * 365 * 1000;
+      await findingsModel.updateOne(
+        { _id: f1._id },
+        { created: new Date(now - yearMs + 1) },
+      );
+
+      // Act
+      await findingsService.cleanup(now, yearMs);
+      const findings = await findingsService.getAll(0, 100, {});
+
+      // Assert
+      expect(findings.totalRecords).toBe(2);
+    });
+
+    it('Should delete findings that are older than the time limit', async () => {
+      // Arrange
+      const c = await project();
+
+      const j = await jobsModel.create({
+        projectId: c.id,
+        task: 'CustomJob',
+      });
+
+      const nonFilteredKey = 'my-finding-1';
+      const filteredKey = 'my-finding-2';
+
+      const f1 = await customDomainFinding(c.id, j.id, filteredKey);
+      const f2 = await customDomainFinding(c.id, j.id, nonFilteredKey);
+      const now = Date.now();
+      const yearMs = 60 * 60 * 24 * 365 * 1000;
+      await findingsModel.updateOne(
+        { _id: f1._id },
+        { created: new Date(now - yearMs - 1) },
+      );
+
+      // Act
+      await findingsService.cleanup(now, yearMs);
+      const findings = await findingsService.getAll(0, 100, {});
+
+      // Assert
+      expect(findings.totalRecords).toBe(1);
+    });
   });
 
   async function customDomainFinding(

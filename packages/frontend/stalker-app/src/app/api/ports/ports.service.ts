@@ -5,7 +5,7 @@ import { SearchQueryParser, SearchTerms } from '@red-kite/common/search-query';
 import { Observable, firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Page } from '../../shared/types/page.type';
-import { Port, PortNumber } from '../../shared/types/ports/port.interface';
+import { ExtendedPort, Port, PortNumber } from '../../shared/types/ports/port.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -15,12 +15,12 @@ export class PortsService {
 
   constructor(private http: HttpClient) {}
 
-  public getPage<T extends Port | PortNumber>(
+  public getPage<T extends Port | PortNumber | ExtendedPort>(
     page: number,
     pageSize: number,
     query: string | SearchTerms,
     firstSeenDateRange: DateRange<Date> = new DateRange<Date>(null, null),
-    detailsLevel: 'full' | 'summary' | 'number' = 'full'
+    detailsLevel: 'extended' | 'full' | 'summary' | 'number' = 'full'
   ): Observable<Page<T>> {
     let params = new HttpParams();
     params = params.append('query', this.searchParser.toQueryString(query));

@@ -11,5 +11,5 @@ export const MONGO_TIMESTAMP_SCHEMA_CONFIG: SchemaOptions = {
   },
 };
 
-export const detailsLevel = ['full', 'summary', 'number'] as const;
+export const detailsLevel = ['extended', 'full', 'summary', 'number'] as const;
 export type DetailsLevel = (typeof detailsLevel)[number];

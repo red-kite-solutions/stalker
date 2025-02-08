@@ -4,6 +4,8 @@ title: Jobs
 description: What are jobs and how to use them
 ---
 
+import EnterpriseNotice from "../../src/components/EnterpriseNotice";
+
 # Jobs
 
 A job is the way for Red Kite to find new information. It is started by Red Kite and runs in a contained environment. Different jobs will
@@ -55,15 +57,16 @@ Red Kite comes preloaded with a robust selection of built-in jobs directly sourc
 Built-in jobs are managed by Red Kite and therefore cannot be modified. If you wish to tweak one of our jobs, you may simply duplicate it
 and edit the copy. When you are ready, use the copy and disable the original.
 
-| Name                                              | Description                              | Type   | Language |
-| ------------------------------------------------- | ---------------------------------------- | ------ | -------- |
-| [DomainNameResolvingJob](#domainnameresolvingjob) | Resolves a domain name to an IP address  | Code   | Python   |
-| [TcpPortScanningJob](#tcpportscanningjob)         | Scans the tcp ports of an IP address     | Code   | Python   |
-| [TcpIpRangeScanningJob](#tcpiprangescanningjob)   | Scan an IP range for open ports          | Code   | Python   |
-| [BannerGrabbingJob](#bannergrabbingjob)           | Identifies the service running on a port | Code   | Python   |
-| [WebsiteCrawlingJob](#websitecrawlingjob)         | Crawls a website for its valid endpoints | Code   | Python   |
-| [LoginDetectionJob](#logindetectionjob)           | Detects login portals on websites        | Nuclei | Yaml     |
-| [WebsiteScreenshotJob](#websitescreenshotjob)     | Takes a screenshot of a web page.        | Code   | Python   |
+| Name                                                | Description                                        | Type   | Language |
+| --------------------------------------------------- | -------------------------------------------------- | ------ | -------- |
+| [DomainNameResolvingJob](#domainnameresolvingjob)   | Resolves a domain name to an IP address            | Code   | Python   |
+| [TcpPortScanningJob](#tcpportscanningjob)           | Scans the tcp ports of an IP address               | Code   | Python   |
+| [TcpIpRangeScanningJob](#tcpiprangescanningjob)     | Scan an IP range for open ports                    | Code   | Python   |
+| [BannerGrabbingJob](#bannergrabbingjob)             | Identifies the service running on a port           | Code   | Python   |
+| [WebsiteCrawlingJob](#websitecrawlingjob)           | Crawls a website for its valid endpoints           | Code   | Python   |
+| [LoginDetectionJob](#logindetectionjob)             | Detects login portals on websites                  | Nuclei | Yaml     |
+| [WebsiteScreenshotJob](#websitescreenshotjob)       | Takes a screenshot of a web page.                  | Code   | Python   |
+| [AmassDomainDiscoveryJob](#amassdomaindiscoveryjob) | Leverages Amass to find domain related information | Code   | Python   |
 
 While
 
@@ -77,7 +80,7 @@ A `DomainNameResolvingJob` takes a domain name and resolves it to one or more IP
 | ------------- | ------ | ----------------------------------- |
 | domainName    | string | An FQDN to resolve to an IP address |
 
-**Possible findings generated :**
+**Possible generated findings :**
 
 - HostnameIpFinding
 
@@ -96,7 +99,7 @@ Scans the TCP ports of a host.
 | portMax              | number   | The last port to scan. `portMin < portMax <= 65535`                                                                            |
 | ports                | number[] | A JSON array. Every port mentionned in it will be scanned. Ex: `[3389, 8000, 8080, 8443]`                                      |
 
-**Possible findings generated :**
+**Possible generated findings :**
 
 - PortFinding
 
@@ -115,7 +118,7 @@ Scans an IP range (ex: `1.2.3.4/24`) for open ports. It discovers hosts that way
 | portMax       | number   | The last port to scan. `portMin < portMax <= 65535`                                      |
 | ports         | number[] | A JSON array. Every port mentionned in it will be scanned. Ex: `[3389, 8000, 8080, 8443] |
 
-**Possible findings generated :**
+**Possible generated findings :**
 
 - HostFinding
 - PortFinding
@@ -125,7 +128,7 @@ Scans an IP range (ex: `1.2.3.4/24`) for open ports. It discovers hosts that way
 Identifies the service running on a port and grabs the banner. It may occasionally find which OS the host is running on and sometimes other
 domain names as well.
 
-**Input variables:**
+**Input variables :**
 
 | Variable Name | Type     | Value description                                  |
 | ------------- | -------- | -------------------------------------------------- |
@@ -133,7 +136,7 @@ domain names as well.
 | ports         | number[] | The ports to check for a service                   |
 | nmapOptions   | string   | A long string containing the options given to nmap |
 
-**Possible findings generated :**
+**Possible generated findings :**
 
 - PortServiceFinding
 - HostnameIpFinding
@@ -143,7 +146,7 @@ domain names as well.
 
 Crawls a website for its differents valid endpoints. It can also find website technology information.
 
-**Input variables:**
+**Input variables :**
 
 | Variable Name        | Type   | Value description                             |
 | -------------------- | ------ | --------------------------------------------- |
@@ -158,7 +161,7 @@ Crawls a website for its differents valid endpoints. It can also find website te
 | inputParallelism     | number | The number of concurrent inputs pprocessor    |
 | extraOptions         | string | Katana extra options to adapt execution       |
 
-**Possible findings generated :**
+**Possible generated findings :**
 
 - WebsitePathFinding
 - WebsiteTechnologyFinding
@@ -166,6 +169,8 @@ Crawls a website for its differents valid endpoints. It can also find website te
 ### LoginDetectionJob
 
 Detects a login page based on regex and word match.
+
+**Input variables :**
 
 | Variable Name | Type   | Value description                |
 | ------------- | ------ | -------------------------------- |
@@ -176,9 +181,16 @@ Detects a login page based on regex and word match.
 | ssl           | bool   | If the website is https          |
 | endpoint      | string | The website's endpoint to target |
 
+**Possible generated findings :**
+
+- WebsiteLoginPortal
+- Login
+
 ### WebsiteScreenshotJob
 
 Takes a screenshot of a web page.
+
+**Input variables :**
 
 | Variable Name | Type   | Value description                                                             |
 | ------------- | ------ | ----------------------------------------------------------------------------- |
@@ -190,3 +202,87 @@ Takes a screenshot of a web page.
 | endpoint      | string | The website's endpoint to target                                              |
 | finding       | string | (Optional, default: WebsiteScreenshotFinding) The name of the emitted finding |
 | findingTitle  | string | (Optional, default: Website screenshot) The title of the emitted finding      |
+
+**Possible generated findings :**
+
+- WebsiteScreenshotFinding
+
+### AmassDomainDiscoveryJob
+
+<EnterpriseNotice />
+
+Leverages OWASP's Amass to find domain relationships, subdomains, IP addresses, organizations, etc.
+
+**Input variables :**
+
+| Variable Name  | Type     | Value Description                        |
+| -------------- | -------- | ---------------------------------------- |
+| domainNames    | string[] | An FQDN array to resolve to IP addresses |
+| timeoutMinutes | number   | A timeout for Amass, in minutes          |
+
+**Possible generated findings :**
+
+- HostnameFinding
+- HostnameIpFinding
+- IpFinding
+- AmassDomainReportFinding
+- AmassHostReportFinding
+- RirOrgFinding
+
+Also, Amass uses the `datasources.yaml` file to store the API keys of several possible data sources. To use this feature in Red Kite's job, you can dynamically provide the `datasources.yaml` values as parameters from [Red Kite secrets](./secrets) by following the proper syntax.
+
+#### Setting a datasource API key for Amass
+
+To set an API key in the `datasources.yaml` content from a Red Kite parameter, simply follow the variable naming convention `s_NAME_path_to_key`, which consits of the prefix `s_`, the targeted datasource name in place of `NAME`, an underscore `_`, and then the full yaml path to the API key to set. The job looks for parameters named that way to dynamically fill the yaml file.
+
+As an example, the API key for the Shodan datasource will be set:
+
+First, [create a secret](./secrets) containing Shodan's API key. Use a meaningful name like `ShodanApiKey`.
+
+Second, use the `ShodanApiKey` secret in a job parameter. To do so, we need to locate where in the `datasources.yaml` file structure the key is located. 
+
+Here is, for reference, part of the `datasources.yaml` file where we want to set the Shodan API key :
+
+```yaml
+datasources:
+  - name: 360PassiveDNS
+    ttl: 3600
+    creds:
+      account: 
+        apikey: null
+  # [...]
+  - name: Shodan # The targeted datasource name
+    ttl: 10080
+    creds:
+      account: 
+        apikey: null # Where we set the API key
+  - name: Spamhaus
+    ttl: 1440
+    creds:
+      account: 
+        username: null
+        password: null
+  # [...]
+global_options: 
+  minimum_ttl: 1440
+```
+
+> The full file structure is available on [the repository](https://github.com/owasp-amass/amass/blob/master/examples/datasources.yaml).
+
+Here, to set Shodan's API key, you would have to name your job parameter `s_Shodan_creds_account_apikey` and set the value from the created secret `ShodanApiKey`.
+
+For an ad-hoc job launch, your parameters would therefore look like the following:
+
+```yaml
+parameters:
+  - name: domainNames
+    value:
+      - example.com
+      - www.example.com
+  - name: timeoutMinutes
+    value: 120
+  - name: s_Shodan_creds_account_apikey # The variable name referencing the location in datasources.yaml
+    value: ${ secrets.ShodanApiKey } # The injection of the secret value
+```
+
+To include your `ShodanApiKey` secret in the subcription that launches this job (named *Extended discovery for domain names*), include it in its parameters in the same way.

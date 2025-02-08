@@ -4,15 +4,13 @@ on:
   push:
     branches: main
 
-permissions:
-  packages: write
-  id-token: write
-  contents: read
-  pages: write
-
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -30,20 +28,38 @@ jobs:
       - name: Build
         working-directory: ./docs
         run: npm run build
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v3
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
+          
+      - name: Upload static files as artifact
+        id: upload
+        uses: actions/upload-pages-artifact@v3
         with:
-          # 👇 Specify build output path
-          path: ./docs/build
+          path:  ./docs/build
 
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
+      
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Configure Pages
+        uses: actions/configure-pages@v4
+      
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4
 
+  reindex:
+    needs: deploy
+    runs-on: ubuntu-latest
+
+    steps:
       - name: Update search index
         uses: algolia/algoliasearch-crawler-github-actions@v1.0.10
         id: algolia_crawler
@@ -53,4 +69,4 @@ jobs:
           algolia-app-id: ${{ secrets.ALGOLIA_APP_ID }}
           algolia-api-key: ${{ secrets.ALGOLIA_API_KEY }}
           crawler-name: stalker-red-kite
-          site-url: 'https://wiki.stalker.red-kite.io/docs/intro/'
+          site-url: "https://wiki.stalker.red-kite.io/docs/intro/"
