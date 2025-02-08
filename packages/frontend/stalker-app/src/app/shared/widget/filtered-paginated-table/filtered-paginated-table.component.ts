@@ -12,7 +12,14 @@ import {
   QueryList,
   ViewChild,
 } from '@angular/core';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, UntypedFormControl } from '@angular/forms';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  UntypedFormControl,
+} from '@angular/forms';
 import { MatAutocomplete, MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -40,11 +47,13 @@ import {
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
+import { SearchQueryParser } from '@red-kite/common/search-query';
 import * as moment from 'moment';
 import { Moment } from 'moment';
 import { NgxFileDropModule } from 'ngx-file-drop';
-import { Observable, debounceTime, distinctUntilChanged, filter, map, startWith } from 'rxjs';
+import { Observable, debounceTime, distinctUntilChanged, filter, from, map, startWith, switchMap, tap } from 'rxjs';
 import { IdentifiedElement } from '../../types/identified-element.type';
+import { GrammarSuggester } from './search-query-suggester';
 import { TableFiltersSourceBase } from './table-filters-source';
 
 export interface ElementMenuItems {
@@ -90,6 +99,9 @@ export interface ElementMenuItems {
   ],
 })
 export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implements OnInit, OnDestroy {
+  private seachParser = new SearchQueryParser();
+  private grammarSuggester = new GrammarSuggester();
+
   @ContentChildren(MatHeaderRowDef) headerRowDefs!: QueryList<MatHeaderRowDef>;
   @ContentChildren(MatRowDef) rowDefs!: QueryList<MatRowDef<T>>;
   @ContentChildren(MatColumnDef) columnDefs!: QueryList<MatColumnDef>;
@@ -104,7 +116,7 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
 
   @Input() noDataMessage: string =
     $localize`:No data|No data is matching the filter, the array is empty:No matching data.`;
-  @Input() filterType: 'tokens' | 'fulltext' = 'tokens';
+  @Input() filterType: 'tokens' | 'fulltext' | 'grammar' = 'tokens';
   @Input() columns!: string[] | null;
   @Input() filterOptions!: string[] | null;
   @Input() negatableFilterOptions = this.filterOptions;
@@ -136,6 +148,25 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
   filteredFilterOptions$: Observable<string[] | null | undefined>;
   masterToggleState = false;
 
+  public searchQuery = '';
+  public searchQueryForm = this.fb.group({
+    query: this.fb.control(''),
+  });
+  public searchQuerySuggestions$ = this.searchQueryForm.valueChanges.pipe(
+    debounceTime(250),
+    switchMap((x) => this.grammarSuggester.suggest(x.query || ''))
+  );
+
+  public fooTODO$ = this.searchQueryForm.valueChanges
+    .pipe(
+      debounceTime(250),
+      switchMap(async (x) => {
+        return from(this.filterSource.setFilters([x.query || '']));
+      }),
+      tap(() => this.resetPaging())
+    )
+    .subscribe();
+
   dateRangeChange$ = this.dateRange.valueChanges
     .pipe(
       debounceTime(100),
@@ -158,6 +189,7 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
   private filterSourceSub = this.filterSource.filters$.subscribe(({ filters, dateRange, pagination }) => {
     this.filters = filters;
     this.fullTextSearchValue = filters.join(' ');
+    this.searchQueryForm.controls.query.setValue(filters.join(' '));
     this.filterForm.setValue(this.fullTextSearchValue);
 
     this.dateRange.setValue({
@@ -174,7 +206,10 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
     }
   });
 
-  constructor(@Inject(TableFiltersSourceBase) private filterSource: TableFiltersSourceBase<unknown>) {
+  constructor(
+    @Inject(TableFiltersSourceBase) private filterSource: TableFiltersSourceBase<unknown>,
+    private fb: FormBuilder
+  ) {
     this.filteredFilterOptions$ = this.filterForm.valueChanges.pipe(
       startWith(null),
       map((column: string) => this.autocompleteFilter(column))
@@ -281,6 +316,22 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
     this.filters = value;
     await this.filterSource.setFilters(this.filters.map((x) => x));
     this.resetPaging();
+  }
+
+  public grammarSuggestionSelected(event: MatAutocompleteSelectedEvent, inputElement: HTMLInputElement): void {
+    const selectedValue = event.option.value.trim();
+
+    // // // Split existing input into parts, trim whitespace, and add the new value if it's not already included.
+    // // const currentValues = this.grammarSearchValue.split(',').map((v) => v.trim());
+    // // if (!currentValues.includes(selectedValue)) {
+    // //   currentValues.push(selectedValue);
+    // // }
+
+    // // // Update the input with the joined values.
+    // // this.grammarSearchValue = currentValues.join(', ');
+
+    // // // Clear the input field but leave the appended values in the model.
+    // // inputElement.value = '';
   }
 
   private refocusMatChipInput() {

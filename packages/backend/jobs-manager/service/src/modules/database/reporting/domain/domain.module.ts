@@ -8,6 +8,7 @@ import { HostModule } from '../host/host.module';
 import { WebsiteModule } from '../websites/website.module';
 import { DomainsController } from './domain.controller';
 import { DomainsService } from './domain.service';
+import { DomainsFilterParser } from './domains-filter-parser';
 
 @Module({
   imports: [
@@ -20,7 +21,7 @@ import { DomainsService } from './domain.service';
     WebsiteModule,
   ],
   controllers: [DomainsController],
-  providers: [DomainsService],
-  exports: [DomainsService],
+  providers: [DomainsService, DomainsFilterParser],
+  exports: [DomainsService, DomainsFilterParser],
 })
 export class DomainsModule {}

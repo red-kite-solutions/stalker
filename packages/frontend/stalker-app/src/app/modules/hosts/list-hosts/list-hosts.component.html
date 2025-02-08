@@ -30,6 +30,7 @@
         [filterOptions]="filterOptions"
         [negatableFilterOptions]="['is']"
         [dateSearchEnabled]="true"
+        [filterType]="'grammar'"
       >
         <app-table-format
           [dataSource]="dataSource$ | async"

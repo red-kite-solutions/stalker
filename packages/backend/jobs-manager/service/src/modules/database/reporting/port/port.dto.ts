@@ -25,6 +25,7 @@ export class PortFilterDto extends IntersectionType(
   @IsIn(detailsLevel)
   detailsLevel: DetailsLevel = 'full';
 
+  /** @deprecated : Use query instead */
   @IsOptional()
   @IsMongoId()
   hostId: string;
