@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatOptionModule } from '@angular/material/core';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -26,7 +26,7 @@ import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { NgxFileDropModule } from 'ngx-file-drop';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, Observable, combineLatest, firstValueFrom, map, tap } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest, map, tap } from 'rxjs';
 import { parse, parseDocument, stringify } from 'yaml';
 import { AuthService } from '../../../api/auth/auth.service';
 import { JobExecutionsService } from '../../../api/jobs/job-executions/job-executions.service';
@@ -40,13 +40,10 @@ import { SharedModule } from '../../../shared/shared.module';
 import { JobListEntry, JobParameterDefinition, StartedJob } from '../../../shared/types/jobs/job.type';
 import { ProjectSummary } from '../../../shared/types/project/project.summary';
 import { CodeEditorComponent, CodeEditorTheme } from '../../../shared/widget/code-editor/code-editor.component';
-import {
-  ConfirmDialogComponent,
-  ConfirmDialogData,
-} from '../../../shared/widget/confirm-dialog/confirm-dialog.component';
 import { SpinnerButtonComponent } from '../../../shared/widget/spinner-button/spinner-button.component';
 import { normalizeSearchString } from '../../../utils/normalize-search-string';
 import { FindingsModule } from '../../findings/findings.module';
+import { JobExecutionInteractionsService } from '../job-executions/job-execution-interactions.service';
 
 @Component({
   standalone: true,
@@ -105,20 +102,18 @@ export class LaunchJobsComponent implements AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   dataSource = new MatTableDataSource<JobListEntry>();
   @ViewChild(JobLogsComponent) public logs!: JobLogsComponent;
-  public jobIsStoppingSubject$ = new BehaviorSubject<boolean>(false);
+  public jobIsStopping$ = new BehaviorSubject<boolean>(false);
   public jobIsRunning$!: Observable<boolean>;
 
   ngAfterViewInit(): void {
     this.jobIsRunning$ = this.logs.isJobInProgress$.pipe(
       tap((inProgress) => {
         if (!inProgress) {
-          this.jobIsStoppingSubject$.next(false);
+          this.jobIsStopping$.next(false);
         }
       })
     );
   }
-
-  public jobIsStopping$ = this.jobIsStoppingSubject$.pipe();
 
   public selectedRow: JobListEntry | undefined;
   public currentJobName = '';
@@ -146,7 +141,7 @@ export class LaunchJobsComponent implements AfterViewInit {
     private titleService: Title,
     public authService: AuthService,
     private themeService: ThemeService,
-    private dialog: MatDialog
+    private jobExecutionInteractionsService: JobExecutionInteractionsService
   ) {
     this.titleService.setTitle($localize`:Launch jobs|:Launch jobs`);
   }
@@ -227,7 +222,7 @@ export class LaunchJobsComponent implements AfterViewInit {
         parameters,
         this.selectedProject ?? undefined
       );
-      this.jobIsStoppingSubject$.next(false);
+      this.jobIsStopping$.next(false);
     } catch {
       this.toastr.error(
         $localize`:Error while starting job|There was an error while starting the job:Error while starting job`
@@ -236,30 +231,10 @@ export class LaunchJobsComponent implements AfterViewInit {
   }
 
   public async stopJob() {
-    let data: ConfirmDialogData;
-
-    data = {
-      text: $localize`:Stopping execution|Warning before stopping job execution:Do you really want to stop the current job execution?`,
-      title: $localize`:Stopping execution title|Stopping the current job execution:Stopping execution`,
-      dangerButtonText: $localize`:Stop job|Stop the current running job:Stop job`,
-      enableCancelButton: true,
-      onDangerButtonClick: (close) => {
-        close(true);
-      },
-    };
-
-    const result = await firstValueFrom(
-      this.dialog
-        .open(ConfirmDialogComponent, {
-          data,
-          restoreFocus: true,
-        })
-        .afterClosed()
-    );
+    const result = await this.jobExecutionInteractionsService.stopJob(this.currentStartedJob!.id);
 
     if (result) {
-      this.jobIsStoppingSubject$.next(true);
-      await this.jobsService.stopJob(this.currentStartedJob!.id);
+      this.jobIsStopping$.next(true);
     }
   }
 

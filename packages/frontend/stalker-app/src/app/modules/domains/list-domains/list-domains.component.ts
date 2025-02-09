@@ -26,10 +26,8 @@ import { HttpStatus } from '../../../shared/types/http-status.type';
 import { Page } from '../../../shared/types/page.type';
 import { ProjectSummary } from '../../../shared/types/project/project.summary';
 import { Tag } from '../../../shared/types/tag.type';
-import {
-  ElementMenuItems,
-  FilteredPaginatedTableComponent,
-} from '../../../shared/widget/filtered-paginated-table/filtered-paginated-table.component';
+import { ElementMenuItems } from '../../../shared/widget/dynamic-icons/menu-icon.component';
+import { FilteredPaginatedTableComponent } from '../../../shared/widget/filtered-paginated-table/filtered-paginated-table.component';
 import {
   TABLE_FILTERS_SOURCE_INITAL_FILTERS,
   TableFilters,

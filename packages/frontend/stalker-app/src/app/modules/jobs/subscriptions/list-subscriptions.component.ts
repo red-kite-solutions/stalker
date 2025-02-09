@@ -21,11 +21,8 @@ import {
   EventSubscription,
   SubscriptionData,
 } from '../../../shared/types/subscriptions/subscription.type';
-import {
-  ElementMenuItems,
-  FilteredPaginatedTableComponent,
-} from '../../../shared/widget/filtered-paginated-table/filtered-paginated-table.component';
-import { DisabledPillTagComponent } from '../../../shared/widget/pill-tag/disabled-pill-tag.component';
+import { ElementMenuItems } from '../../../shared/widget/dynamic-icons/menu-icon.component';
+import { FilteredPaginatedTableComponent } from '../../../shared/widget/filtered-paginated-table/filtered-paginated-table.component';
 import {
   TABLE_FILTERS_SOURCE_INITAL_FILTERS,
   TableFilters,
@@ -33,6 +30,7 @@ import {
   TableFiltersSourceBase,
 } from '../../../shared/widget/filtered-paginated-table/table-filters-source';
 import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-table/table-format/table-format.component';
+import { DisabledPillTagComponent } from '../../../shared/widget/pill-tag/disabled-pill-tag.component';
 import { DataSourceComponent } from '../../data-source/data-source/data-source.component';
 import { SubscriptionInteractionService } from './subscription-interaction.service';
 import { subscriptionTypes } from './subscription-templates';
