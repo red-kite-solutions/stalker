@@ -11,7 +11,7 @@ public class NucleiCustomJobCommand : KubernetesJobCommand<CustomJobRequest>
 {
     protected override KubernetesJobTemplate JobTemplate { get; }
 
-    public NucleiCustomJobCommand(CustomJobRequest request, JobModel model, IKubernetesFacade kubernetes, IMessagesProducer<JobEventMessage> eventsProducer, JobLogsProducer jobLogsProducer, IFindingsParser parser, ILogger<NucleiCustomJobCommand> logger, IConfiguration config)
+    public NucleiCustomJobCommand(CustomJobRequest request, JobModel model, IKubernetesFacade kubernetes, JobEventsProducer eventsProducer, JobLogsProducer jobLogsProducer, IFindingsParser parser, ILogger<NucleiCustomJobCommand> logger, IConfiguration config)
         : base(request, kubernetes, eventsProducer, jobLogsProducer, parser, logger)
     {
         JobTemplate = new NucleiCustomJobTemplate(request.JobId, config, request.CustomJobParameters, model.Code, request.JobPodMilliCpuLimit, request.JobPodMemoryKbLimit, model.FindingHandler, model.Image);

@@ -17,7 +17,7 @@ namespace Orchestrator.Jobs;
 public class JobFactory : IJobFactory
 {
     private IKubernetesFacade Kubernetes { get; }
-    private IMessagesProducer<JobEventMessage> EventsProducer { get; }
+    private JobEventsProducer EventsProducer { get; }
     private JobLogsProducer JobLogsProducer { get; }
     private IFindingsParser Parser { get; }
     private ILoggerFactory LoggerFactory { get; }
@@ -28,7 +28,7 @@ public class JobFactory : IJobFactory
     {
         JobLogsProducer = jobLogsProducer as JobLogsProducer;
         Kubernetes = kubernetes;
-        EventsProducer = eventsProducer;
+        EventsProducer = eventsProducer as JobEventsProducer;
         Parser = parser;
         LoggerFactory = loggerFactoryFactory;
         Logger = loggerFactoryFactory.CreateLogger<JobFactory>();

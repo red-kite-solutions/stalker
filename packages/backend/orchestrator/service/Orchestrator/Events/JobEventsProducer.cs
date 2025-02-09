@@ -14,13 +14,15 @@ public class JobEventsProducer : MessagesProducer<JobEventMessage>
     {
         Success,
         Failed,
-        Ended
+        Ended,
+        Started
     }
 
     private static readonly Dictionary<JobStatus, string> JobStatusMapping = new Dictionary<JobStatus, string>()  { 
         { JobStatus.Success, "Success" }, 
         { JobStatus.Failed, "Failed" }, 
-        { JobStatus.Ended, "Ended" }
+        { JobStatus.Ended, "Ended" },
+        { JobStatus.Started, "Started" }
     };
 
     private static Dictionary<string, JobStatus> InvertStatusMapping(Dictionary<JobStatus, string> jobStatusMapping)

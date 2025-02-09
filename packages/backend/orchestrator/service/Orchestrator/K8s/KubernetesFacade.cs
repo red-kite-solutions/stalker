@@ -8,8 +8,6 @@ namespace Orchestrator.K8s;
 public class KubernetesFacade : IKubernetesFacade
 {
     private readonly ILogger<KubernetesFacade> Logger;
-    private JobEventsProducer JobEventsProducer { get; }
-    private JobLogsProducer JobLogsProducer { get; }
 
     /// <summary>
     /// Gets or sets the Kubernetes configuration.
@@ -17,10 +15,8 @@ public class KubernetesFacade : IKubernetesFacade
     //// private KubernetesClientConfiguration KubernetesConfiguration => KubernetesClientConfiguration.BuildConfigFromConfigFile(Environment.GetEnvironmentVariable("KUBECONFIG"));
     private static KubernetesClientConfiguration KubernetesConfiguration => KubernetesClientConfiguration.InClusterConfig();
 
-    public KubernetesFacade(ILogger<KubernetesFacade> logger, IMessagesProducer<JobEventMessage> jobEventsProducer, IMessagesProducer<JobLogMessage> jobLogsProducer)
+    public KubernetesFacade(ILogger<KubernetesFacade> logger)
     {
-        JobEventsProducer = jobEventsProducer as JobEventsProducer;
-        JobLogsProducer = jobLogsProducer as JobLogsProducer;
         Logger = logger;
     }
 
@@ -137,7 +133,7 @@ public class KubernetesFacade : IKubernetesFacade
     /// <param name="jobId"></param>
     /// <param name="jobNamespace"></param>
     /// <returns>true if the job was running and terminated, false if it was not running.</returns>
-    public async Task TerminateJob(string jobId, string jobNamespace = "default")
+    public async Task<bool> TerminateJob(string jobId, string jobNamespace = "default")
     {
         using var client = new Kubernetes(KubernetesConfiguration);
         string labelSelector = "red-kite.io/jobid=" + jobId;
@@ -149,14 +145,10 @@ public class KubernetesFacade : IKubernetesFacade
             var options = new V1DeleteOptions(gracePeriodSeconds: 0, propagationPolicy: "Foreground");
 
             await RetryableCall(() => client.DeleteNamespacedJobAsync(runningJob.Metadata.Name, jobNamespace, options));
-            JobLogsProducer.LogDebug(jobId, $"Job terminated");
+            return true;
         }
-        else
-        {
-            JobLogsProducer.LogDebug(jobId, "Tried to terminate, but no corresponding job was runnning");
-        }
-        _ = JobEventsProducer.LogStatus(jobId, JobEventsProducer.JobStatus.Ended);
-        return;
+        
+        return false;
     }
 
     /// <summary>

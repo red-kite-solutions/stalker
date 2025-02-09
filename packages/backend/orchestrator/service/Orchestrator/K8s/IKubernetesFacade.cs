@@ -14,7 +14,7 @@ public interface IKubernetesFacade
     /// Creates a jobTemplate.
     /// </summary>
     /// <returns></returns>
-    Task TerminateJob(string jobId, string jobNamespace = "default");
+    Task<bool> TerminateJob(string jobId, string jobNamespace = "default");
 
     /// <summary>
     /// True if the pod is in the status "Failed" or "Succeeded", false otherwise

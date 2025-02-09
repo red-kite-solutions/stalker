@@ -10,15 +10,15 @@ namespace Orchestrator.Jobs;
 public abstract class KubernetesManagementCommand<T> : JobCommand where T : JobManagementRequest
 {
     protected IKubernetesFacade Kubernetes { get; }
-    private IMessagesProducer<JobEventMessage> EventsProducer { get; }
-    private JobLogsProducer LogsProducer { get; }
+    protected JobEventsProducer EventsProducer { get; }
+    protected JobLogsProducer LogsProducer { get; }
     private IFindingsParser Parser { get; }
     private ILogger Logger { get; }
     protected T Request { get; }
     public string Namespace { get; set; } = "default";
     protected IConfiguration Config { get; init; }
 
-    protected KubernetesManagementCommand(T request, IKubernetesFacade kubernetes, IMessagesProducer<JobEventMessage> eventsProducer, JobLogsProducer jobLogsProducer, IFindingsParser parser, ILogger logger, IConfiguration config)
+    protected KubernetesManagementCommand(T request, IKubernetesFacade kubernetes, JobEventsProducer eventsProducer, JobLogsProducer jobLogsProducer, IFindingsParser parser, ILogger logger, IConfiguration config)
     {
         Request = request;
         Kubernetes = kubernetes;
