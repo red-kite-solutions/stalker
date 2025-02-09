@@ -39,6 +39,7 @@ var adminConfig = new AdminClientConfig
         new TopicSpecification { Name = Constants.JobRequestsTopic, },
         new TopicSpecification { Name = Constants.JobFindingsTopic, },
         new TopicSpecification { Name = Constants.JobModelsTopic, },
+        new TopicSpecification { Name = Constants.JobManagementTopic, },
     };
 
     try
@@ -70,6 +71,7 @@ var adminConfig = new AdminClientConfig
 // Start consumer
 app.Services.GetService<JobsConsumer>();
 app.Services.GetService<JobModelsConsumer>();
+app.Services.GetService<JobManagementConsumer>();
 app.MapGet("/version", () => "V1");
 app.MapFallback(() => "V1");
 
@@ -91,6 +93,7 @@ void ConfigureServices(IServiceCollection services)
         .AddResponseCompression()
         .AddSingleton<JobsConsumer>()
         .AddSingleton<JobModelsConsumer>()
+        .AddSingleton<JobManagementConsumer>()
         .AddSingleton<IMessagesProducer<JobEventMessage>, JobEventsProducer>()
         .AddSingleton<IMessagesProducer<JobLogMessage>, JobLogsProducer>()
         .AddTransient<IKubernetesFacade, KubernetesFacade>()

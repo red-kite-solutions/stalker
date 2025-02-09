@@ -8,7 +8,7 @@ import {
 } from '../../../../exceptions/http.exceptions';
 import escapeStringRegexp from '../../../../utils/escape-string-regexp';
 import { WebsiteFinding } from '../../../findings/findings.service';
-import { FindingsQueue } from '../../../job-queue/findings-queue';
+import { FindingsQueue } from '../../../queues/finding-queue/findings-queue';
 import { TagsService } from '../../tags/tag.service';
 import { CorrelationKeyUtils } from '../correlation.utils';
 import { Domain } from '../domain/domain.model';

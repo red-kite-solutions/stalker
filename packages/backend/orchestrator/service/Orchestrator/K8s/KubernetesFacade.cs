@@ -96,12 +96,13 @@ public class KubernetesFacade : IKubernetesFacade
                     },
                         NodeSelector = nodeSelector,
                         RestartPolicy = "Never",
-                        TerminationGracePeriodSeconds = 100
+                        TerminationGracePeriodSeconds = 100,
+                        
                     },
                 },
                 BackoffLimit = jobTemplate.MaxRetries,
                 ActiveDeadlineSeconds = jobTemplate.Timeout,
-                TtlSecondsAfterFinished = 1
+                TtlSecondsAfterFinished = 1,
             });
 
         Logger.LogInformation($"Creating job {jobName} in namespace {jobTemplate.Namespace}");
@@ -131,30 +132,31 @@ public class KubernetesFacade : IKubernetesFacade
     }
 
     /// <summary>
-    /// Terminates a job by deleting its pod
+    /// Terminates a job. The pod will be deleted after its termination grace period.
     /// </summary>
     /// <param name="jobId"></param>
     /// <param name="jobNamespace"></param>
     /// <returns>true if the job was running and terminated, false if it was not running.</returns>
-    public Task TerminateJob(string jobId, string jobNamespace = "default")
+    public async Task TerminateJob(string jobId, string jobNamespace = "default")
     {
         using var client = new Kubernetes(KubernetesConfiguration);
         string labelSelector = "red-kite.io/jobid=" + jobId;
         var jobs = RetryableCall(() => client.ListNamespacedJob(jobNamespace, labelSelector: labelSelector));
-
         var runningJob = jobs.Items.FirstOrDefault(job => job.Status.Active > 0);
 
         if (runningJob != null)
         {
-            RetryableCall(() => client.DeleteNamespacedJob(runningJob.Metadata.Name, jobNamespace));
+            var options = new V1DeleteOptions(gracePeriodSeconds: 0, propagationPolicy: "Foreground");
+
+            await RetryableCall(() => client.DeleteNamespacedJobAsync(runningJob.Metadata.Name, jobNamespace, options));
             JobLogsProducer.LogDebug(jobId, $"Job terminated");
-        } 
+        }
         else
         {
             JobLogsProducer.LogDebug(jobId, "Tried to terminate, but no corresponding job was runnning");
         }
         _ = JobEventsProducer.LogStatus(jobId, JobEventsProducer.JobStatus.Ended);
-        return Task.CompletedTask;
+        return;
     }
 
     /// <summary>
@@ -202,9 +204,6 @@ public class KubernetesFacade : IKubernetesFacade
             catch (k8s.Autorest.HttpOperationException e)
             {
                 exceptions.Add(e);
-            }
-            finally
-            {
                 RandomWait();
                 retryCount++;
             }

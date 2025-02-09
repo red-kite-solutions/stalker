@@ -36,7 +36,7 @@ public class JobManagementConsumer : KafkaConsumer<JobManagementRequest>
 
         foreach (var topic in Topics)
         {
-            Consumer.Assign(new TopicPartitionOffset(new TopicPartition(topic, new Partition(0)), Offset.Beginning));
+            Consumer.Assign(new TopicPartitionOffset(new TopicPartition(topic, new Partition(0)), Offset.End));
         }
 
         TokenSource = new CancellationTokenSource();

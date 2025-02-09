@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -13,6 +14,7 @@ import { isNotEmpty, isString } from 'class-validator';
 import {
   HttpBadRequestException,
   HttpNotFoundException,
+  HttpNotImplementedException,
 } from '../../../exceptions/http.exceptions';
 import { MongoIdDto } from '../../../types/dto/mongo-id.dto';
 import { JobLog } from '../../../types/job-log.model';
@@ -32,7 +34,7 @@ import { SecretsService } from '../secrets/secrets.service';
 import { JobParameter } from '../subscriptions/subscriptions.type';
 import { JobExecutionsService } from './job-executions.service';
 import { JobDefinitions } from './job-model.module';
-import { JobExecutionsDto, StartJobDto } from './jobs.dto';
+import { JobExecutionsDto, JobManagementDto, StartJobDto } from './jobs.dto';
 import { JobFactory, JobFactoryUtils } from './jobs.factory';
 import { CustomJob } from './models/custom-job.model';
 import { JobDocument } from './models/jobs.model';
@@ -129,6 +131,19 @@ export class JobsController {
     job.priority = 1;
 
     return await this.jobsService.publish(job);
+  }
+
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
+  @Roles(Role.User)
+  @Patch(':id')
+  async stopJob(@Param() id: MongoIdDto, @Body() dto: JobManagementDto) {
+    switch (dto.task) {
+      case 'TerminateJob':
+        await this.jobsService.terminate(id.id);
+        break;
+      default:
+        throw new HttpNotImplementedException();
+    }
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)

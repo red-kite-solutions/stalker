@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ViewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatOptionModule } from '@angular/material/core';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -26,20 +26,25 @@ import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { NgxFileDropModule } from 'ngx-file-drop';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, Observable, combineLatest, map } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest, firstValueFrom, map, tap } from 'rxjs';
+import { parse, parseDocument, stringify } from 'yaml';
+import { AuthService } from '../../../api/auth/auth.service';
+import { JobExecutionsService } from '../../../api/jobs/job-executions/job-executions.service';
+import { ProjectsService } from '../../../api/projects/projects.service';
 import { ThemeService } from '../../../services/theme.service';
 import { AvatarComponent } from '../../../shared/components/avatar/avatar.component';
 import { JobLogsComponent } from '../../../shared/components/job-logs/job-logs.component';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PanelSectionModule } from '../../../shared/components/panel-section/panel-section.module';
 import { SharedModule } from '../../../shared/shared.module';
-import { parse, parseDocument, stringify } from 'yaml';
-import { AuthService } from '../../../api/auth/auth.service';
-import { JobExecutionsService } from '../../../api/jobs/job-executions/job-executions.service';
-import { ProjectsService } from '../../../api/projects/projects.service';
 import { JobListEntry, JobParameterDefinition, StartedJob } from '../../../shared/types/jobs/job.type';
 import { ProjectSummary } from '../../../shared/types/project/project.summary';
 import { CodeEditorComponent, CodeEditorTheme } from '../../../shared/widget/code-editor/code-editor.component';
+import {
+  ConfirmDialogComponent,
+  ConfirmDialogData,
+} from '../../../shared/widget/confirm-dialog/confirm-dialog.component';
+import { SpinnerButtonComponent } from '../../../shared/widget/spinner-button/spinner-button.component';
 import { normalizeSearchString } from '../../../utils/normalize-search-string';
 import { FindingsModule } from '../../findings/findings.module';
 
@@ -82,9 +87,10 @@ import { FindingsModule } from '../../findings/findings.module';
     JobLogsComponent,
     CodeEditorComponent,
     AvatarComponent,
+    SpinnerButtonComponent,
   ],
 })
-export class LaunchJobsComponent {
+export class LaunchJobsComponent implements AfterViewInit {
   public code = '';
   public language = 'yaml';
   public minimapEnabled = false;
@@ -98,6 +104,21 @@ export class LaunchJobsComponent {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   dataSource = new MatTableDataSource<JobListEntry>();
+  @ViewChild(JobLogsComponent) public logs!: JobLogsComponent;
+  public jobIsStoppingSubject$ = new BehaviorSubject<boolean>(false);
+  public jobIsRunning$!: Observable<boolean>;
+
+  ngAfterViewInit(): void {
+    this.jobIsRunning$ = this.logs.isJobInProgress$.pipe(
+      tap((inProgress) => {
+        if (!inProgress) {
+          this.jobIsStoppingSubject$.next(false);
+        }
+      })
+    );
+  }
+
+  public jobIsStopping$ = this.jobIsStoppingSubject$.pipe();
 
   public selectedRow: JobListEntry | undefined;
   public currentJobName = '';
@@ -124,7 +145,8 @@ export class LaunchJobsComponent {
     private projectsService: ProjectsService,
     private titleService: Title,
     public authService: AuthService,
-    private themeService: ThemeService
+    private themeService: ThemeService,
+    private dialog: MatDialog
   ) {
     this.titleService.setTitle($localize`:Launch jobs|:Launch jobs`);
   }
@@ -205,10 +227,39 @@ export class LaunchJobsComponent {
         parameters,
         this.selectedProject ?? undefined
       );
+      this.jobIsStoppingSubject$.next(false);
     } catch {
       this.toastr.error(
         $localize`:Error while starting job|There was an error while starting the job:Error while starting job`
       );
+    }
+  }
+
+  public async stopJob() {
+    let data: ConfirmDialogData;
+
+    data = {
+      text: $localize`:Stopping execution|Warning before stopping job execution:Do you really want to stop the current job execution?`,
+      title: $localize`:Stopping execution title|Stopping the current job execution:Stopping execution`,
+      dangerButtonText: $localize`:Stop job|Stop the current running job:Stop job`,
+      enableCancelButton: true,
+      onDangerButtonClick: (close) => {
+        close(true);
+      },
+    };
+
+    const result = await firstValueFrom(
+      this.dialog
+        .open(ConfirmDialogComponent, {
+          data,
+          restoreFocus: true,
+        })
+        .afterClosed()
+    );
+
+    if (result) {
+      this.jobIsStoppingSubject$.next(true);
+      await this.jobsService.stopJob(this.currentStartedJob!.id);
     }
   }
 

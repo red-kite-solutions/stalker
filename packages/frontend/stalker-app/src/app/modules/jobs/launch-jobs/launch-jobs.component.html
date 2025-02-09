@@ -15,6 +15,16 @@
         >
           <label i18n="Start|Start the job">Start</label>
         </button>
+
+        <app-spinner-button
+          [loadingState]="(jobIsStopping$ | async) && (jobIsRunning$ | async)"
+          class="tw-mt-[9px]"
+          buttonColor="warn"
+          (click)="stopJob()"
+          i18n="Stop|Stop the job"
+          [disabled]="this.authService.role === 'read-only' || !selectedRow || !(jobIsRunning$ | async)"
+          >Stop</app-spinner-button
+        >
       </div>
 
       <div class="content tw-flex tw-flex-col tw-px-4 tw-pb-4">

@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, Input, OnChanges } from '@angular/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { Observable, concatMap, debounceTime, map, scan, shareReplay, startWith } from 'rxjs';
+import { BehaviorSubject, Observable, concatMap, debounceTime, map, scan, shareReplay, startWith } from 'rxjs';
 import { AuthService } from '../../../api/auth/auth.service';
 import { JobExecutionsService } from '../../../api/jobs/job-executions/job-executions.service';
 import { JobExecutionsSocketioClient } from '../../../api/jobs/job-executions/job-executions.socketio-client';
@@ -17,7 +17,7 @@ import { CodeEditorComponent, CodeEditorTheme } from '../../widget/code-editor/c
   template: ` <mat-progress-bar
       mode="indeterminate"
       color="accent"
-      [ngStyle]="{ display: (isJobInProgress$ | async) ? 'block' : 'none' }"
+      [ngStyle]="{ display: (_isJobInProgress$ | async) ? 'block' : 'none' }"
     ></mat-progress-bar
     ><app-code-editor
       [code]="logs$ | async"
@@ -37,7 +37,8 @@ export class JobLogsComponent implements OnChanges {
   private timeout: any | undefined = undefined;
 
   public logs$: Observable<string> | null = null;
-  public isJobInProgress$: Observable<boolean> | null = null;
+  public _isJobInProgress$: Observable<boolean> | null = null;
+  public isJobInProgress$ = new BehaviorSubject<boolean>(false);
 
   constructor(
     public jobsService: JobExecutionsService,
@@ -71,15 +72,17 @@ export class JobLogsComponent implements OnChanges {
         shareReplay(1)
       );
 
-      this.isJobInProgress$ = this.socket.jobStatus.pipe(
+      this._isJobInProgress$ = this.socket.jobStatus.pipe(
         map((update) => {
           switch (update.status) {
             case 'success':
+              this.isJobInProgress$.next(false);
               this.timeout = setTimeout(() => this.socket?.disconnect(), 5000);
               return false;
 
             case 'started':
             default:
+              this.isJobInProgress$.next(true);
               return true;
           }
         })

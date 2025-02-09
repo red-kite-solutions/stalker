@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { DataSourcesModule } from '../../datasources/data-sources.module';
-import { QueueModule } from '../../job-queue/queue.module';
+import { QueueModule } from '../../queues/queue.module';
 import { DatalayerModule } from '../datalayer.module';
 import { CustomJobTemplatesController } from './custom-job-templates.controller';
 import { jobTemplatesInitProvider } from './custom-job-templates.provider';
