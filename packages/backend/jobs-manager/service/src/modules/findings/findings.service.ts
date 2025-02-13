@@ -266,10 +266,16 @@ export class FindingsService {
   private buildFilters(dto: FindingsFilter): FilterQuery<CustomFinding> {
     const filters: FilterQuery<CustomFinding> = {};
 
-    if (dto.target) {
-      filters.correlationKey = {
-        $eq: dto.target,
-      };
+    if (dto.targets && dto.targets.length > 0) {
+      if (dto.targets.length === 1) {
+        filters.correlationKey = {
+          $eq: dto.targets[0],
+        };
+      } else {
+        filters.correlationKey = {
+          $in: dto.targets,
+        };
+      }
     }
 
     if (
