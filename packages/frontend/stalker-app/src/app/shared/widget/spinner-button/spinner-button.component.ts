@@ -23,11 +23,24 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     </span>
   </button>`,
   imports: [CommonModule, MatButtonModule, MatProgressSpinnerModule],
+  styles: `
+    :host {
+      pointer-events: none;
+    }
+
+    :host button span {
+      pointer-events: none;
+    }
+
+    button {
+      pointer-events: auto;
+    }
+  `,
 })
 export class SpinnerButtonComponent {
   @Input() label = '';
   @Input() buttonColor: 'primary' | 'accent' | 'warn' | undefined = undefined;
   @Input() spinnerColor = 'primary';
-  @Input() loadingState = false;
+  @Input() loadingState: boolean | null = false;
   @Input() disabled = false;
 }

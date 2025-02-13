@@ -32,14 +32,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { AvatarComponent } from '../../../components/avatar/avatar.component';
 import { IdentifiedElement } from '../../../types/identified-element.type';
-import { MenuIconComponent } from '../../dynamic-icons/menu-icon.component';
-
-export interface ElementMenuItems {
-  label: string;
-  icon: string;
-  action: () => Promise<unknown> | void;
-  hidden?: boolean;
-}
+import { ElementMenuItems, MenuIconComponent } from '../../dynamic-icons/menu-icon.component';
 
 @Component({
   standalone: true,

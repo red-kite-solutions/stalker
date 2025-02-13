@@ -3,15 +3,18 @@ import { Kafka, KafkaConfig } from 'kafkajs';
 import { readFileSync } from 'node:fs';
 import { isTest } from '../app.constants';
 import { orchestratorConstants } from '../auth/constants';
-import { FindingsQueue } from './findings-queue';
-import { JobModelUpdateQueue } from './job-model-update-queue';
-import { JobQueue } from './job-queue';
-import { KafkaFindingsQueue } from './kafka-findings-queue';
-import { KafkaJobModelUpdateQueue } from './kafka-job-model-update-queue';
-import { KafkaJobQueue } from './kafka-job-queue';
-import { NullFindingsQueue } from './null-findings-queue';
-import { NullJobModelUpdateQueue } from './null-job-model-update-queue';
-import { NullJobQueue } from './null-job-queue';
+import { FindingsQueue } from './finding-queue/findings-queue';
+import { KafkaFindingsQueue } from './finding-queue/kafka-findings-queue';
+import { NullFindingsQueue } from './finding-queue/null-findings-queue';
+import { JobManagementQueue } from './job-management-queue/job-management-queue';
+import { KafkaJobManagementQueue } from './job-management-queue/kafka-job-management-queue';
+import { NullJobManagementQueue } from './job-management-queue/null-job-management-queue';
+import { JobModelUpdateQueue } from './job-model-update-queue/job-model-update-queue';
+import { KafkaJobModelUpdateQueue } from './job-model-update-queue/kafka-job-model-update-queue';
+import { NullJobModelUpdateQueue } from './job-model-update-queue/null-job-model-update-queue';
+import { JobQueue } from './job-queue/job-queue';
+import { KafkaJobQueue } from './job-queue/kafka-job-queue';
+import { NullJobQueue } from './job-queue/null-job-queue';
 
 const certFolder =
   isTest() && process.env.TEST_TYPE === 'unit' ? './' : '/certs';
@@ -82,8 +85,21 @@ export const kafkaConfig: KafkaConfig = {
         return new KafkaJobModelUpdateQueue(producer);
       },
     },
+    {
+      provide: JobManagementQueue,
+      useFactory: async () => {
+        if (isTest()) return new NullJobManagementQueue();
+
+        const kafka = new Kafka(kafkaConfig);
+
+        const producer = kafka.producer();
+        await producer.connect();
+
+        return new KafkaJobManagementQueue(producer);
+      },
+    },
   ],
-  exports: [JobQueue, FindingsQueue, JobModelUpdateQueue],
+  exports: [JobQueue, FindingsQueue, JobModelUpdateQueue, JobManagementQueue],
 })
 export class QueueModule {
   public constructor() {}

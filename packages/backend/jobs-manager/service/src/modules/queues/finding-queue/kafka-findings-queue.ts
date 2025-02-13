@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Message, Producer } from 'kafkajs';
-import { orchestratorConstants } from '../auth/constants';
-import { Finding } from '../findings/findings.service';
+import { orchestratorConstants } from '../../auth/constants';
+import { Finding } from '../../findings/findings.service';
 import { FindingsQueue } from './findings-queue';
 
 @Injectable()

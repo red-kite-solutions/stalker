@@ -18,6 +18,7 @@
               [columns]="displayColumns"
               [routerLinkPrefix]="'/jobs/executions/'"
               [noDataMessage]="noDataMessage"
+              [menuFactory]="generateMenuItem"
             >
               <!-- Name Column -->
               <ng-container matColumnDef="name">

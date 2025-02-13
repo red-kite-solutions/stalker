@@ -2,6 +2,7 @@ import { IntersectionType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsIn,
   IsMongoId,
   IsNotEmpty,
   IsOptional,
@@ -39,4 +40,13 @@ export class StartJobDto {
   @IsMongoId()
   @IsOptional()
   projectId?: string;
+}
+
+export const jobManagementTasks = ['TerminateJob'] as const;
+export type JobManagementTask = (typeof jobManagementTasks)[number];
+
+export class JobManagementDto {
+  @IsNotEmpty()
+  @IsIn(jobManagementTasks)
+  task: JobManagementTask;
 }

@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Message, Producer } from 'kafkajs';
-import { orchestratorConstants } from '../auth/constants';
+import { orchestratorConstants } from '../../auth/constants';
 import {
   CustomJobEntry,
   CustomJobsDocument,
-} from '../database/custom-jobs/custom-jobs.model';
+} from '../../database/custom-jobs/custom-jobs.model';
 import { JobModelUpdateQueue } from './job-model-update-queue';
 
 export interface KafkaJobModelUpdate extends CustomJobEntry {

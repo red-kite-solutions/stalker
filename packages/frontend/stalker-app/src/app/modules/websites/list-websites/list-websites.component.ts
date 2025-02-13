@@ -29,11 +29,9 @@ import { CustomFinding, CustomFindingField } from '../../../shared/types/finding
 import { ProjectSummary } from '../../../shared/types/project/project.summary';
 import { Tag } from '../../../shared/types/tag.type';
 import { Website } from '../../../shared/types/websites/website.type';
+import { ElementMenuItems } from '../../../shared/widget/dynamic-icons/menu-icon.component';
 import { SecureIconComponent } from '../../../shared/widget/dynamic-icons/secure-icon.component';
-import {
-  ElementMenuItems,
-  FilteredPaginatedTableComponent,
-} from '../../../shared/widget/filtered-paginated-table/filtered-paginated-table.component';
+import { FilteredPaginatedTableComponent } from '../../../shared/widget/filtered-paginated-table/filtered-paginated-table.component';
 import { GridFormatComponent } from '../../../shared/widget/filtered-paginated-table/grid-format/grid-format.component';
 import {
   TABLE_FILTERS_SOURCE_INITAL_FILTERS,

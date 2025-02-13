@@ -1,4 +1,5 @@
-﻿using Orchestrator.Queue;
+﻿using Confluent.Kafka;
+using Orchestrator.Queue;
 
 namespace Orchestrator.Events;
 

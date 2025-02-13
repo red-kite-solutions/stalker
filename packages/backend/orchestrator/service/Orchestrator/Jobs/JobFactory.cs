@@ -1,9 +1,12 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using Orchestrator.Events;
 using Orchestrator.Jobs.Commands;
+using Orchestrator.Jobs.JobManagementCommand;
 using Orchestrator.Jobs.JobModelCache;
 using Orchestrator.K8s;
 using Orchestrator.Queue;
+using Orchestrator.Queue.JobManagementConsumer;
+using Orchestrator.Queue.JobManagementConsumer.JobManagementRequests;
 using Orchestrator.Queue.JobsConsumer;
 using Orchestrator.Queue.JobsConsumer.JobRequests;
 using Orchestrator.Utils;
@@ -14,7 +17,7 @@ namespace Orchestrator.Jobs;
 public class JobFactory : IJobFactory
 {
     private IKubernetesFacade Kubernetes { get; }
-    private IMessagesProducer<JobEventMessage> EventsProducer { get; }
+    private JobEventsProducer EventsProducer { get; }
     private JobLogsProducer JobLogsProducer { get; }
     private IFindingsParser Parser { get; }
     private ILoggerFactory LoggerFactory { get; }
@@ -25,7 +28,7 @@ public class JobFactory : IJobFactory
     {
         JobLogsProducer = jobLogsProducer as JobLogsProducer;
         Kubernetes = kubernetes;
-        EventsProducer = eventsProducer;
+        EventsProducer = eventsProducer as JobEventsProducer;
         Parser = parser;
         LoggerFactory = loggerFactoryFactory;
         Logger = loggerFactoryFactory.CreateLogger<JobFactory>();
@@ -39,6 +42,17 @@ public class JobFactory : IJobFactory
         return request switch
         {
             CustomJobRequest customJob => CreateCustomJobCommand(customJob),
+            _ => throw new InvalidOperationException(),
+        };
+    }
+
+    public JobCommand Create(JobManagementRequest request)
+    {
+        Logger.LogInformation(JsonSerializer.Serialize(request));
+
+        return request switch
+        {
+            TerminateJobRequest managementRequest => new TerminateJobCommand(managementRequest, Kubernetes, EventsProducer, JobLogsProducer, Parser, LoggerFactory.CreateLogger<TerminateJobCommand>(), Config),
             _ => throw new InvalidOperationException(),
         };
     }

@@ -1,5 +1,7 @@
 ﻿using k8s;
 using k8s.Models;
+using Orchestrator.Events;
+using Orchestrator.Queue;
 
 namespace Orchestrator.K8s;
 
@@ -59,7 +61,8 @@ public class KubernetesFacade : IKubernetesFacade
                 Name = jobName,
                 Labels = new Dictionary<string, string>()
                 {
-                    ["red-kite.io/component"] = "job"
+                    ["red-kite.io/component"] = "job",
+                    ["red-kite.io/jobid"] = jobTemplate.Id
                 }
             },
             new V1JobSpec
@@ -70,7 +73,8 @@ public class KubernetesFacade : IKubernetesFacade
                     {
                         Labels = new Dictionary<string, string>()
                         {
-                            ["red-kite.io/component"] = "job"
+                            ["red-kite.io/component"] = "job",
+                            ["red-kite.io/jobid"] = jobTemplate.Id
                         }
                     },
                     Spec = new V1PodSpec
@@ -88,12 +92,13 @@ public class KubernetesFacade : IKubernetesFacade
                     },
                         NodeSelector = nodeSelector,
                         RestartPolicy = "Never",
-                        TerminationGracePeriodSeconds = 100
+                        TerminationGracePeriodSeconds = 100,
+                        
                     },
                 },
                 BackoffLimit = jobTemplate.MaxRetries,
                 ActiveDeadlineSeconds = jobTemplate.Timeout,
-                TtlSecondsAfterFinished = 1
+                TtlSecondsAfterFinished = 1,
             });
 
         Logger.LogInformation($"Creating job {jobName} in namespace {jobTemplate.Namespace}");
@@ -120,6 +125,30 @@ public class KubernetesFacade : IKubernetesFacade
             return false;
 
         return RetryableCall(() => pods.Items.FirstOrDefault()?.Status?.Phase == "Succeeded" || pods.Items.FirstOrDefault()?.Status?.Phase == "Failed");
+    }
+
+    /// <summary>
+    /// Terminates a job. The pod will be deleted after its termination grace period.
+    /// </summary>
+    /// <param name="jobId"></param>
+    /// <param name="jobNamespace"></param>
+    /// <returns>true if the job was running and terminated, false if it was not running.</returns>
+    public async Task<bool> TerminateJob(string jobId, string jobNamespace = "default")
+    {
+        using var client = new Kubernetes(KubernetesConfiguration);
+        string labelSelector = "red-kite.io/jobid=" + jobId;
+        var jobs = RetryableCall(() => client.ListNamespacedJob(jobNamespace, labelSelector: labelSelector));
+        var runningJob = jobs.Items.FirstOrDefault(job => job.Status.Active > 0);
+
+        if (runningJob != null)
+        {
+            var options = new V1DeleteOptions(gracePeriodSeconds: 0, propagationPolicy: "Foreground");
+
+            await RetryableCall(() => client.DeleteNamespacedJobAsync(runningJob.Metadata.Name, jobNamespace, options));
+            return true;
+        }
+        
+        return false;
     }
 
     /// <summary>
@@ -167,9 +196,6 @@ public class KubernetesFacade : IKubernetesFacade
             catch (k8s.Autorest.HttpOperationException e)
             {
                 exceptions.Add(e);
-            }
-            finally
-            {
                 RandomWait();
                 retryCount++;
             }

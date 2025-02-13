@@ -7,13 +7,14 @@ import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, combineLatest, map, shareReplay, switchMap, tap } from 'rxjs';
-import { ProjectCellComponent } from '../../../shared/components/project-cell/project-cell.component';
-import { SharedModule } from '../../../shared/shared.module';
-import { Project } from '../../../shared/types/project/project.interface';
-import { FilteredPaginatedTableComponent } from '../../../shared/widget/filtered-paginated-table/filtered-paginated-table.component';
 import { JobExecutionsService } from '../../../api/jobs/job-executions/job-executions.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
+import { ProjectCellComponent } from '../../../shared/components/project-cell/project-cell.component';
+import { SharedModule } from '../../../shared/shared.module';
 import { StartedJobViewModel } from '../../../shared/types/jobs/job.type';
+import { Project } from '../../../shared/types/project/project.interface';
+import { ElementMenuItems } from '../../../shared/widget/dynamic-icons/menu-icon.component';
+import { FilteredPaginatedTableComponent } from '../../../shared/widget/filtered-paginated-table/filtered-paginated-table.component';
 import {
   TABLE_FILTERS_SOURCE_INITAL_FILTERS,
   TableFilters,
@@ -21,6 +22,7 @@ import {
   TableFiltersSourceBase,
 } from '../../../shared/widget/filtered-paginated-table/table-filters-source';
 import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-table/table-format/table-format.component';
+import { JobExecutionInteractionsService } from './job-execution-interactions.service';
 import { JobLogsSummaryComponent } from './job-execution-logs-summary.component';
 import { JobStateComponent } from './job-execution-state.component';
 
@@ -53,7 +55,7 @@ import { JobStateComponent } from './job-execution-state.component';
   ],
 })
 export class JobExecutionsComponent {
-  readonly displayColumns = ['name', 'project', 'time'];
+  readonly displayColumns = ['name', 'project', 'time', 'menu'];
   readonly filterOptions: string[] = ['project'];
   public readonly noDataMessage = $localize`:No job history|No jobs were run up to this point:No job history`;
 
@@ -81,6 +83,7 @@ export class JobExecutionsComponent {
     private projectsService: ProjectsService,
     private titleService: Title,
     private toastrService: ToastrService,
+    private jobExecutionInteractionsService: JobExecutionInteractionsService,
     @Inject(TableFiltersSourceBase) private filtersSource: TableFiltersSource
   ) {
     this.titleService.setTitle($localize`:Job executions|:Job executions`);
@@ -115,4 +118,27 @@ export class JobExecutionsComponent {
     }
     return filterObject;
   }
+
+  stopSent = new Set<string>();
+
+  public async stopJob(jobId: string) {
+    const result = await this.jobExecutionInteractionsService.stopJob(jobId);
+    if (result) {
+      this.stopSent.add(jobId);
+    }
+  }
+
+  public generateMenuItem = (element: StartedJobViewModel): ElementMenuItems[] => {
+    if (!element) return [];
+    const menuItems: ElementMenuItems[] = [];
+
+    menuItems.push({
+      action: () => this.stopJob(element.id),
+      icon: 'stop_circle',
+      label: $localize`:Stop job|Stop the currently running job:Stop job`,
+      disabled: !!element.endTime || this.stopSent.has(element.id),
+    });
+
+    return menuItems;
+  };
 }

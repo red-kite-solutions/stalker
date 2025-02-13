@@ -5,10 +5,10 @@ using Orchestrator.Queue.JobsConsumer;
 
 namespace Orchestrator.Jobs;
 
-public abstract class KubernetesCommand<T> : JobCommand where T : JobRequest
+public abstract class KubernetesJobCommand<T> : JobCommand where T : JobRequest
 {
     private IKubernetesFacade Kubernetes { get; }
-    private IMessagesProducer<JobEventMessage> EventsProducer { get; }
+    private JobEventsProducer EventsProducer { get; }
     private JobLogsProducer LogsProducer { get; }
     private IFindingsParser Parser { get; }
     private ILogger Logger { get; }
@@ -16,7 +16,7 @@ public abstract class KubernetesCommand<T> : JobCommand where T : JobRequest
 
     protected abstract KubernetesJobTemplate JobTemplate { get; }
 
-    protected KubernetesCommand(T request, IKubernetesFacade kubernetes, IMessagesProducer<JobEventMessage> eventsProducer, JobLogsProducer jobLogsProducer, IFindingsParser parser, ILogger logger)
+    protected KubernetesJobCommand(T request, IKubernetesFacade kubernetes, JobEventsProducer eventsProducer, JobLogsProducer jobLogsProducer, IFindingsParser parser, ILogger logger)
     {
         Request = request;
         Kubernetes = kubernetes;
@@ -34,11 +34,6 @@ public abstract class KubernetesCommand<T> : JobCommand where T : JobRequest
         LogsProducer.LogDebug(Request.JobId, "Job picked up by orchestrator.");
         Logger.LogInformation(Request.JobId, "Job created, listening for events.");
 
-        await EventsProducer.Produce(new JobEventMessage
-        {
-            JobId = Request.JobId,
-            FindingsJson = "{ \"findings\": [{ \"type\": \"JobStatusFinding\", \"status\": \"Started\" }]}",
-            Timestamp = TimeUtils.CurrentTimeMs(),
-        });
+        await EventsProducer.LogStatus(Request.JobId, JobEventsProducer.JobStatus.Started);
     }
 }

@@ -5,7 +5,7 @@ import { FilterQuery, Model, Types } from 'mongoose';
 import { HttpNotFoundException } from '../../../../exceptions/http.exceptions';
 import escapeStringRegexp from '../../../../utils/escape-string-regexp';
 import { IpFinding } from '../../../findings/findings.service';
-import { FindingsQueue } from '../../../job-queue/findings-queue';
+import { FindingsQueue } from '../../../queues/finding-queue/findings-queue';
 import { ConfigService } from '../../admin/config/config.service';
 import { TagsService } from '../../tags/tag.service';
 import { CorrelationKeyUtils } from '../correlation.utils';
