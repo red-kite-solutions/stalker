@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Producer } from 'kafkajs';
-import { orchestratorConstants } from '../auth/constants';
+import { orchestratorConstants } from '../../auth/constants';
 import { JobQueue } from './job-queue';
 
 @Injectable()

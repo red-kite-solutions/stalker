@@ -93,6 +93,13 @@ export class JobExecutionsService {
       projectId: projectId,
     };
 
-    return <StartedJob>await firstValueFrom(this.http.post(`${environment.fmUrl}/jobs/`, data));
+    return await firstValueFrom(this.http.post<StartedJob>(`${environment.fmUrl}/jobs/`, data));
+  }
+
+  public async stopJob(jobId: string) {
+    const data = {
+      task: 'TerminateJob',
+    };
+    return await firstValueFrom(this.http.patch(`${environment.fmUrl}/jobs/${jobId}`, data));
   }
 }

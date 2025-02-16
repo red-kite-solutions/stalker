@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { QueueModule } from '../../../job-queue/queue.module';
+import { QueueModule } from '../../../queues/queue.module';
 import { DatalayerModule } from '../../datalayer.module';
 import { TagsModule } from '../../tags/tag.module';
 import { WebsiteController } from './website.controller';

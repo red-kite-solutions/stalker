@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ViewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -26,22 +26,24 @@ import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { NgxFileDropModule } from 'ngx-file-drop';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, Observable, combineLatest, map } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest, map, tap } from 'rxjs';
+import { parse, parseDocument, stringify } from 'yaml';
+import { AuthService } from '../../../api/auth/auth.service';
+import { JobExecutionsService } from '../../../api/jobs/job-executions/job-executions.service';
+import { ProjectsService } from '../../../api/projects/projects.service';
 import { ThemeService } from '../../../services/theme.service';
 import { AvatarComponent } from '../../../shared/components/avatar/avatar.component';
 import { JobLogsComponent } from '../../../shared/components/job-logs/job-logs.component';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PanelSectionModule } from '../../../shared/components/panel-section/panel-section.module';
 import { SharedModule } from '../../../shared/shared.module';
-import { parse, parseDocument, stringify } from 'yaml';
-import { AuthService } from '../../../api/auth/auth.service';
-import { JobExecutionsService } from '../../../api/jobs/job-executions/job-executions.service';
-import { ProjectsService } from '../../../api/projects/projects.service';
 import { JobListEntry, JobParameterDefinition, StartedJob } from '../../../shared/types/jobs/job.type';
 import { ProjectSummary } from '../../../shared/types/project/project.summary';
 import { CodeEditorComponent, CodeEditorTheme } from '../../../shared/widget/code-editor/code-editor.component';
+import { SpinnerButtonComponent } from '../../../shared/widget/spinner-button/spinner-button.component';
 import { normalizeSearchString } from '../../../utils/normalize-search-string';
 import { FindingsModule } from '../../findings/findings.module';
+import { JobExecutionInteractionsService } from '../job-executions/job-execution-interactions.service';
 
 @Component({
   standalone: true,
@@ -82,9 +84,10 @@ import { FindingsModule } from '../../findings/findings.module';
     JobLogsComponent,
     CodeEditorComponent,
     AvatarComponent,
+    SpinnerButtonComponent,
   ],
 })
-export class LaunchJobsComponent {
+export class LaunchJobsComponent implements AfterViewInit {
   public code = '';
   public language = 'yaml';
   public minimapEnabled = false;
@@ -98,6 +101,19 @@ export class LaunchJobsComponent {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   dataSource = new MatTableDataSource<JobListEntry>();
+  @ViewChild(JobLogsComponent) public logs!: JobLogsComponent;
+  public jobIsStopping$ = new BehaviorSubject<boolean>(false);
+  public jobIsRunning$!: Observable<boolean>;
+
+  ngAfterViewInit(): void {
+    this.jobIsRunning$ = this.logs.isJobInProgress$.pipe(
+      tap((inProgress) => {
+        if (!inProgress) {
+          this.jobIsStopping$.next(false);
+        }
+      })
+    );
+  }
 
   public selectedRow: JobListEntry | undefined;
   public currentJobName = '';
@@ -124,7 +140,8 @@ export class LaunchJobsComponent {
     private projectsService: ProjectsService,
     private titleService: Title,
     public authService: AuthService,
-    private themeService: ThemeService
+    private themeService: ThemeService,
+    private jobExecutionInteractionsService: JobExecutionInteractionsService
   ) {
     this.titleService.setTitle($localize`:Launch jobs|:Launch jobs`);
   }
@@ -205,10 +222,19 @@ export class LaunchJobsComponent {
         parameters,
         this.selectedProject ?? undefined
       );
+      this.jobIsStopping$.next(false);
     } catch {
       this.toastr.error(
         $localize`:Error while starting job|There was an error while starting the job:Error while starting job`
       );
+    }
+  }
+
+  public async stopJob() {
+    const result = await this.jobExecutionInteractionsService.stopJob(this.currentStartedJob!.id);
+
+    if (result) {
+      this.jobIsStopping$.next(true);
     }
   }
 

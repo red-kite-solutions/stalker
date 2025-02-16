@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { CustomJobEntry } from '../database/custom-jobs/custom-jobs.model';
+import { CustomJobEntry } from '../../database/custom-jobs/custom-jobs.model';
 import { JobModelUpdateQueue } from './job-model-update-queue';
 
 @Injectable()
