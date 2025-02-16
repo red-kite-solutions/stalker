@@ -11,12 +11,9 @@ import {
 } from 'class-validator';
 import { Types } from 'mongoose';
 import { PagingDto } from '../../database.dto';
-import { FilterByDomainDto, ResourceFilterDto } from '../resource.dto';
+import { ResourceFilterDto } from '../resource.dto';
 
-export class HostsFilterDto extends IntersectionType(
-  ResourceFilterDto,
-  FilterByDomainDto,
-) {}
+export class HostsFilterDto extends IntersectionType(ResourceFilterDto) {}
 
 export class HostsPagingDto extends IntersectionType(
   PagingDto,

@@ -59,7 +59,7 @@ describe('Domain Service', () => {
       );
 
       // Assert
-      expect(domains.length).toBe(1);
+      expect(domains.length).toBe(2);
     });
   });
 
@@ -86,57 +86,57 @@ describe('Domain Service', () => {
       project2 = await project('project 2');
       [foo, bar, baz, qux] = await tags('foo', 'bar', 'baz', 'qux');
 
-      d1 = await domain('d1.org', project1);
-      d2 = await domain('d2.org', project1);
-      d3 = await domain('d3.org', project2);
+      d1 = await domain('d1', project1, [foo, bar]);
+      d2 = await domain('d2', project1, [foo, baz]);
+      d3 = await domain('d3', project2, [qux]);
 
       h1 = await host('1.1.1.1', d1.name, project1);
       h2 = await host('1.2.2.2', d2.name, project1);
       h3 = await host('1.2.2.3', d3.name, project2);
 
-      block();
+      await block(d3);
     });
 
     it.each([
-      ['', ['d1.org', 'd2.org', 'd3.org']],
+      ['', ['d1', 'd2', 'd3']],
 
       // Projects
-      ['project: "project*"', ['d1.org', 'd2.org', 'd3.org']],
-      ['project: "project 1"', ['d1.org', 'd2.org']],
-      ['project: "project 2"', ['d3.org']],
-      ['-project: "project 2"', ['d1.org', 'd2.org']],
-      ['project.name: "project*"', ['d1.org', 'd2.org', 'd3.org']],
-      ['project.name: "project 1"', ['d1.org', 'd2.org']],
-      ['project.name: "project 2"', ['d3.org']],
-      ['-project.name: "project 2"', ['d1.org', 'd2.org']],
-      [() => `project.id: ${project1.id}`, ['d1.org', 'd2.org']],
-      [() => `project.id: ${project2.id}`, ['d3.org']],
-      [() => `-project.id: ${project2.id}`, ['d1.org', 'd2.org']],
+      ['project: "project*"', ['d1', 'd2', 'd3']],
+      ['project: "project 1"', ['d1', 'd2']],
+      ['project: "project 2"', ['d3']],
+      ['-project: "project 2"', ['d1', 'd2']],
+      ['project.name: "project*"', ['d1', 'd2', 'd3']],
+      ['project.name: "project 1"', ['d1', 'd2']],
+      ['project.name: "project 2"', ['d3']],
+      ['-project.name: "project 2"', ['d1', 'd2']],
+      [() => `project.id: ${project1.id}`, ['d1', 'd2']],
+      [() => `project.id: ${project2.id}`, ['d3']],
+      [() => `-project.id: ${project2.id}`, ['d1', 'd2']],
 
       // Host
-      ['host: 1.1.1.1', ['d1.org']],
-      ['host.ip: 1.1.1.1', ['d1.org']],
-      [() => `host.id: ${h1._id}`, ['d1.org']],
-      ['host: 1.*', ['d1.org']],
-      ['host: 1.2.2*', ['d1.org', 'd2.org', 'd3.org']],
-      ['-host: 1.1.1.1', ['d2.org', 'd3.org']],
-      ['-host.ip: 1.1.1.1', ['d2.org', 'd3.org']],
-      [() => `-host.id: ${h1.id}`, ['d2.org', 'd3.org']],
-      ['-host: 1.2.2*', ['d2.org', 'd3.org']],
+      ['host: 1.1.1.1', ['d1']],
+      ['host.ip: 1.1.1.1', ['d1']],
+      [() => `host.id: ${h1._id}`, ['d1']],
+      ['host: 1.*', ['d1', 'd2', 'd3']],
+      ['host: 1.2.2*', ['d2', 'd3']],
+      ['-host: 1.1.1.1', ['d2', 'd3']],
+      ['-host.ip: 1.1.1.1', ['d2', 'd3']],
+      [() => `-host.id: ${h1.id}`, ['d2', 'd3']],
+      ['-host: 1.2.2*', ['d1']],
 
-      // // Tag
-      // ['tag: foo', [1, 2]],
-      // [() => `tag.id: ${foo._id}`, [1, 2]],
-      // [() => `-tag.id: ${foo._id}`, [3, 4, 5, 6]],
-      // ['-tag: ba*', [1, 2]],
-      // ['-tag: foo', [3, 4, 5, 6]],
-      // ['tag: qux', [1, 2, 3, 4, 5, 6]],
-      // ['tag: foo tag: qux', [1, 2]],
-      // ['-tag: foo tag: qux', [3, 4, 5, 6]],
+      // Tag
+      ['tag: foo', ['d1', 'd2']],
+      ['-tag: foo', ['d3']],
+      [() => `tag.id: ${foo._id}`, ['d1', 'd2']],
+      [() => `-tag.id: ${foo._id}`, ['d3']],
+      ['-tag: ba*', ['d3']],
+      ['tag: qux', ['d3']],
+      ['tag: foo tag: bar', ['d1']],
+      ['-tag: foo tag: qux', ['d3']],
 
-      // // Is
-      // ['is: blocked', [6]],
-      // ['-is: blocked', [1, 2, 3, 4, 5]],
+      // Is
+      ['is: blocked', ['d3']],
+      ['-is: blocked', ['d1', 'd2']],
     ])(
       'Filter by "%s"',
       async (query: string | (() => string), expected: string[]) => {
@@ -144,184 +144,19 @@ describe('Domain Service', () => {
         if (typeof query !== 'string') query = query();
 
         // Act
-        const allDomains = await domainService.getAll(0, 10, {
+        const domains = await domainService.getAll(0, 10, {
           query,
           page: 0,
           pageSize: 100,
         });
 
         // Assert
-        expect(allDomains.map((x) => x.name).sort()).toStrictEqual(
+        expect(domains.map((x) => x.name).sort()).toStrictEqual(
           expected.sort(),
         );
       },
     );
   });
-
-  // // describe('Get all', () => {
-  // //   it('Filter by project', async () => {
-  // //     // Arrange
-  // //     const c1 = await project('my first project');
-  // //     const d1 = await domain('project5.example.org', c1);
-
-  // //     const c2 = await project('my second project');
-  // //     const d2 = await domain('project6.example.org', c1);
-
-  // //     // Act
-  // //     const allDomains = await domainService.getAll(0, 10, {
-  // //       domains: null,
-  // //       tags: null,
-  // //       hosts: null,
-  // //       projects: [c1._id.toString()],
-  // //       page: 0,
-  // //       pageSize: 10,
-  // //       firstSeenStartDate: undefined,
-  // //       firstSeenEndDate: undefined,
-  // //       blocked: undefined,
-  // //     });
-
-  // //     // Assert
-  // //     expect(allDomains.length).toBe(2);
-
-  // //     const d1Res = allDomains[0];
-  // //     expect(d1Res.projectId.toString()).toBe(c1._id.toString());
-  // //     expect(d1Res.name).toStrictEqual(d1.name);
-
-  // //     const d2Res = allDomains[1];
-  // //     expect(d2Res.projectId.toString()).toBe(c1._id.toString());
-  // //     expect(d2Res.name).toStrictEqual(d2.name);
-  // //   });
-
-  // //   it.each([
-  // //     [
-  // //       ['foo'],
-  // //       'foo.example.org',
-  // //       'bar.foo.project.example.org',
-  // //       'foo.bar.somethingelse.example.org',
-  // //     ],
-  // //     [
-  // //       ['foo', 'bar'],
-  // //       'bar.foo.project.example.org',
-  // //       'foo.bar.somethingelse.example.org',
-  // //     ],
-  // //   ])(
-  // //     'Filter by domain',
-  // //     async (domains: string[], ...expectedDomains: string[]) => {
-  // //       // Arrange
-  // //       const c1 = await project('c1');
-  // //       const c2 = await project('c2');
-
-  // //       const d1 = await domain('foo.example.org', c1);
-  // //       const d2 = await domain('bar.foo.project.example.org', c1);
-  // //       const d3 = await domain('foo.bar.somethingelse.example.org', c2);
-  // //       const d4 = await domain('unrelated.example.org', c2);
-
-  // //       // Act
-  // //       const allDomains = await domainService.getAll(0, 10, {
-  // //         domains: domains,
-  // //         tags: null,
-  // //         projects: null,
-  // //         hosts: null,
-  // //         page: 0,
-  // //         pageSize: 10,
-  // //         firstSeenStartDate: undefined,
-  // //         firstSeenEndDate: undefined,
-  // //         blocked: undefined,
-  // //       });
-
-  // //       // Assert
-  // //       expect(allDomains.map((x) => x.name).sort()).toStrictEqual(
-  // //         expectedDomains.sort(),
-  // //       );
-  // //     },
-  // //   );
-
-  // //   it.each([
-  // //     [
-  // //       ['159'],
-  // //       'foo.example.org',
-  // //       'bar.example.org',
-  // //       'bar.foo.project.example.org',
-  // //     ],
-  // //     [['1.1.159.1'], 'foo.example.org', 'bar.example.org'],
-  // //     [['  1.1.159.1  '], 'foo.example.org', 'bar.example.org'],
-  // //   ])(
-  // //     'Filter by host %s',
-  // //     async (hosts: string[], ...expectedDomains: string[]) => {
-  // //       // Arrange
-  // //       const c1 = await project('c1');
-  // //       const c2 = await project('c2');
-
-  // //       await domain('foo.example.org', c1);
-  // //       await host('1.1.159.1', 'foo.example.org', c1);
-  // //       await host('2.2.2.2', 'foo.example.org', c1);
-
-  // //       await domain('bar.example.org', c1);
-  // //       await host('1.1.159.1', 'bar.example.org', c1);
-
-  // //       await domain('bar.foo.project.example.org', c2);
-  // //       await host('6.6.159.6', 'bar.foo.project.example.org', c2);
-
-  // //       await domain('unrelated.example.org', c2);
-
-  // //       // Act
-  // //       const allDomains = await domainService.getAll(0, 10, {
-  // //         domains: null,
-  // //         tags: null,
-  // //         projects: null,
-  // //         hosts: hosts,
-  // //         page: 0,
-  // //         pageSize: 10,
-  // //         firstSeenStartDate: undefined,
-  // //         firstSeenEndDate: undefined,
-  // //         blocked: undefined,
-  // //       });
-
-  // //       // Assert
-  // //       expect(allDomains.map((x) => x.name).sort()).toStrictEqual(
-  // //         expectedDomains.sort(),
-  // //       );
-  // //     },
-  // //   );
-
-  // //   it('Filter by tag', async () => {
-  // //     // Arrange
-  // //     const c1 = await project('c1');
-  // //     const c2 = await project('c2');
-
-  // //     const t1 = await tag('t1');
-  // //     const t2 = await tag('t2');
-
-  // //     const d1 = await domain('abc.example.org', c1);
-  // //     const d2 = await domain('abc.project.example.org', c1);
-  // //     const d3 = await domain('xyz.example.org', c2);
-  // //     const d4 = await domain('unrelated.example.org', c2);
-
-  // //     await domainService.tagDomain(d1._id.toString(), t1._id.toString(), true);
-  // //     await domainService.tagDomain(d4._id.toString(), t1._id.toString(), true);
-  // //     await domainService.tagDomain(d2._id.toString(), t2._id.toString(), true);
-
-  // //     // Act
-  // //     const allDomains = await domainService.getAll(0, 10, {
-  // //       domains: null,
-  // //       tags: [t1._id.toString()],
-  // //       projects: null,
-  // //       hosts: null,
-  // //       page: 0,
-  // //       pageSize: 10,
-  // //       firstSeenStartDate: undefined,
-  // //       firstSeenEndDate: undefined,
-  // //       blocked: undefined,
-  // //     });
-
-  // //     // Assert
-  // //     expect(allDomains.length).toStrictEqual(2);
-  // //     expect(allDomains.map((x) => x.name).sort()).toStrictEqual([
-  // //       d1.name,
-  // //       d4.name,
-  // //     ]);
-  // //   });
-  // // });
 
   describe('Delete domains', () => {
     it('Delete domain by id', async () => {
@@ -389,12 +224,13 @@ describe('Domain Service', () => {
     project: ProjectDocument,
     tags: TagsDocument[] = [],
   ) {
-    return await hostService.addHostsWithDomain(
+    const foo = await hostService.addHostsWithDomain(
       [ip],
       domainName,
       project._id,
       tags.map((x) => x.id),
-    )[0];
+    );
+    return foo[0];
   }
 
   async function tags(...tags: string[]) {

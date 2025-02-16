@@ -3,7 +3,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { DeleteResult, UpdateResult } from 'mongodb';
 import { FilterQuery, Model, Types } from 'mongoose';
 import { HttpNotFoundException } from '../../../../exceptions/http.exceptions';
-import escapeStringRegexp from '../../../../utils/escape-string-regexp';
 import { IpFinding } from '../../../findings/findings.service';
 import { FindingsQueue } from '../../../job-queue/findings-queue';
 import { ConfigService } from '../../admin/config/config.service';
@@ -14,8 +13,8 @@ import { DomainSummary } from '../domain/domain.summary';
 import { PortService } from '../port/port.service';
 import { Project } from '../project.model';
 import { WebsiteService } from '../websites/website.service';
-import { HostFilterModel } from './host-filter.model';
-import { BatchEditHostsDto } from './host.dto';
+import { HostsFilterParser } from './host-filter-parser';
+import { BatchEditHostsDto, HostsFilterDto } from './host.dto';
 import { Host, HostDocument } from './host.model';
 import { HostSummary } from './host.summary';
 
@@ -33,16 +32,23 @@ export class HostService {
     private portsService: PortService,
     private findingsQueue: FindingsQueue,
     private websiteService: WebsiteService,
+    private hostsFilterParser: HostsFilterParser,
   ) {}
 
   public async getAll(
     page: number = null,
     pageSize: number = null,
-    filter: HostFilterModel = null,
+    filter: HostsFilterDto = null,
   ): Promise<HostDocument[]> {
     let query;
     if (filter) {
-      query = this.hostModel.find(this.buildFilters(filter));
+      query = this.hostModel.find(
+        await this.hostsFilterParser.buildFilter(
+          filter.query,
+          filter.firstSeenStartDate,
+          filter.firstSeenEndDate,
+        ),
+      );
     } else {
       query = this.hostModel.find({});
     }
@@ -88,11 +94,17 @@ export class HostService {
     return h && h.blocked;
   }
 
-  public async count(filter: HostFilterModel = null) {
+  public async count(filter: HostsFilterDto = null) {
     if (!filter) {
       return await this.hostModel.estimatedDocumentCount();
     } else {
-      return await this.hostModel.countDocuments(this.buildFilters(filter));
+      return await this.hostModel.countDocuments(
+        await this.hostsFilterParser.buildFilter(
+          filter.query,
+          filter.firstSeenStartDate,
+          filter.firstSeenEndDate,
+        ),
+      );
     }
   }
 
@@ -106,6 +118,7 @@ export class HostService {
       domainName,
       projectId,
     );
+
     if (!domain) {
       this.logger.debug(`Could not find the domain (domainName=${domainName})`);
       throw new HttpNotFoundException(`domainName=${domainName})`);
@@ -132,7 +145,6 @@ export class HostService {
     }
 
     let hostSummaries: HostSummary[] = [];
-    let newIps: string[] = [];
     let newHosts: HostDocument[] = [];
 
     for (let ip of ips) {
@@ -160,22 +172,12 @@ export class HostService {
             $addToSet: { domains: ds, tags: { $each: existingTags } },
             lastSeen: Date.now(),
           },
-          { upsert: true, useFindAndModify: false },
+          { upsert: true, useFindAndModify: false, returnDocument: 'after' },
         )
         .exec();
 
-      if (!hostResult) {
-        // inserted
-        newIps.push(ip);
-        newHosts.push(hostResult);
-        hostSummaries.push({ id: mongoId, ip: ip });
-      } else if (
-        !hostResult.domains ||
-        !hostResult.domains.some((ds) => ds.name === domainName)
-      ) {
-        // updated, so sync with relevant domain document must be done
-        hostSummaries.push({ id: hostResult._id, ip: ip });
-      }
+      newHosts.push(hostResult);
+      hostSummaries.push({ id: hostResult._id, ip: ip });
     }
 
     await this.domainService.addHostsToDomain(domain._id, hostSummaries);
@@ -312,84 +314,6 @@ export class HostService {
       { _id: { $eq: new Types.ObjectId(hostId) } },
       { $pull: { domains: { id: new Types.ObjectId(domainId) } } },
     );
-  }
-
-  private buildFilters(dto: HostFilterModel) {
-    const finalFilter = {};
-
-    // Filter by domain
-    if (dto.domains) {
-      const domainRegexes = dto.domains
-        .filter((x) => x)
-        .map((x) => x.toLowerCase())
-        .map((x) => escapeStringRegexp(x))
-        .map((x) => new RegExp(x, 'i'));
-
-      if (domainRegexes.length > 0) {
-        finalFilter['domains.name'] = { $all: domainRegexes };
-      }
-    }
-
-    // Filter by host
-    if (dto.hosts) {
-      const hosts = dto.hosts
-        .filter((x) => x)
-        .map((x) => x.toLowerCase().trim())
-        .map((x) => escapeStringRegexp(x))
-        .map((x) => new RegExp(`.*${x}.*`));
-
-      if (hosts.length > 0) {
-        finalFilter['ip'] = { $in: hosts };
-      }
-    }
-
-    // Filter by project
-    if (dto.projects) {
-      const projectIds = dto.projects
-        .filter((x) => x)
-        .map((x) => new Types.ObjectId(x));
-
-      if (projectIds.length > 0) {
-        finalFilter['projectId'] = { $in: projectIds };
-      }
-    }
-
-    // Filter by tag
-    if (dto.tags) {
-      const preppedTagsArray = dto.tags.map((x) => new Types.ObjectId(x));
-      finalFilter['tags'] = { $all: preppedTagsArray };
-    }
-
-    // Filter by createdAt
-    if (dto.firstSeenStartDate || dto.firstSeenEndDate) {
-      let createdAtFilter = {};
-
-      if (dto.firstSeenStartDate && dto.firstSeenEndDate) {
-        createdAtFilter = [
-          { createdAt: { $gte: dto.firstSeenStartDate } },
-          { createdAt: { $lte: dto.firstSeenEndDate } },
-        ];
-        finalFilter['$and'] = createdAtFilter;
-      } else {
-        if (dto.firstSeenStartDate)
-          createdAtFilter = { $gte: dto.firstSeenStartDate };
-        else if (dto.firstSeenEndDate)
-          createdAtFilter = { $lte: dto.firstSeenEndDate };
-        finalFilter['createdAt'] = createdAtFilter;
-      }
-    }
-
-    // Filter by blocked
-    if (dto.blocked === false) {
-      finalFilter['$or'] = [
-        { blocked: { $exists: false } },
-        { blocked: { $eq: false } },
-      ];
-    } else if (dto.blocked === true) {
-      finalFilter['blocked'] = { $eq: true };
-    }
-
-    return finalFilter;
   }
 
   public async tagHost(

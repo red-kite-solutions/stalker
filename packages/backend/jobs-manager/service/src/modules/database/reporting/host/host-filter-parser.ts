@@ -5,13 +5,12 @@ import { BadRequestError } from 'passport-headerapikey';
 import { Tag } from '../../tags/tag.model';
 import { FilterParserBase } from '../filters-parser/filter-parser-base';
 import { SearchTermsValidator } from '../filters-parser/search-terms-validator';
-import { Host } from '../host/host.model';
 import { Port } from '../port/port.model';
 import { Project } from '../project.model';
-import { Domain, DomainDocument } from './domain.model';
+import { Host, HostDocument } from './host.model';
 
 @Injectable()
-export class DomainsFilterParser extends FilterParserBase {
+export class HostsFilterParser extends FilterParserBase {
   private validator = new SearchTermsValidator();
 
   constructor(
@@ -19,7 +18,6 @@ export class DomainsFilterParser extends FilterParserBase {
     @InjectModel('project') private readonly projectModel: Model<Project>,
     @InjectModel('tags') private readonly tagModel: Model<Tag>,
     @InjectModel('port') private readonly portsModel: Model<Port>,
-    @InjectModel('domain') private readonly domainsModel: Model<Domain>,
   ) {
     super();
   }
@@ -28,7 +26,7 @@ export class DomainsFilterParser extends FilterParserBase {
     query: string,
     firstSeenStartDate: number,
     firstSeenEndDate: number,
-  ): Promise<FilterQuery<DomainDocument>> {
+  ): Promise<FilterQuery<HostDocument>> {
     const terms = this.queryParser.parse(query || '', {
       completeTermsOnly: true,
       excludeEmptyValues: true,
@@ -38,14 +36,14 @@ export class DomainsFilterParser extends FilterParserBase {
 
     this.validator.ensureTerms(terms);
 
-    const finalFilter: FilterQuery<DomainDocument> = { $and: [] };
+    const finalFilter: FilterQuery<HostDocument> = { $and: [] };
 
     // "host.id" filters
     {
       const t = this.consumeTerms(terms, '', 'host.id');
       if (t.length) {
         const hosts = t.map((x) => new Types.ObjectId(x.value));
-        finalFilter.$and.push({ 'hosts.id': { $in: hosts } });
+        finalFilter.$and.push({ id: { $in: hosts } });
       }
     }
 
@@ -54,20 +52,17 @@ export class DomainsFilterParser extends FilterParserBase {
       const t = this.consumeTerms(terms, '-', 'host.id');
       if (t.length) {
         const notHosts = t.map((x) => new Types.ObjectId(x.value));
-        finalFilter.$and.push({ 'hosts.id': { $not: { $in: notHosts } } });
+        finalFilter.$and.push({ id: { $not: { $in: notHosts } } });
       }
     }
+
+    console.log(finalFilter);
 
     // "host.ip" filters
     {
       const t = this.consumeTerms(terms, '', 'host.ip');
       if (t.length) {
-        const hosts = await this.hostModel.find(
-          { ip: { $in: this.toInclusionList(t) } },
-          '_id',
-        );
-
-        finalFilter.$and.push({ 'hosts.id': { $in: hosts.map((x) => x._id) } });
+        finalFilter.$and.push({ ip: { $in: this.toInclusionList(t) } });
       }
     }
 
@@ -75,13 +70,8 @@ export class DomainsFilterParser extends FilterParserBase {
     {
       const t = this.consumeTerms(terms, '-', 'host.ip');
       if (t.length) {
-        const hosts = await this.hostModel.find(
-          { ip: { $in: this.toInclusionList(t) } },
-          '_id',
-        );
-
         finalFilter.$and.push({
-          'hosts.id': { $not: { $in: hosts.map((x) => x._id) } },
+          ip: { $not: { $in: this.toInclusionList(t) } },
         });
       }
     }

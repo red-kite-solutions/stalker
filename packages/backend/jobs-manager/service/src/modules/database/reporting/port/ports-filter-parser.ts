@@ -38,21 +38,6 @@ export class PortsFilterParser extends FilterParserBase {
 
     const finalFilter: FilterQuery<PortDocument> = { $and: [] };
 
-    // "is" filters
-    {
-      const t = this.consumeTerms(terms, '', 'is', 'blocked');
-      if (t.length) {
-        finalFilter.$and.push({ blocked: { $eq: true } });
-      }
-    }
-
-    {
-      const t = this.consumeTerms(terms, '-', 'is', 'blocked');
-      if (t.length) {
-        finalFilter.$and.push({ blocked: { $not: { $eq: true } } });
-      }
-    }
-
     // "host.id" filters
     {
       const t = this.consumeTerms(terms, '', 'host.id');
@@ -277,7 +262,7 @@ export class PortsFilterParser extends FilterParserBase {
     {
       const t = this.consumeTerms(terms, '-', 'is', 'blocked');
       if (t.length) {
-        finalFilter.$and.push({ $not: { blocked: true } });
+        finalFilter.$and.push({ blocked: { $not: { $eq: true } } });
       }
     }
 

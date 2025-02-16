@@ -33,6 +33,10 @@ describe('Host Service', () => {
     for (const c of allProjects) {
       await projectService.delete(c._id);
     }
+    const allTags = await tagsService.getAll();
+    for (const t of allTags) {
+      await tagsService.delete(t._id.toString());
+    }
   });
 
   afterAll(async () => {
@@ -40,7 +44,7 @@ describe('Host Service', () => {
   });
 
   describe('Add hosts', () => {
-    it('Should only return new hosts', async () => {
+    it('Should only return hosts', async () => {
       // Arrange
       const c = await projectService.addProject({
         name: randomUUID(),
@@ -58,7 +62,7 @@ describe('Host Service', () => {
       newHosts = await host(d, c, [], '1.1.1.1');
 
       // Assert
-      expect(newHosts.length).toBe(0);
+      expect(newHosts.length).toBe(1);
     });
 
     it('Should support same ip for multiple hosts', async () => {
@@ -108,14 +112,74 @@ describe('Host Service', () => {
       project2 = await project('project 2');
       [foo, bar, baz, qux] = await tags('foo', 'bar', 'baz', 'qux');
 
-      domain1 = await domain('d1.example.org', project1);
-      domain2 = await domain('d2.example.org', project1);
-      domain3 = await domain('d3.example.org', project2);
+      domain1 = await domain('d1', project1);
+      domain2 = await domain('d2', project1);
+      domain3 = await domain('d3', project2);
 
-      [h1, h2] = await host(domain1, project1, [foo.id], '1.1.1.1', '1.2.2.2');
-      [h2] = await host(domain1, project1, [foo.id], '1.2.2.2');
-      [h3] = await host(domain2, project2, [foo.id], '1.2.2.3');
+      [h1, h2] = await host(domain1, project1, [foo], '1.1.1.1', '1.2.2.2');
+      [h2] = await host(domain1, project1, [foo, bar], '1.2.2.2');
+      [h3] = await host(domain3, project2, [foo, baz, qux], '1.2.2.3');
+
+      block(h3);
     });
+
+    it.each([
+      ['', ['1.1.1.1', '1.2.2.2', '1.2.2.3']],
+
+      // Projects
+      ['project: "project*"', ['1.1.1.1', '1.2.2.2', '1.2.2.3']],
+      ['project: "project 1"', ['1.1.1.1', '1.2.2.2']],
+      ['project: "project 2"', ['1.2.2.3']],
+      ['-project: "project 2"', ['1.1.1.1', '1.2.2.2']],
+      ['project.name: "project*"', ['1.1.1.1', '1.2.2.2', '1.2.2.3']],
+      ['project.name: "project 1"', ['1.1.1.1', '1.2.2.2']],
+      ['project.name: "project 2"', ['1.2.2.3']],
+      ['-project.name: "project 2"', ['1.1.1.1', '1.2.2.2']],
+      [() => `project.id: ${project1.id}`, ['1.1.1.1', '1.2.2.2']],
+      [() => `project.id: ${project2.id}`, ['1.2.2.3']],
+      [() => `-project.id: ${project2.id}`, ['1.1.1.1', '1.2.2.2']],
+
+      // Host
+      ['host: 1.1.1.1', ['1.1.1.1']],
+      ['host.ip: 1.1.1.1', ['1.1.1.1']],
+      [() => `host.id: ${h1.id}`, ['1.1.1.1']],
+      ['host: 1.*', ['1.1.1.1', '1.2.2.2', '1.2.2.3']],
+      ['host: 1.2.2*', ['1.2.2.2', '1.2.2.3']],
+      ['-host: 1.1.1.1', ['1.2.2.2', '1.2.2.3']],
+      ['-host.ip: 1.1.1.1', ['1.2.2.2', '1.2.2.3']],
+      [() => `-host.id: ${h1.id}`, ['1.2.2.2', '1.2.2.3']],
+      ['-host: 1.2.2*', ['1.1.1.1']],
+
+      // Tag
+      ['tag: foo', ['1.1.1.1', '1.2.2.2', '1.2.2.2', '1.2.2.3']],
+      ['-tag: foo', ['1.2.2.3']],
+      [() => `tag.id: ${foo.id}`, ['1.1.1.1', '1.2.2.2']],
+      [() => `-tag.id: ${foo.id}`, ['1.2.2.3']],
+      ['-tag: ba*', ['1.2.2.3']],
+      ['tag: qux', ['1.2.2.3']],
+      ['tag: foo tag: bar', ['1.1.1.1']],
+      ['-tag: foo tag: qux', ['1.2.2.3']],
+
+      // Is
+      ['is: blocked', ['1.2.2.3']],
+      ['-is: blocked', ['1.1.1.1', '1.2.2.2']],
+    ])(
+      'Filter by "%s"',
+      async (query: string | (() => string), expected: string[]) => {
+        // Arrange
+        if (typeof query !== 'string') query = query();
+
+        // Act
+        const allHosts = await hostService.getAll(0, 10);
+        console.log(allHosts);
+        const hosts = await hostService.getAll(0, 10, {
+          query,
+        });
+
+        // Assert
+        expect(hosts.map((x) => x.ip).sort()).toStrictEqual(expected.sort());
+      },
+    );
   });
 
   describe('Delete hosts', () => {
@@ -167,14 +231,14 @@ describe('Host Service', () => {
   async function host(
     domain: Domain,
     project: ProjectDocument,
-    tags: string[],
+    tags: TagsDocument[],
     ...ips: string[]
   ) {
     return await hostService.addHostsWithDomain(
       ips,
       domain.name,
       project._id.toString(),
-      tags,
+      tags.map((x) => x.id),
     );
   }
 
@@ -189,5 +253,12 @@ describe('Host Service', () => {
 
   async function domain(domain: string, project: ProjectDocument) {
     return (await domainService.addDomains([domain], project._id))[0];
+  }
+
+  async function block(...hosts: HostDocument[]) {
+    await hostService.batchEdit({
+      block: true,
+      hostIds: hosts.map((x) => x.id),
+    });
   }
 });
