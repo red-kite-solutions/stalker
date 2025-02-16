@@ -6,7 +6,10 @@ export type FindingField = FindingImageField | FindingTextField;
 
 export class FindingImageField {
   @Prop()
-  public readonly type: FindingType = 'image';
+  public key: string;
+
+  @Prop()
+  public readonly type: FindingType & 'image' = 'image';
 
   @Prop()
   public data: string;
@@ -14,13 +17,16 @@ export class FindingImageField {
 
 export class FindingTextField {
   @Prop()
-  public readonly type: FindingType = 'text';
+  public key: string;
 
   @Prop()
-  public label: string;
+  public readonly type: FindingType & 'text' = 'text';
 
   @Prop()
-  public data: string;
+  public label?: string;
+
+  @Prop()
+  public data?: string;
 }
 
 /**

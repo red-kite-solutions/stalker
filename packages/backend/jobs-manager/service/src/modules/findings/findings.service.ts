@@ -11,6 +11,7 @@ import { ProjectUnassigned } from '../../validators/is-project-id.validator';
 import { ConfigService } from '../database/admin/config/config.service';
 import { JobExecutionsService } from '../database/jobs/job-executions.service';
 import { CorrelationKeyUtils } from '../database/reporting/correlation.utils';
+import { FindingDefinitionService } from '../database/reporting/finding-definitions/finding-definition.service';
 import { CustomFinding } from '../database/reporting/findings/finding.model';
 import { ProjectService } from '../database/reporting/project.service';
 import { HostnameCommand } from './commands/Findings/hostname.command';
@@ -218,10 +219,11 @@ export class FindingsService {
     private configService: ConfigService,
     @InjectModel('finding')
     private readonly findingModel: Model<CustomFinding>,
+    private readonly findingDefinitionService: FindingDefinitionService,
   ) {}
 
   /**
-   * Deletes all the findings runs older than `config.jobRunRetentionTimeSeconds`.
+   * Deletes all the findings runs older than `config.findingRetentionTimeSeconds`.
    */
   public async cleanup(
     now: number = Date.now(),
@@ -429,6 +431,9 @@ export class FindingsService {
         return;
       }
     }
+
+    // No need to wait for update
+    await this.findingDefinitionService.upsertFindingDefinition(finding);
 
     if (projectId === ProjectUnassigned) {
       // Skipping the findings management if it was not assigned to any project,

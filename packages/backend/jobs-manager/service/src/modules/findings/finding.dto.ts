@@ -25,8 +25,8 @@ export class CustomFindingImageFieldDto {
 
 export class CustomFindingTextFieldDto {
   public readonly type = 'text';
-  public label: string;
-  public data: string;
+  public label?: string;
+  public data?: string;
 }
 
 /**
