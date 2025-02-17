@@ -4,7 +4,7 @@ export interface FieldFilter {
 }
 
 export interface FindingsFilter {
-  target?: string;
+  targets?: string[];
   findingDenyList?: string[];
   findingAllowList?: string[];
   fieldFilters?: FieldFilter[];

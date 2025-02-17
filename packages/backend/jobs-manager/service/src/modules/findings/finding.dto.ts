@@ -25,8 +25,8 @@ export class CustomFindingImageFieldDto {
 
 export class CustomFindingTextFieldDto {
   public readonly type = 'text';
-  public label: string;
-  public data: string;
+  public label?: string;
+  public data?: string;
 }
 
 /**
@@ -51,9 +51,9 @@ export class FieldFilterDto {
 }
 
 export class FindingsFilterDto {
-  @IsNotEmpty()
-  @IsString()
-  target: string;
+  @IsString({ each: true })
+  @IsArray()
+  targets: string[];
 
   @IsString({ each: true })
   @IsArray()

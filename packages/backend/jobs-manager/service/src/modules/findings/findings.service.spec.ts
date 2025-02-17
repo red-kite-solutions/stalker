@@ -79,10 +79,10 @@ describe('Findings Service Spec', () => {
 
     // Act
     const firstPage = await findingsService.getAll(0, 3, {
-      target: 'my-target',
+      targets: ['my-target'],
     });
     const secondPage = await findingsService.getAll(1, 3, {
-      target: 'my-target',
+      targets: ['my-target'],
     });
 
     // Assert
@@ -91,6 +91,50 @@ describe('Findings Service Spec', () => {
 
     expect(secondPage.totalRecords).toBe(5);
     expect(secondPage.items.map((x) => x.name).join('')).toBe('ba');
+  });
+
+  it('Get all - Should only return findings matching multiple targets', async () => {
+    // Arrange
+    await findingsModel.insertMany([
+      {
+        created: new Date(2011, 1, 1),
+        correlationKey: 'my-target',
+        name: 'b',
+      },
+      {
+        created: new Date(2010, 1, 1),
+        correlationKey: 'my-target',
+        name: 'a',
+      },
+      {
+        created: new Date(2022, 1, 1),
+        correlationKey: 'my-other-target',
+        name: 'should not be returned',
+      },
+      {
+        created: new Date(2012, 1, 1),
+        correlationKey: 'my-target2',
+        name: 'c',
+      },
+      {
+        created: new Date(2014, 1, 1),
+        correlationKey: 'my-target2',
+        name: 'e',
+      },
+      {
+        created: new Date(2013, 1, 1),
+        correlationKey: 'my-other-target',
+        name: 'should not be returned',
+      },
+    ]);
+
+    // Act
+    const firstPage = await findingsService.getAll(0, 3, {
+      targets: ['my-target', 'my-target2'],
+    });
+
+    // Assert
+    expect(firstPage.totalRecords).toBe(4);
   });
 
   it('Save - Nonexistent project - Throws', async () => {
@@ -175,7 +219,7 @@ describe('Findings Service Spec', () => {
       'example.org',
     );
     const findings = await findingsService.getAll(0, 100, {
-      target: correlationKey,
+      targets: [correlationKey],
     });
     expect(findings.totalRecords).toBe(1);
 
@@ -214,7 +258,7 @@ describe('Findings Service Spec', () => {
       'example.org',
     );
     const findings = await findingsService.getAll(0, 100, {
-      target: correlationKey,
+      targets: [correlationKey],
       findingDenyList: [filteredKey],
     });
 
@@ -245,7 +289,7 @@ describe('Findings Service Spec', () => {
       'example.org',
     );
     const findings = await findingsService.getAll(0, 100, {
-      target: correlationKey,
+      targets: [correlationKey],
       findingAllowList: [nonFilteredKey],
     });
 
@@ -311,7 +355,7 @@ describe('Findings Service Spec', () => {
     );
     const endpoint = (
       await findingsService.getAll(0, 1, {
-        target: correlationKey,
+        targets: [correlationKey],
         fieldFilters: [
           {
             key: CustomFindingsConstants.WebsiteEndpointFieldKey,

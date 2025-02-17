@@ -10,10 +10,10 @@ export const alarmInitProvider = [
     provide: ALARM_INIT,
     inject: [getModelToken('alarms')],
     useFactory: async (alarmModel: Model<Alarm>) => {
-      const anyAlarm = await alarmModel.findOne({});
-      if (anyAlarm) return;
-
+      const allAlarms = await alarmModel.find({});
       for (let alarm of DEFAULT_ALARMS) {
+        if (allAlarms.find((a) => a.name === alarm.name)) continue;
+
         await alarmModel.create(alarm);
       }
     },

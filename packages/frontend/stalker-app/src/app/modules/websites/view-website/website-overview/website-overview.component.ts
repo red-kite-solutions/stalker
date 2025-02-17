@@ -75,7 +75,7 @@ export class WebsiteOverviewComponent {
     debounceTime(200),
     switchMap(([endpoint, website]) => {
       this.selectedEndpoint = endpoint;
-      return this.findingService.getLatestWebsiteEndpoint(website!.correlationKey, endpoint);
+      return this.findingService.getLatestWebsiteEndpoint([website!.correlationKey], endpoint);
     }),
     tap(() => {
       this.endpointLoading = false;
@@ -88,7 +88,7 @@ export class WebsiteOverviewComponent {
       this.previewLoading = true;
     }),
     switchMap((website) => {
-      return this.findingService.getLatestWebsitePreview(website!.correlationKey);
+      return this.findingService.getLatestWebsitePreview([website!.correlationKey]);
     }),
     tap(() => {
       this.previewLoading = false;
