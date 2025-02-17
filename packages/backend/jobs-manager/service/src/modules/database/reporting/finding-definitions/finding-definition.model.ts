@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { MONGO_TIMESTAMP_SCHEMA_CONFIG } from '../../database.constants';
+import { FindingType } from '../findings/finding.model';
 
 export type FindingDefinitionDocument = FindingDefinition & Document;
 
@@ -9,7 +10,10 @@ export class FindingFieldDefinition {
   key: string;
 
   @Prop()
-  label: string;
+  label?: string;
+
+  @Prop()
+  public type: FindingType;
 }
 
 @Schema(MONGO_TIMESTAMP_SCHEMA_CONFIG)

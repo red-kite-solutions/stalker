@@ -13,6 +13,7 @@ import { CronSubscriptionsModule } from './subscriptions/cron-subscriptions/cron
 import { EventSubscriptionsModule } from './subscriptions/event-subscriptions/event-subscriptions.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { TagsModule } from './tags/tag.module';
+import { ViewModule } from './views/views.module';
 
 const mongooseModuleOptions: MongooseModuleOptions =
   process.env.JM_ENVIRONMENT === 'tests' && process.env.TEST_TYPE === 'unit'
@@ -56,6 +57,7 @@ const mongooseModuleOptions: MongooseModuleOptions =
     CustomJobTemplateModule,
     ApiKeyModule,
     JobContainerModule,
+    ViewModule,
   ],
   exports: [JobsModule],
   providers: [],

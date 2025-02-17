@@ -1,7 +1,6 @@
 import { IntersectionType } from '@nestjs/swagger';
 import { IsArray, IsString } from 'class-validator';
-import { SortDto } from '../../../../types/dto/sort.dto';
-import { PagingDto } from '../../database.dto';
+import { PagingDto, SortDto } from '../../database.dto';
 
 export class FindingDefinitionFilterDto extends SortDto {
   @IsString({ each: true })

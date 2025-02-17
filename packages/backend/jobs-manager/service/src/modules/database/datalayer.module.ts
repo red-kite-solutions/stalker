@@ -19,6 +19,7 @@ import { CronSubscriptionModelModule } from './subscriptions/cron-subscriptions/
 import { EventSubscriptionModelModule } from './subscriptions/event-subscriptions/event-subscription-model.module';
 import { TagModelModule } from './tags/tag-model.module';
 import { UserModelModule } from './users/users-model.module';
+import { ViewModelModule } from './views/views-model.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { UserModelModule } from './users/users-model.module';
     UserModelModule,
     JobContainerModelModule,
     FindingDefinitionsModelModule,
+    ViewModelModule,
   ],
   providers: [...databaseConfigInitProvider],
   exports: [
@@ -63,6 +65,7 @@ import { UserModelModule } from './users/users-model.module';
     ApiKeyModelModule,
     JobContainerModelModule,
     FindingDefinitionsModelModule,
+    ViewModelModule,
   ],
 })
 export class DatalayerModule {}

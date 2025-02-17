@@ -3,29 +3,20 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
 import { AppModule } from '../../../app.module';
 import { CreateCustomFinding } from '../../../findings/findings.service';
-import { TagsService } from '../../tags/tag.service';
 import { FindingImageField, FindingTextField } from '../findings/finding.model';
-import { HostService } from '../host/host.service';
-import { ProjectService } from '../project.service';
 import { FindingDefinition } from './finding-definition.model';
 import { FindingDefinitionService } from './finding-definition.service';
 
 describe('Finding Definition Service', () => {
   let moduleFixture: TestingModule;
-  let hostService: HostService;
   let findingDefinitionService: FindingDefinitionService;
-  let projectService: ProjectService;
-  let tagsService: TagsService;
   let findingDefinitionModel: Model<FindingDefinition>;
 
   beforeAll(async () => {
     moduleFixture = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    hostService = moduleFixture.get(HostService);
     findingDefinitionService = moduleFixture.get(FindingDefinitionService);
-    projectService = moduleFixture.get(ProjectService);
-    projectService = moduleFixture.get(ProjectService);
     findingDefinitionModel = moduleFixture.get<Model<FindingDefinition>>(
       getModelToken('findingdefinition'),
     );
@@ -193,7 +184,7 @@ describe('Finding Definition Service', () => {
       expect(definition.fields[1].label).toStrictEqual(textField2.label);
     });
 
-    it('Should not add an image field to an existing finding', async () => {
+    it('Should add an image field to an existing finding', async () => {
       // Arrange
       const finding = new CreateCustomFinding();
       finding.key = 'FindingKey';
@@ -216,9 +207,10 @@ describe('Finding Definition Service', () => {
       });
       expect(definition.key).toStrictEqual(finding.key);
 
-      expect(definition.fields.length).toStrictEqual(1);
+      expect(definition.fields.length).toStrictEqual(2);
       expect(definition.fields[0].key).toStrictEqual(textField.key);
       expect(definition.fields[0].label).toStrictEqual(textField.label);
+      expect(definition.fields[1].type).toStrictEqual('image');
     });
   });
 

@@ -34,7 +34,6 @@ export class FindingDefinitionService {
     if (filter) {
       query = this.findingDefinitionModel.find(this.buildFilters(filter));
       if (filter.sort) {
-        // TODO: test the sort
         query = query.sort({ updatedAt: filter.sort });
       }
     } else {
@@ -86,12 +85,19 @@ export class FindingDefinitionService {
     const fieldDefs: FindingFieldDefinition[] = [];
     if (finding.fields) {
       for (const field of finding.fields) {
-        if (field.type === 'image') continue;
-
-        fieldDefs.push({
-          key: field.key,
-          label: field.label,
-        });
+        if (field.type === 'image') {
+          fieldDefs.push({
+            key: field.key,
+            label: undefined,
+            type: field.type,
+          });
+        } else {
+          fieldDefs.push({
+            key: field.key,
+            label: field.label,
+            type: field.type,
+          });
+        }
       }
     }
 
