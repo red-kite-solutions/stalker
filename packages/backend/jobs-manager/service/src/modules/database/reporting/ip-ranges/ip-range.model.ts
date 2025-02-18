@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { MONGO_TIMESTAMP_SCHEMA_CONFIG } from '../../database.constants';
 
-export type HostDocument = IpRange & Document;
+export type IpRangeDocument = IpRange & Document;
 
 @Schema(MONGO_TIMESTAMP_SCHEMA_CONFIG)
 export class IpRange {
@@ -12,6 +12,9 @@ export class IpRange {
   @Prop()
   public mask!: number;
 
+  @Prop()
+  public projectId!: Types.ObjectId;
+
   /**
    * A pseudo-unique key identifying this entity. Used for findings.
    * This key should not change if this entity were to be recreated.
@@ -19,14 +22,11 @@ export class IpRange {
   @Prop()
   public correlationKey!: string;
 
-  @Prop()
-  public projectId: Types.ObjectId;
+  @Prop({ index: true })
+  ipMinInt!: number;
 
   @Prop({ index: true })
-  ipMinInt: number;
-
-  @Prop({ index: true })
-  ipMaxInt: number;
+  ipMaxInt!: number;
 
   @Prop()
   public tags?: Types.ObjectId[];
@@ -48,3 +48,4 @@ export class IpRange {
 }
 
 export const IpRangeSchema = SchemaFactory.createForClass(IpRange);
+IpRangeSchema.index({ ip: 1, projectId: 1, mask: 1 }, { unique: true });

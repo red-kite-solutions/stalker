@@ -8,6 +8,7 @@ import { EventSubscriptionsModule } from '../subscriptions/event-subscriptions/e
 import { SubscriptionTriggersModule } from '../subscriptions/subscription-triggers/subscription-triggers.module';
 import { DomainsModule } from './domain/domain.module';
 import { HostModule } from './host/host.module';
+import { IpRangeModule } from './ip-ranges/ip-range.module';
 import { PortModule } from './port/port.module';
 import { ProjectController } from './project.controller';
 import { ProjectService } from './project.service';
@@ -26,6 +27,7 @@ import { WebsiteModule } from './websites/website.module';
     SecretsModule,
     WebsiteModule,
     SubscriptionTriggersModule,
+    IpRangeModule,
   ],
   controllers: [ProjectController],
   providers: [ProjectService],

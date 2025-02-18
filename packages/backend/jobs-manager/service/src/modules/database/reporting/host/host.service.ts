@@ -237,7 +237,7 @@ export class HostService {
     });
 
     const findings: IpFinding[] = [];
-    // For each new domain name found, a finding is created
+    // For each new ip found, a finding is created
     newIps.forEach((ip) => {
       findings.push({
         type: 'IpFinding',

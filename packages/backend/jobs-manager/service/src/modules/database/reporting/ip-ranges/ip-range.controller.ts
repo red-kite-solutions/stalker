@@ -11,7 +11,6 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { DeleteResult } from 'mongodb';
-import { HttpNotImplementedException } from '../../../../exceptions/http.exceptions';
 import { MongoIdDto } from '../../../../types/dto/mongo-id.dto';
 import { TagItemDto } from '../../../../types/dto/tag-item.dto';
 import { Page } from '../../../../types/page.type';
@@ -24,8 +23,9 @@ import {
   BatchEditIpRangesDto,
   DeleteIpRangesDto,
   IpRangesPagingDto,
+  SubmitIpRangesDto,
 } from './ip-range.dto';
-import { HostDocument } from './ip-range.model';
+import { IpRangeDocument } from './ip-range.model';
 import { IpRangeService } from './ip-range.service';
 
 @Controller('ip-ranges')
@@ -53,7 +53,7 @@ export class IpRangeController {
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.ReadOnly)
   @Get(':id')
-  async get(@Param() dto: MongoIdDto): Promise<HostDocument> {
+  async get(@Param() dto: MongoIdDto): Promise<IpRangeDocument> {
     return await this.ipRangesService.get(dto.id);
   }
 
@@ -61,14 +61,15 @@ export class IpRangeController {
   @Roles(Role.User)
   @Delete(':id')
   async deleteIpRange(@Param() dto: MongoIdDto): Promise<DeleteResult> {
-    throw new HttpNotImplementedException();
-    // return await this.ipRangesService.delete(dto.id);
+    return await this.ipRangesService.delete(dto.id);
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.ReadOnly)
   @Get()
-  async getAll(@Query() dto: IpRangesPagingDto): Promise<Page<HostDocument>> {
+  async getAll(
+    @Query() dto: IpRangesPagingDto,
+  ): Promise<Page<IpRangeDocument>> {
     const totalRecords = await this.ipRangesService.count(dto);
     const items = await this.ipRangesService.getAll(
       dto.page,
@@ -85,7 +86,25 @@ export class IpRangeController {
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.User)
   @Delete()
-  async deleteHosts(@Body() dto: DeleteIpRangesDto): Promise<DeleteResult> {
-    throw new HttpNotImplementedException();
+  async deleteIpRanges(@Body() dto: DeleteIpRangesDto): Promise<DeleteResult> {
+    return await this.ipRangesService.deleteMany(dto.ipRangeIds);
+  }
+
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
+  @Roles(Role.User)
+  @Delete()
+  async submit(@Body() dto: SubmitIpRangesDto) {
+    return await this.ipRangesService.submitIpRanges(dto);
+  }
+
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
+  @Roles(Role.User)
+  @Put(':id/tags')
+  async tagHost(@Param() idDto: MongoIdDto, @Body() tagDto: TagItemDto) {
+    return await this.ipRangesService.tagIpRange(
+      idDto.id,
+      tagDto.tagId,
+      tagDto.isTagged,
+    );
   }
 }

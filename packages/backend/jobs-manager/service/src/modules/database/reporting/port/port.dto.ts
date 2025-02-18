@@ -11,11 +11,16 @@ import {
 import { Types } from 'mongoose';
 import { DetailsLevel, detailsLevel } from '../../database.constants';
 import { PagingDto } from '../../database.dto';
-import { FilterByPortDto, ResourceFilterDto } from '../resource.dto';
+import {
+  FilterByHostDto,
+  FilterByPortDto,
+  ResourceFilterDto,
+} from '../resource.dto';
 
 export class PortFilterDto extends IntersectionType(
   ResourceFilterDto,
   FilterByPortDto,
+  FilterByHostDto,
 ) {
   @IsOptional()
   @IsIn(['tcp', 'udp'])

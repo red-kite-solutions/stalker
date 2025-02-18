@@ -12,6 +12,7 @@ import { SubscriptionTriggersService } from '../subscriptions/subscription-trigg
 import { DomainsService } from './domain/domain.service';
 import { CustomFinding } from './findings/finding.model';
 import { HostService } from './host/host.service';
+import { IpRangeService } from './ip-ranges/ip-range.service';
 import { PortService } from './port/port.service';
 import { CreateProjectDto } from './project.dto';
 import { Project, ProjectDocument } from './project.model';
@@ -33,6 +34,7 @@ export class ProjectService {
     private readonly secretsService: SecretsService,
     private readonly websiteService: WebsiteService,
     private readonly triggerService: SubscriptionTriggersService,
+    private readonly ipRangeService: IpRangeService,
   ) {}
 
   public async getAll(
@@ -103,6 +105,7 @@ export class ProjectService {
     await this.portsService.deleteAllForProject(id);
     await this.websiteService.deleteAllForProject(id);
     await this.triggerService.deleteAllForProject(id);
+    await this.ipRangeService.deleteAllForProject(id);
     await this.findingModel.deleteMany({
       correlationKey: { $regex: new RegExp(`^project:${id}`) },
     });

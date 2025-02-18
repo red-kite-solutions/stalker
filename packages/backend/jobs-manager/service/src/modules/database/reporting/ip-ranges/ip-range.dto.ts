@@ -1,10 +1,34 @@
 // import { Type } from 'class-transformer';
 import { IntersectionType } from '@nestjs/swagger';
-import { IsArray, IsBoolean, IsMongoId, IsOptional } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsArray,
+  IsBoolean,
+  IsIP,
+  IsMongoId,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+  ValidateNested,
+} from 'class-validator';
+import { IsProjectId } from '../../../../validators/is-project-id.validator';
 import { PagingDto } from '../../database.dto';
 import { ResourceFilterDto } from '../resource.dto';
 
-export class IpRangesFilterDto extends IntersectionType(ResourceFilterDto) {}
+export class IpRangesFilterDto extends IntersectionType(ResourceFilterDto) {
+  @IsOptional()
+  @IsString({ each: true })
+  @IsArray()
+  ips: string[];
+
+  @IsOptional()
+  @IsIP(4)
+  @IsString({ each: true })
+  contains: string;
+}
 
 export class IpRangesPagingDto extends IntersectionType(
   PagingDto,
@@ -25,4 +49,28 @@ export class BatchEditIpRangesDto {
   @IsOptional()
   @IsBoolean()
   block: boolean;
+}
+
+export class IpRangeDto {
+  @IsIP(4)
+  @IsNotEmpty()
+  @IsString()
+  ip: string;
+
+  @Max(32)
+  @Min(0)
+  @IsNumber()
+  mask: number;
+}
+
+export class SubmitIpRangesDto {
+  @ValidateNested({ each: true })
+  @IsNotEmpty()
+  @IsArray()
+  @Type(() => IpRangeDto)
+  ranges: IpRangeDto[];
+
+  @IsProjectId()
+  @IsNotEmpty()
+  projectId: string;
 }

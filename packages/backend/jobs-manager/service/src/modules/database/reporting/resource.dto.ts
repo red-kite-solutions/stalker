@@ -39,10 +39,7 @@ export class FilterByProjectDto {
   projects: string[];
 }
 
-export class ResourceFilterDto extends IntersectionType(
-  FilterByHostDto,
-  FilterByProjectDto,
-) {
+export class ResourceFilterDto extends IntersectionType(FilterByProjectDto) {
   @IsOptional()
   @IsInt()
   @Type(() => Number)
