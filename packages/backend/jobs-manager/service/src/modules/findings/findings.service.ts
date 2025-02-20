@@ -433,7 +433,9 @@ export class FindingsService {
     }
 
     // No need to wait for update
-    await this.findingDefinitionService.upsertFindingDefinition(finding);
+    await this.findingDefinitionService.upsertFindingDefinitionBuffered(
+      finding,
+    );
 
     if (projectId === ProjectUnassigned) {
       // Skipping the findings management if it was not assigned to any project,

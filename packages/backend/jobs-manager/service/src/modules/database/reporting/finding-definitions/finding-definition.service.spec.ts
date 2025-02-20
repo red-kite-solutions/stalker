@@ -2,7 +2,11 @@ import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
 import { AppModule } from '../../../app.module';
-import { CreateCustomFinding } from '../../../findings/findings.service';
+import { CustomFindingFieldDto } from '../../../findings/finding.dto';
+import {
+  CreateCustomFinding,
+  Finding,
+} from '../../../findings/findings.service';
 import { FindingImageField, FindingTextField } from '../findings/finding.model';
 import { FindingDefinition } from './finding-definition.model';
 import { FindingDefinitionService } from './finding-definition.service';
@@ -261,5 +265,487 @@ describe('Finding Definition Service', () => {
       // Assert
       expect(findings.length).toBe(2);
     });
+  });
+
+  describe('Buffer finding definitions before adding', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+      jest.resetAllMocks();
+      jest.restoreAllMocks();
+
+      //@ts-expect-error
+      findingDefinitionService.fieldUpdateBuffer = {};
+      //@ts-expect-error
+      findingDefinitionService.updateBufferTimeoutId = undefined;
+    });
+
+    beforeAll(() => {
+      jest.useFakeTimers({ doNotFake: ['nextTick', 'setImmediate'] });
+    });
+
+    afterEach(async () => {
+      jest.clearAllTimers();
+    });
+
+    afterAll(() => {
+      jest.useRealTimers();
+    });
+
+    it.each([
+      {
+        // 0 Field: Trigger by time
+        findingsToCreate: 10,
+        maxBufferSize: 11,
+        bufferTimeout: 5000,
+        advanceTime: 5001,
+        expectedCalls: 1,
+        finalBufferLength: 0,
+        numberOfFieldsPerFinding: 0,
+      },
+      {
+        // 0 Field: Trigger by buffer size
+        findingsToCreate: 10,
+        maxBufferSize: 10,
+        bufferTimeout: 5000,
+        advanceTime: 5001,
+        expectedCalls: 1,
+        finalBufferLength: 0,
+        numberOfFieldsPerFinding: 0,
+      },
+      {
+        // 0 Field: Trigger by buffer and time
+        findingsToCreate: 15,
+        maxBufferSize: 10,
+        bufferTimeout: 5000,
+        advanceTime: 5001,
+        expectedCalls: 2,
+        finalBufferLength: 0,
+        numberOfFieldsPerFinding: 0,
+      },
+      {
+        // 0 Field: Trigger by buffer, not time
+        findingsToCreate: 11,
+        maxBufferSize: 10,
+        bufferTimeout: 5000,
+        advanceTime: 2500,
+        expectedCalls: 1,
+        finalBufferLength: 1,
+        numberOfFieldsPerFinding: 0,
+      },
+      {
+        // 1 Field: Trigger by time
+        findingsToCreate: 10,
+        maxBufferSize: 11,
+        bufferTimeout: 5000,
+        advanceTime: 5001,
+        expectedCalls: 1,
+        finalBufferLength: 0,
+        numberOfFieldsPerFinding: 1,
+      },
+      {
+        // 1 Field: Trigger by buffer size
+        findingsToCreate: 10,
+        maxBufferSize: 10,
+        bufferTimeout: 5000,
+        advanceTime: 5001,
+        expectedCalls: 1,
+        finalBufferLength: 0,
+        numberOfFieldsPerFinding: 1,
+      },
+      {
+        // 1 Field: Trigger by buffer and time
+        findingsToCreate: 15,
+        maxBufferSize: 10,
+        bufferTimeout: 5000,
+        advanceTime: 5001,
+        expectedCalls: 2,
+        finalBufferLength: 0,
+        numberOfFieldsPerFinding: 1,
+      },
+      {
+        // 1 Field: Trigger by buffer, not time
+        findingsToCreate: 11,
+        maxBufferSize: 10,
+        bufferTimeout: 5000,
+        advanceTime: 2500,
+        expectedCalls: 1,
+        finalBufferLength: 1,
+        numberOfFieldsPerFinding: 1,
+      },
+      {
+        // 2 Fields: Trigger by time
+        findingsToCreate: 10,
+        maxBufferSize: 21,
+        bufferTimeout: 5000,
+        advanceTime: 5001,
+        expectedCalls: 1,
+        finalBufferLength: 0,
+        numberOfFieldsPerFinding: 2,
+      },
+      {
+        // 2 Fields: Trigger by buffer size
+        findingsToCreate: 10,
+        maxBufferSize: 10,
+        bufferTimeout: 5000,
+        advanceTime: 2500,
+        expectedCalls: 2,
+        finalBufferLength: 0,
+        numberOfFieldsPerFinding: 2,
+      },
+      {
+        // 2 Fields: Trigger by buffer and time
+        findingsToCreate: 23,
+        maxBufferSize: 10,
+        bufferTimeout: 5000,
+        advanceTime: 5001,
+        expectedCalls: 5,
+        finalBufferLength: 0,
+        numberOfFieldsPerFinding: 2,
+      },
+      {
+        // 2 Fields: Trigger by buffer, not time
+        findingsToCreate: 11,
+        maxBufferSize: 10,
+        bufferTimeout: 5000,
+        advanceTime: 2500,
+        expectedCalls: 2,
+        finalBufferLength: 2,
+        numberOfFieldsPerFinding: 2,
+      },
+    ])(
+      '[%#] Triggers when buffer conditions are met: %s',
+      async ({
+        findingsToCreate,
+        maxBufferSize,
+        bufferTimeout,
+        advanceTime,
+        expectedCalls,
+        finalBufferLength,
+        numberOfFieldsPerFinding,
+      }) => {
+        // Arrange
+        const spy = jest //@ts-expect-error
+          .spyOn(findingDefinitionService, 'processFindingDefinitionBuffer');
+
+        jest //@ts-expect-error
+          .spyOn(findingDefinitionService, 'updateFindingDefinitionModel') //@ts-expect-error
+          .mockImplementation(() => {});
+
+        const findings = createFindings(
+          findingsToCreate,
+          numberOfFieldsPerFinding,
+        );
+
+        // Act
+        for (const finding of findings) {
+          await findingDefinitionService.upsertFindingDefinitionBuffered(
+            finding,
+            maxBufferSize,
+            bufferTimeout,
+          );
+        }
+
+        jest.advanceTimersByTime(advanceTime);
+
+        // Assert
+        expect(spy).toHaveBeenCalledTimes(expectedCalls);
+        expect(
+          //@ts-expect-error
+          Object.keys(findingDefinitionService.fieldUpdateBuffer).length,
+        ).toStrictEqual(finalBufferLength);
+      },
+    );
+
+    it.each<{
+      findings: Pick<Finding, 'key' | 'fields'>[];
+      maxBufferSize: number;
+      bufferTimeout: number;
+      advanceTime: number;
+      expectedCalls: number;
+      finalBufferLength: number;
+    }>([
+      {
+        findings: [
+          {
+            key: 'a',
+            fields: [
+              {
+                key: 'i',
+                type: 'text',
+                label: 'i',
+              },
+              {
+                key: 'j',
+                type: 'text',
+                label: 'i',
+              },
+              {
+                key: 'k',
+                type: 'text',
+                label: 'i',
+              },
+            ],
+          },
+          {
+            key: 'a',
+            fields: [
+              {
+                key: 'i',
+                type: 'text',
+                label: 'i',
+              },
+              {
+                key: 'j',
+                type: 'text',
+                label: 'i',
+              },
+              {
+                key: 'k',
+                type: 'text',
+                label: 'i',
+              },
+            ],
+          },
+        ],
+        maxBufferSize: 4,
+        bufferTimeout: 5000,
+        advanceTime: 2500,
+        expectedCalls: 0,
+        finalBufferLength: 3,
+      },
+      {
+        findings: [
+          {
+            key: 'a',
+            fields: [
+              {
+                key: 'i',
+                type: 'text',
+                label: 'i',
+              },
+              {
+                key: 'j',
+                type: 'text',
+                label: 'i',
+              },
+              {
+                key: 'k',
+                type: 'text',
+                label: 'i',
+              },
+            ],
+          },
+          {
+            key: 'b',
+            fields: [
+              {
+                key: 'i',
+                type: 'text',
+                label: 'i',
+              },
+              {
+                key: 'j',
+                type: 'text',
+                label: 'i',
+              },
+              {
+                key: 'k',
+                type: 'text',
+                label: 'i',
+              },
+            ],
+          },
+        ],
+        maxBufferSize: 2,
+        bufferTimeout: 5000,
+        advanceTime: 2500,
+        expectedCalls: 2,
+        finalBufferLength: 0,
+      },
+      {
+        findings: [
+          {
+            key: 'a',
+            fields: [
+              {
+                key: 'i',
+                type: 'text',
+                label: 'i',
+              },
+              {
+                key: 'j',
+                type: 'text',
+                label: 'i',
+              },
+            ],
+          },
+          {
+            key: 'b',
+            fields: [
+              {
+                key: 'i',
+                type: 'text',
+                label: 'i',
+              },
+              {
+                key: 'j',
+                type: 'text',
+                label: 'i',
+              },
+            ],
+          },
+          {
+            key: 'c',
+            fields: [
+              {
+                key: 'i',
+                type: 'text',
+                label: 'i',
+              },
+              {
+                key: 'j',
+                type: 'text',
+                label: 'i',
+              },
+            ],
+          },
+        ],
+        maxBufferSize: 2,
+        bufferTimeout: 5000,
+        advanceTime: 2500,
+        expectedCalls: 3,
+        finalBufferLength: 0,
+      },
+      {
+        findings: [
+          {
+            key: 'a',
+            fields: [
+              {
+                key: 'i',
+                type: 'text',
+                label: 'i',
+              },
+              {
+                key: 'j',
+                type: 'text',
+                label: 'i',
+              },
+              {
+                key: 'k',
+                type: 'text',
+                label: 'i',
+              },
+            ],
+          },
+          {
+            key: 'b',
+            fields: [
+              {
+                key: 'i',
+                type: 'text',
+                label: 'i',
+              },
+              {
+                key: 'j',
+                type: 'text',
+                label: 'i',
+              },
+              {
+                key: 'k',
+                type: 'text',
+                label: 'i',
+              },
+              {
+                key: 'l',
+                type: 'text',
+                label: 'i',
+              },
+            ],
+          },
+          {
+            key: 'b',
+            fields: [
+              {
+                key: 'k',
+                type: 'text',
+                label: 'i',
+              },
+              {
+                key: 'l',
+                type: 'text',
+                label: 'i',
+              },
+              {
+                key: 'm',
+                type: 'text',
+                label: 'i',
+              },
+            ],
+          },
+        ],
+        maxBufferSize: 9,
+        bufferTimeout: 5000,
+        advanceTime: 2500,
+        expectedCalls: 0,
+        finalBufferLength: 8,
+      },
+    ])(
+      '[%#] Should keep only unique finding fields: %s',
+      async ({
+        findings,
+        maxBufferSize,
+        bufferTimeout,
+        advanceTime,
+        expectedCalls,
+        finalBufferLength,
+      }) => {
+        // Arrange
+        const spy = jest //@ts-expect-error
+          .spyOn(findingDefinitionService, 'processFindingDefinitionBuffer');
+
+        jest //@ts-expect-error
+          .spyOn(findingDefinitionService, 'updateFindingDefinitionModel') //@ts-expect-error
+          .mockImplementation(() => {});
+
+        // Act
+        for (const finding of findings) {
+          await findingDefinitionService.upsertFindingDefinitionBuffered(
+            finding,
+            maxBufferSize,
+            bufferTimeout,
+          );
+        }
+
+        jest.advanceTimersByTime(advanceTime);
+
+        // Assert
+        expect(spy).toHaveBeenCalledTimes(expectedCalls);
+        expect(
+          //@ts-expect-error
+          Object.keys(findingDefinitionService.fieldUpdateBuffer).length,
+        ).toStrictEqual(finalBufferLength);
+      },
+    );
+
+    const createFindings = (length: number, numberOfFields: number = 0) => {
+      const findings: Pick<Finding, 'key' | 'fields'>[] = [];
+      for (let i = 0; i < length; ++i) {
+        const fields: CustomFindingFieldDto[] = [];
+        for (let j = 0; j < numberOfFields; ++j) {
+          fields.push({
+            key: j.toString(),
+            type: 'text',
+            label: j.toString(),
+          });
+        }
+
+        findings.push({
+          key: i.toString(),
+          fields: fields,
+        });
+      }
+      return findings;
+    };
   });
 });

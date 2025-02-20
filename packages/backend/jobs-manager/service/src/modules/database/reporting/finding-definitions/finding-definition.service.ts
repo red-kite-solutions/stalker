@@ -13,6 +13,13 @@ import {
 @Injectable()
 export class FindingDefinitionService {
   private logger = new Logger(FindingDefinitionService.name);
+  private readonly updateBufferTimeMs = 5000;
+  private readonly updateBufferSize = 500;
+  private readonly fieldUpdateBuffer: Record<
+    string,
+    FindingFieldDefinition & { findingKey: string }
+  > = {};
+  private updateBufferTimeoutId: NodeJS.Timeout;
 
   constructor(
     @InjectModel('findingdefinition')
@@ -74,12 +81,124 @@ export class FindingDefinitionService {
     }
   }
 
+  private async processFindingDefinitionBuffer() {
+    const findings: Record<
+      string,
+      Pick<FindingDefinition, 'key' | 'fields'>
+    > = {};
+    for (const key of Object.keys(this.fieldUpdateBuffer)) {
+      const data = this.fieldUpdateBuffer[key];
+      delete this.fieldUpdateBuffer[key];
+      const existingFinding = findings[data.findingKey];
+      const ffds: FindingFieldDefinition[] = data.key
+        ? [
+            {
+              key: data.key,
+              label: data.label,
+              type: data.type,
+            },
+          ]
+        : [];
+      if (existingFinding) {
+        findings[data.findingKey].fields.push(...ffds);
+      } else {
+        findings[data.findingKey] = {
+          key: data.findingKey,
+          fields: ffds,
+        };
+      }
+    }
+
+    for (const key of Object.keys(findings)) {
+      await this.updateFindingDefinitionModel(key, findings[key].fields);
+    }
+  }
+
+  private async updateFindingDefinitionModel(
+    key: string,
+    fields: FindingFieldDefinition[],
+  ) {
+    return await this.findingDefinitionModel.updateOne(
+      { key: { $eq: key } },
+      {
+        $set: {
+          key: key,
+        },
+        $addToSet: {
+          fields: { $each: fields },
+        },
+      },
+      { upsert: true },
+    );
+  }
+
+  /**
+   * Creates or updates a finding definition from the finding keys.
+   * This method buffers the calls to the database to prevent unnecessary load.
+   * @param finding The finding for which to create or update the finding definition
+   * @param bufferSize Max size of the buffer for this single call. Default value is recommended.
+   * @param bufferTimeMs Buffer time for this single call. Default value is recommended.
+   * @returns
+   */
+  public async upsertFindingDefinitionBuffered(
+    finding: Pick<Finding, 'key' | 'fields'>,
+    bufferSize = this.updateBufferSize,
+    bufferTimeMs = this.updateBufferTimeMs,
+  ) {
+    if (!finding) return;
+
+    if (finding.fields && finding.fields.length >= 1) {
+      for (const field of finding.fields) {
+        const bufferKey = `${finding.key}:::${field.key}`;
+        if (field.type === 'image') {
+          this.fieldUpdateBuffer[bufferKey] = {
+            key: field.key,
+            label: undefined,
+            type: field.type,
+            findingKey: finding.key,
+          };
+        } else {
+          this.fieldUpdateBuffer[bufferKey] = {
+            key: field.key,
+            label: field.label,
+            type: field.type,
+            findingKey: finding.key,
+          };
+        }
+      }
+    } else {
+      // Add a finding with no fields
+      this.fieldUpdateBuffer[finding.key] = {
+        key: undefined,
+        label: undefined,
+        type: undefined,
+        findingKey: finding.key,
+      };
+    }
+
+    if (Object.keys(this.fieldUpdateBuffer).length >= bufferSize) {
+      clearTimeout(this.updateBufferTimeoutId);
+      this.updateBufferTimeoutId = undefined;
+      await this.processFindingDefinitionBuffer();
+      return;
+    }
+
+    if (!this.updateBufferTimeoutId) {
+      this.updateBufferTimeoutId = setTimeout(
+        () => this.processFindingDefinitionBuffer(),
+        bufferTimeMs,
+      );
+    }
+  }
+
   /**
    * Creates or updates a finding definition from the finding keys
    * @param finding The finding for which to create or update the finding definition
    * @returns
    */
-  public async upsertFindingDefinition(finding: Finding) {
+  public async upsertFindingDefinition(
+    finding: Pick<Finding, 'key' | 'fields'>,
+  ) {
     if (!finding) return;
 
     const fieldDefs: FindingFieldDefinition[] = [];
@@ -101,18 +220,7 @@ export class FindingDefinitionService {
       }
     }
 
-    return await this.findingDefinitionModel.updateOne(
-      { key: { $eq: finding.key } },
-      {
-        $set: {
-          key: finding.key,
-        },
-        $addToSet: {
-          fields: { $each: fieldDefs },
-        },
-      },
-      { upsert: true },
-    );
+    return await this.updateFindingDefinitionModel(finding.key, fieldDefs);
   }
 
   /**
