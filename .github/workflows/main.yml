@@ -37,7 +37,7 @@ jobs:
           kubectl-install: true
 
       - name: Create namespace
-        run: kubectl create namespace stalker
+        run: kubectl create namespace stalker --dry-run=client -o yaml | kubectl apply -f -
 
       # Deactivated while on self-hosted runner
       # - name: Make room in the container
