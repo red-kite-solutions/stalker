@@ -26,7 +26,7 @@ export class IpRangeService {
   private logger = new Logger(IpRangeService.name);
 
   constructor(
-    @InjectModel('iprange') private readonly ipRangeModel: Model<IpRange>,
+    @InjectModel('ipranges') private readonly ipRangeModel: Model<IpRange>,
     @InjectModel('project') private readonly projectModel: Model<Project>,
     private tagsService: TagsService,
     private findingsQueue: FindingsQueue,
@@ -82,14 +82,14 @@ export class IpRangeService {
 
     // Filter by ip
     if (dto.ips) {
-      const hosts = dto.ips
+      const ips = dto.ips
         .filter((x) => x)
         .map((x) => x.toLowerCase().trim())
         .map((x) => escapeStringRegexp(x))
         .map((x) => new RegExp(`.*${x}.*`));
 
-      if (hosts.length > 0) {
-        finalFilter['ip'] = { $in: hosts };
+      if (ips.length > 0) {
+        finalFilter['ip'] = { $in: ips };
       }
     }
 
@@ -317,7 +317,7 @@ export class IpRangeService {
   /**
    * For each new ip range found, a finding is created
    * We submit them by batch to hopefully better support large loads
-   * @param newIpRanges New domains for which to create HostnameFindings
+   * @param newIpRanges New domains for which to create IpRangeFindings
    * @param projectId The project associated with the ip range/findings
    */
   private async publishIpRangeFindings(

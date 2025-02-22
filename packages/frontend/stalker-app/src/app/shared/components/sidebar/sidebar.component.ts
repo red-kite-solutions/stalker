@@ -13,6 +13,7 @@ interface SectionItem {
   icon: string;
   isAdmin?: boolean;
   routerLink: string;
+  filled?: boolean;
 }
 
 @Component({
@@ -25,7 +26,7 @@ export class SidebarComponent {
   expanded = true;
 
   sections: Section[] = [
-   {
+    {
       name: $localize`:Visualization|Title for the Visualization section of the sidenav:Visualization`,
       items: [
         {
@@ -38,6 +39,11 @@ export class SidebarComponent {
     {
       name: $localize`:Resources|Title for the Resources section of the sidenav:Resources`,
       items: [
+        {
+          icon: 'radar',
+          routerLink: '/ip-ranges',
+          name: $localize`:IP Ranges|Sidenav ip ranges button:IP Ranges`,
+        },
         {
           icon: 'language',
           routerLink: '/domains',

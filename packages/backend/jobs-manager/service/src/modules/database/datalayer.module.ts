@@ -10,6 +10,7 @@ import { JobModelModule } from './jobs/job-model.module';
 import { DomainModelModule } from './reporting/domain/domain-model.module';
 import { FindingModelModule } from './reporting/findings/findings-model.module';
 import { HostModelModule } from './reporting/host/host-model.module';
+import { IpRangeModelModule } from './reporting/ip-ranges/ip-range-model.module';
 import { PortModelModule } from './reporting/port/port-model.module';
 import { ProjectModelModule } from './reporting/project-model.module';
 import { WebsiteModelModule } from './reporting/websites/website-model.module';
@@ -39,6 +40,7 @@ import { UserModelModule } from './users/users-model.module';
     ApiKeyModelModule,
     UserModelModule,
     JobContainerModelModule,
+    IpRangeModelModule,
   ],
   providers: [...databaseConfigInitProvider],
   exports: [
@@ -60,6 +62,7 @@ import { UserModelModule } from './users/users-model.module';
     DomainModelModule,
     ApiKeyModelModule,
     JobContainerModelModule,
+    IpRangeModelModule,
   ],
 })
 export class DatalayerModule {}

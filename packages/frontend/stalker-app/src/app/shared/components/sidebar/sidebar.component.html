@@ -16,7 +16,10 @@
             [matTooltipShowDelay]="700"
             matTooltipPosition="right"
           >
-            <mat-icon class="material-symbols-outlined-filled">{{ item.icon }}</mat-icon>
+            <mat-icon
+              [class]="item.filled === false ? 'material-symbols-outlined' : 'material-symbols-outlined-filled'"
+              >{{ item.icon }}</mat-icon
+            >
             @if (expanded) {
               <span>{{ item.name }}</span>
             }
