@@ -2,9 +2,9 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { ResourceType } from '../reporting/resource.type';
 
-export type ViewDocument = View & Document;
+export type TableDocument = Table & Document;
 
-export class ViewField {
+export class TableField {
   @Prop()
   name: string;
 
@@ -16,7 +16,7 @@ export class ViewField {
 }
 
 @Schema()
-export class View {
+export class Table {
   @Prop({ index: true, unique: true })
   name: string;
 
@@ -30,7 +30,7 @@ export class View {
   resource: ResourceType;
 
   @Prop()
-  fields: ViewField[];
+  fields: TableField[];
 }
 
-export const ViewSchema = SchemaFactory.createForClass(View);
+export const TableSchema = SchemaFactory.createForClass(Table);

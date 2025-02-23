@@ -17,9 +17,9 @@ import { WebsiteModelModule } from './reporting/websites/website-model.module';
 import { SecretsModelModule } from './secrets/secrets-model.module';
 import { CronSubscriptionModelModule } from './subscriptions/cron-subscriptions/cron-subscription-model.module';
 import { EventSubscriptionModelModule } from './subscriptions/event-subscriptions/event-subscription-model.module';
+import { TableModelModule } from './tables/tables-model.module';
 import { TagModelModule } from './tags/tag-model.module';
 import { UserModelModule } from './users/users-model.module';
-import { ViewModelModule } from './views/views-model.module';
 
 @Module({
   imports: [
@@ -42,7 +42,7 @@ import { ViewModelModule } from './views/views-model.module';
     UserModelModule,
     JobContainerModelModule,
     FindingDefinitionsModelModule,
-    ViewModelModule,
+    TableModelModule,
   ],
   providers: [...databaseConfigInitProvider],
   exports: [
@@ -65,7 +65,7 @@ import { ViewModelModule } from './views/views-model.module';
     ApiKeyModelModule,
     JobContainerModelModule,
     FindingDefinitionsModelModule,
-    ViewModelModule,
+    TableModelModule,
   ],
 })
 export class DatalayerModule {}

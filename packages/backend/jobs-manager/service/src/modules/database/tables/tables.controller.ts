@@ -7,24 +7,24 @@ import { Roles } from '../../auth/decorators/roles.decorator';
 import { RolesGuard } from '../../auth/guards/role.guard';
 import { ApiKeyStrategy } from '../../auth/strategies/api-key.strategy';
 import { JwtStrategy } from '../../auth/strategies/jwt.strategy';
-import { ViewDocument } from './views.model';
-import { ViewService } from './views.service';
+import { TableDocument } from './tables.model';
+import { TableService } from './tables.service';
 
 @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
 @Roles(Role.ReadOnly)
-@Controller('views')
-export class ViewController {
-  constructor(private readonly viewService: ViewService) {}
+@Controller('tables')
+export class TableController {
+  constructor(private readonly tableService: TableService) {}
 
   @Get()
   async getAll(): Promise<
-    Pick<ViewDocument, 'name' | 'icon' | 'isPinned' | '_id'>[]
+    Pick<TableDocument, 'name' | 'icon' | 'isPinned' | '_id'>[]
   > {
-    return await this.viewService.getAll();
+    return await this.tableService.getAll();
   }
 
   @Get(':id')
-  async get(@Param() dto: MongoIdDto): Promise<ViewDocument> {
-    return await this.viewService.getView(dto.id);
+  async get(@Param() dto: MongoIdDto): Promise<TableDocument> {
+    return await this.tableService.getTable(dto.id);
   }
 }
