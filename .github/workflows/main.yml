@@ -86,8 +86,8 @@ jobs:
           kubectl logs -n stalker kafka-controller-0
 
       # Deleting minikube so the self hosted runner starts fresh every time
-      - name: Delete minikube & cleanup
+      - name: Delete minikube
         if: always()
         run: |-
           minikube delete
-          cd .. && rm -rf stalker
+
