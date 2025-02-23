@@ -90,3 +90,4 @@ jobs:
         if: always()
         run: |-
           minikube delete
+          cd .. && rm -rf stalker
