@@ -49,6 +49,11 @@ jobs:
       #     rm -rf /opt/hostedtoolcache/Ruby
       #     rm -rf /opt/hostedtoolcache/go
       #     rm -rf /opt/hostedtoolcache/node
+      - name: Create certificates
+        run: |-
+          bash setup_mongo_test.sh
+          bash setup_kafka_test.sh
+          bash setup_secrets_test.sh
 
       - name: Build test containers
         run: devspace -p e2e --var="RK_ENVIRONMENT=tests" run-pipeline build -n stalker
@@ -79,3 +84,9 @@ jobs:
         if: always()
         run: |-
           kubectl logs -n stalker kafka-controller-0
+
+      # Deleting minikube so the self hosted runner starts fresh every time
+      - name: Delete minikube & cleanup
+        if: always()
+        run: |-
+          minikube delete
