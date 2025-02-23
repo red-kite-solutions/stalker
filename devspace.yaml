@@ -556,6 +556,7 @@ deployments:
             value: "no"
         provisioning:
           enabled: true
+          parallel: 10
           nodeSelector: $(echo ${KAFKA_K8S_NODE_SELECTOR})
           auth:
             tls:
