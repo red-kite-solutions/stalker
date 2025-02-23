@@ -499,7 +499,6 @@ deployments:
 
   kafka:
     helm:
-      timeout: 10m0s
       chart:
         name: kafka
         repo: https://charts.bitnami.com/bitnami
