@@ -1,6 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { MONGO_TIMESTAMP_SCHEMA_CONFIG } from '../../database.constants';
+import { HostSummary } from '../host/host.summary';
+
+export interface ExtendedIpRange extends IpRange {
+  _id?: Types.ObjectId;
+  hosts?: HostSummary[];
+}
 
 export type IpRangeDocument = IpRange & Document;
 

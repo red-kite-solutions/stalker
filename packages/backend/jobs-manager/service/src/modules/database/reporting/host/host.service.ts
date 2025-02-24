@@ -4,6 +4,7 @@ import { DeleteResult, UpdateResult } from 'mongodb';
 import { FilterQuery, Model, Types } from 'mongoose';
 import { HttpNotFoundException } from '../../../../exceptions/http.exceptions';
 import escapeStringRegexp from '../../../../utils/escape-string-regexp';
+import { ipv4ToNumber } from '../../../../utils/ip-address.utils';
 import { IpFinding } from '../../../findings/findings.service';
 import { FindingsQueue } from '../../../queues/finding-queue/findings-queue';
 import { ConfigService } from '../../admin/config/config.service';
@@ -150,6 +151,7 @@ export class HostService {
           {
             $setOnInsert: {
               _id: mongoId,
+              ipInt: ipv4ToNumber(ip),
               projectId: new Types.ObjectId(projectId),
               projectName: project.name,
               correlationKey: CorrelationKeyUtils.hostCorrelationKey(
@@ -169,6 +171,7 @@ export class HostService {
         newIps.push(ip);
         newHosts.push({
           ip: ip,
+          ipInt: ipv4ToNumber(ip),
           _id: mongoId.toString(),
           domains: [ds],
           projectId: new Types.ObjectId(projectId),
@@ -209,6 +212,7 @@ export class HostService {
       const model = new this.hostModel({
         _id: new Types.ObjectId(),
         ip: ip,
+        ipInt: ipv4ToNumber(ip),
         projectId: new Types.ObjectId(projectId),
         correlationKey: CorrelationKeyUtils.hostCorrelationKey(projectId, ip),
         lastSeen: Date.now(),
@@ -272,6 +276,7 @@ export class HostService {
         lastSeen: Date.now(),
         $setOnInsert: {
           ip: host,
+          ipInt: ipv4ToNumber(host),
           correlationKey: CorrelationKeyUtils.hostCorrelationKey(
             projectId,
             host,

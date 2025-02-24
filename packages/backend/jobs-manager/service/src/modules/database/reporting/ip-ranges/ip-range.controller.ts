@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Patch,
+  Post,
   Put,
   Query,
   UseGuards,
@@ -25,7 +26,7 @@ import {
   IpRangesPagingDto,
   SubmitIpRangesDto,
 } from './ip-range.dto';
-import { IpRangeDocument } from './ip-range.model';
+import { ExtendedIpRange, IpRangeDocument } from './ip-range.model';
 import { IpRangeService } from './ip-range.service';
 
 @Controller('ip-ranges')
@@ -69,7 +70,7 @@ export class IpRangeController {
   @Get()
   async getAll(
     @Query() dto: IpRangesPagingDto,
-  ): Promise<Page<IpRangeDocument>> {
+  ): Promise<Page<IpRangeDocument | ExtendedIpRange>> {
     const totalRecords = await this.ipRangesService.count(dto);
     const items = await this.ipRangesService.getAll(
       dto.page,
@@ -92,19 +93,8 @@ export class IpRangeController {
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.User)
-  @Delete()
+  @Post()
   async submit(@Body() dto: SubmitIpRangesDto) {
     return await this.ipRangesService.submitIpRanges(dto);
-  }
-
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.User)
-  @Put(':id/tags')
-  async tagHost(@Param() idDto: MongoIdDto, @Body() tagDto: TagItemDto) {
-    return await this.ipRangesService.tagIpRange(
-      idDto.id,
-      tagDto.tagId,
-      tagDto.isTagged,
-    );
   }
 }

@@ -83,11 +83,12 @@ import { IpRangesInteractionsService } from '../ip-ranges-interactions.service';
 })
 export class ListIpRangesComponent {
   dataLoading = true;
-  displayedColumns: string[] = ['select', 'cidr', 'project', 'tags', 'menu'];
+  displayedColumns: string[] = ['select', 'cidr', 'hosts', 'project', 'tags', 'menu'];
   filterOptions: string[] = ['ip', 'project', 'tags', 'is'];
   public readonly noDataMessage = $localize`:No ip range found|No ip range was found:No ip range found`;
   public newIpRanges: Pick<IpRange, 'ip' | 'mask'>[] = [];
 
+  maxHostsPerLine = 5;
   count = 0;
   selection = new SelectionModel<IpRange>(true, []);
   startDate: Date | null = null;
@@ -121,7 +122,6 @@ export class ListIpRangesComponent {
 
   // #addIpRangesDialog template variables
   selectedProject = '';
-  selectedNewIpRanges = '';
 
   private screenSize$ = this.bpObserver.observe([
     Breakpoints.XSmall,
@@ -132,9 +132,9 @@ export class ListIpRangesComponent {
 
   public displayColumns$ = this.screenSize$.pipe(
     map((screen: BreakpointState) => {
-      if (screen.breakpoints[Breakpoints.XSmall]) return ['select', 'cidr', 'project', 'menu'];
-      else if (screen.breakpoints[Breakpoints.Small]) return ['select', 'cidr', 'project', 'tags', 'menu'];
-      else if (screen.breakpoints[Breakpoints.Medium]) return ['select', 'cidr', 'project', 'tags', 'menu'];
+      if (screen.breakpoints[Breakpoints.XSmall]) return ['select', 'cidr', 'hosts', 'project', 'menu'];
+      else if (screen.breakpoints[Breakpoints.Small]) return ['select', 'cidr', 'hosts', 'project', 'tags', 'menu'];
+      else if (screen.breakpoints[Breakpoints.Medium]) return ['select', 'cidr', 'hosts', 'project', 'tags', 'menu'];
       return this.displayedColumns;
     })
   );
@@ -223,44 +223,34 @@ export class ListIpRangesComponent {
     });
   }
 
-  addIpRange(ipRanges: Pick<IpRange, 'ip' | 'mask'>[]) {
-    this.newIpRanges = ipRanges;
-  }
-
   async saveNewIpRanges() {
     if (!this.selectedProject) {
       this.toastr.warning($localize`:Missing project|The data selected is missing the project id:Missing project`);
       return;
     }
 
-    if (!this.selectedNewIpRanges) {
-      this.toastr.warning($localize`:Missing ip range|The data selected is missing the new ip ranges:Missing IP range`);
+    if (this.newIpRanges.length == 0) {
+      this.toastr.warning(
+        $localize`:Add ip range to save|The data selected is missing the new ip ranges:Add IP ranges before saving`
+      );
       return;
     }
 
-    const newIpRanges: string[] = this.selectedNewIpRanges
-      .split('\n')
-      .filter((x) => x != null && x != '')
-      .map((x) => x.trim());
-
-    if (newIpRanges.length == 0) return;
-
-    // TODO : make ranges
-
     try {
-      const addedIpRanges = await this.ipRangesService.add(this.selectedProject, [{ ip: '127.0.0.1', mask: 24 }]);
+      const addedIpRanges = await this.ipRangesService.add(this.selectedProject, this.newIpRanges);
       this.toastr.success($localize`:Changes saved|Changes to item saved successfully:Changes saved successfully`);
 
-      if (addedIpRanges.length < newIpRanges.length) {
+      if (addedIpRanges.length < this.newIpRanges.length) {
         this.toastr.warning(
           $localize`:IP ranges not added|Some ip ranges were not added to the database:Some ip ranges were not added`
         );
       }
 
+      this.newIpRanges = [];
+
       this.dialog.closeAll();
       this.refresh$.next(null);
       this.selectedProject = '';
-      this.selectedNewIpRanges = '';
     } catch (err: any) {
       if (err.status === HttpStatus.BadRequest) {
         this.toastr.error(

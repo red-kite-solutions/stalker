@@ -45,13 +45,39 @@
             <td mat-cell *matCellDef="let element">
               <div class="tw-flex tw-flex-wrap tw-gap-2 tw-items-center">
                 <a [routerLink]="'/ip-ranges/' + element._id" (click)="$event.stopPropagation()">{{
-                  element.ip + element.mask.toString()
+                  element.ip + '/' + element.mask.toString()
                 }}</a>
 
                 @if (element.blocked) {
                   <app-blocked-pill-tag></app-blocked-pill-tag>
                 }
               </div>
+            </td>
+          </ng-container>
+
+          <!-- Hosts Column -->
+          <ng-container matColumnDef="hosts">
+            <th mat-header-cell *matHeaderCellDef i18n="Hosts|Multiple server hosts">Hosts</th>
+            <td mat-cell *matCellDef="let element">
+              @for (host of element.hosts; track host; let i = $index; let last = $last) {
+                @if (i < maxHostsPerLine || (i === maxHostsPerLine && maxHostsPerLine + 1 === element.hosts.length)) {
+                  <span
+                    ><a [routerLink]="'/hosts/' + host.id" (click)="$event.stopPropagation()">{{ host.ip }}</a></span
+                  >
+                }
+                @if (
+                  (!last && i < maxHostsPerLine - 1) ||
+                  (i === maxHostsPerLine - 1 && maxHostsPerLine + 1 === element.hosts.length)
+                ) {
+                  <span>, </span>
+                }
+                @if (i === maxHostsPerLine && maxHostsPerLine + 1 !== element.hosts.length) {
+                  <span i18n="total|total element count">({{ element.hosts.length }} total)</span>
+                }
+                @if (i < maxHostsPerLine) {
+                  <br />
+                }
+              }
             </td>
           </ng-container>
 
@@ -99,7 +125,7 @@
         }
       </mat-select>
     </mat-form-field>
-    <ip-range-accordion [ipRanges]="newIpRanges" (ipRangesEvent)="addIpRange($event)"></ip-range-accordion>
+    <ip-range-accordion [(ipRanges)]="newIpRanges"></ip-range-accordion>
   </mat-dialog-content>
   <mat-dialog-actions>
     <button mat-stroked-button color="primary" (click)="saveNewIpRanges()" i18n="Save|Save">Save</button>

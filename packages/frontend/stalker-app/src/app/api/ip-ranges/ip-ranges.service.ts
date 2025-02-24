@@ -22,13 +22,15 @@ export class IpRangesService {
     page: number,
     pageSize: number,
     filters: any = undefined,
-    firstSeenDateRange: DateRange<Date> = new DateRange<Date>(null, null)
+    firstSeenDateRange: DateRange<Date> = new DateRange<Date>(null, null),
+    detailsLevel: 'extended' | 'full' | 'summary' = 'extended'
   ): Observable<Page<IpRange>> {
     let params = filtersToParams(filters);
     params = params.append('page', page);
     params = params.append('pageSize', pageSize);
     if (firstSeenDateRange.start) params = params.append('firstSeenStartDate', firstSeenDateRange.start.getTime());
     if (firstSeenDateRange.end) params = params.append('firstSeenEndDate', firstSeenDateRange.end.getTime());
+    if (detailsLevel) params = params.append('detailsLevel', detailsLevel);
     return this.http.get<Page<IpRange>>(`${this.route}`, { params });
   }
 

@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DeleteResult, UpdateResult } from 'mongodb';
-import { Model, Types } from 'mongoose';
+import { Model, PipelineStage, Query, Types } from 'mongoose';
 import { HttpNotFoundException } from '../../../../exceptions/http.exceptions';
 import escapeStringRegexp from '../../../../utils/escape-string-regexp';
 import {
@@ -12,6 +12,8 @@ import { IpRangeFinding } from '../../../findings/findings.service';
 import { FindingsQueue } from '../../../queues/finding-queue/findings-queue';
 import { TagsService } from '../../tags/tag.service';
 import { CorrelationKeyUtils } from '../correlation.utils';
+import { Host } from '../host/host.model';
+import { HostSummary } from '../host/host.summary';
 import { Project } from '../project.model';
 import {
   BatchEditIpRangesDto,
@@ -19,7 +21,7 @@ import {
   IpRangesFilterDto,
   SubmitIpRangesDto,
 } from './ip-range.dto';
-import { IpRange, IpRangeDocument } from './ip-range.model';
+import { ExtendedIpRange, IpRange, IpRangeDocument } from './ip-range.model';
 
 @Injectable()
 export class IpRangeService {
@@ -27,6 +29,7 @@ export class IpRangeService {
 
   constructor(
     @InjectModel('ipranges') private readonly ipRangeModel: Model<IpRange>,
+    @InjectModel('host') private readonly hostModel: Model<Host>,
     @InjectModel('project') private readonly projectModel: Model<Project>,
     private tagsService: TagsService,
     private findingsQueue: FindingsQueue,
@@ -36,8 +39,10 @@ export class IpRangeService {
     page: number = null,
     pageSize: number = null,
     filter: IpRangesFilterDto = null,
-  ): Promise<IpRangeDocument[]> {
-    let query;
+    hostsLimit: number = 5,
+  ): Promise<(IpRangeDocument | ExtendedIpRange)[]> {
+    let query: Query<IpRangeDocument[], IpRangeDocument, any, IpRange> =
+      undefined;
     if (filter) {
       query = this.ipRangeModel.find(this.buildFilters(filter));
     } else {
@@ -47,7 +52,56 @@ export class IpRangeService {
     if (page != null && pageSize != null) {
       query = query.skip(page * pageSize).limit(pageSize);
     }
-    return await query;
+    let results = await query.lean().exec();
+
+    if (filter.detailsLevel === 'extended') {
+      return await this.extendRangesWithHosts(results, hostsLimit);
+    }
+
+    return results;
+  }
+
+  private async extendRangesWithHosts(
+    ipRanges: IpRangeDocument[],
+    limit: number,
+  ): Promise<ExtendedIpRange[]> {
+    const facets: Record<string, PipelineStage.FacetPipelineStage[]> = {};
+
+    for (const range of ipRanges) {
+      facets[range.correlationKey.replaceAll('.', '-')] = [
+        {
+          $match: {
+            ipInt: { $gte: range.ipMinInt, $lte: range.ipMaxInt },
+          },
+        },
+        {
+          $project: {
+            ip: 1,
+            id: '$_id',
+            _id: 0,
+          },
+        },
+        {
+          $limit: limit,
+        },
+      ];
+    }
+
+    const results: Record<string, HostSummary[]>[] =
+      await this.hostModel.aggregate([
+        {
+          $facet: facets,
+        },
+      ]);
+
+    if (results.length === 0) return ipRanges;
+
+    return ipRanges.map((range) => {
+      return {
+        ...range,
+        hosts: results[0][range.correlationKey.replaceAll('.', '-')] ?? [],
+      };
+    });
   }
 
   public async keyIsBlocked(correlationKey: string): Promise<boolean> {

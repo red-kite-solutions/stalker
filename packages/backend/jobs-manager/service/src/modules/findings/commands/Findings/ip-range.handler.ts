@@ -8,8 +8,8 @@ import { SecretsService } from '../../../database/secrets/secrets.service';
 import { EventSubscriptionsService } from '../../../database/subscriptions/event-subscriptions/event-subscriptions.service';
 import { SubscriptionTriggersService } from '../../../database/subscriptions/subscription-triggers/subscription-triggers.service';
 import { UserFindingHandlerBase } from '../user-findings-handler-base';
+import { IpRangeCommand } from './ip-range.command';
 import { IpCommand } from './ip.command';
-import { IpRangeCommand } from './ipRange.command';
 
 @CommandHandler(IpCommand)
 export class IpRangeHandler extends UserFindingHandlerBase<IpRangeCommand> {

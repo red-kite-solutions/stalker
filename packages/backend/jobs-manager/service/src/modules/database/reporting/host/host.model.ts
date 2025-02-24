@@ -10,6 +10,9 @@ export class Host {
   @Prop({ index: true })
   public ip!: string;
 
+  @Prop({ index: true })
+  public ipInt!: number;
+
   /**
    * A pseudo-unique key identifying this entity. Used for findings.
    * This key should not change if this entity were to be recreated.

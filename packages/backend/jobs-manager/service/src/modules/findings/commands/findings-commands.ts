@@ -1,9 +1,9 @@
 import { HostnameCommand } from './Findings/hostname.command';
 import { HostnameHandler } from './Findings/hostname.handler';
+import { IpRangeCommand } from './Findings/ip-range.command';
+import { IpRangeHandler } from './Findings/ip-range.handler';
 import { IpCommand } from './Findings/ip.command';
 import { IpHandler } from './Findings/ip.handler';
-import { IpRangeCommand } from './Findings/ipRange.command';
-import { IpRangeHandler } from './Findings/ipRange.handler';
 import { CustomFindingCommand } from './JobFindings/custom.command';
 import { CustomFindingHandler } from './JobFindings/custom.handler';
 import { HostnameIpCommand } from './JobFindings/hostname-ip.command';

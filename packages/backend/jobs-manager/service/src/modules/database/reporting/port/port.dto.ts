@@ -9,7 +9,7 @@ import {
   IsOptional,
 } from 'class-validator';
 import { Types } from 'mongoose';
-import { DetailsLevel, detailsLevel } from '../../database.constants';
+import { PortDetailsLevel, portDetailsLevel } from '../../database.constants';
 import { PagingDto } from '../../database.dto';
 import {
   FilterByHostDto,
@@ -27,8 +27,8 @@ export class PortFilterDto extends IntersectionType(
   protocol: string = 'tcp';
 
   @IsNotEmpty()
-  @IsIn(detailsLevel)
-  detailsLevel: DetailsLevel = 'full';
+  @IsIn(portDetailsLevel)
+  detailsLevel: PortDetailsLevel = 'full';
 
   @IsOptional()
   @IsMongoId()

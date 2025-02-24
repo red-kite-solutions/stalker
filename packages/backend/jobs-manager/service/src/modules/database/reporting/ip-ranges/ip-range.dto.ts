@@ -4,6 +4,7 @@ import { Type } from 'class-transformer';
 import {
   IsArray,
   IsBoolean,
+  IsIn,
   IsIP,
   IsMongoId,
   IsNotEmpty,
@@ -15,6 +16,10 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { IsProjectId } from '../../../../validators/is-project-id.validator';
+import {
+  resourceDetailsLevel,
+  ResourceDetailsLevel,
+} from '../../database.constants';
 import { PagingDto } from '../../database.dto';
 import { ResourceFilterDto } from '../resource.dto';
 
@@ -28,6 +33,10 @@ export class IpRangesFilterDto extends IntersectionType(ResourceFilterDto) {
   @IsIP(4)
   @IsString({ each: true })
   contains: string;
+
+  @IsOptional()
+  @IsIn(resourceDetailsLevel)
+  detailsLevel: ResourceDetailsLevel = 'full';
 }
 
 export class IpRangesPagingDto extends IntersectionType(

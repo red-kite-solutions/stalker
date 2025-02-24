@@ -53,9 +53,10 @@ import { Ipv4Subnet } from '../../types/ipv4-subnet';
 })
 export class IpRangeAccordionComponent implements OnDestroy {
   @Input() inErrorState: boolean = false;
+  private _ipRanges: Pick<IpRange, 'ip' | 'mask'>[] = [];
   @Input() set ipRanges(ranges: Pick<IpRange, 'ip' | 'mask'>[]) {
+    this._ipRanges = ranges;
     this.clearSubscriptions();
-    // this._ipRangesForm.controls = [this.generateAddSubnetForm()];
     this._ipRangesForm.controls = this._ipRangesForm.controls.slice(0, 1);
 
     for (const range of ranges) {
@@ -66,14 +67,29 @@ export class IpRangeAccordionComponent implements OnDestroy {
     }
 
     for (let i = 0; i < this._ipRangesForm.controls.length; ++i) {
-      const subnetForm$ = this.generateSubnetSubscription(this._ipRangesForm.controls[i], i);
+      let subnetForm$ = this.generateSubnetObservable(this._ipRangesForm.controls[i], i);
       if (subnetForm$) {
-        console.log(`Subscribed!! [${i}]`);
-        this.valueChangeSubscriptions.push(subnetForm$);
+        if (i > 0) {
+          subnetForm$ = subnetForm$.pipe(
+            tap((subnetData) => {
+              this._ipRanges[subnetData.line - 1].ip = subnetData.subnet.ip;
+              this._ipRanges[subnetData.line - 1].mask = Number(subnetData.subnet.shortMask);
+            })
+          );
+        }
+        const subscription$ = subnetForm$.subscribe((subnetData) => {
+          const fa = this.form.controls['ipRanges'] as UntypedFormArray;
+          fa.controls[subnetData.line].get('minIp')?.setValue(subnetData.subnet.minIp);
+          fa.controls[subnetData.line].get('maxIp')?.setValue(subnetData.subnet.maxIp);
+          fa.controls[subnetData.line].get('ipCount')?.setValue(subnetData.subnet.ipCount);
+          fa.controls[subnetData.line].get('shortMask')?.setValue(subnetData.subnet.shortMask, { emitEvent: false });
+          fa.controls[subnetData.line].get('longMask')?.setValue(subnetData.subnet.longMask, { emitEvent: false });
+        });
+        this.valueChangeSubscriptions.push(subscription$);
       }
     }
   }
-  @Output() ipRangesEvent = new EventEmitter<Pick<IpRange, 'ip' | 'mask'>[]>();
+  @Output() ipRangesChange = new EventEmitter<Pick<IpRange, 'ip' | 'mask'>[]>();
 
   public valueChangeSubscriptions: Subscription[] = [];
 
@@ -125,26 +141,30 @@ export class IpRangeAccordionComponent implements OnDestroy {
     return { ip: ip.toString(), mask: Number(mask.toString()) };
   }
 
-  addSubnet() {
-    const newIpRanges = this.form.controls['ipRanges'];
-    const newSubnetForm = newIpRanges.controls[0];
+  updateSubnets(includeNew: boolean = true) {
+    const ipRanges = this.form.controls['ipRanges'];
 
     const currentRanges: Pick<IpRange, 'ip' | 'mask'>[] = [];
 
-    for (let i = 0; i < newIpRanges.length; ++i) {
-      if (!newIpRanges.controls[i].valid) {
-        return;
-      }
-      currentRanges.push(this.formValueToIpRange(newIpRanges.controls[i]));
+    for (let i = 0; i < ipRanges.length; ++i) {
+      if (i === 0 && !includeNew) continue;
+      if (!ipRanges.controls[i].valid) return;
+      currentRanges.push(this.formValueToIpRange(ipRanges.controls[i]));
     }
 
-    this.ipRangesEvent.next(currentRanges);
-    newSubnetForm.reset();
+    this.ipRangesChange.next(currentRanges);
+
+    if (includeNew) {
+      ipRanges.controls[0].reset();
+    }
   }
 
-  deleteSubnet($event: Event, i: number) {}
+  removeSubnet(index: number) {
+    this._ipRanges.splice(index - 1, 1);
+    this._ipRangesForm.controls.splice(index, 1);
+  }
 
-  private generateSubnetSubscription(subnetControl: AbstractControl, line: number) {
+  private generateSubnetObservable(subnetControl: AbstractControl, line: number) {
     const ip$ = subnetControl.get('ip')?.valueChanges.pipe(
       startWith(this._ipRangesForm.controls[line].value?.ip ?? ''),
       debounceTime(200),
@@ -186,47 +206,37 @@ export class IpRangeAccordionComponent implements OnDestroy {
     if (ip$ && shortMask$ && longMask$) {
       const mask$ = merge(shortMask$, longMask$);
 
-      return combineLatest([ip$, mask$])
-        .pipe(
-          tap(([a, b]) => console.log(`ip: ${a.ip} - line: ${a.line} - mask: ${b}`)),
-          map(([$a, $b]) => {
-            if (!$a.ip || !$b) {
-              if ($a.ip) {
-                return {
-                  subnet: { ip: $a.ip, minIp: '', maxIp: '', ipCount: '', shortMask: '', longMask: '' },
-                  line: $a.line,
-                };
-              }
-              if ($b) {
-                const masks = Ipv4Subnet.createMask($b);
-                return {
-                  subnet: {
-                    ip: '',
-                    minIp: '',
-                    maxIp: '',
-                    ipCount: '',
-                    shortMask: masks.shortMask,
-                    longMask: masks.longMask,
-                  },
-                  line: $a.line,
-                };
-              }
+      return combineLatest([ip$, mask$]).pipe(
+        map(([$a, $b]) => {
+          if (!$a.ip || !$b) {
+            if ($a.ip) {
               return {
-                subnet: { ip: '', minIp: '', maxIp: '', ipCount: '', shortMask: '', longMask: '' },
+                subnet: { ip: $a.ip, minIp: '', maxIp: '', ipCount: '', shortMask: '', longMask: '' },
                 line: $a.line,
               };
             }
-            return { subnet: new Ipv4Subnet($a.ip, $b), line: $a.line };
-          })
-        )
-        .subscribe((subnetData) => {
-          const fa = this.form.controls['ipRanges'] as UntypedFormArray;
-          fa.controls[subnetData.line].get('minIp')?.setValue(subnetData.subnet.minIp);
-          fa.controls[subnetData.line].get('maxIp')?.setValue(subnetData.subnet.maxIp);
-          fa.controls[subnetData.line].get('ipCount')?.setValue(subnetData.subnet.ipCount);
-          fa.controls[subnetData.line].get('shortMask')?.setValue(subnetData.subnet.shortMask, { emitEvent: false });
-          fa.controls[subnetData.line].get('longMask')?.setValue(subnetData.subnet.longMask, { emitEvent: false });
-        });
+            if ($b) {
+              const masks = Ipv4Subnet.createMask($b);
+              return {
+                subnet: {
+                  ip: '',
+                  minIp: '',
+                  maxIp: '',
+                  ipCount: '',
+                  shortMask: masks.shortMask,
+                  longMask: masks.longMask,
+                },
+                line: $a.line,
+              };
+            }
+            return {
+              subnet: { ip: '', minIp: '', maxIp: '', ipCount: '', shortMask: '', longMask: '' },
+              line: $a.line,
+            };
+          }
+          return { subnet: new Ipv4Subnet($a.ip, $b), line: $a.line };
+        })
+      );
     }
 
     return null;
