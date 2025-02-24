@@ -16,7 +16,7 @@ jobs:
   test:
     name: E2E Tests
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: Linux
     timeout-minutes: 30
 
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -37,17 +37,23 @@ jobs:
           kubectl-install: true
 
       - name: Create namespace
-        run: kubectl create namespace stalker
+        run: kubectl create namespace stalker --dry-run=client -o yaml | kubectl apply -f -
 
-      - name: Make room in the container
+      # Deactivated while on self-hosted runner
+      # - name: Make room in the container
+      #   run: |-
+      #     rm -rf /opt/hostedtoolcache/CodeQL
+      #     rm -rf /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk
+      #     rm -rf /opt/hostedtoolcache/PyPy
+      #     rm -rf /opt/hostedtoolcache/Python
+      #     rm -rf /opt/hostedtoolcache/Ruby
+      #     rm -rf /opt/hostedtoolcache/go
+      #     rm -rf /opt/hostedtoolcache/node
+      - name: Create certificates
         run: |-
-          rm -rf /opt/hostedtoolcache/CodeQL
-          rm -rf /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk
-          rm -rf /opt/hostedtoolcache/PyPy
-          rm -rf /opt/hostedtoolcache/Python
-          rm -rf /opt/hostedtoolcache/Ruby
-          rm -rf /opt/hostedtoolcache/go
-          rm -rf /opt/hostedtoolcache/node
+          bash setup_mongo_test.sh
+          bash setup_kafka_test.sh
+          bash setup_secrets_test.sh
 
       - name: Build test containers
         run: devspace -p e2e --var="RK_ENVIRONMENT=tests" run-pipeline build -n stalker
@@ -78,3 +84,10 @@ jobs:
         if: always()
         run: |-
           kubectl logs -n stalker kafka-controller-0
+
+      # Deleting minikube so the self hosted runner starts fresh every time
+      - name: Delete minikube
+        if: always()
+        run: |-
+          minikube delete
+
