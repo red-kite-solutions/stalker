@@ -368,7 +368,7 @@ export class ListWebsitesComponent {
   }
 
   private getImage$(website: Website) {
-    return this.findingsService.getLatestWebsitePreview(website.correlationKey).pipe(
+    return this.findingsService.getLatestWebsitePreview([website.correlationKey]).pipe(
       map((finding: CustomFinding) => {
         const image = finding?.fields.find((f) => f.key === 'image' && f.type === 'image' && !!f.data);
         if (image) return image;
