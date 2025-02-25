@@ -32,21 +32,22 @@ import {
   tap,
 } from 'rxjs';
 import { HostsService } from '../../../api/hosts/hosts.service';
+import { PortsService } from '../../../api/ports/ports.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { TagsService } from '../../../api/tags/tags.service';
+import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { PanelSectionModule } from '../../../shared/components/panel-section/panel-section.module';
+import { SharedModule } from '../../../shared/shared.module';
 import { Domain } from '../../../shared/types/domain/domain.interface';
 import { DomainSummary } from '../../../shared/types/domain/domain.summary';
+import { Page } from '../../../shared/types/page.type';
 import { Port, PortNumber } from '../../../shared/types/ports/port.interface';
 import { ProjectSummary } from '../../../shared/types/project/project.summary';
 import { Tag } from '../../../shared/types/tag.type';
 import { BlockedPillTagComponent } from '../../../shared/widget/pill-tag/blocked-pill-tag.component';
-import { TextMenuComponent } from '../../../shared/widget/text-menu/text-menu.component';
-import { PortsService } from '../../../api/ports/ports.service';
-import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
-import { PanelSectionModule } from '../../../shared/components/panel-section/panel-section.module';
-import { SharedModule } from '../../../shared/shared.module';
-import { Page } from '../../../shared/types/page.type';
 import { NewPillTagComponent } from '../../../shared/widget/pill-tag/new-pill-tag.component';
+import { PillTagComponent } from '../../../shared/widget/pill-tag/pill-tag.component';
+import { TextMenuComponent } from '../../../shared/widget/text-menu/text-menu.component';
 import { SelectItem } from '../../../shared/widget/text-select-menu/text-select-menu.component';
 import { FindingsModule } from '../../findings/findings.module';
 import { PortsInteractionsService } from '../ports-interactions.service';
@@ -75,6 +76,7 @@ import { PortsInteractionsService } from '../ports-interactions.service';
     MatTooltipModule,
     TextMenuComponent,
     BlockedPillTagComponent,
+    PillTagComponent,
   ],
   selector: 'app-view-port',
   templateUrl: './view-port.component.html',

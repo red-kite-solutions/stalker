@@ -32,24 +32,25 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
-import { ProjectsService } from '../../../api/projects/projects.service';
-import { TagsService } from '../../../api/tags/tags.service';
-import { Domain } from '../../../shared/types/domain/domain.interface';
-import { DomainSummary } from '../../../shared/types/domain/domain.summary';
-import { ProjectSummary } from '../../../shared/types/project/project.summary';
-import { Tag } from '../../../shared/types/tag.type';
-import { BlockedPillTagComponent } from '../../../shared/widget/pill-tag/blocked-pill-tag.component';
-import { TextMenuComponent } from '../../../shared/widget/text-menu/text-menu.component';
 import { FindingsService } from '../../../api/findings/findings.service';
 import { PortsService } from '../../../api/ports/ports.service';
+import { ProjectsService } from '../../../api/projects/projects.service';
+import { TagsService } from '../../../api/tags/tags.service';
 import { WebsitesService } from '../../../api/websites/websites.service';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PanelSectionModule } from '../../../shared/components/panel-section/panel-section.module';
 import { SharedModule } from '../../../shared/shared.module';
+import { Domain } from '../../../shared/types/domain/domain.interface';
+import { DomainSummary } from '../../../shared/types/domain/domain.summary';
 import { Page } from '../../../shared/types/page.type';
+import { ProjectSummary } from '../../../shared/types/project/project.summary';
+import { Tag } from '../../../shared/types/tag.type';
 import { Website } from '../../../shared/types/websites/website.type';
 import { SecureIconComponent } from '../../../shared/widget/dynamic-icons/secure-icon.component';
+import { BlockedPillTagComponent } from '../../../shared/widget/pill-tag/blocked-pill-tag.component';
 import { NewPillTagComponent } from '../../../shared/widget/pill-tag/new-pill-tag.component';
+import { PillTagComponent } from '../../../shared/widget/pill-tag/pill-tag.component';
+import { TextMenuComponent } from '../../../shared/widget/text-menu/text-menu.component';
 import { SelectItem } from '../../../shared/widget/text-select-menu/text-select-menu.component';
 import { FindingsModule } from '../../findings/findings.module';
 import { WebsiteInteractionsService } from '../websites-interactions.service';
@@ -82,6 +83,7 @@ import { WebsiteOverviewComponent } from './website-overview/website-overview.co
     FindingsModule,
     WebsiteOverviewComponent,
     SecureIconComponent,
+    PillTagComponent,
   ],
   selector: 'app-view-website',
   templateUrl: './view-website.component.html',
