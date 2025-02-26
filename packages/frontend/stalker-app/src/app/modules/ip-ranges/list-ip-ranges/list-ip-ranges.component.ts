@@ -263,6 +263,7 @@ export class ListIpRangesComponent {
   }
 
   dateFilter(event: MouseEvent) {
+    console.log('DATE FILTER');
     event.stopPropagation();
     this.startDate = new Date(Date.now() - defaultNewTimeMs);
   }

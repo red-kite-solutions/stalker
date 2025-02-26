@@ -67,6 +67,8 @@ export class IpRangeService {
   ): Promise<ExtendedIpRange[]> {
     const facets: Record<string, PipelineStage.FacetPipelineStage[]> = {};
 
+    if (!ipRanges.length) return [];
+
     for (const range of ipRanges) {
       facets[range.correlationKey.replaceAll('.', '-')] = [
         {
@@ -86,6 +88,8 @@ export class IpRangeService {
         },
       ];
     }
+
+    if (!Object.keys(facets).length) return [];
 
     const results: Record<string, HostSummary[]>[] =
       await this.hostModel.aggregate([

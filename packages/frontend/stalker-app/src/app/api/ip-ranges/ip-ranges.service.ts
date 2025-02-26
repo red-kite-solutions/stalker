@@ -46,11 +46,11 @@ export class IpRangesService {
     return await firstValueFrom(this.http.delete(`${this.route}/${hostId}`));
   }
 
-  public async deleteMany(hostIds: string[]) {
-    return await firstValueFrom(this.http.delete(`${this.route}/`, { body: { hostIds: hostIds } }));
+  public async deleteMany(ipRangeIds: string[]) {
+    return await firstValueFrom(this.http.delete(`${this.route}/`, { body: { ipRangeIds: ipRangeIds } }));
   }
 
-  public async block(hostIds: string[], block: boolean) {
-    return await firstValueFrom(this.http.patch(`${this.route}/`, { hostIds, block }));
+  public async block(ipRangeIds: string[], block: boolean) {
+    return await firstValueFrom(this.http.patch(`${this.route}/`, { ipRangeIds: ipRangeIds, block }));
   }
 }
