@@ -13,17 +13,18 @@
       <app-filtered-paginated-table
         [isLoading]="(isLoading$ | async) ?? true"
         [length]="count$ | async"
-        [dateSearchEnabled]="true"
+        [filterEnabled]="false"
+        [dateSearchEnabled]="false"
       >
         <app-table-format
           [dataSource]="dataSource$ | async"
           [columns]="displayColumns$ | async"
-          [routerLinkPrefix]="'/domains/'"
+          [routerLinkPrefix]="'/' + (table$ | async)?.resource + '/'"
           [noDataMessage]="noDataMessage"
         >
           <!-- Domain Column -->
-          <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef i18n="Name|The resource display name">Name</th>
+          <ng-container matColumnDef="domainName">
+            <th mat-header-cell *matHeaderCellDef i18n="Domain|A domain name">Domain</th>
             <td mat-cell *matCellDef="let element">
               <div class="tw-flex tw-flex-wrap tw-gap-2 tw-items-center">
                 <a [routerLink]="'/domains/' + element._id" (click)="$event.stopPropagation()">{{ element.name }}</a>
@@ -32,6 +33,58 @@
                   <app-blocked-pill-tag></app-blocked-pill-tag>
                 }
               </div>
+            </td>
+          </ng-container>
+
+          <!-- Port Column -->
+          <ng-container matColumnDef="port">
+            <th mat-header-cell *matHeaderCellDef i18n="Port|Port number">Port</th>
+            <td mat-cell *matCellDef="let element">
+              <div class="tw-flex tw-flex-wrap tw-gap-2 tw-items-center">
+                <a
+                  [routerLink]="'/hosts/' + element.host.id + '/ports/' + element.port"
+                  (click)="$event.stopPropagation()"
+                  >{{ element.port }}</a
+                >
+                @if (element.blocked) {
+                  <app-blocked-pill-tag></app-blocked-pill-tag>
+                }
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Port Host Column -->
+          <ng-container matColumnDef="portHost">
+            <th mat-header-cell *matHeaderCellDef i18n="Host|host">Host</th>
+            <td mat-cell *matCellDef="let element">
+              <a [routerLink]="'/hosts/' + element.host?.id" (click)="$event.stopPropagation()">{{
+                element.host?.ip
+              }}</a>
+            </td>
+          </ng-container>
+
+          <!-- Host Column -->
+          <ng-container matColumnDef="hostIp">
+            <th mat-header-cell *matHeaderCellDef i18n="Ip|An Ip address">Ip</th>
+            <td mat-cell *matCellDef="let element">
+              <div class="tw-flex tw-flex-wrap tw-gap-2 tw-items-center">
+                <a [routerLink]="'/hosts/' + element._id" (click)="$event.stopPropagation()">{{ element.ip }}</a>
+
+                @if (element.blocked) {
+                  <app-blocked-pill-tag></app-blocked-pill-tag>
+                }
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Website Column -->
+          <ng-container matColumnDef="websiteUrl">
+            <th mat-header-cell *matHeaderCellDef i18n="Url|Url">Url</th>
+            <td mat-cell *matCellDef="let element">
+              <a [routerLink]="'/websites/' + element._id" (click)="$event.stopPropagation()">{{ element.url }}</a>
+              @if (element.blocked) {
+                <app-blocked-pill-tag></app-blocked-pill-tag>
+              }
             </td>
           </ng-container>
 
@@ -46,8 +99,15 @@
           <!-- Custom Column -->
           @for (customColumn of customColumns$ | async; track $index) {
             <ng-container [matColumnDef]="customColumn.id">
-              <th mat-header-cell *matHeaderCellDef>{{ customColumn.name }}</th>
-              <td mat-cell *matCellDef="let element"><rk-placeholder></rk-placeholder></td>
+              <th mat-header-cell *matHeaderCellDef class="tw-max-w-[250px]">{{ customColumn.name }}</th>
+              <td mat-cell *matCellDef="let element">
+                <rk-placeholder *ngIf="(findings$ | async) === null"></rk-placeholder>
+                <rk-table-cell
+                  *ngIf="(findings$ | async) !== null"
+                  [tableField]="customColumn"
+                  [findingFields]="(findings$ | async)?.[element.correlationKey]?.[customColumn.id]"
+                ></rk-table-cell>
+              </td>
             </ng-container>
           }
 

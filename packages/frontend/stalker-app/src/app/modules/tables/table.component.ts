@@ -16,7 +16,9 @@ import { PanelSectionModule } from '../../shared/components/panel-section/panel-
 import { PlaceholderComponent } from '../../shared/components/placeholder/placeholder.component';
 import { ProjectCellComponent } from '../../shared/components/project-cell/project-cell.component';
 import { SharedModule } from '../../shared/shared.module';
+import { CustomFinding, CustomFindingField } from '../../shared/types/finding/finding.type';
 import { IdentifiedElement } from '../../shared/types/identified-element.type';
+import { Resource } from '../../shared/types/resources.type';
 import { Table } from '../../shared/types/tables/table.type';
 import { FilteredPaginatedTableComponent } from '../../shared/widget/filtered-paginated-table/filtered-paginated-table.component';
 import {
@@ -29,12 +31,14 @@ import { TableFormatComponent } from '../../shared/widget/filtered-paginated-tab
 import { BlockedPillTagComponent } from '../../shared/widget/pill-tag/blocked-pill-tag.component';
 import { PillTagComponent } from '../../shared/widget/pill-tag/pill-tag.component';
 import { globalProjectFilter$ } from '../../utils/global-project-filter';
+import { TableCellComponent } from './cells/table-cell.component';
 import { resourcesTableConfig } from './resources-config';
 
 @Component({
   standalone: true,
   selector: 'rk-table',
   templateUrl: 'table.component.html',
+  styleUrl: './table.component.scss',
   imports: [
     CommonModule,
     RouterModule,
@@ -49,6 +53,7 @@ import { resourcesTableConfig } from './resources-config';
     SharedModule,
     PanelSectionModule,
     PlaceholderComponent,
+    TableCellComponent,
   ],
   providers: [
     { provide: TableFiltersSourceBase, useClass: TableFiltersSource },
@@ -98,15 +103,19 @@ export class TableComponent {
     })
   );
 
-  public displayColumns$ = this.table$.pipe(
-    map((table) => [...resourcesTableConfig[table.resource].baseColumns, ...table.fields.map((f) => f.id)])
-  );
   public customColumns$ = this.table$.pipe(map((table) => table.fields));
+  public displayColumns$ = combineLatest([this.table$, this.customColumns$]).pipe(
+    map(([table, customColumns]) => [
+      ...resourcesTableConfig[table.resource].baseColumns,
+      ...customColumns.map((f) => f.id),
+    ])
+  );
 
   public dataSource$ = this._dataSource$.pipe(map((data) => new MatTableDataSource<IdentifiedElement>(data.items)));
   public count$ = this._dataSource$.pipe(map((data) => data.totalRecords));
   public findings$ = combineLatest([this.table$, this._dataSource$]).pipe(
-    switchMap(([table, data]) => this.getFindings(table, data.items))
+    switchMap(([table, data]) => this.getFindings(table, data.items)),
+    shareReplay(1)
   );
 
   constructor(
@@ -120,7 +129,49 @@ export class TableComponent {
     @Inject(TableFiltersSourceBase) private filtersSource: TableFiltersSource
   ) {}
 
-  private getFindings(table: Table, elements: IdentifiedElement[]): Observable<unknown> {
-    return this.findingsService.getPage(0, 1000).pipe(map(({ items }) => {}));
+  private getFindings(
+    table: Table,
+    resources: Resource[]
+  ): Observable<Record<string, Record<string, CustomFindingField[]>>> {
+    return this.findingsService
+      .getPage(0, 100, {
+        targets: resources.map((r) => r.correlationKey),
+      })
+      .pipe(map(({ items }) => this.groupFindings(table, resources, items)));
+  }
+
+  private groupFindings(
+    table: Table,
+    resources: Resource[],
+    customFindings: CustomFinding[]
+  ): Record<string, Record<string, CustomFindingField[]>> {
+    const columnsIds = table.fields.reduce(
+      (acc, curr) => {
+        if (!acc[curr.findingKey]) acc[curr.findingKey] = {};
+        acc[curr.findingKey][curr.findingFieldKey] = curr.id;
+        return acc;
+      },
+      {} as Record<string, Record<string, string>>
+    );
+
+    const groupedFindings = customFindings.reduce(
+      (acc, curr) => {
+        if (!acc[curr.correlationKey]) acc[curr.correlationKey] = {};
+        if (!columnsIds[curr.key]) return acc;
+
+        for (const field of curr.fields) {
+          const columnId = columnsIds[curr.key][field.key];
+          if (!columnId) continue;
+
+          if (!acc[curr.correlationKey][columnId]) acc[curr.correlationKey][columnId] = [];
+          acc[curr.correlationKey][columnId].push(field);
+        }
+
+        return acc;
+      },
+      {} as Record<string, Record<string, CustomFindingField[]>>
+    );
+
+    return groupedFindings;
   }
 }
