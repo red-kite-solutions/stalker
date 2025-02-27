@@ -9,7 +9,7 @@ import { TableCellReputationComponent } from './table-cell-reputation.component'
   imports: [TableCellBooleanComponent, TableCellReputationComponent],
   selector: 'rk-table-cell',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<div class="tw-max-w-[220px]">
+  template: `<div class="tw-max-w-[220px] tw-py-2">
     @switch (displayType) {
       @case ('text') {
         @for (field of findingFields; track $index) {
@@ -35,7 +35,7 @@ export class TableCellComponent {
     if (!this.tableField) return;
 
     const { findingKey, findingFieldKey } = this.tableField;
-    if (findingKey === 'DnsHealth') {
+    if (this.findingFields?.every((x) => x.data === 'True' || x.data === 'False')) {
       if (findingFieldKey === 'mxRecords') return 'text';
       return 'boolean';
     }

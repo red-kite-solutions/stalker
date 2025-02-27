@@ -12,6 +12,6 @@ export class TablesService {
   }
 
   public getTable(id: string): Observable<Table> {
-    return of(undefined as unknown as Table);
+    return of();
   }
 }

@@ -23,6 +23,6 @@ export class TableCellBooleanComponent {
   get isTrue() {
     if (!this.findingFields) return undefined;
 
-    return !this.findingFields.some((x) => x.data === 'false');
+    return !this.findingFields.some((x) => x.data === 'False');
   }
 }
