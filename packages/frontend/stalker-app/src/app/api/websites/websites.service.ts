@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { DateRange } from '@angular/material/datepicker';
 import { Observable, firstValueFrom, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { ResourceService } from '../../services/resources/resource.service';
 import { Page } from '../../shared/types/page.type';
 import { Website } from '../../shared/types/websites/website.type';
 import { filtersToParams } from '../../utils/filters-to-params';
@@ -10,7 +11,7 @@ import { filtersToParams } from '../../utils/filters-to-params';
 @Injectable({
   providedIn: 'root',
 })
-export class WebsitesService {
+export class WebsitesService implements ResourceService<Website> {
   constructor(private http: HttpClient) {}
 
   public getPage(

@@ -1,0 +1,134 @@
+<mat-card appearance="outlined">
+  <mat-card-header>
+    <div class="tw-w-full tw-flex tw-flex-wrap">
+      <rk-placeholder *ngIf="(table$ | async) === null"></rk-placeholder>
+      <mat-card-title class="tw-flex-1 tw-pb-3">
+        {{ (table$ | async)?.name }}
+      </mat-card-title>
+    </div>
+  </mat-card-header>
+
+  <mat-card-content>
+    @if (((projects$ | async) && (tags$ | async)) || true) {
+      <app-filtered-paginated-table
+        [isLoading]="(isLoading$ | async) ?? true"
+        [length]="count$ | async"
+        [filterEnabled]="false"
+        [dateSearchEnabled]="false"
+      >
+        <app-table-format
+          [dataSource]="dataSource$ | async"
+          [columns]="displayColumns$ | async"
+          [routerLinkPrefix]="'/' + (table$ | async)?.resource + '/'"
+          [noDataMessage]="noDataMessage"
+        >
+          <!-- Domain Column -->
+          <ng-container matColumnDef="domainName">
+            <th mat-header-cell *matHeaderCellDef i18n="Domain|A domain name">Domain</th>
+            <td mat-cell *matCellDef="let element">
+              <div class="tw-flex tw-flex-wrap tw-gap-2 tw-items-center">
+                <a [routerLink]="'/domains/' + element._id" (click)="$event.stopPropagation()">{{ element.name }}</a>
+
+                @if (element.blocked) {
+                  <app-blocked-pill-tag></app-blocked-pill-tag>
+                }
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Port Column -->
+          <ng-container matColumnDef="port">
+            <th mat-header-cell *matHeaderCellDef i18n="Port|Port number">Port</th>
+            <td mat-cell *matCellDef="let element">
+              <div class="tw-flex tw-flex-wrap tw-gap-2 tw-items-center">
+                <a
+                  [routerLink]="'/hosts/' + element.host.id + '/ports/' + element.port"
+                  (click)="$event.stopPropagation()"
+                  >{{ element.port }}</a
+                >
+                @if (element.blocked) {
+                  <app-blocked-pill-tag></app-blocked-pill-tag>
+                }
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Port Host Column -->
+          <ng-container matColumnDef="portHost">
+            <th mat-header-cell *matHeaderCellDef i18n="Host|host">Host</th>
+            <td mat-cell *matCellDef="let element">
+              <a [routerLink]="'/hosts/' + element.host?.id" (click)="$event.stopPropagation()">{{
+                element.host?.ip
+              }}</a>
+            </td>
+          </ng-container>
+
+          <!-- Host Column -->
+          <ng-container matColumnDef="hostIp">
+            <th mat-header-cell *matHeaderCellDef i18n="Ip|An Ip address">Ip</th>
+            <td mat-cell *matCellDef="let element">
+              <div class="tw-flex tw-flex-wrap tw-gap-2 tw-items-center">
+                <a [routerLink]="'/hosts/' + element._id" (click)="$event.stopPropagation()">{{ element.ip }}</a>
+
+                @if (element.blocked) {
+                  <app-blocked-pill-tag></app-blocked-pill-tag>
+                }
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Website Column -->
+          <ng-container matColumnDef="websiteUrl">
+            <th mat-header-cell *matHeaderCellDef i18n="Url|Url">Url</th>
+            <td mat-cell *matCellDef="let element">
+              <a [routerLink]="'/websites/' + element._id" (click)="$event.stopPropagation()">{{ element.url }}</a>
+              @if (element.blocked) {
+                <app-blocked-pill-tag></app-blocked-pill-tag>
+              }
+            </td>
+          </ng-container>
+
+          <!-- Custom Column -->
+          @for (customColumn of customColumns$ | async; track $index) {
+            <ng-container [matColumnDef]="customColumn.id">
+              <th mat-header-cell *matHeaderCellDef class="tw-max-w-[250px]">{{ customColumn.name }}</th>
+              <td mat-cell *matCellDef="let element">
+                <rk-placeholder *ngIf="(findings$ | async) === null"></rk-placeholder>
+                <rk-table-cell
+                  *ngIf="(findings$ | async) !== null"
+                  [tableField]="customColumn"
+                  [findingFields]="(findings$ | async)?.[element.correlationKey]?.[customColumn.id]"
+                ></rk-table-cell>
+              </td>
+            </ng-container>
+          }
+
+          <!-- Project Column -->
+          <ng-container matColumnDef="project">
+            <th mat-header-cell *matHeaderCellDef i18n="Project|A business">Project</th>
+            <td mat-cell *matCellDef="let element">
+              <project-cell [project]="projects$ | async | whereId: [element.projectId]"></project-cell>
+            </td>
+          </ng-container>
+
+          <!-- Tags Column -->
+          <ng-container matColumnDef="tags">
+            <th mat-header-cell *matHeaderCellDef i18n="Tags|Multiple tags describing somthing">Tags</th>
+            <td mat-cell *matCellDef="let element">
+              <div class="tw-pt-1 tw-flex tw-flex-wrap tw-gap-x-2 tw-gap-y-1">
+                @for (tag of element.tags; track tag) {
+                  <app-pill-tag [color]="(tags$ | async | whereId: [tag])?.color">{{
+                    (tags$ | async | whereId: [tag])?.text
+                  }}</app-pill-tag>
+                }
+                <app-new-pill-tag [createdAtMilliseconds]="element.createdAt"></app-new-pill-tag>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayColumns$ | async"></tr>
+        </app-table-format>
+      </app-filtered-paginated-table>
+    }
+  </mat-card-content>
+</mat-card>

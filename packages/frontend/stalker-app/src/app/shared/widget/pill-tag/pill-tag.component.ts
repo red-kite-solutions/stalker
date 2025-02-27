@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
 @Component({
+  standalone: true,
   selector: 'app-pill-tag',
   templateUrl: './pill-tag.component.html',
   styleUrls: ['./pill-tag.component.scss'],

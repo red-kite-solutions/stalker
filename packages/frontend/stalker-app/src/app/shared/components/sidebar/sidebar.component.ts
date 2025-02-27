@@ -1,31 +1,43 @@
-import { BreakpointObserver, BreakpointState, Breakpoints } from '@angular/cdk/layout';
-import { Component, Input } from '@angular/core';
-import { map } from 'rxjs';
+import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/layout';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { isObservable, map, Observable, of } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 import { AuthService } from '../../../api/auth/auth.service';
+import { TablesService } from '../../../api/tables/tables.service';
 
 interface Section {
   name: string | undefined;
-  items: SectionItem[];
+  items: (BasicSectionItem | AggregateSectionItem | Observable<BasicSectionItem | AggregateSectionItem>)[];
 }
 
-interface SectionItem {
+interface BasicSectionItem {
   name: string;
   icon: string;
   isAdmin?: boolean;
   routerLink: string;
+  isVisible?: boolean;
+}
+
+interface AggregateSectionItem {
+  name: string;
+  icon: string;
+  isAdmin?: boolean;
+  isVisible?: boolean;
+  items: BasicSectionItem[];
 }
 
 @Component({
   selector: 'app-sidebar',
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SidebarComponent {
   @Input()
   expanded = true;
 
   sections: Section[] = [
-   {
+    {
       name: $localize`:Visualization|Title for the Visualization section of the sidenav:Visualization`,
       items: [
         {
@@ -33,6 +45,17 @@ export class SidebarComponent {
           routerLink: '/',
           name: $localize`:Dashboard|Sidenav dashboard button:Dashboard`,
         },
+        this.tablesService.getTables().pipe(
+          map((tables) => ({
+            icon: 'table',
+            isVisible: !environment.production,
+            name: $localize`:Tables|Tables button:Tables`,
+            items: tables.map((v) => ({
+              ...v,
+              routerLink: `/tables/${v.id}`,
+            })),
+          }))
+        ),
       ],
     },
     {
@@ -118,6 +141,25 @@ export class SidebarComponent {
 
   constructor(
     public authService: AuthService,
+    private tablesService: TablesService,
     private responsive: BreakpointObserver
   ) {}
+
+  isBasicSectionItem(basicOrAggregate: BasicSectionItem | AggregateSectionItem): basicOrAggregate is BasicSectionItem {
+    return 'routerLink' in basicOrAggregate;
+  }
+
+  asObservable(
+    item: BasicSectionItem | AggregateSectionItem | Observable<BasicSectionItem | AggregateSectionItem>
+  ): Observable<BasicSectionItem | AggregateSectionItem> {
+    if (isObservable(item)) return item;
+
+    return of(item);
+  }
+
+  shouldDisplay(item: BasicSectionItem | AggregateSectionItem) {
+    if (item.isVisible === false) return false;
+
+    return !item.isAdmin || this.authService.role === 'admin';
+  }
 }

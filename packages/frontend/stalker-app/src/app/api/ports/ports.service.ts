@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { DateRange } from '@angular/material/datepicker';
 import { Observable, firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { ResourceService } from '../../services/resources/resource.service';
 import { Page } from '../../shared/types/page.type';
 import { ExtendedPort, Port, PortNumber } from '../../shared/types/ports/port.interface';
 import { filtersToParams } from '../../utils/filters-to-params';
@@ -10,7 +11,7 @@ import { filtersToParams } from '../../utils/filters-to-params';
 @Injectable({
   providedIn: 'root',
 })
-export class PortsService {
+export class PortsService implements ResourceService<Port | PortNumber | ExtendedPort> {
   constructor(private http: HttpClient) {}
 
   public getPage<T extends Port | PortNumber | ExtendedPort>(

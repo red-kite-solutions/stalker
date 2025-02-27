@@ -41,6 +41,11 @@ const routes: Routes = [
         component: EditProjectsComponent,
       },
       {
+        path: 'tables/:id',
+        canActivate: [authenticationGuard],
+        loadComponent: () => import('./modules/tables/table.component').then((c) => c.TableComponent),
+      },
+      {
         path: 'domains',
         canActivate: [authenticationGuard],
         loadChildren: () => import('./modules/domains/domains.module').then((m) => m.DomainsListModule),
