@@ -35,7 +35,7 @@ export class TableCellComponent {
     if (!this.tableField) return;
 
     const { findingKey, findingFieldKey } = this.tableField;
-    if (this.findingFields?.every((x) => x.data?.toLowerCase() === 'True' || x.data?.toLowerCase() === 'False')) {
+    if (this.findingFields?.every((x) => x.data?.toLowerCase() === 'true' || x.data?.toLowerCase() === 'true')) {
       if (findingFieldKey === 'mxRecords') return 'text';
       return 'boolean';
     }

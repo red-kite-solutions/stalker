@@ -23,6 +23,6 @@ export class TableCellBooleanComponent {
   get isTrue() {
     if (!this.findingFields) return undefined;
 
-    return this.findingFields.every((x) => x.data?.toLowerCase() === 'True');
+    return this.findingFields.every((x) => x.data?.toLowerCase() === 'true');
   }
 }
