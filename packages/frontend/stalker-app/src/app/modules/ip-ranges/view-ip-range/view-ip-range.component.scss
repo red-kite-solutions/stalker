@@ -50,3 +50,18 @@ panel-section-title {
     }
   }
 }
+
+.metric-title {
+  opacity: 0.9;
+  font-size: 0.8rem;
+}
+
+.metric-info {
+  font-size: 20px;
+}
+
+.host-count:hover {
+  mat-icon {
+    opacity: 1;
+  }
+}

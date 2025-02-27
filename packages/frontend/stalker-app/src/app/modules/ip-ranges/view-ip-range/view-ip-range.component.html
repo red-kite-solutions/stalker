@@ -1,6 +1,8 @@
 @if (ipRange$ | async) {
   <div class="tw-flex tw-items-center tw-gap">
-    <app-page-header [parts]="[(projects$ | async | whereId: [ipRange.projectId])?.name, ipRange.ip]">
+    <app-page-header
+      [parts]="[(projects$ | async | whereId: [ipRange.projectId])?.name, ipRange.ip + '/' + ipRange.mask]"
+    >
     </app-page-header>
 
     @if (ipRange.blocked) {
@@ -9,9 +11,55 @@
   </div>
 
   <div class="content-wrapper">
-    <div class="content">
-      <findings-list [correlationKey]="ipRange.correlationKey"></findings-list>
+    <div class="tw-flex tw-flex-col tw-gap-2">
+      <div class="tw-grid tw-grid-cols-5 tw-gap-2">
+        <mat-card class="tw-col-span-1 tw-cursor-pointer host-count" appearance="outlined" (click)="openHosts()">
+          <mat-icon class="tw-self-end tw-opacity-60 tw-text-sm tw-mr-[-8px] tw-mb-[-4px]">open_in_new</mat-icon>
+          <mat-card-content class="tw-h-full">
+            <number-of-hosts-metric
+              [additionalFilters]="hostFilters"
+              i18n-name="Hosts contained in IP range|"
+              name="Hosts in range"
+            ></number-of-hosts-metric>
+          </mat-card-content>
+        </mat-card>
+        <mat-card class="tw-col-span-4" appearance="outlined">
+          <mat-card-content class="tw-h-full">
+            <div class="tw-grid tw-grid-cols-3 tw-gap-2s">
+              <div class="tw-col-span-1">
+                <h3 class="metric-title">IP</h3>
+                <div class="metric-info">{{ ipRangeExt.ip }}</div>
+              </div>
+              <div class="tw-col-span-1">
+                <h3 class="metric-title">Short mask</h3>
+                <div class="metric-info">{{ ipRangeExt.shortMask }}</div>
+              </div>
+              <div class="tw-col-span-1">
+                <h3 class="metric-title">Long mask</h3>
+                <div class="metric-info">{{ ipRangeExt.longMask }}</div>
+              </div>
+              <div class="tw-col-span-1">
+                <h3 class="metric-title">Min IP</h3>
+                <div class="metric-info">{{ ipRangeExt.minIp }}</div>
+              </div>
+              <div class="tw-col-span-1">
+                <h3 class="metric-title">Max IP</h3>
+                <div class="metric-info">{{ ipRangeExt.maxIp }}</div>
+              </div>
+              <div class="tw-col-span-1">
+                <h3 class="metric-title">IP count</h3>
+                <div class="metric-info">{{ ipRangeExt.ipCount }}</div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+      <mat-divider></mat-divider>
+      <div class="content">
+        <findings-list [correlationKey]="ipRange.correlationKey"></findings-list>
+      </div>
     </div>
+
     <div #contextPanel class="context">
       @if (ipRange.blocked) {
         <panel-section>

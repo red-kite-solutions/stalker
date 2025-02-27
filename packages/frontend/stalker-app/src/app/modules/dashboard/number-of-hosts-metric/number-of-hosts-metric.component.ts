@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { map, switchMap } from 'rxjs';
+import { Component, Input } from '@angular/core';
+import { BehaviorSubject, combineLatest, map, switchMap } from 'rxjs';
 import { HostsService } from '../../../api/hosts/hosts.service';
 import { globalProjectFilter$ } from '../../../utils/global-project-filter';
 import { SimpleMetric } from '../simple-metric/simple-metric.component';
@@ -12,17 +12,22 @@ import { SimpleMetric } from '../simple-metric/simple-metric.component';
   template: `<simple-metric [value]="value$ | async" [title]="name"></simple-metric>`,
 })
 export class NumberOfHostsMetric {
-  public value$ = globalProjectFilter$.pipe(
-    switchMap((project) => {
+  @Input() public name = $localize`:Number of hosts|:Number of hosts`;
+  @Input() public set additionalFilters(filters: { [key: string]: string | string[] }) {
+    this._additionalFilters$.next(filters);
+  }
+
+  private _additionalFilters$: BehaviorSubject<{ [key: string]: string | string[] }> = new BehaviorSubject<{
+    [key: string]: string | string[];
+  }>({});
+
+  public value$ = combineLatest([this._additionalFilters$, globalProjectFilter$]).pipe(
+    switchMap(([filters, project]) => {
       const projects = [];
       if (project) projects.push(project.id);
-      return this.hostService.getPage(0, 1, { projects }).pipe(map((x) => `${x.totalRecords}`));
+      return this.hostService.getPage(0, 1, { projects, ...filters }).pipe(map((x) => `${x.totalRecords}`));
     })
   );
-
-  public get name() {
-    return $localize`:Number of hosts|:Number of hosts`;
-  }
 
   constructor(private hostService: HostsService) {}
 }

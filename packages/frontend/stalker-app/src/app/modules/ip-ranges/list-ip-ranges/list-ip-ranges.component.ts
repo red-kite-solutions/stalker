@@ -242,7 +242,7 @@ export class ListIpRangesComponent {
 
       if (addedIpRanges.length < this.newIpRanges.length) {
         this.toastr.warning(
-          $localize`:IP ranges not added|Some ip ranges were not added to the database:Some ip ranges were not added`
+          $localize`:IP ranges duplicates|Some ip ranges were duplicates to the database:Some ip ranges were duplicates`
         );
       }
 

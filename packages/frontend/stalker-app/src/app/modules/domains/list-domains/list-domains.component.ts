@@ -254,7 +254,7 @@ export class ListDomainsComponent {
 
       if (addedDomains.length < newDomains.length) {
         this.toastr.warning(
-          $localize`:Domains not added|Some domains were not added to the database:Some domains were not added`
+          $localize`:Domains duplicates|Some domains were duplicates to the database:Some domains were duplicates`
         );
       }
 

@@ -6,4 +6,5 @@ export class HostFilterModel {
   firstSeenStartDate?: number;
   firstSeenEndDate?: number;
   blocked?: boolean;
+  ranges?: string[];
 }

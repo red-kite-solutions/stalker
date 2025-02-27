@@ -3,7 +3,7 @@ import { IpRangeSchema } from './ip-range.model';
 
 export const IpRangeModelModule = MongooseModule.forFeature([
   {
-    name: 'ipranges',
+    name: 'iprange',
     schema: IpRangeSchema,
   },
 ]);

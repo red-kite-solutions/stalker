@@ -10,6 +10,7 @@ import {
   IsString,
 } from 'class-validator';
 import { booleanStringToBoolean } from '../../../utils/boolean-string-to-boolean';
+import { IsIpRange } from '../../../validators/is-ip-range.validator';
 
 export class FilterByDomainDto {
   @IsOptional()
@@ -23,6 +24,13 @@ export class FilterByHostDto {
   @IsString({ each: true })
   @IsArray()
   hosts: string[];
+}
+
+export class FilterByIpRangeDto {
+  @IsOptional()
+  @IsIpRange({ each: true })
+  @IsArray()
+  ranges: string[];
 }
 
 export class FilterByPortDto {

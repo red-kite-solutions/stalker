@@ -4,7 +4,11 @@ import { DeleteResult, UpdateResult } from 'mongodb';
 import { FilterQuery, Model, Types } from 'mongoose';
 import { HttpNotFoundException } from '../../../../exceptions/http.exceptions';
 import escapeStringRegexp from '../../../../utils/escape-string-regexp';
-import { ipv4ToNumber } from '../../../../utils/ip-address.utils';
+import {
+  ipv4RangeToMinMax,
+  ipv4StringToipv4Range,
+  ipv4ToNumber,
+} from '../../../../utils/ip-address.utils';
 import { IpFinding } from '../../../findings/findings.service';
 import { FindingsQueue } from '../../../queues/finding-queue/findings-queue';
 import { ConfigService } from '../../admin/config/config.service';
@@ -12,6 +16,7 @@ import { TagsService } from '../../tags/tag.service';
 import { CorrelationKeyUtils } from '../correlation.utils';
 import { DomainsService } from '../domain/domain.service';
 import { DomainSummary } from '../domain/domain.summary';
+import { IpRange } from '../ip-ranges/ip-range.model';
 import { PortService } from '../port/port.service';
 import { Project } from '../project.model';
 import { WebsiteService } from '../websites/website.service';
@@ -26,6 +31,7 @@ export class HostService {
 
   constructor(
     @InjectModel('host') private readonly hostModel: Model<Host>,
+    @InjectModel('iprange') private readonly ipRangeModel: Model<IpRange>,
     @InjectModel('project') private readonly projectModel: Model<Project>,
     private configService: ConfigService,
     private tagsService: TagsService,
@@ -43,7 +49,7 @@ export class HostService {
   ): Promise<HostDocument[]> {
     let query;
     if (filter) {
-      query = this.hostModel.find(this.buildFilters(filter));
+      query = this.hostModel.find(await this.buildFilters(filter));
     } else {
       query = this.hostModel.find({});
     }
@@ -93,7 +99,9 @@ export class HostService {
     if (!filter) {
       return await this.hostModel.estimatedDocumentCount();
     } else {
-      return await this.hostModel.countDocuments(this.buildFilters(filter));
+      return await this.hostModel.countDocuments(
+        await this.buildFilters(filter),
+      );
     }
   }
 
@@ -325,8 +333,8 @@ export class HostService {
     );
   }
 
-  private buildFilters(dto: HostFilterModel) {
-    const finalFilter = {};
+  private async buildFilters(dto: HostFilterModel) {
+    const finalFilter = { $and: [] };
 
     // Filter by domain
     if (dto.domains) {
@@ -380,7 +388,7 @@ export class HostService {
           { createdAt: { $gte: dto.firstSeenStartDate } },
           { createdAt: { $lte: dto.firstSeenEndDate } },
         ];
-        finalFilter['$and'] = createdAtFilter;
+        finalFilter['$and'].push(createdAtFilter);
       } else {
         if (dto.firstSeenStartDate)
           createdAtFilter = { $gte: dto.firstSeenStartDate };
@@ -392,13 +400,31 @@ export class HostService {
 
     // Filter by blocked
     if (dto.blocked === false) {
-      finalFilter['$or'] = [
-        { blocked: { $exists: false } },
-        { blocked: { $eq: false } },
-      ];
+      finalFilter['$and'].push({
+        $or: [{ blocked: { $exists: false } }, { blocked: { $eq: false } }],
+      });
     } else if (dto.blocked === true) {
       finalFilter['blocked'] = { $eq: true };
     }
+
+    // Filter by range
+    if (dto.ranges) {
+      const ranges: { min: number; max: number }[] = dto.ranges.map((range) => {
+        return ipv4RangeToMinMax(ipv4StringToipv4Range(range));
+      });
+      finalFilter['$and'].push({
+        $or: ranges.map((r) => {
+          return {
+            ipInt: {
+              $gte: r.min,
+              $lte: r.max,
+            },
+          };
+        }),
+      });
+    }
+
+    if (!finalFilter.$and.length) delete finalFilter.$and;
 
     return finalFilter;
   }

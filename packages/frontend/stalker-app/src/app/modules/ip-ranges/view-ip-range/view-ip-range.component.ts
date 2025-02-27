@@ -38,6 +38,7 @@ import { SharedModule } from '../../../shared/shared.module';
 import { Domain } from '../../../shared/types/domain/domain.interface';
 import { DomainSummary } from '../../../shared/types/domain/domain.summary';
 import { IpRange } from '../../../shared/types/ip-range/ip-range.interface';
+import { Ipv4Subnet } from '../../../shared/types/ipv4-subnet';
 import { Port } from '../../../shared/types/ports/port.interface';
 import { ProjectSummary } from '../../../shared/types/project/project.summary';
 import { Tag } from '../../../shared/types/tag.type';
@@ -45,6 +46,7 @@ import { BlockedPillTagComponent } from '../../../shared/widget/pill-tag/blocked
 import { NewPillTagComponent } from '../../../shared/widget/pill-tag/new-pill-tag.component';
 import { TextMenuComponent } from '../../../shared/widget/text-menu/text-menu.component';
 import { SelectItem } from '../../../shared/widget/text-select-menu/text-select-menu.component';
+import { NumberOfHostsMetric } from '../../dashboard/number-of-hosts-metric/number-of-hosts-metric.component';
 import { FindingsModule } from '../../findings/findings.module';
 import { IpRangesInteractionsService } from '../ip-ranges-interactions.service';
 
@@ -72,6 +74,7 @@ import { IpRangesInteractionsService } from '../ip-ranges-interactions.service';
     MatTooltipModule,
     BlockedPillTagComponent,
     TextMenuComponent,
+    NumberOfHostsMetric,
   ],
   selector: 'app-view-ipRange',
   templateUrl: './view-ip-range.component.html',
@@ -80,6 +83,7 @@ import { IpRangesInteractionsService } from '../ip-ranges-interactions.service';
 })
 export class ViewIpRangeComponent implements OnDestroy {
   public menuResizeObserver$?: ResizeObserver;
+  public hostFilters: { [key: string]: string | string[] } = {};
 
   @ViewChild('newPillTag', { read: ElementRef, static: false })
   newPillTag!: NewPillTagComponent;
@@ -122,6 +126,7 @@ export class ViewIpRangeComponent implements OnDestroy {
   public ipRangeId$ = this.route.params.pipe(map((params) => params['id'] as string));
   public ipRangeId = '';
   public ipRange!: IpRange;
+  public ipRangeExt!: Ipv4Subnet;
 
   public ipRangeTagsCache: string[] = [];
 
@@ -132,6 +137,11 @@ export class ViewIpRangeComponent implements OnDestroy {
     }),
     tap((ipRange) => {
       this.ipRange = ipRange;
+      this.ipRangeExt = new Ipv4Subnet(ipRange.ip, ipRange.mask.toString());
+      this.hostFilters = {
+        ranges: [ipRange.ip + '/' + ipRange.mask.toString()],
+        projects: [ipRange.projectId],
+      };
       this.titleService.setTitle($localize`:Ip Ranges page title|:IP Ranges · ${ipRange.ip}/${ipRange.mask}`);
       this.ipRangeTagsCache = ipRange.tags ?? [];
     })
@@ -201,7 +211,7 @@ export class ViewIpRangeComponent implements OnDestroy {
   public async delete() {
     const result = await this.ipRangesInteractor.deleteBatch([this.ipRange], this.projects);
     if (result) {
-      this.router.navigate(['/ipRanges/']);
+      this.router.navigate(['/ip-ranges']);
     }
   }
 
@@ -213,6 +223,17 @@ export class ViewIpRangeComponent implements OnDestroy {
       this.ipRange.blockedAt = h.blockedAt;
       this.cdr.markForCheck();
     }
+  }
+
+  public openHosts() {
+    const url = this.router.serializeUrl(
+      this.router.createUrlTree(['/hosts/'], {
+        queryParams: {
+          f: `-is: blocked+project: ${this.projects.find((p) => p.id === this.ipRange.projectId)?.name}+range: ${this.ipRange.ip}/${this.ipRange.mask}`,
+        },
+      })
+    );
+    window.open(url);
   }
 
   constructor(

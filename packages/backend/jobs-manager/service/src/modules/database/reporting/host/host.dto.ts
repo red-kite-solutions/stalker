@@ -14,6 +14,7 @@ import { PagingDto } from '../../database.dto';
 import {
   FilterByDomainDto,
   FilterByHostDto,
+  FilterByIpRangeDto,
   ResourceFilterDto,
 } from '../resource.dto';
 
@@ -21,6 +22,7 @@ export class HostsFilterDto extends IntersectionType(
   ResourceFilterDto,
   FilterByDomainDto,
   FilterByHostDto,
+  FilterByIpRangeDto,
 ) {}
 
 export class HostsPagingDto extends IntersectionType(

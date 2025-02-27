@@ -28,12 +28,15 @@ export abstract class FindingHandlerBase<T extends FindingCommand>
   ) {}
 
   public async execute(command: T) {
+    console.log('FHB: ' + command.finding.key);
+
     // Only the subscriptions concerning the current project and the current finding
     // type are returned by the database
     const subs = await this.subscriptionService.getAllForFinding(
       command.projectId,
       command.finding.key,
     );
+    console.log('FHB: Subs: ' + JSON.stringify(subs));
 
     for (const sub of subs) {
       // Validate that, according to the conditions, the job should be executed.

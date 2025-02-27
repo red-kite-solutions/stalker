@@ -5,7 +5,7 @@ import { Model, PipelineStage, Query, Types } from 'mongoose';
 import { HttpNotFoundException } from '../../../../exceptions/http.exceptions';
 import escapeStringRegexp from '../../../../utils/escape-string-regexp';
 import {
-  ipv4RangeToMinMax,
+  ipv4RangeValuesToMinMax,
   ipv4ToNumber,
 } from '../../../../utils/ip-address.utils';
 import { IpRangeFinding } from '../../../findings/findings.service';
@@ -28,7 +28,7 @@ export class IpRangeService {
   private logger = new Logger(IpRangeService.name);
 
   constructor(
-    @InjectModel('ipranges') private readonly ipRangeModel: Model<IpRange>,
+    @InjectModel('iprange') private readonly ipRangeModel: Model<IpRange>,
     @InjectModel('host') private readonly hostModel: Model<Host>,
     @InjectModel('project') private readonly projectModel: Model<Project>,
     private tagsService: TagsService,
@@ -73,6 +73,7 @@ export class IpRangeService {
       facets[range.correlationKey.replaceAll('.', '-')] = [
         {
           $match: {
+            projectId: { $eq: range.projectId },
             ipInt: { $gte: range.ipMinInt, $lte: range.ipMaxInt },
           },
         },
@@ -299,7 +300,7 @@ export class IpRangeService {
 
     const ipRangeDocuments: IpRangeDocument[] = [];
     for (const range of dto.ranges) {
-      const minMax = ipv4RangeToMinMax(range.ip, range.mask);
+      const minMax = ipv4RangeValuesToMinMax(range.ip, range.mask);
       const model = new this.ipRangeModel({
         _id: new Types.ObjectId(),
         ip: range.ip,
@@ -312,6 +313,7 @@ export class IpRangeService {
         ),
         ipMinInt: minMax.min,
         ipMaxInt: minMax.max,
+        lastSeen: Date.now(),
       });
 
       ipRangeDocuments.push(model);
@@ -344,7 +346,7 @@ export class IpRangeService {
     }
 
     const projectIdObject = new Types.ObjectId(projectId);
-    const minMax = ipv4RangeToMinMax(ip, mask);
+    const minMax = ipv4RangeValuesToMinMax(ip, mask);
 
     return await this.ipRangeModel.findOneAndUpdate(
       {

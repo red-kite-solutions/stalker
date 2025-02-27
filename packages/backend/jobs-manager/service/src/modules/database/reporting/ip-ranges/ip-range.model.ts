@@ -54,4 +54,4 @@ export class IpRange {
 }
 
 export const IpRangeSchema = SchemaFactory.createForClass(IpRange);
-IpRangeSchema.index({ ip: 1, projectId: 1, mask: 1 }, { unique: true });
+IpRangeSchema.index({ ipMinInt: 1, projectId: 1, mask: 1 }, { unique: true });

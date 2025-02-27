@@ -9,9 +9,8 @@ import { EventSubscriptionsService } from '../../../database/subscriptions/event
 import { SubscriptionTriggersService } from '../../../database/subscriptions/subscription-triggers/subscription-triggers.service';
 import { UserFindingHandlerBase } from '../user-findings-handler-base';
 import { IpRangeCommand } from './ip-range.command';
-import { IpCommand } from './ip.command';
 
-@CommandHandler(IpCommand)
+@CommandHandler(IpRangeCommand)
 export class IpRangeHandler extends UserFindingHandlerBase<IpRangeCommand> {
   protected logger: Logger = new Logger(IpRangeHandler.name);
 
