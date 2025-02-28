@@ -84,7 +84,7 @@ import { IpRangesInteractionsService } from '../ip-ranges-interactions.service';
 export class ListIpRangesComponent {
   dataLoading = true;
   displayedColumns: string[] = ['select', 'cidr', 'hosts', 'project', 'tags', 'menu'];
-  filterOptions: string[] = ['ip', 'project', 'tags', 'is'];
+  filterOptions: string[] = ['ip', 'contains', 'project', 'tags', 'is'];
   public readonly noDataMessage = $localize`:No ip range found|No ip range was found:No ip range found`;
   public newIpRanges: Pick<IpRange, 'ip' | 'mask'>[] = [];
 
@@ -158,7 +158,7 @@ export class ListIpRangesComponent {
     const NEGATING_CHAR = '-';
     const filterObject: any = {};
     const includedTags = [];
-    const domains = [];
+    const contains = [];
     const ips = [];
     const projects = [];
     let blocked: boolean | null = null;
@@ -204,6 +204,9 @@ export class ListIpRangesComponent {
               break;
           }
           break;
+        case 'contains':
+          if (value) contains.push(value.trim());
+          break;
       }
     }
 
@@ -211,6 +214,7 @@ export class ListIpRangesComponent {
 
     if (includedTags?.length) filterObject['tags'] = includedTags;
     if (ips?.length) filterObject['ips'] = ips;
+    if (contains?.length) filterObject['contains'] = contains;
     if (projects?.length) filterObject['projects'] = projects;
     if (blocked !== null) filterObject['blocked'] = blocked;
     return filterObject;

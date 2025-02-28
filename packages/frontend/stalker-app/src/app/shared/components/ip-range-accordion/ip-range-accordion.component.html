@@ -85,7 +85,9 @@
               @if (!range.valid && inErrorState) {
                 <mat-icon class="error-bang" color="warn">error_outline</mat-icon>
               }
-              <label>{{ (range.get('ip')?.value ?? '') + '/' + range.get('shortMask')?.value }}</label></mat-panel-title
+              <label>{{
+                (range.get('minIp')?.value ?? '') + '/' + range.get('shortMask')?.value
+              }}</label></mat-panel-title
             >
             <mat-panel-description>
               <div class="tw-flex tw-items-center tw-w-full">
