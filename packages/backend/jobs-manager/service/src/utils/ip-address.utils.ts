@@ -24,3 +24,15 @@ export function ipv4StringToipv4Range(range: string) {
   if (split.length !== 2) return null;
   return { ip: split[0], mask: Number(split[1]) };
 }
+
+export function numberToIpv4(ipNumber: number) {
+  return (
+    ((ipNumber >>> 24) & 0xff).toString() +
+    '.' +
+    ((ipNumber >>> 16) & 0xff).toString() +
+    '.' +
+    ((ipNumber >>> 8) & 0xff).toString() +
+    '.' +
+    (ipNumber & 0xff).toString()
+  );
+}

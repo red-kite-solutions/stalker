@@ -7,6 +7,7 @@ import escapeStringRegexp from '../../../../utils/escape-string-regexp';
 import {
   ipv4RangeValuesToMinMax,
   ipv4ToNumber,
+  numberToIpv4,
 } from '../../../../utils/ip-address.utils';
 import { IpRangeFinding } from '../../../findings/findings.service';
 import { FindingsQueue } from '../../../queues/finding-queue/findings-queue';
@@ -54,7 +55,7 @@ export class IpRangeService {
     }
     let results = await query.lean().exec();
 
-    if (filter.detailsLevel === 'extended') {
+    if (filter && filter.detailsLevel === 'extended') {
       return await this.extendRangesWithHosts(results, hostsLimit);
     }
 
@@ -137,7 +138,7 @@ export class IpRangeService {
   }
 
   private buildFilters(dto: IpRangesFilterDto) {
-    const finalFilter = {};
+    const finalFilter = { $and: [] };
 
     // Filter by ip
     if (dto.ips) {
@@ -154,9 +155,15 @@ export class IpRangeService {
 
     // Filter by ip contained in range
     if (dto.contains) {
-      const ipInt = ipv4ToNumber(dto.contains);
-      finalFilter['ipMinInt'] = { $lte: ipInt };
-      finalFilter['ipMaxInt'] = { $gte: ipInt };
+      const or = [];
+      for (const ip of dto.contains) {
+        const ipInt = ipv4ToNumber(ip);
+        const and = {
+          $and: [{ ipMinInt: { $lte: ipInt } }, { ipMaxInt: { $gte: ipInt } }],
+        };
+        or.push(and);
+      }
+      finalFilter.$and.push({ $or: or });
     }
 
     // Filter by project
@@ -185,7 +192,7 @@ export class IpRangeService {
           { createdAt: { $gte: dto.firstSeenStartDate } },
           { createdAt: { $lte: dto.firstSeenEndDate } },
         ];
-        finalFilter['$and'] = createdAtFilter;
+        finalFilter.$and.push(createdAtFilter);
       } else {
         if (dto.firstSeenStartDate)
           createdAtFilter = { $gte: dto.firstSeenStartDate };
@@ -204,6 +211,8 @@ export class IpRangeService {
     } else if (dto.blocked === true) {
       finalFilter['blocked'] = { $eq: true };
     }
+
+    if (finalFilter.$and.length === 0) delete finalFilter.$and;
 
     return finalFilter;
   }
@@ -303,7 +312,7 @@ export class IpRangeService {
       const minMax = ipv4RangeValuesToMinMax(range.ip, range.mask);
       const model = new this.ipRangeModel({
         _id: new Types.ObjectId(),
-        ip: range.ip,
+        ip: numberToIpv4(minMax.min),
         mask: range.mask,
         projectId: new Types.ObjectId(dto.projectId),
         correlationKey: CorrelationKeyUtils.ipRangeCorrelationKey(
@@ -358,7 +367,7 @@ export class IpRangeService {
         lastSeen: Date.now(),
         $setOnInsert: {
           _id: new Types.ObjectId(),
-          ip: ip,
+          ip: numberToIpv4(minMax.min),
           mask: mask,
           projectId: projectIdObject,
           correlationKey: CorrelationKeyUtils.ipRangeCorrelationKey(

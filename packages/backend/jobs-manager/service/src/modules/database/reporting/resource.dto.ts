@@ -44,27 +44,27 @@ export class FilterByProjectDto {
   @IsOptional()
   @IsMongoId({ each: true })
   @IsArray()
-  projects: string[];
+  projects?: string[];
 }
 
 export class ResourceFilterDto extends IntersectionType(FilterByProjectDto) {
   @IsOptional()
   @IsInt()
   @Type(() => Number)
-  firstSeenStartDate: number;
+  firstSeenStartDate?: number;
 
   @IsOptional()
   @IsInt()
   @Type(() => Number)
-  firstSeenEndDate: number;
+  firstSeenEndDate?: number;
 
   @IsOptional()
   @IsBoolean()
   @Transform(booleanStringToBoolean)
-  blocked: boolean;
+  blocked?: boolean;
 
   @IsOptional()
   @IsMongoId({ each: true })
   @IsArray()
-  tags: string[];
+  tags?: string[];
 }

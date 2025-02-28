@@ -27,16 +27,16 @@ export class IpRangesFilterDto extends IntersectionType(ResourceFilterDto) {
   @IsOptional()
   @IsString({ each: true })
   @IsArray()
-  ips: string[];
+  ips?: string[];
 
   @IsOptional()
-  @IsIP(4)
-  @IsString({ each: true })
-  contains: string;
+  @IsIP(4, { each: true })
+  @IsArray()
+  contains?: string[];
 
   @IsOptional()
   @IsIn(resourceDetailsLevel)
-  detailsLevel: ResourceDetailsLevel = 'full';
+  detailsLevel?: ResourceDetailsLevel = 'full';
 }
 
 export class IpRangesPagingDto extends IntersectionType(
