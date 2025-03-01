@@ -6,6 +6,7 @@ import {
   ipv4RangeValuesToMinMax,
   ipv4StringToipv4Range,
   ipv4ToNumber,
+  numberToIpv4,
 } from './ip-address.utils';
 
 const ipAddressRanges = [
@@ -68,8 +69,21 @@ describe('IP address utils', () => {
       // Arrange & Act
       const result = ipv4ToNumber(ip);
 
-      // Arrange & Act & Assert
+      // Assert
       expect(result).toStrictEqual(value);
+    });
+
+    it.each([
+      { ip: '127.0.0.1', value: 2130706433 },
+      { ip: '0.0.0.0', value: 0 },
+      { ip: '255.255.255.255', value: 4294967295 },
+      { ip: '1.2.3.4', value: 16909060 },
+    ])(`Should transform an IP to its integer value %s`, ({ ip, value }) => {
+      // Arrange & Act
+      const result = numberToIpv4(value);
+
+      // Arrange & Act & Assert
+      expect(result).toStrictEqual(ip);
     });
 
     it.each([ipAddressRanges])(
@@ -78,7 +92,7 @@ describe('IP address utils', () => {
         // Arrange & Act
         const minMax = ipv4RangeValuesToMinMax(ip, mask);
 
-        // Arrange & Act & Assert
+        // Assert
         expect(minMax.min).toStrictEqual(min);
         expect(minMax.max).toStrictEqual(max);
       },
@@ -92,7 +106,7 @@ describe('IP address utils', () => {
           ipv4StringToipv4Range(ip + '/' + mask.toString()),
         );
 
-        // Arrange & Act & Assert
+        // Assert
         expect(minMax.min).toStrictEqual(min);
         expect(minMax.max).toStrictEqual(max);
       },
