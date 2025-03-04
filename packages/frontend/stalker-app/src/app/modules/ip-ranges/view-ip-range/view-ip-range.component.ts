@@ -173,9 +173,6 @@ export class ViewIpRangeComponent implements OnDestroy {
   public mergedTags$ = merge(this.ipRangeTagsSubject$, this.ipRangeTags$);
 
   public shownDomainsCount$ = new BehaviorSubject(5);
-  public hosts$ = combineLatest([this.ipRange$, this.shownDomainsCount$]).pipe(
-    map(([ipRange, size]) => []) // TODO: Get hosts to display
-  );
 
   /**
    *
