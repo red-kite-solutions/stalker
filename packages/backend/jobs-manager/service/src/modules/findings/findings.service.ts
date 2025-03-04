@@ -79,6 +79,7 @@ export class PortBatchFinding extends FindingBase {
 export class ResourceFinding extends FindingBase {
   domainName?: string;
   ip?: string;
+  mask?: number;
   port?: number;
   protocol?: 'tcp' | 'udp';
   path?: string;
@@ -337,7 +338,7 @@ export class FindingsService {
       dto.ip,
       dto.port,
       dto.protocol,
-      null,
+      dto.mask,
       dto.path,
     );
 
@@ -510,7 +511,7 @@ export class FindingsService {
             finding.ip,
             finding.port,
             finding.protocol,
-            null,
+            finding.mask,
             finding.path,
           );
           this.commandBus.execute(

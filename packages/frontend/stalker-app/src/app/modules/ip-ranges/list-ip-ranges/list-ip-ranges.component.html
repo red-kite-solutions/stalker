@@ -58,7 +58,7 @@
 
           <!-- Hosts Column -->
           <ng-container matColumnDef="hosts">
-            <th mat-header-cell *matHeaderCellDef i18n="Hosts|Multiple server hosts">Hosts</th>
+            <th mat-header-cell *matHeaderCellDef i18n="Hosts|Multiple server hosts">Hosts preview</th>
             <td mat-cell *matCellDef="let element">
               @for (host of element.hosts; track host; let i = $index; let last = $last) {
                 @if (i < maxHostsPerLine || (i === maxHostsPerLine && maxHostsPerLine + 1 === element.hosts.length)) {

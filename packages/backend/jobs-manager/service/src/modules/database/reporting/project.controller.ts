@@ -37,23 +37,6 @@ export class ProjectController {
     private readonly configService: ConfigService,
   ) {}
 
-  private isValidIpRange(ipRange: string) {
-    if (!/^\d\d?\d?\.\d\d?\d?\.\d\d?\d?\.\d\d?\d?\/\d\d?$/.test(ipRange))
-      return false;
-
-    const ipMask = ipRange.split('/');
-
-    if (parseInt(ipMask[1]) > 32) return false;
-
-    const ipParts = ipMask[0].split('.');
-
-    for (const part of ipParts) {
-      if (parseInt(part) > 255) return false;
-    }
-
-    return true;
-  }
-
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
   @Roles(Role.ReadOnly)
   @Get()
@@ -110,24 +93,6 @@ export class ProjectController {
       );
     } else if (dto.logo === '') {
       data['logo'] = dto.logo;
-    }
-
-    if (dto.ipRanges) {
-      data['ipRanges'] = [];
-      for (const range of dto.ipRanges) {
-        // TODO: Validate the ip ranges through a decorator
-        if (!this.isValidIpRange(range)) {
-          throw new HttpBadRequestException();
-        }
-        data['ipRanges'].push(range);
-      }
-    } else if (Array.isArray(dto.ipRanges)) {
-      // ^ This previous line checks for an empty array. The check is needed because the value
-      // may also be, at this point, null or undefined
-      // If an empty array is explicitly provided, it is because the user wants to
-      // empty the project's ipRanges array. Therefore, we assign an empty array to overwrite the
-      // existing one in the database.
-      data['ipRanges'] = [];
     }
 
     if (dto.name === '') {

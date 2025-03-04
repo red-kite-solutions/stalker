@@ -94,7 +94,7 @@ describe('IP Range Service', () => {
         expect(ipRanges[i].ipMinInt).toStrictEqual(minMax.min);
         expect(ipRanges[i].ipMaxInt).toStrictEqual(minMax.max);
         expect(ipRanges[i].correlationKey).toStrictEqual(
-          `project:${p._id.toString()};host:${data.ranges[i].ip};mask:${
+          `project:${p._id.toString()};host:${numberToIpv4(minMax.min)};mask:${
             data.ranges[i].mask
           }`,
         );
@@ -152,7 +152,7 @@ describe('IP Range Service', () => {
         expect(ipRanges[i].ipMinInt).toStrictEqual(minMax.min);
         expect(ipRanges[i].ipMaxInt).toStrictEqual(minMax.max);
         expect(ipRanges[i].correlationKey).toStrictEqual(
-          `project:${p._id.toString()};host:${data.ranges[i].ip};mask:${
+          `project:${p._id.toString()};host:${numberToIpv4(minMax.min)};mask:${
             data.ranges[i].mask
           }`,
         );

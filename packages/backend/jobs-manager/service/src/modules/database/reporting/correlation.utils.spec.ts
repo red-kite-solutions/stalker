@@ -56,7 +56,7 @@ describe('Finding utils', () => {
 
     // Assert
     expect(correlationKey).toBe(
-      `project:507f1f77bcf86cd799439011;host:1.2.3.4;mask:24`,
+      `project:507f1f77bcf86cd799439011;host:1.2.3.0;mask:24`,
     );
   });
 
@@ -267,7 +267,7 @@ describe('Finding utils', () => {
 
       // Assert
       expect(correlationKey).toBe(
-        `project:507f1f77bcf86cd799439011;host:1.2.3.4;mask:24`,
+        `project:507f1f77bcf86cd799439011;host:1.2.3.0;mask:24`,
       );
     });
 

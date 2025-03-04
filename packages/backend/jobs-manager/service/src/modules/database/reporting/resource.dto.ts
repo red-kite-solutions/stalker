@@ -16,28 +16,28 @@ export class FilterByDomainDto {
   @IsOptional()
   @IsString({ each: true })
   @IsArray()
-  domains: string[];
+  domains?: string[];
 }
 
 export class FilterByHostDto {
   @IsOptional()
   @IsString({ each: true })
   @IsArray()
-  hosts: string[];
+  hosts?: string[];
 }
 
 export class FilterByIpRangeDto {
   @IsOptional()
   @IsIpRange({ each: true })
   @IsArray()
-  ranges: string[];
+  ranges?: string[];
 }
 
 export class FilterByPortDto {
   @IsOptional()
   @IsPort({ each: true })
   @IsArray()
-  ports: number[];
+  ports?: number[];
 }
 
 export class FilterByProjectDto {

@@ -1,12 +1,12 @@
 import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DeleteResult, UpdateResult } from 'mongodb';
-import { FilterQuery, Model, Types } from 'mongoose';
+import { FilterQuery, Model, Query, Types } from 'mongoose';
 import { HttpNotFoundException } from '../../../../exceptions/http.exceptions';
 import escapeStringRegexp from '../../../../utils/escape-string-regexp';
 import {
+  cidrStringToipv4Range,
   ipv4RangeToMinMax,
-  ipv4StringToipv4Range,
   ipv4ToNumber,
 } from '../../../../utils/ip-address.utils';
 import { IpFinding } from '../../../findings/findings.service';
@@ -20,8 +20,7 @@ import { IpRange } from '../ip-ranges/ip-range.model';
 import { PortService } from '../port/port.service';
 import { Project } from '../project.model';
 import { WebsiteService } from '../websites/website.service';
-import { HostFilterModel } from './host-filter.model';
-import { BatchEditHostsDto } from './host.dto';
+import { BatchEditHostsDto, HostsFilterDto } from './host.dto';
 import { Host, HostDocument } from './host.model';
 import { HostSummary } from './host.summary';
 
@@ -45,13 +44,18 @@ export class HostService {
   public async getAll(
     page: number = null,
     pageSize: number = null,
-    filter: HostFilterModel = null,
+    filter: HostsFilterDto = null,
   ): Promise<HostDocument[]> {
-    let query;
+    let query: Query<HostDocument[], HostDocument, any, HostDocument>;
+    let projection =
+      filter && filter.detailsLevel === 'summary'
+        ? '_id ip correlationKey'
+        : undefined;
+
     if (filter) {
-      query = this.hostModel.find(await this.buildFilters(filter));
+      query = this.hostModel.find(await this.buildFilters(filter), projection);
     } else {
-      query = this.hostModel.find({});
+      query = this.hostModel.find({}, projection);
     }
 
     if (page != null && pageSize != null) {
@@ -95,7 +99,7 @@ export class HostService {
     return h && h.blocked;
   }
 
-  public async count(filter: HostFilterModel = null) {
+  public async count(filter: HostsFilterDto = null) {
     if (!filter) {
       return await this.hostModel.estimatedDocumentCount();
     } else {
@@ -333,7 +337,7 @@ export class HostService {
     );
   }
 
-  private async buildFilters(dto: HostFilterModel) {
+  private async buildFilters(dto: HostsFilterDto) {
     const finalFilter = { $and: [] };
 
     // Filter by domain
@@ -410,7 +414,7 @@ export class HostService {
     // Filter by range
     if (dto.ranges) {
       const ranges: { min: number; max: number }[] = dto.ranges.map((range) => {
-        return ipv4RangeToMinMax(ipv4StringToipv4Range(range));
+        return ipv4RangeToMinMax(cidrStringToipv4Range(range));
       });
       finalFilter['$and'].push({
         $or: ranges.map((r) => {

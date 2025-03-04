@@ -1,5 +1,9 @@
 import { Type } from 'class-transformer';
-import { IsInt, Max, Min } from 'class-validator';
+import { IsIn, IsInt, IsOptional, Max, Min } from 'class-validator';
+import {
+  ResourceDetailsLevel,
+  resourceDetailsLevel,
+} from './database.constants';
 
 export class PagingDto {
   @IsInt()
@@ -11,4 +15,10 @@ export class PagingDto {
   @Max(100)
   @Type(() => Number)
   pageSize: number = 25;
+}
+
+export class ResourceDetailsLevelDto {
+  @IsOptional()
+  @IsIn(resourceDetailsLevel)
+  detailsLevel?: ResourceDetailsLevel = 'full';
 }

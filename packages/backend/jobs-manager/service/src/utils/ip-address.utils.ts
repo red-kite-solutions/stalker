@@ -19,7 +19,7 @@ export function ipv4RangeToMinMax(range: { ip: string; mask: number }): {
   return ipv4RangeValuesToMinMax(range.ip, range.mask);
 }
 
-export function ipv4StringToipv4Range(range: string) {
+export function cidrStringToipv4Range(range: string) {
   const split = range.split('/');
   if (split.length !== 2) return null;
   return { ip: split[0], mask: Number(split[1]) };

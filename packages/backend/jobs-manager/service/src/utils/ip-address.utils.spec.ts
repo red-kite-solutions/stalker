@@ -2,9 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AppController } from '../modules/app.controller';
 import { AppService } from '../modules/app.service';
 import {
+  cidrStringToipv4Range,
   ipv4RangeToMinMax,
   ipv4RangeValuesToMinMax,
-  ipv4StringToipv4Range,
   ipv4ToNumber,
   numberToIpv4,
 } from './ip-address.utils';
@@ -103,7 +103,7 @@ describe('IP address utils', () => {
       ({ ip, mask, min, max }) => {
         // Arrange & Act
         const minMax = ipv4RangeToMinMax(
-          ipv4StringToipv4Range(ip + '/' + mask.toString()),
+          cidrStringToipv4Range(ip + '/' + mask.toString()),
         );
 
         // Assert

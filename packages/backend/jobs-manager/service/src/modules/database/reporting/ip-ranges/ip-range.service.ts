@@ -257,10 +257,11 @@ export class IpRangeService {
     tagId: string,
     isTagged: boolean,
   ): Promise<UpdateResult> {
+    const targetIp = numberToIpv4(ipv4RangeValuesToMinMax(ip, mask).min);
     if (!isTagged) {
       return await this.ipRangeModel.updateOne(
         {
-          ip: { $eq: ip },
+          ip: { $eq: targetIp },
           mask: { $eq: mask },
           projectId: { $eq: new Types.ObjectId(projectId) },
         },
@@ -268,7 +269,10 @@ export class IpRangeService {
       );
     } else {
       return await this.ipRangeModel.updateOne(
-        { ip: { $eq: ip }, projectId: { $eq: new Types.ObjectId(projectId) } },
+        {
+          ip: { $eq: targetIp },
+          projectId: { $eq: new Types.ObjectId(projectId) },
+        },
         { $addToSet: { tags: new Types.ObjectId(tagId) } },
       );
     }
@@ -310,14 +314,15 @@ export class IpRangeService {
     const ipRangeDocuments: IpRangeDocument[] = [];
     for (const range of dto.ranges) {
       const minMax = ipv4RangeValuesToMinMax(range.ip, range.mask);
+      const targetIp = numberToIpv4(minMax.min);
       const model = new this.ipRangeModel({
         _id: new Types.ObjectId(),
-        ip: numberToIpv4(minMax.min),
+        ip: targetIp,
         mask: range.mask,
         projectId: new Types.ObjectId(dto.projectId),
         correlationKey: CorrelationKeyUtils.ipRangeCorrelationKey(
           dto.projectId,
-          range.ip,
+          targetIp,
           range.mask,
         ),
         ipMinInt: minMax.min,
@@ -356,10 +361,11 @@ export class IpRangeService {
 
     const projectIdObject = new Types.ObjectId(projectId);
     const minMax = ipv4RangeValuesToMinMax(ip, mask);
+    const targetIp = numberToIpv4(minMax.min);
 
     return await this.ipRangeModel.findOneAndUpdate(
       {
-        ip: { $eq: ip },
+        ip: { $eq: targetIp },
         mask: { $eq: mask },
         projectId: { $eq: projectIdObject },
       },
@@ -367,12 +373,12 @@ export class IpRangeService {
         lastSeen: Date.now(),
         $setOnInsert: {
           _id: new Types.ObjectId(),
-          ip: numberToIpv4(minMax.min),
+          ip: targetIp,
           mask: mask,
           projectId: projectIdObject,
           correlationKey: CorrelationKeyUtils.ipRangeCorrelationKey(
             projectId,
-            ip,
+            targetIp,
             mask,
           ),
           ipMinInt: minMax.min,

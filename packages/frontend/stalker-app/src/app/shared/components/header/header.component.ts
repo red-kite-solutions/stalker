@@ -1,15 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { map, Observable } from 'rxjs';
+import { map, Observable, Subscription } from 'rxjs';
 import { AuthService } from '../../../api/auth/auth.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { ThemeService } from '../../../services/theme.service';
-import { getGlobalProjectFilter, setGlobalProjectFilter } from '../../../utils/global-project-filter';
+import {
+  getGlobalProjectFilter,
+  globalProjectFilter$,
+  setGlobalProjectFilter,
+} from '../../../utils/global-project-filter';
 import { SharedModule } from '../../shared.module';
 import { ProjectSummary } from '../../types/project/project.summary';
 import { SelectItem } from '../../widget/text-select-menu/text-select-menu.component';
@@ -30,7 +34,7 @@ import { AvatarComponent } from '../avatar/avatar.component';
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit, OnDestroy {
   public filterProjects: string = $localize`:Filter projects|Filter projects:Filter projects`;
   public emptyProjects: string = $localize`:No projects yet|List of projects is empty:No projects yet`;
 
@@ -43,6 +47,7 @@ export class HeaderComponent implements OnInit {
   public currentLanguageLocale = '';
   public email = '';
   public selectedProject: SelectItem | undefined;
+  public externalFilterSet$!: Subscription;
 
   public readonly languages: {
     locale: string;
@@ -78,7 +83,16 @@ export class HeaderComponent implements OnInit {
       if (globalProjectFilter) {
         this.selectedProject = { ...globalProjectFilter, isSelected: true };
       }
+
+      this.externalFilterSet$ = globalProjectFilter$.subscribe((filter) => {
+        this.selectedProject = filter ? { isSelected: true, text: filter.text } : undefined;
+        this.selectProject(this.selectedProject, false);
+      });
     }
+  }
+
+  ngOnDestroy(): void {
+    if (this.externalFilterSet$) this.externalFilterSet$.unsubscribe();
   }
 
   toggleSideBar() {
@@ -110,9 +124,9 @@ export class HeaderComponent implements OnInit {
     );
   }
 
-  selectProject(project: SelectItem | undefined) {
+  selectProject(project: SelectItem | undefined, emit = true) {
     this.selectedProject = project;
-    setGlobalProjectFilter(project as SelectItem & ProjectSummary);
+    if (emit) setGlobalProjectFilter(project as SelectItem & ProjectSummary);
   }
 
   clearProject() {

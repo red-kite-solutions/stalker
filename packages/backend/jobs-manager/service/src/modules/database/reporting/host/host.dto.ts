@@ -10,7 +10,7 @@ import {
   IsPort,
 } from 'class-validator';
 import { Types } from 'mongoose';
-import { PagingDto } from '../../database.dto';
+import { PagingDto, ResourceDetailsLevelDto } from '../../database.dto';
 import {
   FilterByDomainDto,
   FilterByHostDto,
@@ -23,6 +23,7 @@ export class HostsFilterDto extends IntersectionType(
   FilterByDomainDto,
   FilterByHostDto,
   FilterByIpRangeDto,
+  ResourceDetailsLevelDto,
 ) {}
 
 export class HostsPagingDto extends IntersectionType(
