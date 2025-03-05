@@ -19,11 +19,12 @@
                 [matTooltip]="expanded ? '' : item.name"
                 [matTooltipShowDelay]="700"
                 matTooltipPosition="right"
+                class="padright"
               >
                 <ng-container *ngTemplateOutlet="menuItem; context: { item: item, expanded: expanded }"></ng-container>
               </a>
             } @else {
-              <button mat-list-item class="tw-text-left tw-mr-[-9px]" [matMenuTriggerFor]="menu">
+              <button mat-list-item class="tw-text-left padright" [matMenuTriggerFor]="menu">
                 <span class="tw-flex">
                   <ng-container
                     *ngTemplateOutlet="menuItem; context: { item: item, expanded: expanded }"

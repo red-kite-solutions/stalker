@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, Output, signal } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -48,6 +48,18 @@ import { Ipv4Subnet } from '../../types/ipv4-subnet';
     mat-panel-description {
       margin-right: 0px;
     }
+
+    .border {
+      border-style: solid;
+      border-color: var(--mdc-outlined-text-field-outline-color);
+      border-width: 1px 1px 1px 1px;
+      border-radius: 4px;
+      margin-top: -1px;
+    }
+
+    .border-opened {
+      margin-top: var(--mat-expansion-panel-spacing);
+    }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -90,6 +102,9 @@ export class IpRangeAccordionComponent implements OnDestroy {
     }
   }
   @Output() ipRangesChange = new EventEmitter<Pick<IpRange, 'ip' | 'mask'>[]>();
+
+  readonly openedPanelIndex = signal(0);
+  readonly closedPanelIndex = signal<number | undefined>(undefined);
 
   public valueChangeSubscriptions: Subscription[] = [];
 

@@ -1,6 +1,13 @@
 <form [formGroup]="form" class="tw-flex tw-flex-col tw-gap">
   <mat-accordion class="tw-flex-1" formArrayName="ipRanges">
-    <mat-expansion-panel [formGroupName]="0" hideToggle>
+    <mat-expansion-panel
+      [formGroupName]="0"
+      hideToggle
+      expanded
+      class="border mat-elevation-z0"
+      (opened)="openedPanelIndex.set(0); closedPanelIndex.set(undefined)"
+      (closed)="closedPanelIndex.set(0)"
+    >
       <mat-expansion-panel-header>
         <mat-panel-title class="tw-gap-2"
           ><mat-icon>add_circle_outline</mat-icon
@@ -78,8 +85,15 @@
     </mat-expansion-panel>
 
     @for (range of _ipRangesForm.controls; track range; let i = $index) {
-      <mat-expansion-panel [formGroupName]="i" hideToggle>
-        @if (i !== 0) {
+      @if (i !== 0) {
+        <mat-expansion-panel
+          [formGroupName]="i"
+          hideToggle
+          class="mat-elevation-z0 border"
+          (opened)="openedPanelIndex.set(i); closedPanelIndex.set(undefined)"
+          (closed)="closedPanelIndex.set(i)"
+          [style]="openedPanelIndex() === i && closedPanelIndex() !== i ? 'margin-top: 16px' : ''"
+        >
           <mat-expansion-panel-header>
             <mat-panel-title>
               @if (!range.valid && inErrorState) {
@@ -98,9 +112,7 @@
               </div>
             </mat-panel-description>
           </mat-expansion-panel-header>
-        }
 
-        @if (i !== 0) {
           <div class="tw-flex tw-gap tw-w-full">
             <div class="tw-flex tw-flex-col tw-gap tw-w-full">
               <mat-form-field class="tw-w-full">
@@ -156,8 +168,8 @@
               </mat-form-field>
             </div>
           </div>
-        }
-      </mat-expansion-panel>
+        </mat-expansion-panel>
+      }
     }
   </mat-accordion>
 </form>
