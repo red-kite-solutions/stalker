@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SharedModule } from '../../shared/shared.module';
@@ -19,6 +20,7 @@ import { TextFindingFieldComponent } from './text-finding-field/text-finding-fie
     MatProgressSpinnerModule,
     MatButtonModule,
     MatTooltipModule,
+    MatIconModule,
     SharedModule,
   ],
   declarations: [FindingsListComponent, FindingComponent, ImageFindingFieldComponent, TextFindingFieldComponent],

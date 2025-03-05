@@ -37,6 +37,7 @@ import {
 import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-table/table-format/table-format.component';
 import { BlockedPillTagComponent } from '../../../shared/widget/pill-tag/blocked-pill-tag.component';
 import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.component';
+import { PillTagComponent } from '../../../shared/widget/pill-tag/pill-tag.component';
 import {
   getGlobalProjectFilter,
   globalProjectFilter$,
@@ -64,6 +65,7 @@ import { DomainsInteractionsService } from '../domains-interactions.service';
     RouterModule,
     BlockedPillTagComponent,
     TableFormatComponent,
+    PillTagComponent,
   ],
   selector: 'app-list-domains',
   templateUrl: './list-domains.component.html',

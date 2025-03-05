@@ -48,7 +48,7 @@ export class FindingsListComponent {
       scan((acc) => acc + 1, -1),
       concatMap((page) =>
         this.findingsService.getPage(page, 15, {
-          target: correlationKey,
+          targets: [correlationKey],
           findingDenyList: this._filterFindingKeys,
         })
       ),

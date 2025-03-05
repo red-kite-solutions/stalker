@@ -29,17 +29,17 @@ export class FindingsService {
       .pipe(tap((x) => (x.items = x.items.map((i) => ({ ...i, created: new Date(i.created) })))));
   }
 
-  public getLatestWebsiteEndpoint(target: string, endpoint: string): Observable<CustomFinding> {
+  public getLatestWebsiteEndpoint(targets: string[], endpoint: string): Observable<CustomFinding> {
     return this.getPage(0, 1, {
-      target: target,
+      targets: targets,
       findingAllowList: ['WebsitePathFinding'],
       fieldFilters: [{ key: 'endpoint', data: endpoint }],
     }).pipe(map((x) => x.items[0]));
   }
 
-  public getLatestWebsitePreview(target: string): Observable<CustomFinding> {
+  public getLatestWebsitePreview(targets: string[]): Observable<CustomFinding> {
     return this.getPage(0, 1, {
-      target: target,
+      targets: targets,
       findingAllowList: ['WebsiteScreenshotFinding'],
     }).pipe(map((x) => x.items[0]));
   }
@@ -47,8 +47,10 @@ export class FindingsService {
   private buildFilters(filters: FindingsFilter) {
     let filterParams: string[] = [];
 
-    if (filters.target) {
-      filterParams.push(`target=${encodeURIComponent(filters.target)}`);
+    if (filters.targets) {
+      for (const target of filters.targets) {
+        filterParams.push(`targets[]=${encodeURIComponent(target)}`);
+      }
     }
 
     if (filters.findingDenyList) {

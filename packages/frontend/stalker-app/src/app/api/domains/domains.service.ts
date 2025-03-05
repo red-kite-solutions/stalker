@@ -2,15 +2,16 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { DateRange } from '@angular/material/datepicker';
 import { firstValueFrom, Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { ResourceService } from '../../services/resources/resource.service';
 import { Domain } from '../../shared/types/domain/domain.interface';
 import { Page } from '../../shared/types/page.type';
-import { environment } from '../../../environments/environment';
 import { filtersToParams } from '../../utils/filters-to-params';
 
 @Injectable({
   providedIn: 'root',
 })
-export class DomainsService {
+export class DomainsService implements ResourceService<Domain> {
   constructor(private http: HttpClient) {}
 
   public getPage(

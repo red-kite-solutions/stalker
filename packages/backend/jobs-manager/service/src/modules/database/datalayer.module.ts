@@ -8,6 +8,7 @@ import { JobContainerModelModule } from './container/job-container-model.module'
 import { CustomJobTemplateModelModule } from './custom-job-templates/custom-job-templates-model.module';
 import { JobModelModule } from './jobs/job-model.module';
 import { DomainModelModule } from './reporting/domain/domain-model.module';
+import { FindingDefinitionsModelModule } from './reporting/finding-definitions/finding-definition-model.module';
 import { FindingModelModule } from './reporting/findings/findings-model.module';
 import { HostModelModule } from './reporting/host/host-model.module';
 import { IpRangeModelModule } from './reporting/ip-ranges/ip-range-model.module';
@@ -17,6 +18,7 @@ import { WebsiteModelModule } from './reporting/websites/website-model.module';
 import { SecretsModelModule } from './secrets/secrets-model.module';
 import { CronSubscriptionModelModule } from './subscriptions/cron-subscriptions/cron-subscription-model.module';
 import { EventSubscriptionModelModule } from './subscriptions/event-subscriptions/event-subscription-model.module';
+import { TableModelModule } from './tables/tables-model.module';
 import { TagModelModule } from './tags/tag-model.module';
 import { UserModelModule } from './users/users-model.module';
 
@@ -41,6 +43,8 @@ import { UserModelModule } from './users/users-model.module';
     UserModelModule,
     JobContainerModelModule,
     IpRangeModelModule,
+    FindingDefinitionsModelModule,
+    TableModelModule,
   ],
   providers: [...databaseConfigInitProvider],
   exports: [
@@ -63,6 +67,8 @@ import { UserModelModule } from './users/users-model.module';
     ApiKeyModelModule,
     JobContainerModelModule,
     IpRangeModelModule,
+    FindingDefinitionsModelModule,
+    TableModelModule,
   ],
 })
 export class DatalayerModule {}

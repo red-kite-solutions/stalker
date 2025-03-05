@@ -16,6 +16,7 @@ import {
 } from '../../../utils/global-project-filter';
 import { SharedModule } from '../../shared.module';
 import { ProjectSummary } from '../../types/project/project.summary';
+import { PillTagComponent } from '../../widget/pill-tag/pill-tag.component';
 import { SelectItem } from '../../widget/text-select-menu/text-select-menu.component';
 import { AvatarComponent } from '../avatar/avatar.component';
 
@@ -30,6 +31,7 @@ import { AvatarComponent } from '../avatar/avatar.component';
     CommonModule,
     MatMenuModule,
     MatButtonModule,
+    PillTagComponent,
   ],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
