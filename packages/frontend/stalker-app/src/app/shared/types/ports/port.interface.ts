@@ -18,6 +18,8 @@ export interface Port extends PortNumber {
   blocked: boolean;
   blockedAt: number;
   service: string;
+  product: string;
+  version: string;
 }
 
 export interface ExtendedPort extends Port {

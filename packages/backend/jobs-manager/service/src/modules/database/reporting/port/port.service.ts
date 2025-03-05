@@ -42,6 +42,8 @@ export class PortService {
     portNumber: number,
     protocol: 'tcp' | 'udp',
     service: string = undefined,
+    product: string = undefined,
+    version: string = undefined,
   ) {
     const host: Pick<HostDocument, '_id' | 'ip'> = await this.hostModel.findOne(
       {
@@ -64,6 +66,8 @@ export class PortService {
       protocol,
       correlationKey,
       service,
+      product,
+      version,
     );
   }
 
@@ -111,6 +115,8 @@ export class PortService {
     protocol: string,
     correlationKey: string,
     service: string = undefined,
+    product: string = undefined,
+    version: string = undefined,
   ) {
     if (!(protocol === 'tcp' || protocol === 'udp'))
       throw new HttpBadRequestException(this.badProtocolError);
@@ -143,7 +149,15 @@ export class PortService {
     let setter =
       service === undefined
         ? { lastSeen: Date.now() }
-        : { lastSeen: Date.now(), service: service };
+        : {
+            lastSeen: Date.now(),
+            service: service,
+            product: product,
+            version: version,
+          };
+
+    console.log('------------------');
+    console.log(setter);
 
     res = await this.portsModel.findOneAndUpdate(
       {
@@ -382,6 +396,45 @@ export class PortService {
           '_id',
         );
         if (hosts) finalFilter['host.id'] = { $in: hosts.map((h) => h._id) };
+      }
+    }
+
+    // Filter by port service
+    if (dto.services) {
+      const servicesRegex = dto.services
+        .filter((x) => x)
+        .map((x) => x.toLowerCase().trim())
+        .map((x) => escapeStringRegexp(x))
+        .map((x) => new RegExp(`.*${x}.*`));
+
+      if (servicesRegex.length > 0) {
+        finalFilter['service'] = { $in: servicesRegex };
+      }
+    }
+
+    // Filter by port products
+    if (dto.products) {
+      const productsRegex = dto.products
+        .filter((x) => x)
+        .map((x) => x.toLowerCase().trim())
+        .map((x) => escapeStringRegexp(x))
+        .map((x) => new RegExp(`.*${x}.*`, 'i'));
+
+      if (productsRegex.length > 0) {
+        finalFilter['product'] = { $in: productsRegex };
+      }
+    }
+
+    // Filter by port versions
+    if (dto.versions) {
+      const versionsRegex = dto.versions
+        .filter((x) => x)
+        .map((x) => x.toLowerCase().trim())
+        .map((x) => escapeStringRegexp(x))
+        .map((x) => new RegExp(`.*${x}.*`, 'i'));
+
+      if (versionsRegex.length > 0) {
+        finalFilter['version'] = { $in: versionsRegex };
       }
     }
 

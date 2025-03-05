@@ -52,6 +52,30 @@
             </td>
           </ng-container>
 
+          <!-- Service Column -->
+          <ng-container matColumnDef="service">
+            <th mat-header-cell *matHeaderCellDef i18n="Service|port service">Service</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element.service }}
+            </td>
+          </ng-container>
+
+          <!-- Product Column -->
+          <ng-container matColumnDef="product">
+            <th mat-header-cell *matHeaderCellDef i18n="Product|port product">Product</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element.product }}
+            </td>
+          </ng-container>
+
+          <!-- Version Column -->
+          <ng-container matColumnDef="version">
+            <th mat-header-cell *matHeaderCellDef i18n="Product version|Product version">Version</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element.version }}
+            </td>
+          </ng-container>
+
           <!-- Ip/Host Column -->
           <ng-container matColumnDef="ip">
             <th mat-header-cell *matHeaderCellDef i18n="Host|host">Host</th>
