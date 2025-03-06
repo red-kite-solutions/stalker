@@ -51,8 +51,6 @@ export class TagHandler extends JobFindingHandlerBase<TagCommand> {
     const service = CorrelationKeyUtils.getResourceServiceName(
       command.finding.correlationKey,
     );
-    console.log(service);
-    console.log(command.finding.correlationKey);
 
     switch (service) {
       case 'DomainsService':

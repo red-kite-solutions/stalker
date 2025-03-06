@@ -156,9 +156,6 @@ export class PortService {
             version: version,
           };
 
-    console.log('------------------');
-    console.log(setter);
-
     res = await this.portsModel.findOneAndUpdate(
       {
         port: { $eq: port.port },
