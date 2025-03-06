@@ -36,6 +36,6 @@ export class TagsService {
   }
   private filterTags(secret: Tag, filters: string[]) {
     const parts = [secret?.text, secret.color];
-    return filters.some((filter) => normalizeSearchString(parts.join(' ')).includes(filter));
+    return filters.some((filter) => normalizeSearchString(parts.join(' ')).includes(normalizeSearchString(filter)));
   }
 }
