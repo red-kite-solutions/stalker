@@ -94,7 +94,7 @@ export class FindingsFilterDto extends FilterByProjectDto {
   @IsBoolean()
   @Transform(booleanStringToBoolean)
   @IsOptional()
-  latestOnly?: boolean = true;
+  latestOnly?: boolean;
 }
 
 export class FindingsPagingDto extends IntersectionType(
