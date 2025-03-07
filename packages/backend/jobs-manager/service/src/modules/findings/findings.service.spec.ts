@@ -137,7 +137,7 @@ describe('Findings Service Spec', () => {
     expect(firstPage.totalRecords).toBe(4);
   });
 
-  it('Get all - Should only return from the findinngs from project', async () => {
+  it('Get all - Should only return from the findings from project', async () => {
     // Arrange
     const p = await project();
     const p2 = await project();
@@ -187,6 +187,84 @@ describe('Findings Service Spec', () => {
       [`project:${p2._id.toString()}`, `project:${p3._id.toString()}`].sort(),
     );
   });
+
+  it.each([
+    {
+      page: 0,
+      pageSize: 5,
+      filter: { latestOnly: true },
+      expectedResult: ['a', 'c'],
+    },
+    {
+      page: 0,
+      pageSize: 1,
+      filter: { latestOnly: true },
+      expectedResult: ['c'],
+    },
+    {
+      page: 1,
+      pageSize: 1,
+      filter: { latestOnly: true },
+      expectedResult: ['a'],
+    },
+    {
+      page: 0,
+      pageSize: 5,
+      filter: { latestOnly: true, findingAllowList: ['qwerty'] },
+      expectedResult: ['c'],
+    },
+    {
+      page: 0,
+      pageSize: 5,
+      filter: { latestOnly: true, findingAllowList: ['returnnothing'] },
+      expectedResult: [],
+    },
+  ])(
+    'Get all - Should only return from the latest of every finding (latestOnly: true): %s',
+    async ({ page, pageSize, filter, expectedResult }) => {
+      // Arrange
+      const p = await project();
+
+      const correlationKey = CorrelationKeyUtils.generateCorrelationKey(
+        p._id.toString(),
+      );
+
+      await findingsModel.insertMany([
+        {
+          created: new Date(2011, 1, 1),
+          key: 'asdf',
+          correlationKey: correlationKey,
+          name: 'a',
+        },
+        {
+          created: new Date(2010, 1, 1),
+          key: 'asdf',
+          correlationKey: correlationKey,
+          name: 'b',
+        },
+        {
+          created: new Date(2022, 1, 1),
+          key: 'qwerty',
+          correlationKey: correlationKey,
+          name: 'c',
+        },
+        {
+          created: new Date(2013, 1, 1),
+          key: 'qwerty',
+          correlationKey: correlationKey,
+          name: 'd',
+        },
+      ]);
+
+      // Act
+      const firstPage = await findingsService.getAll(page, pageSize, filter);
+
+      // Assert
+      expect(firstPage.items.map((f) => f.name).sort()).toStrictEqual(
+        expectedResult.sort(),
+      );
+    },
+  );
 
   it('Save - Nonexistent project - Throws', async () => {
     // Arrange
