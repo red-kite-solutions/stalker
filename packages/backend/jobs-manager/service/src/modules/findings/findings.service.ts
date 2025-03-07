@@ -22,8 +22,7 @@ import { HostnameIpCommand } from './commands/JobFindings/hostname-ip.command';
 import { PortCommand } from './commands/JobFindings/port.command';
 import { TagCommand } from './commands/JobFindings/tag.command';
 import { WebsiteCommand } from './commands/JobFindings/website.command';
-import { CustomFindingFieldDto } from './finding.dto';
-import { FindingsFilter } from './findings-filter.type';
+import { CustomFindingFieldDto, FindingsFilterDto } from './finding.dto';
 
 export type Finding =
   | HostnameIpFinding
@@ -244,7 +243,7 @@ export class FindingsService {
   public async getAll(
     page: number,
     pageSize: number,
-    dto: FindingsFilter = undefined,
+    dto: FindingsFilterDto = undefined,
   ): Promise<Page<CustomFinding & Document>> {
     if (page < 0) throw new HttpBadRequestException('Page starts at 0.');
 
@@ -266,8 +265,9 @@ export class FindingsService {
     };
   }
 
-  private buildFilters(dto: FindingsFilter): FilterQuery<CustomFinding> {
+  private buildFilters(dto: FindingsFilterDto): FilterQuery<CustomFinding> {
     const filters: FilterQuery<CustomFinding> = {};
+    filters.$and = [];
 
     if (dto.targets && dto.targets.length > 0) {
       if (dto.targets.length === 1) {
@@ -286,8 +286,6 @@ export class FindingsService {
       dto.findingAllowList?.length ||
       dto.fieldFilters?.length
     ) {
-      filters.$and = [];
-
       if (dto.findingDenyList?.length) {
         filters.$and.push({ key: { $nin: dto.findingDenyList } });
       }
@@ -310,6 +308,19 @@ export class FindingsService {
         }
       }
     }
+
+    if (dto.projects) {
+      const correlationKeys = [];
+      for (const id of dto.projects) {
+        const correlationKey: string =
+          CorrelationKeyUtils.generateCorrelationKey(id);
+        correlationKeys.push(new RegExp(`${correlationKey}.*`));
+      }
+
+      filters.$and.push({ correlationKey: { $in: correlationKeys } });
+    }
+
+    if (!filters.$and.length) delete filters.$and;
 
     return filters;
   }

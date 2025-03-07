@@ -137,6 +137,57 @@ describe('Findings Service Spec', () => {
     expect(firstPage.totalRecords).toBe(4);
   });
 
+  it('Get all - Should only return from the findinngs from project', async () => {
+    // Arrange
+    const p = await project();
+    const p2 = await project();
+    const p3 = await project();
+
+    const correlationKey = CorrelationKeyUtils.generateCorrelationKey(
+      p._id.toString(),
+    );
+    const correlationKey2 = CorrelationKeyUtils.generateCorrelationKey(
+      p2._id.toString(),
+    );
+    const correlationKey3 = CorrelationKeyUtils.generateCorrelationKey(
+      p3._id.toString(),
+    );
+
+    await findingsModel.insertMany([
+      {
+        created: new Date(2011, 1, 1),
+        correlationKey: correlationKey,
+        name: 'b',
+      },
+      {
+        created: new Date(2010, 1, 1),
+        correlationKey: correlationKey,
+        name: 'a',
+      },
+      {
+        created: new Date(2022, 1, 1),
+        correlationKey: correlationKey2,
+        name: 'should not be returned',
+      },
+      {
+        created: new Date(2013, 1, 1),
+        correlationKey: correlationKey3,
+        name: 'should not be returned',
+      },
+    ]);
+
+    // Act
+    const firstPage = await findingsService.getAll(0, 5, {
+      projects: [p2._id.toString(), p3._id.toString()],
+    });
+
+    // Assert
+    expect(firstPage.totalRecords).toBe(2);
+    expect(firstPage.items.map((f) => f.correlationKey).sort()).toStrictEqual(
+      [`project:${p2._id.toString()}`, `project:${p3._id.toString()}`].sort(),
+    );
+  });
+
   it('Save - Nonexistent project - Throws', async () => {
     // Arrange
     // Act
