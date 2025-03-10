@@ -4,7 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { map, Observable, Subscription } from 'rxjs';
 import { AuthService } from '../../../api/auth/auth.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
@@ -32,6 +32,7 @@ import { AvatarComponent } from '../avatar/avatar.component';
     MatMenuModule,
     MatButtonModule,
     PillTagComponent,
+    RouterModule,
   ],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
