@@ -1,8 +1,8 @@
-# Red Kite API
+# API
 
 Every frontend-available data and more is accessible through the API. Simply create your API key in your profile, and then add it as a header when querying the API.
 
-The API is available at `/api/`. You can do an unauthenticated check at `/api/ping` that replies a simple string, and an authenticated check at `/api/` that gets the version.
+The API is available at `/api/`. You can do an unauthenticated request at `/api/ping` that replies a simple string, and an authenticated request at `/api/` that gets the version.
 
 Unauthenticated `GET` request to `/api/ping`:
 
