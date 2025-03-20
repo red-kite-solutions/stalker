@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { Observable, combineLatest, map } from 'rxjs';
+import { stringify } from 'yaml';
+import { Page } from '../../../shared/types/page.type';
 import {
   CronSubscription,
   CronSubscriptionData,
   EventSubscription,
   EventSubscriptionData,
 } from '../../../shared/types/subscriptions/subscription.type';
-import { stringify } from 'yaml';
-import { Page } from '../../../shared/types/page.type';
 import { normalizeSearchString } from '../../../utils/normalize-search-string';
 import { CronSubscriptionsService } from './cron-subscriptions.service';
 import { EventSubscriptionsService } from './event-subscriptions.service';
@@ -116,6 +116,6 @@ export class SubscriptionService {
       cron.cronExpression ? 'cron' : 'event',
       subscription.isEnabled === false ? 'disabled' : 'enabled',
     ];
-    return filters.some((filter) => normalizeSearchString(parts.join(' ')).includes(filter));
+    return filters.some((filter) => normalizeSearchString(parts.join(' ')).includes(normalizeSearchString(filter)));
   }
 }

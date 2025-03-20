@@ -63,6 +63,23 @@ log_finding(
 )
 ```
 
+### Attaching information to a domain
+
+Adding fields and using a custom finding type will add a finding to the domain resource.
+
+```python
+from stalker_job_sdk import DomainFinding, log_finding, TextField
+
+hostname = "example.com"
+log_finding(
+    DomainFinding(
+        "MyCustomHostnameFinding", hostname, None, "Domain info", [
+          TextField("myfield", "Field Title", "Finding data")
+        ]
+    )
+)
+```
+
 ## IpFinding
 
 An ip finding creates a new host. IP addresses are in the IPv4 format.
@@ -93,9 +110,26 @@ log_finding(
 )
 ```
 
+### Attaching information to a host
+
+Adding fields and using a custom finding type will add a finding to the host resource.
+
+```python
+from stalker_job_sdk import IpFinding, log_finding, TextField
+ip = "0.0.0.0"
+mask = 16
+log_finding(
+    IpFinding(
+      "MyCustomIpFinding", ip, "New Info", [
+          TextField("myfield", "Field Title", "Finding data")
+        ]
+    )
+)
+```
+
 ## IpRangeFinding
 
-An ip range finding creates a new ip range for a project. IP addresses are in the IPv4 format.
+An ip range finding creates a new ip range for a project. IP addresses are in the IPv4 format. `IpRangeFindings` can also be used to attach information to an IP Range resource.
 
 | Field  | Type   | Description                                                                                              |
 | ------ | ------ | -------------------------------------------------------------------------------------------------------- |
@@ -116,19 +150,32 @@ Example:
 Using the python SDK, you can emit this finding with the following code:
 
 ```python
-from stalker_job_sdk import IpFinding, log_finding
+from stalker_job_sdk import IpRangeFinding, log_finding
 ip = "0.0.0.0"
 mask = 16
 log_finding(
     IpRangeFinding(
-        ip, mask
+        'IpRangeFinding', ip, mask, None, [], "IpRangeFinding"
     )
 )
 ```
 
-> You can't attach fields to an IP range as they are different than other ressources.
+### Attaching information to an IP range
 
-Which is equivalent to the following python code, but with more metadata:
+Adding fields and using a custom finding type will add a finding to the IP range resource.
+
+```python
+from stalker_job_sdk import IpRangeFinding, log_finding, TextField
+ip = "0.0.0.0"
+mask = 16
+log_finding(
+    IpRangeFinding(
+        'IpRangeFinding', ip, mask, "Finding title", [
+            TextField("myfield", "Field Title", "Finding data")
+        ]
+    )
+)
+```
 
 ## HostnameIpFinding
 
@@ -192,7 +239,7 @@ Example:
 Using the python SDK, you can emit this finding with the following code:
 
 ```python
-from stalker_job_sdk import PortFinding, log_finding
+from stalker_job_sdk import PortFinding, log_finding, TextField
 port = 80
 ip = "1.2.3.4"
 log_finding(
@@ -204,6 +251,29 @@ log_finding(
         "New port",
         [TextField("protocol", "This is a TCP port", "tcp")],
         "PortFinding",
+    )
+)
+```
+
+### Attaching information to a port
+
+Adding fields and using a custom finding type will add a finding to the port resource.
+
+```python
+from stalker_job_sdk import PortFinding, log_finding, TextField
+port = 80
+ip = "1.2.3.4"
+log_finding(
+    PortFinding(
+        "MyCustomPortFinding",
+        ip,
+        port,
+        "tcp",
+        "New port data",
+        [
+          TextField("protocol", "This is a TCP port", "tcp"), 
+          TextField("myfield", "Field Title", "Finding data")
+        ],
     )
 )
 ```
@@ -269,49 +339,66 @@ log_finding(
 )
 ```
 
+### Attaching information to a website
+
+Adding fields and using a custom finding type will add a finding to the website resource.
+
+```python
+from stalker_job_sdk import WebsiteFinding, log_finding, TextField
+port = 80
+ip = "1.2.3.4"
+domain = "example.com"
+path = "/"
+ssl = False
+
+log_finding(
+    WebsiteFinding(
+        "MyCustomWebsiteFinding",
+        ip,
+        port,
+        domain,
+        path,
+        ssl,
+        "New website data",
+        [
+          TextField("myfield", "Field Title", "Finding data")
+        ],
+    )
+)
+```
+
 ## CustomFinding
 
-Dynamic findings allow jobs to attach custom data to resources.
+Custom findings attach finding field information to a resource. There are custom findings for every type of resources. When you do not specify the _type of finding_ that you are logging, you are creating a custom finding for the associated resource type.
 
-| Field        | Description                                                     |
-| ------------ | --------------------------------------------------------------- |
-| `domainName` | The domain to which to attach the custom finding                |
-| `host`       | The host to which to attach the custom finding                  |
-| `port`       | The port to which to attach the custom finding                  |
-| `fields`     | A list of [fields](#dynamic-fields) containing the finding data |
+| SDK finding class | Resources |
+| ----------------- | --------- |
+| HostnameFinding   | Domains   |
+| IpFinding         | Hosts     |
+| IpRangeFinding    | IP ranges |
+| PortFinding       | Ports     |
+| WebsiteFinding    | Websites  |
 
-Examples:
 
-```json
-{
-  "type": "CustomFinding",
-  "host": "1.2.3.4",
-  "port": 80,
-  "fields": [
-    {
-      "type": "image",
-      "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII"
-    }
-  ]
-}
+Here is an example of a **custom finding** for a port with the python SDK. In this example, the port will show the custom information _This port
+runs an HTTP server_, with a text field attached to it:
+
+```python
+from stalker_job_sdk import PortFinding, log_finding, TextField
+port = 80
+ip = "0.0.0.0"
+log_finding(
+    PortFinding(
+        "PortFunFact", ip, port, "tcp", "This is a fun fact about a port", [
+          TextField('myfieldkey', 'My field title', 'My field data')
+        ]
+    )
+)
 ```
 
-```json
-{
-  "type": "CustomFinding",
-  "domainName": "red-kite.io",
-  "fields": [
-    {
-      "type": "text",
-      "label": "Domain greatness level",
-      "data": "This domain is great, would recommend"
-    }
-  ]
-}
-```
+Notice how the key `PortFunFact` can be anything, how information is provided through `TextField`s and how the finding type is not provided to use the default value.
 
-Here is an example of a custom finding for a port with the python SDK. In this example, the port will show the custom information _This port
-runs an HTTP server_:
+To compare, here is an example of how to create a port with the `PortFinding` class, which here is **not** used as a custom finding. You will see that the key is `PortFinding`, no fields are provided, and the type is `PortFinding` as well:
 
 ```python
 from stalker_job_sdk import PortFinding, log_finding
@@ -319,7 +406,7 @@ port = 80
 ip = "0.0.0.0"
 log_finding(
     PortFinding(
-        "PortFunFact", ip, port, "tcp", "This is a fun fact about a port"
+        "PortFinding", ip, port, "tcp", None, None, "PortFinding"
     )
 )
 ```

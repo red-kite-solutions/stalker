@@ -18,6 +18,8 @@ export class KafkaFindingsQueue implements FindingsQueue {
     jobId?: string,
     ...findings: Finding[]
   ): Promise<void> {
+    if (!findings.length) return;
+
     this.logger.debug(
       `Publishing ${findings.length} findings to the message queue on topic ${
         orchestratorConstants.topics.findings

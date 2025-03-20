@@ -15,7 +15,6 @@ import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { BehaviorSubject, combineLatest, map, shareReplay, switchMap, tap } from 'rxjs';
 import { SubscriptionService, SubscriptionType } from '../../../api/jobs/subscriptions/subscriptions.service';
-import { AvatarComponent } from '../../../shared/components/avatar/avatar.component';
 import {
   CronSubscription,
   EventSubscription,
@@ -44,7 +43,6 @@ import { subscriptionTypes } from './subscription-templates';
   imports: [
     CommonModule,
     RouterModule,
-    AvatarComponent,
     MatIconModule,
     MatTableModule,
     MatPaginatorModule,

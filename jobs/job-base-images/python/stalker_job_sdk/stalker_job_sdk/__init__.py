@@ -56,10 +56,14 @@ class IpFinding(Finding):
 class IpRangeFinding(Finding):
     def __init__(
         self,
+        key: str,
         ip: str,
-        mask: str
+        mask: str,
+        name: str = None,
+        fields: list[Field] = [],
+        type: str = "CustomFinding",
     ):
-        super().__init__("IpRangeFinding", "IpRangeFinding", "Ip Range", [])
+        super().__init__(key, type, name, fields)
         self.ip = ip
         self.mask = mask
 
@@ -123,6 +127,7 @@ class TagFinding(Finding):
         protocol: str = None,
         domainName: str = None,
         path: str = None,
+        mask: int = None
     ):
         super().__init__("TagFinding", "TagFinding", "Tag", [])
         self.ip = ip
@@ -131,6 +136,7 @@ class TagFinding(Finding):
         self.protocol = protocol
         self.path = path
         self.tag = tag
+        self.mask = mask
 
 class JobStatus:
     SUCCESS = "Success"

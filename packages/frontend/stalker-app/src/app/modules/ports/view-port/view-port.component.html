@@ -78,8 +78,28 @@
 
       <panel-section>
         <panel-section-title i18n="Service|The port's service">Service</panel-section-title>
-        @if (port$ | async) {
+        @if ((port$ | async) && port.service) {
           {{ port.service }}
+        } @else {
+          <panel-section-subtitle>-</panel-section-subtitle>
+        }
+      </panel-section>
+
+      <panel-section>
+        <panel-section-title i18n="Product|The service's product">Product</panel-section-title>
+        @if ((port$ | async) && port.product) {
+          {{ port.product }}
+        } @else {
+          <panel-section-subtitle>-</panel-section-subtitle>
+        }
+      </panel-section>
+
+      <panel-section>
+        <panel-section-title i18n="Product version|The product's version">Version</panel-section-title>
+        @if ((port$ | async) && port.version) {
+          {{ port.version }}
+        } @else {
+          <panel-section-subtitle>-</panel-section-subtitle>
         }
       </panel-section>
 

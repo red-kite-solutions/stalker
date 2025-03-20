@@ -15,6 +15,7 @@ interface BasicSectionItem {
   icon: string;
   isAdmin?: boolean;
   routerLink: string;
+  filled?: boolean;
   isVisible?: boolean;
 }
 
@@ -61,6 +62,11 @@ export class SidebarComponent {
     {
       name: $localize`:Resources|Title for the Resources section of the sidenav:Resources`,
       items: [
+        {
+          icon: 'radar',
+          routerLink: '/ip-ranges',
+          name: $localize`:IP Ranges|Sidenav ip ranges button:IP Ranges`,
+        },
         {
           icon: 'language',
           routerLink: '/domains',

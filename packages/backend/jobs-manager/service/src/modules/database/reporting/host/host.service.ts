@@ -1,9 +1,14 @@
 import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DeleteResult, UpdateResult } from 'mongodb';
-import { FilterQuery, Model, Types } from 'mongoose';
+import { FilterQuery, Model, Query, Types } from 'mongoose';
 import { HttpNotFoundException } from '../../../../exceptions/http.exceptions';
 import escapeStringRegexp from '../../../../utils/escape-string-regexp';
+import {
+  cidrStringToipv4Range,
+  ipv4RangeToMinMax,
+  ipv4ToNumber,
+} from '../../../../utils/ip-address.utils';
 import { IpFinding } from '../../../findings/findings.service';
 import { FindingsQueue } from '../../../queues/finding-queue/findings-queue';
 import { ConfigService } from '../../admin/config/config.service';
@@ -11,11 +16,11 @@ import { TagsService } from '../../tags/tag.service';
 import { CorrelationKeyUtils } from '../correlation.utils';
 import { DomainsService } from '../domain/domain.service';
 import { DomainSummary } from '../domain/domain.summary';
+import { IpRange } from '../ip-ranges/ip-range.model';
 import { PortService } from '../port/port.service';
 import { Project } from '../project.model';
 import { WebsiteService } from '../websites/website.service';
-import { HostFilterModel } from './host-filter.model';
-import { BatchEditHostsDto } from './host.dto';
+import { BatchEditHostsDto, HostsFilterDto } from './host.dto';
 import { Host, HostDocument } from './host.model';
 import { HostSummary } from './host.summary';
 
@@ -25,6 +30,7 @@ export class HostService {
 
   constructor(
     @InjectModel('host') private readonly hostModel: Model<Host>,
+    @InjectModel('iprange') private readonly ipRangeModel: Model<IpRange>,
     @InjectModel('project') private readonly projectModel: Model<Project>,
     private configService: ConfigService,
     private tagsService: TagsService,
@@ -38,13 +44,18 @@ export class HostService {
   public async getAll(
     page: number = null,
     pageSize: number = null,
-    filter: HostFilterModel = null,
+    filter: HostsFilterDto = null,
   ): Promise<HostDocument[]> {
-    let query;
+    let query: Query<HostDocument[], HostDocument, any, HostDocument>;
+    let projection =
+      filter && filter.detailsLevel === 'summary'
+        ? '_id ip correlationKey'
+        : undefined;
+
     if (filter) {
-      query = this.hostModel.find(this.buildFilters(filter));
+      query = this.hostModel.find(await this.buildFilters(filter), projection);
     } else {
-      query = this.hostModel.find({});
+      query = this.hostModel.find({}, projection);
     }
 
     if (page != null && pageSize != null) {
@@ -88,11 +99,13 @@ export class HostService {
     return h && h.blocked;
   }
 
-  public async count(filter: HostFilterModel = null) {
+  public async count(filter: HostsFilterDto = null) {
     if (!filter) {
       return await this.hostModel.estimatedDocumentCount();
     } else {
-      return await this.hostModel.countDocuments(this.buildFilters(filter));
+      return await this.hostModel.countDocuments(
+        await this.buildFilters(filter),
+      );
     }
   }
 
@@ -150,6 +163,7 @@ export class HostService {
           {
             $setOnInsert: {
               _id: mongoId,
+              ipInt: ipv4ToNumber(ip),
               projectId: new Types.ObjectId(projectId),
               projectName: project.name,
               correlationKey: CorrelationKeyUtils.hostCorrelationKey(
@@ -169,6 +183,7 @@ export class HostService {
         newIps.push(ip);
         newHosts.push({
           ip: ip,
+          ipInt: ipv4ToNumber(ip),
           _id: mongoId.toString(),
           domains: [ds],
           projectId: new Types.ObjectId(projectId),
@@ -209,6 +224,7 @@ export class HostService {
       const model = new this.hostModel({
         _id: new Types.ObjectId(),
         ip: ip,
+        ipInt: ipv4ToNumber(ip),
         projectId: new Types.ObjectId(projectId),
         correlationKey: CorrelationKeyUtils.hostCorrelationKey(projectId, ip),
         lastSeen: Date.now(),
@@ -237,7 +253,7 @@ export class HostService {
     });
 
     const findings: IpFinding[] = [];
-    // For each new domain name found, a finding is created
+    // For each new ip found, a finding is created
     newIps.forEach((ip) => {
       findings.push({
         type: 'IpFinding',
@@ -272,6 +288,7 @@ export class HostService {
         lastSeen: Date.now(),
         $setOnInsert: {
           ip: host,
+          ipInt: ipv4ToNumber(host),
           correlationKey: CorrelationKeyUtils.hostCorrelationKey(
             projectId,
             host,
@@ -320,8 +337,8 @@ export class HostService {
     );
   }
 
-  private buildFilters(dto: HostFilterModel) {
-    const finalFilter = {};
+  private async buildFilters(dto: HostsFilterDto) {
+    const finalFilter = { $and: [] };
 
     // Filter by domain
     if (dto.domains) {
@@ -375,7 +392,7 @@ export class HostService {
           { createdAt: { $gte: dto.firstSeenStartDate } },
           { createdAt: { $lte: dto.firstSeenEndDate } },
         ];
-        finalFilter['$and'] = createdAtFilter;
+        finalFilter['$and'].push(createdAtFilter);
       } else {
         if (dto.firstSeenStartDate)
           createdAtFilter = { $gte: dto.firstSeenStartDate };
@@ -387,13 +404,31 @@ export class HostService {
 
     // Filter by blocked
     if (dto.blocked === false) {
-      finalFilter['$or'] = [
-        { blocked: { $exists: false } },
-        { blocked: { $eq: false } },
-      ];
+      finalFilter['$and'].push({
+        $or: [{ blocked: { $exists: false } }, { blocked: { $eq: false } }],
+      });
     } else if (dto.blocked === true) {
       finalFilter['blocked'] = { $eq: true };
     }
+
+    // Filter by range
+    if (dto.ranges) {
+      const ranges: { min: number; max: number }[] = dto.ranges.map((range) => {
+        return ipv4RangeToMinMax(cidrStringToipv4Range(range));
+      });
+      finalFilter['$and'].push({
+        $or: ranges.map((r) => {
+          return {
+            ipInt: {
+              $gte: r.min,
+              $lte: r.max,
+            },
+          };
+        }),
+      });
+    }
+
+    if (!finalFilter.$and.length) delete finalFilter.$and;
 
     return finalFilter;
   }

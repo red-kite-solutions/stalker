@@ -1,4 +1,8 @@
 import { HttpBadRequestException } from '../../../exceptions/http.exceptions';
+import {
+  ipv4RangeValuesToMinMax,
+  numberToIpv4,
+} from '../../../utils/ip-address.utils';
 
 export class CorrelationKeyUtils {
   private static buildCorrelationKey(...parts: string[]) {
@@ -21,8 +25,9 @@ export class CorrelationKeyUtils {
     ip: string,
     mask: number,
   ) {
+    const targetIp = numberToIpv4(ipv4RangeValuesToMinMax(ip, mask).min);
     return CorrelationKeyUtils.buildCorrelationKey(
-      CorrelationKeyUtils.hostCorrelationKey(projectId, ip),
+      CorrelationKeyUtils.hostCorrelationKey(projectId, targetIp),
       `mask:${mask}`,
     );
   }
@@ -171,9 +176,16 @@ export class CorrelationKeyUtils {
     | 'DomainsService'
     | 'HostService'
     | 'WebsiteService'
+    | 'IpRangeService'
     | null {
     // Host match
     if (correlationKey.match(/^project\:[a-f0-9]{24}\;host\:.+/)?.length > 0) {
+      // IP Range match
+      if (
+        correlationKey.match(/^project\:[a-f0-9]{24}\;host\:.+\;mask\:\d\d?$/)
+          ?.length > 0
+      )
+        return 'IpRangeService';
       // Port match
       if (
         correlationKey.match(/.+\;port\:\d{1,5}\;protocol\:(tcp|udp)(\;.+)?$/)

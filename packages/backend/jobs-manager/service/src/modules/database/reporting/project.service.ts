@@ -1,9 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { isIP } from 'class-validator';
 import { DeleteResult, UpdateResult } from 'mongodb';
 import { Model, Types } from 'mongoose';
-import { HttpBadRequestException } from '../../../exceptions/http.exceptions';
 import { JobExecutionsService } from '../jobs/job-executions.service';
 import { SecretsService } from '../secrets/secrets.service';
 import { CronSubscription } from '../subscriptions/cron-subscriptions/cron-subscriptions.model';
@@ -12,6 +10,7 @@ import { SubscriptionTriggersService } from '../subscriptions/subscription-trigg
 import { DomainsService } from './domain/domain.service';
 import { CustomFinding } from './findings/finding.model';
 import { HostService } from './host/host.service';
+import { IpRangeService } from './ip-ranges/ip-range.service';
 import { PortService } from './port/port.service';
 import { CreateProjectDto } from './project.dto';
 import { Project, ProjectDocument } from './project.model';
@@ -33,6 +32,7 @@ export class ProjectService {
     private readonly secretsService: SecretsService,
     private readonly websiteService: WebsiteService,
     private readonly triggerService: SubscriptionTriggersService,
+    private readonly ipRangeService: IpRangeService,
   ) {}
 
   public async getAll(
@@ -103,6 +103,7 @@ export class ProjectService {
     await this.portsService.deleteAllForProject(id);
     await this.websiteService.deleteAllForProject(id);
     await this.triggerService.deleteAllForProject(id);
+    await this.ipRangeService.deleteAllForProject(id);
     await this.findingModel.deleteMany({
       correlationKey: { $regex: new RegExp(`^project:${id}`) },
     });
@@ -124,27 +125,6 @@ export class ProjectService {
     return await this.projectModel.updateOne(
       { _id: { $eq: id } },
       { ...project },
-    );
-  }
-
-  public async getIpRanges(
-    id: string,
-  ): Promise<Pick<ProjectDocument, 'ipRanges'>> {
-    return await this.projectModel.findById(id, 'ipRanges');
-  }
-
-  public async addIpRangeWithMask(id: string, ip: string, mask: number) {
-    if (0 > mask || mask > 32)
-      throw new HttpBadRequestException(
-        'Mask of ip range is not between 0 and 32',
-      );
-    if (!isIP(ip, 4))
-      throw new HttpBadRequestException('Ip is not an IPv4 address');
-
-    const range = `${ip}/${mask}`;
-    await this.projectModel.updateOne(
-      { _id: { $eq: new Types.ObjectId(id) } },
-      { $addToSet: { ipRanges: range } },
     );
   }
 }

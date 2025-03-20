@@ -56,6 +56,11 @@ const routes: Routes = [
         loadChildren: () => import('./modules/hosts/hosts.module').then((m) => m.HostsListModule),
       },
       {
+        path: 'ip-ranges',
+        canActivate: [authenticationGuard],
+        loadChildren: () => import('./modules/ip-ranges/ip-ranges.module').then((m) => m.IpRangesListModule),
+      },
+      {
         path: 'ports',
         canActivate: [authenticationGuard],
         loadChildren: () => import('./modules/ports/ports.module').then((m) => m.PortsListModule),

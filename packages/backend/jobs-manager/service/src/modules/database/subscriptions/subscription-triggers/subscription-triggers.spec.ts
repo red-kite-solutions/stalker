@@ -5,9 +5,11 @@ import { DomainDocument } from '../../reporting/domain/domain.model';
 import { DomainsService } from '../../reporting/domain/domain.service';
 import { HostDocument } from '../../reporting/host/host.model';
 import { HostService } from '../../reporting/host/host.service';
+import { IpRangeService } from '../../reporting/ip-ranges/ip-range.service';
 import { PortService } from '../../reporting/port/port.service';
 import { ProjectDocument } from '../../reporting/project.model';
 import { ProjectService } from '../../reporting/project.service';
+import { WebsiteService } from '../../reporting/websites/website.service';
 import { SubscriptionTriggersService } from './subscription-triggers.service';
 
 describe('Subscriptions Triggers Service', () => {
@@ -17,6 +19,8 @@ describe('Subscriptions Triggers Service', () => {
   let hostService: HostService;
   let portService: PortService;
   let projectService: ProjectService;
+  let ipRangeService: IpRangeService;
+  let websiteService: WebsiteService;
 
   beforeAll(async () => {
     moduleFixture = await Test.createTestingModule({
@@ -27,6 +31,8 @@ describe('Subscriptions Triggers Service', () => {
     hostService = moduleFixture.get(HostService);
     portService = moduleFixture.get(PortService);
     projectService = moduleFixture.get(ProjectService);
+    ipRangeService = moduleFixture.get(IpRangeService);
+    websiteService = moduleFixture.get(WebsiteService);
     // Without { doNotFake: ['nextTick'] } the tests timeout with fake timers
     jest.useFakeTimers({ doNotFake: ['nextTick', 'setImmediate'] });
   });
@@ -338,6 +344,103 @@ describe('Subscriptions Triggers Service', () => {
         ip,
         portNumber,
         'tcp',
+      );
+
+      await triggersService.attemptTrigger(
+        subId,
+        correlationKey,
+        subCooldown,
+        null,
+      );
+      jest.setSystemTime(Date.now() + subCooldown * 1000 * 2);
+
+      // Act
+      const triggerSuccess = await triggersService.attemptTrigger(
+        subId,
+        correlationKey,
+        subCooldown,
+        null,
+      );
+
+      // Assert
+      expect(triggerSuccess).toStrictEqual(false);
+    });
+
+    it('Does not trigger a subscription ready to be triggered for a blocked website', async () => {
+      // Arrange
+      const subId = '6574f560570cfc954ccf0b42';
+      const projectObj = await project('name');
+      const projectId = projectObj._id.toString();
+      const ip = '1.1.1.1';
+      const p = 80;
+      const d = 'example.com';
+      const h = await host(projectId, ip, false);
+      await domain(projectId, d, false);
+      await port(projectId, h._id.toString(), p, false);
+      const path = '/';
+      const websiteObj = await websiteService.addWebsite(
+        projectId,
+        ip,
+        p,
+        d,
+        path,
+        true,
+      );
+      await websiteService.batchEdit({
+        block: true,
+        websiteIds: [websiteObj._id],
+      });
+      const subCooldown = 100;
+      const correlationKey = CorrelationKeyUtils.generateCorrelationKey(
+        projectId,
+        d,
+        ip,
+        p,
+        'tcp',
+        null,
+        path,
+      );
+
+      await triggersService.attemptTrigger(
+        subId,
+        correlationKey,
+        subCooldown,
+        null,
+      );
+      jest.setSystemTime(Date.now() + subCooldown * 1000 * 2);
+
+      // Act
+      const triggerSuccess = await triggersService.attemptTrigger(
+        subId,
+        correlationKey,
+        subCooldown,
+        null,
+      );
+
+      // Assert
+      expect(triggerSuccess).toStrictEqual(false);
+    });
+
+    it('Does not trigger a subscription ready to be triggered for a blocked IP range', async () => {
+      // Arrange
+      const subId = '6574f560570cfc954ccf0b42';
+      const projectObj = await project('name');
+      const projectId = projectObj._id.toString();
+      const ip = '1.1.1.1';
+      const mask = 23;
+      const ipRangeObj = await ipRangeService.addIpRange(ip, mask, projectId);
+      await ipRangeService.batchEdit({
+        block: true,
+        ipRangeIds: [ipRangeObj._id.toString()],
+      });
+      const subCooldown = 100;
+      const correlationKey = CorrelationKeyUtils.generateCorrelationKey(
+        projectId,
+        undefined,
+        ip,
+        undefined,
+        undefined,
+        mask,
       );
 
       await triggersService.attemptTrigger(
