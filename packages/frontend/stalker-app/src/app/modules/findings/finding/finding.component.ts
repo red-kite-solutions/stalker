@@ -13,7 +13,7 @@ export class FindingComponent {
   constructor(private toastr: ToastrService) {}
 
   public copyJsonToClipboard() {
-    navigator.clipboard.writeText(JSON.stringify(this.finding));
+    navigator.clipboard.writeText(JSON.stringify(this.finding, undefined, 2));
     this.toastr.success(
       $localize`:Finding copied to clipboard|Finding copied to clipboard:Finding copied to clipboard`
     );

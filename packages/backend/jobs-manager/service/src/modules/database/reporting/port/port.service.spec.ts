@@ -1,4 +1,6 @@
+import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
+import { Model } from 'mongoose';
 import { getName } from '../../../../test/test.utils';
 import { AppModule } from '../../../app.module';
 import { TagsDocument } from '../../tags/tag.model';
@@ -8,6 +10,7 @@ import { HostService } from '../host/host.service';
 import { CreateProjectDto } from '../project.dto';
 import { ProjectService } from '../project.service';
 import { GetPortsDto } from './port.dto';
+import { Port, PortDocument } from './port.model';
 import { PortService } from './port.service';
 
 describe('Port Service', () => {
@@ -17,6 +20,7 @@ describe('Port Service', () => {
   let projectService: ProjectService;
   let tagsService: TagsService;
   let portService: PortService;
+  let portModel: Model<Port>;
   const testPrefix = 'port-service-ut';
 
   beforeAll(async () => {
@@ -28,6 +32,7 @@ describe('Port Service', () => {
     projectService = moduleFixture.get(ProjectService);
     tagsService = moduleFixture.get(TagsService);
     portService = moduleFixture.get(PortService);
+    portModel = moduleFixture.get<Model<Port>>(getModelToken('port'));
   });
 
   beforeEach(async () => {
@@ -555,6 +560,89 @@ describe('Port Service', () => {
               'tcp',
             );
           }
+        }
+
+        // Act
+        const allPorts = await portService.getAll(0, 10, dto);
+
+        // Assert
+        expect(allPorts.map((x) => x.port).sort()).toStrictEqual(
+          expectedPorts.sort(),
+        );
+      },
+    );
+
+    it.each([
+      {
+        service: 'asdf',
+        product: 'qwerty',
+        version: 'uiop',
+        dto: { services: ['asdf1', 'asdf2'] },
+        expectedPorts: [1, 2],
+      },
+      {
+        service: 'asdf',
+        product: 'qwerty',
+        version: 'uiop',
+        dto: { services: ['asdf1', 'asdf2'], products: ['qwerty1'] },
+        expectedPorts: [1],
+      },
+      {
+        service: 'asdf',
+        product: 'qwerty',
+        version: 'uiop',
+        dto: { services: ['asdf1', 'asdf2'], versions: ['uiop2'] },
+        expectedPorts: [2],
+      },
+      {
+        service: 'asdf',
+        product: 'qWErty',
+        version: 'uiop',
+        dto: { services: ['asdf1', 'asdf2'], products: ['qwerty2', 'qwerty3'] },
+        expectedPorts: [2],
+      },
+      {
+        service: 'asdf',
+        product: 'qWErty',
+        version: 'uiOP',
+        dto: { versions: ['uiop3'], products: ['qwerty2', 'qwerty3'] },
+        expectedPorts: [3],
+      },
+    ])(
+      'Filter by service, product, version: %s',
+      async ({ service, product, version, dto, expectedPorts }) => {
+        // Arrange
+        const p1 = await project('p1');
+
+        const hosts = [{ host: '1.1.1.1', ports: [1, 2, 3, 4] }];
+        const hDocs = [];
+
+        const ports: PortDocument[] = [];
+
+        for (const h of hosts) {
+          const htmp = await host(h.host, p1._id.toString());
+          hDocs.push(htmp[0]);
+          for (const p of h.ports) {
+            ports.push(
+              await portService.addPort(
+                htmp[0]._id.toString(),
+                p1._id.toString(),
+                p,
+                'tcp',
+              ),
+            );
+          }
+        }
+
+        for (const port of ports) {
+          await portModel.updateOne(
+            { _id: { $eq: port._id } },
+            {
+              service: service + port.port,
+              product: product + port.port,
+              version: version + port.port,
+            },
+          );
         }
 
         // Act

@@ -42,9 +42,15 @@ export class CustomFindingHandler extends JobFindingHandlerBase<CustomFindingCom
   private async handlePortServiceFinding(command: CustomFindingCommand) {
     try {
       let service: string = undefined;
+      let product: string = undefined;
+      let version: string = undefined;
       for (const f of command.finding.fields) {
         if (f.key === CustomFindingsConstants.ServiceNameFieldKey)
           service = f.data;
+        else if (f.key === CustomFindingsConstants.ServiceProductFieldKey)
+          product = f.data;
+        else if (f.key === CustomFindingsConstants.ServiceVersionFieldKey)
+          version = f.data;
       }
 
       if (service === 'http' || service === 'https') {
@@ -65,6 +71,8 @@ export class CustomFindingHandler extends JobFindingHandlerBase<CustomFindingCom
         command.finding.port,
         command.finding.protocol,
         service.trim(),
+        product.trim(),
+        version.trim(),
       );
     } catch (err) {
       this.logger.error("Error happened while adding a port's service");
