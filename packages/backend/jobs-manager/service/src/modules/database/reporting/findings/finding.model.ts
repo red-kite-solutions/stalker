@@ -50,7 +50,7 @@ export class CustomFinding {
   @Prop()
   public name: string;
 
-  @Prop()
+  @Prop({ index: true })
   public key: string;
 
   @Prop({ index: true })

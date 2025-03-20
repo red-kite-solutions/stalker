@@ -22,8 +22,7 @@ import { HostnameIpCommand } from './commands/JobFindings/hostname-ip.command';
 import { PortCommand } from './commands/JobFindings/port.command';
 import { TagCommand } from './commands/JobFindings/tag.command';
 import { WebsiteCommand } from './commands/JobFindings/website.command';
-import { CustomFindingFieldDto } from './finding.dto';
-import { FindingsFilter } from './findings-filter.type';
+import { CustomFindingFieldDto, FindingsFilterDto } from './finding.dto';
 
 export type Finding =
   | HostnameIpFinding
@@ -244,30 +243,119 @@ export class FindingsService {
   public async getAll(
     page: number,
     pageSize: number,
-    dto: FindingsFilter = undefined,
+    dto: FindingsFilterDto = undefined,
   ): Promise<Page<CustomFinding & Document>> {
     if (page < 0) throw new HttpBadRequestException('Page starts at 0.');
 
-    const filters: FilterQuery<CustomFinding> = this.buildFilters(dto);
-
-    const items = await this.findingModel
-      .find(filters)
-      .sort({
-        created: 'desc',
-      })
-      .skip(page * pageSize)
-      .limit(pageSize)
-      .exec();
-    const totalRecords = await this.findingModel.countDocuments(filters);
-
-    return {
-      items,
-      totalRecords,
-    };
+    return await this.getAllFindings(
+      this.buildFilters(dto),
+      !!dto.latestOnly,
+      page,
+      pageSize,
+    );
   }
 
-  private buildFilters(dto: FindingsFilter): FilterQuery<CustomFinding> {
+  private async getAllFindings(
+    filters: FilterQuery<CustomFinding>,
+    latestOnly: boolean,
+    page: number,
+    pageSize: number,
+  ): Promise<Page<CustomFinding & Document>> {
+    if (!latestOnly) {
+      const items = await this.findingModel
+        .find(filters)
+        .sort({
+          created: 'desc',
+        })
+        .skip(page * pageSize)
+        .limit(pageSize)
+        .exec();
+      const totalRecords = await this.findingModel.countDocuments(filters);
+      return {
+        items,
+        totalRecords,
+      };
+    }
+
+    return (
+      // This query returns only the latest finding by key for every resource,
+      // in the page format with the count
+      (
+        await this.findingModel.aggregate<Page<CustomFinding & Document>>(
+          [
+            { $sort: { created: -1 } },
+            {
+              $match: filters,
+            },
+            {
+              $group: {
+                _id: {
+                  key: '$key',
+                  correlationKey: '$correlationKey',
+                },
+                name: { $first: '$name' },
+                fields: { $first: '$fields' },
+                id: { $first: '$_id' },
+                created: { $first: '$created' },
+              },
+            },
+            {
+              $group: {
+                _id: '$_id.key',
+                data: {
+                  $addToSet: {
+                    _id: '$id',
+                    key: '$_id.key',
+                    correlationKey: '$_id.correlationKey',
+                    name: '$name',
+                    fields: '$fields',
+                    created: '$created',
+                  },
+                },
+              },
+            },
+            {
+              $unwind: {
+                path: '$data',
+                preserveNullAndEmptyArrays: false,
+              },
+            },
+            {
+              $facet: {
+                counting: [{ $count: 'count' }],
+                items: [
+                  { $sort: { 'data.created': -1 } },
+                  { $skip: page * pageSize },
+                  { $limit: pageSize },
+                  {
+                    $project: {
+                      _id: '$data._id',
+                      key: '$data.key',
+                      correlationKey: '$data.correlationKey',
+                      name: '$data.name',
+                      fields: '$data.fields',
+                      created: '$data.created',
+                    },
+                  },
+                ],
+              },
+            },
+            {
+              $project: {
+                totalRecords: { $first: '$counting.count' },
+                items: '$items',
+              },
+            },
+          ],
+          { maxTimeMS: 60000, allowDiskUse: true },
+        )
+      )[0]
+    );
+  }
+
+  private buildFilters(dto: FindingsFilterDto): FilterQuery<CustomFinding> {
     const filters: FilterQuery<CustomFinding> = {};
+    filters.$and = [];
 
     if (dto.targets && dto.targets.length > 0) {
       if (dto.targets.length === 1) {
@@ -286,8 +374,6 @@ export class FindingsService {
       dto.findingAllowList?.length ||
       dto.fieldFilters?.length
     ) {
-      filters.$and = [];
-
       if (dto.findingDenyList?.length) {
         filters.$and.push({ key: { $nin: dto.findingDenyList } });
       }
@@ -310,6 +396,19 @@ export class FindingsService {
         }
       }
     }
+
+    if (dto.projects) {
+      const correlationKeys = [];
+      for (const id of dto.projects) {
+        const correlationKey: string =
+          CorrelationKeyUtils.generateCorrelationKey(id);
+        correlationKeys.push(new RegExp(`${correlationKey}.*`));
+      }
+
+      filters.$and.push({ correlationKey: { $in: correlationKeys } });
+    }
+
+    if (!filters.$and.length) delete filters.$and;
 
     return filters;
   }
