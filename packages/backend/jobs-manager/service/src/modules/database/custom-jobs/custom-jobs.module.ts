@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { DataSourcesModule } from '../../datasources/data-sources.module';
-import { QueueModule } from '../../job-queue/queue.module';
+import { QueueModule } from '../../queues/queue.module';
 import { ConfigService } from '../admin/config/config.service';
 import { DatalayerModule } from '../datalayer.module';
 import { CustomJobsController } from './custom-jobs.controller';

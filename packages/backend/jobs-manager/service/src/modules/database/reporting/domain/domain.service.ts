@@ -7,7 +7,7 @@ import {
   HttpNotImplementedException,
 } from '../../../../exceptions/http.exceptions';
 import { HostnameFinding } from '../../../findings/findings.service';
-import { FindingsQueue } from '../../../job-queue/findings-queue';
+import { FindingsQueue } from '../../../queues/finding-queue/findings-queue';
 import { ConfigService } from '../../admin/config/config.service';
 import { MONGO_DUPLICATE_ERROR } from '../../database.constants';
 import { JobExecutionsService } from '../../jobs/job-executions.service';

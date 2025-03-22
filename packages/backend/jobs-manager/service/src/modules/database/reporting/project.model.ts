@@ -9,9 +9,6 @@ export class Project {
   public name: string;
 
   @Prop()
-  public ipRanges?: string[];
-
-  @Prop()
   public logo: string;
 
   @Prop()

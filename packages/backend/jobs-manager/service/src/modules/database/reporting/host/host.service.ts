@@ -1,15 +1,17 @@
 import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DeleteResult, UpdateResult } from 'mongodb';
-import { FilterQuery, Model, Types } from 'mongoose';
+import { FilterQuery, Model, Query, Types } from 'mongoose';
 import { HttpNotFoundException } from '../../../../exceptions/http.exceptions';
+import { ipv4ToNumber } from '../../../../utils/ip-address.utils';
 import { IpFinding } from '../../../findings/findings.service';
-import { FindingsQueue } from '../../../job-queue/findings-queue';
+import { FindingsQueue } from '../../../queues/finding-queue/findings-queue';
 import { ConfigService } from '../../admin/config/config.service';
 import { TagsService } from '../../tags/tag.service';
 import { CorrelationKeyUtils } from '../correlation.utils';
 import { DomainsService } from '../domain/domain.service';
 import { DomainSummary } from '../domain/domain.summary';
+import { IpRange } from '../ip-ranges/ip-range.model';
 import { PortService } from '../port/port.service';
 import { Project } from '../project.model';
 import { WebsiteService } from '../websites/website.service';
@@ -24,6 +26,7 @@ export class HostService {
 
   constructor(
     @InjectModel('host') private readonly hostModel: Model<Host>,
+    @InjectModel('iprange') private readonly ipRangeModel: Model<IpRange>,
     @InjectModel('project') private readonly projectModel: Model<Project>,
     private configService: ConfigService,
     private tagsService: TagsService,
@@ -40,7 +43,12 @@ export class HostService {
     pageSize: number = null,
     filter: HostsFilterDto = null,
   ): Promise<HostDocument[]> {
-    let query;
+    let query: Query<HostDocument[], HostDocument, any, HostDocument>;
+    let projection =
+      filter && filter.detailsLevel === 'summary'
+        ? '_id ip correlationKey'
+        : undefined;
+
     if (filter) {
       query = this.hostModel.find(
         await this.hostsFilterParser.buildFilter(
@@ -50,7 +58,7 @@ export class HostService {
         ),
       );
     } else {
-      query = this.hostModel.find({});
+      query = this.hostModel.find({}, projection);
     }
 
     if (page != null && pageSize != null) {
@@ -162,6 +170,7 @@ export class HostService {
           {
             $setOnInsert: {
               _id: mongoId,
+              ipInt: ipv4ToNumber(ip),
               projectId: new Types.ObjectId(projectId),
               projectName: project.name,
               correlationKey: CorrelationKeyUtils.hostCorrelationKey(
@@ -205,6 +214,7 @@ export class HostService {
       const model = new this.hostModel({
         _id: new Types.ObjectId(),
         ip: ip,
+        ipInt: ipv4ToNumber(ip),
         projectId: new Types.ObjectId(projectId),
         correlationKey: CorrelationKeyUtils.hostCorrelationKey(projectId, ip),
         lastSeen: Date.now(),
@@ -233,7 +243,7 @@ export class HostService {
     });
 
     const findings: IpFinding[] = [];
-    // For each new domain name found, a finding is created
+    // For each new ip found, a finding is created
     newIps.forEach((ip) => {
       findings.push({
         type: 'IpFinding',
@@ -268,6 +278,7 @@ export class HostService {
         lastSeen: Date.now(),
         $setOnInsert: {
           ip: host,
+          ipInt: ipv4ToNumber(host),
           correlationKey: CorrelationKeyUtils.hostCorrelationKey(
             projectId,
             host,

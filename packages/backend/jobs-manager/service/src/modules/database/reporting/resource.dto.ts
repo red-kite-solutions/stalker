@@ -10,13 +10,14 @@ import {
   IsString,
 } from 'class-validator';
 import { booleanStringToBoolean } from '../../../utils/boolean-string-to-boolean';
+import { IsIpRange } from '../../../validators/is-ip-range.validator';
 
 // TODO 319: REMOVE ME
 export class FilterByDomainDto {
   @IsOptional()
   @IsString({ each: true })
   @IsArray()
-  domains: string[];
+  domains?: string[];
 }
 
 export class FilterByHostDto {
@@ -28,13 +29,22 @@ export class FilterByHostDto {
   hosts?: string[];
 }
 
+export class FilterByIpRangeDto {
+  // TODO 319: REMOVE ME
+  /** @deprecated: use "query" syntax instead */
+  @IsOptional()
+  @IsIpRange({ each: true })
+  @IsArray()
+  ranges?: string[];
+}
+
 export class FilterByPortDto {
   // TODO 319: REMOVE ME
   /** @deprecated: use "query" syntax instead */
   @IsOptional()
   @IsPort({ each: true })
   @IsArray()
-  ports: number[];
+  ports?: number[];
 }
 
 export class FilterByProjectDto {
@@ -45,10 +55,7 @@ export class FilterByProjectDto {
   projects?: string[];
 }
 
-export class ResourceFilterDto extends IntersectionType(
-  FilterByHostDto,
-  FilterByProjectDto,
-) {
+export class ResourceFilterDto extends IntersectionType(FilterByProjectDto) {
   @IsOptional()
   @IsInt()
   @Type(() => Number)

@@ -43,6 +43,8 @@ export class PortService {
     portNumber: number,
     protocol: 'tcp' | 'udp',
     service: string = undefined,
+    product: string = undefined,
+    version: string = undefined,
   ) {
     const host: Pick<HostDocument, '_id' | 'ip'> = await this.hostModel.findOne(
       {
@@ -65,6 +67,8 @@ export class PortService {
       protocol,
       correlationKey,
       service,
+      product,
+      version,
     );
   }
 
@@ -112,6 +116,8 @@ export class PortService {
     protocol: string,
     correlationKey: string,
     service: string = undefined,
+    product: string = undefined,
+    version: string = undefined,
   ) {
     if (!(protocol === 'tcp' || protocol === 'udp'))
       throw new HttpBadRequestException(this.badProtocolError);
@@ -144,7 +150,12 @@ export class PortService {
     let setter =
       service === undefined
         ? { lastSeen: Date.now() }
-        : { lastSeen: Date.now(), service: service };
+        : {
+            lastSeen: Date.now(),
+            service: service,
+            product: product,
+            version: version,
+          };
 
     res = await this.portsModel.findOneAndUpdate(
       {

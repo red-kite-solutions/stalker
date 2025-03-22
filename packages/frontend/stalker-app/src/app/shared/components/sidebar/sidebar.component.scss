@@ -3,11 +3,6 @@
   margin-right: 0px;
 }
 
-span {
-  margin-left: 16px;
-  margin-right: 16px;
-}
-
 h3 {
   margin: 8px 0px 4px 16px;
 }
@@ -17,4 +12,8 @@ h3 {
     background-color: var(--mdc-list-list-item-focus-state-layer-color);
     opacity: 0.1;
   }
+}
+
+.padright {
+  padding-right: 4px;
 }

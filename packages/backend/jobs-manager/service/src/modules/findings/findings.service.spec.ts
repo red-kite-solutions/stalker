@@ -79,10 +79,10 @@ describe('Findings Service Spec', () => {
 
     // Act
     const firstPage = await findingsService.getAll(0, 3, {
-      target: 'my-target',
+      targets: ['my-target'],
     });
     const secondPage = await findingsService.getAll(1, 3, {
-      target: 'my-target',
+      targets: ['my-target'],
     });
 
     // Assert
@@ -92,6 +92,179 @@ describe('Findings Service Spec', () => {
     expect(secondPage.totalRecords).toBe(5);
     expect(secondPage.items.map((x) => x.name).join('')).toBe('ba');
   });
+
+  it('Get all - Should only return findings matching multiple targets', async () => {
+    // Arrange
+    await findingsModel.insertMany([
+      {
+        created: new Date(2011, 1, 1),
+        correlationKey: 'my-target',
+        name: 'b',
+      },
+      {
+        created: new Date(2010, 1, 1),
+        correlationKey: 'my-target',
+        name: 'a',
+      },
+      {
+        created: new Date(2022, 1, 1),
+        correlationKey: 'my-other-target',
+        name: 'should not be returned',
+      },
+      {
+        created: new Date(2012, 1, 1),
+        correlationKey: 'my-target2',
+        name: 'c',
+      },
+      {
+        created: new Date(2014, 1, 1),
+        correlationKey: 'my-target2',
+        name: 'e',
+      },
+      {
+        created: new Date(2013, 1, 1),
+        correlationKey: 'my-other-target',
+        name: 'should not be returned',
+      },
+    ]);
+
+    // Act
+    const firstPage = await findingsService.getAll(0, 3, {
+      targets: ['my-target', 'my-target2'],
+    });
+
+    // Assert
+    expect(firstPage.totalRecords).toBe(4);
+  });
+
+  it('Get all - Should only return from the findings from project', async () => {
+    // Arrange
+    const p = await project();
+    const p2 = await project();
+    const p3 = await project();
+
+    const correlationKey = CorrelationKeyUtils.generateCorrelationKey(
+      p._id.toString(),
+    );
+    const correlationKey2 = CorrelationKeyUtils.generateCorrelationKey(
+      p2._id.toString(),
+    );
+    const correlationKey3 = CorrelationKeyUtils.generateCorrelationKey(
+      p3._id.toString(),
+    );
+
+    await findingsModel.insertMany([
+      {
+        created: new Date(2011, 1, 1),
+        correlationKey: correlationKey,
+        name: 'b',
+      },
+      {
+        created: new Date(2010, 1, 1),
+        correlationKey: correlationKey,
+        name: 'a',
+      },
+      {
+        created: new Date(2022, 1, 1),
+        correlationKey: correlationKey2,
+        name: 'should not be returned',
+      },
+      {
+        created: new Date(2013, 1, 1),
+        correlationKey: correlationKey3,
+        name: 'should not be returned',
+      },
+    ]);
+
+    // Act
+    const firstPage = await findingsService.getAll(0, 5, {
+      projects: [p2._id.toString(), p3._id.toString()],
+    });
+
+    // Assert
+    expect(firstPage.totalRecords).toBe(2);
+    expect(firstPage.items.map((f) => f.correlationKey).sort()).toStrictEqual(
+      [`project:${p2._id.toString()}`, `project:${p3._id.toString()}`].sort(),
+    );
+  });
+
+  it.each([
+    {
+      page: 0,
+      pageSize: 5,
+      filter: { latestOnly: true },
+      expectedResult: ['a', 'c'],
+    },
+    {
+      page: 0,
+      pageSize: 1,
+      filter: { latestOnly: true },
+      expectedResult: ['c'],
+    },
+    {
+      page: 1,
+      pageSize: 1,
+      filter: { latestOnly: true },
+      expectedResult: ['a'],
+    },
+    {
+      page: 0,
+      pageSize: 5,
+      filter: { latestOnly: true, findingAllowList: ['qwerty'] },
+      expectedResult: ['c'],
+    },
+    {
+      page: 0,
+      pageSize: 5,
+      filter: { latestOnly: true, findingAllowList: ['returnnothing'] },
+      expectedResult: [],
+    },
+  ])(
+    'Get all - Should only return from the latest of every finding (latestOnly: true): %s',
+    async ({ page, pageSize, filter, expectedResult }) => {
+      // Arrange
+      const p = await project();
+
+      const correlationKey = CorrelationKeyUtils.generateCorrelationKey(
+        p._id.toString(),
+      );
+
+      await findingsModel.insertMany([
+        {
+          created: new Date(2011, 1, 1),
+          key: 'asdf',
+          correlationKey: correlationKey,
+          name: 'a',
+        },
+        {
+          created: new Date(2010, 1, 1),
+          key: 'asdf',
+          correlationKey: correlationKey,
+          name: 'b',
+        },
+        {
+          created: new Date(2022, 1, 1),
+          key: 'qwerty',
+          correlationKey: correlationKey,
+          name: 'c',
+        },
+        {
+          created: new Date(2013, 1, 1),
+          key: 'qwerty',
+          correlationKey: correlationKey,
+          name: 'd',
+        },
+      ]);
+
+      // Act
+      const firstPage = await findingsService.getAll(page, pageSize, filter);
+
+      // Assert
+      expect(firstPage.items.map((f) => f.name).sort()).toStrictEqual(
+        expectedResult.sort(),
+      );
+    },
+  );
 
   it('Save - Nonexistent project - Throws', async () => {
     // Arrange
@@ -175,7 +348,7 @@ describe('Findings Service Spec', () => {
       'example.org',
     );
     const findings = await findingsService.getAll(0, 100, {
-      target: correlationKey,
+      targets: [correlationKey],
     });
     expect(findings.totalRecords).toBe(1);
 
@@ -214,7 +387,7 @@ describe('Findings Service Spec', () => {
       'example.org',
     );
     const findings = await findingsService.getAll(0, 100, {
-      target: correlationKey,
+      targets: [correlationKey],
       findingDenyList: [filteredKey],
     });
 
@@ -245,7 +418,7 @@ describe('Findings Service Spec', () => {
       'example.org',
     );
     const findings = await findingsService.getAll(0, 100, {
-      target: correlationKey,
+      targets: [correlationKey],
       findingAllowList: [nonFilteredKey],
     });
 
@@ -311,7 +484,7 @@ describe('Findings Service Spec', () => {
     );
     const endpoint = (
       await findingsService.getAll(0, 1, {
-        target: correlationKey,
+        targets: [correlationKey],
         fieldFilters: [
           {
             key: CustomFindingsConstants.WebsiteEndpointFieldKey,

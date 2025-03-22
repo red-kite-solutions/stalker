@@ -22,6 +22,7 @@ export const orchestratorConstants = {
     findings: 'stalker.jobs.findings',
     jobLogs: 'stalker.jobs.logs',
     jobModels: 'stalker.jobs.models',
+    jobManagement: 'stalker.jobs.management',
   },
 };
 

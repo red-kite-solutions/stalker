@@ -24,10 +24,8 @@ import { SharedModule } from '../../../shared/shared.module';
 import { Domain } from '../../../shared/types/domain/domain.interface';
 import { HttpStatus } from '../../../shared/types/http-status.type';
 import { Page } from '../../../shared/types/page.type';
-import {
-  ElementMenuItems,
-  FilteredPaginatedTableComponent,
-} from '../../../shared/widget/filtered-paginated-table/filtered-paginated-table.component';
+import { ElementMenuItems } from '../../../shared/widget/dynamic-icons/menu-icon.component';
+import { FilteredPaginatedTableComponent } from '../../../shared/widget/filtered-paginated-table/filtered-paginated-table.component';
 import {
   TABLE_FILTERS_SOURCE_INITAL_FILTERS,
   TableFilters,
@@ -37,6 +35,7 @@ import {
 import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-table/table-format/table-format.component';
 import { BlockedPillTagComponent } from '../../../shared/widget/pill-tag/blocked-pill-tag.component';
 import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.component';
+import { PillTagComponent } from '../../../shared/widget/pill-tag/pill-tag.component';
 import { appendGlobalFiltersToQuery, globalProjectFilter$ } from '../../../utils/global-project-filter';
 import { DomainsInteractionsService } from '../domains-interactions.service';
 
@@ -60,6 +59,7 @@ import { DomainsInteractionsService } from '../domains-interactions.service';
     RouterModule,
     BlockedPillTagComponent,
     TableFormatComponent,
+    PillTagComponent,
   ],
   selector: 'app-list-domains',
   templateUrl: './list-domains.component.html',
@@ -179,7 +179,7 @@ export class ListDomainsComponent {
 
       if (addedDomains.length < newDomains.length) {
         this.toastr.warning(
-          $localize`:Domains not added|Some domains were not added to the database:Some domains were not added`
+          $localize`:Domains duplicates|Some domains were duplicates to the database:Some domains were duplicates`
         );
       }
 

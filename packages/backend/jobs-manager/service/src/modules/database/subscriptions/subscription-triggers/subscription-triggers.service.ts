@@ -5,6 +5,7 @@ import { Model, Types } from 'mongoose';
 import { CorrelationKeyUtils } from '../../reporting/correlation.utils';
 import { DomainsService } from '../../reporting/domain/domain.service';
 import { HostService } from '../../reporting/host/host.service';
+import { IpRangeService } from '../../reporting/ip-ranges/ip-range.service';
 import { PortService } from '../../reporting/port/port.service';
 import { WebsiteService } from '../../reporting/websites/website.service';
 import {
@@ -23,6 +24,7 @@ export class SubscriptionTriggersService {
     private readonly domainsService: DomainsService,
     private readonly portsService: PortService,
     private readonly websiteService: WebsiteService,
+    private readonly ipRangeService: IpRangeService,
   ) {}
 
   public async isTriggerBlocked(correlationKey: string): Promise<boolean> {
@@ -38,6 +40,8 @@ export class SubscriptionTriggersService {
         return await this.hostsService.keyIsBlocked(correlationKey);
       case 'WebsiteService':
         return await this.websiteService.keyIsBlocked(correlationKey);
+      case 'IpRangeService':
+        return await this.ipRangeService.keyIsBlocked(correlationKey);
       default:
         return false;
     }

@@ -1,5 +1,4 @@
 import {
-  IsArray,
   IsBase64,
   IsIn,
   IsNotEmpty,
@@ -41,8 +40,4 @@ export class EditProjectDto {
   @IsOptional()
   @IsString()
   public notes: string;
-
-  @IsOptional()
-  @IsArray()
-  public ipRanges: string[];
 }

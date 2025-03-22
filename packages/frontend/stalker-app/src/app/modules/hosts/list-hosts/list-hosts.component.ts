@@ -25,10 +25,8 @@ import { Host } from '../../../shared/types/host/host.interface';
 import { HttpStatus } from '../../../shared/types/http-status.type';
 import { Page } from '../../../shared/types/page.type';
 import { ProjectSummary } from '../../../shared/types/project/project.summary';
-import {
-  ElementMenuItems,
-  FilteredPaginatedTableComponent,
-} from '../../../shared/widget/filtered-paginated-table/filtered-paginated-table.component';
+import { ElementMenuItems } from '../../../shared/widget/dynamic-icons/menu-icon.component';
+import { FilteredPaginatedTableComponent } from '../../../shared/widget/filtered-paginated-table/filtered-paginated-table.component';
 import {
   TABLE_FILTERS_SOURCE_INITAL_FILTERS,
   TableFilters,
@@ -38,6 +36,7 @@ import {
 import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-table/table-format/table-format.component';
 import { BlockedPillTagComponent } from '../../../shared/widget/pill-tag/blocked-pill-tag.component';
 import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.component';
+import { PillTagComponent } from '../../../shared/widget/pill-tag/pill-tag.component';
 import { appendGlobalFiltersToQuery, globalProjectFilter$ } from '../../../utils/global-project-filter';
 import { HostsInteractionsService } from '../hosts-interactions.service';
 
@@ -61,6 +60,7 @@ import { HostsInteractionsService } from '../hosts-interactions.service';
     BlockedPillTagComponent,
     RouterModule,
     TableFormatComponent,
+    PillTagComponent,
   ],
   selector: 'app-list-hosts',
   templateUrl: './list-hosts.component.html',
@@ -80,7 +80,7 @@ export class ListHostsComponent {
   maxDomainsPerHost = 35;
   dataLoading = true;
   displayedColumns: string[] = ['select', 'ip', 'domains', 'project', 'tags', 'menu'];
-  filterOptions: string[] = ['host', 'domain', 'project', 'tags', 'is'];
+  filterOptions: string[] = ['host', 'domain', 'range', 'project', 'tags', 'is'];
   public readonly noDataMessage = $localize`:No host found|No host was found:No host found`;
 
   count = 0;
@@ -174,7 +174,7 @@ export class ListHostsComponent {
 
       if (addedHosts.length < newHosts.length) {
         this.toastr.warning(
-          $localize`:Hosts not added|Some hosts were not added to the database:Some hosts were not added`
+          $localize`:Hosts duplicates|Some hosts were duplicates to the database:Some hosts were duplicates`
         );
       }
 

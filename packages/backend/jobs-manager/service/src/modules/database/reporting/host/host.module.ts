@@ -1,5 +1,5 @@
 import { forwardRef, Module } from '@nestjs/common';
-import { QueueModule } from '../../../job-queue/queue.module';
+import { QueueModule } from '../../../queues/queue.module';
 import { ConfigModule } from '../../admin/config/config.module';
 import { DatalayerModule } from '../../datalayer.module';
 import { JobsModule } from '../../jobs/jobs.module';

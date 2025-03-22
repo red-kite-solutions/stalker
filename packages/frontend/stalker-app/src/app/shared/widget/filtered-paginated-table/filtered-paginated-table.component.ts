@@ -56,15 +56,6 @@ import { IdentifiedElement } from '../../types/identified-element.type';
 import { GrammarSuggester } from './search-query-suggester';
 import { TableFiltersSourceBase } from './table-filters-source';
 
-export interface ElementMenuItems {
-  label: string;
-  icon: string;
-  action: () => Promise<unknown> | void;
-  hidden?: boolean;
-  disabled?: boolean;
-  tooltip?: string;
-}
-
 @Component({
   standalone: true,
   selector: 'app-filtered-paginated-table',

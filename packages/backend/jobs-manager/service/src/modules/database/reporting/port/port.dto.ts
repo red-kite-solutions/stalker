@@ -7,28 +7,49 @@ import {
   IsMongoId,
   IsNotEmpty,
   IsOptional,
+  IsString,
 } from 'class-validator';
 import { Types } from 'mongoose';
-import { DetailsLevel, detailsLevel } from '../../database.constants';
+import { PortDetailsLevel, portDetailsLevel } from '../../database.constants';
 import { PagingDto } from '../../database.dto';
-import { FilterByPortDto, ResourceFilterDto } from '../resource.dto';
+import {
+  FilterByHostDto,
+  FilterByPortDto,
+  ResourceFilterDto,
+} from '../resource.dto';
 
 export class PortFilterDto extends IntersectionType(
   ResourceFilterDto,
   FilterByPortDto,
+  FilterByHostDto,
 ) {
   @IsOptional()
   @IsIn(['tcp', 'udp'])
   protocol: string = 'tcp';
 
   @IsNotEmpty()
-  @IsIn(detailsLevel)
-  detailsLevel: DetailsLevel = 'full';
+  @IsIn(portDetailsLevel)
+  detailsLevel: PortDetailsLevel = 'full';
 
   /** @deprecated : Use query instead */
   @IsOptional()
   @IsMongoId()
   hostId: string;
+
+  @IsOptional()
+  @IsString({ each: true })
+  @IsArray()
+  services: string[];
+
+  @IsOptional()
+  @IsString({ each: true })
+  @IsArray()
+  products: string[];
+
+  @IsOptional()
+  @IsString({ each: true })
+  @IsArray()
+  versions: string[];
 }
 
 export class GetPortsDto extends IntersectionType(PagingDto, PortFilterDto) {}

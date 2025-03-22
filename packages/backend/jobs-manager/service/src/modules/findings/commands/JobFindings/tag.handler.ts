@@ -6,6 +6,7 @@ import { JobExecutionsService } from '../../../database/jobs/job-executions.serv
 import { CorrelationKeyUtils } from '../../../database/reporting/correlation.utils';
 import { DomainsService } from '../../../database/reporting/domain/domain.service';
 import { HostService } from '../../../database/reporting/host/host.service';
+import { IpRangeService } from '../../../database/reporting/ip-ranges/ip-range.service';
 import { PortService } from '../../../database/reporting/port/port.service';
 import { WebsiteService } from '../../../database/reporting/websites/website.service';
 import { SecretsService } from '../../../database/secrets/secrets.service';
@@ -25,6 +26,7 @@ export class TagHandler extends JobFindingHandlerBase<TagCommand> {
     private portService: PortService,
     private tagService: TagsService,
     private websiteService: WebsiteService,
+    private ipRangeService: IpRangeService,
     jobService: JobExecutionsService,
     subscriptionsService: EventSubscriptionsService,
     customJobsService: CustomJobsService,
@@ -49,6 +51,7 @@ export class TagHandler extends JobFindingHandlerBase<TagCommand> {
     const service = CorrelationKeyUtils.getResourceServiceName(
       command.finding.correlationKey,
     );
+
     switch (service) {
       case 'DomainsService':
         await this.domainService.tagDomainByName(
@@ -82,6 +85,16 @@ export class TagHandler extends JobFindingHandlerBase<TagCommand> {
       case 'WebsiteService':
         await this.websiteService.tagWebsiteByCorrelationKey(
           command.finding.correlationKey,
+          tag._id.toString(),
+          true,
+        );
+        break;
+
+      case 'IpRangeService':
+        await this.ipRangeService.tagIpRangeByIp(
+          command.finding.ip,
+          command.finding.mask,
+          command.projectId,
           tag._id.toString(),
           true,
         );

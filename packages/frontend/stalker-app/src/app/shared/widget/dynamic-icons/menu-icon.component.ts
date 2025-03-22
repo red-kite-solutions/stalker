@@ -2,7 +2,15 @@ import { Component, Input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ElementMenuItems } from '../filtered-paginated-table/filtered-paginated-table.component';
+
+export interface ElementMenuItems {
+  label: string;
+  icon: string;
+  action: () => Promise<unknown> | void;
+  hidden?: boolean;
+  disabled?: boolean;
+  tooltip?: string;
+}
 
 @Component({
   standalone: true,

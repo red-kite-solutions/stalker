@@ -23,10 +23,8 @@ import { ProjectCellComponent } from '../../../shared/components/project-cell/pr
 import { SharedModule } from '../../../shared/shared.module';
 import { Port } from '../../../shared/types/ports/port.interface';
 import { ProjectSummary } from '../../../shared/types/project/project.summary';
-import {
-  ElementMenuItems,
-  FilteredPaginatedTableComponent,
-} from '../../../shared/widget/filtered-paginated-table/filtered-paginated-table.component';
+import { ElementMenuItems } from '../../../shared/widget/dynamic-icons/menu-icon.component';
+import { FilteredPaginatedTableComponent } from '../../../shared/widget/filtered-paginated-table/filtered-paginated-table.component';
 import {
   TABLE_FILTERS_SOURCE_INITAL_FILTERS,
   TableFilters,
@@ -36,6 +34,7 @@ import {
 import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-table/table-format/table-format.component';
 import { BlockedPillTagComponent } from '../../../shared/widget/pill-tag/blocked-pill-tag.component';
 import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.component';
+import { PillTagComponent } from '../../../shared/widget/pill-tag/pill-tag.component';
 import { appendGlobalFiltersToQuery, globalProjectFilter$ } from '../../../utils/global-project-filter';
 import { PortsInteractionsService } from '../ports-interactions.service';
 
@@ -59,6 +58,7 @@ import { PortsInteractionsService } from '../ports-interactions.service';
     RouterModule,
     BlockedPillTagComponent,
     TableFormatComponent,
+    PillTagComponent,
   ],
   selector: 'app-list-ports',
   templateUrl: './list-ports.component.html',
@@ -76,8 +76,19 @@ import { PortsInteractionsService } from '../ports-interactions.service';
 })
 export class ListPortsComponent {
   dataLoading = true;
-  displayedColumns: string[] = ['select', 'port', 'ip', 'domains', 'project', 'tags', 'menu'];
-  filterOptions: string[] = ['host', 'port', 'project', 'tags', 'is'];
+  displayedColumns: string[] = [
+    'select',
+    'port',
+    'service',
+    'product',
+    'version',
+    'ip',
+    'domains',
+    'project',
+    'tags',
+    'menu',
+  ];
+  filterOptions: string[] = ['host', 'port', 'service', 'product', 'version', 'project', 'tags', 'is'];
   public readonly noDataMessage = $localize`:No port found|No port was found:No port found`;
 
   selection = new SelectionModel<Port>(true, []);

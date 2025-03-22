@@ -1,0 +1,147 @@
+@if (ipRange$ | async) {
+  <div class="tw-flex tw-items-center tw-gap">
+    <app-page-header
+      [parts]="[(projects$ | async | whereId: [ipRange.projectId])?.name, ipRange.ip + '/' + ipRange.mask]"
+    >
+    </app-page-header>
+
+    @if (ipRange.blocked) {
+      <app-blocked-pill-tag class="tw-mt-[9px]"></app-blocked-pill-tag>
+    }
+  </div>
+
+  <div class="content-wrapper">
+    <div class="tw-flex tw-flex-col tw-gap-2">
+      <div class="tw-grid tw-grid-cols-5 tw-gap-2">
+        <mat-card class="tw-col-span-1 tw-cursor-pointer host-count" appearance="outlined" (click)="openHosts()">
+          <mat-icon class="tw-self-end tw-opacity-60 tw-text-sm tw-mr-[-8px] tw-mb-[-4px]">open_in_new</mat-icon>
+          <mat-card-content class="tw-h-full">
+            <number-of-hosts-metric
+              [additionalFilters]="hostFilters"
+              i18n-name="Hosts contained in IP range|"
+              name="Hosts in range"
+            ></number-of-hosts-metric>
+          </mat-card-content>
+        </mat-card>
+        <mat-card class="tw-col-span-4" appearance="outlined">
+          <mat-card-content class="tw-h-full">
+            <div class="tw-grid tw-grid-cols-3 tw-gap-2s">
+              <div class="tw-col-span-1">
+                <h3 class="metric-title" i18n="IP|IP address">IP</h3>
+                <div class="metric-info">{{ ipRangeExt.ip }}</div>
+              </div>
+              <div class="tw-col-span-1">
+                <h3 class="metric-title" i18n="Short mask|Short mask of a subnet">Short mask</h3>
+                <div class="metric-info">{{ ipRangeExt.shortMask }}</div>
+              </div>
+              <div class="tw-col-span-1">
+                <h3 class="metric-title" i18n="Long mask|Long mask of a subnet">Long mask</h3>
+                <div class="metric-info">{{ ipRangeExt.longMask }}</div>
+              </div>
+              <div class="tw-col-span-1">
+                <h3 class="metric-title" i18n="Min IP|Smallest IP address in range">Min IP</h3>
+                <div class="metric-info">{{ ipRangeExt.minIp }}</div>
+              </div>
+              <div class="tw-col-span-1">
+                <h3 class="metric-title" i18n="Max IP|Biggest IP address in range">Max IP</h3>
+                <div class="metric-info">{{ ipRangeExt.maxIp }}</div>
+              </div>
+              <div class="tw-col-span-1">
+                <h3 class="metric-title" i18n="IP count|Number of IP addresses in range">IP count</h3>
+                <div class="metric-info">{{ ipRangeExt.ipCount }}</div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+      <mat-divider></mat-divider>
+      <div class="content">
+        <findings-list [correlationKey]="ipRange.correlationKey"></findings-list>
+      </div>
+    </div>
+
+    <div #contextPanel class="context">
+      @if (ipRange.blocked) {
+        <panel-section>
+          <panel-section-title i18n="Blocked|Blocked">Blocked</panel-section-title>
+          <panel-section-subtitle
+            [matTooltip]="ipRange.blockedAt! | humanizeDate: 'precise'"
+            matTooltipPosition="before"
+          >
+            {{ ipRange.blockedAt | timeAgo }}
+          </panel-section-subtitle>
+        </panel-section>
+      }
+      <panel-section>
+        <panel-section-title i18n="Last seen|Last seen"> Last seen </panel-section-title>
+        <panel-section-subtitle [matTooltip]="ipRange.lastSeen | humanizeDate: 'precise'" matTooltipPosition="before">
+          {{ ipRange.lastSeen | timeAgo }}
+        </panel-section-subtitle>
+      </panel-section>
+      <panel-section>
+        <panel-section-title i18n="First seen|First seen"> First seen </panel-section-title>
+        <panel-section-subtitle [matTooltip]="ipRange.createdAt | humanizeDate: 'precise'" matTooltipPosition="before">
+          {{ ipRange.createdAt | timeAgo }}
+        </panel-section-subtitle>
+      </panel-section>
+
+      @if ((tagsSelectItems$ | async) && mergedTags$ | async; as ipRangeTags) {
+        <panel-section>
+          <panel-section-title i18n="Tags|The tags of an item"
+            >Tags
+            <span class="manage-tags-menu">
+              —
+              <app-text-select-menu
+                [items]="tagsSelectItems$ | async"
+                [buttonText]="manageTags"
+                [filterText]="filterTags"
+                [filterEnabled]="true"
+                [colorEnabled]="true"
+                [emptyText]="emptyTags"
+                [containerElement]="contextPanel"
+                (itemSelection)="itemSelected($event)"
+              ></app-text-select-menu>
+            </span>
+          </panel-section-title>
+
+          <div class="tw-pt-1 tw-flex tw-flex-wrap tw-gap-x-2 tw-gap-y-1">
+            @for (tag of ipRangeTags; track tag) {
+              <app-pill-tag [color]="(tagsSelectItems$ | async | whereId: [tag])?.color">{{
+                (tagsSelectItems$ | async | whereId: [tag])?.text
+              }}</app-pill-tag>
+            }
+            <app-new-pill-tag #newPillTag [createdAtMilliseconds]="ipRange.createdAt"></app-new-pill-tag>
+          </div>
+
+          @if (!ipRangeTags.length && !newPillTag.isNew()) {
+            <panel-section-subtitle i18n="No tags yet|There are no tags for this item"
+              >No tags yet
+            </panel-section-subtitle>
+          }
+        </panel-section>
+      }
+
+      <mat-divider></mat-divider>
+
+      <panel-section class="tw-opacity-60" #managementPanelSection>
+        <app-text-menu [buttonText]="manageIpRangeText" [iconName]="'settings'" [xPosition]="'before'">
+          <div class="tw-h-full tw-w-full tw-grid tw-gap-y-1">
+            <button mat-menu-item class="tw-w-full" (click)="block(!ipRange.blocked)">
+              <mat-icon>{{ ipRange.blocked ? 'thumb_up' : 'block' }}</mat-icon>
+              @if (ipRange.blocked) {
+                <label i18n="Unblock|Unblock an item">Unblock</label>
+              } @else {
+                <label i18n="Block|Block an item">Block</label>
+              }
+            </button>
+
+            <button mat-menu-item color="warn" class="tw-w-full" (click)="delete()">
+              <mat-icon>delete</mat-icon>
+              <label i18n="Delete|Delete an item">Delete</label>
+            </button>
+          </div>
+        </app-text-menu>
+      </panel-section>
+    </div>
+  </div>
+}

@@ -22,7 +22,7 @@
   }
 }
 <div mat-dialog-actions [align]="'end'" class="tw-flex tw-gap-2">
-  @if (data.primaryButtonText != '') {
+  @if (data.primaryButtonText && data.primaryButtonText != '') {
     <app-spinner-button (click)="primaryClick()" [loadingState]="primaryLoading">
       {{ data.primaryButtonText }}
     </app-spinner-button>

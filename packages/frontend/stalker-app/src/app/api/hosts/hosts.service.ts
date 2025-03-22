@@ -4,6 +4,7 @@ import { DateRange } from '@angular/material/datepicker';
 import { SearchQueryParser, SearchTerms } from '@red-kite/common/search-query';
 import { Observable, firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { ResourceService } from '../../services/resources/resource.service';
 import { Host } from '../../shared/types/host/host.interface';
 import { Page } from '../../shared/types/page.type';
 import { Port } from '../../shared/types/ports/port.interface';
@@ -11,7 +12,7 @@ import { Port } from '../../shared/types/ports/port.interface';
 @Injectable({
   providedIn: 'root',
 })
-export class HostsService {
+export class HostsService implements ResourceService<Host> {
   private searchParser = new SearchQueryParser();
 
   constructor(private http: HttpClient) {}

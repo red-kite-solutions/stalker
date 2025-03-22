@@ -8,7 +8,7 @@ namespace Orchestrator.Controllers
 {
     public class JobsController : Controller
     {
-        private IMessagesProducer<JobEventMessage> EventsProducer { get; set; }
+        private JobEventsProducer EventsProducer { get; set; }
         private IMessagesProducer<JobLogMessage> LogsProducer { get; set; }
         private IFindingsParser Parser { get; set; }
 
@@ -35,7 +35,7 @@ namespace Orchestrator.Controllers
 
         public JobsController(IMessagesProducer<JobEventMessage> eventsProducer, IMessagesProducer<JobLogMessage> jobLogsProducer, IFindingsParser parser)
         {
-            EventsProducer = eventsProducer;
+            EventsProducer = eventsProducer as JobEventsProducer;
             LogsProducer = jobLogsProducer;
             Parser = parser;
         }
@@ -92,17 +92,12 @@ namespace Orchestrator.Controllers
             if (!acceptableStatuses.Contains(dto.Status))
             {
                 Console.WriteLine("bad status");
-                return BadRequest("Status should be Success or Failed");
+                return BadRequest("Status should be Success, Failed or Ended");
             }
 
             if (!IsValidJobId(id)) return BadRequest("Job id is invalid");
 
-            await EventsProducer.Produce(new JobEventMessage
-            {
-                JobId = id,
-                FindingsJson = $"{{ \"findings\": [{{ \"type\": \"JobStatusFinding\", \"status\": \"{dto.Status}\" }}]}}",
-                Timestamp = CurrentTimeMs,
-            });
+            await EventsProducer.LogStatus(id, dto.Status);
 
             return Ok();
         }

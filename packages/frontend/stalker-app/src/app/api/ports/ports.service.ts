@@ -4,15 +4,15 @@ import { DateRange } from '@angular/material/datepicker';
 import { SearchQueryParser, SearchTerms } from '@red-kite/common/search-query';
 import { Observable, firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { ResourceService } from '../../services/resources/resource.service';
 import { Page } from '../../shared/types/page.type';
 import { ExtendedPort, Port, PortNumber } from '../../shared/types/ports/port.interface';
 
 @Injectable({
   providedIn: 'root',
 })
-export class PortsService {
+export class PortsService implements ResourceService<Port | PortNumber | ExtendedPort> {
   private searchParser = new SearchQueryParser();
-
   constructor(private http: HttpClient) {}
 
   public getPage<T extends Port | PortNumber | ExtendedPort>(

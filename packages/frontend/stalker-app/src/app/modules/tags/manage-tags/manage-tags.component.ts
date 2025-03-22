@@ -17,18 +17,19 @@ import { Title } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, combineLatest, map, shareReplay, switchMap, tap } from 'rxjs';
 import { TagsService } from '../../../api/tags/tags.service';
+import { SharedModule } from '../../../shared/shared.module';
 import { Tag } from '../../../shared/types/tag.type';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from '../../../shared/widget/confirm-dialog/confirm-dialog.component';
-import { SharedModule } from '../../../shared/shared.module';
 import { FilteredPaginatedTableComponent } from '../../../shared/widget/filtered-paginated-table/filtered-paginated-table.component';
 import {
   TableFiltersSource,
   TableFiltersSourceBase,
 } from '../../../shared/widget/filtered-paginated-table/table-filters-source';
 import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-table/table-format/table-format.component';
+import { PillTagComponent } from '../../../shared/widget/pill-tag/pill-tag.component';
 
 @Component({
   standalone: true,
@@ -49,6 +50,7 @@ import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-
     NgxMatColorPickerModule,
     FilteredPaginatedTableComponent,
     TableFormatComponent,
+    PillTagComponent,
   ],
   selector: 'app-manage-tags',
   templateUrl: './manage-tags.component.html',

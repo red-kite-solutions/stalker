@@ -1,7 +1,20 @@
-<app-page-header
-  [parts]="[(projects$ | async | whereId: [(execution$ | async)?.projectId])?.name, (execution$ | async)?.name]"
->
-</app-page-header>
+<div class="tw-flex tw-flex-row">
+  <app-page-header
+    class="tw-mr-4"
+    [parts]="[(projects$ | async | whereId: [(execution$ | async)?.projectId])?.name, (execution$ | async)?.name]"
+  >
+  </app-page-header>
+
+  <app-spinner-button
+    [loadingState]="(jobIsStopping$ | async) && (jobIsRunning$ | async)"
+    class="tw-mt-[24px]"
+    buttonColor="warn"
+    (click)="stopJob()"
+    i18n="Stop|Stop the job"
+    [disabled]="!(jobIsRunning$ | async)"
+    >Stop</app-spinner-button
+  >
+</div>
 
 @if (execution$ | async; as execution) {
   <mat-card appearance="outlined" class="summary">

@@ -11,7 +11,9 @@ import {
 } from '../../../types/timestamped-string.type';
 import { ProjectUnassigned } from '../../../validators/is-project-id.validator';
 import { isTest } from '../../app.constants';
-import { JobQueue } from '../../job-queue/job-queue';
+import { JobManagementQueue } from '../../queues/job-management-queue/job-management-queue';
+import { KafkaJobManagementTask } from '../../queues/job-management-queue/kafka-job-management-queue';
+import { JobQueue } from '../../queues/job-queue/job-queue';
 import { ConfigService } from '../admin/config/config.service';
 import { Project } from '../reporting/project.model';
 import { JobExecutionsDto } from './jobs.dto';
@@ -25,6 +27,7 @@ export class JobExecutionsService {
     private jobQueue: JobQueue,
     @InjectModel('job') private readonly jobModel: Model<Job & Document>,
     @InjectModel('project') private readonly projectModel: Model<Project>,
+    private jobManagementQueue: JobManagementQueue,
   ) {}
 
   public async getAll(dto: JobExecutionsDto): Promise<Page<JobDocument>> {
@@ -139,6 +142,19 @@ export class JobExecutionsService {
       startTime: createdJob.startTime,
       ...job,
     };
+  }
+
+  public async terminate(jobId: string) {
+    const j = await this.jobModel.findById(jobId);
+
+    if (j.endTime) return;
+
+    const task: KafkaJobManagementTask = {
+      jobId: j._id.toString(),
+      task: 'TerminateJob',
+    };
+
+    this.jobManagementQueue.publish(task);
   }
 
   public async addJobOutputLine(

@@ -266,6 +266,57 @@ export class PortsFilterParser extends FilterParserBase {
       }
     }
 
+    // TODO #319
+    // // // Filter by port service
+    // // if (dto.services) {
+    // //   const servicesRegex = dto.services
+    // //     .filter((x) => x)
+    // //     .map((x) => x.toLowerCase().trim())
+    // //     .map((x) => escapeStringRegexp(x))
+    // //     .map((x) => new RegExp(`.*${x}.*`));
+
+    // //   if (servicesRegex.length > 0) {
+    // //     finalFilter['service'] = { $in: servicesRegex };
+    // //   }
+    // // }
+
+    // // // Filter by port products
+    // // if (dto.products) {
+    // //   const productsRegex = dto.products
+    // //     .filter((x) => x)
+    // //     .map((x) => x.toLowerCase().trim())
+    // //     .map((x) => escapeStringRegexp(x))
+    // //     .map((x) => new RegExp(`.*${x}.*`, 'i'));
+
+    // //   if (productsRegex.length > 0) {
+    // //     finalFilter['product'] = { $in: productsRegex };
+    // //   }
+    // // }
+
+    // // // Filter by port versions
+    // // if (dto.versions) {
+    // //   const versionsRegex = dto.versions
+    // //     .filter((x) => x)
+    // //     .map((x) => x.toLowerCase().trim())
+    // //     .map((x) => escapeStringRegexp(x))
+    // //     .map((x) => new RegExp(`.*${x}.*`, 'i'));
+
+    // //   if (versionsRegex.length > 0) {
+    // //     finalFilter['version'] = { $in: versionsRegex };
+    // //   }
+    // // }
+
+    // // // Filter by project
+    // // if (dto.projects) {
+    // //   const projectIds = dto.projects
+    // //     .filter((x) => x)
+    // //     .map((x) => new Types.ObjectId(x));
+
+    // //   if (projectIds.length > 0) {
+    // //     finalFilter['projectId'] = { $in: projectIds };
+    // //   }
+    // // }
+
     // Filter by createdAt
     if (firstSeenStartDate) {
       finalFilter.$and.push({ createdAt: { $gte: firstSeenStartDate } });

@@ -4,7 +4,7 @@ import { UpdateFilter } from 'mongodb';
 import { Model } from 'mongoose';
 import { isConsumerMode } from '../../app.constants';
 import { DataSources } from '../../datasources/data-sources';
-import { JobModelUpdateQueue } from '../../job-queue/job-model-update-queue';
+import { JobModelUpdateQueue } from '../../queues/job-model-update-queue/job-model-update-queue';
 import { DATABASE_INIT } from '../admin/config/config.provider';
 import { JobPodConfiguration } from '../admin/config/job-pod-config/job-pod-config.model';
 import { JobContainer } from '../container/job-container.model';

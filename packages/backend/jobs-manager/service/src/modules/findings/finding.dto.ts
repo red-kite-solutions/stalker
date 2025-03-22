@@ -2,6 +2,7 @@ import { IntersectionType } from '@nestjs/swagger';
 import { Transform, Type, plainToClass } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -9,7 +10,9 @@ import {
   isArray,
 } from 'class-validator';
 import { HttpBadRequestException } from '../../exceptions/http.exceptions';
+import { booleanStringToBoolean } from '../../utils/boolean-string-to-boolean';
 import { PagingDto } from '../database/database.dto';
+import { FilterByProjectDto } from '../database/reporting/resource.dto';
 
 export type CustomFindingFieldDto = CustomFindingBaseDto &
   (CustomFindingImageFieldDto | CustomFindingTextFieldDto);
@@ -25,8 +28,8 @@ export class CustomFindingImageFieldDto {
 
 export class CustomFindingTextFieldDto {
   public readonly type = 'text';
-  public label: string;
-  public data: string;
+  public label?: string;
+  public data?: string;
 }
 
 /**
@@ -50,20 +53,20 @@ export class FieldFilterDto {
   data: unknown;
 }
 
-export class FindingsFilterDto {
-  @IsNotEmpty()
-  @IsString()
-  target: string;
+export class FindingsFilterDto extends FilterByProjectDto {
+  @IsString({ each: true })
+  @IsArray()
+  targets?: string[];
 
   @IsString({ each: true })
   @IsArray()
   @IsOptional()
-  findingDenyList: string[];
+  findingDenyList?: string[];
 
   @IsString({ each: true })
   @IsArray()
   @IsOptional()
-  findingAllowList: string[];
+  findingAllowList?: string[];
 
   @IsArray()
   @ValidateNested({ each: true })
@@ -86,7 +89,12 @@ export class FindingsFilterDto {
     { toClassOnly: true },
   )
   @IsOptional()
-  fieldFilters: FieldFilterDto[];
+  fieldFilters?: FieldFilterDto[];
+
+  @IsBoolean()
+  @Transform(booleanStringToBoolean)
+  @IsOptional()
+  latestOnly?: boolean;
 }
 
 export class FindingsPagingDto extends IntersectionType(

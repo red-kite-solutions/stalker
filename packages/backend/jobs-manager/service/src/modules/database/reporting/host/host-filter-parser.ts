@@ -200,6 +200,23 @@ export class HostsFilterParser extends FilterParserBase {
       finalFilter.$and.push({ createdAt: { $lt: firstSeenEndDate } });
     }
 
+    // TODO #319
+    // // if (dto.ranges) {
+    // //   const ranges: { min: number; max: number }[] = dto.ranges.map((range) => {
+    // //     return ipv4RangeToMinMax(cidrStringToipv4Range(range));
+    // //   });
+    // //   finalFilter['$and'].push({
+    // //     $or: ranges.map((r) => {
+    // //       return {
+    // //         ipInt: {
+    // //           $gte: r.min,
+    // //           $lte: r.max,
+    // //         },
+    // //       };
+    // //     }),
+    // //   });
+    // // }
+
     if (terms.length) {
       throw new BadRequestError(
         `Some search terms were not handled: ${JSON.stringify(terms)}`,

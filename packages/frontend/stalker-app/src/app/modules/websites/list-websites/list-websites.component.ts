@@ -28,11 +28,9 @@ import { SharedModule } from '../../../shared/shared.module';
 import { CustomFinding, CustomFindingField } from '../../../shared/types/finding/finding.type';
 import { ProjectSummary } from '../../../shared/types/project/project.summary';
 import { Website } from '../../../shared/types/websites/website.type';
+import { ElementMenuItems } from '../../../shared/widget/dynamic-icons/menu-icon.component';
 import { SecureIconComponent } from '../../../shared/widget/dynamic-icons/secure-icon.component';
-import {
-  ElementMenuItems,
-  FilteredPaginatedTableComponent,
-} from '../../../shared/widget/filtered-paginated-table/filtered-paginated-table.component';
+import { FilteredPaginatedTableComponent } from '../../../shared/widget/filtered-paginated-table/filtered-paginated-table.component';
 import { GridFormatComponent } from '../../../shared/widget/filtered-paginated-table/grid-format/grid-format.component';
 import {
   TABLE_FILTERS_SOURCE_INITAL_FILTERS,
@@ -41,6 +39,7 @@ import {
 import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-table/table-format/table-format.component';
 import { BlockedPillTagComponent } from '../../../shared/widget/pill-tag/blocked-pill-tag.component';
 import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.component';
+import { PillTagComponent } from '../../../shared/widget/pill-tag/pill-tag.component';
 import { appendGlobalFiltersToQuery, globalProjectFilter$ } from '../../../utils/global-project-filter';
 import { FindingsModule } from '../../findings/findings.module';
 import { WebsiteInteractionsService } from '../websites-interactions.service';
@@ -118,6 +117,7 @@ class WebsiteFiltersSource extends TableFiltersSourceBase<WebsiteFilters> {
     MatProgressSpinnerModule,
     FindingsModule,
     IntersectionDirective,
+    PillTagComponent,
   ],
   selector: 'app-list-websites',
   templateUrl: './list-websites.component.html',
@@ -281,7 +281,7 @@ export class ListWebsitesComponent {
   }
 
   private getImage$(website: Website) {
-    return this.findingsService.getLatestWebsitePreview(website.correlationKey).pipe(
+    return this.findingsService.getLatestWebsitePreview([website.correlationKey]).pipe(
       map((finding: CustomFinding) => {
         const image = finding?.fields.find((f) => f.key === 'image' && f.type === 'image' && !!f.data);
         if (image) return image;

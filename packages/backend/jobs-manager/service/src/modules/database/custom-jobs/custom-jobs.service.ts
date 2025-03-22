@@ -4,7 +4,7 @@ import { DeleteResult } from 'mongodb';
 import { Model, Types } from 'mongoose';
 import { HttpNotFoundException } from '../../../exceptions/http.exceptions';
 import { JobSummary } from '../../../types/job-summary.type';
-import { JobModelUpdateQueue } from '../../job-queue/job-model-update-queue';
+import { JobModelUpdateQueue } from '../../queues/job-model-update-queue/job-model-update-queue';
 import {
   JobContainer,
   JobContainerDocument,

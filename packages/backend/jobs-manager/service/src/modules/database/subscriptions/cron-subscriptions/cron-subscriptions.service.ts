@@ -26,9 +26,13 @@ import { Domain, DomainDocument } from '../../reporting/domain/domain.model';
 import { DomainsService } from '../../reporting/domain/domain.service';
 import { HostDocument } from '../../reporting/host/host.model';
 import { HostService } from '../../reporting/host/host.service';
+import {
+  IpRange,
+  IpRangeDocument,
+} from '../../reporting/ip-ranges/ip-range.model';
+import { IpRangeService } from '../../reporting/ip-ranges/ip-range.service';
 import { Port } from '../../reporting/port/port.model';
 import { PortService } from '../../reporting/port/port.service';
-import { ProjectDocument } from '../../reporting/project.model';
 import { ProjectService } from '../../reporting/project.service';
 import { WebsiteDocument } from '../../reporting/websites/website.model';
 import { WebsiteService } from '../../reporting/websites/website.service';
@@ -53,6 +57,7 @@ export class CronSubscriptionsService {
     private readonly configService: ConfigService,
     private readonly customJobsService: CustomJobsService,
     private readonly jobsService: JobExecutionsService,
+    private readonly ipRangesService: IpRangeService,
     private readonly domainsService: DomainsService,
     private readonly hostsService: HostService,
     private readonly portsService: PortService,
@@ -317,14 +322,17 @@ export class CronSubscriptionsService {
         } while (ports.length >= pageSize && pageSize !== null);
         break;
       case 'ALL_IP_RANGES':
-        const ranges = await this.projectService.getIpRanges(projectId);
-        this.publishJobsFromIpRanges(
-          sub,
-          ranges,
-          projectId,
-          batchEnabled,
-          pageSize,
-        );
+        let ranges: IpRange[] = [];
+        do {
+          ranges = await this.ipRangesService.getAll(page, pageSize, {
+            query: '', // TODO #319
+            detailsLevel: 'summary',
+          });
+          if (ranges.length) {
+            this.publishJobsFromIpRanges(sub, ranges, projectId, batchEnabled);
+          }
+          page++;
+        } while (ranges.length >= pageSize && pageSize !== null);
         break;
       case 'ALL_WEBSITES':
         let websites: Pick<
@@ -427,44 +435,27 @@ export class CronSubscriptionsService {
 
   private publishJobsFromIpRanges(
     sub: CronSubscription,
-    project: Pick<ProjectDocument, 'ipRanges'>,
+    ranges: Pick<IpRangeDocument, 'ip' | 'mask'>[],
     projectId: string,
     batchEnabled: boolean,
-    batchSize: number,
   ) {
-    if (!project.ipRanges) return;
+    if (!ranges || !ranges.length) return;
 
     let batchFinding = new IpRangeBatchFinding();
-    let counter = 0;
-    for (const range of project.ipRanges) {
-      const ipMask = range.split('/');
-      let ip = '';
-      let mask = -1;
-      try {
-        ip = ipMask[0];
-        mask = Number(ipMask[1]);
-      } catch (err) {
-        this.logger.error(err);
-        this.logger.error(
-          `Error while trying to start a job for ip range ${range}`,
-        );
-        continue;
-      }
 
-      if (!batchEnabled) {
+    if (!batchEnabled) {
+      for (const range of ranges) {
         const finding = new IpRangeFinding();
-        finding.ip = ip;
-        finding.mask = mask;
+        finding.ip = range.ip;
+        finding.mask = range.mask;
         this.publishJobForFinding(sub, finding, projectId);
-      } else {
-        counter++;
-        batchFinding.ipBatch.push(ip);
-        batchFinding.maskBatch.push(mask);
-        if (counter % batchSize == 0 || counter === project.ipRanges.length) {
-          this.publishJobForFinding(sub, batchFinding, projectId);
-          batchFinding = new IpRangeBatchFinding();
-        }
       }
+    } else {
+      for (const range of ranges) {
+        batchFinding.ipBatch.push(range.ip);
+        batchFinding.maskBatch.push(range.mask);
+      }
+      this.publishJobForFinding(sub, batchFinding, projectId);
     }
   }
 

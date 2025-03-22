@@ -50,24 +50,24 @@ export class Ipv4Subnet {
   /**
    * Creates an Ipv4Subnet representing the different values in a subnet
    * @param ip In the format 192.168.0.12
-   * @param mask In the format /24 or 255.255.255.0
+   * @param mask In the format 24 or 255.255.255.0
    */
   constructor(ip: string, mask: string) {
     this._ip = ip;
     this.mask = mask;
-    this._ipCount = 2 ** (32 - parseInt(this._shortMask.slice(1)));
+    this._ipCount = 2 ** (32 - parseInt(this._shortMask));
   }
 
   /**
    * Creates a long IP mask string from a short IP mask string
-   * @param shortMask A valid short IP mask in the format /24
+   * @param shortMask A valid short IP mask in the format 24
    * @returns A long IP mask in the format 255.255.255.0
    */
   public static createLongMaskFromShort(shortMask: string): string {
     if (!this.isValidShortMask(shortMask)) {
       throw new Ipv4MaskInvalidError(shortMask);
     }
-    const numMask = parseInt(shortMask.slice(1));
+    const numMask = parseInt(shortMask);
     const ipParts = [0, 0, 0, 0];
     for (let i = 0; i < 32; ++i) {
       const ipPart = Math.floor(i / 8);
@@ -83,7 +83,7 @@ export class Ipv4Subnet {
   /**
    * Creates a short IP mask string from a long IP mask string
    * @param longMask A valid long IP mask in the format 255.255.255.0
-   * @returns A short IP mask in the format /24
+   * @returns A short IP mask in the format 24
    */
   public static createShortMaskFromLong(longMask: string): string {
     if (!this.isValidLongMask(longMask)) {
@@ -93,14 +93,14 @@ export class Ipv4Subnet {
     const binaryStringMask = a4.binaryZeroPad();
     const index = binaryStringMask.indexOf('0');
     const numMask = binaryStringMask.slice(0, index === -1 ? 32 : index).length;
-    return `/${numMask}`;
+    return `${numMask}`;
   }
 
   /**
    * Creates an IP mask, short and long, from a short or long mask input
    * Used to ensure that you have both long and short mask values, regardless
    * of the mask given as input.
-   * @param mask A valid long or short IP mask in the format 255.255.255.0 or /24
+   * @param mask A valid long or short IP mask in the format 255.255.255.0 or 24
    * @returns An object containing a short mask value and a long mask value as strings
    */
   public static createMask(mask: string) {
@@ -110,7 +110,7 @@ export class Ipv4Subnet {
 
     let short;
     let long;
-    if (mask[0] === '/') {
+    if (!mask.includes('.')) {
       short = mask;
       long = Ipv4Subnet.createLongMaskFromShort(short);
     } else {
@@ -123,11 +123,11 @@ export class Ipv4Subnet {
   /**
    * Validates the format of a short IP mask string
    * @param shortMask A short IP mask string
-   * @returns `true` if the value is a valid short IP mask string (ex: /24)
+   * @returns `true` if the value is a valid short IP mask string (ex: 24)
    */
   public static isValidShortMask(shortMask: string): boolean {
     if (!shortMask) return false;
-    return /^\/\d\d?$/.test(shortMask) && parseInt(shortMask.slice(1)) <= 32;
+    return /^\d\d?$/.test(shortMask) && parseInt(shortMask) <= 32;
   }
 
   /**
@@ -177,7 +177,7 @@ export class Ipv4Subnet {
   }
 
   private setMinMaxIp() {
-    const numMask = parseInt(this._shortMask.slice(1));
+    const numMask = parseInt(this._shortMask);
     const a4 = new Address4(this._ip);
     a4.subnetMask = numMask;
     this._minIp = a4.startAddress().address;

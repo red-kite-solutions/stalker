@@ -34,6 +34,7 @@ import { ProjectSummary } from '../../../shared/types/project/project.summary';
 import { Tag } from '../../../shared/types/tag.type';
 import { BlockedPillTagComponent } from '../../../shared/widget/pill-tag/blocked-pill-tag.component';
 import { NewPillTagComponent } from '../../../shared/widget/pill-tag/new-pill-tag.component';
+import { PillTagComponent } from '../../../shared/widget/pill-tag/pill-tag.component';
 import { TextMenuComponent } from '../../../shared/widget/text-menu/text-menu.component';
 import { SelectItem } from '../../../shared/widget/text-select-menu/text-select-menu.component';
 import { FindingsModule } from '../../findings/findings.module';
@@ -55,6 +56,7 @@ import { DomainsInteractionsService } from '../domains-interactions.service';
     MatMenuModule,
     TextMenuComponent,
     BlockedPillTagComponent,
+    PillTagComponent,
   ],
   selector: 'app-view-domain',
   templateUrl: './view-domain.component.html',
