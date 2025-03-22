@@ -104,7 +104,7 @@ export class ViewIpRangeComponent implements OnDestroy {
   public manageTags: string = $localize`:Manage Tags|Manage Tags:Manage Tags`;
   public filterTags: string = $localize`:Filter Tags|Filter Tags:Filter Tags`;
   public emptyTags: string = $localize`:No Tags|List of tags is empty:No Tags Available`;
-  public manageIpRangeText: string = $localize`:Manage ip range|Manage the ip range element:Manage ip range`;
+  public manageIpRangeText: string = $localize`:Manage IP range|Manage the IP range element:Manage IP range`;
 
   // Drawer
   public currentDetailsId: string | null = null;
