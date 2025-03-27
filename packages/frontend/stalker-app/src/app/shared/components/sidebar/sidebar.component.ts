@@ -63,11 +63,6 @@ export class SidebarComponent {
       name: $localize`:Resources|Title for the Resources section of the sidenav:Resources`,
       items: [
         {
-          icon: 'radar',
-          routerLink: '/ip-ranges',
-          name: $localize`:IP Ranges|Sidenav ip ranges button:IP Ranges`,
-        },
-        {
           icon: 'language',
           routerLink: '/domains',
           name: $localize`:Domains|Sidenav domain button:Domains`,
@@ -86,6 +81,11 @@ export class SidebarComponent {
           icon: 'web',
           routerLink: '/websites',
           name: $localize`:Websites|Sidenav website button:Websites`,
+        },
+        {
+          icon: 'radar',
+          routerLink: '/ip-ranges',
+          name: $localize`:IP Ranges|Sidenav ip ranges button:IP Ranges`,
         },
       ],
     },
