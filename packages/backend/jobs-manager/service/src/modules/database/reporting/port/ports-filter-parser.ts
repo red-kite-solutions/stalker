@@ -1,337 +1,271 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { SearchTerms } from '@red-kite/jobs-manager/common-duplicates/search-query';
 import { FilterQuery, Model, Types } from 'mongoose';
-import { BadRequestError } from 'passport-headerapikey';
 import { Tag } from '../../tags/tag.model';
 import { FilterParserBase } from '../filters-parser/filter-parser-base';
-import { SearchTermsValidator } from '../filters-parser/search-terms-validator';
 import { Host } from '../host/host.model';
 import { Project } from '../project.model';
 import { Port, PortDocument } from './port.model';
 
 @Injectable()
-export class PortsFilterParser extends FilterParserBase {
-  private validator = new SearchTermsValidator();
-
+export class PortsFilterParser extends FilterParserBase<PortDocument> {
   constructor(
     @InjectModel('host') private readonly hostModel: Model<Host>,
-    @InjectModel('project') private readonly projectModel: Model<Project>,
-    @InjectModel('tags') private readonly tagModel: Model<Tag>,
     @InjectModel('port') private readonly portsModel: Model<Port>,
+    @InjectModel('project') projectModel: Model<Project>,
+    @InjectModel('tags') tagModel: Model<Tag>,
   ) {
-    super();
+    super(projectModel, tagModel);
   }
 
-  public async buildFilter(
-    query: string,
-    firstSeenStartDate: number,
-    firstSeenEndDate: number,
-  ): Promise<FilterQuery<PortDocument>> {
-    const terms = this.queryParser.parse(query || '', {
-      completeTermsOnly: true,
-      excludeEmptyValues: true,
-    });
+  protected async buildResourceFilters(terms: SearchTerms) {
+    return [
+      ...(await this.idFilters(terms)),
+      ...(await this.numberFilters(terms)),
+      ...(await this.protocolFilters(terms)),
+      ...(await this.serviceFilters(terms)),
+      ...(await this.versionFilters(terms)),
+      ...(await this.productFilters(terms)),
+      ...(await this.idFilters(terms)),
+      ...(await this.hostFilters(terms)),
+    ];
+  }
 
-    if (!terms.length) return {};
+  /** Handles "port.id" search terms. */
+  private async idFilters(terms: SearchTerms) {
+    const filters: FilterQuery<PortDocument>[] = [];
 
-    this.validator.ensureTerms(terms);
-
-    const finalFilter: FilterQuery<PortDocument> = { $and: [] };
-
-    // "host.id" filters
-    {
-      const t = this.consumeTerms(terms, '', 'host.id');
-      if (t.length) {
-        const hosts = t.map((x) => new Types.ObjectId(x.value));
-        finalFilter.$and.push({ 'host.id': { $in: hosts } });
-      }
-    }
-
-    // "-host.id" filters
-    {
-      const t = this.consumeTerms(terms, '-', 'host.id');
-      if (t.length) {
-        const notHosts = t.map((x) => new Types.ObjectId(x.value));
-        finalFilter.$and.push({ 'host.id': { $not: { $in: notHosts } } });
-      }
-    }
-
-    // "host.ip" filters
-    {
-      const t = this.consumeTerms(terms, '', 'host.ip');
-      if (t.length) {
-        const hosts = await this.hostModel.find(
-          { ip: { $in: this.toInclusionList(t) } },
-          '_id',
-        );
-
-        finalFilter.$and.push({ 'host.id': { $in: hosts.map((x) => x._id) } });
-      }
-    }
-
-    // "-host.ip" filters
-    {
-      const t = this.consumeTerms(terms, '-', 'host.ip');
-      if (t.length) {
-        const hosts = await this.hostModel.find(
-          { ip: { $in: this.toInclusionList(t) } },
-          '_id',
-        );
-
-        finalFilter.$and.push({
-          'host.id': { $not: { $in: hosts.map((x) => x._id) } },
-        });
-      }
-    }
-
-    // "project.id" filters
-    {
-      const t = this.consumeTerms(terms, '', 'project.id');
-      if (t.length) {
-        const projects = t.map((x) => new Types.ObjectId(x.value));
-        finalFilter.$and.push({ projectId: { $in: projects } });
-      }
-    }
-
-    // "-project.id" filters
-    {
-      const t = this.consumeTerms(terms, '-', 'project.id');
-      if (t.length) {
-        const projects = t.map((x) => new Types.ObjectId(x.value));
-        finalFilter.$and.push({ projectId: { $not: { $in: projects } } });
-      }
-    }
-
-    // "project.name" filters
-    {
-      const t = this.consumeTerms(terms, '', 'project.name');
-      if (t.length) {
-        const projects = await this.projectModel.find(
-          { name: { $in: this.toInclusionList(t) } },
-          '_id',
-        );
-
-        finalFilter.$and.push({
-          projectId: { $in: projects.map((x) => x._id) },
-        });
-      }
-    }
-
-    // "-project.name" filters
-    {
-      const t = this.consumeTerms(terms, '-', 'project.name');
-      if (t.length) {
-        const projects = await this.projectModel.find(
-          { name: { $in: this.toInclusionList(t) } },
-          '_id',
-        );
-
-        finalFilter.$and.push({
-          projectId: { $not: { $in: projects.map((x) => x._id) } },
-        });
-      }
-    }
-
-    // "tag.name" filters
-    {
-      const t = this.consumeTerms(terms, '', 'tag.name');
-      if (t.length) {
-        const tags = await this.tagModel.find({
-          text: { $in: this.toInclusionList(t, { lowercase: true }) },
-        });
-
-        finalFilter.$and.push({
-          tags: { $all: tags.map((x) => x._id) },
-        });
-      }
-    }
-
-    // "-tag.name" filters
-    {
-      const t = this.consumeTerms(terms, '-', 'tag.name');
-      if (t.length) {
-        const tags = await this.tagModel.find(
-          { text: { $in: this.toInclusionList(t, { lowercase: true }) } },
-          '_id',
-        );
-
-        finalFilter.$and.push({
-          tags: { $nin: tags.map((x) => x._id) },
-        });
-      }
-    }
-
-    // "tag.id" filters
-    {
-      const t = this.consumeTerms(terms, '', 'tag.id');
-      if (t.length) {
-        const tagIds = t.map((x) => new Types.ObjectId(x.value));
-        finalFilter.$and.push({
-          tags: { $all: tagIds },
-        });
-      }
-    }
-
-    // "-tag.id" filters
-    {
-      const t = this.consumeTerms(terms, '-', 'tag.id');
-      if (t.length) {
-        const tagIds = t.map((x) => new Types.ObjectId(x.value));
-        finalFilter.$and.push({
-          tags: { $nin: tagIds },
-        });
-      }
-    }
-
-    // "port.number" filters
-    {
-      const t = this.consumeTerms(terms, '', 'port.number');
-      const ports = t.map((x) => +x.value);
-      if (t.length) {
-        finalFilter.$and.push({
-          port: { $in: ports },
-        });
-      }
-    }
-
-    // "-port.number" filters
-    {
-      const t = this.consumeTerms(terms, '-', 'port.number');
-      if (t.length) {
-        const ports = t.map((x) => +x.value);
-
-        finalFilter.$and.push({
-          port: { $not: { $in: ports } },
-        });
-      }
-    }
-
-    // "port.id" filters
+    // Include
     {
       const t = this.consumeTerms(terms, '', 'port.id');
       if (t.length) {
         const portIds = t.map((x) => new Types.ObjectId(x.value));
-        finalFilter.$and.push({
+        filters.push({
           _id: { $in: portIds },
         });
       }
     }
 
-    // "-port.id" filters
+    // Exclude
     {
       const t = this.consumeTerms(terms, '-', 'port.id');
       if (t.length) {
         const portIds = t.map((x) => new Types.ObjectId(x.value));
-        finalFilter.$and.push({
+        filters.push({
           _id: { $not: { $in: portIds } },
         });
       }
     }
 
-    // "port.protocol" filters
+    return filters;
+  }
+
+  /** Handles "port.number" search terms. */
+  private async numberFilters(terms: SearchTerms) {
+    const filters: FilterQuery<PortDocument>[] = [];
+
+    // Include
+    {
+      const t = this.consumeTerms(terms, '', 'port.number');
+      const ports = t.map((x) => +x.value);
+      if (t.length) {
+        filters.push({
+          port: { $in: ports },
+        });
+      }
+    }
+
+    // Exclude
+    {
+      const t = this.consumeTerms(terms, '-', 'port.number');
+      if (t.length) {
+        const ports = t.map((x) => +x.value);
+
+        filters.push({
+          port: { $not: { $in: ports } },
+        });
+      }
+    }
+
+    return filters;
+  }
+
+  /** Handles "port.protocol" search terms. */
+  private async protocolFilters(terms: SearchTerms) {
+    const filters: FilterQuery<PortDocument>[] = [];
+
+    // Include
     {
       const t = this.consumeTerms(terms, '', 'port.protocol');
       if (t.length) {
         const protocols = this.toInclusionList(t, { lowercase: true });
-        finalFilter.$and.push({
+        filters.push({
           layer4Protocol: { $in: protocols },
         });
       }
     }
 
-    // "-port.protocol" filters
+    // Exclude
     {
       const t = this.consumeTerms(terms, '-', 'port.protocol');
       if (t.length) {
         const protocols = this.toInclusionList(t, { lowercase: true });
-        finalFilter.$and.push({
+        filters.push({
           layer4Protocol: { $not: { $in: protocols } },
         });
       }
     }
 
-    // "is: blocked" filter
+    return filters;
+  }
+
+  /** Handles "port.service" search terms. */
+  private async serviceFilters(terms: SearchTerms) {
+    const filters: FilterQuery<PortDocument>[] = [];
+
+    // Include
     {
-      const t = this.consumeTerms(terms, '', 'is', 'blocked');
+      const t = this.consumeTerms(terms, '', 'port.service');
       if (t.length) {
-        finalFilter.$and.push({ blocked: true });
+        const service = this.toInclusionList(t, { lowercase: true });
+        filters.push({
+          service: { $in: service },
+        });
       }
     }
 
-    // "-is: blocked" filter
+    // Exclude
     {
-      const t = this.consumeTerms(terms, '-', 'is', 'blocked');
+      const t = this.consumeTerms(terms, '-', 'port.service');
       if (t.length) {
-        finalFilter.$and.push({ blocked: { $not: { $eq: true } } });
+        const services = this.toInclusionList(t, { lowercase: true });
+        filters.push({
+          service: { $not: { $in: services } },
+        });
       }
     }
 
-    // TODO #319
-    // // // Filter by port service
-    // // if (dto.services) {
-    // //   const servicesRegex = dto.services
-    // //     .filter((x) => x)
-    // //     .map((x) => x.toLowerCase().trim())
-    // //     .map((x) => escapeStringRegexp(x))
-    // //     .map((x) => new RegExp(`.*${x}.*`));
+    return filters;
+  }
 
-    // //   if (servicesRegex.length > 0) {
-    // //     finalFilter['service'] = { $in: servicesRegex };
-    // //   }
-    // // }
+  /** Handles "port.version" search terms. */
+  private async versionFilters(terms: SearchTerms) {
+    const filters: FilterQuery<PortDocument>[] = [];
 
-    // // // Filter by port products
-    // // if (dto.products) {
-    // //   const productsRegex = dto.products
-    // //     .filter((x) => x)
-    // //     .map((x) => x.toLowerCase().trim())
-    // //     .map((x) => escapeStringRegexp(x))
-    // //     .map((x) => new RegExp(`.*${x}.*`, 'i'));
-
-    // //   if (productsRegex.length > 0) {
-    // //     finalFilter['product'] = { $in: productsRegex };
-    // //   }
-    // // }
-
-    // // // Filter by port versions
-    // // if (dto.versions) {
-    // //   const versionsRegex = dto.versions
-    // //     .filter((x) => x)
-    // //     .map((x) => x.toLowerCase().trim())
-    // //     .map((x) => escapeStringRegexp(x))
-    // //     .map((x) => new RegExp(`.*${x}.*`, 'i'));
-
-    // //   if (versionsRegex.length > 0) {
-    // //     finalFilter['version'] = { $in: versionsRegex };
-    // //   }
-    // // }
-
-    // // // Filter by project
-    // // if (dto.projects) {
-    // //   const projectIds = dto.projects
-    // //     .filter((x) => x)
-    // //     .map((x) => new Types.ObjectId(x));
-
-    // //   if (projectIds.length > 0) {
-    // //     finalFilter['projectId'] = { $in: projectIds };
-    // //   }
-    // // }
-
-    // Filter by createdAt
-    if (firstSeenStartDate) {
-      finalFilter.$and.push({ createdAt: { $gte: firstSeenStartDate } });
+    // Include
+    {
+      const t = this.consumeTerms(terms, '', 'port.version');
+      if (t.length) {
+        const version = this.toInclusionList(t, { lowercase: true });
+        filters.push({
+          service: { $in: version },
+        });
+      }
     }
 
-    if (firstSeenEndDate) {
-      finalFilter.$and.push({ createdAt: { $lt: firstSeenEndDate } });
+    // Exclude
+    {
+      const t = this.consumeTerms(terms, '-', 'port.version');
+      if (t.length) {
+        const version = this.toInclusionList(t, { lowercase: true });
+        filters.push({
+          version: { $not: { $in: version } },
+        });
+      }
     }
 
-    if (terms.length) {
-      throw new BadRequestError(
-        `Some search terms were not handled: ${JSON.stringify(terms)}`,
-      );
+    return filters;
+  }
+
+  /** Handles "port.product" search terms. */
+  private async productFilters(terms: SearchTerms) {
+    const filters: FilterQuery<PortDocument>[] = [];
+
+    // "port.product" filters
+    {
+      // Include
+      {
+        const t = this.consumeTerms(terms, '', 'port.product');
+        if (t.length) {
+          const product = this.toInclusionList(t, { lowercase: true });
+          filters.push({
+            product: { $in: product },
+          });
+        }
+      }
+
+      // Exclude
+      {
+        const t = this.consumeTerms(terms, '-', 'port.product');
+        if (t.length) {
+          const product = this.toInclusionList(t, { lowercase: true });
+          filters.push({
+            product: { $not: { $in: product } },
+          });
+        }
+      }
     }
 
-    return finalFilter;
+    return filters;
+  }
+
+  /** Handles "host.id" and "host.ip" search terms. */
+  private async hostFilters(terms: SearchTerms) {
+    const filters: FilterQuery<PortDocument>[] = [];
+
+    // "host.id" filters
+    {
+      // Inclusion
+      {
+        const t = this.consumeTerms(terms, '', 'host.id');
+        if (t.length) {
+          const hosts = t.map((x) => new Types.ObjectId(x.value));
+          filters.push({ 'host.id': { $in: hosts } });
+        }
+      }
+
+      // Exclusion
+      {
+        const t = this.consumeTerms(terms, '-', 'host.id');
+        if (t.length) {
+          const notHosts = t.map((x) => new Types.ObjectId(x.value));
+          filters.push({ 'host.id': { $not: { $in: notHosts } } });
+        }
+      }
+    }
+
+    // "host.ip" filters
+    {
+      // Inclusion
+      {
+        const t = this.consumeTerms(terms, '', 'host.ip');
+        if (t.length) {
+          const hosts = await this.hostModel.find(
+            { ip: { $in: this.toInclusionList(t) } },
+            '_id',
+          );
+
+          filters.push({ 'host.id': { $in: hosts.map((x) => x._id) } });
+        }
+      }
+
+      // Exclusion
+      {
+        const t = this.consumeTerms(terms, '-', 'host.ip');
+        if (t.length) {
+          const hosts = await this.hostModel.find(
+            { ip: { $in: this.toInclusionList(t) } },
+            '_id',
+          );
+
+          filters.push({
+            'host.id': { $not: { $in: hosts.map((x) => x._id) } },
+          });
+        }
+      }
+    }
+
+    return filters;
   }
 }

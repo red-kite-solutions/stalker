@@ -59,7 +59,7 @@ describe('Domain Service', () => {
       );
 
       // Assert
-      expect(domains.length).toBe(2);
+      expect(domains.length).toBe(1);
     });
   });
 
@@ -86,9 +86,9 @@ describe('Domain Service', () => {
       project2 = await project('project 2');
       [foo, bar, baz, qux] = await tags('foo', 'bar', 'baz', 'qux');
 
-      d1 = await domain('d1', project1, [foo, bar]);
-      d2 = await domain('d2', project1, [foo, baz]);
-      d3 = await domain('d3', project2, [qux]);
+      d1 = await domain('d1.org', project1, [foo, bar]);
+      d2 = await domain('sub.d1.org', project1, [foo, baz]);
+      d3 = await domain('d1.biz', project2, [qux]);
 
       h1 = await host('1.1.1.1', d1.name, project1);
       h2 = await host('1.2.2.2', d2.name, project1);
@@ -98,45 +98,60 @@ describe('Domain Service', () => {
     });
 
     it.each([
-      ['', ['d1', 'd2', 'd3']],
+      ['', ['d1.org', 'sub.d1.org', 'd1.biz']],
 
       // Projects
-      ['project: "project*"', ['d1', 'd2', 'd3']],
-      ['project: "project 1"', ['d1', 'd2']],
-      ['project: "project 2"', ['d3']],
-      ['-project: "project 2"', ['d1', 'd2']],
-      ['project.name: "project*"', ['d1', 'd2', 'd3']],
-      ['project.name: "project 1"', ['d1', 'd2']],
-      ['project.name: "project 2"', ['d3']],
-      ['-project.name: "project 2"', ['d1', 'd2']],
-      [() => `project.id: ${project1.id}`, ['d1', 'd2']],
-      [() => `project.id: ${project2.id}`, ['d3']],
-      [() => `-project.id: ${project2.id}`, ['d1', 'd2']],
+      ['project: "project*"', ['d1.org', 'sub.d1.org', 'd1.biz']],
+      ['project: "project 1"', ['d1.org', 'sub.d1.org']],
+      ['project: "project 2"', ['d1.biz']],
+      ['-project: "project 2"', ['d1.org', 'sub.d1.org']],
+      ['project.name: "project*"', ['d1.org', 'sub.d1.org', 'd1.biz']],
+      ['project.name: "project 1"', ['d1.org', 'sub.d1.org']],
+      ['project.name: "project 2"', ['d1.biz']],
+      ['-project.name: "project 2"', ['d1.org', 'sub.d1.org']],
+      [() => `project.id: ${project1.id}`, ['d1.org', 'sub.d1.org']],
+      [() => `project.id: ${project2.id}`, ['d1.biz']],
+      [() => `-project.id: ${project2.id}`, ['d1.org', 'sub.d1.org']],
 
       // Host
-      ['host: 1.1.1.1', ['d1']],
-      ['host.ip: 1.1.1.1', ['d1']],
-      [() => `host.id: ${h1._id}`, ['d1']],
-      ['host: 1.*', ['d1', 'd2', 'd3']],
-      ['host: 1.2.2*', ['d2', 'd3']],
-      ['-host: 1.1.1.1', ['d2', 'd3']],
-      ['-host.ip: 1.1.1.1', ['d2', 'd3']],
-      [() => `-host.id: ${h1.id}`, ['d2', 'd3']],
-      ['-host: 1.2.2*', ['d1']],
+      ['host: 1.1.1.1', ['d1.org']],
+      ['host.ip: 1.1.1.1', ['d1.org']],
+      [() => `host.id: ${h1._id}`, ['d1.org']],
+      ['host: 1.*', ['d1.org', 'sub.d1.org', 'd1.biz']],
+      ['host: 1.2.2*', ['sub.d1.org', 'd1.biz']],
+      ['-host: 1.1.1.1', ['sub.d1.org', 'd1.biz']],
+      ['-host.ip: 1.1.1.1', ['sub.d1.org', 'd1.biz']],
+      [() => `-host.id: ${h1.id}`, ['sub.d1.org', 'd1.biz']],
+      ['-host: 1.2.2*', ['d1.org']],
+
+      // Domain
+      ['domain: d1.org', ['d1.org']],
+      ['domain: sub.d1.org', ['sub.d1.org']],
+      ['domain: d1.*', ['d1.org', 'd1.biz']],
+      ['-domain: d1.org', ['sub.d1.org', 'd1.biz']],
+      ['domain.name: d1.org', ['d1.org']],
+      ['domain.name: sub.d1.org', ['sub.d1.org']],
+      ['domain.name: d1.*', ['d1.org', 'd1.biz']],
+      ['-domain.name: d1.org', ['sub.d1.org', 'd1.biz']],
+      [() => `domain.id: ${d1.id}`, ['d1.org']],
+      [
+        () => `domain.id: ${d2.id} domain.id: ${d3.id}`,
+        ['sub.d1.org', 'd1.biz'],
+      ],
 
       // Tag
-      ['tag: foo', ['d1', 'd2']],
-      ['-tag: foo', ['d3']],
-      [() => `tag.id: ${foo._id}`, ['d1', 'd2']],
-      [() => `-tag.id: ${foo._id}`, ['d3']],
-      ['-tag: ba*', ['d3']],
-      ['tag: qux', ['d3']],
-      ['tag: foo tag: bar', ['d1']],
-      ['-tag: foo tag: qux', ['d3']],
+      ['tag: foo', ['d1.org', 'sub.d1.org']],
+      ['-tag: foo', ['d1.biz']],
+      [() => `tag.id: ${foo._id}`, ['d1.org', 'sub.d1.org']],
+      [() => `-tag.id: ${foo._id}`, ['d1.biz']],
+      ['-tag: ba*', ['d1.biz']],
+      ['tag: qux', ['d1.biz']],
+      ['tag: foo tag: bar', ['d1.org']],
+      ['-tag: foo tag: qux', ['d1.biz']],
 
       // Is
-      ['is: blocked', ['d3']],
-      ['-is: blocked', ['d1', 'd2']],
+      ['is: blocked', ['d1.biz']],
+      ['-is: blocked', ['d1.org', 'sub.d1.org']],
     ])(
       'Filter by "%s"',
       async (query: string | (() => string), expected: string[]) => {

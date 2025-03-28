@@ -117,37 +117,40 @@ describe('Host Service', () => {
       domain3 = await domain('d3', project2);
 
       [h1, h2] = await host(domain1, project1, [foo], '1.1.1.1', '1.2.2.2');
-      [h2] = await host(domain1, project1, [foo, bar], '1.2.2.2');
+      [h2] = await host(domain3, project2, [foo, bar], '1.2.2.2');
       [h3] = await host(domain3, project2, [foo, baz, qux], '1.2.2.3');
 
       block(h3);
     });
 
     it.each([
-      ['', ['1.1.1.1', '1.2.2.2', '1.2.2.3']],
+      ['', ['1.1.1.1', '1.2.2.2', '1.2.2.2', '1.2.2.3']],
 
       // Projects
-      ['project: "project*"', ['1.1.1.1', '1.2.2.2', '1.2.2.3']],
+      ['project: "project*"', ['1.1.1.1', '1.2.2.2', '1.2.2.2', '1.2.2.3']],
       ['project: "project 1"', ['1.1.1.1', '1.2.2.2']],
-      ['project: "project 2"', ['1.2.2.3']],
+      ['project: "project 2"', ['1.2.2.2', '1.2.2.3']],
       ['-project: "project 2"', ['1.1.1.1', '1.2.2.2']],
-      ['project.name: "project*"', ['1.1.1.1', '1.2.2.2', '1.2.2.3']],
+      [
+        'project.name: "project*"',
+        ['1.1.1.1', '1.2.2.2', '1.2.2.2', '1.2.2.3'],
+      ],
       ['project.name: "project 1"', ['1.1.1.1', '1.2.2.2']],
-      ['project.name: "project 2"', ['1.2.2.3']],
+      ['project.name: "project 2"', ['1.2.2.2', '1.2.2.3']],
       ['-project.name: "project 2"', ['1.1.1.1', '1.2.2.2']],
       [() => `project.id: ${project1.id}`, ['1.1.1.1', '1.2.2.2']],
-      [() => `project.id: ${project2.id}`, ['1.2.2.3']],
+      [() => `project.id: ${project2.id}`, ['1.2.2.2', '1.2.2.3']],
       [() => `-project.id: ${project2.id}`, ['1.1.1.1', '1.2.2.2']],
 
       // Host
       ['host: 1.1.1.1', ['1.1.1.1']],
       ['host.ip: 1.1.1.1', ['1.1.1.1']],
       [() => `host.id: ${h1.id}`, ['1.1.1.1']],
-      ['host: 1.*', ['1.1.1.1', '1.2.2.2', '1.2.2.3']],
-      ['host: 1.2.2*', ['1.2.2.2', '1.2.2.3']],
-      ['-host: 1.1.1.1', ['1.2.2.2', '1.2.2.3']],
-      ['-host.ip: 1.1.1.1', ['1.2.2.2', '1.2.2.3']],
-      [() => `-host.id: ${h1.id}`, ['1.2.2.2', '1.2.2.3']],
+      ['host: 1.*', ['1.1.1.1', '1.2.2.2', '1.2.2.2', '1.2.2.3']],
+      ['host: 1.2.2*', ['1.2.2.2', '1.2.2.2', '1.2.2.3']],
+      ['-host: 1.1.1.1', ['1.2.2.2', '1.2.2.2', '1.2.2.3']],
+      ['-host.ip: 1.1.1.1', ['1.2.2.2', '1.2.2.2', '1.2.2.3']],
+      [() => `-host.id: ${h1.id}`, ['1.2.2.2', '1.2.2.2', '1.2.2.3']],
       ['-host: 1.2.2*', ['1.1.1.1']],
 
       // Tag
@@ -166,8 +169,10 @@ describe('Host Service', () => {
     ])(
       'Filter by "%s"',
       async (query: string | (() => string), expected: string[]) => {
+        console.log('### START');
         // Arrange
         if (typeof query !== 'string') query = query();
+        console.log(query);
 
         // Act
         const allHosts = await hostService.getAll(0, 10);
@@ -178,6 +183,7 @@ describe('Host Service', () => {
 
         // Assert
         expect(hosts.map((x) => x.ip).sort()).toStrictEqual(expected.sort());
+        console.log('### END');
       },
     );
 

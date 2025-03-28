@@ -98,7 +98,6 @@ export class ListPortsComponent {
 
   private refresh$ = new BehaviorSubject(null);
   public ports$ = combineLatest([this.filtersSource.debouncedFilters$, this.refresh$, globalProjectFilter$]).pipe(
-    tap((x) => console.log(x)),
     switchMap(([{ filters, dateRange, pagination }]) =>
       this.portsService
         .getPage<Port>(

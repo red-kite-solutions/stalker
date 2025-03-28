@@ -61,7 +61,6 @@ export abstract class TableFiltersSourceBase<T> {
   }
 
   protected async setValues(values: { [key: string]: unknown }) {
-    console.log(values);
     await this.router.navigate([], {
       queryParams: values,
       queryParamsHandling: 'merge',
