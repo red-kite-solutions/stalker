@@ -7,6 +7,7 @@ import { TagsModule } from '../../tags/tag.module';
 import { DomainsModule } from '../domain/domain.module';
 import { PortModule } from '../port/port.module';
 import { WebsiteModule } from '../websites/website.module';
+import { HostsFilterParser } from './host-filter-parser';
 import { HostController } from './host.controller';
 import { HostService } from './host.service';
 
@@ -22,7 +23,7 @@ import { HostService } from './host.service';
     WebsiteModule,
   ],
   controllers: [HostController],
-  providers: [HostService],
-  exports: [HostService],
+  providers: [HostService, HostsFilterParser],
+  exports: [HostService, HostsFilterParser],
 })
 export class HostModule {}

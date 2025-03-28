@@ -325,6 +325,7 @@ export class CronSubscriptionsService {
         let ranges: IpRange[] = [];
         do {
           ranges = await this.ipRangesService.getAll(page, pageSize, {
+            query: '', // TODO #319
             detailsLevel: 'summary',
           });
           if (ranges.length) {
