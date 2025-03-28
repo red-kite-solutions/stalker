@@ -59,6 +59,6 @@ export class JobsService {
 
   private filterJob(job: CustomJob, filters: string[]) {
     const parts = [job.name, job.findingHandlerLanguage, job.type];
-    return filters.some((filter) => normalizeSearchString(parts.join(' ')).includes(filter));
+    return filters.some((filter) => normalizeSearchString(parts.join(' ')).includes(normalizeSearchString(filter)));
   }
 }

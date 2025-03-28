@@ -1,9 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import {
+  ipv4RangeValuesToMinMax,
+  numberToIpv4,
+} from '../../../../utils/ip-address.utils';
 import { AppModule } from '../../../app.module';
 import { DomainDocument } from '../../reporting/domain/domain.model';
 import { DomainsService } from '../../reporting/domain/domain.service';
 import { HostDocument } from '../../reporting/host/host.model';
 import { HostService } from '../../reporting/host/host.service';
+import { IpRangeService } from '../../reporting/ip-ranges/ip-range.service';
 import { PortDocument } from '../../reporting/port/port.model';
 import { PortService } from '../../reporting/port/port.service';
 import { ProjectService } from '../../reporting/project.service';
@@ -22,6 +27,7 @@ describe('Cron Subscriptions Service', () => {
   let hostsService: HostService;
   let portsService: PortService;
   let websiteService: WebsiteService;
+  let ipRangeService: IpRangeService;
 
   const csDto: CronSubscriptionDto = {
     cronExpression: '*/5 * * * *',
@@ -50,6 +56,7 @@ describe('Cron Subscriptions Service', () => {
     hostsService = moduleFixture.get(HostService);
     portsService = moduleFixture.get(PortService);
     websiteService = moduleFixture.get(WebsiteService);
+    ipRangeService = moduleFixture.get(IpRangeService);
   });
 
   beforeEach(async () => {
@@ -1484,7 +1491,7 @@ describe('Cron Subscriptions Service', () => {
         { name: 'ports', value: [] },
       ];
 
-      await projectService.addIpRangeWithMask(c._id.toString(), ip, mask);
+      await ipRangeService.addIpRange(ip, mask, c._id.toString());
 
       const spy = jest //@ts-expect-error
         .spyOn(subscriptionsService, 'publishJob') //@ts-expect-error
@@ -1530,27 +1537,11 @@ describe('Cron Subscriptions Service', () => {
         { name: 'ports', value: [] },
       ];
 
-      await projectService.addIpRangeWithMask(
-        c._id.toString(),
-        '1.1.1.2',
-        mask,
-      );
-      await projectService.addIpRangeWithMask(
-        c._id.toString(),
-        '1.1.1.3',
-        mask,
-      );
-      await projectService.addIpRangeWithMask(
-        c._id.toString(),
-        '1.1.1.4',
-        mask,
-      );
-      await projectService.addIpRangeWithMask(
-        c._id.toString(),
-        '1.1.1.5',
-        mask,
-      );
-      await projectService.addIpRangeWithMask(c._id.toString(), ip, mask);
+      await ipRangeService.addIpRange('1.1.1.2', mask, c._id.toString());
+      await ipRangeService.addIpRange('1.1.1.3', mask, c._id.toString());
+      await ipRangeService.addIpRange('1.1.1.4', mask, c._id.toString());
+      await ipRangeService.addIpRange('1.1.1.5', mask, c._id.toString());
+      await ipRangeService.addIpRange(ip, mask, c._id.toString());
 
       const spy = jest //@ts-expect-error
         .spyOn(subscriptionsService, 'publishJob') //@ts-expect-error
@@ -1614,7 +1605,7 @@ describe('Cron Subscriptions Service', () => {
         },
       ]);
 
-      await projectService.addIpRangeWithMask(c._id.toString(), ip, mask);
+      await ipRangeService.addIpRange(ip, mask, c._id.toString());
 
       const spy = jest //@ts-expect-error
         .spyOn(subscriptionsService, 'publishJob') //@ts-expect-error
@@ -1679,27 +1670,11 @@ describe('Cron Subscriptions Service', () => {
         },
       ]);
 
-      await projectService.addIpRangeWithMask(
-        c._id.toString(),
-        '1.1.1.2',
-        mask,
-      );
-      await projectService.addIpRangeWithMask(
-        c._id.toString(),
-        '1.1.1.3',
-        mask,
-      );
-      await projectService.addIpRangeWithMask(
-        c2._id.toString(),
-        '1.1.1.4',
-        mask,
-      );
-      await projectService.addIpRangeWithMask(
-        c2._id.toString(),
-        '1.1.1.5',
-        mask,
-      );
-      await projectService.addIpRangeWithMask(c2._id.toString(), ip, mask);
+      await ipRangeService.addIpRange('1.1.1.2', mask, c._id.toString());
+      await ipRangeService.addIpRange('1.1.1.3', mask, c._id.toString());
+      await ipRangeService.addIpRange('1.1.1.4', mask, c2._id.toString());
+      await ipRangeService.addIpRange('1.1.1.5', mask, c2._id.toString());
+      await ipRangeService.addIpRange(ip, mask, c._id.toString());
 
       const spy = jest //@ts-expect-error
         .spyOn(subscriptionsService, 'publishJobsFromInput') //@ts-expect-error
@@ -2419,7 +2394,7 @@ describe('Cron Subscriptions Service', () => {
         masks: [32, 24, 23],
       },
     ])(
-      'Should publish jobs from input ALL_IP_RANGES (one batch)',
+      'Should publish jobs from input ALL_IP_RANGES (one batch): %s',
       async ({ batchEnabled, batchSize, ips, masks }) => {
         // Arrange
         const c = await project('Test project');
@@ -2440,11 +2415,8 @@ describe('Cron Subscriptions Service', () => {
         };
 
         for (let i = 0; i < ips.length; ++i) {
-          await projectService.addIpRangeWithMask(
-            c._id.toString(),
-            ips[i],
-            masks[i],
-          );
+          await ipRangeService.addIpRange(ips[i], masks[i], c._id.toString());
+          ips[i] = numberToIpv4(ipv4RangeValuesToMinMax(ips[i], masks[i]).min);
         }
 
         const spy = jest //@ts-expect-error
@@ -2513,11 +2485,7 @@ describe('Cron Subscriptions Service', () => {
         };
 
         for (let i = 0; i < ips.length; ++i) {
-          await projectService.addIpRangeWithMask(
-            c._id.toString(),
-            ips[i],
-            masks[i],
-          );
+          await ipRangeService.addIpRange(ips[i], masks[i], c._id.toString());
         }
 
         const spy = jest //@ts-expect-error

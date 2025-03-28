@@ -3,20 +3,19 @@ import { CommandHandler } from '@nestjs/cqrs';
 import { ConfigService } from '../../../database/admin/config/config.service';
 import { CustomJobsService } from '../../../database/custom-jobs/custom-jobs.service';
 import { JobExecutionsService } from '../../../database/jobs/job-executions.service';
-import { ProjectService } from '../../../database/reporting/project.service';
+import { IpRangeService } from '../../../database/reporting/ip-ranges/ip-range.service';
 import { SecretsService } from '../../../database/secrets/secrets.service';
 import { EventSubscriptionsService } from '../../../database/subscriptions/event-subscriptions/event-subscriptions.service';
 import { SubscriptionTriggersService } from '../../../database/subscriptions/subscription-triggers/subscription-triggers.service';
 import { UserFindingHandlerBase } from '../user-findings-handler-base';
-import { IpCommand } from './ip.command';
-import { IpRangeCommand } from './ipRange.command';
+import { IpRangeCommand } from './ip-range.command';
 
-@CommandHandler(IpCommand)
+@CommandHandler(IpRangeCommand)
 export class IpRangeHandler extends UserFindingHandlerBase<IpRangeCommand> {
-  protected logger: Logger = new Logger('IpRangeHandler');
+  protected logger: Logger = new Logger(IpRangeHandler.name);
 
   constructor(
-    private readonly projectService: ProjectService,
+    private readonly ipRangeService: IpRangeService,
     jobService: JobExecutionsService,
     subscriptionsService: EventSubscriptionsService,
     customJobsService: CustomJobsService,
@@ -37,10 +36,10 @@ export class IpRangeHandler extends UserFindingHandlerBase<IpRangeCommand> {
   protected async executeCore(command: IpRangeCommand) {
     if (!command.finding.jobId) return;
 
-    await this.projectService.addIpRangeWithMask(
-      command.projectId,
+    await this.ipRangeService.addIpRange(
       command.finding.ip,
       command.finding.mask,
+      command.projectId,
     );
   }
 }

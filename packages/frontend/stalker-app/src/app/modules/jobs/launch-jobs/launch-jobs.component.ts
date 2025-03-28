@@ -240,6 +240,6 @@ export class LaunchJobsComponent implements AfterViewInit {
 
   private filterJob(entry: JobListEntry, filter: string) {
     const parts = [entry.name];
-    return normalizeSearchString(parts.join(' ')).includes(filter);
+    return normalizeSearchString(parts.join(' ')).includes(normalizeSearchString(filter));
   }
 }

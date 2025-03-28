@@ -4,6 +4,8 @@ title: Resources
 description: What are resources
 ---
 
+import EnterpriseNotice from "../../src/components/EnterpriseNotice";
+
 # Resources
 
 Resources represent the core entities of an exposed network. They are used to store and show the data found by
@@ -22,7 +24,7 @@ up-to-date. Want to dive deeper? Check out the section on [learn more about find
 ## Types of Resources
 
 Resources come in various types, each created by specific findings. Some findings are generated through the user interface, while others
-originate from the API. Regardless of their origin, every resource is tied to a specific project.
+originate from the API. Regardless of their origin, every resource is [tied to a specific project](./project.md).
 
 ### Domains
 
@@ -30,13 +32,24 @@ The domains represent domain names or a subdomains, such as `example.com` or `su
 information and can be managed via the `Domains` page in the user interface.
 
 Domains can be created using the `HostnameFinding`, via the API. They can also be created through the user interface's `Add domains`
-functionality.
+functionality. Adding a new domain will seed the automation process and start a scan.
 
 Typically, a domain resolves to one or more IP addresses, which are represented as host resources. A domain can be linked to one or more
 hosts through the `HostnameIpFinding`. If a `HostnameIpFinding` identifies a new domain or host, it will create these resources
 automatically.
 
-Importantly, each domain's name, combined with its project identifier, must is unique within the database.
+The combination of a domain's name and its project identifier is unique in the database.
+
+
+### IP Ranges
+
+IP ranges consist in a network IP address and a network mask, and allow to designate full subnetworks as part of a project. These ranges would be owned, for instance, by your target, and they are a likely place to find relevant [hosts](#hosts). They can be found in the user interface under the `IP ranges` page.
+
+You can create an IP range by either adding it in the interface through the `Add IP ranges` capabilities, or by emitting an `IpRangeFinding` in a job. When an IP range is added, a **scan** for the range is **immediatly started**. A scan is also launched every two weeks to find new hosts and refresh data.
+
+The combination of an IP range's IP, mask and project identifier is unique in the database.
+
+> At the moment, only IPv4 addresses are supported.
 
 ### Hosts
 
@@ -44,7 +57,7 @@ The hosts represent an exposed IP address: or a computer's network interface lis
 links between _domains_, hosts and _ports_. They can be seen in the user interface under the `Hosts` page.
 
 A host can be created through the `IpFinding` for a standalone host, or through a `HostnameIpFinding` for a host that is linked to a
-_domain_. `IpFinding`s can be emitted by the API through the user interface's `Add hosts` capabilities.
+_domain_. `IpFinding`s can be emitted by the API through the user interface's `Add hosts` capabilities. Adding a new host will seed the automation process and start a scan.
 
 An existing host can be linked to a _domain_ through the `HostnameIpFinding`. A host can be linked to one or many domains.
 
@@ -136,8 +149,9 @@ by remembering its existence.
 
 ### Exporting Resources
 
-In Red Kite Enterprise, resources can be exported from the list views in the `JSON` or `CSV` format. The `JSON` format is recommended as it
-is more flexible than CSV, and therefore better suited to the task.
+<EnterpriseNotice />
+
+Resources can be exported from the list views in the `JSON` or `CSV` format. The `JSON` format is intended to be used by programs, while the `CSV` format is designed for humans.
 
 ### Merging Websites
 

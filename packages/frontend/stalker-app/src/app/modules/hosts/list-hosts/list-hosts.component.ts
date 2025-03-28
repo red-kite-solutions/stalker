@@ -37,6 +37,7 @@ import {
 import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-table/table-format/table-format.component';
 import { BlockedPillTagComponent } from '../../../shared/widget/pill-tag/blocked-pill-tag.component';
 import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.component';
+import { PillTagComponent } from '../../../shared/widget/pill-tag/pill-tag.component';
 import {
   getGlobalProjectFilter,
   globalProjectFilter$,
@@ -64,6 +65,7 @@ import { HostsInteractionsService } from '../hosts-interactions.service';
     BlockedPillTagComponent,
     RouterModule,
     TableFormatComponent,
+    PillTagComponent,
   ],
   selector: 'app-list-hosts',
   templateUrl: './list-hosts.component.html',
@@ -83,7 +85,7 @@ export class ListHostsComponent {
   maxDomainsPerHost = 35;
   dataLoading = true;
   displayedColumns: string[] = ['select', 'ip', 'domains', 'project', 'tags', 'menu'];
-  filterOptions: string[] = ['host', 'domain', 'project', 'tags', 'is'];
+  filterOptions: string[] = ['host', 'domain', 'range', 'project', 'tags', 'is'];
   public readonly noDataMessage = $localize`:No host found|No host was found:No host found`;
 
   count = 0;
@@ -157,6 +159,7 @@ export class ListHostsComponent {
     const filterObject: any = {};
     const includedTags = [];
     const domains = [];
+    const ranges = [];
     const hosts = [];
     const projects = [];
     let blocked: boolean | null = null;
@@ -198,6 +201,9 @@ export class ListHostsComponent {
         case 'domain':
           domains.push(value);
           break;
+        case 'range':
+          ranges.push(value);
+          break;
         case 'is':
           switch (value) {
             case 'blocked':
@@ -213,6 +219,7 @@ export class ListHostsComponent {
     if (includedTags?.length) filterObject['tags'] = includedTags;
     if (domains?.length) filterObject['domains'] = domains;
     if (hosts?.length) filterObject['hosts'] = hosts;
+    if (ranges?.length) filterObject['ranges'] = ranges;
     if (projects?.length) filterObject['projects'] = projects;
     if (blocked !== null) filterObject['blocked'] = blocked;
     return filterObject;
@@ -249,7 +256,7 @@ export class ListHostsComponent {
 
       if (addedHosts.length < newHosts.length) {
         this.toastr.warning(
-          $localize`:Hosts not added|Some hosts were not added to the database:Some hosts were not added`
+          $localize`:Hosts duplicates|Some hosts were duplicates to the database:Some hosts were duplicates`
         );
       }
 

@@ -6,6 +6,7 @@ import { DatalayerModule } from '../../datalayer.module';
 import { JobsModule } from '../../jobs/jobs.module';
 import { DomainsModule } from '../../reporting/domain/domain.module';
 import { HostModule } from '../../reporting/host/host.module';
+import { IpRangeModule } from '../../reporting/ip-ranges/ip-range.module';
 import { PortModule } from '../../reporting/port/port.module';
 import { ProjectModule } from '../../reporting/project.module';
 import { WebsiteModule } from '../../reporting/websites/website.module';
@@ -28,6 +29,7 @@ import { CronSubscriptionsService } from './cron-subscriptions.service';
     CustomJobsModule,
     WebsiteModule,
     SubscriptionTriggersModule,
+    IpRangeModule,
   ],
   controllers: [CronSubscriptionsController],
   providers: [CronSubscriptionsService, CustomJobNameExistsRule],

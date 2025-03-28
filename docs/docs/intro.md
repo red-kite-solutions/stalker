@@ -6,9 +6,17 @@ description: An overview of Red Kite
 
 # Overview
 
-Red Kite is an Attack Surface Management (ASM) tool with a big focus on extendability. It streamlines and automates reconnaissance operations
+Red Kite is an Attack Surface Management (ASM) tool with a big focus on extensibility. It streamlines and automates reconnaissance operations
 while giving you the flexibility to expand its functionalities. Its web interface enables easy data access and sharing with all
 stakeholders.
+
+Through flexibility, Red Kite supports multiple use cases:
+
+* Real-time attack surface management
+* Real-time attack surface discovery
+* Regression testing of your attack surface
+* Source of truth for security operations
+* Custom testing at scale
 
 Red Kite is powered by Kubernetes, enabling virtually infinite horizontal scaling. Combined with its flexibility, it makes it the ideal tool
 for hands-on security professionals committed to staying in full control while getting a clear picture of their attack surface.

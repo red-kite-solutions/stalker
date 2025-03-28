@@ -45,7 +45,6 @@ export class CustomJobsController {
         return await this.customJobsService.duplicate(dto.jobId);
       } else {
         const jobDto = plainToInstance(JobDto, dto);
-        console.log(jobDto);
         await validateOrReject(jobDto);
         return await this.customJobsService.create(dto);
       }

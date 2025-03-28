@@ -40,6 +40,7 @@ import {
 import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-table/table-format/table-format.component';
 import { BlockedPillTagComponent } from '../../../shared/widget/pill-tag/blocked-pill-tag.component';
 import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.component';
+import { PillTagComponent } from '../../../shared/widget/pill-tag/pill-tag.component';
 import {
   getGlobalProjectFilter,
   globalProjectFilter$,
@@ -121,6 +122,7 @@ class WebsiteFiltersSource extends TableFiltersSourceBase<WebsiteFilters> {
     MatProgressSpinnerModule,
     FindingsModule,
     IntersectionDirective,
+    PillTagComponent,
   ],
   selector: 'app-list-websites',
   templateUrl: './list-websites.component.html',
@@ -366,7 +368,7 @@ export class ListWebsitesComponent {
   }
 
   private getImage$(website: Website) {
-    return this.findingsService.getLatestWebsitePreview(website.correlationKey).pipe(
+    return this.findingsService.getLatestWebsitePreview([website.correlationKey]).pipe(
       map((finding: CustomFinding) => {
         const image = finding?.fields.find((f) => f.key === 'image' && f.type === 'image' && !!f.data);
         if (image) return image;

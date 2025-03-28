@@ -21,20 +21,21 @@ import {
   tap,
 } from 'rxjs';
 import { DomainsService } from '../../../api/domains/domains.service';
+import { PortsService } from '../../../api/ports/ports.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { TagsService } from '../../../api/tags/tags.service';
-import { ProjectSummary } from '../../../shared/types/project/project.summary';
-import { Tag } from '../../../shared/types/tag.type';
-import { BlockedPillTagComponent } from '../../../shared/widget/pill-tag/blocked-pill-tag.component';
-import { TextMenuComponent } from '../../../shared/widget/text-menu/text-menu.component';
-import { PortsService } from '../../../api/ports/ports.service';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PanelSectionModule } from '../../../shared/components/panel-section/panel-section.module';
 import { SharedModule } from '../../../shared/shared.module';
 import { Domain } from '../../../shared/types/domain/domain.interface';
 import { Page } from '../../../shared/types/page.type';
 import { PortNumber } from '../../../shared/types/ports/port.interface';
+import { ProjectSummary } from '../../../shared/types/project/project.summary';
+import { Tag } from '../../../shared/types/tag.type';
+import { BlockedPillTagComponent } from '../../../shared/widget/pill-tag/blocked-pill-tag.component';
 import { NewPillTagComponent } from '../../../shared/widget/pill-tag/new-pill-tag.component';
+import { PillTagComponent } from '../../../shared/widget/pill-tag/pill-tag.component';
+import { TextMenuComponent } from '../../../shared/widget/text-menu/text-menu.component';
 import { SelectItem } from '../../../shared/widget/text-select-menu/text-select-menu.component';
 import { FindingsModule } from '../../findings/findings.module';
 import { DomainsInteractionsService } from '../domains-interactions.service';
@@ -55,6 +56,7 @@ import { DomainsInteractionsService } from '../domains-interactions.service';
     MatMenuModule,
     TextMenuComponent,
     BlockedPillTagComponent,
+    PillTagComponent,
   ],
   selector: 'app-view-domain',
   templateUrl: './view-domain.component.html',

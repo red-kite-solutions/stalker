@@ -12,6 +12,7 @@ import { booleanStringToBoolean } from '../../../../utils/boolean-string-to-bool
 import { PagingDto } from '../../database.dto';
 import {
   FilterByDomainDto,
+  FilterByHostDto,
   FilterByPortDto,
   ResourceFilterDto,
 } from '../resource.dto';
@@ -20,6 +21,7 @@ export class WebsiteFilterDto extends IntersectionType(
   ResourceFilterDto,
   FilterByPortDto,
   FilterByDomainDto,
+  FilterByHostDto,
 ) {
   @IsOptional()
   @IsString({ each: true })

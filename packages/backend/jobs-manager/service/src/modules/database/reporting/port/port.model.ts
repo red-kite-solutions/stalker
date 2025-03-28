@@ -56,6 +56,12 @@ export class Port {
 
   @Prop()
   service: string;
+
+  @Prop()
+  product: string;
+
+  @Prop()
+  version: string;
 }
 
 export const PortSchema = SchemaFactory.createForClass(Port);

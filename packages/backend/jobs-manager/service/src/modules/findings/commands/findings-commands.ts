@@ -1,5 +1,7 @@
 import { HostnameCommand } from './Findings/hostname.command';
 import { HostnameHandler } from './Findings/hostname.handler';
+import { IpRangeCommand } from './Findings/ip-range.command';
+import { IpRangeHandler } from './Findings/ip-range.handler';
 import { IpCommand } from './Findings/ip.command';
 import { IpHandler } from './Findings/ip.handler';
 import { CustomFindingCommand } from './JobFindings/custom.command';
@@ -48,6 +50,11 @@ export const FindingsCommandMapping = [
     finding: 'TagFinding',
     handler: TagHandler,
     command: TagCommand,
+  },
+  {
+    finding: 'IpRangeFinding',
+    handler: IpRangeHandler,
+    command: IpRangeCommand,
   },
 ];
 

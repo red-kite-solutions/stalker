@@ -66,7 +66,6 @@ describe('Project Controller (e2e)', () => {
     const notesEdit = 'great notes over here';
     let r = await putReq(app, testData.user.token, `/project/${projectId}`, {
       name: nameEdit,
-      ipRanges: subnetEdit,
       notes: notesEdit,
     });
     expect(r.statusCode).toBe(HttpStatus.OK);
@@ -74,7 +73,6 @@ describe('Project Controller (e2e)', () => {
     r = await getReq(app, testData.user.token, `/project/${projectId}`);
     expect(r.body._id).toBeTruthy();
     expect(r.body.name).toBe(nameEdit);
-    expect(r.body.ipRanges).toEqual(subnetEdit);
     expect(r.body.notes).toBe(notesEdit);
   });
 

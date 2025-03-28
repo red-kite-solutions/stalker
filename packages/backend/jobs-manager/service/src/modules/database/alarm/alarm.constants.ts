@@ -13,4 +13,10 @@ export const DEFAULT_ALARMS: Alarm[] = [
     isEnabled: true,
     path: '/findings/cleanup',
   },
+  {
+    name: 'Clear finding definitions',
+    cronExpression: '0 0 * * *',
+    isEnabled: true,
+    path: '/finding-definitions/cleanup',
+  },
 ];

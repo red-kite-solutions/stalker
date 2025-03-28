@@ -36,6 +36,7 @@ import {
 import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-table/table-format/table-format.component';
 import { BlockedPillTagComponent } from '../../../shared/widget/pill-tag/blocked-pill-tag.component';
 import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.component';
+import { PillTagComponent } from '../../../shared/widget/pill-tag/pill-tag.component';
 import {
   getGlobalProjectFilter,
   globalProjectFilter$,
@@ -63,6 +64,7 @@ import { PortsInteractionsService } from '../ports-interactions.service';
     RouterModule,
     BlockedPillTagComponent,
     TableFormatComponent,
+    PillTagComponent,
   ],
   selector: 'app-list-ports',
   templateUrl: './list-ports.component.html',
@@ -80,8 +82,19 @@ import { PortsInteractionsService } from '../ports-interactions.service';
 })
 export class ListPortsComponent {
   dataLoading = true;
-  displayedColumns: string[] = ['select', 'port', 'ip', 'domains', 'project', 'tags', 'menu'];
-  filterOptions: string[] = ['host', 'port', 'project', 'tags', 'is'];
+  displayedColumns: string[] = [
+    'select',
+    'port',
+    'service',
+    'product',
+    'version',
+    'ip',
+    'domains',
+    'project',
+    'tags',
+    'menu',
+  ];
+  filterOptions: string[] = ['host', 'port', 'service', 'product', 'version', 'project', 'tags', 'is'];
   public readonly noDataMessage = $localize`:No port found|No port was found:No port found`;
 
   selection = new SelectionModel<Port & { domains: DomainSummary[] }>(true, []);
@@ -161,6 +174,9 @@ export class ListPortsComponent {
     const includedTags = [];
     const ports = [];
     const hosts = [];
+    const services: string[] = [];
+    const products: string[] = [];
+    const versions: string[] = [];
     const projects = [];
     let blocked: boolean | null = null;
 
@@ -190,6 +206,15 @@ export class ListPortsComponent {
         case 'host':
           if (value) hosts.push(value.trim().toLowerCase());
           break;
+        case 'service':
+          if (value) services.push(value.trim().toLowerCase());
+          break;
+        case 'product':
+          if (value) products.push(value.trim().toLowerCase());
+          break;
+        case 'version':
+          if (value) versions.push(value.trim().toLowerCase());
+          break;
         case 'tags':
           const tag = tags.find((t) => t.text.trim().toLowerCase() === value.trim().toLowerCase());
           if (tag) includedTags.push(tag._id);
@@ -217,6 +242,9 @@ export class ListPortsComponent {
     if (ports?.length) filterObject['ports'] = ports;
     if (hosts?.length) filterObject['hosts'] = hosts;
     if (projects?.length) filterObject['projects'] = projects;
+    if (services?.length) filterObject['services'] = services;
+    if (products?.length) filterObject['products'] = products;
+    if (versions?.length) filterObject['versions'] = versions;
     if (blocked !== null) filterObject['blocked'] = blocked;
     return filterObject;
   }

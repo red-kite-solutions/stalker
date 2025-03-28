@@ -4,6 +4,7 @@ export type FindingType = 'image' | 'data';
  * Represents a generic finding.
  */
 export interface CustomFinding {
+  correlationKey: string;
   created: Date;
   name: string;
   key: string;

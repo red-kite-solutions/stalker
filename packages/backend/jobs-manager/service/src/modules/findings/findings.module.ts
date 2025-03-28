@@ -8,7 +8,9 @@ import { DatalayerModule } from '../database/datalayer.module';
 import { JobExecutionsService } from '../database/jobs/job-executions.service';
 import { JobsModule } from '../database/jobs/jobs.module';
 import { DomainsModule } from '../database/reporting/domain/domain.module';
+import { FindingDefinitionsModule } from '../database/reporting/finding-definitions/finding-definition.module';
 import { HostModule } from '../database/reporting/host/host.module';
+import { IpRangeModule } from '../database/reporting/ip-ranges/ip-range.module';
 import { PortModule } from '../database/reporting/port/port.module';
 import { ProjectModule } from '../database/reporting/project.module';
 import { WebsiteModule } from '../database/reporting/websites/website.module';
@@ -29,6 +31,7 @@ import { JobLogsConsumer } from './job-logs.consumer';
     JobsModule,
     ProjectModule,
     HostModule,
+    IpRangeModule,
     DomainsModule,
     DatalayerModule,
     EventSubscriptionsModule,
@@ -39,6 +42,7 @@ import { JobLogsConsumer } from './job-logs.consumer';
     SecretsModule,
     WebsiteModule,
     TagsModule,
+    FindingDefinitionsModule,
   ],
   controllers: [FindingsController],
   providers: [FindingsService, ...FindingsHandlers],

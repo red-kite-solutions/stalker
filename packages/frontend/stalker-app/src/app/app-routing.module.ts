@@ -41,6 +41,11 @@ const routes: Routes = [
         component: EditProjectsComponent,
       },
       {
+        path: 'tables/:id',
+        canActivate: [authenticationGuard],
+        loadComponent: () => import('./modules/tables/table.component').then((c) => c.TableComponent),
+      },
+      {
         path: 'domains',
         canActivate: [authenticationGuard],
         loadChildren: () => import('./modules/domains/domains.module').then((m) => m.DomainsListModule),
@@ -49,6 +54,11 @@ const routes: Routes = [
         path: 'hosts',
         canActivate: [authenticationGuard],
         loadChildren: () => import('./modules/hosts/hosts.module').then((m) => m.HostsListModule),
+      },
+      {
+        path: 'ip-ranges',
+        canActivate: [authenticationGuard],
+        loadChildren: () => import('./modules/ip-ranges/ip-ranges.module').then((m) => m.IpRangesListModule),
       },
       {
         path: 'ports',
