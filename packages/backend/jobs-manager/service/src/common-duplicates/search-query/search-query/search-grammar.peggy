@@ -91,6 +91,9 @@ port
   / "port.id" { return "port.id"; }
   / "port.protocol" { return "port.protocol"; }
   / "port" { return "port.number"; }
+  / "port.service" { return "port.service"; }
+  / "port.product" { return "port.product"; }
+  / "port.version" { return "port.version"; }
 
 tags 
   = "tag.id" { return "tag.id"; }

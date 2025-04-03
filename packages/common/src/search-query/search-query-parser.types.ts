@@ -29,9 +29,14 @@ export type TermTypes =
   | 'port.id'
   | 'port.number'
   | 'port.protocol'
+  | 'port.service'
+  | 'port.product'
+  | 'port.version'
   | 'tag.name'
   | 'tag.id'
-  | 'mergedIn.id';
+  | 'mergedIn.id'
+  | 'website'
+  | 'website.id';
 
 /** Normal term */
 export interface NormalTerm {

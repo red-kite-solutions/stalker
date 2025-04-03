@@ -23,7 +23,6 @@ describe('Port Service', () => {
 
   let project1: ProjectDocument;
   let portModel: Model<Port>;
-  const testPrefix = 'port-service-ut';
 
   beforeAll(async () => {
     moduleFixture = await Test.createTestingModule({
