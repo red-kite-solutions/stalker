@@ -1,5 +1,6 @@
-import { Controller, Get, Logger, UseGuards } from '@nestjs/common';
+import { Controller, Get, Logger, Param, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { MongoIdDto } from '../../../types/dto/mongo-id.dto';
 import { Page } from '../../../types/page.type';
 import { Role } from '../../auth/constants';
 import { Roles } from '../../auth/decorators/roles.decorator';
@@ -17,7 +18,13 @@ export class GroupsController {
 
   constructor(private readonly groupsService: GroupsService) {}
 
-  @Roles(Role.User)
+  @Roles(Role.ReadOnly)
+  @Get(':id')
+  async getGroup(@Param() dto: MongoIdDto): Promise<GroupDocument> {
+    return await this.groupsService.get(dto.id);
+  }
+
+  @Roles(Role.ReadOnly)
   @Get()
   public async getGroups(dto: GetGroupsDto): Promise<Page<GroupDocument>> {
     const totalRecords = await this.groupsService.count(dto);

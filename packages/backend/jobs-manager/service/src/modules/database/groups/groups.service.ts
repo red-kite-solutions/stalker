@@ -12,6 +12,10 @@ export class GroupsService {
     @InjectModel('groups') private readonly groupModel: Model<Group>,
   ) {}
 
+  public async get(id: string) {
+    return this.groupModel.findById(id);
+  }
+
   public async getAll(
     page: number = null,
     pageSize: number = null,
