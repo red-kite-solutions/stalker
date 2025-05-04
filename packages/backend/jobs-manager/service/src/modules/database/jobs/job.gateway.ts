@@ -13,7 +13,7 @@ import { ChangeStream, ChangeStreamDocument } from 'mongodb';
 import { Server, Socket } from 'socket.io';
 import { JobLogLevel } from '../../../types/timestamped-string.type';
 import { Role } from '../../auth/constants';
-import { Roles } from '../../auth/decorators/roles.decorator';
+import { Scopes } from '../../auth/decorators/scopes.decorator';
 import { JwtSocketioGuard } from '../../auth/guards/jwt-socketio.guard';
 import { RolesSocketioGuard } from '../../auth/guards/role-socketio.guard';
 import { JobExecutionsService } from './job-executions.service';
@@ -32,7 +32,7 @@ export class JobStatusUpdate {
 
 @WebSocketGateway({ cors: true })
 @UseGuards(JwtSocketioGuard, RolesSocketioGuard)
-@Roles(Role.User)
+@Scopes(Role.User)
 export class JobOutputGateway implements OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;

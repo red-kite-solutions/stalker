@@ -2,8 +2,8 @@ import { Controller, Get, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AppService } from './app.service';
 import { Role } from './auth/constants';
-import { Roles } from './auth/decorators/roles.decorator';
-import { RolesGuard } from './auth/guards/role.guard';
+import { Scopes } from './auth/decorators/scopes.decorator';
+import { ScopesGuard } from './auth/guards/scope.guard';
 import { ApiKeyStrategy } from './auth/strategies/api-key.strategy';
 import { JwtStrategy } from './auth/strategies/jwt.strategy';
 
@@ -11,8 +11,8 @@ import { JwtStrategy } from './auth/strategies/jwt.strategy';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Roles(Role.ReadOnly)
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
+  @Scopes(Role.ReadOnly)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Get()
   getVersion(): string {
     return this.appService.getVersion();

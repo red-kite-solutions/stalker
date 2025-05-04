@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Role, roleIsAuthorized } from '../constants';
-import { ROLES_KEY } from '../decorators/roles.decorator';
+import { SCOPES_KEY } from '../decorators/scopes.decorator';
 
 @Injectable()
 export class RolesSocketioGuard implements CanActivate {
@@ -10,7 +10,7 @@ export class RolesSocketioGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     // This code gets the role given in the decorator roles.decorator.ts, ex: @Roles(Role.User) (requiredRole)
     // It is then validated against the role contained in the user's JWT  (user.role)
-    const requiredRole = this.reflector.getAllAndOverride<Role>(ROLES_KEY, [
+    const requiredRole = this.reflector.getAllAndOverride<Role>(SCOPES_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);

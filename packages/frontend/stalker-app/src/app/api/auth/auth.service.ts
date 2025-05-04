@@ -20,7 +20,7 @@ export interface IsServerSetup {
 })
 export class AuthService implements AuthTokenProvider {
   private _token: string | undefined;
-  private _role: string | undefined;
+  private _scopes: string[] | undefined;
   private _email: string | undefined;
   private _id: string | undefined;
   private refreshToken: string | undefined;
@@ -31,8 +31,8 @@ export class AuthService implements AuthTokenProvider {
     return this._token ? this._token : '';
   }
 
-  public get role(): string {
-    return this._role ? this._role : '';
+  public get scopes(): string[] {
+    return this._scopes ? this._scopes : [];
   }
 
   public get email(): string {
@@ -61,7 +61,7 @@ export class AuthService implements AuthTokenProvider {
     if (this.decodedToken.exp > epochNow) {
       localStorage.setItem(tokenName, token);
       this._token = token;
-      this._role = this.decodedToken.role;
+      this._scopes = this.decodedToken.scopes;
       this._email = this.decodedToken.email;
       this._id = this.decodedToken.id;
     } else {
@@ -147,7 +147,7 @@ export class AuthService implements AuthTokenProvider {
       localStorage.removeItem(refreshTokenName);
       this._token = '';
       this._email = '';
-      this._role = '';
+      this._scopes = [];
       this._id = '';
       this.refreshToken = '';
       this.decodedRefreshToken = {};

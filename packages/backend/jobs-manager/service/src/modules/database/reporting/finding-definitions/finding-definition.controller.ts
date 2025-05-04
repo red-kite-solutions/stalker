@@ -3,9 +3,9 @@ import { Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Page } from '../../../../types/page.type';
 import { Role } from '../../../auth/constants';
-import { Roles } from '../../../auth/decorators/roles.decorator';
+import { Scopes } from '../../../auth/decorators/scopes.decorator';
 import { CronApiTokenGuard } from '../../../auth/guards/cron-api-token.guard';
-import { RolesGuard } from '../../../auth/guards/role.guard';
+import { ScopesGuard } from '../../../auth/guards/scope.guard';
 import { ApiKeyStrategy } from '../../../auth/strategies/api-key.strategy';
 import { JwtStrategy } from '../../../auth/strategies/jwt.strategy';
 import { FindingDefinitionPagingDto } from './finding-definition.dto';
@@ -24,8 +24,8 @@ export class FindingDefinitionController {
     await this.findingDefinitionService.cleanup();
   }
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.ReadOnly)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes(Role.ReadOnly)
   @Get()
   async getAllDefinitions(
     @Query() dto: FindingDefinitionPagingDto,

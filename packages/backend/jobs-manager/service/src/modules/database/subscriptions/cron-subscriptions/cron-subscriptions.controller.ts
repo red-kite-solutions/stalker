@@ -14,9 +14,9 @@ import { DeleteResult, UpdateResult } from 'mongodb';
 import { HttpBadRequestException } from '../../../../exceptions/http.exceptions';
 import { MongoIdDto } from '../../../../types/dto/mongo-id.dto';
 import { Role } from '../../../auth/constants';
-import { Roles } from '../../../auth/decorators/roles.decorator';
+import { Scopes } from '../../../auth/decorators/scopes.decorator';
 import { CronApiTokenGuard } from '../../../auth/guards/cron-api-token.guard';
-import { RolesGuard } from '../../../auth/guards/role.guard';
+import { ScopesGuard } from '../../../auth/guards/scope.guard';
 import { ApiKeyStrategy } from '../../../auth/strategies/api-key.strategy';
 import { JwtStrategy } from '../../../auth/strategies/jwt.strategy';
 import {
@@ -31,8 +31,8 @@ import { CronSubscriptionsService } from './cron-subscriptions.service';
 export class CronSubscriptionsController {
   constructor(private subscriptionsService: CronSubscriptionsService) {}
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.User)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes(Role.User)
   @Post()
   async create(@Body() dto: CronSubscriptionDto | DuplicateSubscriptionDto) {
     if ('subscriptionId' in dto) {
@@ -42,15 +42,15 @@ export class CronSubscriptionsController {
     }
   }
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.ReadOnly)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes(Role.ReadOnly)
   @Get()
   async getAllSubscriptions(): Promise<CronSubscriptionsDocument[]> {
     return await this.subscriptionsService.getAll();
   }
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.ReadOnly)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes(Role.ReadOnly)
   @Get(':id')
   async getSubscription(
     @Param() idDto: MongoIdDto,
@@ -58,8 +58,8 @@ export class CronSubscriptionsController {
     return await this.subscriptionsService.get(idDto.id);
   }
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.User)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes(Role.User)
   @Patch(':id')
   async patch(
     @Param() idDto: MongoIdDto,
@@ -81,8 +81,8 @@ export class CronSubscriptionsController {
     await this.subscriptionsService.launchCronSubscriptionJob(idDto.id);
   }
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.User)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes(Role.User)
   @Put(':id')
   async editSubscription(
     @Param() idDto: MongoIdDto,
@@ -91,8 +91,8 @@ export class CronSubscriptionsController {
     return await this.subscriptionsService.edit(idDto.id, dto);
   }
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.User)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes(Role.User)
   @Delete(':id')
   async deleteSubscription(@Param() idDto: MongoIdDto): Promise<DeleteResult> {
     return await this.subscriptionsService.delete(idDto.id);

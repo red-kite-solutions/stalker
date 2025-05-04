@@ -1,7 +1,11 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ApiKeyService } from '../database/api-key/api-key.service';
-import { UserDocument } from '../database/users/users.model';
+import { GroupsService } from '../database/groups/groups.service';
+import {
+  ScopedUserDocument,
+  UserDocument,
+} from '../database/users/users.model';
 import { UsersService } from '../database/users/users.service';
 import { jwtConstants, rtConstants } from './constants';
 import { passwordEquals } from './utils/auth.utils';
@@ -10,11 +14,15 @@ import { passwordEquals } from './utils/auth.utils';
 export class AuthService {
   constructor(
     private usersService: UsersService,
+    private groupsService: GroupsService,
     public jwtService: JwtService,
     private apiKeyService: ApiKeyService,
   ) {}
 
-  public async validateUser(email: string, pass: string): Promise<any> {
+  public async validateUser(
+    email: string,
+    pass: string,
+  ): Promise<Partial<UserDocument>> {
     const user = await this.usersService.findOneByEmailIncludeHash(email);
     if (!user?.active) return null;
 
@@ -38,16 +46,23 @@ export class AuthService {
     return token;
   }
 
-  public async createAccessToken(user: Partial<UserDocument>): Promise<string> {
+  public async createAccessToken(
+    user: Partial<ScopedUserDocument>,
+  ): Promise<string> {
     const isActive = await this.usersService.isUserActive(user.id);
     if (!isActive) {
       throw new UnauthorizedException();
     }
 
-    return this.jwtService.sign(user, {
-      secret: jwtConstants.secret,
-      expiresIn: jwtConstants.expirationTime,
-    });
+    const scopes = await this.groupsService.getUserScopes(user.id);
+
+    return this.jwtService.sign(
+      { scopes, ...user },
+      {
+        secret: jwtConstants.secret,
+        expiresIn: jwtConstants.expirationTime,
+      },
+    );
   }
 
   public async removeRefreshToken(userId: string, refreshToken: string = null) {

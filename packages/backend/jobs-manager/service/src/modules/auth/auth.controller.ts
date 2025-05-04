@@ -8,7 +8,7 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { UserDocument } from '../database/users/users.model';
+import { ScopedUserDocument } from '../database/users/users.model';
 import { LogoutDto } from './auth.dto';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -17,7 +17,7 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 import { MagicLinkAuthGuard } from './guards/magic-link.guard';
 
 interface RequestWithUser extends Request {
-  user?: Partial<UserDocument>;
+  user?: Partial<ScopedUserDocument>;
 }
 
 @Controller('/auth')
@@ -70,7 +70,7 @@ export class AuthController {
     const accessToken = await this.authService.createAccessToken({
       email: req.user.email,
       id: req.user._id,
-      role: req.user.role,
+      scopes: req.user.scopes,
     });
     const refreshToken: string = await this.authService.createRefreshToken(
       req.user._id,

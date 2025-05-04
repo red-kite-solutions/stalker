@@ -22,9 +22,9 @@ import { JobSummary } from '../../../types/job-summary.type';
 import { Page } from '../../../types/page.type';
 import { ProjectUnassigned } from '../../../validators/is-project-id.validator';
 import { Role } from '../../auth/constants';
-import { Roles } from '../../auth/decorators/roles.decorator';
+import { Scopes } from '../../auth/decorators/scopes.decorator';
 import { CronApiTokenGuard } from '../../auth/guards/cron-api-token.guard';
-import { RolesGuard } from '../../auth/guards/role.guard';
+import { ScopesGuard } from '../../auth/guards/scope.guard';
 import { ApiKeyStrategy } from '../../auth/strategies/api-key.strategy';
 import { JwtStrategy } from '../../auth/strategies/jwt.strategy';
 import { ConfigService } from '../admin/config/config.service';
@@ -48,8 +48,8 @@ export class JobsController {
     private readonly secretsService: SecretsService,
   ) {}
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.ReadOnly)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes(Role.ReadOnly)
   @Get()
   async getAllJobs(
     @Query()
@@ -58,15 +58,15 @@ export class JobsController {
     return await this.jobsService.getAll(dto);
   }
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.ReadOnly)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes(Role.ReadOnly)
   @Get(':id/logs')
   async getJobLogs(@Param() id: MongoIdDto): Promise<Page<JobLog>> {
     return await this.jobsService.getLogs(id.id);
   }
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.ReadOnly)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes(Role.ReadOnly)
   @Get('summaries')
   async getAllJobSummaries(): Promise<JobSummary[]> {
     const jd = JobDefinitions.map((jd): JobSummary => {
@@ -85,8 +85,8 @@ export class JobsController {
     return jd.concat(cjd);
   }
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.User)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes(Role.User)
   @Post()
   async startJob(@Body() dto: StartJobDto) {
     let jpConfig: JobPodConfiguration = null;
@@ -133,8 +133,8 @@ export class JobsController {
     return await this.jobsService.publish(job);
   }
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.User)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes(Role.User)
   @Patch(':id')
   async stopJob(@Param() id: MongoIdDto, @Body() dto: JobManagementDto) {
     switch (dto.task) {
@@ -146,8 +146,8 @@ export class JobsController {
     }
   }
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.User)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes(Role.User)
   @Delete()
   async deleteAllJobs() {
     return await this.jobsService.deleteAll();
@@ -159,15 +159,15 @@ export class JobsController {
     await this.jobsService.cleanup();
   }
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.User)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes(Role.User)
   @Delete(':id')
   async deleteJob(@Param() dto: MongoIdDto) {
     return await this.jobsService.delete(dto.id);
   }
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.ReadOnly)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes(Role.ReadOnly)
   @Get(':id')
   async getJob(@Param() dto: MongoIdDto): Promise<any> {
     return await this.jobsService.getById(dto.id);

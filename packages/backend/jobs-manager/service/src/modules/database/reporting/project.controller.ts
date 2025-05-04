@@ -16,8 +16,8 @@ import {
 } from '../../../exceptions/http.exceptions';
 import { MongoIdDto } from '../../../types/dto/mongo-id.dto';
 import { Role } from '../../auth/constants';
-import { Roles } from '../../auth/decorators/roles.decorator';
-import { RolesGuard } from '../../auth/guards/role.guard';
+import { Scopes } from '../../auth/decorators/scopes.decorator';
+import { ScopesGuard } from '../../auth/guards/scope.guard';
 import { ConfigService } from '../admin/config/config.service';
 import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
 import { MONGO_DUPLICATE_ERROR } from '../database.constants';
@@ -37,22 +37,22 @@ export class ProjectController {
     private readonly configService: ConfigService,
   ) {}
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.ReadOnly)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes(Role.ReadOnly)
   @Get()
   async getProjects() {
     return await this.projectService.getAll();
   }
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.ReadOnly)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes(Role.ReadOnly)
   @Get('summary')
   async getProjectSummaries() {
     return await this.projectService.getAllSummaries();
   }
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.User)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes(Role.User)
   @Post()
   async createProject(@Body() dto: CreateProjectDto) {
     if ((dto.imageType && !dto.logo) || (dto.logo && !dto.imageType))
@@ -69,15 +69,15 @@ export class ProjectController {
     }
   }
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.ReadOnly)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes(Role.ReadOnly)
   @Get(':id')
   async getProject(@Param() id: MongoIdDto) {
     return await this.projectService.get(id.id);
   }
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.User)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes(Role.User)
   @Put(':id')
   async editProject(
     @Param() id: MongoIdDto,
@@ -116,8 +116,8 @@ export class ProjectController {
     }
   }
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.User)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes(Role.User)
   @Delete(':id')
   async deleteProject(@Param() id: MongoIdDto): Promise<DeleteResult> {
     return await this.projectService.delete(id.id);

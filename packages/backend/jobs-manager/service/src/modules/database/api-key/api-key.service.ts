@@ -10,6 +10,7 @@ import { Role } from '../../auth/constants';
 import { User } from '../users/users.model';
 import { ApiKey, ApiKeyDocument } from './api-key.model';
 import { ApiKeyFilterModel } from './api-key.types';
+import { GroupsService } from '../groups/groups.service';
 
 @Injectable()
 export class ApiKeyService {
@@ -17,12 +18,13 @@ export class ApiKeyService {
     @InjectModel('apikey')
     private readonly apiKeyModel: Model<ApiKey>,
     @InjectModel('users') private readonly userModel: Model<User>,
+    private readonly groupsService: GroupsService,
   ) {}
 
   public async create(
     name: string,
     userId: string,
-    role: Role,
+    scopes: string[],
     expiresAt: number,
   ): Promise<ApiKeyDocument> {
     const user = await this.userModel.findOne({
@@ -41,7 +43,7 @@ export class ApiKeyService {
       name: name,
       expiresAt: expiresAt,
       key: key,
-      role: role,
+      scopes: scopes,
       userId: new Types.ObjectId(userId),
       active: true,
       userIsActive: true,

@@ -20,8 +20,8 @@ import {
 import { MongoIdDto } from '../../../types/dto/mongo-id.dto';
 import { validateOrReject } from '../../../validators/validate-or-reject';
 import { Role } from '../../auth/constants';
-import { Roles } from '../../auth/decorators/roles.decorator';
-import { RolesGuard } from '../../auth/guards/role.guard';
+import { Scopes } from '../../auth/decorators/scopes.decorator';
+import { ScopesGuard } from '../../auth/guards/scope.guard';
 import { ApiKeyStrategy } from '../../auth/strategies/api-key.strategy';
 import { JwtStrategy } from '../../auth/strategies/jwt.strategy';
 import { MONGO_DUPLICATE_ERROR } from '../database.constants';
@@ -34,8 +34,8 @@ export class CustomJobsController {
   private logger = new Logger(CustomJobsController.name);
   constructor(private customJobsService: CustomJobsService) {}
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.User)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes(Role.User)
   @Post()
   async create(@Body() dto: JobDto | DuplicateJobDto) {
     try {
@@ -62,22 +62,22 @@ export class CustomJobsController {
     }
   }
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.ReadOnly)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes(Role.ReadOnly)
   @Get()
   async getAllCustomJobs(): Promise<CustomJobsDocument[]> {
     return await this.customJobsService.getAll();
   }
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.ReadOnly)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes(Role.ReadOnly)
   @Get(':id')
   async getCustomJob(@Param() IdDto: MongoIdDto): Promise<CustomJobsDocument> {
     return await this.customJobsService.get(IdDto.id);
   }
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.User)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes(Role.User)
   @Put(':id')
   async editCustomJob(
     @Param() IdDto: MongoIdDto,
@@ -94,15 +94,15 @@ export class CustomJobsController {
     }
   }
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.User)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes(Role.User)
   @Delete(':id')
   async deleteCustomJob(@Param() IdDto: MongoIdDto): Promise<DeleteResult> {
     return await this.customJobsService.delete(IdDto.id);
   }
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.Admin)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes(Role.Admin)
   @Post('sync')
   async syncCache(): Promise<void> {
     return await this.customJobsService.syncCache();

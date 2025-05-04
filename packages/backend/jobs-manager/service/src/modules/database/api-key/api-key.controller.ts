@@ -19,8 +19,8 @@ import { MongoIdDto } from '../../../types/dto/mongo-id.dto';
 import { Page } from '../../../types/page.type';
 import { AuthenticatedRequest, UserAuthContext } from '../../auth/auth.types';
 import { Role } from '../../auth/constants';
-import { Roles } from '../../auth/decorators/roles.decorator';
-import { RolesGuard } from '../../auth/guards/role.guard';
+import { Scopes } from '../../auth/decorators/scopes.decorator';
+import { ScopesGuard } from '../../auth/guards/scope.guard';
 import { ApiKeyStrategy } from '../../auth/strategies/api-key.strategy';
 import { JwtStrategy } from '../../auth/strategies/jwt.strategy';
 import { MONGO_DUPLICATE_ERROR } from '../database.constants';
@@ -28,9 +28,14 @@ import { ApiKeyDocument } from './api-key.model';
 import { ApiKeyService } from './api-key.service';
 import { ApiKeyFilterModel } from './api-key.types';
 import { ApiKeyFilterDto, CreateApiKeyDto } from './api.key.dto';
+import { userHasScope } from '../../auth/utils/auth.utils';
+import {
+  MANAGE_APIKEY_DELETE_ALL,
+  MANAGE_APIKEY_READ_ALL,
+} from '../../auth/scopes.constants';
 
-@UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-@Roles(Role.ReadOnly)
+@UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+@Scopes(Role.ReadOnly)
 @Controller('api-key')
 export class ApiKeyController {
   constructor(private apiKeyService: ApiKeyService) {}
@@ -50,8 +55,8 @@ export class ApiKeyController {
     const userContext = this.getUserAuthContext(req);
     let filter: ApiKeyFilterModel = dto;
 
-    // Make sure non-admin users can only get their own keys
-    if (userContext.role !== Role.Admin) {
+    // Make sure users without proper scope can only get their own keys
+    if (!userHasScope(MANAGE_APIKEY_READ_ALL, req.user.scopes)) {
       filter.userId = userContext.id;
     }
 
@@ -69,8 +74,8 @@ export class ApiKeyController {
     const userContext = this.getUserAuthContext(req);
     let userId: string = undefined;
 
-    // Make sure non-admin users can only get their own keys
-    if (userContext.role !== Role.Admin) {
+    // Make sure users without proper scope can only get their own keys
+    if (!userHasScope(MANAGE_APIKEY_READ_ALL, req.user.scopes)) {
       userId = userContext.id;
     }
 
@@ -87,7 +92,7 @@ export class ApiKeyController {
       return await this.apiKeyService.create(
         dto.name,
         userContext.id,
-        userContext.role,
+        userContext.scopes,
         dto.expiresAt,
       );
     } catch (err) {
@@ -107,8 +112,8 @@ export class ApiKeyController {
     const userContext = this.getUserAuthContext(req);
     let userId: string = undefined;
 
-    // Make sure non-admin users can only delete their own keys
-    if (userContext.role !== Role.Admin) {
+    // Make sure users without proper scope can only delete their own keys
+    if (!userHasScope(MANAGE_APIKEY_DELETE_ALL, req.user.scopes)) {
       userId = userContext.id;
     }
 

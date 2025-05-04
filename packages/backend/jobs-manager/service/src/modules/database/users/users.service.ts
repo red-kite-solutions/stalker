@@ -15,8 +15,11 @@ import { randomBytes } from 'crypto';
 import { EmailService } from '../../notifications/emails/email.service';
 import { ApiKeyService } from '../api-key/api-key.service';
 import { MagicLinkToken } from './magic-link-token.model';
-import { User, UserDocument } from './users.model';
+import { ScopedUserDocument, User, UserDocument } from './users.model';
 import { USER_INIT } from './users.provider';
+import { GroupsService } from '../groups/groups.service';
+import { ADMIN_GROUP } from '../groups/groups.constants';
+import { RESET_PASSWORD_SCOPE } from '../../auth/scopes.constants';
 
 @Injectable()
 export class UsersService {
@@ -29,6 +32,7 @@ export class UsersService {
     @Inject(USER_INIT) userProvider,
     private emailService: EmailService,
     private apiKeyService: ApiKeyService,
+    private groupsService: GroupsService,
   ) {
     this.logger = new Logger('UsersService');
   }
@@ -57,7 +61,6 @@ export class UsersService {
     const userToCreate: User = {
       active: true,
       refreshTokens: [],
-      role: Role.Admin,
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
@@ -72,7 +75,11 @@ export class UsersService {
       await session.withTransaction(async () => {
         const u = await this.userModel.findOne({}, undefined, { session });
         if (u) throw new HttpForbiddenException(err);
-        await this.userModel.create([userToCreate], { session });
+        const user = await this.userModel.create([userToCreate], { session });
+        await this.groupsService.addToGroupFromName(
+          ADMIN_GROUP.name,
+          user[0]._id.toString(),
+        );
       });
     } finally {
       await session.endSession();
@@ -88,7 +95,6 @@ export class UsersService {
       lastName: dto.lastName,
       password: pass,
       active: dto.active,
-      role: dto.role,
       refreshToken: '',
     };
     let newUser = await this.userModel.create(user);
@@ -140,7 +146,7 @@ export class UsersService {
   }
 
   /**
-   * Edits a user and avoids the role/active modification of the last admin to prevent bricking Red Kite
+   * Edits a user and avoids the "active" modification of the last admin to prevent bricking Red Kite
    * @param id
    * @param userEdits
    */
@@ -150,26 +156,31 @@ export class UsersService {
   ): Promise<UpdateWriteOpResult> {
     let result: UpdateWriteOpResult;
     let targetId: Types.ObjectId = undefined;
-    if (
-      userEdits.active === false ||
-      (typeof userEdits.role !== 'undefined' && userEdits.role !== Role.Admin)
-    ) {
-      // We may change an admin to a less privileged role. Therefore, we need to make sure that we don't incapacitate the last admin
+
+    if (userEdits.active === false) {
+      // We may be deactivating and admin. Therefore, we need to make sure that we don't incapacitate the last admin
       const session = await this.userModel.startSession();
 
       try {
         await session.withTransaction(async () => {
           const userToEdit = await this.userModel.findOne(
             selectFilter,
-            { _id: 1, role: 1, active: 1 },
+            { _id: 1, scopes: 1, active: 1 },
             { session: session },
           );
           if (!userToEdit) throw new HttpNotFoundException(`User not found`);
-          if (userToEdit.role === Role.Admin && userToEdit.active) {
+
+          const isAdmin = this.groupsService.isAdmin(
+            userToEdit._id.toString(),
+            session,
+          );
+
+          if (isAdmin && userToEdit.active) {
             // we may be editing the last active admin, more check required
+            const adminIds = await this.groupsService.getAdminIds();
             const count = await this.userModel.countDocuments(
               {
-                role: { $eq: Role.Admin },
+                _id: { $in: adminIds },
                 active: true,
               },
               { session: session },
@@ -250,19 +261,25 @@ export class UsersService {
       await session.withTransaction(async () => {
         const userToDelete = await this.userModel.findById(
           new Types.ObjectId(userId),
-          { _id: 1, role: 1, active: 1 },
+          { _id: 1, scopes: 1, active: 1 },
           { session: session },
+        );
+
+        const isAdmin = await this.groupsService.isAdmin(
+          userToDelete._id.toString(),
+          session,
         );
 
         if (!userToDelete) {
           throw new HttpNotFoundException(`User ${userId} not found`);
         }
 
-        if (userToDelete.role === Role.Admin && userToDelete.active) {
+        if (isAdmin && userToDelete.active) {
           // we may be deleting the last active admin, more checks required
+          const currentAdmins = await this.groupsService.getAdminIds();
           const count = await this.userModel.countDocuments(
             {
-              role: { $eq: Role.Admin },
+              _id: { $in: currentAdmins },
               active: true,
             },
             { session: session },
@@ -299,7 +316,9 @@ export class UsersService {
     }
   }
 
-  public async validateIdentityUsingUniqueToken(token: string): Promise<User> {
+  public async validateIdentityUsingUniqueToken(
+    token: string,
+  ): Promise<Partial<ScopedUserDocument>> {
     const existingToken = await this.uniqueTokenModel.findOne({
       token,
       expirationDate: { $gt: Date.now() },
@@ -307,12 +326,16 @@ export class UsersService {
 
     if (!existingToken) return undefined;
 
-    const user = await this.findOneById(existingToken.userId);
+    const user: UserDocument = await this.userModel.findById(
+      new Types.ObjectId(existingToken.userId),
+      undefined,
+      { lean: true },
+    );
 
-    // We override with limited permissions until.
-    // We could eventually implement support for specifying permissions within magic tokens.
-    user.role = Role.UserResetPassword;
-    return user;
+    return {
+      ...user,
+      scopes: existingToken.scopes,
+    };
   }
 
   public async setRefreshToken(
@@ -331,14 +354,17 @@ export class UsersService {
   public async getUserIfRefreshTokenMatches(
     refreshToken: string,
     id: string,
-  ): Promise<User> {
+  ): Promise<Partial<ScopedUserDocument>> {
     if (refreshToken) {
       const user = await this.userModel
         .findOne({ _id: { $eq: new Types.ObjectId(id) } }, '+refreshTokens')
         .lean();
       for (let rt of user.refreshTokens) {
         if (rt && (await passwordEquals(rt, refreshToken))) {
-          return { refreshTokens: null, ...user };
+          const scopes = await this.groupsService.getUserScopes(
+            user._id.toString(),
+          );
+          return { refreshTokens: null, scopes: scopes, ...user };
         }
       }
     }
@@ -395,6 +421,7 @@ export class UsersService {
       token,
       userId: user._id,
       expirationDate: expirationDate.getTime(),
+      scopes: [RESET_PASSWORD_SCOPE],
     });
 
     const link = `${process.env.RK_APP_BASE_URL}/auth/reset?token=${token}`;

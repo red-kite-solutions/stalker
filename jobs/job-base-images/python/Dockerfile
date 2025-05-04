@@ -18,7 +18,7 @@ WORKDIR /tools/masscan
 RUN make -j && make install
 
 # Katana
-FROM golang:1.22.4-bullseye AS katana
+FROM golang:1.24.2-bullseye AS katana
 
 RUN apt-get update && apt-get install -y git gcc musl-dev
 RUN mkdir -p /tools/katana/
@@ -28,7 +28,7 @@ RUN go mod download
 RUN go build ./cmd/katana
 
 # httpx
-FROM golang:1.22.4-bullseye AS httpx
+FROM golang:1.24.2-bullseye AS httpx
 
 RUN mkdir -p /tools/httpx/
 RUN git clone https://github.com/projectdiscovery/httpx.git /tools/httpx
@@ -43,7 +43,7 @@ COPY --from=build /usr/bin/masscan /tools/masscan
 COPY --from=katana /tools/katana/katana /tools/katana
 COPY --from=httpx /tools/httpx/cmd/httpx/httpx /tools/httpx
 
-ENV PATH "/tools:$PATH"
+ENV PATH="/tools:$PATH"
 
 RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -  \
   && sh -c 'echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
