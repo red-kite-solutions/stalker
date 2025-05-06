@@ -35,6 +35,7 @@ import {
   RESET_PASSWORD_SCOPE,
   MANAGE_USER_READ_ALL_SCOPE,
   MANAGE_USER_UPDATE_ALL_SCOPE,
+  ALL_EXCLUDED_SCOPES,
 } from '../../auth/scopes.constants';
 
 @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
@@ -44,7 +45,7 @@ export class UsersController {
 
   constructor(private readonly usersService: UsersService) {}
 
-  @Scopes(Role.Admin)
+  @Scopes('manage:users:read-all')
   @Get()
   public async getUsers(): Promise<User[]> {
     try {
@@ -55,7 +56,7 @@ export class UsersController {
     }
   }
 
-  @Scopes(Role.Admin)
+  @Scopes('manage:users:create')
   @Post()
   public async createUser(
     @Request() req: AuthenticatedRequest,
@@ -91,7 +92,7 @@ export class UsersController {
     }
   }
 
-  @Scopes(Role.ReadOnly)
+  @Scopes(['manage:users:read', MANAGE_USER_READ_ALL_SCOPE])
   @Get(':id')
   public async getUser(
     @Request() req: AuthenticatedRequest,
@@ -111,7 +112,7 @@ export class UsersController {
     }
   }
 
-  @Scopes(Role.ReadOnly)
+  @Scopes(['manage:users:update', MANAGE_USER_UPDATE_ALL_SCOPE])
   @Put(':id')
   public async editUser(
     @Request() req: AuthenticatedRequest,
@@ -161,7 +162,11 @@ export class UsersController {
     }
   }
 
-  @Scopes(Role.UserResetPassword)
+  @Scopes([
+    RESET_PASSWORD_SCOPE,
+    'manage:users:update',
+    MANAGE_USER_UPDATE_ALL_SCOPE,
+  ])
   @Put(':id/password')
   public async editUserPassword(
     @Request() req: AuthenticatedRequest,
@@ -199,7 +204,7 @@ export class UsersController {
     }
   }
 
-  @Scopes(Role.Admin)
+  @Scopes('manage:users:delete')
   @Delete(':id')
   public async deleteUser(@Param() dto: MongoIdDto): Promise<DeleteResult> {
     try {

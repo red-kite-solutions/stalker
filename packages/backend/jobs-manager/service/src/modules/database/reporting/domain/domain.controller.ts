@@ -36,7 +36,7 @@ export class DomainsController {
   constructor(private readonly domainsService: DomainsService) {}
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.ReadOnly)
+  @Scopes('resources:domains:read')
   @Get()
   async getAllDomains(
     @Query() dto: DomainsPagingDto,
@@ -51,14 +51,14 @@ export class DomainsController {
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('resources:domains:create')
   @Post()
   async submitDomains(@Body() dto: SubmitDomainsDto) {
     return await this.domainsService.addDomains(dto.domains, dto.projectId);
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('resources:domains:update')
   @Put(':id/tags')
   async tagDomain(@Param() idDto: MongoIdDto, @Body() tagDto: TagItemDto) {
     return await this.domainsService.tagDomain(
@@ -69,21 +69,21 @@ export class DomainsController {
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('resources:domains:update')
   @Patch()
   async batchEdit(@Body() dto: BatchEditDomainsDto) {
     return await this.domainsService.batchEdit(dto);
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.ReadOnly)
+  @Scopes('resources:domains:read')
   @Get(':id')
   async getDomain(@Param() dto: MongoIdDto): Promise<DomainDocument> {
     return await this.domainsService.getDomain(dto.id);
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('resources:domains:update')
   @Put(':id')
   async editDomain(
     @Param() idDto: MongoIdDto,
@@ -93,14 +93,14 @@ export class DomainsController {
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('resources:domains:delete')
   @Delete(':id')
   async deleteDomain(@Param() idDto: MongoIdDto) {
     return await this.domainsService.delete(idDto.id);
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('resources:domains:delete')
   @Delete()
   async deleteDomains(@Body() dto: DeleteDomainsDto) {
     if (!dto.domainIds) return;

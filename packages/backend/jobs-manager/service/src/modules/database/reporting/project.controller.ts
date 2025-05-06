@@ -38,21 +38,21 @@ export class ProjectController {
   ) {}
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.ReadOnly)
+  @Scopes('manage:projects:read')
   @Get()
   async getProjects() {
     return await this.projectService.getAll();
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.ReadOnly)
+  @Scopes('manage:projects:read')
   @Get('summary')
   async getProjectSummaries() {
     return await this.projectService.getAllSummaries();
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('manage:projects:create')
   @Post()
   async createProject(@Body() dto: CreateProjectDto) {
     if ((dto.imageType && !dto.logo) || (dto.logo && !dto.imageType))
@@ -70,14 +70,14 @@ export class ProjectController {
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.ReadOnly)
+  @Scopes('manage:projects:read')
   @Get(':id')
   async getProject(@Param() id: MongoIdDto) {
     return await this.projectService.get(id.id);
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('manage:projects:update')
   @Put(':id')
   async editProject(
     @Param() id: MongoIdDto,
@@ -117,7 +117,7 @@ export class ProjectController {
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('manage:projects:delete')
   @Delete(':id')
   async deleteProject(@Param() id: MongoIdDto): Promise<DeleteResult> {
     return await this.projectService.delete(id.id);

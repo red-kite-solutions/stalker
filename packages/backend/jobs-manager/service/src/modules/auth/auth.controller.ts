@@ -73,7 +73,7 @@ export class AuthController {
       scopes: req.user.scopes,
     });
     const refreshToken: string = await this.authService.createRefreshToken(
-      req.user._id,
+      req.user._id.toString(),
     );
     return {
       access_token: accessToken,

@@ -7,6 +7,7 @@ import { GroupsService } from './groups.service';
 import { UsersService } from '../users/users.service';
 import { User } from '../users/users.model';
 import { simplifyScopes } from '../../auth/utils/auth.utils';
+import { ADMIN_GROUP } from './groups.constants';
 
 describe('Users Service', () => {
   let moduleFixture: TestingModule;
@@ -127,6 +128,32 @@ describe('Users Service', () => {
       );
     });
 
+    it('Should add a user to a group by group name', async () => {
+      // Arrange
+      const u1 = await user('admin@example.com');
+      let g1 = await group('a');
+
+      // Act
+      await groupService.addToGroupByName(g1.name, u1._id.toString());
+
+      // Assert
+      g1 = await groupService.get(g1._id);
+      expect(g1.members).toStrictEqual([u1._id]);
+    });
+
+    it('Should add a user to a group by group id', async () => {
+      // Arrange
+      const u1 = await user('admin@example.com');
+      let g1 = await group('a');
+
+      // Act
+      await groupService.addToGroupById(g1._id.toString(), u1._id.toString());
+
+      // Assert
+      g1 = await groupService.get(g1._id);
+      expect(g1.members).toStrictEqual([u1._id]);
+    });
+
     it('Should remove the membership to all groups for a user', async () => {
       // Arrange
       const u1 = await user('admin@example.com');
@@ -142,14 +169,61 @@ describe('Users Service', () => {
       const groups = await groupService.getGroupMemberships(u1._id.toString());
       expect(groups.length).toStrictEqual(0);
     });
+
+    it('Should tell if a user is a member of the admins group', async () => {
+      // Arrange
+      const u1 = await user('admin@example.com');
+      const u2 = await user('user@example.com');
+      let g1 = await group(
+        ADMIN_GROUP.name,
+        [u1._id.toString()],
+        ADMIN_GROUP.scopes,
+      );
+
+      // Act && Assert
+      expect(await groupService.isAdmin(u1._id.toString())).toStrictEqual(true);
+      expect(await groupService.isAdmin(u2._id.toString())).toStrictEqual(
+        false,
+      );
+    });
+
+    it('Should find the ids of all the members of the admins group', async () => {
+      // Arrange
+      const u1 = await user('admin@example.com');
+      const u2 = await user('user@example.com');
+      const u3 = await user('admin2@example.com');
+      let g1 = await group(
+        ADMIN_GROUP.name,
+        [u1._id.toString(), u3._id.toString()],
+        ADMIN_GROUP.scopes,
+      );
+
+      // Act
+      const admins = await groupService.getAdminIds();
+
+      // Assert
+      expect(admins).toStrictEqual([u1._id, u3._id]);
+    });
+
+    it('Should not be able to delete a readonly group', async () => {
+      // Arrange
+      let g1 = await group(ADMIN_GROUP.name, [], ADMIN_GROUP.scopes, true);
+
+      // Act
+      const result = await groupService.delete(g1._id.toString());
+
+      // Assert
+      expect(result.deletedCount).toStrictEqual(0);
+    });
   });
 
   async function group(
     name: string,
     members: string[] = [],
     scopes: string[] = [],
+    readonly: boolean = false,
   ) {
-    return await groupService.create(name, members, scopes);
+    return await groupService.create(name, members, scopes, readonly);
   }
 
   async function user(email: string) {

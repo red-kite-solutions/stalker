@@ -40,21 +40,21 @@ export class HostController {
   ) {}
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('resources:hosts:create')
   @Post('')
   async submitHosts(@Body() dto: SubmitHostsDto) {
     return await this.hostsService.addHosts(dto.ips, dto.projectId);
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('resources:hosts:update')
   @Patch()
   async batchEdit(@Body() dto: BatchEditHostsDto) {
     return await this.hostsService.batchEdit(dto);
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('resources:hosts:update')
   @Put(':id/tags')
   async tagHost(@Param() idDto: MongoIdDto, @Body() tagDto: TagItemDto) {
     return await this.hostsService.tagHost(
@@ -65,28 +65,28 @@ export class HostController {
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.ReadOnly)
+  @Scopes('resources:hosts:read')
   @Get(':id')
   async getHost(@Param() dto: MongoIdDto): Promise<HostDocument> {
     return await this.hostsService.getHost(dto.id);
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.ReadOnly)
+  @Scopes('resources:ports:read')
   @Get(':id/ports/:portNumber')
   async getPort(@Param() dto: GetHostPortDto): Promise<Port> {
     return await this.portsService.getHostPort(dto.id, dto.portNumber);
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('resources:hosts:delete')
   @Delete(':id')
   async deleteHost(@Param() dto: MongoIdDto): Promise<DeleteResult> {
     return await this.hostsService.delete(dto.id);
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.ReadOnly)
+  @Scopes('resources:hosts:read')
   @Get()
   async getAllHosts(@Query() dto: HostsPagingDto): Promise<Page<HostDocument>> {
     const totalRecords = await this.hostsService.count(dto);
@@ -99,7 +99,7 @@ export class HostController {
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('resources:hosts:delete')
   @Delete()
   async deleteHosts(@Body() dto: DeleteHostsDto): Promise<DeleteResult> {
     const ids = dto.hostIds.map((id) => id.toString());

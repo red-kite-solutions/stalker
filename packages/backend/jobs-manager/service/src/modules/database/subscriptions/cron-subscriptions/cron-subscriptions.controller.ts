@@ -32,7 +32,7 @@ export class CronSubscriptionsController {
   constructor(private subscriptionsService: CronSubscriptionsService) {}
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('automation:subscriptions:create')
   @Post()
   async create(@Body() dto: CronSubscriptionDto | DuplicateSubscriptionDto) {
     if ('subscriptionId' in dto) {
@@ -43,14 +43,14 @@ export class CronSubscriptionsController {
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.ReadOnly)
+  @Scopes('automation:subscriptions:read')
   @Get()
   async getAllSubscriptions(): Promise<CronSubscriptionsDocument[]> {
     return await this.subscriptionsService.getAll();
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.ReadOnly)
+  @Scopes('automation:subscriptions:read')
   @Get(':id')
   async getSubscription(
     @Param() idDto: MongoIdDto,
@@ -59,7 +59,7 @@ export class CronSubscriptionsController {
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('automation:subscriptions:update')
   @Patch(':id')
   async patch(
     @Param() idDto: MongoIdDto,
@@ -82,7 +82,7 @@ export class CronSubscriptionsController {
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('automation:subscriptions:update')
   @Put(':id')
   async editSubscription(
     @Param() idDto: MongoIdDto,
@@ -92,7 +92,7 @@ export class CronSubscriptionsController {
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('automation:subscriptions:delete')
   @Delete(':id')
   async deleteSubscription(@Param() idDto: MongoIdDto): Promise<DeleteResult> {
     return await this.subscriptionsService.delete(idDto.id);

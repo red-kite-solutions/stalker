@@ -15,7 +15,7 @@ export class ConfigController {
 
   constructor(private readonly configService: ConfigService) {}
 
-  @Scopes(Role.ReadOnly)
+  @Scopes('manage:config:read')
   @Get('job-pods')
   async getJobPodConfigs(): Promise<JobPodConfiguration[]> {
     return await this.configService.getAllJobPodConfigs();

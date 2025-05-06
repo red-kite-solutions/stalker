@@ -30,14 +30,14 @@ export class SecretsController {
   constructor(private secretsService: SecretsService) {}
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.ReadOnly)
+  @Scopes('manage:secrets:read')
   @Get()
   async getSecrets() {
     return await this.secretsService.getAll();
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.ReadOnly)
+  @Scopes('manage:secrets:read')
   @Get(':id')
   async getSecret(@Param() id: MongoIdDto) {
     const s = await this.secretsService.get(id.id);
@@ -46,7 +46,7 @@ export class SecretsController {
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('manage:secrets:create')
   @Post()
   async createSecret(@Body() dto: CreateSecretDto) {
     try {
@@ -68,7 +68,7 @@ export class SecretsController {
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('manage:secrets:delete')
   @Delete(':id')
   async deleteSecret(@Param() id: MongoIdDto): Promise<DeleteResult> {
     return await this.secretsService.delete(id.id);

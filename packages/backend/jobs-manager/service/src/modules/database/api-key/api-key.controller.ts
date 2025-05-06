@@ -35,7 +35,6 @@ import {
 } from '../../auth/scopes.constants';
 
 @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-@Scopes(Role.ReadOnly)
 @Controller('api-key')
 export class ApiKeyController {
   constructor(private apiKeyService: ApiKeyService) {}
@@ -47,6 +46,7 @@ export class ApiKeyController {
     return req.user;
   }
 
+  @Scopes(['manage:api-key:read', MANAGE_APIKEY_READ_ALL])
   @Get()
   async getAll(
     @Request() req: AuthenticatedRequest,
@@ -66,6 +66,7 @@ export class ApiKeyController {
     };
   }
 
+  @Scopes(['manage:api-key:read', MANAGE_APIKEY_READ_ALL])
   @Get(':id')
   async get(
     @Request() req: AuthenticatedRequest,
@@ -82,6 +83,7 @@ export class ApiKeyController {
     return await this.apiKeyService.getById(dto.id, userId);
   }
 
+  @Scopes('manage:api-key:create')
   @Post()
   async createKey(
     @Request() req: AuthenticatedRequest,
@@ -104,6 +106,7 @@ export class ApiKeyController {
     }
   }
 
+  @Scopes(['manage:api-key:delete', MANAGE_APIKEY_DELETE_ALL])
   @Delete(':id')
   async deleteKey(
     @Request() req: AuthenticatedRequest,

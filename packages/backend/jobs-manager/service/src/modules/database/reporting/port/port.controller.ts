@@ -28,7 +28,7 @@ export class PortController {
   constructor(private readonly portsService: PortService) {}
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.ReadOnly)
+  @Scopes('resources:ports:read')
   @Get()
   async getHostTopTcpPorts(
     @Query() dto: GetPortsDto,
@@ -45,7 +45,7 @@ export class PortController {
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('resources:ports:update')
   @Put(':id/tags')
   async tagPort(@Param() idDto: MongoIdDto, @Body() tagDto: TagItemDto) {
     return await this.portsService.tagPort(
@@ -56,28 +56,28 @@ export class PortController {
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.ReadOnly)
+  @Scopes('resources:ports:read')
   @Get(':id')
   async getPort(@Param() idDto: MongoIdDto) {
     return await this.portsService.getPort(idDto.id);
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('resources:ports:delete')
   @Delete()
   async deletePorts(@Body() dto: DeleteManyPortsDto) {
     return await this.portsService.deleteMany(dto.portIds);
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('resources:ports:delete')
   @Delete(':id')
   async deletePort(@Param() idDto: MongoIdDto) {
     return await this.portsService.delete(idDto.id);
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('resources:ports:update')
   @Patch()
   async batchEdit(@Body() dto: BatchEditPortsDto) {
     return await this.portsService.batchEdit(dto);

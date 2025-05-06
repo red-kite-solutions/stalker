@@ -33,7 +33,7 @@ export class WebsiteController {
   constructor(private readonly websiteService: WebsiteService) {}
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.ReadOnly)
+  @Scopes('resources:websites:read')
   @Get()
   async getWebsites(
     @Query() dto: GetWebsitesDto,
@@ -48,7 +48,7 @@ export class WebsiteController {
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('resources:websites:update')
   @Put(':id/tags')
   async tagPort(@Param() idDto: MongoIdDto, @Body() tagDto: TagItemDto) {
     return await this.websiteService.tagWebsite(
@@ -59,42 +59,42 @@ export class WebsiteController {
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.ReadOnly)
+  @Scopes('resources:websites:read')
   @Get(':id')
   async getWebsite(@Param() idDto: MongoIdDto) {
     return await this.websiteService.get(idDto.id);
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('resources:websites:delete')
   @Delete()
   async deleteWebsites(@Body() dto: DeleteManyWebsitesDto) {
     return await this.websiteService.deleteMany(dto.websiteIds);
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('resources:websites:delete')
   @Delete(':id')
   async deleteWebsite(@Param() idDto: MongoIdDto) {
     return await this.websiteService.delete(idDto.id);
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('resources:websites:update')
   @Patch()
   async batchEdit(@Body() dto: BatchEditWebsitesDto) {
     return await this.websiteService.batchEdit(dto);
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('resources:websites:update')
   @Patch('merge')
   async merge(@Body() dto: MergeWebsitesDto) {
     return await this.websiteService.merge(dto.mergeInto, dto.mergeFrom);
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('resources:websites:update')
   @Patch('unmerge')
   async unmerge(@Body() dto: UnmergeWebsitesDto) {
     return await this.websiteService.unmerge(dto.unmerge);

@@ -4,11 +4,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
 import { getName } from '../../../test/test.utils';
 import { AppModule } from '../../app.module';
-import {
-  GROUP_ADMIN_SCOPES,
-  RESET_PASSWORD_SCOPE,
-  Role,
-} from '../../auth/constants';
 import { EmailService } from '../../notifications/emails/email.service';
 import { MagicLinkToken } from './magic-link-token.model';
 import { CreateFirstUserDto } from './users.dto';
@@ -16,6 +11,11 @@ import { User, UserDocument } from './users.model';
 import { UsersService } from './users.service';
 import { GroupsService } from '../groups/groups.service';
 import { Group } from '../groups/groups.model';
+import {
+  GROUP_ADMIN_SCOPES,
+  RESET_PASSWORD_SCOPE,
+} from '../../auth/scopes.constants';
+import { ADMIN_GROUP } from '../groups/groups.constants';
 
 describe('Users Service', () => {
   let moduleFixture: TestingModule;
@@ -170,10 +170,10 @@ describe('Users Service', () => {
     it('Should not delete the last admin', async () => {
       // Arrange
       const u1 = await user();
-      await groupService.create(
-        'admins',
+      const g1 = await group(
+        ADMIN_GROUP.name,
         [u1._id.toString()],
-        GROUP_ADMIN_SCOPES,
+        ADMIN_GROUP.scopes,
       );
       expect.assertions(1);
 
@@ -190,6 +190,11 @@ describe('Users Service', () => {
       // Arrange
       const u1 = await user();
       const u2 = await user({ active: false });
+      const g1 = await group(
+        ADMIN_GROUP.name,
+        [u1._id.toString(), u2._id.toString()],
+        ADMIN_GROUP.scopes,
+      );
       expect.assertions(1);
 
       // Act
@@ -243,10 +248,10 @@ describe('Users Service', () => {
     it('Should not deactivate the last admin', async () => {
       // Arrange
       const u1 = await user();
-      await groupService.create(
-        'admins',
+      const g1 = await group(
+        ADMIN_GROUP.name,
         [u1._id.toString()],
-        GROUP_ADMIN_SCOPES,
+        ADMIN_GROUP.scopes,
       );
       expect.assertions(1);
 
@@ -263,6 +268,11 @@ describe('Users Service', () => {
       // Arrange
       const u1 = await user();
       const u2 = await user({ active: false });
+      const g1 = await group(
+        ADMIN_GROUP.name,
+        [u1._id.toString(), u2._id.toString()],
+        ADMIN_GROUP.scopes,
+      );
       expect.assertions(1);
 
       // Act
@@ -320,10 +330,10 @@ describe('Users Service', () => {
     it('Should return user with limited permissions and delete token when password is reset', async () => {
       // Arrange
       const u = await user();
-      await groupService.create(
-        'admins',
+      const g1 = await group(
+        ADMIN_GROUP.name,
         [u._id.toString()],
-        GROUP_ADMIN_SCOPES,
+        ADMIN_GROUP.scopes,
       );
       await magicLinkToken.create({
         expirationDate: new Date().getTime() + 100000,
@@ -338,8 +348,8 @@ describe('Users Service', () => {
 
       // Assert
       expect(authenticatedUser).toBeDefined();
-      expect(authenticatedUser.email).toBe(u.email);
-      expect(authenticatedUser.scopes).toBe([RESET_PASSWORD_SCOPE]);
+      expect(authenticatedUser.email).toStrictEqual(u.email);
+      expect(authenticatedUser.scopes).toStrictEqual([RESET_PASSWORD_SCOPE]);
 
       // Act
       await userService.changePasswordById(u._id.toString(), 'newpass');
@@ -390,5 +400,13 @@ describe('Users Service', () => {
     if (typeof u.active === 'undefined') u.active = true;
 
     return await userService.createUser(u);
+  }
+
+  async function group(
+    name: string,
+    members: string[] = [],
+    scopes: string[] = [],
+  ) {
+    return await groupService.create(name, members, scopes);
   }
 });

@@ -1,4 +1,5 @@
 import * as argon2 from 'argon2';
+import { ApiScope, ExtendedScope } from '../scopes.constants';
 
 const options = {
   timeCost: 5,
@@ -36,10 +37,13 @@ export function simplifyScopes(scopes: string[]) {
   return simplifiedScopes.sort();
 }
 
-export function userHasScope(requiredScope: string, userScopes: string[]) {
+export function userHasScope(
+  requiredScope: ApiScope | ExtendedScope,
+  userScopes: string[],
+) {
   // '*' is explicitely excluded as a possible valid scope to prevent including the reset password scope
   // Therefore, do not write: const possibleValidScopes = new Set(['*', requiredScope]);
-  const possibleValidScopes = new Set([requiredScope]);
+  const possibleValidScopes: Set<string> = new Set([requiredScope]);
   const splitRequiredScope = requiredScope.split(':');
 
   for (let i = 0; i < splitRequiredScope.length - 1; ++i) {

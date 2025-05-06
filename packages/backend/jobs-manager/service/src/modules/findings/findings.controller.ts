@@ -21,8 +21,8 @@ export class FindingsController {
     await this.findingsService.cleanup();
   }
 
-  @Scopes(Role.ReadOnly)
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes('data:findings:read')
   @Get()
   async get(@Query() dto: FindingsPagingDto): Promise<Page<CustomFinding>> {
     return await this.findingsService.getAll(dto.page, dto.pageSize, dto);

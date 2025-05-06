@@ -17,7 +17,7 @@ export const groupInitProvider = [
       if (group) return;
 
       try {
-        for (const group in DEFAULT_GROUPS) {
+        for (const group of DEFAULT_GROUPS) {
           await groupModel.create(group);
         }
       } catch (err) {

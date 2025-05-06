@@ -16,21 +16,21 @@ export class CustomJobTemplatesController {
   constructor(private templatesService: CustomJobTemplateService) {}
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.ReadOnly)
+  @Scopes('automation:job-templates:read')
   @Get()
   async getAll(): Promise<CustomJobTemplateDocument[]> {
     return await this.templatesService.getAll();
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.ReadOnly)
+  @Scopes('automation:job-templates:read')
   @Get('summary')
   async getAllSummaries(): Promise<CustomJobTemplateSummary[]> {
     return await this.templatesService.getAllSummaries();
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.ReadOnly)
+  @Scopes('automation:job-templates:read')
   @Get(':id')
   async getTemplate(
     @Param() IdDto: MongoIdDto,

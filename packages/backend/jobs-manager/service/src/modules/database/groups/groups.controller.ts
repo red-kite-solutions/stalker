@@ -18,13 +18,13 @@ export class GroupsController {
 
   constructor(private readonly groupsService: GroupsService) {}
 
-  @Scopes(Role.ReadOnly)
+  @Scopes('manage:groups:read')
   @Get(':id')
   async getGroup(@Param() dto: MongoIdDto): Promise<GroupDocument> {
     return await this.groupsService.get(dto.id);
   }
 
-  @Scopes(Role.ReadOnly)
+  @Scopes('manage:groups:read')
   @Get()
   public async getGroups(dto: GetGroupsDto): Promise<Page<GroupDocument>> {
     const totalRecords = await this.groupsService.count(dto);

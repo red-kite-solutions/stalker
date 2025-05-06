@@ -15,14 +15,14 @@ export class JobContainerController {
   constructor(private containerService: JobContainerService) {}
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.ReadOnly)
+  @Scopes('automation:job-containers:read')
   @Get()
   async getAll(): Promise<JobContainerDocument[]> {
     return await this.containerService.getAll();
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.ReadOnly)
+  @Scopes('automation:job-containers:read')
   @Get(':id')
   async getContainer(
     @Param() IdDto: MongoIdDto,

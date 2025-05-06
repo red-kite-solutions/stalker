@@ -31,7 +31,7 @@ export class EventSubscriptionsController {
   constructor(private subscriptionsService: EventSubscriptionsService) {}
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('automation:subscriptions:create')
   @Post()
   async create(@Body() dto: EventSubscriptionDto | DuplicateSubscriptionDto) {
     if ('subscriptionId' in dto) {
@@ -42,14 +42,14 @@ export class EventSubscriptionsController {
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.ReadOnly)
+  @Scopes('automation:subscriptions:read')
   @Get()
   async getAllSubscriptions(): Promise<EventSubscriptionsDocument[]> {
     return await this.subscriptionsService.getAll();
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.ReadOnly)
+  @Scopes('automation:subscriptions:read')
   @Get(':id')
   async getSubscription(
     @Param() IdDto: MongoIdDto,
@@ -58,7 +58,7 @@ export class EventSubscriptionsController {
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('automation:subscriptions:update')
   @Patch(':id')
   async patch(
     @Param() idDto: MongoIdDto,
@@ -75,7 +75,7 @@ export class EventSubscriptionsController {
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('automation:subscriptions:update')
   @Put(':id')
   async editSubscription(
     @Param() IdDto: MongoIdDto,
@@ -85,7 +85,7 @@ export class EventSubscriptionsController {
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('automation:subscriptions:delete')
   @Delete(':id')
   async deleteSubscription(@Param() IdDto: MongoIdDto): Promise<DeleteResult> {
     return await this.subscriptionsService.delete(IdDto.id);

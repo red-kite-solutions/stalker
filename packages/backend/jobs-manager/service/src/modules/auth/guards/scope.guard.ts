@@ -20,9 +20,20 @@ export class ScopesGuard implements CanActivate {
       return false;
     }
 
+    let requiredScopesArray = [];
+    if (Array.isArray(requiredScope)) {
+      requiredScopesArray = requiredScope;
+    } else {
+      requiredScopesArray.push(requiredScope);
+    }
+
     const request = context.switchToHttp().getRequest();
     const user: UserAuthContext = request.user;
 
-    return userHasScope(requiredScope, user.scopes);
+    // If user has any of the scopes required, the request can go through
+    for (const scope of requiredScopesArray)
+      if (userHasScope(scope, user.scopes)) return true;
+
+    return false;
   }
 }

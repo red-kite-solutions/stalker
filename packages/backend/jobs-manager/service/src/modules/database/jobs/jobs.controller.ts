@@ -49,7 +49,7 @@ export class JobsController {
   ) {}
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.ReadOnly)
+  @Scopes('automation:job-executions:read')
   @Get()
   async getAllJobs(
     @Query()
@@ -59,14 +59,14 @@ export class JobsController {
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.ReadOnly)
+  @Scopes('automation:job-executions:read')
   @Get(':id/logs')
   async getJobLogs(@Param() id: MongoIdDto): Promise<Page<JobLog>> {
     return await this.jobsService.getLogs(id.id);
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.ReadOnly)
+  @Scopes('automation:job-executions:read')
   @Get('summaries')
   async getAllJobSummaries(): Promise<JobSummary[]> {
     const jd = JobDefinitions.map((jd): JobSummary => {
@@ -86,7 +86,7 @@ export class JobsController {
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('automation:job-executions:create')
   @Post()
   async startJob(@Body() dto: StartJobDto) {
     let jpConfig: JobPodConfiguration = null;
@@ -134,7 +134,7 @@ export class JobsController {
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('automation:job-executions:update')
   @Patch(':id')
   async stopJob(@Param() id: MongoIdDto, @Body() dto: JobManagementDto) {
     switch (dto.task) {
@@ -147,7 +147,7 @@ export class JobsController {
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('automation:job-executions:delete')
   @Delete()
   async deleteAllJobs() {
     return await this.jobsService.deleteAll();
@@ -160,14 +160,14 @@ export class JobsController {
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('automation:job-executions:delete')
   @Delete(':id')
   async deleteJob(@Param() dto: MongoIdDto) {
     return await this.jobsService.delete(dto.id);
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.ReadOnly)
+  @Scopes('automation:job-executions:read')
   @Get(':id')
   async getJob(@Param() dto: MongoIdDto): Promise<any> {
     return await this.jobsService.getById(dto.id);

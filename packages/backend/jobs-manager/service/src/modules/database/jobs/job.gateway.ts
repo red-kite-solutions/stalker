@@ -32,7 +32,7 @@ export class JobStatusUpdate {
 
 @WebSocketGateway({ cors: true })
 @UseGuards(JwtSocketioGuard, RolesSocketioGuard)
-@Scopes(Role.User)
+@Scopes('automation:job-executions:read')
 export class JobOutputGateway implements OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;

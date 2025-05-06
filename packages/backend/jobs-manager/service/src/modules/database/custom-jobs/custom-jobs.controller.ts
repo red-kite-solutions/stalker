@@ -35,7 +35,7 @@ export class CustomJobsController {
   constructor(private customJobsService: CustomJobsService) {}
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('automation:custom-jobs:create')
   @Post()
   async create(@Body() dto: JobDto | DuplicateJobDto) {
     try {
@@ -63,21 +63,21 @@ export class CustomJobsController {
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.ReadOnly)
+  @Scopes('automation:custom-jobs:read')
   @Get()
   async getAllCustomJobs(): Promise<CustomJobsDocument[]> {
     return await this.customJobsService.getAll();
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.ReadOnly)
+  @Scopes('automation:custom-jobs:read')
   @Get(':id')
   async getCustomJob(@Param() IdDto: MongoIdDto): Promise<CustomJobsDocument> {
     return await this.customJobsService.get(IdDto.id);
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('automation:custom-jobs:update')
   @Put(':id')
   async editCustomJob(
     @Param() IdDto: MongoIdDto,
@@ -95,14 +95,14 @@ export class CustomJobsController {
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('automation:custom-jobs:delete')
   @Delete(':id')
   async deleteCustomJob(@Param() IdDto: MongoIdDto): Promise<DeleteResult> {
     return await this.customJobsService.delete(IdDto.id);
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.Admin)
+  @Scopes('automation:custom-jobs:cache-sync')
   @Post('sync')
   async syncCache(): Promise<void> {
     return await this.customJobsService.syncCache();

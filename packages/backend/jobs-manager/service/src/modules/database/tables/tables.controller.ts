@@ -11,11 +11,11 @@ import { TableDocument } from './tables.model';
 import { TableService } from './tables.service';
 
 @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-@Scopes(Role.ReadOnly)
 @Controller('tables')
 export class TableController {
   constructor(private readonly tableService: TableService) {}
 
+  @Scopes('data:tables:read')
   @Get()
   async getAll(): Promise<
     Pick<TableDocument, 'name' | 'icon' | 'isPinned' | '_id'>[]
@@ -23,6 +23,7 @@ export class TableController {
     return await this.tableService.getAll();
   }
 
+  @Scopes('data:tables:read')
   @Get(':id')
   async get(@Param() dto: MongoIdDto): Promise<TableDocument> {
     return await this.tableService.getTable(dto.id);

@@ -29,21 +29,21 @@ export class TagsController {
   constructor(private tagsService: TagsService) {}
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.ReadOnly)
+  @Scopes('manage:tags:read')
   @Get()
   async getAllTags(): Promise<TagsDocument[]> {
     return await this.tagsService.getAll();
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.ReadOnly)
+  @Scopes('manage:tags:read')
   @Get(':id')
   async getTag(@Param() dto: MongoIdDto): Promise<TagsDocument> {
     return await this.tagsService.getById(dto.id);
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('manage:tags:create')
   @Post()
   async createTag(@Body() dto: CreateTagDto) {
     try {
@@ -58,7 +58,7 @@ export class TagsController {
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('manage:tags:delete')
   @Delete(':id')
   async deleteTag(@Param() dto: MongoIdDto): Promise<DeleteResult> {
     return await this.tagsService.delete(dto.id);

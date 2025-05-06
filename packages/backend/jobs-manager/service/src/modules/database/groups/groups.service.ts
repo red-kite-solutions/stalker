@@ -51,17 +51,17 @@ export class GroupsService {
     );
   }
 
-  public async addToGroupFromName(groupName: string, userId: string) {
+  public async addToGroupByName(groupName: string, userId: string) {
     return await this.addToGroup({ name: { $eq: groupName } }, userId);
   }
 
-  public async addToGroupFromId(groupId: string, userId: string) {
+  public async addToGroupById(groupId: string, userId: string) {
     return await this.addToGroup({ _id: { $eq: groupId } }, userId);
   }
 
   private async addToGroup(filter: FilterQuery<Group>, userId: string) {
     return await this.groupModel.updateOne(filter, {
-      $addToSet: { members: userId },
+      $addToSet: { members: new Types.ObjectId(userId) },
     });
   }
 
@@ -92,20 +92,21 @@ export class GroupsService {
     name: string,
     members: string[],
     scopes: string[],
+    readonly: boolean = false,
   ): Promise<GroupDocument> {
-    const simplifiedScopes = simplifyScopes(scopes);
-
     return await this.groupModel.create({
       name,
-      members,
-      scopes,
+      members: members.map((m) => new Types.ObjectId(m)),
+      scopes: simplifyScopes(scopes),
+      readonly,
     });
   }
 
   public async delete(id: string): Promise<DeleteResult> {
-    return await this.groupModel
-      .deleteOne({ _id: { $eq: id }, readonly: { $eq: false } })
-      .select('domains');
+    return await this.groupModel.deleteOne({
+      _id: { $eq: id },
+      readonly: { $eq: false },
+    });
   }
 
   public async removeGroupMemberships(userId: string) {
@@ -120,11 +121,16 @@ export class GroupsService {
   }
 
   public async getAdminIds(): Promise<Types.ObjectId[]> {
-    return (await this.groupModel.findOne({ name: { $eq: ADMIN_GROUP.name } }))
-      .members;
+    const adminGroup = await this.groupModel.findOne({
+      name: { $eq: ADMIN_GROUP.name },
+    });
+    return adminGroup?.members ?? [];
   }
 
-  public async isAdmin(userId: string, session: ClientSession) {
+  public async isAdmin(
+    userId: string,
+    session: ClientSession | undefined = undefined,
+  ) {
     const groups = await this.getGroupMemberships(userId, session);
     for (const group of groups) {
       if (group.name === ADMIN_GROUP.name) return true;

@@ -34,14 +34,14 @@ export class IpRangeController {
   constructor(private readonly ipRangesService: IpRangeService) {}
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('resources:ip-ranges:update')
   @Patch()
   async batchEdit(@Body() dto: BatchEditIpRangesDto) {
     return await this.ipRangesService.batchEdit(dto);
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('resources:ip-ranges:update')
   @Put(':id/tags')
   async tag(@Param() idDto: MongoIdDto, @Body() tagDto: TagItemDto) {
     return await this.ipRangesService.tagIpRange(
@@ -52,21 +52,21 @@ export class IpRangeController {
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.ReadOnly)
+  @Scopes('resources:ip-ranges:read')
   @Get(':id')
   async get(@Param() dto: MongoIdDto): Promise<IpRangeDocument> {
     return await this.ipRangesService.get(dto.id);
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('resources:ip-ranges:delete')
   @Delete(':id')
   async deleteIpRange(@Param() dto: MongoIdDto): Promise<DeleteResult> {
     return await this.ipRangesService.delete(dto.id);
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.ReadOnly)
+  @Scopes('resources:ip-ranges:read')
   @Get()
   async getAll(
     @Query() dto: IpRangesPagingDto,
@@ -85,14 +85,14 @@ export class IpRangeController {
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('resources:ip-ranges:delete')
   @Delete()
   async deleteIpRanges(@Body() dto: DeleteIpRangesDto): Promise<DeleteResult> {
     return await this.ipRangesService.deleteMany(dto.ipRangeIds);
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.User)
+  @Scopes('resources:ip-ranges:create')
   @Post()
   async submit(@Body() dto: SubmitIpRangesDto) {
     return await this.ipRangesService.submitIpRanges(dto);

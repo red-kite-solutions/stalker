@@ -25,7 +25,7 @@ export class FindingDefinitionController {
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes(Role.ReadOnly)
+  @Scopes('data:finding-definitions:read')
   @Get()
   async getAllDefinitions(
     @Query() dto: FindingDefinitionPagingDto,

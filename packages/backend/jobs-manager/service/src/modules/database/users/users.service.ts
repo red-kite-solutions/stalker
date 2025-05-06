@@ -76,7 +76,7 @@ export class UsersService {
         const u = await this.userModel.findOne({}, undefined, { session });
         if (u) throw new HttpForbiddenException(err);
         const user = await this.userModel.create([userToCreate], { session });
-        await this.groupsService.addToGroupFromName(
+        await this.groupsService.addToGroupByName(
           ADMIN_GROUP.name,
           user[0]._id.toString(),
         );
@@ -170,7 +170,7 @@ export class UsersService {
           );
           if (!userToEdit) throw new HttpNotFoundException(`User not found`);
 
-          const isAdmin = this.groupsService.isAdmin(
+          const isAdmin = await this.groupsService.isAdmin(
             userToEdit._id.toString(),
             session,
           );
@@ -326,7 +326,7 @@ export class UsersService {
 
     if (!existingToken) return undefined;
 
-    const user: UserDocument = await this.userModel.findById(
+    const user: User & { _id: Types.ObjectId } = await this.userModel.findById(
       new Types.ObjectId(existingToken.userId),
       undefined,
       { lean: true },

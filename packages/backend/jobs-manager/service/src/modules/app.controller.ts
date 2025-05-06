@@ -11,7 +11,7 @@ import { JwtStrategy } from './auth/strategies/jwt.strategy';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Scopes(Role.ReadOnly)
+  @Scopes('manage:health:version')
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Get()
   getVersion(): string {
