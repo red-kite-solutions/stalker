@@ -69,7 +69,7 @@ finding_key
       return { findingKey: finding_key };
     }
 
-key = project / domain / host / port / tags / other / is
+key = project / domain / host / port / ipRange / website / tags / other / is
 
 project 
   = "project.name" { return "project.name"; }
@@ -95,10 +95,19 @@ port
   / "port.product" { return "port.product"; }
   / "port.version" { return "port.version"; }
 
+ipRange
+  = "ipRange.id" { return "ipRange.id" }
+  / "ipRange.cidr" { return "ipRange.cidr" }
+  / "ipRange" { return "ipRange.cidr"; }
+
+website
+  = "website.id" { return "website.id"; }
+
 tags 
   = "tag.id" { return "tag.id"; }
   / "tag.name" { return "tag.name"; }
   / "tag" { return "tag.name"; }
+
 
 other
   = "mergedIn.id" { return "mergedIn.id" }

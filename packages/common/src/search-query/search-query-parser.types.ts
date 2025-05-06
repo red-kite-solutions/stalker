@@ -34,6 +34,8 @@ export type TermTypes =
   | 'port.version'
   | 'tag.name'
   | 'tag.id'
+  | 'ipRange.id'
+  | 'ipRange.cidr'
   | 'mergedIn.id'
   | 'website'
   | 'website.id';

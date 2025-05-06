@@ -13,7 +13,6 @@ module.exports = {
     '!**/node_modules/**',
     '!**/vendor/**',
   ],
-  coverageReporters: ['json', 'lcov'],
   globalSetup: './global-setup.ts',
   globalTeardown: './global-teardown.ts',
   rootDir: './',

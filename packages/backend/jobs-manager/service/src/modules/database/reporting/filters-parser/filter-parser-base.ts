@@ -48,8 +48,6 @@ export abstract class FilterParserBase<T extends Resource> {
       ],
     };
 
-    console.log(JSON.stringify(finalFilter));
-
     if (terms.length) {
       throw new BadRequestError(
         `Some search terms were not handled: ${JSON.stringify(terms)}`,

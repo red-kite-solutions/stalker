@@ -4,6 +4,11 @@ import { SearchTerms } from '@red-kite/jobs-manager/common-duplicates/search-que
 import { FilterQuery, Model, Types } from 'mongoose';
 import { Tag } from '../../tags/tag.model';
 
+import {
+  cidrStringToipv4Range,
+  ipv4RangeToMinMax,
+} from '../../../../utils/ip-address.utils';
+import { isIpRange } from '../../../../validators/is-ip-range.validator';
 import { FilterParserBase } from '../filters-parser/filter-parser-base';
 import { Port } from '../port/port.model';
 import { Project } from '../project.model';
@@ -22,23 +27,6 @@ export class HostsFilterParser extends FilterParserBase<HostDocument> {
 
   protected async buildResourceFilters(terms: SearchTerms) {
     return [...this.idFilters(terms), ...this.ipFilters(terms)];
-
-    // TODO #319
-    // // if (dto.ranges) {
-    // //   const ranges: { min: number; max: number }[] = dto.ranges.map((range) => {
-    // //     return ipv4RangeToMinMax(cidrStringToipv4Range(range));
-    // //   });
-    // //   finalFilter['$and'].push({
-    // //     $or: ranges.map((r) => {
-    // //       return {
-    // //         ipInt: {
-    // //           $gte: r.min,
-    // //           $lte: r.max,
-    // //         },
-    // //       };
-    // //     }),
-    // //   });
-    // // }
   }
 
   /** Handles "host.id" terms. */
@@ -70,21 +58,54 @@ export class HostsFilterParser extends FilterParserBase<HostDocument> {
   private ipFilters(terms: SearchTerms) {
     const filters: FilterQuery<HostDocument>[] = [];
 
-    // Include
+    // Ips
     {
-      const t = this.consumeTerms(terms, '', 'host.ip');
-      if (t.length) {
-        filters.push({ ip: { $in: this.toInclusionList(t) } });
-      }
-    }
+      // Include
+      {
+        const t = this.consumeTerms(terms, '', 'host.ip');
+        const ranges = t
+          .filter((x) => isIpRange(x.value))
+          .map((x) => ipv4RangeToMinMax(cidrStringToipv4Range(x.value)));
+        const ips = t.filter((x) => !isIpRange(x));
 
-    // Exclude
-    {
-      const t = this.consumeTerms(terms, '-', 'host.ip');
-      if (t.length) {
-        filters.push({
-          ip: { $not: { $in: this.toInclusionList(t) } },
-        });
+        if (t.length) {
+          filters.push({
+            $or: [
+              { ip: { $in: this.toInclusionList(ips) } },
+              ...ranges.map((r) => ({
+                ipInt: {
+                  $gte: r.min,
+                  $lte: r.max,
+                },
+              })),
+            ],
+          });
+        }
+      }
+
+      // Exclude
+      {
+        const t = this.consumeTerms(terms, '-', 'host.ip');
+        const ranges = t
+          .filter((x) => isIpRange(x.value))
+          .map((x) => ipv4RangeToMinMax(cidrStringToipv4Range(x.value)));
+        const ips = t.filter((x) => !isIpRange(x.value));
+        // 16843009
+        if (t.length) {
+          filters.push({
+            $and: [
+              { ip: { $not: { $in: this.toInclusionList(ips) } } },
+              ...ranges.map((r) => ({
+                ipInt: {
+                  $not: {
+                    $gte: r.min,
+                    $lte: r.max,
+                  },
+                },
+              })),
+            ],
+          });
+        }
       }
     }
 

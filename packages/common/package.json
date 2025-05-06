@@ -14,7 +14,7 @@
     "test:cicd": "jest  --runInBand --json --outputFile=./test/jest-output.json",
     "test:watch": "jest --watchAll --runInBand",
     "test:cov": "jest --coverage",
-    "generate-search-parser": "peggy -c src/search-query/peggy.config.mjs; cp -R src/search-query ../backend/jobs-manager/service/src/common-duplicates/search-query"
+    "generate-search-parser": "peggy -c src/search-query/peggy.config.mjs; cp -R src/search-query ../backend/jobs-manager/service/src/common-duplicates"
   },
   "dependencies": {
     "peggy": "^4.2.0",

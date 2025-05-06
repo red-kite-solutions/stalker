@@ -5,9 +5,23 @@ import {
   SearchTerms,
 } from './search-query-parser.types';
 
+export interface ParseOptions {
+  completeTermsOnly?: boolean;
+  excludeEmptyValues?: boolean;
+}
+
 export class SearchQueryParser {
-  public parse(query: string): SearchTerms {
-    return searchParser.parse(query);
+  public parse(query: string, options?: ParseOptions): SearchTerms {
+    let terms = searchParser.parse(query) as SearchTerms;
+    if (options?.completeTermsOnly) {
+      terms = terms.filter((x) => !x.incomplete);
+    }
+
+    if (options?.excludeEmptyValues) {
+      terms = terms.filter((x) => x.value != null && x.value !== '');
+    }
+
+    return terms;
   }
 
   public toQueryString(query: string | SearchTerms) {

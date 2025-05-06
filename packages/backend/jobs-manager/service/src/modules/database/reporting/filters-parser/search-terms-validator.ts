@@ -11,13 +11,16 @@ export class SearchTermsValidator {
     for (const term of terms) {
       switch (term.type) {
         case 'is':
-          return this.ensureAllowedValues(term, ['blocked']);
+          return this.ensureAllowedValues(term, ['blocked', 'merged']);
 
         case 'domain.id':
         case 'tag.id':
         case 'host.id':
         case 'port.id':
         case 'project.id':
+        case 'mergedIn.id':
+        case 'ipRange.id':
+        case 'website.id':
           return this.ensureObjectId(term);
 
         case 'port.number':
@@ -34,6 +37,7 @@ export class SearchTermsValidator {
         case 'tag.name':
         case 'project.name':
         case 'findingField':
+        case 'ipRange.cidr':
           // No validation required
           return;
 

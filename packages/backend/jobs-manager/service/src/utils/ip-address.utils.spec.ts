@@ -1,11 +1,9 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { AppController } from '../modules/app.controller';
-import { AppService } from '../modules/app.service';
 import {
   cidrStringToipv4Range,
   ipv4RangeToMinMax,
   ipv4RangeValuesToMinMax,
   ipv4ToNumber,
+  isIpRange,
   numberToIpv4,
 } from './ip-address.utils';
 
@@ -43,22 +41,6 @@ const ipAddressRanges = [
 ];
 
 describe('IP address utils', () => {
-  let moduleFixture: TestingModule;
-  let appController: AppController;
-
-  beforeEach(async () => {
-    moduleFixture = await Test.createTestingModule({
-      controllers: [AppController],
-      providers: [AppService],
-    }).compile();
-
-    appController = moduleFixture.get<AppController>(AppController);
-  });
-
-  afterAll(async () => {
-    await moduleFixture.close();
-  });
-
   describe('IP range calculations', () => {
     it.each([
       { ip: '127.0.0.1', value: 2130706433 },
@@ -111,5 +93,30 @@ describe('IP address utils', () => {
         expect(minMax.max).toStrictEqual(max);
       },
     );
+  });
+
+  describe('isIpRange', () => {
+    it.each([
+      // Invalid
+      { input: 'allo', expected: false },
+      { input: '0.0.0.0/-1', expected: false },
+      { input: '0.0.0.0/33', expected: false },
+      { input: '0.0.0.0.0/16', expected: false },
+      { input: '255.255.255.255/-1', expected: false },
+      { input: '255.255.255.255/33', expected: false },
+      { input: '256.256.256.256/32', expected: false },
+      { input: '   1.2.3.4/0', expected: false },
+
+      // Valid
+      { input: '0.0.0.0/0', expected: true },
+      { input: '0.0.0.0/32', expected: true },
+      { input: '255.255.255.255/0', expected: true },
+      { input: '255.255.255.255/32', expected: true },
+    ])('$input', ({ input, expected }) => {
+      // Arrange
+      // Act
+      // Assert
+      expect(isIpRange(input)).toBe(expected);
+    });
   });
 });

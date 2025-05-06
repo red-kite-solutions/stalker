@@ -36,3 +36,9 @@ export function numberToIpv4(ipNumber: number) {
     (ipNumber & 0xff).toString()
   );
 }
+
+export function isIpRange(str: string) {
+  return /^((25[0-5]|2[0-4][0-9]|1?\d{1,2})\.){3}(25[0-5]|2[0-4][0-9]|1?\d{1,2})\/([0-9]|[1-2][0-9]|3[0-2])$/.test(
+    str,
+  );
+}

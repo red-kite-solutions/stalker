@@ -120,7 +120,7 @@ describe('Host Service', () => {
       [h2] = await host(domain3, project2, [foo, bar], '1.2.2.2');
       [h3] = await host(domain3, project2, [foo, baz, qux], '1.2.2.3');
 
-      block(h3);
+      await block(h3);
     });
 
     it.each([
@@ -152,87 +152,38 @@ describe('Host Service', () => {
       ['-host.ip: 1.1.1.1', ['1.2.2.2', '1.2.2.2', '1.2.2.3']],
       [() => `-host.id: ${h1.id}`, ['1.2.2.2', '1.2.2.2', '1.2.2.3']],
       ['-host: 1.2.2*', ['1.1.1.1']],
+      ['host.ip: 1.1.1.1/16', ['1.1.1.1']],
+      ['-host.ip: 1.1.1.1/16', ['1.2.2.2', '1.2.2.2', '1.2.2.3']],
+      ['host.ip: 1.1.1.1/8', ['1.1.1.1', '1.2.2.2', '1.2.2.2', '1.2.2.3']],
+      ['host.ip: 1.2.1.1/16', ['1.2.2.2', '1.2.2.2', '1.2.2.3']],
 
       // Tag
       ['tag: foo', ['1.1.1.1', '1.2.2.2', '1.2.2.2', '1.2.2.3']],
-      ['-tag: foo', ['1.2.2.3']],
-      [() => `tag.id: ${foo.id}`, ['1.1.1.1', '1.2.2.2']],
-      [() => `-tag.id: ${foo.id}`, ['1.2.2.3']],
-      ['-tag: ba*', ['1.2.2.3']],
+      [() => `tag.id: ${foo.id}`, ['1.1.1.1', '1.2.2.2', '1.2.2.2', '1.2.2.3']],
+      [() => `-tag.id: ${foo.id}`, []],
+      ['-tag: ba*', ['1.1.1.1', '1.2.2.2']],
       ['tag: qux', ['1.2.2.3']],
-      ['tag: foo tag: bar', ['1.1.1.1']],
-      ['-tag: foo tag: qux', ['1.2.2.3']],
+      ['tag: foo tag: bar', ['1.2.2.2']],
+      ['-tag: foo tag: qux', []],
 
       // Is
       ['is: blocked', ['1.2.2.3']],
-      ['-is: blocked', ['1.1.1.1', '1.2.2.2']],
+      ['-is: blocked', ['1.1.1.1', '1.2.2.2', '1.2.2.2']],
     ])(
       'Filter by "%s"',
       async (query: string | (() => string), expected: string[]) => {
-        console.log('### START');
         // Arrange
         if (typeof query !== 'string') query = query();
-        console.log(query);
 
         // Act
-        const allHosts = await hostService.getAll(0, 10);
-        console.log(allHosts);
         const hosts = await hostService.getAll(0, 10, {
           query,
         });
 
         // Assert
         expect(hosts.map((x) => x.ip).sort()).toStrictEqual(expected.sort());
-        console.log('### END');
       },
     );
-
-    // TODO #319: ADD IP RANGE TESTS
-    // it.each([
-    //   {
-    //     ranges: ['1.1.1.1/16', '4.4.4.4/32'],
-    //     expectedIps: ['1.1.159.1', '4.4.4.4'],
-    //   },
-    //   {
-    //     ranges: ['0.0.0.0/0'],
-    //     expectedIps: [
-    //       '1.1.159.1',
-    //       '2.2.2.2',
-    //       '3.3.3.3',
-    //       '4.4.4.4',
-    //       '5.5.5.5',
-    //       '6.6.159.6',
-    //     ],
-    //   },
-    //   {
-    //     ranges: ['5.0.0.1/8'],
-    //     expectedIps: ['5.5.5.5'],
-    //   },
-    // ])('Filter by ip range', async ({ ranges, expectedIps }) => {
-    //   // Arrange
-    //   const c1 = await project('c1');
-    //   const c2 = await project('c2');
-
-    //   const d1 = await domain('foo.example.org', c1);
-    //   await host(d1, c1, [], '1.1.159.1', '2.2.2.2');
-
-    //   const d2 = await domain('bar.foo.project.example.org', c1);
-    //   await host(d2, c1, [], '1.1.159.1', '3.3.3.3');
-
-    //   const d3 = await domain('foo.bar.somethingelse.example.org', c2);
-    //   await host(d3, c2, [], '4.4.4.4', '5.5.5.5');
-
-    //   const d4 = await domain('unrelated.example.org', c2);
-    //   await host(d4, c2, [], '6.6.159.6');
-
-    //   // Act
-    //   const allHosts = await hostService.getAll(0, 10, { ranges });
-
-    //   // Assert
-    //   expect(allHosts.map((x) => x.ip).sort()).toStrictEqual(
-    //     expectedIps.sort(),
-    //   );
-    // });
   });
 
   describe('Delete hosts', () => {

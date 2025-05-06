@@ -16,7 +16,6 @@ module.exports = {
   ],
   testTimeout: 70000,
   slowTestThreshold: 30,
-  coverageReporters: ['json', 'lcov'],
   rootDir: './',
   roots: ['<rootDir>'],
   modulePaths: [compilerOptions.baseUrl],

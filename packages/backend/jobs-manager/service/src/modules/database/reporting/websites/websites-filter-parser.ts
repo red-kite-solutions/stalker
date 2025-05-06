@@ -4,15 +4,12 @@ import { SearchTerms } from '@red-kite/jobs-manager/common-duplicates/search-que
 import { FilterQuery, Model, Types } from 'mongoose';
 import { Tag } from '../../tags/tag.model';
 import { FilterParserBase } from '../filters-parser/filter-parser-base';
-import { Host } from '../host/host.model';
 import { Project } from '../project.model';
-import { Website, WebsiteDocument } from './website.model';
+import { WebsiteDocument } from './website.model';
 
 @Injectable()
 export class WebsitesFilterParser extends FilterParserBase<WebsiteDocument> {
   constructor(
-    @InjectModel('host') private readonly hostModel: Model<Host>,
-    @InjectModel('websites') private readonly portsModel: Model<Website>,
     @InjectModel('project') projectModel: Model<Project>,
     @InjectModel('tags') tagModel: Model<Tag>,
   ) {
@@ -22,13 +19,11 @@ export class WebsitesFilterParser extends FilterParserBase<WebsiteDocument> {
   protected async buildResourceFilters(terms: SearchTerms) {
     return [
       ...(await this.idFilters(terms)),
-      ...(await this.numberFilters(terms)),
-      ...(await this.protocolFilters(terms)),
-      ...(await this.serviceFilters(terms)),
-      ...(await this.versionFilters(terms)),
-      ...(await this.productFilters(terms)),
-      ...(await this.idFilters(terms)),
+      ...(await this.domainFilters(terms)),
       ...(await this.hostFilters(terms)),
+      ...(await this.portFilters(terms)),
+      ...(await this.isMergedFilters(terms)),
+      ...(await this.mergedInIdFilters(terms)),
     ];
   }
 
@@ -49,11 +44,11 @@ export class WebsitesFilterParser extends FilterParserBase<WebsiteDocument> {
 
     // Exclude
     {
-      const t = this.consumeTerms(terms, '-', 'port.id');
+      const t = this.consumeTerms(terms, '-', 'website.id');
       if (t.length) {
-        const portIds = t.map((x) => new Types.ObjectId(x.value));
+        const websiteIds = t.map((x) => new Types.ObjectId(x.value));
         filters.push({
-          _id: { $not: { $in: portIds } },
+          _id: { $not: { $in: websiteIds } },
         });
       }
     }
@@ -61,148 +56,52 @@ export class WebsitesFilterParser extends FilterParserBase<WebsiteDocument> {
     return filters;
   }
 
-  /** Handles "port.number" search terms. */
-  private async numberFilters(terms: SearchTerms) {
-    const filters: FilterQuery<PortDocument>[] = [];
+  /** Handles "domain.id" search terms. */
+  private async domainFilters(terms: SearchTerms) {
+    const filters: FilterQuery<WebsiteDocument>[] = [];
 
-    // Include
-    {
-      const t = this.consumeTerms(terms, '', 'port.number');
-      const ports = t.map((x) => +x.value);
-      if (t.length) {
-        filters.push({
-          port: { $in: ports },
-        });
-      }
-    }
-
-    // Exclude
-    {
-      const t = this.consumeTerms(terms, '-', 'port.number');
-      if (t.length) {
-        const ports = t.map((x) => +x.value);
-
-        filters.push({
-          port: { $not: { $in: ports } },
-        });
-      }
-    }
-
-    return filters;
-  }
-
-  /** Handles "port.protocol" search terms. */
-  private async protocolFilters(terms: SearchTerms) {
-    const filters: FilterQuery<PortDocument>[] = [];
-
-    // Include
-    {
-      const t = this.consumeTerms(terms, '', 'port.protocol');
-      if (t.length) {
-        const protocols = this.toInclusionList(t, { lowercase: true });
-        filters.push({
-          layer4Protocol: { $in: protocols },
-        });
-      }
-    }
-
-    // Exclude
-    {
-      const t = this.consumeTerms(terms, '-', 'port.protocol');
-      if (t.length) {
-        const protocols = this.toInclusionList(t, { lowercase: true });
-        filters.push({
-          layer4Protocol: { $not: { $in: protocols } },
-        });
-      }
-    }
-
-    return filters;
-  }
-
-  /** Handles "port.service" search terms. */
-  private async serviceFilters(terms: SearchTerms) {
-    const filters: FilterQuery<PortDocument>[] = [];
-
-    // Include
-    {
-      const t = this.consumeTerms(terms, '', 'port.service');
-      if (t.length) {
-        const service = this.toInclusionList(t, { lowercase: true });
-        filters.push({
-          service: { $in: service },
-        });
-      }
-    }
-
-    // Exclude
-    {
-      const t = this.consumeTerms(terms, '-', 'port.service');
-      if (t.length) {
-        const services = this.toInclusionList(t, { lowercase: true });
-        filters.push({
-          service: { $not: { $in: services } },
-        });
-      }
-    }
-
-    return filters;
-  }
-
-  /** Handles "port.version" search terms. */
-  private async versionFilters(terms: SearchTerms) {
-    const filters: FilterQuery<PortDocument>[] = [];
-
-    // Include
-    {
-      const t = this.consumeTerms(terms, '', 'port.version');
-      if (t.length) {
-        const version = this.toInclusionList(t, { lowercase: true });
-        filters.push({
-          service: { $in: version },
-        });
-      }
-    }
-
-    // Exclude
-    {
-      const t = this.consumeTerms(terms, '-', 'port.version');
-      if (t.length) {
-        const version = this.toInclusionList(t, { lowercase: true });
-        filters.push({
-          version: { $not: { $in: version } },
-        });
-      }
-    }
-
-    return filters;
-  }
-
-  /** Handles "port.product" search terms. */
-  private async productFilters(terms: SearchTerms) {
-    const filters: FilterQuery<PortDocument>[] = [];
-
-    // "port.product" filters
+    // "domain.name" filters
     {
       // Include
       {
-        const t = this.consumeTerms(terms, '', 'port.product');
+        const t = this.consumeTerms(terms, '', 'domain.name');
+        const names = this.toInclusionList(t);
         if (t.length) {
-          const product = this.toInclusionList(t, { lowercase: true });
           filters.push({
-            product: { $in: product },
+            'domain.name': { $in: names },
           });
         }
       }
 
       // Exclude
       {
-        const t = this.consumeTerms(terms, '-', 'port.product');
+        const t = this.consumeTerms(terms, '-', 'domain.name');
         if (t.length) {
-          const product = this.toInclusionList(t, { lowercase: true });
+          const names = this.toInclusionList(t);
           filters.push({
-            product: { $not: { $in: product } },
+            'domain.name': { $not: { $in: names } },
           });
+        }
+      }
+    }
+
+    // "domain.id" filters
+    {
+      // Inclusion
+      {
+        const t = this.consumeTerms(terms, '', 'domain.id');
+        if (t.length) {
+          const ids = t.map((x) => new Types.ObjectId(x.value));
+          filters.push({ 'domain.id': { $in: ids } });
+        }
+      }
+
+      // Exclusion
+      {
+        const t = this.consumeTerms(terms, '-', 'domain.id');
+        if (t.length) {
+          const ids = t.map((x) => new Types.ObjectId(x.value));
+          filters.push({ 'domain.id': { $not: { $in: ids } } });
         }
       }
     }
@@ -212,7 +111,7 @@ export class WebsitesFilterParser extends FilterParserBase<WebsiteDocument> {
 
   /** Handles "host.id" and "host.ip" search terms. */
   private async hostFilters(terms: SearchTerms) {
-    const filters: FilterQuery<PortDocument>[] = [];
+    const filters: FilterQuery<WebsiteDocument>[] = [];
 
     // "host.id" filters
     {
@@ -240,29 +139,127 @@ export class WebsitesFilterParser extends FilterParserBase<WebsiteDocument> {
       // Inclusion
       {
         const t = this.consumeTerms(terms, '', 'host.ip');
-        if (t.length) {
-          const hosts = await this.hostModel.find(
-            { ip: { $in: this.toInclusionList(t) } },
-            '_id',
-          );
+        const ips = this.toInclusionList(t);
 
-          filters.push({ 'host.id': { $in: hosts.map((x) => x._id) } });
+        if (t.length) {
+          filters.push({ 'host.ip': { $in: ips } });
         }
       }
 
       // Exclusion
       {
         const t = this.consumeTerms(terms, '-', 'host.ip');
-        if (t.length) {
-          const hosts = await this.hostModel.find(
-            { ip: { $in: this.toInclusionList(t) } },
-            '_id',
-          );
+        const ips = this.toInclusionList(t);
 
+        if (t.length) {
+          filters.push({ 'host.ip': { $not: { $in: ips } } });
+        }
+      }
+    }
+
+    return filters;
+  }
+
+  /** Handles "port.id" and "port.number" search terms. */
+  private async portFilters(terms: SearchTerms) {
+    const filters: FilterQuery<WebsiteDocument>[] = [];
+
+    // "port.id" filters
+    {
+      // Include
+      {
+        const t = this.consumeTerms(terms, '', 'port.id');
+        if (t.length) {
+          const portIds = t.map((x) => new Types.ObjectId(x.value));
           filters.push({
-            'host.id': { $not: { $in: hosts.map((x) => x._id) } },
+            _id: { $in: portIds },
           });
         }
+      }
+
+      // Exclude
+      {
+        const t = this.consumeTerms(terms, '-', 'port.id');
+        if (t.length) {
+          const portIds = t.map((x) => new Types.ObjectId(x.value));
+          filters.push({
+            _id: { $not: { $in: portIds } },
+          });
+        }
+      }
+    }
+
+    // "port.number" filters
+    {
+      // Include
+      {
+        const t = this.consumeTerms(terms, '', 'port.number');
+        const ports = t.map((x) => +x.value);
+        if (t.length) {
+          filters.push({
+            port: { $in: ports },
+          });
+        }
+      }
+
+      // Exclude
+      {
+        const t = this.consumeTerms(terms, '-', 'port.number');
+        if (t.length) {
+          const ports = t.map((x) => +x.value);
+
+          filters.push({
+            port: { $not: { $in: ports } },
+          });
+        }
+      }
+    }
+
+    return filters;
+  }
+
+  /** Creates inclusion and exclusion filters for "is: merged" */
+  private isMergedFilters(terms: SearchTerms) {
+    const filters: FilterQuery<WebsiteDocument>[] = [];
+
+    // Include
+    {
+      const t = this.consumeTerms(terms, '', 'is', 'merged');
+      if (t.length) {
+        filters.push({ mergedInId: { $ne: null } });
+      }
+    }
+
+    // Exclude
+    {
+      const t = this.consumeTerms(terms, '-', 'is', 'merged');
+      if (t.length) {
+        filters.push({ mergedInId: null });
+      }
+    }
+
+    return filters;
+  }
+
+  /** Creates inclusion and exclusion filters for "mergedIn.id" */
+  private mergedInIdFilters(terms: SearchTerms) {
+    const filters: FilterQuery<WebsiteDocument>[] = [];
+
+    // Include
+    {
+      const t = this.consumeTerms(terms, '', 'mergedIn.id');
+      if (t.length) {
+        const mergedInIds = t.map((x) => new Types.ObjectId(x.value));
+        filters.push({ mergedInId: { $in: mergedInIds } });
+      }
+    }
+
+    // Exclude
+    {
+      const t = this.consumeTerms(terms, '-', 'mergedIn.id');
+      if (t.length) {
+        const mergedInIds = t.map((x) => new Types.ObjectId(x.value));
+        filters.push({ mergedInId: { $not: { $in: mergedInIds } } });
       }
     }
 

@@ -1,5 +1,4 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { getName } from '../../../../test/test.utils';
 import { AppModule } from '../../../app.module';
 import { TagsService } from '../../tags/tag.service';
 import { DomainsService } from '../domain/domain.service';
@@ -7,14 +6,13 @@ import { HostService } from '../host/host.service';
 import { CreateProjectDto } from '../project.dto';
 import { ProjectService } from '../project.service';
 
-import { getModelToken } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { DomainDocument } from '../domain/domain.model';
+import { TagsDocument } from '../../tags/tag.model';
+import { Domain, DomainDocument } from '../domain/domain.model';
 import { HostDocument } from '../host/host.model';
 import { PortDocument } from '../port/port.model';
 import { PortService } from '../port/port.service';
-import { WebsiteFilterModel } from './website-filter.model';
-import { Website, WebsiteDocument } from './website.model';
+import { ProjectDocument } from '../project.model';
+import { WebsiteDocument } from './website.model';
 import { WebsiteService } from './website.service';
 
 describe('Website Service', () => {
@@ -25,8 +23,6 @@ describe('Website Service', () => {
   let tagsService: TagsService;
   let portService: PortService;
   let websiteService: WebsiteService;
-  const testPrefix = 'website-service-ut';
-  let websiteModel: Model<Website>;
 
   beforeAll(async () => {
     moduleFixture = await Test.createTestingModule({
@@ -38,7 +34,6 @@ describe('Website Service', () => {
     tagsService = moduleFixture.get(TagsService);
     portService = moduleFixture.get(PortService);
     websiteService = moduleFixture.get(WebsiteService);
-    websiteModel = moduleFixture.get<Model<Website>>(getModelToken('websites'));
   });
 
   beforeEach(async () => {
@@ -61,8 +56,8 @@ describe('Website Service', () => {
       // Arrange
       const portNumber = 22;
       const c = await project();
-      const h = await host('1.1.1.1', c._id.toString());
-      const p = await port(portNumber, h._id.toString(), c._id.toString());
+      const h = await host('1.1.1.1', c);
+      const p = await port(portNumber, h);
 
       // Act
       const w1 = await websiteService.addWebsite(
@@ -84,9 +79,9 @@ describe('Website Service', () => {
       const portNumber = 22;
       const domainName = 'example.com';
       const c = await project();
-      const h = await host('1.1.1.1', c._id.toString());
-      const p = await port(portNumber, h._id.toString(), c._id.toString());
-      const d = await domain(domainName, c._id.toString());
+      const h = await host('1.1.1.1', c);
+      const p = await port(portNumber, h);
+      const d = await domain(domainName, c);
 
       // Act
       const w1 = await websiteService.addWebsite(
@@ -110,9 +105,9 @@ describe('Website Service', () => {
       const domainName = 'example.com';
       const path = '/example/asdf/';
       const c = await project();
-      const h = await host('1.1.1.1', c._id.toString());
-      const p = await port(portNumber, h._id.toString(), c._id.toString());
-      const d = await domain(domainName, c._id.toString());
+      const h = await host('1.1.1.1', c);
+      const p = await port(portNumber, h);
+      const d = await domain(domainName, c);
 
       // Act
       const w1 = await websiteService.addWebsite(
@@ -136,8 +131,8 @@ describe('Website Service', () => {
       const portNumber = 22;
       const path = '/example/asdf/';
       const c = await project();
-      const h = await host('1.1.1.1', c._id.toString());
-      const p = await port(portNumber, h._id.toString(), c._id.toString());
+      const h = await host('1.1.1.1', c);
+      const p = await port(portNumber, h);
 
       // Act
       const w1 = await websiteService.addWebsite(
@@ -162,9 +157,9 @@ describe('Website Service', () => {
       const path = '/example/asdf/';
       const domainName = 'example.com';
       const c = await project();
-      const h = await host('1.1.1.1', c._id.toString());
-      const p = await port(portNumber, h._id.toString(), c._id.toString());
-      const d = await domain(domainName, c._id.toString());
+      const h = await host('1.1.1.1', c);
+      const p = await port(portNumber, h);
+      const d = await domain(domainName, c);
       const w1 = await websiteService.addWebsite(
         c._id.toString(),
         h.ip,
@@ -189,323 +184,318 @@ describe('Website Service', () => {
     });
   });
 
-  describe('Get websites with filters', () => {
-    const ips = ['1.1.1.1', '1.1.1.1', '2.2.2.2', '2.2.2.2', '3.3.3.3'];
-    const ports = [80, 443, 80, 80, 8080];
-    const domains = [
-      'example.com',
-      'example.com',
-      'example.com',
-      'www.example.com',
-      '',
-    ];
+  describe('Get all', () => {
+    let project1: ProjectDocument;
+    let project2: ProjectDocument;
 
-    it('Should filter a website by domain', async () => {
+    let domain1: DomainDocument;
+    let domain2: DomainDocument;
+
+    let foo: TagsDocument;
+    let bar: TagsDocument;
+    let baz: TagsDocument;
+    let qux: TagsDocument;
+
+    let host1: HostDocument;
+    let host2: HostDocument;
+
+    let port1: PortDocument;
+    let port2: PortDocument;
+    let port3: PortDocument;
+    let port4: PortDocument;
+
+    let website1: WebsiteDocument;
+    let website2: WebsiteDocument;
+    let website3: WebsiteDocument;
+
+    beforeEach(async () => {
       // Arrange
-      const websites = await bulkWebsites(ips, ports, domains);
-      const filter: WebsiteFilterModel = { domains: ['www.example.com'] };
+      project1 = await project('project 1');
+      project2 = await project('project 2');
+      [foo, bar, baz, qux] = await tags('foo', 'bar', 'baz', 'qux');
 
-      // Act
-      const filteredWebsites = await websiteService.getAll(
-        0,
-        ips.length,
-        filter,
+      domain1 = await domain('d1', project1);
+      domain2 = await domain('d2', project2);
+
+      [host1, host2] = await hostForDomain(
+        domain1,
+        [foo],
+        '1.1.1.1',
+        '1.2.2.2',
       );
+      [host2] = await hostForDomain(domain2, [foo, bar], '1.2.2.2');
 
-      // Assert
-      expect(filteredWebsites.length).toStrictEqual(1);
-      expect(filteredWebsites[0]._id.toString()).toStrictEqual(
-        websites[3]._id.toString(),
-      );
-    });
+      port1 = await port(80, host1, 'tcp');
+      port2 = await port(80, host1, 'tcp');
+      port3 = await port(80, host2, 'tcp');
+      port4 = await port(80, host1, 'tcp');
 
-    it('Should filter websites by tag', async () => {
-      // Arrange
-      const websites = await bulkWebsites(ips, ports, domains);
-      const tag = await tagsService.create('website-test-tag', '#c0ffee');
-      await websiteService.tagWebsite(
-        websites[2]._id.toString(),
-        tag._id.toString(),
+      website1 = await website('website1', domain1, host1, port1, [foo]);
+      website2 = await website('website2', domain1, host1, port2, [foo, bar]);
+      website3 = await website(
+        'website3',
+        domain2,
+        host2,
+        port3,
+        [bar, baz],
         true,
       );
-      const filter: WebsiteFilterModel = { tags: [tag._id.toString()] };
 
-      // Act
-      const filteredWebsites = await websiteService.getAll(
-        0,
-        ips.length,
-        filter,
-      );
-
-      // Assert
-      expect(filteredWebsites.length).toStrictEqual(1);
-      expect(filteredWebsites[0]._id.toString()).toStrictEqual(
-        websites[2]._id.toString(),
-      );
+      await websiteService.merge(website1._id.toString(), [
+        website2._id.toString(),
+      ]);
     });
 
-    it('Should filter websites by host', async () => {
-      // Arrange
-      const websites = await bulkWebsites(ips, ports, domains);
-      const filter: WebsiteFilterModel = { hosts: ['1.1.1.1'] };
+    it.each([
+      ['', ['website1', 'website2', 'website3']],
+      [() => `website.id: ${website1.id}`, ['website1']],
+      [() => `-website.id: ${website1.id}`, ['website2', 'website3']],
 
-      // Act
-      const filteredWebsites = await websiteService.getAll(
-        0,
-        ips.length,
-        filter,
-      );
+      // Projects
+      ['project: "project*"', ['website1', 'website2', 'website3']],
+      ['project: "project 1"', ['website1', 'website2']],
+      ['project: "project 2"', ['website3']],
+      ['-project: "project 2"', ['website1', 'website2']],
+      ['project.name: "project*"', ['website1', 'website2', 'website3']],
+      ['project.name: "project 1"', ['website1', 'website2']],
+      ['project.name: "project 2"', ['website3']],
+      ['-project.name: "project 2"', ['website1', 'website2']],
+      [() => `project.id: ${project1.id}`, ['website1', 'website2']],
+      [() => `project.id: ${project2.id}`, ['website3']],
+      [() => `-project.id: ${project2.id}`, ['website1', 'website2']],
 
-      // Assert
-      expect(filteredWebsites.length).toStrictEqual(2);
-      expect(filteredWebsites[0]._id.toString()).toStrictEqual(
-        websites[0]._id.toString(),
-      );
-      expect(filteredWebsites[1]._id.toString()).toStrictEqual(
-        websites[1]._id.toString(),
-      );
-    });
+      // Domain
+      ['domain: d1', ['website1', 'website2']],
+      ['-domain: d1', ['website3']],
+      ['domain: d2', ['website3']],
+      ['domain.name: d1', ['website1', 'website2']],
+      ['-domain.name: d1', ['website3']],
+      ['domain.name: d2', ['website3']],
+      [() => `domain.id: ${domain1.id}`, ['website1', 'website2']],
+      [() => `-domain.id: ${domain1.id}`, ['website3']],
+      [() => `domain.id: ${domain2.id}`, ['website3']],
 
-    it('Should filter websites by port', async () => {
-      // Arrange
-      const websites = await bulkWebsites(ips, ports, domains);
-      const filter: WebsiteFilterModel = { ports: [8080] };
+      // Host
+      ['host.ip: 1.1.1.1', ['website1', 'website2']],
+      ['-host.ip: 1.1.1.1', ['website3']],
+      ['host.ip: 1.1.*', ['website1', 'website2']],
+      ['-host.ip: 1.1.*', ['website3']],
+      ['host.ip: 1.*', ['website1', 'website2', 'website3']],
+      ['-host.ip: 1.*', []],
+      ['host.ip: 1.2.2.2', ['website3']],
+      ['-host.ip: 1.2.2.2', ['website1', 'website2']],
+      [() => `host.id: ${host1.id}`, ['website1', 'website2']],
+      [() => `-host.id: ${host1.id}`, ['website3']],
+      [() => `host.id: ${host2.id}`, ['website3']],
 
-      // Act
-      const filteredWebsites = await websiteService.getAll(
-        0,
-        ips.length,
-        filter,
-      );
+      // Tag
+      ['tag: foo', ['website1', 'website2']],
+      ['-tag: foo', ['website3']],
+      ['tag: ba*', ['website3']],
+      ['-tag: ba*', ['website1']],
+      [() => `tag.id: ${foo.id}`, ['website1', 'website2']],
+      [() => `-tag.id: ${foo.id}`, ['website3']],
 
-      // Assert
-      expect(filteredWebsites.length).toStrictEqual(1);
-      expect(filteredWebsites[0]._id.toString()).toStrictEqual(
-        websites[4]._id.toString(),
-      );
-    });
+      // MergedIn
+      [() => `mergedIn.id: ${website1.id}`, ['website2']],
+      [() => `-mergedIn.id: ${website1.id}`, ['website1', 'website3']],
 
-    it('Should filter websites by project', async () => {
-      // Arrange
-      const websites = await bulkWebsites(ips, ports, domains);
-      const websites2 = await bulkWebsites(['1.2.3.4'], [80], ['example.org']);
-      const filter: WebsiteFilterModel = {
-        projects: [websites2[0].projectId.toString()],
-      };
+      // Is
+      ['is: blocked', ['website3']],
+      ['-is: blocked', ['website1', 'website2']],
+      ['is: merged', ['website2']],
+      ['-is: merged', ['website1', 'website3']],
+    ])(
+      'Filter by "%s"',
+      async (query: string | (() => string), expected: string[]) => {
+        // Arrange
+        if (typeof query !== 'string') query = query();
 
-      // Act
-      const filteredWebsites = await websiteService.getAll(
-        0,
-        ips.length,
-        filter,
-      );
+        // Act
+        const websites = await websiteService.getAll(0, 10, {
+          query,
+        });
 
-      // Assert
-      expect(filteredWebsites.length).toStrictEqual(1);
-      expect(filteredWebsites[0]._id.toString()).toStrictEqual(
-        websites2[0]._id.toString(),
-      );
-    });
-
-    it('Should filter websites by merged', async () => {
-      // Arrange
-      const websites = await bulkWebsites(ips, ports, domains);
-      await websiteModel.updateOne(
-        { _id: { $eq: websites[1]._id } },
-        { $set: { mergedInId: websites[2]._id } },
-      );
-      const filter: WebsiteFilterModel = { merged: true };
-
-      // Act
-      const filteredWebsites = await websiteService.getAll(
-        0,
-        ips.length,
-        filter,
-      );
-
-      // Assert
-      expect(filteredWebsites.length).toStrictEqual(1);
-      expect(filteredWebsites[0]._id.toString()).toStrictEqual(
-        websites[1]._id.toString(),
-      );
-    });
-
-    it('Should filter websites by blocked', async () => {
-      // Arrange
-      const websites = await bulkWebsites(ips, ports, domains);
-      await websiteService.batchEdit({
-        block: true,
-        websiteIds: [websites[2]._id],
-      });
-      const filter: WebsiteFilterModel = { blocked: true };
-
-      // Act
-      const filteredWebsites = await websiteService.getAll(
-        0,
-        ips.length,
-        filter,
-      );
-
-      // Assert
-      expect(filteredWebsites.length).toStrictEqual(1);
-      expect(filteredWebsites[0]._id.toString()).toStrictEqual(
-        websites[2]._id.toString(),
-      );
-    });
-
-    it('Should get websites with paging', async () => {
-      // Arrange
-      const websites = await bulkWebsites(ips, ports, domains);
-      await websiteService.batchEdit({
-        block: true,
-        websiteIds: [websites[2]._id],
-      });
-      const filter: WebsiteFilterModel = {};
-
-      // Act
-      const filteredWebsites = await websiteService.getAll(1, 2, filter);
-
-      // Assert
-      expect(filteredWebsites.length).toStrictEqual(2);
-      expect(filteredWebsites[0]._id.toString()).toStrictEqual(
-        websites[2]._id.toString(),
-      );
-      expect(filteredWebsites[1]._id.toString()).toStrictEqual(
-        websites[3]._id.toString(),
-      );
-    });
+        // Assert
+        expect(websites.map((x) => x.path).sort()).toStrictEqual(
+          expected.map((x) => x).sort(),
+        );
+      },
+    );
   });
 
   describe('Merge and unmerge websites', () => {
-    const ips = ['1.1.1.1', '1.1.1.1', '2.2.2.2', '2.2.2.2', '3.3.3.3'];
-    const ports = [80, 443, 80, 80, 8080];
-    const domains = [
-      'example.com',
-      'example.com',
-      'example.com',
-      'www.example.com',
-      '',
-    ];
+    // // const ips = ['1.1.1.1', '1.1.1.1', '2.2.2.2', '2.2.2.2', '3.3.3.3'];
+    // // const ports = [80, 443, 80, 80, 8080];
+    // // const domains = [
+    // //   'example.com',
+    // //   'example.com',
+    // //   'example.com',
+    // //   'www.example.com',
+    // //   '',
+    // // ];
+
+    let project1: ProjectDocument;
+    let domain1: DomainDocument;
+    let host1: HostDocument;
+    let port1: PortDocument;
+
+    let website1: WebsiteDocument;
+    let website2: WebsiteDocument;
+    let website3: WebsiteDocument;
+
+    beforeEach(async () => {
+      // Arrange
+      project1 = await project('project 1');
+      domain1 = await domain('example.com', project1);
+      [host1] = await hostForDomain(domain1, [], '1.1.1.1');
+      port1 = await port(80, host1, 'tcp');
+
+      website1 = await website('website1', domain1, host1, port1);
+      website2 = await website('website2', domain1, host1, port1);
+      website3 = await website('website3', domain1, host1, port1);
+    });
 
     it('Should merge websites together - No prior merge', async () => {
       // Arrange
-      const websites = await bulkWebsites(ips, ports, domains);
-      const mainWebsite = websites.splice(0, 1)[0];
-
       // Act
-      await websiteService.merge(
-        mainWebsite._id.toString(),
-        websites.map((w) => w._id.toString()),
-      );
+      await websiteService.merge(website1._id.toString(), [
+        website2._id.toString(),
+        website3._id.toString(),
+      ]);
 
       // Assert
-      for (let w of websites) {
-        const mergedWebsite = await websiteService.get(w._id.toString());
-        expect(mergedWebsite.mergedInId?.toString()).toStrictEqual(
-          mainWebsite._id.toString(),
-        );
-      }
+      const updatedWebsite1 = await websiteService.get(website1._id.toString());
+      expect(updatedWebsite1.mergedInId).toBeNull();
+
+      const updatedWebsite2 = await websiteService.get(website2._id.toString());
+      expect(updatedWebsite2.mergedInId.toString()).toEqual(
+        website1._id.toString(),
+      );
+
+      const updatedWebsite3 = await websiteService.get(website3._id.toString());
+      expect(updatedWebsite3.mergedInId.toString()).toEqual(
+        website1._id.toString(),
+      );
     });
 
     it('Should merge websites together - Prior merge', async () => {
       // Arrange
-      const websites = await bulkWebsites(ips, ports, domains);
-      const mainWebsite = websites.splice(0, 1)[0];
-      const priorMergedWebsite = websites.splice(0, 1)[0];
-
-      await websiteService.merge(websites[0]._id.toString(), [
-        priorMergedWebsite._id.toString(),
+      await websiteService.merge(website2._id.toString(), [
+        website3._id.toString(),
       ]);
 
       // Act
-      await websiteService.merge(
-        mainWebsite._id.toString(),
-        websites.map((w) => w._id.toString()),
-      );
+      await websiteService.merge(website1._id.toString(), [
+        website2._id.toString(),
+        website3._id.toString(),
+      ]);
 
       // Assert
-      websites.push(priorMergedWebsite);
-      for (let w of websites) {
-        const mergedWebsite = await websiteService.get(w._id.toString());
-        expect(mergedWebsite.mergedInId?.toString()).toStrictEqual(
-          mainWebsite._id.toString(),
-        );
-      }
+      const updatedWebsite1 = await websiteService.get(website1._id.toString());
+      expect(updatedWebsite1.mergedInId).toBeNull();
+
+      const updatedWebsite2 = await websiteService.get(website2._id.toString());
+      expect(updatedWebsite2.mergedInId.toString()).toEqual(
+        website1._id.toString(),
+      );
+
+      const updatedWebsite3 = await websiteService.get(website3._id.toString());
+      expect(updatedWebsite3.mergedInId.toString()).toEqual(
+        website1._id.toString(),
+      );
     });
   });
 
-  async function project(name: string = '') {
-    const ccDto: CreateProjectDto = { name: `${getName(testPrefix)}` };
-    return await projectService.addProject(ccDto);
-  }
-
-  async function host(ip: string, projectId: string): Promise<HostDocument> {
-    return await hostService.addHost(ip, projectId);
-  }
-
-  async function domain(name: string, projectId: string) {
-    return await domainService.addDomain(name, projectId);
+  async function host(
+    ip: string,
+    project: ProjectDocument,
+  ): Promise<HostDocument> {
+    return await hostService.addHost(ip, project._id.toString());
   }
 
   async function port(
     port: number,
-    hostId: string,
-    projectId: string,
+    host: HostDocument,
     protocol: 'tcp' | 'udp' = 'tcp',
   ) {
-    return await portService.addPort(hostId, projectId, port, protocol);
+    return await portService.addPort(
+      host._id.toString(),
+      host.projectId.toString(),
+      port,
+      protocol,
+    );
   }
 
-  async function bulkWebsites(
-    ips: string[],
-    portNumbers: number[],
-    domainNames: string[],
-    paths: string[] = undefined,
-  ): Promise<WebsiteDocument[]> {
-    if (
-      ips.length !== portNumbers.length ||
-      ips.length !== domainNames.length ||
-      (paths !== undefined && ips.length !== paths.length)
-    )
-      throw new Error(
-        'When creating websites in bulk, the arrays should have the same length',
+  async function project(name: string = '') {
+    const ccDto: CreateProjectDto = { name };
+    return await projectService.addProject(ccDto);
+  }
+
+  async function hostForDomain(
+    domain: Domain,
+    tags: TagsDocument[] = [],
+    ...ips: string[]
+  ) {
+    return await hostService.addHostsWithDomain(
+      ips,
+      domain.name,
+      domain.projectId.toString(),
+      tags.map((x) => x.id),
+    );
+  }
+
+  async function tags(...tags: string[]) {
+    const createdTags: TagsDocument[] = [];
+    for (const tag of tags) {
+      createdTags.push(await tagsService.create(tag, '#ffffff'));
+    }
+
+    return createdTags;
+  }
+
+  async function domain(domain: string, project: ProjectDocument) {
+    return (await domainService.addDomains([domain], project._id))[0];
+  }
+
+  async function block(...hosts: HostDocument[]) {
+    await hostService.batchEdit({
+      block: true,
+      hostIds: hosts.map((x) => x.id),
+    });
+  }
+
+  async function website(
+    path: string,
+    domain: DomainDocument,
+    host: HostDocument,
+    port: PortDocument,
+    tags: TagsDocument[] = [],
+    isBlocked = false,
+  ) {
+    const website = await websiteService.addWebsite(
+      domain.projectId.toString(),
+      host.ip,
+      port.port,
+      domain.name,
+      path,
+    );
+
+    for (const tag of tags) {
+      await websiteService.tagWebsite(
+        website._id.toString(),
+        tag._id.toString(),
+        true,
       );
-
-    const c = await project();
-    const hosts: HostDocument[] = [];
-    for (const ip of ips) {
-      hosts.push(await host(ip, c._id.toString()));
     }
 
-    const ports: PortDocument[] = [];
-    for (let i = 0; i < portNumbers.length; ++i) {
-      ports.push(
-        await port(portNumbers[i], hosts[i]._id.toString(), c._id.toString()),
-      );
+    if (isBlocked) {
+      await websiteService.batchEdit({
+        block: true,
+        websiteIds: [website._id],
+      });
     }
 
-    const domains: DomainDocument[] = [];
-    for (const d of domainNames) {
-      domains.push(await domain(d, c._id.toString()));
-    }
-
-    if (paths === undefined) {
-      paths = Array(ips.length).fill('/');
-    }
-
-    const websites: WebsiteDocument[] = [];
-    for (let i = 0; i < hosts.length; ++i) {
-      websites.push(
-        await websiteService.addWebsite(
-          c._id.toString(),
-          hosts[i].ip,
-          ports[i].port,
-          domains[i].name,
-          paths[i],
-        ),
-      );
-    }
-
-    return websites;
+    return website;
   }
 });
