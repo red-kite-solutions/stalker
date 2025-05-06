@@ -6,6 +6,7 @@
     "types": ["@angular/localize"],
     "declaration": true
   },
+  "references": [{ "path": "../../common/tsconfig.build.json" }],
   "files": ["src/main.ts", "src/polyfills.ts"],
   "include": ["src/**/*.d.ts", "src/**/*"],
   "exclude": ["node_modules", "**/*.spec.ts"]

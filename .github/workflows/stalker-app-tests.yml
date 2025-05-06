@@ -5,6 +5,7 @@ on:
     paths:
       - .github/workflows/frontend.yml
       - "packages/frontend/stalker-app/**"
+      - "packages/common/**"
 
 jobs:
   tests:
