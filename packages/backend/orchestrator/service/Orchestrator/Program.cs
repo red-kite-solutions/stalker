@@ -83,8 +83,6 @@ app.Run();
 
 void ConfigureApp(WebApplication app)
 {
-    app
-        .UseHttpLogging();
 }
 
 void ConfigureServices(IServiceCollection services)
