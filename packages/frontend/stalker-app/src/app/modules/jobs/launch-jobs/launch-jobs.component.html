@@ -11,7 +11,7 @@
           mat-stroked-button
           class="tw-mt-[9px]"
           (click)="startJob()"
-          [disabled]="this.authService.role === 'read-only' || !selectedRow"
+          [disabled]="!this.authService.userHasScope('automation:job-executions:create') || !selectedRow"
         >
           <label i18n="Start|Start the job">Start</label>
         </button>
@@ -22,7 +22,7 @@
           buttonColor="warn"
           (click)="stopJob()"
           i18n="Stop|Stop the job"
-          [disabled]="this.authService.role === 'read-only' || !selectedRow || !(jobIsRunning$ | async)"
+          [disabled]="!this.authService.userHasScope('automation:job-executions:update') || !selectedRow || !(jobIsRunning$ | async)"
           >Stop</app-spinner-button
         >
       </div>

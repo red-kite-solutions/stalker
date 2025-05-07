@@ -57,7 +57,7 @@ export class AuthService {
     const scopes = await this.groupsService.getUserScopes(user.id);
 
     return this.jwtService.sign(
-      { scopes, ...user },
+      { ...user, scopes },
       {
         secret: jwtConstants.secret,
         expiresIn: jwtConstants.expirationTime,

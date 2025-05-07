@@ -179,4 +179,27 @@ export class AuthService implements AuthTokenProvider {
     const epoch = Math.floor(Date.now() / 1000);
     return this.decodedRefreshToken?.exp > epoch;
   }
+
+  public userHasScope(scope: string) {
+    // '*' is explicitely excluded as a possible valid scope to prevent including the reset password scope
+    // Therefore, do not write: const possibleValidScopes = new Set(['*', requiredScope]);
+    const possibleValidScopes: Set<string> = new Set([scope]);
+    const splitRequiredScope = scope.split(':');
+
+    for (let i = 0; i < splitRequiredScope.length - 1; ++i) {
+      const newPossibility: string[] = [];
+      for (let j = 0; j <= i; ++j) {
+        newPossibility.push(splitRequiredScope[j]);
+      }
+      newPossibility.push('*');
+      possibleValidScopes.add(newPossibility.join(':'));
+    }
+
+    const validScopes = [...possibleValidScopes];
+
+    for (const userScope of this.scopes) {
+      if (validScopes.findIndex((v) => userScope === v) !== -1) return true;
+    }
+    return false;
+  }
 }
