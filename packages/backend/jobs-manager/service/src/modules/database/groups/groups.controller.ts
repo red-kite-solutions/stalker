@@ -1,4 +1,14 @@
-import { Controller, Get, Logger, Param, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Logger,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { MongoIdDto } from '../../../types/dto/mongo-id.dto';
 import { Page } from '../../../types/page.type';
@@ -7,7 +17,7 @@ import { Scopes } from '../../auth/decorators/scopes.decorator';
 import { ScopesGuard } from '../../auth/guards/scope.guard';
 import { ApiKeyStrategy } from '../../auth/strategies/api-key.strategy';
 import { JwtStrategy } from '../../auth/strategies/jwt.strategy';
-import { GetGroupsDto } from './groups.dto';
+import { AddUserToGroupDto, GetGroupsDto } from './groups.dto';
 import { GroupDocument } from './groups.model';
 import { GroupsService } from './groups.service';
 
@@ -26,7 +36,9 @@ export class GroupsController {
 
   @Scopes('manage:groups:read')
   @Get()
-  public async getGroups(dto: GetGroupsDto): Promise<Page<GroupDocument>> {
+  public async getGroups(
+    @Query() dto: GetGroupsDto,
+  ): Promise<Page<GroupDocument>> {
     const totalRecords = await this.groupsService.count(dto);
     const items = await this.groupsService.getAll(dto.page, dto.pageSize);
 
@@ -34,5 +46,14 @@ export class GroupsController {
       items,
       totalRecords,
     };
+  }
+
+  @Scopes('manage:groups:update')
+  @Patch(':id')
+  public async addUserToGroup(
+    @Param() groupIdDto: MongoIdDto,
+    @Body() dto: AddUserToGroupDto,
+  ) {
+    return await this.groupsService.addToGroupById(groupIdDto.id, dto.userId);
   }
 }

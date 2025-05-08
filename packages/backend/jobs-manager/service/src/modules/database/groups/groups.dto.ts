@@ -7,3 +7,7 @@ export class GetGroupsDto extends IntersectionType(
   PagingDto,
   GroupsFilterDto,
 ) {}
+
+export class AddUserToGroupDto {
+  userId: string;
+}

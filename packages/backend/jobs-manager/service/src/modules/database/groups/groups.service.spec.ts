@@ -223,7 +223,7 @@ describe('Users Service', () => {
     scopes: string[] = [],
     readonly: boolean = false,
   ) {
-    return await groupService.create(name, members, scopes, readonly);
+    return await groupService.create(name, '', members, scopes, readonly);
   }
 
   async function user(email: string) {

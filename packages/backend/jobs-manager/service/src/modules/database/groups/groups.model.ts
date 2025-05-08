@@ -8,15 +8,16 @@ export class Group {
   @Prop({ unique: true })
   public name: string;
 
+  @Prop()
+  public description: string;
+
   @Prop({ index: true })
-  // @Prop()
   public members: Types.ObjectId[];
 
   @Prop()
   public scopes: string[];
 
   @Prop({ default: false, type: Boolean })
-  // @Prop()
   public readonly: boolean;
 }
 

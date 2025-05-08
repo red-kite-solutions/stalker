@@ -7,6 +7,7 @@ import { Group } from './groups.model';
 
 export const ADMIN_GROUP: Group = {
   name: 'admins',
+  description: 'Has full control over the application.',
   members: [],
   scopes: ADMIN_DEFAULT_SCOPES,
   readonly: true,
@@ -14,6 +15,7 @@ export const ADMIN_GROUP: Group = {
 
 const USER_GROUP: Group = {
   name: 'users',
+  description: 'Can only use the application, but cannot configure.',
   members: [],
   scopes: USER_DEFAULT_SCOPES,
   readonly: false,
@@ -21,6 +23,7 @@ const USER_GROUP: Group = {
 
 const READONLY_GROUP: Group = {
   name: 'read-only',
+  description: 'Can only read data, not edit.',
   members: [],
   scopes: READONLY_DEFAULT_SCOPES,
   readonly: false,

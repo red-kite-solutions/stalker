@@ -35,8 +35,8 @@ import {
   RESET_PASSWORD_SCOPE,
   MANAGE_USER_READ_ALL_SCOPE,
   MANAGE_USER_UPDATE_ALL_SCOPE,
-  ALL_EXCLUDED_SCOPES,
 } from '../../auth/scopes.constants';
+import { GroupDocument } from '../groups/groups.model';
 
 @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
 @Controller('/users')
@@ -50,6 +50,19 @@ export class UsersController {
   public async getUsers(): Promise<User[]> {
     try {
       return await this.usersService.findAll();
+    } catch (err) {
+      this.logger.error(err);
+      throw new HttpServerErrorException();
+    }
+  }
+
+  @Scopes('manage:groups:read')
+  @Get(':id/groups')
+  public async getUserGroups(
+    @Param() dto: MongoIdDto,
+  ): Promise<GroupDocument[]> {
+    try {
+      return await this.usersService.getUserGroups(dto.id);
     } catch (err) {
       this.logger.error(err);
       throw new HttpServerErrorException();

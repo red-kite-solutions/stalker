@@ -107,6 +107,10 @@ export class UsersService {
     return this.userModel.find({});
   }
 
+  public async getUserGroups(id: string) {
+    return await this.groupsService.getGroupMemberships(id);
+  }
+
   public async findOneByEmail(email: string): Promise<User> {
     return await this.userModel.findOne({ email: { $eq: email } });
   }

@@ -90,12 +90,14 @@ export class GroupsService {
 
   public async create(
     name: string,
+    description: string,
     members: string[],
     scopes: string[],
     readonly: boolean = false,
   ): Promise<GroupDocument> {
     return await this.groupModel.create({
       name,
+      description,
       members: members.map((m) => new Types.ObjectId(m)),
       scopes: simplifyScopes(scopes),
       readonly,
