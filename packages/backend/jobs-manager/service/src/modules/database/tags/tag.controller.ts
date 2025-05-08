@@ -15,8 +15,8 @@ import {
 } from '../../../exceptions/http.exceptions';
 import { MongoIdDto } from '../../../types/dto/mongo-id.dto';
 import { Role } from '../../auth/constants';
-import { Roles } from '../../auth/decorators/roles.decorator';
-import { RolesGuard } from '../../auth/guards/role.guard';
+import { Scopes } from '../../auth/decorators/scopes.decorator';
+import { ScopesGuard } from '../../auth/guards/scope.guard';
 import { ApiKeyStrategy } from '../../auth/strategies/api-key.strategy';
 import { JwtStrategy } from '../../auth/strategies/jwt.strategy';
 import { MONGO_DUPLICATE_ERROR } from '../database.constants';
@@ -28,22 +28,22 @@ import { TagsService } from './tag.service';
 export class TagsController {
   constructor(private tagsService: TagsService) {}
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.ReadOnly)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes('manage:tags:read')
   @Get()
   async getAllTags(): Promise<TagsDocument[]> {
     return await this.tagsService.getAll();
   }
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.ReadOnly)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes('manage:tags:read')
   @Get(':id')
   async getTag(@Param() dto: MongoIdDto): Promise<TagsDocument> {
     return await this.tagsService.getById(dto.id);
   }
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.User)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes('manage:tags:create')
   @Post()
   async createTag(@Body() dto: CreateTagDto) {
     try {
@@ -57,8 +57,8 @@ export class TagsController {
     }
   }
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.User)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes('manage:tags:delete')
   @Delete(':id')
   async deleteTag(@Param() dto: MongoIdDto): Promise<DeleteResult> {
     return await this.tagsService.delete(dto.id);

@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { firstValueFrom, Observable } from 'rxjs';
 import { User } from '../../shared/types/user.interface';
 import { environment } from '../../../environments/environment';
+import { Group } from '../../shared/types/group/group.type';
 
 @Injectable({
   providedIn: 'root',
@@ -71,5 +72,9 @@ export class UsersService {
 
   public async requestResetPassword(email: string) {
     await firstValueFrom(this.http.post(`${environment.fmUrl}/users/reset-password-requests`, { email }));
+  }
+
+  public getUserGroups(userId: string): Observable<Group[]> {
+    return this.http.get<Group[]>(`${environment.fmUrl}/users/${userId}/groups`);
   }
 }

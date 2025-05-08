@@ -8,6 +8,7 @@ import { User } from '../users/users.model';
 import { UsersService } from '../users/users.service';
 import { ApiKey } from './api-key.model';
 import { ApiKeyService } from './api-key.service';
+import { ADMIN_DEFAULT_SCOPES } from '../../auth/scopes.constants';
 
 describe('Api Key Service', () => {
   let moduleFixture: TestingModule;
@@ -38,10 +39,10 @@ describe('Api Key Service', () => {
 
   it('Should create an API key for a user and return its value', async () => {
     // Arrange
-    const u1 = await user('admin@red-kite.io', Role.Admin);
+    const u1 = await user('admin@red-kite.io');
 
     // Act
-    const k1 = await apiKey(u1._id.toString(), Role.Admin);
+    const k1 = await apiKey(u1._id.toString());
 
     // Assert
     expect(k1.key).toBeTruthy();
@@ -50,8 +51,8 @@ describe('Api Key Service', () => {
   describe('Get API keys', () => {
     it('Should get an API key without its value', async () => {
       // Arrange
-      const u1 = await user('admin@red-kite.io', Role.Admin);
-      const k1 = await apiKey(u1._id.toString(), Role.Admin);
+      const u1 = await user('admin@red-kite.io');
+      const k1 = await apiKey(u1._id.toString());
 
       // Act
       const k1Value = await apiKeyService.getById(k1._id.toString());
@@ -63,10 +64,10 @@ describe('Api Key Service', () => {
 
     it('Should get an API key for user', async () => {
       // Arrange
-      const u1 = await user('admin@red-kite.io', Role.Admin);
-      const u2 = await user('qwerty@red-kite.io', Role.Admin);
-      const k1 = await apiKey(u1._id.toString(), Role.Admin);
-      const k2 = await apiKey(u2._id.toString(), Role.Admin);
+      const u1 = await user('admin@red-kite.io');
+      const u2 = await user('qwerty@red-kite.io');
+      const k1 = await apiKey(u1._id.toString());
+      const k2 = await apiKey(u2._id.toString());
 
       // Act
       const k1Value = await apiKeyService.getById(
@@ -81,10 +82,10 @@ describe('Api Key Service', () => {
 
     it('Should not get an API key for wrong user', async () => {
       // Arrange
-      const u1 = await user('admin@red-kite.io', Role.Admin);
-      const u2 = await user('qwerty@red-kite.io', Role.Admin);
-      const k1 = await apiKey(u1._id.toString(), Role.Admin);
-      const k2 = await apiKey(u2._id.toString(), Role.Admin);
+      const u1 = await user('admin@red-kite.io');
+      const u2 = await user('qwerty@red-kite.io');
+      const k1 = await apiKey(u1._id.toString());
+      const k2 = await apiKey(u2._id.toString());
 
       // Act
       const k1Value = await apiKeyService.getById(
@@ -98,11 +99,11 @@ describe('Api Key Service', () => {
 
     it('Should get all API keys', async () => {
       // Arrange
-      const u1 = await user('admin@red-kite.io', Role.Admin);
-      const u2 = await user('qwerty@red-kite.io', Role.Admin);
-      const k1 = await apiKey(u1._id.toString(), Role.Admin);
-      const k2 = await apiKey(u1._id.toString(), Role.Admin);
-      const k3 = await apiKey(u2._id.toString(), Role.Admin);
+      const u1 = await user('admin@red-kite.io');
+      const u2 = await user('qwerty@red-kite.io');
+      const k1 = await apiKey(u1._id.toString());
+      const k2 = await apiKey(u1._id.toString());
+      const k3 = await apiKey(u2._id.toString());
 
       // Act
       const keys = await apiKeyService.getAll();
@@ -113,11 +114,11 @@ describe('Api Key Service', () => {
 
     it('Should get all API keys (paging)', async () => {
       // Arrange
-      const u1 = await user('admin@red-kite.io', Role.Admin);
-      const u2 = await user('qwerty@red-kite.io', Role.Admin);
-      const k1 = await apiKey(u1._id.toString(), Role.Admin);
-      const k2 = await apiKey(u1._id.toString(), Role.Admin);
-      const k3 = await apiKey(u2._id.toString(), Role.Admin);
+      const u1 = await user('admin@red-kite.io');
+      const u2 = await user('qwerty@red-kite.io');
+      const k1 = await apiKey(u1._id.toString());
+      const k2 = await apiKey(u1._id.toString());
+      const k3 = await apiKey(u2._id.toString());
 
       // Act
       const keys = await apiKeyService.getAll(1, 1);
@@ -128,11 +129,11 @@ describe('Api Key Service', () => {
 
     it('Should get all API keys for user', async () => {
       // Arrange
-      const u1 = await user('admin@red-kite.io', Role.Admin);
-      const u2 = await user('qwerty@red-kite.io', Role.Admin);
-      const k1 = await apiKey(u1._id.toString(), Role.Admin);
-      const k2 = await apiKey(u1._id.toString(), Role.Admin);
-      const k3 = await apiKey(u2._id.toString(), Role.Admin);
+      const u1 = await user('admin@red-kite.io');
+      const u2 = await user('qwerty@red-kite.io');
+      const k1 = await apiKey(u1._id.toString());
+      const k2 = await apiKey(u1._id.toString());
+      const k3 = await apiKey(u2._id.toString());
 
       // Act
       const keys = await apiKeyService.getAll(0, 10, {
@@ -147,11 +148,11 @@ describe('Api Key Service', () => {
   describe('API keys validation', () => {
     it('Should find a valid API key', async () => {
       // Arrange
-      const u1 = await user('admin@red-kite.io', Role.Admin);
-      const u2 = await user('qwerty@red-kite.io', Role.Admin);
-      const k1 = await apiKey(u1._id.toString(), Role.Admin);
-      const k2 = await apiKey(u1._id.toString(), Role.Admin);
-      const k3 = await apiKey(u2._id.toString(), Role.Admin);
+      const u1 = await user('admin@red-kite.io');
+      const u2 = await user('qwerty@red-kite.io');
+      const k1 = await apiKey(u1._id.toString());
+      const k2 = await apiKey(u1._id.toString());
+      const k3 = await apiKey(u2._id.toString());
 
       // Act
       const key = await apiKeyService.findValidApiKey(k2.key);
@@ -159,16 +160,16 @@ describe('Api Key Service', () => {
       // Assert
       expect(key._id.toString()).toStrictEqual(k2._id.toString());
       expect(key.userId.toString()).toStrictEqual(k2.userId.toString());
-      expect(key.role).toStrictEqual(k2.role);
+      expect(key.scopes).toStrictEqual(k2.scopes);
     });
 
     it('Should not find an invalid API key', async () => {
       // Arrange
-      const u1 = await user('admin@red-kite.io', Role.Admin);
-      const u2 = await user('qwerty@red-kite.io', Role.Admin);
-      const k1 = await apiKey(u1._id.toString(), Role.Admin);
-      const k2 = await apiKey(u1._id.toString(), Role.Admin);
-      const k3 = await apiKey(u2._id.toString(), Role.Admin);
+      const u1 = await user('admin@red-kite.io');
+      const u2 = await user('qwerty@red-kite.io');
+      const k1 = await apiKey(u1._id.toString());
+      const k2 = await apiKey(u1._id.toString());
+      const k3 = await apiKey(u2._id.toString());
 
       // Act
       const key = await apiKeyService.findValidApiKey(k2.key + 'a');
@@ -179,11 +180,11 @@ describe('Api Key Service', () => {
 
     it('Should not find a valid API key for a deactivated user (admin)', async () => {
       // Arrange
-      const u1 = await user('admin@red-kite.io', Role.Admin);
-      const u2 = await user('qwerty@red-kite.io', Role.Admin);
-      const k1 = await apiKey(u1._id.toString(), Role.Admin);
-      const k2 = await apiKey(u1._id.toString(), Role.Admin);
-      const k3 = await apiKey(u2._id.toString(), Role.Admin);
+      const u1 = await user('admin@red-kite.io');
+      const u2 = await user('qwerty@red-kite.io');
+      const k1 = await apiKey(u1._id.toString());
+      const k2 = await apiKey(u1._id.toString());
+      const k3 = await apiKey(u2._id.toString());
       await usersService.editUserById(u1._id.toString(), { active: false });
 
       // Act
@@ -193,29 +194,13 @@ describe('Api Key Service', () => {
       expect(key).toBeFalsy();
     });
 
-    it('Should not find a valid API key for a deactivated user (user)', async () => {
-      // Arrange
-      const u1 = await user('admin@red-kite.io', Role.Admin);
-      const u2 = await user('qwerty@red-kite.io', Role.User);
-      const k1 = await apiKey(u1._id.toString(), Role.Admin);
-      const k2 = await apiKey(u1._id.toString(), Role.Admin);
-      const k3 = await apiKey(u2._id.toString(), Role.User);
-      await usersService.editUserById(u2._id.toString(), { active: false });
-
-      // Act
-      const key = await apiKeyService.findValidApiKey(k3.key);
-
-      // Assert
-      expect(key).toBeFalsy();
-    });
-
     it('Should find a valid API key for a reactivated user (admin)', async () => {
       // Arrange
-      const u1 = await user('admin@red-kite.io', Role.Admin);
-      const u2 = await user('qwerty@red-kite.io', Role.Admin);
-      const k1 = await apiKey(u1._id.toString(), Role.Admin);
-      const k2 = await apiKey(u1._id.toString(), Role.Admin);
-      const k3 = await apiKey(u2._id.toString(), Role.Admin);
+      const u1 = await user('admin@red-kite.io');
+      const u2 = await user('qwerty@red-kite.io');
+      const k1 = await apiKey(u1._id.toString());
+      const k2 = await apiKey(u1._id.toString());
+      const k3 = await apiKey(u2._id.toString());
       await usersService.editUserById(u1._id.toString(), { active: false });
       await usersService.editUserById(u1._id.toString(), { active: true });
 
@@ -225,35 +210,20 @@ describe('Api Key Service', () => {
       // Assert
       expect(key._id.toString()).toStrictEqual(k2._id.toString());
       expect(key.userId.toString()).toStrictEqual(k2.userId.toString());
-      expect(key.role).toStrictEqual(k2.role);
-    });
-
-    it('Should find a valid API key for a reactivated user (user)', async () => {
-      // Arrange
-      const u1 = await user('admin@red-kite.io', Role.Admin);
-      const u2 = await user('qwerty@red-kite.io', Role.User);
-      const k1 = await apiKey(u1._id.toString(), Role.Admin);
-      const k2 = await apiKey(u1._id.toString(), Role.Admin);
-      const k3 = await apiKey(u2._id.toString(), Role.User);
-      await usersService.editUserById(u2._id.toString(), { active: false });
-      await usersService.editUserById(u2._id.toString(), { active: true });
-
-      // Act
-      const key = await apiKeyService.findValidApiKey(k3.key);
-
-      // Assert
-      expect(key._id.toString()).toStrictEqual(k3._id.toString());
-      expect(key.userId.toString()).toStrictEqual(k3.userId.toString());
-      expect(key.role).toStrictEqual(k3.role);
+      expect(key.scopes).toStrictEqual(k2.scopes);
     });
 
     it('Should not find a valid expired API key', async () => {
       // Arrange
-      const u1 = await user('admin@red-kite.io', Role.Admin);
-      const u2 = await user('qwerty@red-kite.io', Role.User);
-      const k1 = await apiKey(u1._id.toString(), Role.Admin);
-      const k2 = await apiKey(u1._id.toString(), Role.Admin);
-      const k3 = await apiKey(u2._id.toString(), Role.User, Date.now() - 1);
+      const u1 = await user('admin@red-kite.io');
+      const u2 = await user('qwerty@red-kite.io');
+      const k1 = await apiKey(u1._id.toString());
+      const k2 = await apiKey(u1._id.toString());
+      const k3 = await apiKey(
+        u2._id.toString(),
+        ADMIN_DEFAULT_SCOPES,
+        Date.now() - 1,
+      );
 
       // Act
       const key = await apiKeyService.findValidApiKey(k3.key);
@@ -266,11 +236,15 @@ describe('Api Key Service', () => {
   describe('Delete API keys', () => {
     it('Should delete an API key', async () => {
       // Arrange
-      const u1 = await user('admin@red-kite.io', Role.Admin);
-      const u2 = await user('qwerty@red-kite.io', Role.User);
-      const k1 = await apiKey(u1._id.toString(), Role.Admin);
-      const k2 = await apiKey(u1._id.toString(), Role.Admin);
-      const k3 = await apiKey(u2._id.toString(), Role.User, Date.now() - 1);
+      const u1 = await user('admin@red-kite.io');
+      const u2 = await user('qwerty@red-kite.io');
+      const k1 = await apiKey(u1._id.toString());
+      const k2 = await apiKey(u1._id.toString());
+      const k3 = await apiKey(
+        u2._id.toString(),
+        ADMIN_DEFAULT_SCOPES,
+        Date.now() - 1,
+      );
 
       // Act
       await apiKeyService.delete(k1._id.toString());
@@ -282,11 +256,15 @@ describe('Api Key Service', () => {
 
     it('Should delete an API key for a user', async () => {
       // Arrange
-      const u1 = await user('admin@red-kite.io', Role.Admin);
-      const u2 = await user('qwerty@red-kite.io', Role.User);
-      const k1 = await apiKey(u1._id.toString(), Role.Admin);
-      const k2 = await apiKey(u1._id.toString(), Role.Admin);
-      const k3 = await apiKey(u2._id.toString(), Role.User, Date.now() - 1);
+      const u1 = await user('admin@red-kite.io');
+      const u2 = await user('qwerty@red-kite.io');
+      const k1 = await apiKey(u1._id.toString());
+      const k2 = await apiKey(u1._id.toString());
+      const k3 = await apiKey(
+        u2._id.toString(),
+        ADMIN_DEFAULT_SCOPES,
+        Date.now() - 1,
+      );
 
       // Act
       await apiKeyService.delete(k1._id.toString(), u1._id.toString());
@@ -298,11 +276,15 @@ describe('Api Key Service', () => {
 
     it('Should not delete an API key (wrong user)', async () => {
       // Arrange
-      const u1 = await user('admin@red-kite.io', Role.Admin);
-      const u2 = await user('qwerty@red-kite.io', Role.User);
-      const k1 = await apiKey(u1._id.toString(), Role.Admin);
-      const k2 = await apiKey(u1._id.toString(), Role.Admin);
-      const k3 = await apiKey(u2._id.toString(), Role.User, Date.now() - 1);
+      const u1 = await user('admin@red-kite.io');
+      const u2 = await user('qwerty@red-kite.io');
+      const k1 = await apiKey(u1._id.toString());
+      const k2 = await apiKey(u1._id.toString());
+      const k3 = await apiKey(
+        u2._id.toString(),
+        ADMIN_DEFAULT_SCOPES,
+        Date.now() - 1,
+      );
 
       // Act
       await apiKeyService.delete(k1._id.toString(), u2._id.toString());
@@ -314,11 +296,15 @@ describe('Api Key Service', () => {
 
     it('Should delete all keys for a user', async () => {
       // Arrange
-      const u1 = await user('admin@red-kite.io', Role.Admin);
-      const u2 = await user('qwerty@red-kite.io', Role.User);
-      const k1 = await apiKey(u1._id.toString(), Role.Admin);
-      const k2 = await apiKey(u1._id.toString(), Role.Admin);
-      const k3 = await apiKey(u2._id.toString(), Role.User, Date.now() - 1);
+      const u1 = await user('admin@red-kite.io');
+      const u2 = await user('qwerty@red-kite.io');
+      const k1 = await apiKey(u1._id.toString());
+      const k2 = await apiKey(u1._id.toString());
+      const k3 = await apiKey(
+        u2._id.toString(),
+        ADMIN_DEFAULT_SCOPES,
+        Date.now() - 1,
+      );
 
       // Act
       await apiKeyService.deleteAllForUser(u1._id.toString());
@@ -331,11 +317,15 @@ describe('Api Key Service', () => {
 
     it("Should delete all the user's keys when deleting the user", async () => {
       // Arrange
-      const u1 = await user('admin@red-kite.io', Role.Admin);
-      const u2 = await user('qwerty@red-kite.io', Role.Admin);
-      const k1 = await apiKey(u1._id.toString(), Role.Admin);
-      const k2 = await apiKey(u1._id.toString(), Role.Admin);
-      const k3 = await apiKey(u2._id.toString(), Role.Admin, Date.now() - 1);
+      const u1 = await user('admin@red-kite.io');
+      const u2 = await user('qwerty@red-kite.io');
+      const k1 = await apiKey(u1._id.toString());
+      const k2 = await apiKey(u1._id.toString());
+      const k3 = await apiKey(
+        u2._id.toString(),
+        ADMIN_DEFAULT_SCOPES,
+        Date.now() - 1,
+      );
 
       // Act
       await usersService.deleteUserById(u1._id.toString());
@@ -347,10 +337,9 @@ describe('Api Key Service', () => {
     });
   });
 
-  async function user(email: string, role: Role, active: boolean = true) {
+  async function user(email: string, active: boolean = true) {
     return await usersService.createUser({
       email: email,
-      role: role,
       active: active,
       firstName: 'asdf',
       lastName: 'qwerty',
@@ -360,10 +349,10 @@ describe('Api Key Service', () => {
 
   async function apiKey(
     userId: string,
-    role: Role,
+    scopes: string[] = ADMIN_DEFAULT_SCOPES,
     expiresAt: number = Date.now() * 2,
     name: string = 'Test api key',
   ) {
-    return await apiKeyService.create(name, userId, role, expiresAt);
+    return await apiKeyService.create(name, userId, scopes, expiresAt);
   }
 });

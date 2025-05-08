@@ -33,6 +33,6 @@ export class RefreshTokenStrategy extends PassportStrategy(
       throw new UnauthorizedException();
     }
 
-    return { id: payload.id, role: user.role, email: user.email };
+    return { id: payload.id, scopes: user.scopes, email: user.email };
   }
 }

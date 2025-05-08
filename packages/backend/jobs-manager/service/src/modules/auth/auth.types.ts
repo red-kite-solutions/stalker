@@ -1,9 +1,8 @@
 import { Request } from 'express';
-import { Role } from './constants';
 
 export interface UserAuthContext {
   id: string;
-  role: Role;
+  scopes: string[];
   email?: string;
   apiKeyId?: string;
 }

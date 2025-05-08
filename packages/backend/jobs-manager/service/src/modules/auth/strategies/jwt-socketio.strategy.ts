@@ -23,6 +23,6 @@ export class JwtSocketioStrategy extends PassportStrategy(
   }
 
   public validate(payload: any) {
-    return { id: payload.id, email: payload.email, role: payload.role };
+    return { id: payload.id, email: payload.email, scopes: payload.scopes };
   }
 }

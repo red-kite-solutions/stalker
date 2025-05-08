@@ -50,6 +50,8 @@ export const subscriptionsInitProvider = [
               'source.repoUrl': subscription.source?.repoUrl,
             };
 
+            logger.debug(`Providing subscription: ${subscription.name}`);
+
             switch (subscription.triggerType) {
               case 'cron':
                 await cronSubscriptionModel.updateOne(filter, subscription, {

@@ -3,6 +3,10 @@ import { Document } from 'mongoose';
 
 export type UserDocument = User & Document;
 
+export interface ScopedUserDocument extends UserDocument {
+  scopes: string[];
+}
+
 @Schema()
 export class User {
   @Prop({ unique: true })
@@ -19,9 +23,6 @@ export class User {
 
   @Prop()
   public active: boolean;
-
-  @Prop()
-  public role: string;
 
   @Prop({ select: false })
   public refreshTokens: string[];

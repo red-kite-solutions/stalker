@@ -23,7 +23,7 @@ export class ApiKey {
   public userId: Types.ObjectId;
 
   @Prop()
-  public role: Role;
+  public scopes: string[];
 
   @Prop()
   public userIsActive: boolean;

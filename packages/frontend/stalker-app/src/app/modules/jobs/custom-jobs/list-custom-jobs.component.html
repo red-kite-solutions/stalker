@@ -4,7 +4,7 @@
       <mat-card-title class="tw-flex-1" i18n="Custom jobs|Custom jobs">Custom jobs</mat-card-title>
 
       <div class="tw-flex tw-gap-sm tw-pb-4">
-        @if (this.authService.role === 'admin') {
+        @if (this.authService.userHasScope('automation:custom-jobs:cache-sync')) {
           <button mat-stroked-button (click)="syncCache()">
             <mat-icon>sync</mat-icon>
             <label i18n="Sync cache|Sync a backend cache">Sync cache</label>

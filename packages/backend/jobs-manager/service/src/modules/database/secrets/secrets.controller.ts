@@ -17,8 +17,8 @@ import {
 import { MongoIdDto } from '../../../types/dto/mongo-id.dto';
 import { ProjectUnassigned } from '../../../validators/is-project-id.validator';
 import { Role } from '../../auth/constants';
-import { Roles } from '../../auth/decorators/roles.decorator';
-import { RolesGuard } from '../../auth/guards/role.guard';
+import { Scopes } from '../../auth/decorators/scopes.decorator';
+import { ScopesGuard } from '../../auth/guards/scope.guard';
 import { ApiKeyStrategy } from '../../auth/strategies/api-key.strategy';
 import { JwtStrategy } from '../../auth/strategies/jwt.strategy';
 import { MONGO_DUPLICATE_ERROR } from '../database.constants';
@@ -29,15 +29,15 @@ import { SecretsService } from './secrets.service';
 export class SecretsController {
   constructor(private secretsService: SecretsService) {}
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.ReadOnly)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes('manage:secrets:read')
   @Get()
   async getSecrets() {
     return await this.secretsService.getAll();
   }
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.ReadOnly)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes('manage:secrets:read')
   @Get(':id')
   async getSecret(@Param() id: MongoIdDto) {
     const s = await this.secretsService.get(id.id);
@@ -45,8 +45,8 @@ export class SecretsController {
     return s;
   }
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.User)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes('manage:secrets:create')
   @Post()
   async createSecret(@Body() dto: CreateSecretDto) {
     try {
@@ -67,8 +67,8 @@ export class SecretsController {
     }
   }
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.User)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes('manage:secrets:delete')
   @Delete(':id')
   async deleteSecret(@Param() id: MongoIdDto): Promise<DeleteResult> {
     return await this.secretsService.delete(id.id);

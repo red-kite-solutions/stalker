@@ -21,7 +21,9 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from '../../../shared/widget/confirm-dialog/confirm-dialog.component';
-import { RolesName, rolesName } from '../roles';
+import { GroupsService } from '../../../api/groups/groups.service';
+import { Group } from '../../../shared/types/group/group.type';
+import { Page } from '../../../shared/types/page.type';
 
 @Component({
   standalone: true,
@@ -42,7 +44,7 @@ import { RolesName, rolesName } from '../roles';
   styleUrls: ['./manage-users.component.scss'],
 })
 export class ManageUsersComponent implements OnDestroy {
-  displayedColumns: string[] = ['select', 'firstName', 'lastName', 'email', 'role', 'active'];
+  displayedColumns: string[] = ['select', 'firstName', 'lastName', 'email', 'active'];
   dataSource = new MatTableDataSource<User>();
   private dataSource$ = this.usersService.getAllUsers().subscribe((next) => {
     this.dataSource.data = next;
@@ -56,17 +58,15 @@ export class ManageUsersComponent implements OnDestroy {
     Breakpoints.XLarge,
   ]);
 
-  public roles: RolesName = rolesName;
-
   ngOnDestroy() {
     this.dataSource$.unsubscribe();
   }
 
   public displayColumns$ = this.screenSize$.pipe(
     map((screen: BreakpointState) => {
-      if (screen.breakpoints[Breakpoints.XSmall]) return ['firstName', 'lastName', 'role'];
-      else if (screen.breakpoints[Breakpoints.Small]) return ['firstName', 'lastName', 'role', 'active'];
-      else if (screen.breakpoints[Breakpoints.Medium]) return ['select', 'firstName', 'lastName', 'role', 'active'];
+      if (screen.breakpoints[Breakpoints.XSmall]) return ['firstName', 'lastName', 'groups'];
+      else if (screen.breakpoints[Breakpoints.Small]) return ['firstName', 'lastName', 'groups', 'active'];
+      else if (screen.breakpoints[Breakpoints.Medium]) return ['select', 'firstName', 'lastName', 'groups', 'active'];
       return this.displayedColumns;
     })
   );

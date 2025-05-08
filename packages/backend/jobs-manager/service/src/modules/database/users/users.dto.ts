@@ -32,11 +32,6 @@ export class CreateUserDto {
 
   @IsNotEmpty()
   @IsString()
-  @IsIn(['admin', 'user', 'read-only'])
-  public role: string;
-
-  @IsNotEmpty()
-  @IsString()
   public currentPassword: string;
 }
 
@@ -85,11 +80,6 @@ export class EditUserDto {
   @IsOptional()
   @IsBoolean()
   public active: boolean;
-
-  @IsOptional()
-  @IsString()
-  @IsIn(['admin', 'user', 'read-only'])
-  public role: string;
 
   @IsNotEmpty()
   @IsString()

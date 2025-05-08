@@ -9,9 +9,10 @@ import {
 } from './users.controller';
 import { userInitProvider } from './users.provider';
 import { UsersService } from './users.service';
+import { GroupsModule } from '../groups/groups.module';
 
 @Module({
-  imports: [NotificationsModule, DatalayerModule, ApiKeyModule],
+  imports: [NotificationsModule, DatalayerModule, ApiKeyModule, GroupsModule],
   controllers: [
     UsersController,
     UnprotectedUsersController,

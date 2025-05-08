@@ -47,32 +47,22 @@
       <div class="tw-flex tw-items-center tw-gap-2">
         <mat-form-field class="tw-flex-1">
           <mat-select
-            formControlName="role"
+            formControlName="group"
             required
-            i18n-placeholder="User role|The role of a user in the application. Relates to its authorization level"
-            placeholder="Role"
+            i18n-placeholder="User group|The group of a user in the application. Relates to its authorization level"
+            placeholder="Group"
           >
-            @for (role of roles; track $index) {
-              <mat-option [value]="role">
-                {{ role.displayName }}
+            @for (group of groups$ | async; track $index) {
+              <mat-option [value]="group._id">
+                {{ group.name }}
               </mat-option>
             }
           </mat-select>
-          <mat-hint>{{ form.controls['role'].value.shortDescription }}</mat-hint>
-          <mat-error i18n="Role required|A user must have a role, otherwise the form is invalid"
-            >You must pick a role</mat-error
+          <mat-hint>{{ form.controls['group'].value.description }}</mat-hint>
+          <mat-error i18n="Group required|A user must have a group, otherwise the form is invalid"
+            >You must pick a group</mat-error
           >
         </mat-form-field>
-
-        <button
-          type="button"
-          mat-icon-button
-          (click)="showUserRolesHelp()"
-          i18n-matTooltip="Role information|Additionnal information about roles"
-          matTooltip="Role information"
-        >
-          <mat-icon>help_outline</mat-icon>
-        </button>
       </div>
 
       <mat-checkbox formControlName="active" color="accent">
