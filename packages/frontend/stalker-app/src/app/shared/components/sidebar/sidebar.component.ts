@@ -112,7 +112,7 @@ export class SidebarComponent {
           icon: 'rocket_launch',
           routerLink: '/jobs/launch',
           name: $localize`:Launch|Sidenav button for launch jobs:Launch`,
-          requiredScopes: ['automation:job-executions:create'],
+          requiredScopes: ['automation:job-executions:create', 'automation:custom-jobs:read'],
         },
         {
           icon: 'play_circle',
@@ -214,6 +214,6 @@ export class SidebarComponent {
 
     if (!item.requiredScopes) return true;
 
-    return this.authService.userHasOneScopeOf(item.requiredScopes);
+    return this.authService.userHasAllScopesOf(item.requiredScopes);
   }
 }

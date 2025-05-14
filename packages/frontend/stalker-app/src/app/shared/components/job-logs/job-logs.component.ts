@@ -46,6 +46,7 @@ export class JobLogsComponent implements OnChanges {
   ) {}
 
   ngOnChanges(): void {
+    if (!this.authService.userHasScope('automation:job-executions:read')) return;
     if (this.jobId != null) {
       if (this.timeout) clearTimeout(this.timeout);
       this.socket?.disconnect();

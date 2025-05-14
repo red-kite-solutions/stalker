@@ -7,12 +7,7 @@
           [backRoute]="undefined"
         ></app-page-header>
 
-        <button
-          mat-stroked-button
-          class="tw-mt-[9px]"
-          (click)="startJob()"
-          [disabled]="!this.authService.userHasScope('automation:job-executions:create') || !selectedRow"
-        >
+        <button mat-stroked-button class="tw-mt-[9px]" (click)="startJob()" [disabled]="!selectedRow">
           <label i18n="Start|Start the job">Start</label>
         </button>
 
@@ -22,7 +17,8 @@
           buttonColor="warn"
           (click)="stopJob()"
           i18n="Stop|Stop the job"
-          [disabled]="!this.authService.userHasScope('automation:job-executions:update') || !selectedRow || !(jobIsRunning$ | async)"
+          [disabled]="!selectedRow || !(jobIsRunning$ | async)"
+          [hasScopes]="['automation:job-executions:update']"
           >Stop</app-spinner-button
         >
       </div>
@@ -45,11 +41,12 @@
           class="tw-flex-1 mat-elevation-z2"
           [path]="'/launch-jobs/launch-job.yaml'"
         ></app-code-editor>
-        <h3 i18n="Output|Output of a job" class="output">Output</h3>
+        <h3 i18n="Output|Output of a job" class="output" [hasScopes]="['automation:job-executions:read']">Output</h3>
         <app-job-logs
           [jobId]="currentStartedJob?.id"
           class="tw-flex-1 mat-elevation-z2"
           [theme]="(theme$ | async) ?? 'vs-dark'"
+          [hasScopes]="['automation:job-executions:read']"
         ></app-job-logs>
       </div>
     </div>
@@ -58,7 +55,7 @@
   <mat-drawer mode="side" position="end" disableClose="true" opened>
     <div class="tw-flex tw-gap-2 tw-flex-col tw-m-4">
       @if (projects$ | async) {
-        <mat-form-field appearance="outline" class="tw-mt-4">
+        <mat-form-field appearance="outline" class="tw-mt-4" [hasScopes]="['manage:projects:read']">
           <mat-label i18n="Project|Project">Project</mat-label>
           <mat-select [(value)]="selectedProject">
             <mat-option>None</mat-option>
@@ -69,7 +66,7 @@
         </mat-form-field>
       }
 
-      <mat-divider></mat-divider>
+      <mat-divider [hasScopes]="['manage:projects:read']"></mat-divider>
 
       <h2 i18n="Configuration|Subscription configuration">Jobs</h2>
 

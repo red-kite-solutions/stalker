@@ -18,8 +18,8 @@ import {
   HttpServerErrorException,
 } from '../../../exceptions/http.exceptions';
 import { MongoIdDto } from '../../../types/dto/mongo-id.dto';
+import { JobSummary } from '../../../types/job-summary.type';
 import { validateOrReject } from '../../../validators/validate-or-reject';
-import { Role } from '../../auth/constants';
 import { Scopes } from '../../auth/decorators/scopes.decorator';
 import { ScopesGuard } from '../../auth/guards/scope.guard';
 import { ApiKeyStrategy } from '../../auth/strategies/api-key.strategy';
@@ -33,6 +33,13 @@ import { DuplicateJobDto, isDuplicateJobDto, JobDto } from './jobs.dto';
 export class CustomJobsController {
   private logger = new Logger(CustomJobsController.name);
   constructor(private customJobsService: CustomJobsService) {}
+
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes('automation:custom-jobs:read')
+  @Get('summaries')
+  async getAllJobSummaries(): Promise<JobSummary[]> {
+    return await this.customJobsService.getAllSummaries();
+  }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('automation:custom-jobs:create')

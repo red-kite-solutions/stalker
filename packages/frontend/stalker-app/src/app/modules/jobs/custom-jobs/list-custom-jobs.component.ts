@@ -16,7 +16,7 @@ import { BehaviorSubject, combineLatest, map, shareReplay, switchMap, tap } from
 import { AuthService } from '../../../api/auth/auth.service';
 import { CustomJobTemplatesService } from '../../../api/jobs/custom-job-templates/custom-job-templates.service';
 import { JobsService } from '../../../api/jobs/jobs/jobs.service';
-import { AvatarComponent } from '../../../shared/components/avatar/avatar.component';
+import { HasScopesDirective } from '../../../shared/directives/has-scopes.directive';
 import { CustomJob } from '../../../shared/types/jobs/custom-job.type';
 import { ElementMenuItems } from '../../../shared/widget/dynamic-icons/menu-icon.component';
 import { FilteredPaginatedTableComponent } from '../../../shared/widget/filtered-paginated-table/filtered-paginated-table.component';
@@ -40,7 +40,6 @@ import { CustomJobsInteractionService } from './custom-jobs-interaction.service'
   imports: [
     CommonModule,
     RouterModule,
-    AvatarComponent,
     MatIconModule,
     MatTableModule,
     MatPaginatorModule,
@@ -54,6 +53,7 @@ import { CustomJobsInteractionService } from './custom-jobs-interaction.service'
     AuthModule,
     TableFormatComponent,
     DataSourceComponent,
+    HasScopesDirective,
   ],
   providers: [
     { provide: TableFiltersSourceBase, useClass: TableFiltersSource },
@@ -119,6 +119,7 @@ export class ListCustomJobsComponent {
       action: () => this.duplicate(element),
       icon: 'file_copy',
       label: $localize`:Duplicate a job|Duplicate a job:Duplicate`,
+      requiredScopes: ['automation:custom-jobs:create'],
     });
 
     menuItems.push({
@@ -130,6 +131,7 @@ export class ListCustomJobsComponent {
         element.source != null
           ? $localize`:Cannot delete imported jobs|Cannot delete imported jobs:You cannot delete imported jobs.`
           : undefined,
+      requiredScopes: ['automation:custom-jobs:delete'],
     });
 
     return menuItems;

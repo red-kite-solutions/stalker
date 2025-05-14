@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { firstValueFrom, map, Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { CustomJob, CustomJobData } from '../../../shared/types/jobs/custom-job.type';
+import { JobListEntry } from '../../../shared/types/jobs/job.type';
 import { Page } from '../../../shared/types/page.type';
 import { normalizeSearchString } from '../../../utils/normalize-search-string';
 
@@ -60,5 +61,9 @@ export class JobsService {
   private filterJob(job: CustomJob, filters: string[]) {
     const parts = [job.name, job.findingHandlerLanguage, job.type];
     return filters.some((filter) => normalizeSearchString(parts.join(' ')).includes(normalizeSearchString(filter)));
+  }
+
+  public getJobSummaries(): Observable<JobListEntry[]> {
+    return <Observable<JobListEntry[]>>this.http.get(`${environment.fmUrl}/custom-jobs/summaries`);
   }
 }

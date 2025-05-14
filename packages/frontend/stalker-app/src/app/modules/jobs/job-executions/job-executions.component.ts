@@ -6,7 +6,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, combineLatest, map, shareReplay, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, catchError, combineLatest, map, of, shareReplay, switchMap, tap } from 'rxjs';
 import { JobExecutionsService } from '../../../api/jobs/job-executions/job-executions.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { ProjectCellComponent } from '../../../shared/components/project-cell/project-cell.component';
@@ -76,7 +76,11 @@ export class JobExecutionsComponent {
   dataSource$ = this.executions$.pipe(map((x) => new MatTableDataSource<StartedJobViewModel>(x.items)));
 
   projects: Project[] = [];
-  projects$ = this.projectsService.getAll().pipe(tap((x) => (this.projects = x)));
+  projects$ = this.projectsService.getAll().pipe(
+    catchError((err) => of([])),
+    tap((x) => (this.projects = x)),
+    shareReplay(1)
+  );
 
   constructor(
     private jobsService: JobExecutionsService,
@@ -88,6 +92,16 @@ export class JobExecutionsComponent {
   ) {
     this.titleService.setTitle($localize`:Job executions|:Job executions`);
   }
+
+  public displayColumns$ = this.projects$.pipe(
+    map((projects) => {
+      let cols = this.displayColumns;
+
+      if (!projects || !projects.length) cols = cols.filter((c) => c !== 'project');
+
+      return cols;
+    })
+  );
 
   buildFilters(stringFilters: string[]): any {
     const SEPARATOR = ':';
@@ -137,6 +151,7 @@ export class JobExecutionsComponent {
       icon: 'stop_circle',
       label: $localize`:Stop job|Stop the currently running job:Stop job`,
       disabled: !!element.endTime || this.stopSent.has(element.id),
+      requiredScopes: ['automation:job-executions:update'],
     });
 
     return menuItems;

@@ -15,6 +15,7 @@ import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { BehaviorSubject, combineLatest, map, shareReplay, switchMap, tap } from 'rxjs';
 import { SubscriptionService, SubscriptionType } from '../../../api/jobs/subscriptions/subscriptions.service';
+import { HasScopesDirective } from '../../../shared/directives/has-scopes.directive';
 import {
   CronSubscription,
   EventSubscription,
@@ -57,6 +58,7 @@ import { subscriptionTypes } from './subscription-templates';
     DisabledPillTagComponent,
     TableFormatComponent,
     DataSourceComponent,
+    HasScopesDirective,
   ],
   providers: [
     { provide: TableFiltersSourceBase, useClass: TableFiltersSource },
@@ -132,12 +134,14 @@ export class ListSubscriptionsComponent {
         icon: 'pause',
         label: $localize`:Disable|Disables a subscription:Disable`,
         action: () => this.updateEnabled(_id, type, false),
+        requiredScopes: ['automation:subscriptions:update'],
       });
     } else {
       menuItems.push({
         icon: 'play_arrow',
         label: $localize`:Enable|Enables a subscription:Enable`,
         action: () => this.updateEnabled(_id, type, true),
+        requiredScopes: ['automation:subscriptions:update'],
       });
     }
 
@@ -145,6 +149,7 @@ export class ListSubscriptionsComponent {
       action: () => this.duplicate(element),
       icon: 'file_copy',
       label: $localize`:Duplicate a job|Duplicate a job:Duplicate`,
+      requiredScopes: ['automation:subscriptions:create'],
     });
 
     menuItems.push({
@@ -156,6 +161,7 @@ export class ListSubscriptionsComponent {
         element.source != null
           ? $localize`:Cannot delete imported jobs|Cannot delete imported jobs:You cannot delete imported subscriptions.`
           : undefined,
+      requiredScopes: ['automation:subscriptions:delete'],
     });
 
     return menuItems;

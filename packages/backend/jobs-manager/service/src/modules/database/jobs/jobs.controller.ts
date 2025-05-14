@@ -18,10 +18,8 @@ import {
 } from '../../../exceptions/http.exceptions';
 import { MongoIdDto } from '../../../types/dto/mongo-id.dto';
 import { JobLog } from '../../../types/job-log.model';
-import { JobSummary } from '../../../types/job-summary.type';
 import { Page } from '../../../types/page.type';
 import { ProjectUnassigned } from '../../../validators/is-project-id.validator';
-import { Role } from '../../auth/constants';
 import { Scopes } from '../../auth/decorators/scopes.decorator';
 import { CronApiTokenGuard } from '../../auth/guards/cron-api-token.guard';
 import { ScopesGuard } from '../../auth/guards/scope.guard';
@@ -33,10 +31,8 @@ import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
 import { SecretsService } from '../secrets/secrets.service';
 import { JobParameter } from '../subscriptions/subscriptions.type';
 import { JobExecutionsService } from './job-executions.service';
-import { JobDefinitions } from './job-model.module';
 import { JobExecutionsDto, JobManagementDto, StartJobDto } from './jobs.dto';
 import { JobFactory, JobFactoryUtils } from './jobs.factory';
-import { CustomJob } from './models/custom-job.model';
 import { JobDocument } from './models/jobs.model';
 
 @Controller('jobs')
@@ -63,26 +59,6 @@ export class JobsController {
   @Get(':id/logs')
   async getJobLogs(@Param() id: MongoIdDto): Promise<Page<JobLog>> {
     return await this.jobsService.getLogs(id.id);
-  }
-
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
-  @Scopes('automation:job-executions:read')
-  @Get('summaries')
-  async getAllJobSummaries(): Promise<JobSummary[]> {
-    const jd = JobDefinitions.map((jd): JobSummary => {
-      return {
-        name: jd.name,
-        parameters: jd.params,
-      };
-    });
-
-    jd.splice(
-      jd.findIndex((v) => v.name === CustomJob.name),
-      1,
-    );
-
-    const cjd = await this.customJobsService.getAllSummaries();
-    return jd.concat(cjd);
   }
 
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)

@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom, map, Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { JobListEntry, StartedJob, StartedJobState, StartedJobViewModel } from '../../../shared/types/jobs/job.type';
+import { StartedJob, StartedJobState, StartedJobViewModel } from '../../../shared/types/jobs/job.type';
 import { Page } from '../../../shared/types/page.type';
 import { JobParameter } from '../../../shared/types/subscriptions/subscription.type';
 import { filtersToParams } from '../../../utils/filters-to-params';
@@ -13,10 +13,6 @@ import { JobOutputResponse } from './job-executions.socketio-client';
 })
 export class JobExecutionsService {
   constructor(private http: HttpClient) {}
-
-  public getJobSummaries(): Observable<JobListEntry[]> {
-    return <Observable<JobListEntry[]>>this.http.get(`${environment.fmUrl}/jobs/summaries`);
-  }
 
   public getJobExecutions(
     page: number,

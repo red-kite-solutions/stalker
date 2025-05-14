@@ -10,12 +10,12 @@
           <app-filtered-paginated-table
             [isLoading]="dataLoading"
             [length]="(executions$ | async)?.totalRecords ?? 0"
-            [columns]="displayColumns"
+            [columns]="displayColumns$ | async"
             [filterOptions]="filterOptions"
           >
             <app-table-format
               [dataSource]="dataSource$ | async"
-              [columns]="displayColumns"
+              [columns]="displayColumns$ | async"
               [routerLinkPrefix]="'/jobs/executions/'"
               [noDataMessage]="noDataMessage"
               [menuFactory]="generateMenuItem"
@@ -63,7 +63,7 @@
                   }
                 </td>
               </ng-container>
-              <tr mat-header-row *matHeaderRowDef="displayColumns"></tr>
+              <tr mat-header-row *matHeaderRowDef="displayColumns$ | async"></tr>
             </app-table-format>
           </app-filtered-paginated-table>
         }

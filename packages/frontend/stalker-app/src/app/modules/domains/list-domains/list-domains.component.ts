@@ -95,12 +95,12 @@ export class ListDomainsComponent {
   startDate: Date | null = null;
 
   projects$ = this.projectsService.getAllSummaries().pipe(
-    shareReplay(1),
-    catchError((err) => of([]))
+    catchError((err) => of([])),
+    shareReplay(1)
   );
   tags$ = this.tagsService.getAllTags().pipe(
-    shareReplay(1),
-    catchError((err) => of([]))
+    catchError((err) => of([])),
+    shareReplay(1)
   );
 
   private refresh$ = new BehaviorSubject(null);

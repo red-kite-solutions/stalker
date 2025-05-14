@@ -28,7 +28,6 @@ import { NgxFileDropModule } from 'ngx-file-drop';
 import { CreateUserComponent } from '../../modules/admin/create-user/create-user.component';
 import { SettingsComponent } from '../../modules/admin/settings/settings.component';
 import { FindingsModule } from '../../modules/findings/findings.module';
-import { JobExecutionDetailComponent } from '../../modules/jobs/job-executions/job-execution-detail.component';
 import { JobLogsSummaryComponent } from '../../modules/jobs/job-executions/job-execution-logs-summary.component';
 import { AvatarComponent } from '../../shared/components/avatar/avatar.component';
 import { HeaderComponent } from '../../shared/components/header/header.component';
@@ -41,7 +40,7 @@ import { SpinnerButtonComponent } from '../../shared/widget/spinner-button/spinn
 import { DefaultComponent } from './default.component';
 
 @NgModule({
-  declarations: [DefaultComponent, CreateUserComponent, SettingsComponent, JobExecutionDetailComponent],
+  declarations: [DefaultComponent, CreateUserComponent, SettingsComponent],
   imports: [
     HeaderComponent,
     CommonModule,
