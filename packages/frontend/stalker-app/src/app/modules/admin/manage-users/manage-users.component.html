@@ -4,12 +4,17 @@
       <mat-card-title class="tw-flex-1" i18n="Users|Users list page title">Users</mat-card-title>
 
       <div class="tw-flex tw-gap-sm tw-pt-2 tw-pb-4">
-        <button mat-stroked-button routerLinkActive="list-item-active" routerLink="/admin/users/create">
+        <button
+          mat-stroked-button
+          routerLinkActive="list-item-active"
+          routerLink="/admin/users/create"
+          [hasScopes]="['manage:users:create']"
+        >
           <mat-icon> person_add_alt </mat-icon>
           <label i18n="New user|Button to create a new user">New User</label>
         </button>
         @if (!(hideDelete$ | async)) {
-          <button mat-stroked-button color="warn" (click)="deleteUsers()">
+          <button mat-stroked-button color="warn" (click)="deleteUsers()" [hasScopes]="['manage:users:delete']">
             <mat-icon> delete_outline </mat-icon>
             <label i18n="Delete|Delete an item">Delete</label>
           </button>

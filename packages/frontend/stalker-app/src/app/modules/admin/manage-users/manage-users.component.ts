@@ -16,14 +16,12 @@ import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { map } from 'rxjs';
 import { UsersService } from '../../../api/users/users.service';
+import { HasScopesDirective } from '../../../shared/directives/has-scopes.directive';
 import { User } from '../../../shared/types/user.interface';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from '../../../shared/widget/confirm-dialog/confirm-dialog.component';
-import { GroupsService } from '../../../api/groups/groups.service';
-import { Group } from '../../../shared/types/group/group.type';
-import { Page } from '../../../shared/types/page.type';
 
 @Component({
   standalone: true,
@@ -38,6 +36,7 @@ import { Page } from '../../../shared/types/page.type';
     MatCheckboxModule,
     MatPaginatorModule,
     MatTooltipModule,
+    HasScopesDirective,
   ],
   selector: 'app-manage-users',
   templateUrl: './manage-users.component.html',

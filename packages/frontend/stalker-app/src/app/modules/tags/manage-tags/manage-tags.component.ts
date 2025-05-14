@@ -15,8 +15,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, combineLatest, map, shareReplay, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, startWith, switchMap, tap } from 'rxjs';
 import { TagsService } from '../../../api/tags/tags.service';
+import { HasScopesDirective } from '../../../shared/directives/has-scopes.directive';
 import { SharedModule } from '../../../shared/shared.module';
 import { Tag } from '../../../shared/types/tag.type';
 import {
@@ -51,6 +52,7 @@ import { PillTagComponent } from '../../../shared/widget/pill-tag/pill-tag.compo
     FilteredPaginatedTableComponent,
     TableFormatComponent,
     PillTagComponent,
+    HasScopesDirective,
   ],
   selector: 'app-manage-tags',
   templateUrl: './manage-tags.component.html',
@@ -69,11 +71,13 @@ export class ManageTagsComponent {
   public readonly noDataMessage = $localize`:No tag found|No tag was found for this item:No tag found`;
 
   private refresh$ = new BehaviorSubject(null);
-  public tags$ = combineLatest([this.filtersSource.debouncedFilters$, this.refresh$]).pipe(
+  public tags$ = combineLatest([
+    this.filtersSource.debouncedFilters$.pipe(startWith({ filters: [], pagination: undefined })),
+    this.refresh$,
+  ]).pipe(
     switchMap(([{ filters, pagination }]) =>
       this.tagsService.getTags(filters, pagination?.page ?? 0, pagination?.pageSize ?? 25)
-    ),
-    shareReplay(1)
+    )
   );
 
   public dataSource$ = this.tags$.pipe(

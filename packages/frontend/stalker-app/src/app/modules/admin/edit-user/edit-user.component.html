@@ -53,30 +53,35 @@
           {{ userEnabled$ | async }}
         </mat-checkbox>
 
-        <div class="tw-flex tw-flex-col tw-gap-2">
+        <div class="tw-flex tw-flex-col tw-gap-2" [hasScopes]="['manage:groups:read']">
           <table mat-table [dataSource]="this.groupsDataSource$">
             <!-- Name Column -->
             <ng-container matColumnDef="name">
-              <th mat-header-cell *matHeaderCellDef i18n="Groups|"> Groups </th>
-              <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+              <th mat-header-cell *matHeaderCellDef i18n="Groups|">Groups</th>
+              <td mat-cell *matCellDef="let element">{{ element.name }}</td>
             </ng-container>
-  
+
             <!-- Description Column -->
             <ng-container matColumnDef="description">
-              <th mat-header-cell *matHeaderCellDef i18n="Description|"> Description </th>
-              <td mat-cell *matCellDef="let element"> {{element.description}} </td>
+              <th mat-header-cell *matHeaderCellDef i18n="Description|">Description</th>
+              <td mat-cell *matCellDef="let element">{{ element.description }}</td>
             </ng-container>
-          
+
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
           </table>
         </div>
 
-        <mat-divider></mat-divider>
+        <mat-divider [hasScopes]="['manage:users:delete-all', 'manage:users:update-all']"></mat-divider>
 
-        <h4 i18n="Set password|Title of a subsection of a form to set the user's password">Set Password</h4>
+        <h4
+          i18n="Set password|Title of a subsection of a form to set the user's password"
+          [hasScopes]="['manage:users:update-all']"
+        >
+          Set Password
+        </h4>
 
-        <mat-form-field class="formfieldblock">
+        <mat-form-field class="formfieldblock" [hasScopes]="['manage:users:update-all']">
           <input
             matInput
             [type]="hideUserPassword ? 'password' : 'text'"
@@ -101,7 +106,12 @@
         </mat-form-field>
       </form>
 
-      <form #profileForm="ngForm" [formGroup]="currentPasswordForm" class="tw-flex tw-flex-col tw-gap">
+      <form
+        #profileForm="ngForm"
+        [formGroup]="currentPasswordForm"
+        class="tw-flex tw-flex-col tw-gap"
+        [hasScopes]="['manage:users:delete-all', 'manage:users:update-all']"
+      >
         <mat-divider></mat-divider>
 
         <h4 i18n="Validate identity|Asking the user to validate their identity by providing their password">
@@ -141,6 +151,7 @@
             mat-stroked-button
             color="primary"
             (click)="onSubmit()"
+            [hasScopes]="['manage:users:update-all']"
           >
             Save changes
           </button>
@@ -151,6 +162,7 @@
             mat-stroked-button
             color="warn"
             (click)="deleteUser()"
+            [hasScopes]="['manage:users:delete-all']"
           >
             Delete user
           </button>

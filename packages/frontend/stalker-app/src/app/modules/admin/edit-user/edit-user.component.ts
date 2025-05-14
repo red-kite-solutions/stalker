@@ -18,24 +18,24 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { combineLatest, lastValueFrom, map, Observable, shareReplay, startWith, switchMap, tap } from 'rxjs';
+import { map, shareReplay, startWith, switchMap, tap } from 'rxjs';
+import { GroupsService } from '../../../api/groups/groups.service';
 import { UsersService } from '../../../api/users/users.service';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { HasScopesDirective } from '../../../shared/directives/has-scopes.directive';
 import { SharedModule } from '../../../shared/shared.module';
+import { Group } from '../../../shared/types/group/group.type';
 import { HttpStatus } from '../../../shared/types/http-status.type';
+import { Page } from '../../../shared/types/page.type';
 import { ExtendedUser, User } from '../../../shared/types/user.interface';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from '../../../shared/widget/confirm-dialog/confirm-dialog.component';
-import { GroupsService } from '../../../api/groups/groups.service';
-import { Group } from '../../../shared/types/group/group.type';
-import { Page } from '../../../shared/types/page.type';
-import { MatTableModule } from '@angular/material/table';
-import { DataSource } from '@angular/cdk/collections';
 
 @Component({
   standalone: true,
@@ -58,6 +58,7 @@ import { DataSource } from '@angular/cdk/collections';
     MatCheckboxModule,
     ReactiveFormsModule,
     MatTableModule,
+    HasScopesDirective,
   ],
 })
 export class EditUserComponent {
