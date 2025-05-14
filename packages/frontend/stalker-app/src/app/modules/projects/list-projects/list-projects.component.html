@@ -1,13 +1,15 @@
 <mat-grid-list cols="{{ columns$ | async }}" rowHeight="2:1" [gutterSize]="'16px'">
   @if (addProjectClicked) {
-    <mat-grid-tile class="button-title tw-flex" (click)="addProjectClicked = !addProjectClicked">
-      <div class="plus-icon tw-flex-[40%] tw-flex tw-items-center tw-justify-center">
-        <mat-icon>add_circle_outline</mat-icon>
-      </div>
-      <div class="tw-flex tw-items-center tw-flex-[60%]">
-        <h3 class="text" i18n="Create project|Add a project">Create a project</h3>
-      </div>
-    </mat-grid-tile>
+    @if (authService.userHasScope('manage:projects:create')) {
+      <mat-grid-tile class="button-title tw-flex" (click)="addProjectClicked = !addProjectClicked">
+        <div class="plus-icon tw-flex-[40%] tw-flex tw-items-center tw-justify-center">
+          <mat-icon>add_circle_outline</mat-icon>
+        </div>
+        <div class="tw-flex tw-items-center tw-flex-[60%]">
+          <h3 class="text" i18n="Create project|Add a project">Create a project</h3>
+        </div>
+      </mat-grid-tile>
+    }
   } @else {
     <mat-grid-tile class="tw-flex tw-items-center tw-justify-center">
       <div class="upload-image-container tw-flex-[40%]">

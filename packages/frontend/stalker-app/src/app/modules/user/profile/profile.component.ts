@@ -22,8 +22,9 @@ import { ToastrService } from 'ngx-toastr';
 import { map, shareReplay } from 'rxjs';
 import { AuthService } from '../../../api/auth/auth.service';
 import { UsersService } from '../../../api/users/users.service';
-import { HttpStatus } from '../../../shared/types/http-status.type';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { HasScopesDirective } from '../../../shared/directives/has-scopes.directive';
+import { HttpStatus } from '../../../shared/types/http-status.type';
 import { ApiKeyComponent } from '../api-key/api-key.component';
 
 @Component({
@@ -44,6 +45,7 @@ import { ApiKeyComponent } from '../api-key/api-key.component';
     MatDividerModule,
     ReactiveFormsModule,
     ApiKeyComponent,
+    HasScopesDirective,
   ],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss'],

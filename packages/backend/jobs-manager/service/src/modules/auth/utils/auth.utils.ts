@@ -41,6 +41,8 @@ export function userHasScope(
   requiredScope: ApiScope | ExtendedScope,
   userScopes: string[],
 ) {
+  if (!Array.isArray(userScopes)) return false;
+
   // '*' is explicitely excluded as a possible valid scope to prevent including the reset password scope
   // Therefore, do not write: const possibleValidScopes = new Set(['*', requiredScope]);
   const possibleValidScopes: Set<string> = new Set([requiredScope]);

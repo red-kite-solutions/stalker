@@ -30,7 +30,6 @@ import { SettingsComponent } from '../../modules/admin/settings/settings.compone
 import { FindingsModule } from '../../modules/findings/findings.module';
 import { JobExecutionDetailComponent } from '../../modules/jobs/job-executions/job-execution-detail.component';
 import { JobLogsSummaryComponent } from '../../modules/jobs/job-executions/job-execution-logs-summary.component';
-import { EditProjectsComponent } from '../../modules/projects/edit-projects/edit-projects.component';
 import { AvatarComponent } from '../../shared/components/avatar/avatar.component';
 import { HeaderComponent } from '../../shared/components/header/header.component';
 import { JobLogsComponent } from '../../shared/components/job-logs/job-logs.component';
@@ -42,13 +41,7 @@ import { SpinnerButtonComponent } from '../../shared/widget/spinner-button/spinn
 import { DefaultComponent } from './default.component';
 
 @NgModule({
-  declarations: [
-    DefaultComponent,
-    CreateUserComponent,
-    SettingsComponent,
-    EditProjectsComponent,
-    JobExecutionDetailComponent,
-  ],
+  declarations: [DefaultComponent, CreateUserComponent, SettingsComponent, JobExecutionDetailComponent],
   imports: [
     HeaderComponent,
     CommonModule,

@@ -11,8 +11,10 @@ import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { map } from 'rxjs';
+import { AuthService } from '../../../api/auth/auth.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { ProjectAvatarComponent } from '../../../shared/components/project-avatar/project-avatar.component';
+import { HasScopesDirective } from '../../../shared/directives/has-scopes.directive';
 import { SharedModule } from '../../../shared/shared.module';
 import { HttpStatus } from '../../../shared/types/http-status.type';
 import { Project } from '../../../shared/types/project/project.interface';
@@ -36,6 +38,7 @@ import { SpinnerButtonComponent } from '../../../shared/widget/spinner-button/sp
     RouterModule,
     SpinnerButtonComponent,
     ProjectAvatarComponent,
+    HasScopesDirective,
   ],
 })
 export class ListProjectsComponent implements OnDestroy {
@@ -90,7 +93,8 @@ export class ListProjectsComponent implements OnDestroy {
     private bpObserver: BreakpointObserver,
     private projectsService: ProjectsService,
     private toastrService: ToastrService,
-    private titleService: Title
+    private titleService: Title,
+    public authService: AuthService
   ) {
     this.titleService.setTitle($localize`:Projects list page title|:Projects`);
   }

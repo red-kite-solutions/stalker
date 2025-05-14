@@ -1,5 +1,5 @@
 import { SelectionModel } from '@angular/cdk/collections';
-import { BreakpointObserver, BreakpointState, Breakpoints } from '@angular/cdk/layout';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
 import { Component, Inject, TemplateRef } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -15,12 +15,14 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, combineLatest, map, shareReplay, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, catchError, combineLatest, map, of, shareReplay, switchMap, tap } from 'rxjs';
+import { AuthService } from '../../../api/auth/auth.service';
 import { IpRangesService } from '../../../api/ip-ranges/ip-ranges.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { TagsService } from '../../../api/tags/tags.service';
 import { IpRangeAccordionComponent } from '../../../shared/components/ip-range-accordion/ip-range-accordion.component';
 import { ProjectCellComponent } from '../../../shared/components/project-cell/project-cell.component';
+import { HasScopesDirective } from '../../../shared/directives/has-scopes.directive';
 import { SharedModule } from '../../../shared/shared.module';
 import { HttpStatus } from '../../../shared/types/http-status.type';
 import { IpRange } from '../../../shared/types/ip-range/ip-range.interface';
@@ -68,6 +70,7 @@ import { IpRangesInteractionsService } from '../ip-ranges-interactions.service';
     TableFormatComponent,
     IpRangeAccordionComponent,
     PillTagComponent,
+    HasScopesDirective,
   ],
   selector: 'app-list-ip-ranges',
   templateUrl: './list-ip-ranges.component.html',
@@ -95,7 +98,10 @@ export class ListIpRangesComponent {
   selection = new SelectionModel<IpRange>(true, []);
   startDate: Date | null = null;
 
-  tags$ = this.tagsService.getAllTags().pipe(shareReplay(1));
+  tags$ = this.tagsService.getAllTags().pipe(
+    shareReplay(1),
+    catchError((err) => of([]))
+  );
 
   private refresh$ = new BehaviorSubject(null);
   dataSource$ = combineLatest([
@@ -120,7 +126,11 @@ export class ListIpRangesComponent {
   );
 
   projects: ProjectSummary[] = [];
-  projects$ = this.projectsService.getAllSummaries().pipe(tap((x) => (this.projects = x)));
+  projects$ = this.projectsService.getAllSummaries().pipe(
+    tap((x) => (this.projects = x)),
+    catchError((err) => of([])),
+    shareReplay(1)
+  );
 
   // #addIpRangesDialog template variables
   selectedProject = '';
@@ -132,12 +142,16 @@ export class ListIpRangesComponent {
     Breakpoints.XLarge,
   ]);
 
-  public displayColumns$ = this.screenSize$.pipe(
-    map((screen: BreakpointState) => {
-      if (screen.breakpoints[Breakpoints.XSmall]) return ['select', 'cidr', 'hosts', 'project', 'menu'];
-      else if (screen.breakpoints[Breakpoints.Small]) return ['select', 'cidr', 'hosts', 'project', 'tags', 'menu'];
-      else if (screen.breakpoints[Breakpoints.Medium]) return ['select', 'cidr', 'hosts', 'project', 'tags', 'menu'];
-      return this.displayedColumns;
+  public displayColumns$ = combineLatest([this.tags$, this.projects$]).pipe(
+    map(([tags, projects]) => {
+      let cols = this.displayedColumns;
+      if (!tags.length) cols = cols.filter((c) => c !== 'tags');
+
+      if (!projects || !projects.length) cols = cols.filter((c) => c !== 'project');
+
+      if (!this.authService.userHasScope('resources:hosts:read')) cols = cols.filter((c) => c !== 'hosts');
+
+      return cols;
     })
   );
 
@@ -150,6 +164,7 @@ export class ListIpRangesComponent {
     private tagsService: TagsService,
     public dialog: MatDialog,
     private titleService: Title,
+    private authService: AuthService,
     @Inject(TableFiltersSourceBase) private filtersSource: TableFiltersSource
   ) {
     this.titleService.setTitle($localize`:IP ranges list page title|:IP Ranges`);
@@ -307,12 +322,14 @@ export class ListIpRangesComponent {
       label: element.blocked
         ? $localize`:Unblock ip range|Unblock ip range:Unblock`
         : $localize`:Block ip range|Block ip range:Block`,
+      requiredScopes: ['resources:ip-ranges:update'],
     });
 
     menuItems.push({
       action: () => this.deleteBatch([element]),
       icon: 'delete',
       label: $localize`:Delete ip range|Delete ip range:Delete`,
+      requiredScopes: ['resources:ip-ranges:delete'],
     });
 
     return menuItems;

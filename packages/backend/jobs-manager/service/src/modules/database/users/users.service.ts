@@ -7,19 +7,19 @@ import {
   HttpForbiddenException,
   HttpNotFoundException,
 } from '../../../exceptions/http.exceptions';
-import { Role, resetPasswordConstants } from '../../auth/constants';
+import { resetPasswordConstants } from '../../auth/constants';
 import { hashPassword, passwordEquals } from '../../auth/utils/auth.utils';
 import { CreateFirstUserDto } from './users.dto';
 
 import { randomBytes } from 'crypto';
+import { RESET_PASSWORD_SCOPE } from '../../auth/scopes.constants';
 import { EmailService } from '../../notifications/emails/email.service';
 import { ApiKeyService } from '../api-key/api-key.service';
+import { ADMIN_GROUP } from '../groups/groups.constants';
+import { GroupsService } from '../groups/groups.service';
 import { MagicLinkToken } from './magic-link-token.model';
 import { ScopedUserDocument, User, UserDocument } from './users.model';
 import { USER_INIT } from './users.provider';
-import { GroupsService } from '../groups/groups.service';
-import { ADMIN_GROUP } from '../groups/groups.constants';
-import { RESET_PASSWORD_SCOPE } from '../../auth/scopes.constants';
 
 @Injectable()
 export class UsersService {
@@ -363,6 +363,9 @@ export class UsersService {
       const user = await this.userModel
         .findOne({ _id: { $eq: new Types.ObjectId(id) } }, '+refreshTokens')
         .lean();
+
+      if (!user) return null;
+
       for (let rt of user.refreshTokens) {
         if (rt && (await passwordEquals(rt, refreshToken))) {
           const scopes = await this.groupsService.getUserScopes(
@@ -388,6 +391,8 @@ export class UsersService {
       { _id: { $eq: new Types.ObjectId(userId) } },
       '+refreshTokens',
     );
+
+    if (!user) return;
 
     let i = 0;
     for (let rt of user.refreshTokens) {

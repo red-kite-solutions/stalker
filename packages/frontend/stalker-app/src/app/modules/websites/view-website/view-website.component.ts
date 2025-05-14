@@ -39,6 +39,7 @@ import { TagsService } from '../../../api/tags/tags.service';
 import { WebsitesService } from '../../../api/websites/websites.service';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PanelSectionModule } from '../../../shared/components/panel-section/panel-section.module';
+import { HasScopesDirective } from '../../../shared/directives/has-scopes.directive';
 import { SharedModule } from '../../../shared/shared.module';
 import { Domain } from '../../../shared/types/domain/domain.interface';
 import { DomainSummary } from '../../../shared/types/domain/domain.summary';
@@ -84,6 +85,7 @@ import { WebsiteOverviewComponent } from './website-overview/website-overview.co
     WebsiteOverviewComponent,
     SecureIconComponent,
     PillTagComponent,
+    HasScopesDirective,
   ],
   selector: 'app-view-website',
   templateUrl: './view-website.component.html',

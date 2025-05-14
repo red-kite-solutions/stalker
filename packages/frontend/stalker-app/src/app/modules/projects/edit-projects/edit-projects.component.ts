@@ -1,18 +1,31 @@
+import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
-import { UntypedFormBuilder, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { NgxFileDropModule } from 'ngx-file-drop';
 import { ToastrService } from 'ngx-toastr';
 import { Subscription, firstValueFrom, map, switchMap, tap } from 'rxjs';
 import { Md5 } from 'ts-md5';
 import { ProjectsService } from '../../../api/projects/projects.service';
+import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { HasScopesDirective } from '../../../shared/directives/has-scopes.directive';
+import { SharedModule } from '../../../shared/shared.module';
 import { HttpStatus } from '../../../shared/types/http-status.type';
 import { Project } from '../../../shared/types/project/project.interface';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from '../../../shared/widget/confirm-dialog/confirm-dialog.component';
+import { SpinnerButtonComponent } from '../../../shared/widget/spinner-button/spinner-button.component';
 import { setGlobalProjectFilter } from '../../../utils/global-project-filter';
 
 @Component({
@@ -20,6 +33,25 @@ import { setGlobalProjectFilter } from '../../../utils/global-project-filter';
   templateUrl: './edit-projects.component.html',
   styleUrls: ['./edit-projects.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterModule,
+    SharedModule,
+    MatDividerModule,
+    MatCardModule,
+    FormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    ReactiveFormsModule,
+    NgxFileDropModule,
+    MatProgressBarModule,
+    AppHeaderComponent,
+    SpinnerButtonComponent,
+    HasScopesDirective,
+  ],
 })
 export class EditProjectsComponent implements OnDestroy {
   form = this.fb.group({

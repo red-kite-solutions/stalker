@@ -1,25 +1,25 @@
 <h1>Dashboard</h1>
 
 <div class="container">
-  <mat-card appearance="outlined">
+  <mat-card appearance="outlined" [hasScopes]="['resources:hosts:read']">
     <mat-card-content class="tw-h-full">
       <number-of-hosts-metric></number-of-hosts-metric>
     </mat-card-content>
   </mat-card>
 
-  <mat-card appearance="outlined">
+  <mat-card appearance="outlined" [hasScopes]="['resources:domains:read']">
     <mat-card-content class="tw-h-full">
       <number-of-domains-metric></number-of-domains-metric>
     </mat-card-content>
   </mat-card>
 
-  <mat-card appearance="outlined" class="span-col-2 span-row-auto">
+  <mat-card appearance="outlined" class="span-col-2 span-row-auto" [hasScopes]="['automation:job-executions:read']">
     <mat-card-content class="tw-h-full">
       <latest-jobs></latest-jobs>
     </mat-card-content>
   </mat-card>
 
-  <mat-card appearance="outlined" class="span-col-2">
+  <mat-card appearance="outlined" class="span-col-2" [hasScopes]="['manage:projects:read']">
     <mat-card-content class="tw-h-full">
       <top-projects></top-projects>
     </mat-card-content>

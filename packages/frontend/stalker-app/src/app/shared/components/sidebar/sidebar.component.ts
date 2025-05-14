@@ -13,7 +13,7 @@ interface Section {
 interface BasicSectionItem {
   name: string;
   icon: string;
-  requiredScope?: string;
+  requiredScopes?: string[];
   routerLink: string;
   filled?: boolean;
   isVisible?: boolean;
@@ -22,7 +22,6 @@ interface BasicSectionItem {
 interface AggregateSectionItem {
   name: string;
   icon: string;
-  requiredScope?: string;
   isVisible?: boolean;
   items: BasicSectionItem[];
 }
@@ -45,7 +44,6 @@ export class SidebarComponent {
           icon: 'dashboard',
           routerLink: '/',
           name: $localize`:Dashboard|Sidenav dashboard button:Dashboard`,
-          requiredScope: 'data:tables:read',
         },
         this.tablesService.getTables().pipe(
           map((tables) => ({
@@ -67,31 +65,31 @@ export class SidebarComponent {
           icon: 'language',
           routerLink: '/domains',
           name: $localize`:Domains|Sidenav domain button:Domains`,
-          requiredScope: 'resources:domains:read',
+          requiredScopes: ['resources:domains:read'],
         },
         {
           icon: 'storage',
           routerLink: '/hosts',
           name: $localize`:Hosts|Sidenav hosts button:Hosts`,
-          requiredScope: 'resources:hosts:read',
+          requiredScopes: ['resources:hosts:read'],
         },
         {
           icon: 'fingerprints',
           routerLink: '/ports',
           name: $localize`:Ports|Sidenav host ports button:Ports`,
-          requiredScope: 'resources:ports:read',
+          requiredScopes: ['resources:ports:read'],
         },
         {
           icon: 'web',
           routerLink: '/websites',
           name: $localize`:Websites|Sidenav website button:Websites`,
-          requiredScope: 'resources:websites:read',
+          requiredScopes: ['resources:websites:read'],
         },
         {
           icon: 'radar',
           routerLink: '/ip-ranges',
           name: $localize`:IP Ranges|Sidenav ip ranges button:IP Ranges`,
-          requiredScope: 'resources:ip-ranges:read',
+          requiredScopes: ['resources:ip-ranges:read'],
         },
       ],
     },
@@ -102,25 +100,25 @@ export class SidebarComponent {
           icon: 'precision_manufacturing',
           routerLink: '/jobs/subscriptions',
           name: $localize`:Subscriptions|Sidenav button for subscriptions:Subscriptions`,
-          requiredScope: 'automation:subscriptions:read',
+          requiredScopes: ['automation:subscriptions:read'],
         },
         {
           icon: 'coffee',
           routerLink: '/jobs/custom',
           name: $localize`:Jobs|Sidenav button for jobs:Jobs`,
-          requiredScope: 'automation:custom-jobs:read',
+          requiredScopes: ['automation:custom-jobs:read'],
         },
         {
           icon: 'rocket_launch',
           routerLink: '/jobs/launch',
           name: $localize`:Launch|Sidenav button for launch jobs:Launch`,
-          requiredScope: 'automation:job-executions:create',
+          requiredScopes: ['automation:job-executions:create'],
         },
         {
           icon: 'play_circle',
           routerLink: '/jobs/executions',
           name: $localize`:Executions|Sidenav button for job executions:Executions `,
-          requiredScope: 'automation:job-executions:read',
+          requiredScopes: ['automation:job-executions:read'],
         },
       ],
     },
@@ -131,25 +129,25 @@ export class SidebarComponent {
           icon: 'folder_open',
           routerLink: '/projects',
           name: $localize`:Projects|Sidenav button for projects:Projects`,
-          requiredScope: 'manage:projects:read',
+          requiredScopes: ['manage:projects:read'],
         },
         {
           icon: 'sell',
           routerLink: '/tags',
           name: $localize`:Tags|Sidenav button for tags:Tags`,
-          requiredScope: 'manage:tags:read',
+          requiredScopes: ['manage:tags:read'],
         },
         {
           icon: 'password',
           routerLink: '/secrets',
           name: $localize`:Secrets|Sidenav button for secrets:Secrets`,
-          requiredScope: 'manage:secrets:read',
+          requiredScopes: ['manage:secrets:read'],
         },
         {
           icon: 'manage_accounts',
           routerLink: '/admin/users',
           name: $localize`:Users|Users list page title:Users`,
-          requiredScope: 'manage:users:read-all',
+          requiredScopes: ['manage:users:read-all'],
         },
       ],
     },
@@ -177,11 +175,45 @@ export class SidebarComponent {
     return of(item);
   }
 
+  shouldDisplaySection(section: Section) {
+    if (!section || !section.items) return false;
+
+    for (const item of section.items) {
+      if (isObservable(item)) return true;
+      if (this.shouldDisplay(item)) return true;
+    }
+    return false;
+  }
+
+  /**
+   * Tells if an `AggregateSectionItem` should be displayed according to its `BasicSectionItem`s' scopes.
+   * @param item
+   * @returns
+   */
+  private shouldDisplayAggregate(item: AggregateSectionItem) {
+    const allScopes = [];
+    for (const agItem of item.items) {
+      if (agItem.requiredScopes) allScopes.push(...agItem.requiredScopes);
+      else return true; // If an item does not require any scopes, we want to display it
+    }
+
+    return this.authService.userHasOneScopeOf(allScopes);
+  }
+
+  /**
+   *
+   * @param item
+   * @returns
+   */
   shouldDisplay(item: BasicSectionItem | AggregateSectionItem) {
     if (item.isVisible === false) return false;
 
-    if (!item.requiredScope) return true;
+    if ('items' in item) {
+      return this.shouldDisplayAggregate(item);
+    }
 
-    return this.authService.userHasScope(item.requiredScope);
+    if (!item.requiredScopes) return true;
+
+    return this.authService.userHasOneScopeOf(item.requiredScopes);
   }
 }

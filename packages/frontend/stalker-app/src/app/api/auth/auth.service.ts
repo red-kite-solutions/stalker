@@ -180,6 +180,24 @@ export class AuthService implements AuthTokenProvider {
     return this.decodedRefreshToken?.exp > epoch;
   }
 
+  public userHasOneScopeOf(scopes: string[] | undefined) {
+    if (!scopes || !scopes.length) return true;
+
+    for (const scope of scopes) {
+      if (this.userHasScope(scope)) return true;
+    }
+    return false;
+  }
+
+  public userHasAllScopesOf(scopes: string[] | undefined) {
+    if (!scopes || !scopes.length) return true;
+
+    for (const scope of scopes) {
+      if (!this.userHasScope(scope)) return false;
+    }
+    return true;
+  }
+
   public userHasScope(scope: string) {
     // '*' is explicitely excluded as a possible valid scope to prevent including the reset password scope
     // Therefore, do not write: const possibleValidScopes = new Set(['*', requiredScope]);
