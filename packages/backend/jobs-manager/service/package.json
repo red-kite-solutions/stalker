@@ -19,12 +19,9 @@
     "lint-staged:run": "npm run lint:write && npm run format:write",
     "lint-staged": "lint-staged",
     "test": "jest --runInBand",
-    "test:cicd": "jest  --runInBand --json --outputFile=./test/jest-output.json",
+    "test:cicd": "jest  --runInBand --json --outputFile=./src/test/jest-output.json",
     "test:watch": "jest --watchAll --runInBand",
-    "test:cov": "jest --coverage",
-    "test:e2e": "jest --colors --config  ./test/jest.e2e.config.js",
-    "test:e2e:cicd": "jest --config ./test/jest.e2e.config.ga.js --runInBand --detectOpenHandles --forceExit --verbose",
-    "test:e2e:watch": "jest --watchAll --colors --runInBand --config ./test/jest.e2e.config.js --verbose"
+    "test:cov": "jest --coverage"
   },
   "dependencies": {
     "@nestjs/common": "^9.2.1",
