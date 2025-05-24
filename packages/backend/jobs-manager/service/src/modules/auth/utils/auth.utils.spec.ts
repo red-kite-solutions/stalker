@@ -1,3 +1,4 @@
+import { ApiScope } from '../scopes.constants';
 import { simplifyScopes, userHasScope } from './auth.utils';
 
 describe('Auth Utils', () => {
@@ -75,7 +76,7 @@ describe('Auth Utils', () => {
       },
     ])('User has scope: %s', ({ userScopes, requiredScope, hasScope }) => {
       // Arrange && Act
-      const result = userHasScope(requiredScope, userScopes);
+      const result = userHasScope(requiredScope as ApiScope, userScopes);
 
       // Assert
       expect(result).toStrictEqual(hasScope);

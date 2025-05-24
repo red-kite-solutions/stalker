@@ -4,18 +4,15 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
 import { getName } from '../../../test/test.utils';
 import { AppModule } from '../../app.module';
+import { RESET_PASSWORD_SCOPE } from '../../auth/scopes.constants';
 import { EmailService } from '../../notifications/emails/email.service';
+import { ADMIN_GROUP } from '../groups/groups.constants';
+import { Group } from '../groups/groups.model';
+import { GroupsService } from '../groups/groups.service';
 import { MagicLinkToken } from './magic-link-token.model';
 import { CreateFirstUserDto } from './users.dto';
 import { User, UserDocument } from './users.model';
 import { UsersService } from './users.service';
-import { GroupsService } from '../groups/groups.service';
-import { Group } from '../groups/groups.model';
-import {
-  GROUP_ADMIN_SCOPES,
-  RESET_PASSWORD_SCOPE,
-} from '../../auth/scopes.constants';
-import { ADMIN_GROUP } from '../groups/groups.constants';
 
 describe('Users Service', () => {
   let moduleFixture: TestingModule;
@@ -407,6 +404,6 @@ describe('Users Service', () => {
     members: string[] = [],
     scopes: string[] = [],
   ) {
-    return await groupService.create(name, members, scopes);
+    return await groupService.create(name, '', members, scopes);
   }
 });
