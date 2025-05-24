@@ -95,10 +95,12 @@ export class IpRangeFilterParser extends FilterParserBase<IpRangeDocument> {
       if (t.length) {
         for (const term of t) {
           const ip = ipv4ToNumber(term.value);
-          filters.push({
-            ipMinInt: { $lte: ip },
-            ipMaxInt: { $gte: ip },
-          });
+          if (!isNaN(ip)) {
+            filters.push({
+              ipMinInt: { $lte: ip },
+              ipMaxInt: { $gte: ip },
+            });
+          }
         }
       }
     }
@@ -113,7 +115,6 @@ export class IpRangeFilterParser extends FilterParserBase<IpRangeDocument> {
     //     }
     //   }
     // }
-    console.log(filters);
     return filters;
   }
 }

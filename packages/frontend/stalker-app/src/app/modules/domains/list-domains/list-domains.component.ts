@@ -15,7 +15,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, combineLatest, firstValueFrom, map, shareReplay, switchMap } from 'rxjs';
+import { BehaviorSubject, catchError, combineLatest, firstValueFrom, map, shareReplay, switchMap } from 'rxjs';
 import { DomainsService } from '../../../api/domains/domains.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { TagsService } from '../../../api/tags/tags.service';
@@ -25,6 +25,15 @@ import { Domain } from '../../../shared/types/domain/domain.interface';
 import { HttpStatus } from '../../../shared/types/http-status.type';
 import { Page } from '../../../shared/types/page.type';
 import { ElementMenuItems } from '../../../shared/widget/dynamic-icons/menu-icon.component';
+import {
+  AutocompleteBuilder,
+  domainSuggestion,
+  excludeSuggestion,
+  hostSuggestion,
+  isSuggestion,
+  projectSuggestion,
+  tagSuggestion,
+} from '../../../shared/widget/filtered-paginated-table/autocomplete';
 import { FilteredPaginatedTableComponent } from '../../../shared/widget/filtered-paginated-table/filtered-paginated-table.component';
 import {
   TABLE_FILTERS_SOURCE_INITAL_FILTERS,
@@ -76,10 +85,18 @@ import { DomainsInteractionsService } from '../domains-interactions.service';
   ],
 })
 export class ListDomainsComponent {
+  public readonly noDataMessage = $localize`:No domain found|No domain was found:No domain found`;
+  public readonly autocomplete = this.autocompleteBuilder
+    .build('key')
+    .suggestion(domainSuggestion)
+    .suggestion(hostSuggestion)
+    .suggestion(tagSuggestion)
+    .suggestion(isSuggestion)
+    .suggestion(projectSuggestion)
+    .divider()
+    .suggestion(excludeSuggestion);
   dataLoading = true;
   displayedColumns: string[] = ['select', 'domain', 'hosts', 'project', 'tags', 'menu'];
-  filterOptions: string[] = ['host', 'domain', 'project', 'tags', 'is'];
-  public readonly noDataMessage = $localize`:No domain found|No domain was found:No domain found`;
 
   maxHostsPerLine = 5;
   count = 0;
@@ -98,12 +115,19 @@ export class ListDomainsComponent {
     globalProjectFilter$,
   ]).pipe(
     switchMap(([{ dateRange, filters, pagination }, projects, tags]) => {
-      return this.domainsService.getPage(
-        pagination?.page || 0,
-        pagination?.pageSize || 25,
-        appendGlobalFiltersToQuery(filters[0]),
-        dateRange ?? new DateRange<Date>(null, null)
-      );
+      return this.domainsService
+        .getPage(
+          pagination?.page || 0,
+          pagination?.pageSize || 25,
+          appendGlobalFiltersToQuery(filters[0]),
+          dateRange ?? new DateRange<Date>(null, null)
+        )
+        .pipe(
+          catchError((x) => {
+            console.error(x);
+            return [];
+          })
+        );
     }),
     map((data: Page<Domain>) => {
       this.count = data.totalRecords;
@@ -141,6 +165,7 @@ export class ListDomainsComponent {
     private tagsService: TagsService,
     public dialog: MatDialog,
     private titleService: Title,
+    private autocompleteBuilder: AutocompleteBuilder,
     @Inject(TableFiltersSourceBase) private filtersSource: TableFiltersSource
   ) {
     this.titleService.setTitle($localize`:Domains list page title|:Domains`);

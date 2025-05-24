@@ -55,11 +55,10 @@
         [isLoading]="dataLoading"
         [length]="(websites$ | async)?.totalRecords ?? 0"
         [columns]="displayColumns$ | async"
-        [filterOptions]="filterOptions"
-        [negatableFilterOptions]="['is']"
         [dateSearchEnabled]="true"
         [startDate]="startDate"
         [filterType]="'grammar'"
+        [autocomplete]="autocomplete"
       >
         @if ((viewStyle$ | async) === 'table') {
           <app-table-format

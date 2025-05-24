@@ -13,9 +13,17 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
+import {
+  AutocompleteBuilder,
+  excludeSuggestion,
+  hostSuggestion,
+  isSuggestion,
+  portSuggestion,
+  projectSuggestion,
+  tagSuggestion,
+} from '@red-kite/frontend/app/shared/widget/filtered-paginated-table/autocomplete';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, catchError, combineLatest, EMPTY, map, shareReplay, switchMap, tap } from 'rxjs';
-import { HostsService } from '../../../api/hosts/hosts.service';
 import { PortsService } from '../../../api/ports/ports.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { TagsService } from '../../../api/tags/tags.service';
@@ -75,6 +83,16 @@ import { PortsInteractionsService } from '../ports-interactions.service';
   ],
 })
 export class ListPortsComponent {
+  public readonly autocomplete = this.autocompleteBuilder
+    .build('key')
+    .suggestion(hostSuggestion)
+    .suggestion(portSuggestion)
+    .suggestion(tagSuggestion)
+    .suggestion(projectSuggestion)
+    .suggestion(isSuggestion)
+    .divider()
+    .suggestion(excludeSuggestion);
+
   dataLoading = true;
   displayedColumns: string[] = [
     'select',
@@ -152,7 +170,7 @@ export class ListPortsComponent {
     private tagsService: TagsService,
     public dialog: MatDialog,
     private titleService: Title,
-    private hostsService: HostsService,
+    private autocompleteBuilder: AutocompleteBuilder,
     @Inject(TableFiltersSourceBase) private filtersSource: TableFiltersSource
   ) {
     this.titleService.setTitle($localize`:Ports list page title|:Ports`);

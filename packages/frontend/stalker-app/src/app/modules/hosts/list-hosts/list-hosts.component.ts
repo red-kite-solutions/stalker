@@ -14,6 +14,14 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
+import {
+  AutocompleteBuilder,
+  domainSuggestion,
+  excludeSuggestion,
+  hostSuggestion,
+  projectSuggestion,
+  tagSuggestion,
+} from '@red-kite/frontend/app/shared/widget/filtered-paginated-table/autocomplete';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, combineLatest, map, shareReplay, switchMap, tap } from 'rxjs';
 import { HostsService } from '../../../api/hosts/hosts.service';
@@ -80,8 +88,26 @@ export class ListHostsComponent {
   maxDomainsPerHost = 35;
   dataLoading = true;
   displayedColumns: string[] = ['select', 'ip', 'domains', 'project', 'tags', 'menu'];
-  filterOptions: string[] = ['host', 'domain', 'range', 'project', 'tags', 'is'];
   public readonly noDataMessage = $localize`:No host found|No host was found:No host found`;
+
+  public readonly autocomplete = this.autocompleteBuilder
+    .build('key')
+    .suggestion(hostSuggestion)
+    .suggestion(domainSuggestion)
+    .suggestion(tagSuggestion)
+    .suggestion(projectSuggestion)
+    .suggestion({
+      name: 'is',
+      value: 'is:',
+      icon: 'dataset',
+      children: (builder) =>
+        builder
+          .build('value')
+          .suggestion({ value: 'blocked', icon: 'block' })
+          .suggestion({ value: 'merged', icon: 'merge' }),
+    })
+    .divider()
+    .suggestion(excludeSuggestion);
 
   count = 0;
   selection = new SelectionModel<Host>(true, []);
@@ -138,6 +164,7 @@ export class ListHostsComponent {
     private tagsService: TagsService,
     public dialog: MatDialog,
     private titleService: Title,
+    private autocompleteBuilder: AutocompleteBuilder,
     @Inject(TableFiltersSourceBase) private filtersSource: TableFiltersSource
   ) {
     this.titleService.setTitle($localize`:Hosts list page title|:Hosts`);

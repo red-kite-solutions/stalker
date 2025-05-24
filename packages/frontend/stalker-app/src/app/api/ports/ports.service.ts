@@ -13,6 +13,7 @@ import { ExtendedPort, Port, PortNumber } from '../../shared/types/ports/port.in
 })
 export class PortsService implements ResourceService<Port | PortNumber | ExtendedPort> {
   private searchParser = new SearchQueryParser();
+
   constructor(private http: HttpClient) {}
 
   public getPage<T extends Port | PortNumber | ExtendedPort>(

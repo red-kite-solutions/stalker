@@ -170,7 +170,7 @@ export abstract class FilterParserBase<T extends Resource> {
         const t = this.consumeTerms(terms, '', 'tag.name');
         if (t.length) {
           const tags = await this.tagModel.find({
-            text: { $in: this.toInclusionList(t, { lowercase: true }) },
+            text: { $in: this.toInclusionList(t, { lowercase: false }) },
           });
 
           filters.push({
@@ -184,7 +184,7 @@ export abstract class FilterParserBase<T extends Resource> {
         const t = this.consumeTerms(terms, '-', 'tag.name');
         if (t.length) {
           const tags = await this.tagModel.find(
-            { text: { $in: this.toInclusionList(t, { lowercase: true }) } },
+            { text: { $in: this.toInclusionList(t, { lowercase: false }) } },
             '_id',
           );
 

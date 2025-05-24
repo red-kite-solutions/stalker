@@ -40,7 +40,7 @@ export class SearchQueryParser {
           }: ${x.value}`;
         }
 
-        return `${x.not ? '-' : ''}${x.type}: ${x.value}`;
+        return `${x.not ? '-' : ''}${x.type}: "${x.value}"`;
       })
       .join(' ');
   }

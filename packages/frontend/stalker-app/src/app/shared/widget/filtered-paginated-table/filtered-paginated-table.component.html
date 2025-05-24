@@ -98,33 +98,11 @@
 </ng-template>
 
 <ng-template #grammarSearch>
-  <form [formGroup]="searchQueryForm" class="tw-w-full">
-    <mat-form-field class="filter-chip-list" appearance="fill" [floatLabel]="'always'">
-      <mat-label i18n="Search filter|Filter your search to get more precise results">Search filter</mat-label>
-
-      <input
-        matInput
-        type="text"
-        i18n-placeholder="New filter|Creating a new filter"
-        placeholder="New filter..."
-        [matAutocomplete]="auto"
-        [formControlName]="'query'"
-        #grammarInput
-      />
-      <mat-autocomplete
-        placeholder="New filter..."
-        #auto="matAutocomplete"
-        (optionSelected)="grammarSuggestionSelected($event, grammarInput)"
-        [autoActiveFirstOption]="true"
-      >
-        @for (option of searchQuerySuggestions$ | async; track option) {
-          <mat-option [value]="option">
-            {{ option }}
-          </mat-option>
-        }
-      </mat-autocomplete>
-    </mat-form-field>
-  </form>
+  <rks-search-input
+    class="tw-w-full"
+    (queryChange)="searchQuery$.next($event)"
+    [autocomplete]="queryAutocomplete"
+  ></rks-search-input>
 </ng-template>
 
 <ng-template #dateSearch>

@@ -16,6 +16,15 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { ParamMap, RouterModule } from '@angular/router';
+import {
+  AutocompleteBuilder,
+  domainSuggestion,
+  excludeSuggestion,
+  hostSuggestion,
+  portSuggestion,
+  projectSuggestion,
+  tagSuggestion,
+} from '@red-kite/frontend/app/shared/widget/filtered-paginated-table/autocomplete';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, combineLatest, map, Observable, shareReplay, switchMap, tap } from 'rxjs';
 import { FindingsService } from '../../../api/findings/findings.service';
@@ -138,9 +147,28 @@ class WebsiteFiltersSource extends TableFiltersSourceBase<WebsiteFilters> {
 export class ListWebsitesComponent {
   readonly correlationKeysToLoad: BehaviorSubject<string>[] = [];
 
+  public readonly autocomplete = this.autocompleteBuilder
+    .build('key')
+    .suggestion(hostSuggestion)
+    .suggestion(portSuggestion)
+    .suggestion(domainSuggestion)
+    .suggestion(tagSuggestion)
+    .suggestion(projectSuggestion)
+    .suggestion({
+      name: 'is',
+      value: 'is:',
+      icon: 'dataset',
+      children: (builder) =>
+        builder
+          .build('value')
+          .suggestion({ value: 'merged', icon: 'merge' })
+          .suggestion({ value: 'blocked', icon: 'block' }),
+    })
+    .divider()
+    .suggestion(excludeSuggestion);
+
   dataLoading = true;
   displayedColumns: string[] = ['select', 'url', 'domain', 'port', 'ip', 'project', 'tags', 'menu'];
-  filterOptions: string[] = ['domain', 'host', 'port', 'project', 'tags', 'is'];
   public readonly noDataMessage = $localize`:No website found|No website was found:No website found`;
 
   selection = new SelectionModel<WebsiteWithPreview>(true, []);
@@ -202,6 +230,7 @@ export class ListWebsitesComponent {
     public dialog: MatDialog,
     private titleService: Title,
     private findingsService: FindingsService,
+    private autocompleteBuilder: AutocompleteBuilder,
     @Inject(TableFiltersSourceBase) public filtersSource: WebsiteFiltersSource
   ) {
     this.titleService.setTitle($localize`:Websites list page title|:Websites`);

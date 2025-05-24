@@ -47,13 +47,25 @@ import {
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
-import { SearchQueryParser } from '@red-kite/common/search-query';
+import { SearchQueryParser, SearchTerms } from '@red-kite/common/search-query';
 import * as moment from 'moment';
 import { Moment } from 'moment';
 import { NgxFileDropModule } from 'ngx-file-drop';
-import { Observable, debounceTime, distinctUntilChanged, filter, from, map, startWith, switchMap, tap } from 'rxjs';
+import {
+  BehaviorSubject,
+  Observable,
+  debounceTime,
+  distinctUntilChanged,
+  filter,
+  from,
+  map,
+  startWith,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { IdentifiedElement } from '../../types/identified-element.type';
-import { GrammarSuggester } from './search-query-suggester';
+import { SearchInputComponent } from '../search-input/search-input.component';
+import { Autocomplete } from './autocomplete';
 import { TableFiltersSourceBase } from './table-filters-source';
 
 @Component({
@@ -87,11 +99,11 @@ import { TableFiltersSourceBase } from './table-filters-source';
     FormsModule,
     MatDatepickerModule,
     MatTooltipModule,
+    SearchInputComponent,
   ],
 })
 export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implements OnInit, OnDestroy {
   private seachParser = new SearchQueryParser();
-  private grammarSuggester = new GrammarSuggester();
 
   @ContentChildren(MatHeaderRowDef) headerRowDefs!: QueryList<MatHeaderRowDef>;
   @ContentChildren(MatRowDef) rowDefs!: QueryList<MatRowDef<T>>;
@@ -131,6 +143,7 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
     if (date) this.dateRange.get('end')?.setValue(moment(date));
   }
 
+  @Input('autocomplete') queryAutocomplete: Autocomplete | undefined | null;
   @Input() filterEnabled: boolean = true;
   filters: string[] = [];
   fullTextSearchValue = '';
@@ -139,20 +152,13 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
   filteredFilterOptions$: Observable<string[] | null | undefined>;
   masterToggleState = false;
 
-  public searchQuery = '';
-  public searchQueryForm = this.fb.group({
-    query: this.fb.control(''),
-  });
-  public searchQuerySuggestions$ = this.searchQueryForm.valueChanges.pipe(
-    debounceTime(250),
-    switchMap((x) => this.grammarSuggester.suggest(x.query || ''))
-  );
+  public searchQuery$: BehaviorSubject<SearchTerms> = new BehaviorSubject([] as SearchTerms);
 
-  public fooTODO$ = this.searchQueryForm.valueChanges
+  public fooTODO$ = this.searchQuery$
     .pipe(
       debounceTime(250),
       switchMap(async (x) => {
-        return from(this.filterSource.setFilters([x.query || '']));
+        return from(this.filterSource.setFilters([this.seachParser.toQueryString(x)]));
       }),
       tap(() => this.resetPaging())
     )
@@ -180,7 +186,8 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
   private filterSourceSub = this.filterSource.filters$.subscribe(({ filters, dateRange, pagination }) => {
     this.filters = filters;
     this.fullTextSearchValue = filters.join(' ');
-    this.searchQueryForm.controls.query.setValue(filters.join(' '));
+    // TODO
+    // this.searchQueryForm.controls.query.setValue(filters.join(' '));
     this.filterForm.setValue(this.fullTextSearchValue);
 
     this.dateRange.setValue({

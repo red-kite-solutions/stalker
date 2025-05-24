@@ -1,5 +1,5 @@
 import { SelectionModel } from '@angular/cdk/collections';
-import { BreakpointObserver, BreakpointState, Breakpoints } from '@angular/cdk/layout';
+import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
 import { Component, Inject, TemplateRef } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -14,8 +14,16 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
+import {
+  AutocompleteBuilder,
+  excludeSuggestion,
+  hostSuggestion,
+  isSuggestion,
+  projectSuggestion,
+  tagSuggestion,
+} from '@red-kite/frontend/app/shared/widget/filtered-paginated-table/autocomplete';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, combineLatest, map, shareReplay, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, catchError, combineLatest, EMPTY, map, shareReplay, switchMap, tap } from 'rxjs';
 import { IpRangesService } from '../../../api/ip-ranges/ip-ranges.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { TagsService } from '../../../api/tags/tags.service';
@@ -26,7 +34,6 @@ import { HttpStatus } from '../../../shared/types/http-status.type';
 import { IpRange } from '../../../shared/types/ip-range/ip-range.interface';
 import { Page } from '../../../shared/types/page.type';
 import { ProjectSummary } from '../../../shared/types/project/project.summary';
-import { Tag } from '../../../shared/types/tag.type';
 import { ElementMenuItems } from '../../../shared/widget/dynamic-icons/menu-icon.component';
 import { FilteredPaginatedTableComponent } from '../../../shared/widget/filtered-paginated-table/filtered-paginated-table.component';
 import {
@@ -39,11 +46,7 @@ import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-
 import { BlockedPillTagComponent } from '../../../shared/widget/pill-tag/blocked-pill-tag.component';
 import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.component';
 import { PillTagComponent } from '../../../shared/widget/pill-tag/pill-tag.component';
-import {
-  getGlobalProjectFilter,
-  globalProjectFilter$,
-  hasGlobalProjectFilter,
-} from '../../../utils/global-project-filter';
+import { appendGlobalFiltersToQuery, globalProjectFilter$ } from '../../../utils/global-project-filter';
 import { IpRangesInteractionsService } from '../ip-ranges-interactions.service';
 
 @Component({
@@ -84,9 +87,17 @@ import { IpRangesInteractionsService } from '../ip-ranges-interactions.service';
   ],
 })
 export class ListIpRangesComponent {
+  public readonly autocomplete = this.autocompleteBuilder
+    .build('key')
+    .suggestion(hostSuggestion)
+    .suggestion(tagSuggestion)
+    .suggestion(projectSuggestion)
+    .suggestion(isSuggestion)
+    .divider()
+    .suggestion(excludeSuggestion);
+
   dataLoading = true;
   displayedColumns: string[] = ['select', 'cidr', 'hosts', 'project', 'tags', 'menu'];
-  filterOptions: string[] = ['ip', 'contains', 'project', 'tags', 'is'];
   public readonly noDataMessage = $localize`:No ip range found|No ip range was found:No ip range found`;
   public newIpRanges: Pick<IpRange, 'ip' | 'mask'>[] = [];
 
@@ -104,19 +115,22 @@ export class ListIpRangesComponent {
     this.refresh$,
     globalProjectFilter$,
   ]).pipe(
-    switchMap(([{ dateRange, filters, pagination }, tags]) => {
-      return this.ipRangesService.getPage(
-        pagination?.page || 0,
-        pagination?.pageSize || 25,
-        this.buildFilters(filters || [], tags),
-        dateRange ?? new DateRange<Date>(null, null)
-      );
-    }),
+    switchMap(([{ dateRange, filters, pagination }, tags]) =>
+      this.ipRangesService
+        .getPage(
+          pagination?.page || 0,
+          pagination?.pageSize || 25,
+          appendGlobalFiltersToQuery(filters[0]),
+          dateRange ?? new DateRange<Date>(null, null)
+        )
+        .pipe(catchError(() => EMPTY))
+    ),
     map((data: Page<IpRange>) => {
       this.count = data.totalRecords;
       this.dataLoading = false;
       return new MatTableDataSource<IpRange>(data.items);
-    })
+    }),
+    shareReplay(1)
   );
 
   projects: ProjectSummary[] = [];
@@ -150,76 +164,10 @@ export class ListIpRangesComponent {
     private tagsService: TagsService,
     public dialog: MatDialog,
     private titleService: Title,
+    private autocompleteBuilder: AutocompleteBuilder,
     @Inject(TableFiltersSourceBase) private filtersSource: TableFiltersSource
   ) {
     this.titleService.setTitle($localize`:IP ranges list page title|:IP Ranges`);
-  }
-
-  buildFilters(stringFilters: string[], tags: Tag[]): any {
-    const SEPARATOR = ':';
-    const NEGATING_CHAR = '-';
-    const filterObject: any = {};
-    const includedTags = [];
-    const contains = [];
-    const ips = [];
-    const projects = [];
-    let blocked: boolean | null = null;
-
-    for (const filter of stringFilters) {
-      if (filter.indexOf(SEPARATOR) === -1) continue;
-
-      const keyValuePair = filter.split(SEPARATOR);
-
-      if (keyValuePair.length !== 2) continue;
-
-      let key = keyValuePair[0].trim().toLowerCase();
-      const value = keyValuePair[1].trim().toLowerCase();
-      const negated = key.length > 0 && key[0] === NEGATING_CHAR;
-      if (negated) key = key.substring(1);
-
-      if (!key || !value) continue;
-
-      switch (key) {
-        case 'project':
-          const project = this.projects.find((c) => c.name.trim().toLowerCase() === value.trim().toLowerCase());
-          if (project) projects.push(project.id);
-          else
-            this.toastr.warning(
-              $localize`:Project does not exist|The given project name is not known to the application:Project name not recognized`
-            );
-          break;
-        case 'ip':
-          if (value) ips.push(value.trim().toLowerCase());
-          break;
-        case 'tags':
-          const tag = tags.find((t) => t.text.trim().toLowerCase() === value.trim().toLowerCase());
-          if (tag) includedTags.push(tag._id);
-          else
-            this.toastr.warning(
-              $localize`:Tag does not exist|The given tag is not known to the application:Tag not recognized`
-            );
-          break;
-        case 'is':
-          switch (value) {
-            case 'blocked':
-              blocked = !negated;
-              break;
-          }
-          break;
-        case 'contains':
-          if (value) contains.push(value.trim());
-          break;
-      }
-    }
-
-    if (hasGlobalProjectFilter()) projects.push(getGlobalProjectFilter()?.id);
-
-    if (includedTags?.length) filterObject['tags'] = includedTags;
-    if (ips?.length) filterObject['ips'] = ips;
-    if (contains?.length) filterObject['contains'] = contains;
-    if (projects?.length) filterObject['projects'] = projects;
-    if (blocked !== null) filterObject['blocked'] = blocked;
-    return filterObject;
   }
 
   openNewIpRangesDialog(templateRef: TemplateRef<any>) {
