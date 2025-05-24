@@ -41,7 +41,7 @@ export class DeleteDomainsDto {
 export class SubmitDomainsDto {
   @IsNotEmpty()
   @IsArray()
-  @IsFQDN({}, { each: true })
+  @IsFQDN({ allow_underscores: true }, { each: true })
   domains: string[];
 
   @IsMongoId()
