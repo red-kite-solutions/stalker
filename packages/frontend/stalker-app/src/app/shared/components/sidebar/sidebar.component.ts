@@ -10,19 +10,19 @@ interface Section {
   items: (BasicSectionItem | AggregateSectionItem | Observable<BasicSectionItem | AggregateSectionItem>)[];
 }
 
-interface BasicSectionItem {
+interface SectionItem {
   name: string;
   icon: string;
-  requiredScopes?: string[];
-  routerLink: string;
-  filled?: boolean;
   isVisible?: boolean;
+  requiredScopes?: string[];
 }
 
-interface AggregateSectionItem {
-  name: string;
-  icon: string;
-  isVisible?: boolean;
+interface BasicSectionItem extends SectionItem {
+  routerLink: string;
+  filled?: boolean;
+}
+
+interface AggregateSectionItem extends SectionItem {
   items: BasicSectionItem[];
 }
 
@@ -45,11 +45,12 @@ export class SidebarComponent {
           routerLink: '/',
           name: $localize`:Dashboard|Sidenav dashboard button:Dashboard`,
         },
-        this.tablesService.getTables().pipe(
+        this.tablesService.getTables().pipe<AggregateSectionItem>(
           map((tables) => ({
             icon: 'table',
             isVisible: !environment.production,
             name: $localize`:Tables|Tables button:Tables`,
+            requiredScopes: ['data:findings:read'],
             items: tables.map((v) => ({
               ...v,
               routerLink: `/tables/${v.id}`,
@@ -191,13 +192,15 @@ export class SidebarComponent {
    * @returns
    */
   private shouldDisplayAggregate(item: AggregateSectionItem) {
-    const allScopes = [];
+    if (!this.authService.userHasOneScopeOf(item.requiredScopes)) return false;
+
+    const allSubScopes = [];
     for (const agItem of item.items) {
-      if (agItem.requiredScopes) allScopes.push(...agItem.requiredScopes);
+      if (agItem.requiredScopes) allSubScopes.push(...agItem.requiredScopes);
       else return true; // If an item does not require any scopes, we want to display it
     }
 
-    return this.authService.userHasOneScopeOf(allScopes);
+    return this.authService.userHasOneScopeOf(allSubScopes);
   }
 
   /**
