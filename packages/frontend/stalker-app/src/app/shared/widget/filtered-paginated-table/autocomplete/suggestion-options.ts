@@ -33,7 +33,7 @@ export const projectSuggestion: SuggestionOptions = {
 export const isSuggestion: SuggestionOptions = {
   name: 'is',
   value: 'is:',
-  icon: 'dataset',
+  icon: 'toggle_on',
   children: (builder) => builder.build('value').suggestion({ value: 'blocked', icon: 'block' }),
 };
 

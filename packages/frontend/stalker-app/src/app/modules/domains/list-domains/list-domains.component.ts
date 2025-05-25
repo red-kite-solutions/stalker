@@ -91,8 +91,8 @@ export class ListDomainsComponent {
     .suggestion(domainSuggestion)
     .suggestion(hostSuggestion)
     .suggestion(tagSuggestion)
-    .suggestion(isSuggestion)
     .suggestion(projectSuggestion)
+    .suggestion(isSuggestion)
     .divider()
     .suggestion(excludeSuggestion);
   dataLoading = true;

@@ -211,7 +211,7 @@ export class SearchInputComponent implements OnDestroy {
       this.closeAutocompleteIfNeeded();
     }
 
-    const selectKeys = ['Enter', 'Tab'];
+    const selectKeys = ['Enter'];
     if (selectKeys.includes(event.key)) {
       if (!this.hasMenuFocus) {
         this.selectSuggestion(
