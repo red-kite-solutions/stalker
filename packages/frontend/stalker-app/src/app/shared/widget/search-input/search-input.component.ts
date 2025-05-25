@@ -25,7 +25,16 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SearchQueryParser } from '@red-kite/common/search-query';
 import { SearchHelper } from '@red-kite/frontend/app/utils/normalize-search-string';
-import { BehaviorSubject, combineLatest, distinctUntilChanged, map, shareReplay, switchMap, tap } from 'rxjs';
+import {
+  BehaviorSubject,
+  combineLatest,
+  distinctUntilChanged,
+  firstValueFrom,
+  map,
+  shareReplay,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { Autocomplete, Suggestion } from '../filtered-paginated-table/autocomplete/autocomplete';
 
 @Component({
@@ -183,7 +192,7 @@ export class SearchInputComponent implements OnDestroy {
     setTimeout(() => this.closeAutocompleteIfNeeded(), 100);
   }
 
-  onKeyDown(event: KeyboardEvent) {
+  async onKeyDown(event: KeyboardEvent) {
     const focusKeys = ['ArrowDown', 'Tab'];
 
     if (focusKeys.includes(event.key)) {
@@ -200,6 +209,15 @@ export class SearchInputComponent implements OnDestroy {
       this.hasMenuFocus = false;
       this.hasInputFocus = false;
       this.closeAutocompleteIfNeeded();
+    }
+
+    const selectKeys = ['Enter', 'Tab'];
+    if (selectKeys.includes(event.key)) {
+      if (!this.hasMenuFocus) {
+        this.selectSuggestion(
+          (await firstValueFrom(this.suggestions$)).find((x) => x.type === 'suggestion') as Suggestion
+        );
+      }
     }
   }
 
