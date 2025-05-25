@@ -26,7 +26,7 @@ export const tagSuggestion: SuggestionOptions = {
 export const projectSuggestion: SuggestionOptions = {
   name: 'project',
   value: 'project:',
-  icon: 'folder',
+  icon: 'folder_open',
   children: (builder) => builder.inject(ProjectsAutocomplete),
 };
 
