@@ -25,7 +25,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SearchQueryParser } from '@red-kite/common/search-query';
 import { SearchHelper } from '@red-kite/frontend/app/utils/normalize-search-string';
-import { BehaviorSubject, combineLatest, filter, map, shareReplay, startWith, switchMap } from 'rxjs';
+import { BehaviorSubject, combineLatest, distinctUntilChanged, map, shareReplay, switchMap, tap } from 'rxjs';
 import { Autocomplete, Suggestion } from '../filtered-paginated-table/autocomplete/autocomplete';
 
 @Component({
@@ -61,12 +61,17 @@ export class SearchInputComponent implements OnDestroy {
   public hasInputFocus = false;
   public hasMenuFocus = false;
   private overlayRef!: OverlayRef;
+
+  private _query: string = '';
   public queryForm = this.fb.group({
-    query: this.fb.control(''),
+    query: this.fb.control(this._query),
   });
 
-  public parsedQuery$ = this.queryForm.controls.query.valueChanges.pipe(
-    startWith(this.queryForm.value.query),
+  public rawQuery$ = this.queryForm.controls.query.valueChanges.pipe(distinctUntilChanged());
+
+  public parsedQuery$ = this.rawQuery$.pipe(
+    // startWith(this.queryForm.value.query),
+    tap((x) => console.log(x)),
     map((x) => {
       try {
         return this.parser.parse(x || '');
@@ -79,7 +84,17 @@ export class SearchInputComponent implements OnDestroy {
     shareReplay(1)
   );
 
-  @Output('queryChange') queryChange$ = this.parsedQuery$.pipe(filter((x) => x.every((x) => !x.incomplete)));
+  private parsedQuerySub = this.parsedQuery$.subscribe();
+
+  @Input() set query(value: string) {
+    console.log('setting query: ' + value);
+    this._query = value;
+    this.queryForm.controls.query.setValue(this.parser.toQueryString(value), { emitEvent: true });
+  }
+
+  @Output('queryChange') queryChange$ = this.rawQuery$.pipe(
+    distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b))
+  );
 
   private refreshSuggestions$ = new BehaviorSubject<void>(undefined);
   public suggestions$ = combineLatest([this.parsedQuery$, this.refreshSuggestions$]).pipe(
@@ -190,5 +205,6 @@ export class SearchInputComponent implements OnDestroy {
 
   ngOnDestroy() {
     this.overlayRef?.dispose();
+    this.parsedQuerySub?.unsubscribe();
   }
 }

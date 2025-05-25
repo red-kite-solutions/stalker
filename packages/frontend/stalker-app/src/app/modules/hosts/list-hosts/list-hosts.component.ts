@@ -19,6 +19,7 @@ import {
   domainSuggestion,
   excludeSuggestion,
   hostSuggestion,
+  isSuggestion,
   projectSuggestion,
   tagSuggestion,
 } from '@red-kite/frontend/app/shared/widget/filtered-paginated-table/autocomplete';
@@ -96,16 +97,7 @@ export class ListHostsComponent {
     .suggestion(domainSuggestion)
     .suggestion(tagSuggestion)
     .suggestion(projectSuggestion)
-    .suggestion({
-      name: 'is',
-      value: 'is:',
-      icon: 'dataset',
-      children: (builder) =>
-        builder
-          .build('value')
-          .suggestion({ value: 'blocked', icon: 'block' })
-          .suggestion({ value: 'merged', icon: 'merge' }),
-    })
+    .suggestion(isSuggestion)
     .divider()
     .suggestion(excludeSuggestion);
 

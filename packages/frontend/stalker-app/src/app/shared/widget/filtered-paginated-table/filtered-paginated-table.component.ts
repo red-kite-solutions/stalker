@@ -12,14 +12,7 @@ import {
   QueryList,
   ViewChild,
 } from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-  UntypedFormControl,
-} from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, UntypedFormControl } from '@angular/forms';
 import { MatAutocomplete, MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -47,7 +40,7 @@ import {
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
-import { SearchQueryParser, SearchTerms } from '@red-kite/common/search-query';
+import { SearchQueryParser } from '@red-kite/common/search-query';
 import * as moment from 'moment';
 import { Moment } from 'moment';
 import { NgxFileDropModule } from 'ngx-file-drop';
@@ -119,7 +112,7 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
 
   @Input() noDataMessage: string =
     $localize`:No data|No data is matching the filter, the array is empty:No matching data.`;
-  @Input() filterType: 'tokens' | 'fulltext' | 'grammar' = 'tokens';
+  @Input() filterType: 'tokens' | 'fulltext' | 'kiteQl' = 'tokens';
   @Input() columns!: string[] | null;
   @Input() filterOptions!: string[] | null;
   @Input() negatableFilterOptions = this.filterOptions;
@@ -143,7 +136,10 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
     if (date) this.dateRange.get('end')?.setValue(moment(date));
   }
 
+  // KiteQl search
   @Input('autocomplete') queryAutocomplete: Autocomplete | undefined | null;
+  kiteQlSearch: string = '';
+
   @Input() filterEnabled: boolean = true;
   filters: string[] = [];
   fullTextSearchValue = '';
@@ -152,13 +148,13 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
   filteredFilterOptions$: Observable<string[] | null | undefined>;
   masterToggleState = false;
 
-  public searchQuery$: BehaviorSubject<SearchTerms> = new BehaviorSubject([] as SearchTerms);
+  public kiteQlQueryChanges$: BehaviorSubject<string> = new BehaviorSubject<string>('');
 
-  public fooTODO$ = this.searchQuery$
+  public kiteQlQueryChangesSub = this.kiteQlQueryChanges$
     .pipe(
       debounceTime(250),
       switchMap(async (x) => {
-        return from(this.filterSource.setFilters([this.seachParser.toQueryString(x)]));
+        return from(this.filterSource.setFilters([x]));
       }),
       tap(() => this.resetPaging())
     )
@@ -188,6 +184,7 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
     this.fullTextSearchValue = filters.join(' ');
     // TODO
     // this.searchQueryForm.controls.query.setValue(filters.join(' '));
+    this.kiteQlSearch = filters[0];
     this.filterForm.setValue(this.fullTextSearchValue);
 
     this.dateRange.setValue({
@@ -204,10 +201,7 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
     }
   });
 
-  constructor(
-    @Inject(TableFiltersSourceBase) private filterSource: TableFiltersSourceBase<unknown>,
-    private fb: FormBuilder
-  ) {
+  constructor(@Inject(TableFiltersSourceBase) private filterSource: TableFiltersSourceBase<unknown>) {
     this.filteredFilterOptions$ = this.filterForm.valueChanges.pipe(
       startWith(null),
       map((column: string) => this.autocompleteFilter(column))
@@ -249,7 +243,8 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
   }
 
   ngOnDestroy(): void {
-    this.filterSourceSub.unsubscribe();
+    this.filterSourceSub?.unsubscribe();
+    this.kiteQlQueryChangesSub?.unsubscribe();
   }
 
   async removeFilter(filter: string) {
@@ -314,22 +309,6 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
     this.filters = value;
     await this.filterSource.setFilters(this.filters.map((x) => x));
     this.resetPaging();
-  }
-
-  public grammarSuggestionSelected(event: MatAutocompleteSelectedEvent, inputElement: HTMLInputElement): void {
-    const selectedValue = event.option.value.trim();
-
-    // // // Split existing input into parts, trim whitespace, and add the new value if it's not already included.
-    // // const currentValues = this.grammarSearchValue.split(',').map((v) => v.trim());
-    // // if (!currentValues.includes(selectedValue)) {
-    // //   currentValues.push(selectedValue);
-    // // }
-
-    // // // Update the input with the joined values.
-    // // this.grammarSearchValue = currentValues.join(', ');
-
-    // // // Clear the input field but leave the appended values in the model.
-    // // inputElement.value = '';
   }
 
   private refocusMatChipInput() {

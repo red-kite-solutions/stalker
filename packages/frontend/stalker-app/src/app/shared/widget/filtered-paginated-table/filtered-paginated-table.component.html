@@ -9,8 +9,8 @@
         @case ('fulltext') {
           <ng-container *ngTemplateOutlet="fulltextSearch"> </ng-container>
         }
-        @case ('grammar') {
-          <ng-container *ngTemplateOutlet="grammarSearch"> </ng-container>
+        @case ('kiteQl') {
+          <ng-container *ngTemplateOutlet="kiteQl"> </ng-container>
         }
       }
     }
@@ -97,10 +97,11 @@
   </mat-form-field>
 </ng-template>
 
-<ng-template #grammarSearch>
+<ng-template #kiteQl>
   <rks-search-input
     class="tw-w-full"
-    (queryChange)="searchQuery$.next($event)"
+    [(query)]="kiteQlSearch"
+    (queryChange)="kiteQlQueryChanges$.next($event || '')"
     [autocomplete]="queryAutocomplete"
   ></rks-search-input>
 </ng-template>

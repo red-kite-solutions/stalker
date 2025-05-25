@@ -17,7 +17,6 @@
       autocomplete="off"
     />
   </mat-form-field>
-
   <div class="rich-query">
     @for (part of parsedQuery$ | async; track $index; let last = $last) {
       <span [class.invalid]="part.hasColon && part.type === 'unknown'">
