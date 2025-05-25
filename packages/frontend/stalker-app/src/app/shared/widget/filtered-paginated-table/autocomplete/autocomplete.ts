@@ -44,7 +44,7 @@ export abstract class Autocomplete {
     }
 
     const match = matches[0] as Suggestion;
-    if (match.value !== target && match.name !== target) {
+    if (match.value !== target) {
       return matches;
     }
 
@@ -75,7 +75,8 @@ export abstract class Autocomplete {
   private getTarget(term: SearchTerm) {
     if (!term) return '';
 
-    const target = this.target === 'key' ? term.originalType : term.value;
+    let target = this.target === 'key' ? term.originalType : term.value;
+    if (this.target === 'key' && term.hasColon) target += ':';
     return target || '';
   }
 }
