@@ -25,6 +25,7 @@
 
 input {
   color: rgba(0, 0, 0, 0) !important;
+  caret-color: rgb(93, 173, 254) !important;
   &::selection {
     color: rgba(0, 0, 0, 0) !important;
     background-color: #3297fd;
