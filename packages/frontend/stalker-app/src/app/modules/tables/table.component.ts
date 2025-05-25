@@ -60,7 +60,7 @@ import { resourcesTableConfig } from './resources-config';
     {
       provide: TABLE_FILTERS_SOURCE_INITAL_FILTERS,
       useValue: {
-        filters: ['-is: blocked'],
+        filters: ['-is:blocked '],
         pagination: { page: 0, pageSize: 25 },
       } as TableFilters,
     },

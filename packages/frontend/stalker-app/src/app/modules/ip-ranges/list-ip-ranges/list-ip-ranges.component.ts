@@ -80,7 +80,7 @@ import { IpRangesInteractionsService } from '../ip-ranges-interactions.service';
     {
       provide: TABLE_FILTERS_SOURCE_INITAL_FILTERS,
       useValue: {
-        filters: ['-is: blocked'],
+        filters: ['-is:blocked '],
         pagination: { page: 0, pageSize: 25 },
       } as TableFilters,
     },

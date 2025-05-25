@@ -136,7 +136,7 @@ class WebsiteFiltersSource extends TableFiltersSourceBase<WebsiteFilters> {
     {
       provide: TABLE_FILTERS_SOURCE_INITAL_FILTERS,
       useValue: {
-        filters: ['-is: blocked'],
+        filters: ['-is:blocked -is:merged '],
         pagination: { page: 0, pageSize: 25 },
         numberOfColumns: 3,
         viewStyle: 'grid',
