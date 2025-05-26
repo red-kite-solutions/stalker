@@ -1,4 +1,4 @@
-<form [formGroup]="queryForm" class="tw-w-full tw-relative">
+<form [formGroup]="queryForm" class="tw-w-full tw-relative" (keydown)="onKeyDown($event)">
   <mat-form-field class="tw-w-full" appearance="fill" [floatLabel]="'always'">
     <mat-label i18n="Search filter|Filter your search to get more precise results">Search filter</mat-label>
 
@@ -13,10 +13,10 @@
       #grammarInput
       (focus)="onInputFocus()"
       (blur)="onInputBlur()"
-      (keydown)="onKeyDown($event)"
       autocomplete="off"
     />
   </mat-form-field>
+
   <div class="rich-query">
     @for (part of parsedQuery$ | async; track $index; let last = $last) {
       <span [class.invalid]="part.hasColon && part.type === 'unknown'">
@@ -40,7 +40,7 @@
   <ng-template #autocompleteTemplate>
     @if ((suggestions$ | async)?.length) {
       <mat-card cdkMenu class="autocomplete mat-elevation-z6">
-        @for (suggestion of suggestions$ | async; track $index) {
+        @for (suggestion of suggestions$ | async; track index; let index = $index) {
           @switch (suggestion.type) {
             @case ('divider') {
               <mat-divider></mat-divider>
@@ -50,6 +50,7 @@
                 mat-button
                 cdkMenuItem
                 class="suggestion"
+                [class.fakeFocused]="!hasMenuFocus && index === 0"
                 (focus)="onSuggestionFocus()"
                 (blur)="onSuggestioBlur()"
                 (click)="selectSuggestion(suggestion)"

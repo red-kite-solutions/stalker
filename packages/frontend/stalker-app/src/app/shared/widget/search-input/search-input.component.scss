@@ -36,6 +36,10 @@ input {
   min-height: 32px;
   max-height: 32px;
   justify-content: flex-start;
+
+  &.fakeFocused {
+    background-color: var(--rk-button-fake-focus-color);
+  }
 }
 
 .autocomplete {

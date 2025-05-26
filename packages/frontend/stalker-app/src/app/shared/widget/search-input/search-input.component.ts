@@ -69,6 +69,7 @@ export class SearchInputComponent implements OnDestroy {
 
   public hasInputFocus = false;
   public hasMenuFocus = false;
+  public focusedItemIndex = 0;
   private overlayRef!: OverlayRef;
 
   private _query: string = '';
@@ -166,6 +167,8 @@ export class SearchInputComponent implements OnDestroy {
   closeAutocompleteIfNeeded() {
     if (this.hasInputFocus || this.hasMenuFocus) return;
 
+    this.focusedItemIndex = 0;
+
     if (this.overlayRef.hasAttached()) {
       this.overlayRef.detach();
     }
@@ -193,15 +196,23 @@ export class SearchInputComponent implements OnDestroy {
   }
 
   async onKeyDown(event: KeyboardEvent) {
-    const focusKeys = ['ArrowDown', 'Tab'];
+    const focusKeys = ['ArrowDown', 'ArrowUp'];
 
     if (focusKeys.includes(event.key)) {
-      this.hasMenuFocus = true;
-      const items = this.menuItems?.toArray();
-      if (items?.length) {
-        event.preventDefault();
-        (items[0]._elementRef.nativeElement as HTMLElement).focus();
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      const items = this.menuItems?.toArray() || [];
+      if (!this.hasMenuFocus) {
+        this.hasMenuFocus = true;
+        this.focusedItemIndex = items.length;
       }
+
+      if (event.key === 'ArrowDown') this.focusedItemIndex++;
+      else if (event.key === 'ArrowUp')
+        this.focusedItemIndex = (this.focusedItemIndex + items.length - 1) % items.length;
+
+      items[this.focusedItemIndex % items.length]?.focus();
     }
 
     const blurKeys = ['Escape'];
@@ -211,9 +222,10 @@ export class SearchInputComponent implements OnDestroy {
       this.closeAutocompleteIfNeeded();
     }
 
-    const selectKeys = ['Enter'];
+    const selectKeys = ['Enter', 'Tab'];
     if (selectKeys.includes(event.key)) {
       if (!this.hasMenuFocus) {
+        event.preventDefault();
         this.selectSuggestion(
           (await firstValueFrom(this.suggestions$)).find((x) => x.type === 'suggestion') as Suggestion
         );
