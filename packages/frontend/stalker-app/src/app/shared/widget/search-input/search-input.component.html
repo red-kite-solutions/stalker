@@ -56,7 +56,9 @@
                 (click)="selectSuggestion(suggestion)"
                 (keydown)="onKeyDown($event)"
               >
-                <mat-icon [class]="'material-symbols-outlined-filled'">{{ suggestion.icon }}</mat-icon>
+                @if (suggestion.icon) {
+                  <mat-icon [class]="'material-symbols-outlined-filled'">{{ suggestion.icon }}</mat-icon>
+                }
                 <span>{{ suggestion.name || suggestion.value }}</span>
               </button>
             }

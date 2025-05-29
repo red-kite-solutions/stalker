@@ -40,6 +40,12 @@ input {
   &.fakeFocused {
     background-color: var(--rk-button-fake-focus-color);
   }
+
+  mat-icon {
+    width: 14px;
+    height: 14px;
+    font-size: 14px;
+  }
 }
 
 .autocomplete {

@@ -18,7 +18,11 @@ import {
   excludeSuggestion,
   hostSuggestion,
   isSuggestion,
+  portProductSuggestion,
+  portProtocolSuggestion,
+  portServiceSuggestion,
   portSuggestion,
+  portVersionSuggestion,
   projectSuggestion,
   tagSuggestion,
 } from '@red-kite/frontend/app/shared/widget/filtered-paginated-table/autocomplete';
@@ -85,8 +89,13 @@ import { PortsInteractionsService } from '../ports-interactions.service';
 export class ListPortsComponent {
   public readonly autocomplete = this.autocompleteBuilder
     .build('key')
-    .suggestion(hostSuggestion)
     .suggestion(portSuggestion)
+    .suggestion(portProtocolSuggestion)
+    .suggestion(portServiceSuggestion)
+    .suggestion(portVersionSuggestion)
+    .suggestion(portProductSuggestion)
+    .divider()
+    .suggestion(hostSuggestion)
     .suggestion(tagSuggestion)
     .suggestion(projectSuggestion)
     .suggestion(isSuggestion)

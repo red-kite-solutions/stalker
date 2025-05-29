@@ -4,7 +4,7 @@ import { ProjectsAutocomplete } from './projects-autocomplete';
 import { TagsAutocomplete } from './tags-autocomplete';
 
 export interface SuggestionOptions {
-  icon: string;
+  icon?: string;
   value: string;
   name?: string;
   children?: '_self' | ((builder: AutocompleteBuilder) => Autocomplete);
@@ -15,6 +15,24 @@ export const domainSuggestion: SuggestionOptions = { name: 'domain', value: 'dom
 export const hostSuggestion: SuggestionOptions = { name: 'host', value: 'host:', icon: 'storage' };
 
 export const portSuggestion: SuggestionOptions = { name: 'port', value: 'port:', icon: 'fingerprint' };
+
+export const portProtocolSuggestion: SuggestionOptions = {
+  name: 'port.protocol',
+  value: 'port.protocol:',
+  icon: 'handshake',
+  children: (builder) =>
+    builder
+      .build('value')
+      .suggestion({ name: 'tcp', value: 'tcp', icon: 'link' })
+      .suggestion({ name: 'udp', value: 'udp', icon: 'data_object' }),
+};
+export const portServiceSuggestion: SuggestionOptions = { name: 'port.service', value: 'port.service:', icon: 'lan' };
+export const portVersionSuggestion: SuggestionOptions = { name: 'port.version', value: 'port.version:', icon: 'pin' };
+export const portProductSuggestion: SuggestionOptions = {
+  name: 'port.product',
+  value: 'port.product:',
+  icon: 'developer_board',
+};
 
 export const tagSuggestion: SuggestionOptions = {
   name: 'tag',
