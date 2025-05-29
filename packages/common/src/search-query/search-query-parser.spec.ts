@@ -1,9 +1,5 @@
 import { SearchQueryParser } from './search-query-parser';
-import {
-  SearchTerm,
-  SearchTerms,
-  TermTypes as TermType,
-} from './search-query-parser.types';
+import { SearchTerm, SearchTerms } from './search-query-parser.types';
 
 interface HappyTestCase {
   input: string;
@@ -17,14 +13,31 @@ describe('Search Query Parser', () => {
     {
       input: 'domain: "I am confusing: I have spaces and colons"',
       expected: [
-        term('domain.name', 'I am confusing: I have spaces and colons'),
+        term({
+          type: 'domain.name',
+          originalType: 'domain',
+          value: 'I am confusing: I have spaces and colons',
+          quoteAfter: true,
+          quoteBefore: true,
+        }),
       ],
     },
     {
       input: 'domain: http://a1b2.ca -is: blocked',
       expected: [
-        term('domain.name', 'http://a1b2.ca'),
-        notTerm('is', 'blocked'),
+        term({
+          type: 'domain.name',
+          originalType: 'domain',
+          value: 'http://a1b2.ca',
+          spacesAfterValue: 1,
+        }),
+
+        term({
+          not: true,
+          type: 'is',
+          originalType: 'is',
+          value: 'blocked',
+        }),
       ],
     },
 
@@ -32,47 +45,56 @@ describe('Search Query Parser', () => {
     {
       input: 'dom',
       expected: [
-        {
-          not: false,
+        term({
           incomplete: true,
-          key: 'dom',
           value: null,
-          type: null,
-        },
+          type: 'unknown',
+          originalType: 'dom',
+          hasColon: false,
+          spacesBeforeValue: 0,
+        }),
       ],
     },
     {
       input: '-dom',
       expected: [
-        {
-          incomplete: true,
+        term({
           not: true,
-          key: 'dom',
+          incomplete: true,
           value: null,
-          type: null,
-        },
+          type: 'unknown',
+          originalType: 'dom',
+          hasColon: false,
+          spacesBeforeValue: 0,
+        }),
       ],
     },
     {
       input: 'domain',
       expected: [
-        {
+        term({
           not: false,
           incomplete: true,
           type: 'domain.name',
+          originalType: 'domain',
+          spacesBeforeValue: 0,
           value: null,
-        },
+          hasColon: false,
+        }),
       ],
     },
     {
       input: '-domain',
       expected: [
-        {
-          incomplete: true,
+        term({
           not: true,
+          incomplete: true,
           type: 'domain.name',
+          originalType: 'domain',
+          spacesBeforeValue: 0,
           value: null,
-        },
+          hasColon: false,
+        }),
       ],
     },
   ];
@@ -81,32 +103,40 @@ describe('Search Query Parser', () => {
     {
       input: 'is',
       expected: [
-        {
+        term({
           not: false,
           incomplete: true,
           type: 'is',
+          originalType: 'is',
           value: null,
-        },
+          hasColon: false,
+          spacesBeforeValue: 0,
+        }),
       ],
     },
     {
       input: '-is',
       expected: [
-        {
+        term({
           incomplete: true,
           not: true,
           type: 'is',
+          originalType: 'is',
           value: null,
-        },
+          hasColon: false,
+          spacesBeforeValue: 0,
+        }),
       ],
     },
     {
       input: '-is: blocked',
-      expected: [notTerm('is', 'blocked')],
+      expected: [
+        term({ not: true, type: 'is', originalType: 'is', value: 'blocked' }),
+      ],
     },
     {
       input: 'is: blocked',
-      expected: [term('is', 'blocked')],
+      expected: [term({ type: 'is', originalType: 'is', value: 'blocked' })],
     },
   ];
 
@@ -114,48 +144,89 @@ describe('Search Query Parser', () => {
     {
       input: 'tag.name',
       expected: [
-        {
-          not: false,
+        term({
           incomplete: true,
           type: 'tag.name',
+          originalType: 'tag.name',
+          hasColon: false,
+          spacesBeforeValue: 0,
           value: null,
-        },
+        }),
       ],
     },
     {
       input: '-tag.name',
       expected: [
-        {
-          incomplete: true,
+        term({
           not: true,
+          incomplete: true,
           type: 'tag.name',
+          originalType: 'tag.name',
+          hasColon: false,
+          spacesBeforeValue: 0,
           value: null,
-        },
+        }),
       ],
     },
     {
       input: 'tag: my-tag',
-      expected: [term('tag.name', 'my-tag')],
+      expected: [
+        term({ type: 'tag.name', originalType: 'tag', value: 'my-tag' }),
+      ],
     },
     {
       input: '-tag: my-tag',
-      expected: [notTerm('tag.name', 'my-tag')],
+      expected: [
+        term({
+          not: true,
+          type: 'tag.name',
+          originalType: 'tag',
+          value: 'my-tag',
+        }),
+      ],
     },
     {
       input: 'tag.name: my-tag',
-      expected: [term('tag.name', 'my-tag')],
+      expected: [
+        term({
+          type: 'tag.name',
+          originalType: 'tag.name',
+          value: 'my-tag',
+        }),
+      ],
     },
     {
       input: '-tag.name: my-tag',
-      expected: [notTerm('tag.name', 'my-tag')],
+      expected: [
+        term({
+          not: true,
+          type: 'tag.name',
+          originalType: 'tag.name',
+          value: 'my-tag',
+        }),
+      ],
     },
     {
       input: 'tag.id: my-id',
-      expected: [term('tag.id', 'my-id')],
+      expected: [
+        term({
+          not: false,
+          type: 'tag.id',
+          originalType: 'tag.id',
+          value: 'my-id',
+        }),
+      ],
     },
     {
       input: '-tag.id: my-id',
-      expected: [notTerm('tag.id', 'my-id')],
+      expected: [
+        term({
+          not: true,
+          type: 'tag.id',
+          originalType: 'tag.id',
+          value: 'my-id',
+        }),
+      ],
     },
   ];
 
@@ -163,48 +234,95 @@ describe('Search Query Parser', () => {
     {
       input: 'domain.name',
       expected: [
-        {
+        term({
           not: false,
           incomplete: true,
           type: 'domain.name',
+          originalType: 'domain.name',
+          spacesBeforeValue: 0,
+          hasColon: false,
           value: null,
-        },
+        }),
       ],
     },
     {
       input: '-domain.name',
       expected: [
-        {
+        term({
           incomplete: true,
           not: true,
           type: 'domain.name',
+          originalType: 'domain.name',
+          hasColon: false,
+          spacesBeforeValue: 0,
           value: null,
-        },
+        }),
       ],
     },
     {
       input: 'domain: example.org',
-      expected: [term('domain.name', 'example.org')],
+      expected: [
+        term({
+          not: false,
+          type: 'domain.name',
+          originalType: 'domain',
+          value: 'example.org',
+        }),
+      ],
     },
     {
       input: '-domain: example.org',
-      expected: [notTerm('domain.name', 'example.org')],
+      expected: [
+        term({
+          not: true,
+          type: 'domain.name',
+          originalType: 'domain',
+          value: 'example.org',
+        }),
+      ],
     },
     {
       input: 'domain.name: example.org',
-      expected: [term('domain.name', 'example.org')],
+      expected: [
+        term({
+          not: false,
+          type: 'domain.name',
+          originalType: 'domain.name',
+          value: 'example.org',
+        }),
+      ],
     },
     {
       input: '-domain.name: example.org',
-      expected: [notTerm('domain.name', 'example.org')],
+      expected: [
+        term({
+          not: true,
+          type: 'domain.name',
+          originalType: 'domain.name',
+          value: 'example.org',
+        }),
+      ],
     },
     {
       input: 'domain.id: my-id',
-      expected: [term('domain.id', 'my-id')],
+      expected: [
+        term({
+          type: 'domain.id',
+          originalType: 'domain.id',
+          value: 'my-id',
+        }),
+      ],
     },
     {
       input: '-domain.id: my-id',
-      expected: [notTerm('domain.id', 'my-id')],
+      expected: [
+        term({
+          not: true,
+          type: 'domain.id',
+          originalType: 'domain.id',
+          value: 'my-id',
+        }),
+      ],
     },
   ];
 
@@ -212,34 +330,43 @@ describe('Search Query Parser', () => {
     {
       input: 'host.id',
       expected: [
-        {
+        term({
           not: false,
           incomplete: true,
           type: 'host.id',
+          originalType: 'host.id',
+          hasColon: false,
+          spacesBeforeValue: 0,
           value: null,
-        },
+        }),
       ],
     },
     {
       input: 'host',
       expected: [
-        {
+        term({
           not: false,
           incomplete: true,
           type: 'host.ip',
+          originalType: 'host',
+          hasColon: false,
+          spacesBeforeValue: 0,
           value: null,
-        },
+        }),
       ],
     },
     {
       input: '-host',
       expected: [
-        {
+        term({
           incomplete: true,
           not: true,
           type: 'host.ip',
+          originalType: 'host',
+          hasColon: false,
+          spacesBeforeValue: 0,
           value: null,
-        },
+        }),
       ],
     },
   ];
@@ -248,23 +375,29 @@ describe('Search Query Parser', () => {
     {
       input: 'port',
       expected: [
-        {
+        term({
           not: false,
           incomplete: true,
           type: 'port.number',
+          originalType: 'port',
+          hasColon: false,
+          spacesBeforeValue: 0,
           value: null,
-        },
+        }),
       ],
     },
     {
       input: '-port.number',
       expected: [
-        {
+        term({
           incomplete: true,
           not: true,
           type: 'port.number',
+          originalType: 'port.number',
+          hasColon: false,
+          spacesBeforeValue: 0,
           value: null,
-        },
+        }),
       ],
     },
   ];
@@ -273,85 +406,96 @@ describe('Search Query Parser', () => {
     {
       input: 'finding',
       expected: [
-        {
+        term({
           not: false,
           incomplete: true,
           type: 'finding',
+          originalType: 'finding.',
+          hasColon: false,
+          spacesBeforeValue: 0,
           key: {
             findingKey: '',
           },
           value: null,
-        },
+        }),
       ],
     },
     {
       input: 'finding.',
       expected: [
-        {
+        term({
           not: false,
           incomplete: true,
           type: 'finding',
+          originalType: 'finding.',
+          spacesBeforeValue: 0,
+          hasColon: false,
           key: {
             findingKey: '',
           },
           value: null,
-        },
+        }),
       ],
     },
     {
       input: 'finding.foo.',
       expected: [
-        {
+        term({
           not: false,
           incomplete: true,
           type: 'findingField',
+          originalType: 'finding.foo.',
+          hasColon: false,
+          spacesBeforeValue: 0,
           key: {
             findingKey: 'foo',
             fieldKey: '',
           },
           value: null,
-        },
+        }),
       ],
     },
     {
       input: 'finding.foo.bar: 123',
       expected: [
-        {
+        term({
           not: false,
           type: 'findingField',
+          originalType: 'finding.foo.bar',
           key: {
             findingKey: 'foo',
             fieldKey: 'bar',
           },
           value: '123',
-        },
+        }),
       ],
     },
     {
       input: '-finding.foo.bar: 123',
       expected: [
-        {
+        term({
           not: true,
           type: 'findingField',
+          originalType: 'finding.foo.bar',
           key: {
             findingKey: 'foo',
             fieldKey: 'bar',
           },
           value: '123',
-        },
+        }),
       ],
     },
     {
       input: 'finding.foo: exists',
       expected: [
-        {
-          not: false,
+        term({
           type: 'finding',
+          originalType: 'finding.foo',
           key: {
             findingKey: 'foo',
           },
           value: 'exists',
-        },
+        }),
       ],
     },
   ];
@@ -374,18 +518,20 @@ describe('Search Query Parser', () => {
   });
 });
 
-function term(type: TermType, value: string): SearchTerm {
+function term(overrides: SearchTerm): SearchTerm {
   return {
     not: false,
-    type,
-    value,
-  };
-}
-
-function notTerm(type: TermType, value: string): SearchTerm {
-  return {
-    not: true,
-    type,
-    value,
+    type: undefined,
+    value: undefined,
+    spacesAfterKey: 0,
+    spacesAfterValue: 0,
+    spacesBeforeKey: 0,
+    spacesBeforeValue: 1,
+    originalType: undefined,
+    incomplete: false,
+    hasColon: true,
+    quoteBefore: false,
+    quoteAfter: false,
+    ...overrides,
   };
 }

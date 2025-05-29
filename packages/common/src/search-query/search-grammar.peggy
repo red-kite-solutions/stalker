@@ -6,7 +6,7 @@ term
   = incomplete_not_term
   / finding_field_term
   / finding_term
-  / ws_efore_key:ws? not:not? key:(key) ws_after_key:ws? colon:":"? ws_before_value:ws? val:value ws_after_value:ws? {
+  / ws_before_key:ws? not:not? key:(key) ws_after_key:ws? colon:":"? ws_before_value:ws? val:value ws_after_value:ws? {
       const incomplete = !colon || val.incomplete;
       return {
         not: not ?? false,
@@ -230,10 +230,10 @@ port
   = "port.number" { return { original: "port.number", resolved: "port.number" }; }
   / "port.id" { return { original: "port.id", resolved: "port.id" }; }
   / "port.protocol" { return { original: "port.protocol", resolved: "port.protocol" }; }
-  / "port" { return { original: "port", resolved: "port.number" }; }
   / "port.service" { return { original: "port.service", resolved: "port.service" }; }
   / "port.product" { return { original: "port.product", resolved: "port.product" }; }
   / "port.version" { return { original: "port.version", resolved: "port.version" }; }
+  / "port" { return { original: "port", resolved: "port.number" }; }
 
 ipRange
   = "ipRange.id" { return { original: "ipRange.id", resolved: "ipRange.id" }; }

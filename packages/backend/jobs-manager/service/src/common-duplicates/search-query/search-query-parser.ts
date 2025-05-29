@@ -2,6 +2,7 @@ import * as searchParser from './generated/search-parser';
 import {
   isFindingFieldTerm,
   isFindingTerm,
+  SearchTerm,
   SearchTerms,
 } from './search-query-parser.types';
 
@@ -25,23 +26,34 @@ export class SearchQueryParser {
   }
 
   public toQueryString(query: string | SearchTerms) {
+    if (!query) return '';
     if (typeof query === 'string') return query;
 
     return query
       .filter((x) => !x.incomplete && x.value != null)
-      .map((x) => {
-        if (isFindingTerm(x)) {
-          return `${x.not ? '-' : ''}finding.${x.key.findingKey}: ${x.value}`;
-        }
-
-        if (isFindingFieldTerm(x)) {
-          return `${x.not ? '-' : ''}finding.${x.key.findingKey}.${
-            x.key.fieldKey
-          }: ${x.value}`;
-        }
-
-        return `${x.not ? '-' : ''}${x.type}: ${x.value}`;
-      })
+      .map((x) => this.toTermString(x))
       .join(' ');
+  }
+
+  private toTermString(term: SearchTerm) {
+    let key = term.originalType;
+    if (isFindingTerm(term)) {
+      key = `finding.${term.key.findingKey}`;
+    }
+
+    if (isFindingFieldTerm(term)) {
+      key = `finding.${term.key.findingKey}.${term.key.fieldKey}`;
+    }
+
+    const spacesBeforeKey = ' '.repeat(term.spacesBeforeKey ?? 0);
+    const not = term.not ? '-' : '';
+    const spacesAfterKey = ' '.repeat(term.spacesAfterKey ?? 0);
+    const spacesBeforeValue = ' '.repeat(term.spacesBeforeValue ?? 0);
+    const quoteBefore = term.quoteBefore ? '"' : '';
+    const value = term.value;
+    const quoteAfter = term.quoteAfter ? '"' : '';
+    const spacesAfterValue = ' '.repeat(term.spacesAfterValue ?? 0);
+
+    return `${spacesBeforeKey}${not}${key}${spacesAfterKey}:${spacesBeforeValue}${quoteBefore}${value}${quoteAfter}${spacesAfterValue}`;
   }
 }

@@ -196,10 +196,10 @@ function peg$parse(input, options) {
   var peg$c16 = "port.number";
   var peg$c17 = "port.id";
   var peg$c18 = "port.protocol";
-  var peg$c19 = "port";
-  var peg$c20 = "port.service";
-  var peg$c21 = "port.product";
-  var peg$c22 = "port.version";
+  var peg$c19 = "port.service";
+  var peg$c20 = "port.product";
+  var peg$c21 = "port.version";
+  var peg$c22 = "port";
   var peg$c23 = "ipRange.id";
   var peg$c24 = "ipRange.cidr";
   var peg$c25 = "ipRange";
@@ -243,10 +243,10 @@ function peg$parse(input, options) {
   var peg$e22 = peg$literalExpectation("port.number", false);
   var peg$e23 = peg$literalExpectation("port.id", false);
   var peg$e24 = peg$literalExpectation("port.protocol", false);
-  var peg$e25 = peg$literalExpectation("port", false);
-  var peg$e26 = peg$literalExpectation("port.service", false);
-  var peg$e27 = peg$literalExpectation("port.product", false);
-  var peg$e28 = peg$literalExpectation("port.version", false);
+  var peg$e25 = peg$literalExpectation("port.service", false);
+  var peg$e26 = peg$literalExpectation("port.product", false);
+  var peg$e27 = peg$literalExpectation("port.version", false);
+  var peg$e28 = peg$literalExpectation("port", false);
   var peg$e29 = peg$literalExpectation("ipRange.id", false);
   var peg$e30 = peg$literalExpectation("ipRange.cidr", false);
   var peg$e31 = peg$literalExpectation("ipRange", false);
@@ -451,10 +451,10 @@ function peg$parse(input, options) {
   var peg$f28 = function() { return { original: "port.number", resolved: "port.number" }; };
   var peg$f29 = function() { return { original: "port.id", resolved: "port.id" }; };
   var peg$f30 = function() { return { original: "port.protocol", resolved: "port.protocol" }; };
-  var peg$f31 = function() { return { original: "port", resolved: "port.number" }; };
-  var peg$f32 = function() { return { original: "port.service", resolved: "port.service" }; };
-  var peg$f33 = function() { return { original: "port.product", resolved: "port.product" }; };
-  var peg$f34 = function() { return { original: "port.version", resolved: "port.version" }; };
+  var peg$f31 = function() { return { original: "port.service", resolved: "port.service" }; };
+  var peg$f32 = function() { return { original: "port.product", resolved: "port.product" }; };
+  var peg$f33 = function() { return { original: "port.version", resolved: "port.version" }; };
+  var peg$f34 = function() { return { original: "port", resolved: "port.number" }; };
   var peg$f35 = function() { return { original: "ipRange.id", resolved: "ipRange.id" }; };
   var peg$f36 = function() { return { original: "ipRange.cidr", resolved: "ipRange.cidr" }; };
   var peg$f37 = function() { return { original: "ipRange", resolved: "ipRange.cidr" }; };
@@ -1645,9 +1645,9 @@ function peg$parse(input, options) {
         s0 = s1;
         if (s0 === peg$FAILED) {
           s0 = peg$currPos;
-          if (input.substr(peg$currPos, 4) === peg$c19) {
+          if (input.substr(peg$currPos, 12) === peg$c19) {
             s1 = peg$c19;
-            peg$currPos += 4;
+            peg$currPos += 12;
           } else {
             s1 = peg$FAILED;
             if (peg$silentFails === 0) { peg$fail(peg$e25); }
@@ -1687,9 +1687,9 @@ function peg$parse(input, options) {
               s0 = s1;
               if (s0 === peg$FAILED) {
                 s0 = peg$currPos;
-                if (input.substr(peg$currPos, 12) === peg$c22) {
+                if (input.substr(peg$currPos, 4) === peg$c22) {
                   s1 = peg$c22;
-                  peg$currPos += 12;
+                  peg$currPos += 4;
                 } else {
                   s1 = peg$FAILED;
                   if (peg$silentFails === 0) { peg$fail(peg$e28); }
