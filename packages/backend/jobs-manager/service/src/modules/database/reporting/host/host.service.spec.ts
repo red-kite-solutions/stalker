@@ -142,6 +142,16 @@ describe('Host Service', () => {
       [() => `project.id: ${project2.id}`, ['1.2.2.2', '1.2.2.3']],
       [() => `-project.id: ${project2.id}`, ['1.1.1.1', '1.2.2.2']],
 
+      // Domain
+      ['domain: d1', ['1.1.1.1', '1.2.2.2']],
+      ['domain.name: d1', ['1.1.1.1', '1.2.2.2']],
+      ['domain.name: d*', ['1.1.1.1', '1.2.2.2', '1.2.2.2', '1.2.2.3']],
+      ['-domain: d1', ['1.2.2.2', '1.2.2.3']],
+      ['-domain.name: d1', ['1.2.2.2', '1.2.2.3']],
+      ['-domain.name: d*', []],
+      [() => `domain.id: ${domain1.id}`, ['1.1.1.1', '1.2.2.2']],
+      [() => `-domain.id: ${domain1.id}`, ['1.2.2.2', '1.2.2.3']],
+
       // Host
       ['host: 1.1.1.1', ['1.1.1.1']],
       ['host.ip: 1.1.1.1', ['1.1.1.1']],
@@ -176,6 +186,8 @@ describe('Host Service', () => {
         if (typeof query !== 'string') query = query();
 
         // Act
+
+        const allhosts = await hostService.getAll(0, 10);
         const hosts = await hostService.getAll(0, 10, {
           query,
         });

@@ -9,6 +9,7 @@ import {
   ipv4RangeToMinMax,
 } from '../../../../utils/ip-address.utils';
 import { isIpRange } from '../../../../validators/is-ip-range.validator';
+import { Domain } from '../domain/domain.model';
 import { FilterParserBase } from '../filters-parser/filter-parser-base';
 import { Port } from '../port/port.model';
 import { Project } from '../project.model';
@@ -19,6 +20,7 @@ export class HostsFilterParser extends FilterParserBase<HostDocument> {
   constructor(
     @InjectModel('host') private readonly hostModel: Model<Host>,
     @InjectModel('port') private readonly portsModel: Model<Port>,
+    @InjectModel('domain') private readonly domainModel: Model<Domain>,
     @InjectModel('project') projectModel: Model<Project>,
     @InjectModel('tags') tagModel: Model<Tag>,
   ) {
@@ -26,7 +28,11 @@ export class HostsFilterParser extends FilterParserBase<HostDocument> {
   }
 
   protected async buildResourceFilters(terms: SearchTerms) {
-    return [...this.idFilters(terms), ...this.ipFilters(terms)];
+    return [
+      ...this.idFilters(terms),
+      ...this.ipFilters(terms),
+      ...this.domainFilters(terms),
+    ];
   }
 
   /** Handles "host.id" terms. */
@@ -105,6 +111,59 @@ export class HostsFilterParser extends FilterParserBase<HostDocument> {
               })),
             ],
           });
+        }
+      }
+    }
+
+    return filters;
+  }
+
+  /** Handles "domain.id" search terms. */
+  private domainFilters(terms: SearchTerms) {
+    const filters: FilterQuery<HostDocument>[] = [];
+
+    // "domain.name" filters
+    {
+      // Include
+      {
+        const t = this.consumeTerms(terms, '', 'domain.name');
+        const names = this.toInclusionList(t);
+        if (t.length) {
+          filters.push({
+            'domains.name': { $in: names },
+          });
+        }
+      }
+
+      // Exclude
+      {
+        const t = this.consumeTerms(terms, '-', 'domain.name');
+        if (t.length) {
+          const names = this.toInclusionList(t);
+          filters.push({
+            'domains.name': { $not: { $in: names } },
+          });
+        }
+      }
+    }
+
+    // "domain.id" filters
+    {
+      // Inclusion
+      {
+        const t = this.consumeTerms(terms, '', 'domain.id');
+        if (t.length) {
+          const ids = t.map((x) => new Types.ObjectId(x.value));
+          filters.push({ 'domains.id': { $in: ids } });
+        }
+      }
+
+      // Exclusion
+      {
+        const t = this.consumeTerms(terms, '-', 'domain.id');
+        if (t.length) {
+          const ids = t.map((x) => new Types.ObjectId(x.value));
+          filters.push({ 'domains.id': { $not: { $in: ids } } });
         }
       }
     }

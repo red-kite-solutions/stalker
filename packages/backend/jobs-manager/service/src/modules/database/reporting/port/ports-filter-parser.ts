@@ -157,7 +157,7 @@ export class PortsFilterParser extends FilterParserBase<PortDocument> {
     {
       const t = this.consumeTerms(terms, '', 'port.version');
       if (t.length) {
-        const version = this.toInclusionList(t, { lowercase: true });
+        const version = this.toInclusionList(t);
         filters.push({
           service: { $in: version },
         });

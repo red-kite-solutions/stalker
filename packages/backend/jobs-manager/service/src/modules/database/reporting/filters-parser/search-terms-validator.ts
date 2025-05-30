@@ -2,7 +2,7 @@ import {
   SearchTerm,
   SearchTerms,
 } from '@red-kite/jobs-manager/common-duplicates/search-query';
-import { isIP } from 'class-validator';
+import { isIP, isString } from 'class-validator';
 import { ObjectId } from 'mongodb';
 import { HttpBadRequestException } from '../../../../exceptions/http.exceptions';
 
@@ -39,7 +39,7 @@ export class SearchTermsValidator {
         case 'findingField':
         case 'ipRange.cidr':
           // No validation required
-          return;
+          return this.ensureString(term);
 
         default:
           throw new HttpBadRequestException(
@@ -81,6 +81,14 @@ export class SearchTermsValidator {
 
     throw new HttpBadRequestException(
       `Value should be a valid IP address for ${type} filter, but got "${value}".`,
+    );
+  }
+
+  protected ensureString({ value, type }: SearchTerm) {
+    if (isString(value)) return;
+
+    throw new HttpBadRequestException(
+      `Value should be a string for ${type} filter.`,
     );
   }
 }

@@ -239,13 +239,13 @@ describe('Domain Service', () => {
     project: ProjectDocument,
     tags: TagsDocument[] = [],
   ) {
-    const foo = await hostService.addHostsWithDomain(
+    const hosts = await hostService.addHostsWithDomain(
       [ip],
       domainName,
       project._id,
       tags.map((x) => x.id),
     );
-    return foo[0];
+    return hosts[0];
   }
 
   async function tags(...tags: string[]) {

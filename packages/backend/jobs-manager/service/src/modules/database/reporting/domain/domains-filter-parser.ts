@@ -108,10 +108,12 @@ export class DomainsFilterParser extends FilterParserBase<DomainDocument> {
         if (t.length) {
           const hosts = await this.hostModel.find(
             { ip: { $in: this.toInclusionList(t) } },
-            '_id',
+            { _id: 1, domains: 1 },
           );
 
-          filters.push({ 'hosts.id': { $in: hosts.map((x) => x._id) } });
+          filters.push({
+            _id: { $in: hosts.map((x) => x.domains.map((d) => d.id)).flat() },
+          });
         }
       }
 
@@ -121,11 +123,15 @@ export class DomainsFilterParser extends FilterParserBase<DomainDocument> {
         if (t.length) {
           const hosts = await this.hostModel.find(
             { ip: { $in: this.toInclusionList(t) } },
-            '_id',
+            { _id: 1, domains: 1 },
           );
 
           filters.push({
-            'hosts.id': { $not: { $in: hosts.map((x) => x._id) } },
+            _id: {
+              $not: {
+                $in: hosts.map((x) => x.domains.map((d) => d.id)).flat(),
+              },
+            },
           });
         }
       }
