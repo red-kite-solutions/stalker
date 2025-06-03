@@ -105,16 +105,21 @@ export class IpRangeFilterParser extends FilterParserBase<IpRangeDocument> {
       }
     }
 
-    // // Exclude
-    // {
-    //   const t = this.consumeTerms(terms, '-', 'host.ip');
-    //   if (t.length) {
-    //     for (const term of t) {
-    //       const range = cidrStringToipv4Range(term.value);
-    //       filters.push({ ip: { $ne: range.ip }, mask: { $ne: range.mask } });
-    //     }
-    //   }
-    // }
+    // Exclude
+    {
+      const t = this.consumeTerms(terms, '-', 'host.ip');
+      if (t.length) {
+        for (const term of t) {
+          const ip = ipv4ToNumber(term.value);
+          if (!isNaN(ip)) {
+            filters.push({
+              $or: [{ ipMinInt: { $gt: ip } }, { ipMaxInt: { $lt: ip } }],
+            });
+          }
+        }
+      }
+    }
+
     return filters;
   }
 }

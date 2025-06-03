@@ -159,7 +159,7 @@ export class PortsFilterParser extends FilterParserBase<PortDocument> {
       if (t.length) {
         const version = this.toInclusionList(t);
         filters.push({
-          service: { $in: version },
+          version: { $in: version },
         });
       }
     }
@@ -241,12 +241,8 @@ export class PortsFilterParser extends FilterParserBase<PortDocument> {
       {
         const t = this.consumeTerms(terms, '', 'host.ip');
         if (t.length) {
-          const hosts = await this.hostModel.find(
-            { ip: { $in: this.toInclusionList(t) } },
-            '_id',
-          );
-
-          filters.push({ 'host.id': { $in: hosts.map((x) => x._id) } });
+          const ips = this.toInclusionList(t);
+          filters.push({ 'host.ip': { $in: ips } });
         }
       }
 
@@ -254,14 +250,8 @@ export class PortsFilterParser extends FilterParserBase<PortDocument> {
       {
         const t = this.consumeTerms(terms, '-', 'host.ip');
         if (t.length) {
-          const hosts = await this.hostModel.find(
-            { ip: { $in: this.toInclusionList(t) } },
-            '_id',
-          );
-
-          filters.push({
-            'host.id': { $not: { $in: hosts.map((x) => x._id) } },
-          });
+          const ips = this.toInclusionList(t);
+          filters.push({ 'host.ip': { $not: { $in: ips } } });
         }
       }
     }

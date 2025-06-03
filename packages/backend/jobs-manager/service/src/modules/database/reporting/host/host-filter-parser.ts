@@ -96,7 +96,7 @@ export class HostsFilterParser extends FilterParserBase<HostDocument> {
           .filter((x) => isIpRange(x.value))
           .map((x) => ipv4RangeToMinMax(cidrStringToipv4Range(x.value)));
         const ips = t.filter((x) => !isIpRange(x.value));
-        // 16843009
+
         if (t.length) {
           filters.push({
             $and: [

@@ -85,6 +85,9 @@ export class PortService {
     projectId: string,
     portNumber: number,
     protocol: 'tcp' | 'udp',
+    service: string = undefined,
+    product: string = undefined,
+    version: string = undefined,
   ) {
     const host: Pick<HostDocument, '_id' | 'ip'> = await this.hostModel.findOne(
       {
@@ -94,6 +97,7 @@ export class PortService {
       '_id ip',
     );
     if (!host) throw new HttpNotFoundException(this.hostNotFoundError);
+
     const correlationKey = CorrelationKeyUtils.portCorrelationKey(
       projectId,
       host.ip,
@@ -106,6 +110,9 @@ export class PortService {
       portNumber,
       protocol,
       correlationKey,
+      service,
+      product,
+      version,
     );
   }
 

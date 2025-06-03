@@ -418,90 +418,6 @@ describe('Port Service', () => {
         );
       },
     );
-
-    // TODO #319
-    // //   it.each([
-    // //     {
-    // //       service: 'asdf',
-    // //       product: 'qwerty',
-    // //       version: 'uiop',
-    // //       dto: { services: ['asdf1', 'asdf2'] },
-    // //       expectedPorts: [1, 2],
-    // //     },
-    // //     {
-    // //       service: 'asdf',
-    // //       product: 'qwerty',
-    // //       version: 'uiop',
-    // //       dto: { services: ['asdf1', 'asdf2'], products: ['qwerty1'] },
-    // //       expectedPorts: [1],
-    // //     },
-    // //     {
-    // //       service: 'asdf',
-    // //       product: 'qwerty',
-    // //       version: 'uiop',
-    // //       dto: { services: ['asdf1', 'asdf2'], versions: ['uiop2'] },
-    // //       expectedPorts: [2],
-    // //     },
-    // //     {
-    // //       service: 'asdf',
-    // //       product: 'qWErty',
-    // //       version: 'uiop',
-    // //       dto: { services: ['asdf1', 'asdf2'], products: ['qwerty2', 'qwerty3'] },
-    // //       expectedPorts: [2],
-    // //     },
-    // //     {
-    // //       service: 'asdf',
-    // //       product: 'qWErty',
-    // //       version: 'uiOP',
-    // //       dto: { versions: ['uiop3'], products: ['qwerty2', 'qwerty3'] },
-    // //       expectedPorts: [3],
-    // //     },
-    // //   ])(
-    // //     'Filter by service, product, version: %s',
-    // //     async ({ service, product, version, dto, expectedPorts }) => {
-    // //       // Arrange
-    // //       const p1 = await project('p1');
-
-    // //       const hosts = [{ host: '1.1.1.1', ports: [1, 2, 3, 4] }];
-    // //       const hDocs = [];
-
-    // //       const ports: PortDocument[] = [];
-
-    // //       for (const h of hosts) {
-    // //         const htmp = await host(h.host, p1._id.toString());
-    // //         hDocs.push(htmp[0]);
-    // //         for (const p of h.ports) {
-    // //           ports.push(
-    // //             await portService.addPort(
-    // //               htmp[0]._id.toString(),
-    // //               p1._id.toString(),
-    // //               p,
-    // //               'tcp',
-    // //             ),
-    // //           );
-    // //         }
-    // //       }
-
-    // //       for (const port of ports) {
-    // //         await portModel.updateOne(
-    // //           { _id: { $eq: port._id } },
-    // //           {
-    // //             service: service + port.port,
-    // //             product: product + port.port,
-    // //             version: version + port.port,
-    // //           },
-    // //         );
-    // //       }
-
-    // //       // Act
-    // //       const allPorts = await portService.getAll(0, 10, dto);
-
-    // //       // Assert
-    // //       expect(allPorts.map((x) => x.port).sort()).toStrictEqual(
-    // //         expectedPorts.sort(),
-    // //       );
-    // //     },
-    // //   );
   });
 
   async function project(name: string = '') {
@@ -538,6 +454,9 @@ describe('Port Service', () => {
     project: ProjectDocument,
     tags: TagsDocument[] = [],
     protocol: 'tcp' | 'udp' = 'tcp',
+    service: string = undefined,
+    product: string = undefined,
+    version: string = undefined,
   ) {
     if (typeof ports === 'number') {
       ports = [ports];
@@ -545,18 +464,21 @@ describe('Port Service', () => {
 
     const portDocuments = [];
     for (const p of ports) {
-      const bobbyNewport = await portService.addPort(
+      const newPort = await portService.addPort(
         host._id.toString(),
         project._id.toString(),
         p,
         protocol,
+        service,
+        product,
+        version,
       );
 
-      portDocuments.push(bobbyNewport);
+      portDocuments.push(newPort);
 
       for (const t of tags) {
         await portService.tagPort(
-          bobbyNewport._id.toString(),
+          newPort._id.toString(),
           t._id.toString(),
           true,
         );
