@@ -104,10 +104,13 @@ export abstract class FilterParserBase<T extends Resource> {
               `^${x.substring(0, x.length - 2)}${
                 x[x.length - 1] === '*' ? '.*' : x[x.length - 1]
               }`,
+              options?.lowercase ? 'i' : '',
             ),
         );
     } else {
-      return values;
+      return options?.lowercase
+        ? values.map((x) => new RegExp(`^${x}$`, 'i'))
+        : values;
     }
   }
 

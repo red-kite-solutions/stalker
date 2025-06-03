@@ -194,7 +194,6 @@ describe('Website Service', () => {
     let foo: TagsDocument;
     let bar: TagsDocument;
     let baz: TagsDocument;
-    let qux: TagsDocument;
 
     let host1: HostDocument;
     let host2: HostDocument;
@@ -202,7 +201,6 @@ describe('Website Service', () => {
     let port1: PortDocument;
     let port2: PortDocument;
     let port3: PortDocument;
-    let port4: PortDocument;
 
     let website1: WebsiteDocument;
     let website2: WebsiteDocument;
@@ -212,7 +210,7 @@ describe('Website Service', () => {
       // Arrange
       project1 = await project('project 1');
       project2 = await project('project 2');
-      [foo, bar, baz, qux] = await tags('foo', 'bar', 'baz', 'qux');
+      [foo, bar, baz] = await tags('foo', 'bar', 'baz');
 
       domain1 = await domain('d1', project1);
       domain2 = await domain('d2', project2);
@@ -227,8 +225,7 @@ describe('Website Service', () => {
 
       port1 = await port(80, host1, 'tcp');
       port2 = await port(80, host1, 'tcp');
-      port3 = await port(80, host2, 'tcp');
-      port4 = await port(80, host1, 'tcp');
+      port3 = await port(443, host2, 'tcp');
 
       website1 = await website('website1', domain1, host1, port1, [foo]);
       website2 = await website('website2', domain1, host1, port2, [foo, bar]);
@@ -296,6 +293,14 @@ describe('Website Service', () => {
       [() => `tag.id: ${foo.id}`, ['website1', 'website2']],
       [() => `-tag.id: ${foo.id}`, ['website3']],
 
+      // Port
+      ['port: 80', ['website1', 'website2']],
+      ['-port: 80', ['website3']],
+      ['port: 443', ['website3']],
+      ['-port: 443', ['website1', 'website2']],
+      [() => `port.id: ${port3.id}`, ['website3']],
+      [() => `-port.id: ${port3.id}`, ['website1', 'website2']],
+
       // MergedIn
       [() => `mergedIn.id: ${website1.id}`, ['website2']],
       [() => `-mergedIn.id: ${website1.id}`, ['website1', 'website3']],
@@ -325,16 +330,6 @@ describe('Website Service', () => {
   });
 
   describe('Merge and unmerge websites', () => {
-    // // const ips = ['1.1.1.1', '1.1.1.1', '2.2.2.2', '2.2.2.2', '3.3.3.3'];
-    // // const ports = [80, 443, 80, 80, 8080];
-    // // const domains = [
-    // //   'example.com',
-    // //   'example.com',
-    // //   'example.com',
-    // //   'www.example.com',
-    // //   '',
-    // // ];
-
     let project1: ProjectDocument;
     let domain1: DomainDocument;
     let host1: HostDocument;

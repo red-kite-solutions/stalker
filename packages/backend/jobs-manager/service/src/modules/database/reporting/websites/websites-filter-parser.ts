@@ -172,7 +172,7 @@ export class WebsitesFilterParser extends FilterParserBase<WebsiteDocument> {
         if (t.length) {
           const portIds = t.map((x) => new Types.ObjectId(x.value));
           filters.push({
-            _id: { $in: portIds },
+            'port.id': { $in: portIds },
           });
         }
       }
@@ -183,7 +183,7 @@ export class WebsitesFilterParser extends FilterParserBase<WebsiteDocument> {
         if (t.length) {
           const portIds = t.map((x) => new Types.ObjectId(x.value));
           filters.push({
-            _id: { $not: { $in: portIds } },
+            'port.id': { $not: { $in: portIds } },
           });
         }
       }
@@ -197,7 +197,7 @@ export class WebsitesFilterParser extends FilterParserBase<WebsiteDocument> {
         const ports = t.map((x) => +x.value);
         if (t.length) {
           filters.push({
-            port: { $in: ports },
+            'port.port': { $in: ports },
           });
         }
       }
@@ -209,7 +209,7 @@ export class WebsitesFilterParser extends FilterParserBase<WebsiteDocument> {
           const ports = t.map((x) => +x.value);
 
           filters.push({
-            port: { $not: { $in: ports } },
+            'port.port': { $not: { $in: ports } },
           });
         }
       }

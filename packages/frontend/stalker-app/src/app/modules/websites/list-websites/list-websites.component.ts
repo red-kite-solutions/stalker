@@ -26,7 +26,7 @@ import {
   tagSuggestion,
 } from '@red-kite/frontend/app/shared/widget/filtered-paginated-table/autocomplete';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, combineLatest, map, Observable, shareReplay, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, catchError, combineLatest, EMPTY, map, Observable, shareReplay, switchMap, tap } from 'rxjs';
 import { FindingsService } from '../../../api/findings/findings.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { TagsService } from '../../../api/tags/tags.service';
@@ -180,12 +180,9 @@ export class ListWebsitesComponent {
   refresh$ = new BehaviorSubject(null);
   websites$ = combineLatest([this.filtersSource.debouncedFilters$, this.refresh$, globalProjectFilter$]).pipe(
     switchMap(([{ filters, dateRange, pagination }]) =>
-      this.websitesService.getPage(
-        pagination?.page ?? 0,
-        pagination?.pageSize ?? 25,
-        appendGlobalFiltersToQuery(filters[0]),
-        dateRange
-      )
+      this.websitesService
+        .getPage(pagination?.page ?? 0, pagination?.pageSize ?? 25, appendGlobalFiltersToQuery(filters[0]), dateRange)
+        .pipe(catchError(() => EMPTY))
     ),
     tap(() => (this.dataLoading = false)),
     shareReplay(1)
