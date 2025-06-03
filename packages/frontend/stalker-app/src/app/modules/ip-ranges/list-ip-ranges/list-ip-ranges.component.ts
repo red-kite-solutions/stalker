@@ -18,6 +18,7 @@ import {
   AutocompleteBuilder,
   excludeSuggestion,
   hostSuggestion,
+  ipRangeSuggestion,
   isSuggestion,
   projectSuggestion,
   tagSuggestion,
@@ -89,6 +90,7 @@ import { IpRangesInteractionsService } from '../ip-ranges-interactions.service';
 export class ListIpRangesComponent {
   public readonly autocomplete = this.autocompleteBuilder
     .build('key')
+    .suggestion(ipRangeSuggestion)
     .suggestion(hostSuggestion)
     .suggestion(tagSuggestion)
     .suggestion(projectSuggestion)

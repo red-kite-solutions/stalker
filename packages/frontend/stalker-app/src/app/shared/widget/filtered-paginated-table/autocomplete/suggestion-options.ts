@@ -14,6 +14,8 @@ export const domainSuggestion: SuggestionOptions = { name: 'domain', value: 'dom
 
 export const hostSuggestion: SuggestionOptions = { name: 'host', value: 'host:', icon: 'storage' };
 
+export const ipRangeSuggestion: SuggestionOptions = { name: 'ipRange', value: 'ipRange:', icon: 'radar' };
+
 export const portSuggestion: SuggestionOptions = { name: 'port', value: 'port:', icon: 'fingerprint' };
 
 export const portProtocolSuggestion: SuggestionOptions = {
