@@ -28,10 +28,10 @@
       <app-filtered-paginated-table
         [isLoading]="dataLoading"
         [length]="(ports$ | async)?.totalRecords ?? 0"
-        [filterOptions]="filterOptions"
-        [negatableFilterOptions]="['is']"
         [dateSearchEnabled]="true"
         [startDate]="startDate"
+        [filterType]="'kiteQl'"
+        [autocomplete]="autocomplete"
       >
         <app-table-format
           [dataSource]="dataSource$ | async"

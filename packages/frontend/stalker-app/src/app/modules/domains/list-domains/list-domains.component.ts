@@ -25,9 +25,16 @@ import { SharedModule } from '../../../shared/shared.module';
 import { Domain } from '../../../shared/types/domain/domain.interface';
 import { HttpStatus } from '../../../shared/types/http-status.type';
 import { Page } from '../../../shared/types/page.type';
-import { ProjectSummary } from '../../../shared/types/project/project.summary';
-import { Tag } from '../../../shared/types/tag.type';
 import { ElementMenuItems } from '../../../shared/widget/dynamic-icons/menu-icon.component';
+import {
+  AutocompleteBuilder,
+  domainSuggestion,
+  excludeSuggestion,
+  hostSuggestion,
+  isSuggestion,
+  projectSuggestion,
+  tagSuggestion,
+} from '../../../shared/widget/filtered-paginated-table/autocomplete';
 import { FilteredPaginatedTableComponent } from '../../../shared/widget/filtered-paginated-table/filtered-paginated-table.component';
 import {
   TABLE_FILTERS_SOURCE_INITAL_FILTERS,
@@ -39,11 +46,7 @@ import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-
 import { BlockedPillTagComponent } from '../../../shared/widget/pill-tag/blocked-pill-tag.component';
 import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.component';
 import { PillTagComponent } from '../../../shared/widget/pill-tag/pill-tag.component';
-import {
-  getGlobalProjectFilter,
-  globalProjectFilter$,
-  hasGlobalProjectFilter,
-} from '../../../utils/global-project-filter';
+import { appendGlobalFiltersToQuery, globalProjectFilter$ } from '../../../utils/global-project-filter';
 import { DomainsInteractionsService } from '../domains-interactions.service';
 
 @Component({
@@ -77,17 +80,25 @@ import { DomainsInteractionsService } from '../domains-interactions.service';
     {
       provide: TABLE_FILTERS_SOURCE_INITAL_FILTERS,
       useValue: {
-        filters: ['-is: blocked'],
+        filters: ['-is:blocked '],
         pagination: { page: 0, pageSize: 25 },
       } as TableFilters,
     },
   ],
 })
 export class ListDomainsComponent {
+  public readonly noDataMessage = $localize`:No domain found|No domain was found:No domain found`;
+  public readonly autocomplete = this.autocompleteBuilder
+    .build('key')
+    .suggestion(domainSuggestion)
+    .suggestion(hostSuggestion)
+    .suggestion(tagSuggestion)
+    .suggestion(projectSuggestion)
+    .suggestion(isSuggestion)
+    .divider()
+    .suggestion(excludeSuggestion);
   dataLoading = true;
   displayedColumns: string[] = ['select', 'domain', 'hosts', 'project', 'tags', 'menu'];
-  filterOptions: string[] = ['host', 'domain', 'project', 'tags', 'is'];
-  public readonly noDataMessage = $localize`:No domain found|No domain was found:No domain found`;
 
   maxHostsPerLine = 5;
   count = 0;
@@ -112,12 +123,19 @@ export class ListDomainsComponent {
     globalProjectFilter$,
   ]).pipe(
     switchMap(([{ dateRange, filters, pagination }, projects, tags]) => {
-      return this.domainsService.getPage(
-        pagination?.page || 0,
-        pagination?.pageSize || 25,
-        this.buildFilters(filters || [], projects, tags),
-        dateRange ?? new DateRange<Date>(null, null)
-      );
+      return this.domainsService
+        .getPage(
+          pagination?.page || 0,
+          pagination?.pageSize || 25,
+          appendGlobalFiltersToQuery(filters[0]),
+          dateRange ?? new DateRange<Date>(null, null)
+        )
+        .pipe(
+          catchError((x) => {
+            console.error(x);
+            return [];
+          })
+        );
     }),
     map((data: Page<Domain>) => {
       this.count = data.totalRecords;
@@ -157,80 +175,10 @@ export class ListDomainsComponent {
     private tagsService: TagsService,
     public dialog: MatDialog,
     private titleService: Title,
+    private autocompleteBuilder: AutocompleteBuilder,
     @Inject(TableFiltersSourceBase) private filtersSource: TableFiltersSource
   ) {
     this.titleService.setTitle($localize`:Domains list page title|:Domains`);
-  }
-
-  buildFilters(stringFilters: string[], projects: ProjectSummary[], tags: Tag[]): any {
-    const SEPARATOR = ':';
-    const NEGATING_CHAR = '-';
-    const filterObject: any = {};
-    const includedTags = [];
-    const includedDomains = [];
-    const includedHosts = [];
-    const includedProjects = [];
-    let blocked: boolean | null = null;
-
-    for (const filter of stringFilters) {
-      if (filter.indexOf(SEPARATOR) === -1) continue;
-
-      const keyValuePair = filter.split(SEPARATOR);
-
-      if (keyValuePair.length !== 2) continue;
-
-      let key = keyValuePair[0].trim().toLowerCase();
-      const value = keyValuePair[1].trim().toLowerCase();
-      const negated = key.length > 0 && key[0] === NEGATING_CHAR;
-      if (negated) key = key.substring(1);
-
-      if (!key || !value) continue;
-
-      switch (key) {
-        case 'project':
-          const project = projects.find((c) => c.name.trim().toLowerCase() === value.trim().toLowerCase());
-          if (project) includedProjects.push(project.id);
-          else
-            this.toastr.warning(
-              $localize`:Project does not exist|The given project name is not known to the application:Project name not recognized`
-            );
-          break;
-
-        case 'host':
-          if (value) includedHosts.push(value.trim().toLowerCase());
-          break;
-
-        case 'tags':
-          const tag = tags.find((t) => t.text.trim().toLowerCase() === value.trim().toLowerCase());
-          if (tag) includedTags.push(tag._id);
-          else
-            this.toastr.warning(
-              $localize`:Tag does not exist|The given tag is not known to the application:Tag not recognized`
-            );
-          break;
-
-        case 'domain':
-          includedDomains.push(value);
-          break;
-
-        case 'is':
-          switch (value) {
-            case 'blocked':
-              blocked = !negated;
-              break;
-          }
-          break;
-      }
-    }
-
-    if (hasGlobalProjectFilter()) includedProjects.push(getGlobalProjectFilter()?.id);
-
-    if (includedTags.length) filterObject['tags'] = includedTags;
-    if (includedDomains.length) filterObject['domains'] = includedDomains;
-    if (includedHosts.length) filterObject['hosts'] = includedHosts;
-    if (includedProjects.length) filterObject['projects'] = includedProjects;
-    if (blocked !== null) filterObject['blocked'] = blocked;
-    return filterObject;
   }
 
   openNewDomainsDialog(templateRef: TemplateRef<any>) {

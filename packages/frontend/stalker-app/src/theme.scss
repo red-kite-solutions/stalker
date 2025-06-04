@@ -117,6 +117,7 @@ $stalker-dark: mat.define-dark-theme(
 
   --mat-table-background-color-hover: rgb(243, 243, 243);
   --rks-card-second-level: rgb(253, 253, 253);
+  --rk-button-fake-focus-color: #e0e0e0;
 
   *:not(button) a {
     text-decoration: none;
@@ -148,6 +149,7 @@ $stalker-dark: mat.define-dark-theme(
 
   --mat-table-background-color-hover: #4d4d4d;
   --rks-card-second-level: #4a4a4a;
+  --rk-button-fake-focus-color: #6f6f6f;
 
   *:not(button) a {
     text-decoration: none;

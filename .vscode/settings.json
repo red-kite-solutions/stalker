@@ -17,6 +17,6 @@
   "[scss]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "typescript.preferences.importModuleSpecifier": "relative",
   "jest.runMode": "on-demand",
+  "typescript.preferences.importModuleSpecifier": "shortest"
 }

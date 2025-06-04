@@ -1,8 +1,8 @@
 /* To learn more about this file see: https://angular.io/config/tsconfig. */
 {
+  "extends": "../../../tsconfig.base.json",
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "./",
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,
     "strict": true,
@@ -21,6 +21,7 @@
     "lib": ["es2020", "dom"],
     "useDefineForClassFields": false
   },
+  "references": [{ "path": "../../common" }],
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,

@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
+import { SearchTerms } from '@red-kite/common/search-query';
 import { BehaviorSubject, combineLatest, map, switchMap } from 'rxjs';
 import { HostsService } from '../../../api/hosts/hosts.service';
 import { globalProjectFilter$ } from '../../../utils/global-project-filter';
@@ -13,19 +14,30 @@ import { SimpleMetric } from '../simple-metric/simple-metric.component';
 })
 export class NumberOfHostsMetric {
   @Input() public name = $localize`:Number of hosts|:Number of hosts`;
-  @Input() public set additionalFilters(filters: { [key: string]: string | string[] }) {
-    this._additionalFilters$.next(filters);
-  }
 
   private _additionalFilters$: BehaviorSubject<{ [key: string]: string | string[] }> = new BehaviorSubject<{
     [key: string]: string | string[];
   }>({});
+  @Input() public set additionalFilters(filters: { [key: string]: string | string[] }) {
+    this._additionalFilters$.next(filters);
+  }
 
-  public value$ = combineLatest([this._additionalFilters$, globalProjectFilter$]).pipe(
-    switchMap(([filters, project]) => {
-      const projects = [];
-      if (project) projects.push(project.id);
-      return this.hostService.getPage(0, 1, { projects, ...filters }).pipe(map((x) => `${x.totalRecords}`));
+  public value$ = combineLatest([globalProjectFilter$, this._additionalFilters$]).pipe(
+    switchMap(([project, additionalFilters]) => {
+      const query: SearchTerms = [];
+
+      if (project) {
+        query.push({
+          type: 'project.id',
+          value: project.id,
+        });
+      }
+
+      if (additionalFilters) {
+        // TODO #319
+      }
+
+      return this.hostService.getPage(0, 1, query).pipe(map((x) => `${x.totalRecords}`));
     })
   );
 

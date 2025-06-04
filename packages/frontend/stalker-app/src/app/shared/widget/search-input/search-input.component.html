@@ -1,0 +1,70 @@
+<form [formGroup]="queryForm" class="tw-w-full tw-relative" (keydown)="onKeyDown($event)">
+  <mat-form-field class="tw-w-full" appearance="fill" [floatLabel]="'always'">
+    <mat-label i18n="Search filter|Filter your search to get more precise results">Search filter</mat-label>
+
+    <input
+      #queryInput
+      matInput
+      type="text"
+      i18n-placeholder="New filter|Creating a new filter"
+      placeholder="New filter..."
+      [formControlName]="'query'"
+      [spellcheck]="false"
+      #grammarInput
+      (focus)="onInputFocus()"
+      (blur)="onInputBlur()"
+      autocomplete="off"
+    />
+  </mat-form-field>
+
+  <div class="rich-query">
+    @for (part of parsedQuery$ | async; track $index; let last = $last) {
+      <span [class.invalid]="part.hasColon && part.type === 'unknown'">
+        <span *ngFor="let _ of [].constructor(part.spacesBeforeKey)">&nbsp;</span>
+        <span *ngIf="part.not">-</span>
+        <span>{{ part.originalType }}</span>
+        <span *ngFor="let _ of [].constructor(part.spacesAfterKey)">&nbsp;</span>
+        <span *ngIf="part.hasColon">:</span>
+        <span *ngFor="let _ of [].constructor(part.spacesBeforeValue)">&nbsp;</span>
+        <span class="value"
+          ><ng-container *ngIf="part.quoteBefore">"</ng-container>{{ part.value
+          }}<ng-container *ngIf="part.quoteAfter">"</ng-container></span
+        >
+        <span *ngFor="let _ of [].constructor(part.spacesAfterValue)">&nbsp;</span>
+      </span>
+    }
+    <span #autocompleteOrigin>&nbsp;</span>
+  </div>
+  <button class="tw-hidden">Click me!</button>
+
+  <ng-template #autocompleteTemplate>
+    @if ((suggestions$ | async)?.length) {
+      <mat-card cdkMenu class="autocomplete mat-elevation-z6">
+        @for (suggestion of suggestions$ | async; track index; let index = $index) {
+          @switch (suggestion.type) {
+            @case ('divider') {
+              <mat-divider></mat-divider>
+            }
+            @case ('suggestion') {
+              <button
+                mat-button
+                cdkMenuItem
+                class="suggestion"
+                [class.fakeFocused]="!hasMenuFocus && index === 0"
+                (focus)="onSuggestionFocus()"
+                (blur)="onSuggestioBlur()"
+                (click)="selectSuggestion(suggestion)"
+                (keydown)="onKeyDown($event)"
+              >
+                @if (suggestion.icon) {
+                  <mat-icon [class]="'material-symbols-outlined-filled'">{{ suggestion.icon }}</mat-icon>
+                }
+                <span>{{ suggestion.name || suggestion.value }}</span>
+              </button>
+            }
+          }
+        }
+      </mat-card>
+    }
+  </ng-template>
+</form>

@@ -6,13 +6,14 @@ import {
   numberToIpv4,
 } from '../../../../utils/ip-address.utils';
 import { AppModule } from '../../../app.module';
+import { TagsDocument } from '../../tags/tag.model';
 import { TagsService } from '../../tags/tag.service';
-import { SubmitHostsDto } from '../host/host.dto';
 import { Host } from '../host/host.model';
 import { HostService } from '../host/host.service';
+import { ProjectDocument } from '../project.model';
 import { ProjectService } from '../project.service';
 import { SubmitIpRangesDto } from './ip-range.dto';
-import { ExtendedIpRange, IpRange, IpRangeDocument } from './ip-range.model';
+import { IpRange, IpRangeDocument } from './ip-range.model';
 import { IpRangeService } from './ip-range.service';
 
 describe('IP Range Service', () => {
@@ -315,141 +316,94 @@ describe('IP Range Service', () => {
     });
   });
 
-  describe('Filters', () => {
-    it('Filters for ranges containing IP', async () => {
+  describe('Get all', () => {
+    let project1: ProjectDocument;
+    let project2: ProjectDocument;
+
+    let foo: TagsDocument;
+    let bar: TagsDocument;
+    let baz: TagsDocument;
+    let qux: TagsDocument;
+
+    let ipRange1: IpRangeDocument;
+    let ipRange2: IpRangeDocument;
+    let ipRange3: IpRangeDocument;
+
+    beforeEach(async () => {
       // Arrange
-      const p = await project('test');
-      const ranges = [{ ip: '1.1.1.1', mask: 24 }];
+      project1 = await project('project 1');
+      project2 = await project('project 2');
+      [foo, bar, baz, qux] = await tags('foo', 'bar', 'baz', 'qux');
 
-      const hostsInRange: SubmitHostsDto = {
-        ips: ['1.1.1.1', '1.1.1.34', '1.1.1.255', '1.1.1.0'],
-        projectId: p._id.toString(),
-      };
+      ipRange1 = await ipRange('10.10.0.0', 16, project1, [foo, bar]);
+      ipRange2 = await ipRange('128.0.0.0', 1, project1, [baz]);
+      ipRange3 = await ipRange('192.168.1.0', 28, project2, [foo, qux]);
 
-      const hostsOutOfRange: SubmitHostsDto = {
-        ips: ['1.1.2.0', '127.0.0.1', '1.1.0.255'],
-        projectId: p._id.toString(),
-      };
-
-      const allHosts = hostsInRange.ips.concat(hostsOutOfRange.ips);
-
-      const createdRanges: IpRangeDocument[] = [];
-      for (const r of ranges) {
-        createdRanges.push(
-          await ipRangeService.addIpRange(r.ip, r.mask, p._id.toString()),
-        );
-      }
-
-      // Act
-      let range = await ipRangeService.getAll(null, null, {
-        contains: hostsInRange.ips,
-      });
-
-      // Assert
-      expect(range.length).toStrictEqual(1);
-
-      // Act
-      range = await ipRangeService.getAll(null, null, {
-        contains: hostsOutOfRange.ips,
-      });
-
-      // Assert
-      expect(range.length).toStrictEqual(0);
+      await block(ipRange1);
     });
 
-    it('Filters by project id', async () => {
-      // Arrange
-      const p = await project('test');
-      const p2 = await project('test2');
-      const ranges = [
-        { ip: '1.1.1.1', mask: 24, pid: p._id.toString() },
-        { ip: '1.1.1.1', mask: 24, pid: p2._id.toString() },
-      ];
+    it.each([
+      ['', ['10.10.0.0/16', '128.0.0.0/1', '192.168.1.0/28']],
 
-      const createdRanges: IpRangeDocument[] = [];
-      for (const r of ranges) {
-        createdRanges.push(
-          await ipRangeService.addIpRange(r.ip, r.mask, r.pid),
+      // Projects
+      [
+        'project: "project*"',
+        ['10.10.0.0/16', '128.0.0.0/1', '192.168.1.0/28'],
+      ],
+      ['project: "project 1"', ['10.10.0.0/16', '128.0.0.0/1']],
+      ['project: "project 2"', ['192.168.1.0/28']],
+      ['-project: "project 2"', ['10.10.0.0/16', '128.0.0.0/1']],
+      [
+        'project.name: "project*"',
+        ['10.10.0.0/16', '128.0.0.0/1', '192.168.1.0/28'],
+      ],
+      ['project.name: "project 1"', ['10.10.0.0/16', '128.0.0.0/1']],
+      ['project.name: "project 2"', ['192.168.1.0/28']],
+      ['-project.name: "project 2"', ['10.10.0.0/16', '128.0.0.0/1']],
+      [() => `project.id: ${project1.id}`, ['10.10.0.0/16', '128.0.0.0/1']],
+      [() => `project.id: ${project2.id}`, ['192.168.1.0/28']],
+      [() => `-project.id: ${project2.id}`, ['10.10.0.0/16', '128.0.0.0/1']],
+
+      // Ip Range
+      ['ipRange: 10.10.0.0/16', ['10.10.0.0/16']],
+      ['-ipRange: 10.10.0.0/16', ['128.0.0.0/1', '192.168.1.0/28']],
+      [() => `ipRange.id: ${ipRange1.id}`, ['10.10.0.0/16']],
+      [() => `-ipRange.id: ${ipRange1.id}`, ['128.0.0.0/1', '192.168.1.0/28']],
+
+      // Host
+      ['host: 10.10.2.2', ['10.10.0.0/16']],
+      ['host.ip: 10.10.2.2', ['10.10.0.0/16']],
+      ['host: 192.168.1.5', ['128.0.0.0/1', '192.168.1.0/28']],
+      ['-host: 10.10.2.2', ['128.0.0.0/1', '192.168.1.0/28']],
+      ['-host.ip: 10.10.2.2', ['128.0.0.0/1', '192.168.1.0/28']],
+      ['-host: 192.168.1.5', ['10.10.0.0/16']],
+
+      // Tag
+      ['tag: foo', ['10.10.0.0/16', '192.168.1.0/28']],
+      [() => `tag.id: ${foo.id}`, ['10.10.0.0/16', '192.168.1.0/28']],
+      [() => `-tag.id: ${foo.id}`, ['128.0.0.0/1']],
+      ['-tag: ba*', ['192.168.1.0/28']],
+
+      // Is
+      ['is: blocked', ['10.10.0.0/16']],
+      ['-is: blocked', ['128.0.0.0/1', '192.168.1.0/28']],
+    ])(
+      'Filter by "%s"',
+      async (query: string | (() => string), expected: string[]) => {
+        // Arrange
+        if (typeof query !== 'string') query = query();
+
+        // Act
+        const ipRanges = await ipRangeService.getAll(0, 10, {
+          query,
+        });
+
+        // Assert
+        expect(ipRanges.map((x) => `${x.ip}/${x.mask}`).sort()).toStrictEqual(
+          expected.sort(),
         );
-      }
-
-      // Act
-      let range = await ipRangeService.getAll(null, null, {
-        projects: [p._id.toString()],
-      });
-
-      // Assert
-      expect(range.length).toStrictEqual(1);
-    });
-
-    it('Filters by tag', async () => {
-      // Arrange
-      const p = await project('test');
-      const ranges = [
-        { ip: '1.1.1.1', mask: 24, pid: p._id.toString() },
-        { ip: '1.1.1.1', mask: 23, pid: p._id.toString() },
-      ];
-
-      const t = await tag('asdf');
-
-      const createdRanges: IpRangeDocument[] = [];
-      for (const r of ranges) {
-        createdRanges.push(
-          await ipRangeService.addIpRange(r.ip, r.mask, p._id.toString()),
-        );
-      }
-
-      await ipRangeService.tagIpRange(
-        createdRanges[0]._id.toString(),
-        t._id.toString(),
-        true,
-      );
-
-      // Act
-      let range = await ipRangeService.getAll(null, null, {
-        tags: [t._id.toString()],
-      });
-
-      // Assert
-      expect(range.length).toStrictEqual(1);
-      expect(range[0].tags[0].toString()).toStrictEqual(t._id.toString());
-    });
-
-    it('Extended getAll includes the ip range hosts', async () => {
-      // Arrange
-      const p = await project('test');
-      const ranges = [{ ip: '1.1.1.1', mask: 24 }];
-
-      const hostsInRange: SubmitHostsDto = {
-        ips: ['1.1.1.1', '1.1.1.34', '1.1.1.255', '1.1.1.0'],
-        projectId: p._id.toString(),
-      };
-
-      const hostsOutOfRange: SubmitHostsDto = {
-        ips: ['1.1.2.0', '127.0.0.1', '1.1.0.255'],
-        projectId: p._id.toString(),
-      };
-
-      const createdRanges: IpRangeDocument[] = [];
-      for (const r of ranges) {
-        createdRanges.push(
-          await ipRangeService.addIpRange(r.ip, r.mask, p._id.toString()),
-        );
-      }
-
-      const allHosts = hostsInRange.ips.concat(hostsOutOfRange.ips);
-      await hostService.addHosts(allHosts, p._id.toString());
-
-      // Act
-      let range: ExtendedIpRange[] = await ipRangeService.getAll(null, null, {
-        detailsLevel: 'extended',
-      });
-
-      // Assert
-      expect(range.length).toStrictEqual(1);
-      expect(range[0].hosts.length).toStrictEqual(hostsInRange.ips.length);
-      expect(range[0].hosts.map((h) => h.ip)).toStrictEqual(hostsInRange.ips);
-    });
+      },
+    );
   });
 
   describe('Automation mechanics', () => {
@@ -524,6 +478,43 @@ describe('IP Range Service', () => {
       name: name,
       imageType: null,
       logo: null,
+    });
+  }
+
+  async function tags(...tags: string[]) {
+    const createdTags: TagsDocument[] = [];
+    for (const tag of tags) {
+      createdTags.push(await tagsService.create(tag, '#ffffff'));
+    }
+
+    return createdTags;
+  }
+
+  async function ipRange(
+    ip: string,
+    mask: number,
+    project: ProjectDocument,
+    tags: TagsDocument[] = [],
+  ) {
+    const ipRange = await ipRangeService.addIpRange(
+      ip,
+      mask,
+      project._id.toString(),
+    );
+    for (const tag of tags) {
+      await ipRangeService.tagIpRange(
+        ipRange._id.toString(),
+        tag._id.toString(),
+        true,
+      );
+    }
+    return ipRange;
+  }
+
+  async function block(...ipRanges: IpRangeDocument[]) {
+    await ipRangeService.batchEdit({
+      block: true,
+      ipRangeIds: ipRanges.map((x) => x.id),
     });
   }
 });

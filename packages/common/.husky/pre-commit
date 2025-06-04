@@ -1,0 +1,4 @@
+#!/bin/sh
+
+npm run generate-search-parser
+npm run lint-staged

@@ -40,11 +40,25 @@ import {
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
+import { SearchQueryParser } from '@red-kite/common/search-query';
 import * as moment from 'moment';
 import { Moment } from 'moment';
 import { NgxFileDropModule } from 'ngx-file-drop';
-import { Observable, debounceTime, distinctUntilChanged, filter, map, startWith } from 'rxjs';
+import {
+  BehaviorSubject,
+  Observable,
+  debounceTime,
+  distinctUntilChanged,
+  filter,
+  from,
+  map,
+  startWith,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { IdentifiedElement } from '../../types/identified-element.type';
+import { SearchInputComponent } from '../search-input/search-input.component';
+import { Autocomplete } from './autocomplete';
 import { TableFiltersSourceBase } from './table-filters-source';
 
 @Component({
@@ -78,9 +92,12 @@ import { TableFiltersSourceBase } from './table-filters-source';
     FormsModule,
     MatDatepickerModule,
     MatTooltipModule,
+    SearchInputComponent,
   ],
 })
 export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implements OnInit, OnDestroy {
+  private seachParser = new SearchQueryParser();
+
   @ContentChildren(MatHeaderRowDef) headerRowDefs!: QueryList<MatHeaderRowDef>;
   @ContentChildren(MatRowDef) rowDefs!: QueryList<MatRowDef<T>>;
   @ContentChildren(MatColumnDef) columnDefs!: QueryList<MatColumnDef>;
@@ -95,7 +112,7 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
 
   @Input() noDataMessage: string =
     $localize`:No data|No data is matching the filter, the array is empty:No matching data.`;
-  @Input() filterType: 'tokens' | 'fulltext' = 'tokens';
+  @Input() filterType: 'tokens' | 'fulltext' | 'kiteQl' = 'tokens';
   @Input() columns!: string[] | null;
   @Input() filterOptions!: string[] | null;
   @Input() negatableFilterOptions = this.filterOptions;
@@ -119,6 +136,10 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
     if (date) this.dateRange.get('end')?.setValue(moment(date));
   }
 
+  // KiteQl search
+  @Input('autocomplete') queryAutocomplete: Autocomplete | undefined | null;
+  kiteQlSearch: string = '';
+
   @Input() filterEnabled: boolean = true;
   filters: string[] = [];
   fullTextSearchValue = '';
@@ -126,6 +147,18 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
   filterForm = new UntypedFormControl('');
   filteredFilterOptions$: Observable<string[] | null | undefined>;
   masterToggleState = false;
+
+  public kiteQlQueryChanges$: BehaviorSubject<string> = new BehaviorSubject<string>('');
+
+  public kiteQlQueryChangesSub = this.kiteQlQueryChanges$
+    .pipe(
+      debounceTime(250),
+      switchMap(async (x) => {
+        return from(this.filterSource.setFilters([x]));
+      }),
+      tap(() => this.resetPaging())
+    )
+    .subscribe();
 
   dateRangeChange$ = this.dateRange.valueChanges
     .pipe(
@@ -149,6 +182,9 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
   private filterSourceSub = this.filterSource.filters$.subscribe(({ filters, dateRange, pagination }) => {
     this.filters = filters;
     this.fullTextSearchValue = filters.join(' ');
+    // TODO
+    // this.searchQueryForm.controls.query.setValue(filters.join(' '));
+    this.kiteQlSearch = filters[0];
     this.filterForm.setValue(this.fullTextSearchValue);
 
     this.dateRange.setValue({
@@ -207,7 +243,8 @@ export class FilteredPaginatedTableComponent<T extends IdentifiedElement> implem
   }
 
   ngOnDestroy(): void {
-    this.filterSourceSub.unsubscribe();
+    this.filterSourceSub?.unsubscribe();
+    this.kiteQlQueryChangesSub?.unsubscribe();
   }
 
   async removeFilter(filter: string) {
