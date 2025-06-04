@@ -17,7 +17,7 @@ import { KafkaJobQueue } from './job-queue/kafka-job-queue';
 import { NullJobQueue } from './job-queue/null-job-queue';
 
 const certFolder =
-  isTest() && process.env.TEST_TYPE === 'unit' ? './' : '/certs';
+  isTest() && process.env.TEST_TYPE === 'unit' ? '.' : '/certs';
 const certTestExtension =
   isTest() && process.env.TEST_TYPE === 'unit' ? '.test' : '';
 
@@ -28,16 +28,27 @@ export const kafkaConfig: KafkaConfig = {
     rejectUnauthorized: true,
     requestCert: true,
     ca: [
-      readFileSync(`${certFolder}/kafka-ca.crt${certTestExtension}`, 'utf-8'),
+      isTest() && process.env.TEST_TYPE === 'unit'
+        ? ''
+        : readFileSync(
+            `${certFolder}/kafka-ca.crt${certTestExtension}`,
+            'utf-8',
+          ),
     ],
-    cert: readFileSync(
-      `${certFolder}/kafka-client-signed.crt${certTestExtension}`,
-      'utf-8',
-    ),
-    key: readFileSync(
-      `${certFolder}/kafka-client.key${certTestExtension}`,
-      'utf-8',
-    ),
+    cert:
+      isTest() && process.env.TEST_TYPE === 'unit'
+        ? ''
+        : readFileSync(
+            `${certFolder}/kafka-client-signed.crt${certTestExtension}`,
+            'utf-8',
+          ),
+    key:
+      isTest() && process.env.TEST_TYPE === 'unit'
+        ? ''
+        : readFileSync(
+            `${certFolder}/kafka-client.key${certTestExtension}`,
+            'utf-8',
+          ),
     passphrase: process.env.JM_KAFKA_KEY_PASSWORD,
   },
 };

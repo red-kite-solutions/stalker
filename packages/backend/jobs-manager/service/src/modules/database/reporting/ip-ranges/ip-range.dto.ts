@@ -21,17 +21,7 @@ import { ResourceFilterDto } from '../resource.dto';
 export class IpRangesFilterDto extends IntersectionType(
   ResourceFilterDto,
   ResourceDetailsLevelDto,
-) {
-  @IsOptional()
-  @IsString({ each: true })
-  @IsArray()
-  ips?: string[];
-
-  @IsOptional()
-  @IsIP(4, { each: true })
-  @IsArray()
-  contains?: string[];
-}
+) {}
 
 export class IpRangesPagingDto extends IntersectionType(
   PagingDto,

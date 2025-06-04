@@ -6,7 +6,6 @@ import {
   HttpBadRequestException,
   HttpNotFoundException,
 } from '../../../../exceptions/http.exceptions';
-import escapeStringRegexp from '../../../../utils/escape-string-regexp';
 import { WebsiteFinding } from '../../../findings/findings.service';
 import { FindingsQueue } from '../../../queues/finding-queue/findings-queue';
 import { TagsService } from '../../tags/tag.service';
@@ -18,6 +17,7 @@ import { Port, PortDocument } from '../port/port.model';
 import { WebsiteFilterModel } from './website-filter.model';
 import { BatchEditWebsitesDto } from './website.dto';
 import { Website, WebsiteDocument } from './website.model';
+import { WebsitesFilterParser } from './websites-filter-parser';
 
 interface ExtendedWebsiteSearchQuery {
   projectIdObj: Types.ObjectId;
@@ -37,6 +37,7 @@ export class WebsiteService {
     @InjectModel('port') private readonly portModel: Model<Port>,
     private findingsQueue: FindingsQueue,
     private tagsService: TagsService,
+    private readonly websitesFilterParser: WebsitesFilterParser,
   ) {}
 
   private async buildExtendedSearchQuery(
@@ -262,7 +263,13 @@ export class WebsiteService {
   ): Promise<WebsiteDocument[]> {
     let query;
     if (filter) {
-      query = this.websiteModel.find(await this.buildFilters(filter));
+      query = this.websiteModel.find(
+        await this.websitesFilterParser.buildFilter(
+          filter.query,
+          filter.firstSeenStartDate,
+          filter.firstSeenEndDate,
+        ),
+      );
     } else {
       query = this.websiteModel.find({});
     }
@@ -299,123 +306,6 @@ export class WebsiteService {
     return await query;
   }
 
-  private async buildFilters(filter: WebsiteFilterModel) {
-    const finalFilter = {};
-
-    // Filter by host ip
-    if (filter.hosts) {
-      const hostsRegex = filter.hosts
-        .filter((x) => x)
-        .map((x) => x.toLowerCase().trim())
-        .map((x) => escapeStringRegexp(x))
-        .map((x) => new RegExp(`.*${x}.*`));
-
-      if (hostsRegex.length > 0) {
-        const hosts = await this.hostModel.find(
-          { ip: { $in: hostsRegex } },
-          '_id',
-        );
-        if (hosts) finalFilter['host.id'] = { $in: hosts.map((h) => h._id) };
-      }
-    }
-
-    // Filter by domain
-    if (filter.domains) {
-      const domainsRegex = filter.domains
-        .filter((x) => x)
-        .map((x) => x.toLowerCase().trim())
-        .map((x) => escapeStringRegexp(x))
-        .map((x) => new RegExp(`.*${x}.*`));
-
-      if (domainsRegex.length > 0) {
-        const domains = await this.domainModel.find(
-          { name: { $in: domainsRegex } },
-          '_id',
-        );
-        if (domains)
-          finalFilter['domain.id'] = { $in: domains.map((d) => d._id) };
-      }
-    }
-
-    // Filter by port
-    if (filter.ports) {
-      const ports = await this.portModel.find(
-        { port: { $in: filter.ports } },
-        '_id',
-      );
-      if (ports) finalFilter['port.id'] = { $in: ports.map((p) => p._id) };
-    }
-
-    // Filter by project
-    if (filter.projects) {
-      const projectIds = filter.projects
-        .filter((x) => x)
-        .map((x) => new Types.ObjectId(x));
-
-      if (projectIds.length > 0) {
-        finalFilter['projectId'] = { $in: projectIds };
-      }
-    }
-
-    // Filter by tag
-    if (filter.tags) {
-      const preppedTagsArray = filter.tags
-        .filter((x) => x)
-        .map((x) => x.toLowerCase())
-        .map((x) => new Types.ObjectId(x));
-
-      if (preppedTagsArray.length > 0) {
-        finalFilter['tags'] = {
-          $all: preppedTagsArray.map((t) => new Types.ObjectId(t)),
-        };
-      }
-    }
-
-    // Filter by createdAt
-    if (filter.firstSeenStartDate || filter.firstSeenEndDate) {
-      let createdAtFilter = {};
-
-      if (filter.firstSeenStartDate && filter.firstSeenEndDate) {
-        createdAtFilter = [
-          { createdAt: { $gte: filter.firstSeenStartDate } },
-          { createdAt: { $lte: filter.firstSeenEndDate } },
-        ];
-        finalFilter['$and'] = createdAtFilter;
-      } else {
-        if (filter.firstSeenStartDate)
-          createdAtFilter = { $gte: filter.firstSeenStartDate };
-        else if (filter.firstSeenEndDate)
-          createdAtFilter = { $lte: filter.firstSeenEndDate };
-        finalFilter['createdAt'] = createdAtFilter;
-      }
-    }
-
-    if (filter.mergedInId) {
-      finalFilter['mergedInId'] = {
-        $eq: new Types.ObjectId(filter.mergedInId),
-      };
-    }
-
-    // Filter by blocked
-    if (filter.blocked === false) {
-      finalFilter['$or'] = [
-        { blocked: { $exists: false } },
-        { blocked: { $eq: false } },
-      ];
-    } else if (filter.blocked === true) {
-      finalFilter['blocked'] = { $eq: true };
-    }
-
-    // Filter by merged
-    if (filter.merged === false) {
-      finalFilter['mergedInId'] = { $eq: null };
-    } else if (filter.merged === true) {
-      finalFilter['mergedInId'] = { $ne: null };
-    }
-
-    return finalFilter;
-  }
-
   public async keyIsBlocked(correlationKey: string) {
     const website = await this.websiteModel.findOne(
       { correlationKey: { $eq: correlationKey } },
@@ -429,7 +319,11 @@ export class WebsiteService {
       return await this.websiteModel.estimatedDocumentCount();
     } else {
       return await this.websiteModel.countDocuments(
-        await this.buildFilters(filter),
+        await this.websitesFilterParser.buildFilter(
+          filter.query,
+          filter.firstSeenStartDate,
+          filter.firstSeenEndDate,
+        ),
       );
     }
   }
