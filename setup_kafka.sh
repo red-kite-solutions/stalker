@@ -8,31 +8,8 @@ VALIDITY=730
 JOBS_MANAGER_USERNAME="jobs-manager"
 ORCHESTRATOR_USERNAME="orchestrator"
 
-cat > "kafka-ca-openssl.cnf" << EOF
-[req]
-default_bits = 4096
-encrypt_key  = no
-default_md   = sha256
-prompt       = no
-utf8         = yes
-
-distinguished_name = req_distinguished_name
-
-req_extensions = v3_req
-[req_distinguished_name]
-O  = Red Kite Solutions
-OU = Stalker Kafka
-CN = Kakfa CA
-
-[v3_req]
-basicConstraints     = CA:TRUE
-subjectKeyIdentifier = hash
-keyUsage             = digitalSignature, keyEncipherment
-extendedKeyUsage     = clientAuth, serverAuth
-EOF
-
-# Creating CA with config
-openssl req -new -x509 -keyout kafka-ca.key -out kafka-ca.crt -days 3650 -config kafka-ca-openssl.cnf
+# Creating CA
+openssl req -new -x509 -keyout kafka-ca.key -out kafka-ca.crt -days 3650 -subj "/CN=Kafka CA/OU=Stalker Kafka/O=Red Kite Solutions/L=/ST=/C=" -nodes
  
 # Create certificate and store in keystore
 keytool -keystore kafka-0.keystore.jks -alias kafka-0 -validity $VALIDITY -genkey -keyalg RSA -ext SAN=dns:kafka-controller-0.kafka-controller-headless.stalker.svc.cluster.local,dns:kafka-controller-1.kafka-controller-headless.stalker.svc.cluster.local,dns:kafka-controller-2.kafka-controller-headless.stalker.svc.cluster.local,dns:kafka-controller-headless.stalker.svc.cluster.local,dns:kafka-controller-headless,dns:kafka.stalker.svc.cluster.local,dns:kafka -storepass ${PASSWORD} -noprompt -dname "CN=kafka, OU=Stalker Kafka, O=Red Kite Solutions, L=, S=, C="
@@ -116,7 +93,6 @@ mv kafka-0.keystore.jks ./queue/kafka-0.keystore.jks
 mv kafka.server.truststore.jks ./queue/kafka.server.truststore.jks
 
 # Cleanup
-rm kafka-ca-openssl.cnf
 rm kafka-ca.crt
 rm kafka-ca.key
 rm ext0.cnf
