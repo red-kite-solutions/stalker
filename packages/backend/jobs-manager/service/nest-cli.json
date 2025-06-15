@@ -8,6 +8,16 @@
         "include": "**/*.mjml",
         "outDir": "dist/src"
       }
+    ],
+    "plugins": [
+      {
+        "name": "@nestjs/swagger",
+        "options": {
+          "classValidatorShim": true,
+          "introspectComments": true,
+          "skipAutoHttpCode": true
+        }
+      }
     ]
   }
 }

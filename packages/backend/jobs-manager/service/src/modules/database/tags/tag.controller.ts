@@ -14,7 +14,6 @@ import {
   HttpServerErrorException,
 } from '../../../exceptions/http.exceptions';
 import { MongoIdDto } from '../../../types/dto/mongo-id.dto';
-import { Role } from '../../auth/constants';
 import { Scopes } from '../../auth/decorators/scopes.decorator';
 import { ScopesGuard } from '../../auth/guards/scope.guard';
 import { ApiKeyStrategy } from '../../auth/strategies/api-key.strategy';
@@ -28,6 +27,14 @@ import { TagsService } from './tag.service';
 export class TagsController {
   constructor(private tagsService: TagsService) {}
 
+  /**
+   * Read all the tags.
+   *
+   * @remarks
+   * Read all the tags without paging.
+   *
+   * @scopes manage:tags:read
+   */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('manage:tags:read')
   @Get()
@@ -35,6 +42,14 @@ export class TagsController {
     return await this.tagsService.getAll();
   }
 
+  /**
+   * Read a single tag.
+   *
+   * @remarks
+   * Read a single tag by id.
+   *
+   * @scopes manage:tags:read
+   */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('manage:tags:read')
   @Get(':id')
@@ -42,6 +57,14 @@ export class TagsController {
     return await this.tagsService.getById(dto.id);
   }
 
+  /**
+   * Create a new tag.
+   *
+   * @remarks
+   * Create a new tag.
+   *
+   * @scopes manage:tags:create
+   */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('manage:tags:create')
   @Post()
@@ -57,6 +80,14 @@ export class TagsController {
     }
   }
 
+  /**
+   * Delete a tag.
+   *
+   * @remarks
+   * Delete a single tag by id.
+   *
+   * @scopes manage:tags:delete
+   */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('manage:tags:delete')
   @Delete(':id')

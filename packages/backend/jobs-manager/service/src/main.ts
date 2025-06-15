@@ -1,6 +1,7 @@
 import { NestApplicationOptions, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { useContainer } from 'class-validator';
 import { json } from 'express';
 import { readFileSync } from 'node:fs';
@@ -37,6 +38,7 @@ async function bootstrap() {
     await workerApp.listen();
   } else {
     const app = await NestFactory.create(AppModule, adapter, options);
+
     app.enableCors({
       origin: process.env.RK_URL,
     });
@@ -48,6 +50,16 @@ async function bootstrap() {
         forbidNonWhitelisted: true,
       }),
     );
+
+    // OpenAPI Setup
+    const config = new DocumentBuilder()
+      .setTitle('Red Kite')
+      .setDescription('The Red Kite external attack surface management API.')
+      .build();
+
+    const documentFactory = () => SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api', app, documentFactory);
+
     useContainer(app.select(AppModule), { fallbackOnErrors: true });
     await app.listen(3000);
   }
