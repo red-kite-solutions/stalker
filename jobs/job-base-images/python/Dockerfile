@@ -18,7 +18,7 @@ WORKDIR /tools/masscan
 RUN make -j && make install
 
 # Katana
-FROM golang:1.22.4-bullseye AS katana
+FROM golang:1.23.8-bullseye AS katana
 
 RUN apt-get update && apt-get install -y git gcc musl-dev
 RUN mkdir -p /tools/katana/
@@ -28,7 +28,7 @@ RUN go mod download
 RUN go build ./cmd/katana
 
 # httpx
-FROM golang:1.22.4-bullseye AS httpx
+FROM golang:1.23.8-bullseye AS httpx
 
 RUN mkdir -p /tools/httpx/
 RUN git clone https://github.com/projectdiscovery/httpx.git /tools/httpx

@@ -70,9 +70,9 @@ export class CustomFindingHandler extends JobFindingHandlerBase<CustomFindingCom
         command.projectId,
         command.finding.port,
         command.finding.protocol,
-        service.trim(),
-        product.trim(),
-        version.trim(),
+        service?.trim(),
+        product?.trim(),
+        version?.trim(),
       );
     } catch (err) {
       this.logger.error("Error happened while adding a port's service");

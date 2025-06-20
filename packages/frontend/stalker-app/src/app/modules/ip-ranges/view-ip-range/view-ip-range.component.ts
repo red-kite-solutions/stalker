@@ -228,7 +228,7 @@ export class ViewIpRangeComponent implements OnDestroy {
     const url = this.router.serializeUrl(
       this.router.createUrlTree(['/hosts/'], {
         queryParams: {
-          f: `-is: blocked+project: ${this.projects.find((p) => p.id === this.ipRange.projectId)?.name}+range: ${this.ipRange.ip}/${this.ipRange.mask}`,
+          f: `-is:blocked project:"${this.projects.find((p) => p.id === this.ipRange.projectId)?.name}" host:${this.ipRange.ip}/${this.ipRange.mask}`,
         },
       })
     );

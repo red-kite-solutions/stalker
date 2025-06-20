@@ -6,13 +6,13 @@ import {
   HttpBadRequestException,
   HttpNotFoundException,
 } from '../../../../exceptions/http.exceptions';
-import escapeStringRegexp from '../../../../utils/escape-string-regexp';
 import { TagsService } from '../../tags/tag.service';
 import { CorrelationKeyUtils } from '../correlation.utils';
 import { Host, HostDocument } from '../host/host.model';
 import { WebsiteService } from '../websites/website.service';
 import { BatchEditPortsDto, GetPortsDto } from './port.dto';
 import { ExtendedPort, Port, PortDocument } from './port.model';
+import { PortsFilterParser } from './ports-filter-parser';
 
 @Injectable()
 export class PortService {
@@ -23,6 +23,7 @@ export class PortService {
     private tagsService: TagsService,
     @InjectModel('port') private readonly portsModel: Model<Port>,
     private readonly websiteService: WebsiteService,
+    private readonly portsFilterParser: PortsFilterParser,
   ) {}
 
   private readonly hostNotFoundError = 'Invalid host and project combination.';
@@ -84,6 +85,9 @@ export class PortService {
     projectId: string,
     portNumber: number,
     protocol: 'tcp' | 'udp',
+    service: string = undefined,
+    product: string = undefined,
+    version: string = undefined,
   ) {
     const host: Pick<HostDocument, '_id' | 'ip'> = await this.hostModel.findOne(
       {
@@ -93,6 +97,7 @@ export class PortService {
       '_id ip',
     );
     if (!host) throw new HttpNotFoundException(this.hostNotFoundError);
+
     const correlationKey = CorrelationKeyUtils.portCorrelationKey(
       projectId,
       host.ip,
@@ -105,6 +110,9 @@ export class PortService {
       portNumber,
       protocol,
       correlationKey,
+      service,
+      product,
+      version,
     );
   }
 
@@ -333,7 +341,14 @@ export class PortService {
 
     let query: Query<PortDocument[], any> = null;
     if (filter) {
-      query = this.portsModel.find(await this.buildFilters(filter), projection);
+      query = this.portsModel.find(
+        await this.portsFilterParser.buildFilter(
+          filter.query,
+          filter.firstSeenStartDate,
+          filter.firstSeenEndDate,
+        ),
+        projection,
+      );
     } else {
       query = this.portsModel.find({}, projection);
     }
@@ -367,140 +382,13 @@ export class PortService {
       return await this.portsModel.estimatedDocumentCount();
     } else {
       return await this.portsModel.countDocuments(
-        await this.buildFilters(filter),
+        await this.portsFilterParser.buildFilter(
+          filter.query,
+          filter.firstSeenStartDate,
+          filter.firstSeenEndDate,
+        ),
       );
     }
-  }
-
-  public async buildFilters(dto: Partial<GetPortsDto>) {
-    const finalFilter = {};
-    // Filter by host id
-    if (dto.hostId) {
-      finalFilter['host.id'] = { $eq: new Types.ObjectId(dto.hostId) };
-    }
-
-    // Filter by host ip
-    if (dto.hosts && !dto.hostId) {
-      const hostsRegex = dto.hosts
-        .filter((x) => x)
-        .map((x) => x.toLowerCase().trim())
-        .map((x) => escapeStringRegexp(x))
-        .map((x) => new RegExp(`.*${x}.*`));
-
-      if (hostsRegex.length > 0) {
-        const hosts = await this.hostModel.find(
-          { ip: { $in: hostsRegex } },
-          '_id',
-        );
-        if (hosts) finalFilter['host.id'] = { $in: hosts.map((h) => h._id) };
-      }
-    }
-
-    // Filter by port service
-    if (dto.services) {
-      const servicesRegex = dto.services
-        .filter((x) => x)
-        .map((x) => x.toLowerCase().trim())
-        .map((x) => escapeStringRegexp(x))
-        .map((x) => new RegExp(`.*${x}.*`));
-
-      if (servicesRegex.length > 0) {
-        finalFilter['service'] = { $in: servicesRegex };
-      }
-    }
-
-    // Filter by port products
-    if (dto.products) {
-      const productsRegex = dto.products
-        .filter((x) => x)
-        .map((x) => x.toLowerCase().trim())
-        .map((x) => escapeStringRegexp(x))
-        .map((x) => new RegExp(`.*${x}.*`, 'i'));
-
-      if (productsRegex.length > 0) {
-        finalFilter['product'] = { $in: productsRegex };
-      }
-    }
-
-    // Filter by port versions
-    if (dto.versions) {
-      const versionsRegex = dto.versions
-        .filter((x) => x)
-        .map((x) => x.toLowerCase().trim())
-        .map((x) => escapeStringRegexp(x))
-        .map((x) => new RegExp(`.*${x}.*`, 'i'));
-
-      if (versionsRegex.length > 0) {
-        finalFilter['version'] = { $in: versionsRegex };
-      }
-    }
-
-    // Filter by project
-    if (dto.projects) {
-      const projectIds = dto.projects
-        .filter((x) => x)
-        .map((x) => new Types.ObjectId(x));
-
-      if (projectIds.length > 0) {
-        finalFilter['projectId'] = { $in: projectIds };
-      }
-    }
-
-    // Filter by tag
-    if (dto.tags) {
-      const preppedTagsArray = dto.tags
-        .filter((x) => x)
-        .map((x) => x.toLowerCase())
-        .map((x) => new Types.ObjectId(x));
-
-      if (preppedTagsArray.length > 0) {
-        finalFilter['tags'] = {
-          $all: preppedTagsArray.map((t) => new Types.ObjectId(t)),
-        };
-      }
-    }
-
-    // Filter by createdAt
-    if (dto.firstSeenStartDate || dto.firstSeenEndDate) {
-      let createdAtFilter = {};
-
-      if (dto.firstSeenStartDate && dto.firstSeenEndDate) {
-        createdAtFilter = [
-          { createdAt: { $gte: dto.firstSeenStartDate } },
-          { createdAt: { $lte: dto.firstSeenEndDate } },
-        ];
-        finalFilter['$and'] = createdAtFilter;
-      } else {
-        if (dto.firstSeenStartDate)
-          createdAtFilter = { $gte: dto.firstSeenStartDate };
-        else if (dto.firstSeenEndDate)
-          createdAtFilter = { $lte: dto.firstSeenEndDate };
-        finalFilter['createdAt'] = createdAtFilter;
-      }
-    }
-
-    // Filter by port
-    if (dto.ports) {
-      const validPorts = dto.ports.filter((x) => x);
-      finalFilter['port'] = { $in: validPorts };
-    }
-
-    // Filter by protocol
-    if (dto.protocol) {
-      finalFilter['layer4Protocol'] = { $eq: dto.protocol };
-    }
-
-    // Filter by blocked
-    if (dto.blocked === false) {
-      finalFilter['$or'] = [
-        { blocked: { $exists: false } },
-        { blocked: { $eq: false } },
-      ];
-    } else if (dto.blocked === true) {
-      finalFilter['blocked'] = { $eq: true };
-    }
-
-    return finalFilter;
   }
 
   public async batchEdit(dto: BatchEditPortsDto) {

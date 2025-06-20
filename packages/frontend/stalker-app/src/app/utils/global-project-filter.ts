@@ -28,4 +28,14 @@ export function setGlobalProjectFilter(project: GlobalProjectFilter | undefined)
   globalProjectFilter$.next(getGlobalProjectFilter());
 }
 
+export function appendGlobalFiltersToQuery(query: string | undefined) {
+  query = query || '';
+
+  if (hasGlobalProjectFilter()) {
+    query = `project.id: ${getGlobalProjectFilter()?.id} ${query}`;
+  }
+
+  return query;
+}
+
 export const globalProjectFilter$ = new BehaviorSubject(getGlobalProjectFilter());

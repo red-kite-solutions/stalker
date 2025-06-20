@@ -16,8 +16,17 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { ParamMap, RouterModule } from '@angular/router';
+import {
+  AutocompleteBuilder,
+  domainSuggestion,
+  excludeSuggestion,
+  hostSuggestion,
+  portSuggestion,
+  projectSuggestion,
+  tagSuggestion,
+} from '@red-kite/frontend/app/shared/widget/filtered-paginated-table/autocomplete';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, combineLatest, map, Observable, shareReplay, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, catchError, combineLatest, EMPTY, map, Observable, shareReplay, switchMap, tap } from 'rxjs';
 import { FindingsService } from '../../../api/findings/findings.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { TagsService } from '../../../api/tags/tags.service';
@@ -27,7 +36,6 @@ import { IntersectionDirective } from '../../../shared/directives/intersection.d
 import { SharedModule } from '../../../shared/shared.module';
 import { CustomFinding, CustomFindingField } from '../../../shared/types/finding/finding.type';
 import { ProjectSummary } from '../../../shared/types/project/project.summary';
-import { Tag } from '../../../shared/types/tag.type';
 import { Website } from '../../../shared/types/websites/website.type';
 import { ElementMenuItems } from '../../../shared/widget/dynamic-icons/menu-icon.component';
 import { SecureIconComponent } from '../../../shared/widget/dynamic-icons/secure-icon.component';
@@ -41,11 +49,7 @@ import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-
 import { BlockedPillTagComponent } from '../../../shared/widget/pill-tag/blocked-pill-tag.component';
 import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.component';
 import { PillTagComponent } from '../../../shared/widget/pill-tag/pill-tag.component';
-import {
-  getGlobalProjectFilter,
-  globalProjectFilter$,
-  hasGlobalProjectFilter,
-} from '../../../utils/global-project-filter';
+import { appendGlobalFiltersToQuery, globalProjectFilter$ } from '../../../utils/global-project-filter';
 import { FindingsModule } from '../../findings/findings.module';
 import { WebsiteInteractionsService } from '../websites-interactions.service';
 
@@ -132,7 +136,7 @@ class WebsiteFiltersSource extends TableFiltersSourceBase<WebsiteFilters> {
     {
       provide: TABLE_FILTERS_SOURCE_INITAL_FILTERS,
       useValue: {
-        filters: ['-is: blocked'],
+        filters: ['-is:blocked -is:merged '],
         pagination: { page: 0, pageSize: 25 },
         numberOfColumns: 3,
         viewStyle: 'grid',
@@ -143,9 +147,28 @@ class WebsiteFiltersSource extends TableFiltersSourceBase<WebsiteFilters> {
 export class ListWebsitesComponent {
   readonly correlationKeysToLoad: BehaviorSubject<string>[] = [];
 
+  public readonly autocomplete = this.autocompleteBuilder
+    .build('key')
+    .suggestion(hostSuggestion)
+    .suggestion(portSuggestion)
+    .suggestion(domainSuggestion)
+    .suggestion(tagSuggestion)
+    .suggestion(projectSuggestion)
+    .suggestion({
+      name: 'is',
+      value: 'is:',
+      icon: 'dataset',
+      children: (builder) =>
+        builder
+          .build('value')
+          .suggestion({ value: 'merged', icon: 'merge' })
+          .suggestion({ value: 'blocked', icon: 'block' }),
+    })
+    .divider()
+    .suggestion(excludeSuggestion);
+
   dataLoading = true;
   displayedColumns: string[] = ['select', 'url', 'domain', 'port', 'ip', 'project', 'tags', 'menu'];
-  filterOptions: string[] = ['domain', 'host', 'port', 'project', 'tags', 'is'];
   public readonly noDataMessage = $localize`:No website found|No website was found:No website found`;
 
   selection = new SelectionModel<WebsiteWithPreview>(true, []);
@@ -155,19 +178,11 @@ export class ListWebsitesComponent {
   allTags$ = this.tagsService.getAllTags().pipe(shareReplay(1));
 
   refresh$ = new BehaviorSubject(null);
-  websites$ = combineLatest([
-    this.filtersSource.debouncedFilters$,
-    this.allTags$,
-    this.refresh$,
-    globalProjectFilter$,
-  ]).pipe(
-    switchMap(([{ filters, dateRange, pagination }, tags]) =>
-      this.websitesService.getPage(
-        pagination?.page ?? 0,
-        pagination?.pageSize ?? 25,
-        this.buildFilters(filters, tags),
-        dateRange
-      )
+  websites$ = combineLatest([this.filtersSource.debouncedFilters$, this.refresh$, globalProjectFilter$]).pipe(
+    switchMap(([{ filters, dateRange, pagination }]) =>
+      this.websitesService
+        .getPage(pagination?.page ?? 0, pagination?.pageSize ?? 25, appendGlobalFiltersToQuery(filters[0]), dateRange)
+        .pipe(catchError(() => EMPTY))
     ),
     tap(() => (this.dataLoading = false)),
     shareReplay(1)
@@ -212,86 +227,10 @@ export class ListWebsitesComponent {
     public dialog: MatDialog,
     private titleService: Title,
     private findingsService: FindingsService,
+    private autocompleteBuilder: AutocompleteBuilder,
     @Inject(TableFiltersSourceBase) public filtersSource: WebsiteFiltersSource
   ) {
     this.titleService.setTitle($localize`:Websites list page title|:Websites`);
-  }
-
-  buildFilters(stringFilters: string[], tags: Tag[]): any {
-    const SEPARATOR = ':';
-    const NEGATING_CHAR = '-';
-    const filterObject: any = {};
-    const includedTags = [];
-    const ports = [];
-    const hosts = [];
-    const domains = [];
-    const projects = [];
-    let blocked: boolean | null = null;
-    let merged: boolean | null = null;
-
-    for (const filter of stringFilters) {
-      if (filter.indexOf(SEPARATOR) === -1) continue;
-
-      const keyValuePair = filter.split(SEPARATOR);
-
-      if (keyValuePair.length !== 2) continue;
-
-      let key = keyValuePair[0].trim().toLowerCase();
-      const value = keyValuePair[1].trim().toLowerCase();
-      const negated = key.length > 0 && key[0] === NEGATING_CHAR;
-      if (negated) key = key.substring(1);
-
-      if (!key || !value) continue;
-
-      switch (key) {
-        case 'project':
-          const project = this.projects.find((c) => c.name.trim().toLowerCase() === value.trim().toLowerCase());
-          if (project) projects.push(project.id);
-          else
-            this.toastr.warning(
-              $localize`:Project does not exist|The given project name is not known to the application:Project name not recognized`
-            );
-          break;
-        case 'host':
-          if (value) hosts.push(value.trim().toLowerCase());
-          break;
-        case 'domain':
-          if (value) domains.push(value.trim().toLowerCase());
-          break;
-        case 'tags':
-          const tag = tags.find((t) => t.text.trim().toLowerCase() === value.trim().toLowerCase());
-          if (tag) includedTags.push(tag._id);
-          else
-            this.toastr.warning(
-              $localize`:Tag does not exist|The given tag is not known to the application:Tag not recognized`
-            );
-          break;
-        case 'port':
-          ports.push(value);
-          break;
-        case 'is':
-          switch (value) {
-            case 'blocked':
-              blocked = !negated;
-              break;
-            case 'merged':
-              merged = !negated;
-              break;
-          }
-          break;
-      }
-    }
-
-    if (hasGlobalProjectFilter()) projects.push(getGlobalProjectFilter()?.id);
-
-    if (includedTags?.length) filterObject['tags'] = includedTags;
-    if (ports?.length) filterObject['ports'] = ports;
-    if (hosts?.length) filterObject['hosts'] = hosts;
-    if (domains?.length) filterObject['domains'] = domains;
-    if (projects?.length) filterObject['projects'] = projects;
-    if (blocked !== null) filterObject['blocked'] = blocked;
-    if (merged !== null) filterObject['merged'] = merged;
-    return filterObject;
   }
 
   dateFilter(event: MouseEvent) {

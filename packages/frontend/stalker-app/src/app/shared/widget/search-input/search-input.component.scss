@@ -1,0 +1,55 @@
+.rich-query {
+  pointer-events: none;
+}
+
+:not(.invalid) {
+  > .value {
+    background-color: rgb(93 173 254 / 8%);
+    border-radius: 3px;
+    color: rgb(93, 173, 254);
+  }
+}
+
+.invalid {
+  background-color: rgb(254 93 93 / 8%);
+  border-radius: 3px;
+  color: rgb(254 93 93);
+}
+
+.rich-query {
+  position: absolute;
+  top: 20px;
+  font-size: 14px;
+  left: 16px;
+}
+
+input {
+  color: rgba(0, 0, 0, 0) !important;
+  caret-color: rgb(93, 173, 254) !important;
+  &::selection {
+    color: rgba(0, 0, 0, 0) !important;
+    background-color: #3297fd;
+  }
+}
+
+.suggestion {
+  min-height: 32px;
+  max-height: 32px;
+  justify-content: flex-start;
+
+  &.fakeFocused {
+    background-color: var(--rk-button-fake-focus-color);
+  }
+
+  mat-icon {
+    width: 14px;
+    height: 14px;
+    font-size: 14px;
+  }
+}
+
+.autocomplete {
+  text-align: left;
+  width: 200px;
+  max-width: 100vw;
+}
