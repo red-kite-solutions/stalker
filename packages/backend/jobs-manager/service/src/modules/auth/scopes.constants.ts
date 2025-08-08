@@ -6,6 +6,10 @@ export const ALL_EXCLUDED_SCOPES = [RESET_PASSWORD_SCOPE] as const;
 /** Scopes that can't be given through the API */
 export type ExtendedScope = (typeof ALL_EXCLUDED_SCOPES)[number];
 
+export interface ScopeOptions {
+  mode: 'oneOf' | 'allOf';
+}
+
 // Groups
 const MANAGE_GROUP_CREATE_SCOPE = 'manage:groups:create';
 const MANAGE_GROUP_UDPATE_SCOPE = 'manage:groups:update';

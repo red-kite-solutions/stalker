@@ -81,7 +81,6 @@ export class IpRangeFilterParser extends FilterParserBase<IpRangeDocument> {
         }
       }
     }
-    console.log(filters);
     return filters;
   }
 

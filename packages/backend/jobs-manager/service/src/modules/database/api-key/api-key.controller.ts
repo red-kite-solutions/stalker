@@ -18,21 +18,20 @@ import {
 import { MongoIdDto } from '../../../types/dto/mongo-id.dto';
 import { Page } from '../../../types/page.type';
 import { AuthenticatedRequest, UserAuthContext } from '../../auth/auth.types';
-import { Role } from '../../auth/constants';
 import { Scopes } from '../../auth/decorators/scopes.decorator';
 import { ScopesGuard } from '../../auth/guards/scope.guard';
+import {
+  MANAGE_APIKEY_DELETE_ALL,
+  MANAGE_APIKEY_READ_ALL,
+} from '../../auth/scopes.constants';
 import { ApiKeyStrategy } from '../../auth/strategies/api-key.strategy';
 import { JwtStrategy } from '../../auth/strategies/jwt.strategy';
+import { userHasScope } from '../../auth/utils/auth.utils';
 import { MONGO_DUPLICATE_ERROR } from '../database.constants';
 import { ApiKeyDocument } from './api-key.model';
 import { ApiKeyService } from './api-key.service';
 import { ApiKeyFilterModel } from './api-key.types';
 import { ApiKeyFilterDto, CreateApiKeyDto } from './api.key.dto';
-import { userHasScope } from '../../auth/utils/auth.utils';
-import {
-  MANAGE_APIKEY_DELETE_ALL,
-  MANAGE_APIKEY_READ_ALL,
-} from '../../auth/scopes.constants';
 
 @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
 @Controller('api-key')
@@ -46,7 +45,7 @@ export class ApiKeyController {
     return req.user;
   }
 
-  @Scopes(['manage:api-key:read', MANAGE_APIKEY_READ_ALL])
+  @Scopes(['manage:api-key:read', MANAGE_APIKEY_READ_ALL], { mode: 'oneOf' })
   @Get()
   async getAll(
     @Request() req: AuthenticatedRequest,
@@ -66,7 +65,7 @@ export class ApiKeyController {
     };
   }
 
-  @Scopes(['manage:api-key:read', MANAGE_APIKEY_READ_ALL])
+  @Scopes(['manage:api-key:read', MANAGE_APIKEY_READ_ALL], { mode: 'oneOf' })
   @Get(':id')
   async get(
     @Request() req: AuthenticatedRequest,
@@ -106,7 +105,9 @@ export class ApiKeyController {
     }
   }
 
-  @Scopes(['manage:api-key:delete', MANAGE_APIKEY_DELETE_ALL])
+  @Scopes(['manage:api-key:delete', MANAGE_APIKEY_DELETE_ALL], {
+    mode: 'oneOf',
+  })
   @Delete(':id')
   async deleteKey(
     @Request() req: AuthenticatedRequest,

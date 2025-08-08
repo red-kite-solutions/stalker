@@ -1,5 +1,5 @@
 import { ApiScope } from '../scopes.constants';
-import { simplifyScopes, userHasScope } from './auth.utils';
+import { canActivateScopes, simplifyScopes, userHasScope } from './auth.utils';
 
 describe('Auth Utils', () => {
   describe('Scopes', () => {
@@ -81,5 +81,75 @@ describe('Auth Utils', () => {
       // Assert
       expect(result).toStrictEqual(hasScope);
     });
+
+    it.each([
+      {
+        userScopes: ['asdf', 'qwerty:asdf'],
+        requiredScopes: ['asdf'],
+        scopeOptions: { mode: 'allOf' },
+        expected: true,
+      },
+      {
+        userScopes: ['asdf', 'qwerty:asdf'],
+        requiredScopes: ['qwerty:asdf', 'uiop'],
+        scopeOptions: { mode: 'allOf' },
+        expected: false,
+      },
+      {
+        userScopes: ['asdf', 'qwerty:asdf'],
+        requiredScopes: ['qwerty:asdf', 'uiop'],
+        scopeOptions: { mode: 'oneOf' },
+        expected: true,
+      },
+      {
+        userScopes: [],
+        requiredScopes: ['qwerty:uiop'],
+        scopeOptions: { mode: 'allOf' },
+        expected: false,
+      },
+      {
+        userScopes: [],
+        requiredScopes: ['qwerty:uiop'],
+        scopeOptions: { mode: 'oneOf' },
+        expected: false,
+      },
+      {
+        userScopes: ['asdf', 'qwerty:*'],
+        requiredScopes: ['qwerty:uiop'],
+        scopeOptions: { mode: 'allOf' },
+        expected: true,
+      },
+      {
+        userScopes: ['asdf', 'qwerty:*', '*'],
+        requiredScopes: ['uiop:jkl', 'qwerty:asdf'],
+        scopeOptions: { mode: 'allOf' },
+        expected: false,
+      },
+      {
+        userScopes: ['asdf', 'qwerty:*', '*'],
+        requiredScopes: ['uiop:jkl', 'qwerty:asdf'],
+        scopeOptions: { mode: 'oneOf' },
+        expected: true,
+      },
+      {
+        userScopes: ['asdf:qwerty', 'qwerty:*'],
+        requiredScopes: ['asdf:qwerty', 'qwerty:asdf'],
+        scopeOptions: { mode: 'allOf' },
+        expected: true,
+      },
+    ])(
+      '[%#] User can activate a route: %s',
+      ({ userScopes, requiredScopes, scopeOptions, expected }) => {
+        // Arrange && Act
+        const result = canActivateScopes(
+          requiredScopes as ApiScope[],
+          userScopes,
+          { mode: <'allOf' | 'oneOf'>scopeOptions.mode },
+        );
+
+        // Assert
+        expect(result).toStrictEqual(expected);
+      },
+    );
   });
 });

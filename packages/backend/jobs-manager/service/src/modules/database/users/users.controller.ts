@@ -20,23 +20,22 @@ import {
 } from '../../../exceptions/http.exceptions';
 import { MongoIdDto } from '../../../types/dto/mongo-id.dto';
 import { AuthenticatedRequest } from '../../auth/auth.types';
-import { Role } from '../../auth/constants';
 import { Scopes } from '../../auth/decorators/scopes.decorator';
 import { ScopesGuard } from '../../auth/guards/scope.guard';
+import {
+  MANAGE_USER_READ_ALL_SCOPE,
+  MANAGE_USER_UPDATE_ALL_SCOPE,
+  RESET_PASSWORD_SCOPE,
+} from '../../auth/scopes.constants';
 import { ApiKeyStrategy } from '../../auth/strategies/api-key.strategy';
 import { JwtStrategy } from '../../auth/strategies/jwt.strategy';
+import { userHasScope } from '../../auth/utils/auth.utils';
 import { MONGO_DUPLICATE_ERROR } from '../database.constants';
+import { GroupDocument } from '../groups/groups.model';
 import { ResetPasswordRequestDto } from './reset-password-request.dto';
 import { ChangePasswordDto, CreateUserDto, EditUserDto } from './users.dto';
 import { User, UserDocument } from './users.model';
 import { UsersService } from './users.service';
-import { userHasScope } from '../../auth/utils/auth.utils';
-import {
-  RESET_PASSWORD_SCOPE,
-  MANAGE_USER_READ_ALL_SCOPE,
-  MANAGE_USER_UPDATE_ALL_SCOPE,
-} from '../../auth/scopes.constants';
-import { GroupDocument } from '../groups/groups.model';
 
 @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
 @Controller('/users')
@@ -105,7 +104,7 @@ export class UsersController {
     }
   }
 
-  @Scopes(['manage:users:read', MANAGE_USER_READ_ALL_SCOPE])
+  @Scopes(['manage:users:read', MANAGE_USER_READ_ALL_SCOPE], { mode: 'oneOf' })
   @Get(':id')
   public async getUser(
     @Request() req: AuthenticatedRequest,
@@ -125,7 +124,9 @@ export class UsersController {
     }
   }
 
-  @Scopes(['manage:users:update', MANAGE_USER_UPDATE_ALL_SCOPE])
+  @Scopes(['manage:users:update', MANAGE_USER_UPDATE_ALL_SCOPE], {
+    mode: 'oneOf',
+  })
   @Put(':id')
   public async editUser(
     @Request() req: AuthenticatedRequest,
@@ -175,11 +176,10 @@ export class UsersController {
     }
   }
 
-  @Scopes([
-    RESET_PASSWORD_SCOPE,
-    'manage:users:update',
-    MANAGE_USER_UPDATE_ALL_SCOPE,
-  ])
+  @Scopes(
+    [RESET_PASSWORD_SCOPE, 'manage:users:update', MANAGE_USER_UPDATE_ALL_SCOPE],
+    { mode: 'oneOf' },
+  )
   @Put(':id/password')
   public async editUserPassword(
     @Request() req: AuthenticatedRequest,
