@@ -5,8 +5,8 @@ interface ResourceTableConfig {
 }
 
 export const resourcesTableConfig: Record<ResourceType, ResourceTableConfig> = {
-  domains: { baseColumns: ['domainName', 'project'] },
-  hosts: { baseColumns: ['hostIp', 'project'] },
-  ports: { baseColumns: ['port', 'portHost', 'project'] },
-  websites: { baseColumns: ['websiteUrl', 'project'] },
+  domain: { baseColumns: ['domainName', 'project'] },
+  host: { baseColumns: ['hostIp', 'project'] },
+  port: { baseColumns: ['port', 'portHost', 'project'] },
+  website: { baseColumns: ['websiteUrl', 'project'] },
 };
