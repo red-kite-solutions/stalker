@@ -29,19 +29,28 @@
           </mat-select>
         </mat-form-field>
 
-        <mat-divider vertical="true"></mat-divider>
+        <mat-divider
+          vertical="true"
+          [hasScopes]="['resources:websites:update', 'resources:websites:delete']"
+        ></mat-divider>
 
-        <button mat-stroked-button (click)="merge(selection.selected)">
+        <button mat-stroked-button (click)="merge(selection.selected)" [hasScopes]="['resources:websites:update']">
           <mat-icon>call_merge</mat-icon>
           <label i18n="Merge|Merge websites together">Merge</label>
         </button>
 
-        <button mat-stroked-button (click)="blockBatch(selection.selected)">
+        <button mat-stroked-button (click)="blockBatch(selection.selected)" [hasScopes]="['resources:websites:update']">
           <mat-icon>block</mat-icon>
           <label i18n="Block|Block an item">Block</label>
         </button>
 
-        <button mat-stroked-button color="warn" class="left-action-button" (click)="deleteBatch(selection.selected)">
+        <button
+          mat-stroked-button
+          color="warn"
+          class="left-action-button"
+          (click)="deleteBatch(selection.selected)"
+          [hasScopes]="['resources:websites:delete']"
+        >
           <mat-icon>delete_outline</mat-icon>
           <label i18n="Delete|Delete an item">Delete</label>
         </button>
@@ -198,7 +207,7 @@
                     <project-cell [project]="projects | whereId: [element.projectId]"></project-cell>
                   </div>
                 </div>
-                <div class="tw-pt-1 tw-flex tw-flex-wrap tw-gap-x-2 tw-gap-y-1">
+                <div class="tw-pt-1 tw-flex tw-flex-wrap tw-gap-x-2 tw-gap-y-1" [hasScopes]="['manage:tags:read']">
                   @for (tag of element.tags; track tag) {
                     <app-pill-tag [color]="(allTags$ | async | whereId: [tag])?.color">{{
                       (allTags$ | async | whereId: [tag])?.text

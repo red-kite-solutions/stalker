@@ -1,17 +1,37 @@
+import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, ViewChild } from '@angular/core';
+import { MatCardModule } from '@angular/material/card';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, firstValueFrom, map, Observable, shareReplay, Subject, switchMap, tap } from 'rxjs';
 import { JobExecutionsService } from '../../../api/jobs/job-executions/job-executions.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { ThemeService } from '../../../services/theme.service';
 import { JobLogsComponent } from '../../../shared/components/job-logs/job-logs.component';
+import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { HasScopesDirective } from '../../../shared/directives/has-scopes.directive';
+import { SharedModule } from '../../../shared/shared.module';
 import { CodeEditorTheme } from '../../../shared/widget/code-editor/code-editor.component';
+import { SpinnerButtonComponent } from '../../../shared/widget/spinner-button/spinner-button.component';
 import { JobExecutionInteractionsService } from './job-execution-interactions.service';
+import { JobLogsSummaryComponent } from './job-execution-logs-summary.component';
 
 @Component({
   selector: 'app-job-execution-detail',
   templateUrl: 'job-execution-detail.component.html',
   styleUrls: ['./job-execution-detail.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    SharedModule,
+    MatCardModule,
+    MatProgressBarModule,
+    AppHeaderComponent,
+    JobLogsComponent,
+    JobLogsSummaryComponent,
+    SpinnerButtonComponent,
+    HasScopesDirective,
+  ],
 })
 export class JobExecutionDetailComponent implements AfterViewInit {
   public executionId$ = this.route.paramMap.pipe(map((x) => x.get('id')));

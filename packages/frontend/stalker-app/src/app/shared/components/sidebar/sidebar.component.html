@@ -1,55 +1,59 @@
 @if (!(isSmallScreen$ | async) || expanded) {
   <mat-nav-list>
     @for (section of sections; track $index) {
-      @if (expanded && section.name) {
-        <h3 matSubheader>{{ section.name }}</h3>
-      } @else if (!expanded && $index !== 0) {
-        <mat-divider></mat-divider>
-      }
+      @if (shouldDisplaySection(section)) {
+        @if (expanded && section.name) {
+          <h3 matSubheader>{{ section.name }}</h3>
+        } @else if (!expanded && $index !== 0) {
+          <mat-divider></mat-divider>
+        }
 
-      @for (item$ of section.items; track $index) {
-        @if (asObservable(item$) | async; as item) {
-          @if (shouldDisplay(item)) {
-            @if (isBasicSectionItem(item)) {
-              <a
-                mat-list-item
-                routerLinkActive="list-item-active"
-                [routerLinkActiveOptions]="{ exact: true }"
-                [routerLink]="item.routerLink"
-                [matTooltip]="expanded ? '' : item.name"
-                [matTooltipShowDelay]="700"
-                matTooltipPosition="right"
-                class="padright"
-              >
-                <ng-container *ngTemplateOutlet="menuItem; context: { item: item, expanded: expanded }"></ng-container>
-              </a>
-            } @else {
-              <button mat-list-item class="tw-text-left padright" [matMenuTriggerFor]="menu">
-                <span class="tw-flex">
+        @for (item$ of section.items; track $index) {
+          @if (asObservable(item$) | async; as item) {
+            @if (shouldDisplay(item)) {
+              @if (isBasicSectionItem(item)) {
+                <a
+                  mat-list-item
+                  routerLinkActive="list-item-active"
+                  [routerLinkActiveOptions]="{ exact: true }"
+                  [routerLink]="item.routerLink"
+                  [matTooltip]="expanded ? '' : item.name"
+                  [matTooltipShowDelay]="700"
+                  matTooltipPosition="right"
+                  class="padright"
+                >
                   <ng-container
                     *ngTemplateOutlet="menuItem; context: { item: item, expanded: expanded }"
                   ></ng-container>
-                  <mat-icon class="material-symbols-outlined-filled">chevron_right</mat-icon>
-                </span>
-              </button>
-
-              <mat-menu #menu="matMenu" xPosition="before" overlapTrigger="false">
-                @for (subItem of item.items; track $index) {
-                  <a
-                    mat-list-item
-                    routerLinkActive="list-item-active"
-                    [routerLinkActiveOptions]="{ exact: true }"
-                    [routerLink]="subItem.routerLink"
-                    [matTooltip]="expanded ? '' : subItem.name"
-                    [matTooltipShowDelay]="700"
-                    matTooltipPosition="right"
-                  >
+                </a>
+              } @else {
+                <button mat-list-item class="tw-text-left padright" [matMenuTriggerFor]="menu">
+                  <span class="tw-flex">
                     <ng-container
-                      *ngTemplateOutlet="menuItem; context: { item: subItem, expanded: true }"
+                      *ngTemplateOutlet="menuItem; context: { item: item, expanded: expanded }"
                     ></ng-container>
-                  </a>
-                }
-              </mat-menu>
+                    <mat-icon class="material-symbols-outlined-filled">chevron_right</mat-icon>
+                  </span>
+                </button>
+
+                <mat-menu #menu="matMenu" xPosition="before" overlapTrigger="false">
+                  @for (subItem of item.items; track $index) {
+                    <a
+                      mat-list-item
+                      routerLinkActive="list-item-active"
+                      [routerLinkActiveOptions]="{ exact: true }"
+                      [routerLink]="subItem.routerLink"
+                      [matTooltip]="expanded ? '' : subItem.name"
+                      [matTooltipShowDelay]="700"
+                      matTooltipPosition="right"
+                    >
+                      <ng-container
+                        *ngTemplateOutlet="menuItem; context: { item: subItem, expanded: true }"
+                      ></ng-container>
+                    </a>
+                  }
+                </mat-menu>
+              }
             }
           }
         }

@@ -13,6 +13,9 @@ export class MagicLinkToken {
 
   @Prop()
   public expirationDate: number;
+
+  @Prop()
+  public scopes: string[];
 }
 
 export const MagicLinkTokenSchema =

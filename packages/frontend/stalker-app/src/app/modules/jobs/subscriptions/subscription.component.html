@@ -19,6 +19,7 @@
             [isSaving]="isSaving"
             [canSave]="canSave"
             [hasBeenSaved]="hasBeenSaved"
+            [hasScopes]="['automation:subscriptions:update']"
             (save)="save()"
           ></app-saving-button>
         } @else {
@@ -49,11 +50,21 @@
     </div>
   </mat-drawer-content>
 
-  <mat-drawer mode="side" disableClose="true" position="end" opened>
+  <mat-drawer
+    mode="side"
+    disableClose="true"
+    position="end"
+    opened
+    [hasScopes]="['manage:projects:read', 'automation:subscriptions:update', 'automation:subscriptions:delete']"
+  >
     <div #contextMenu class="tw-flex tw-gap-2 tw-flex-col tw-m-4">
       <h2 i18n="Configuration|Subscription configuration">Configuration</h2>
       @if (projects$ | async) {
-        <form [formGroup]="subscriptionConfigForm" class="tw-w-full configurations-form">
+        <form
+          [formGroup]="subscriptionConfigForm"
+          class="tw-w-full configurations-form"
+          [hasScopes]="['manage:projects:read']"
+        >
           <mat-form-field appearance="outline" class="tw-w-full">
             <mat-label i18n="Project|Project or business">Project</mat-label>
             <mat-select formControlName="selectedProject">
@@ -73,21 +84,41 @@
           i18n-buttonText="Manage subscription|Manage subscription"
           [buttonText]="'Manage subscription'"
           [iconName]="'settings'"
+          [hasScopes]="['automation:subscriptions:update', 'automation:subscriptions:delete']"
         >
           <div class="tw-flex tw-flex-col tw-gap-2">
             @if ((isEnabled$ | async) === false) {
-              <button mat-menu-item color="primary" class="tw-w-full" (click)="updateEnabled(true)">
+              <button
+                mat-menu-item
+                color="primary"
+                class="tw-w-full"
+                (click)="updateEnabled(true)"
+                [hasScopes]="['automation:subscriptions:update']"
+              >
                 <mat-icon>play_arrow</mat-icon>
                 <label i18n="Enable|Enables a subscription">Enable</label>
               </button>
             } @else {
-              <button mat-menu-item color="primary" class="tw-w-full" (click)="updateEnabled(false)">
+              <button
+                mat-menu-item
+                color="primary"
+                class="tw-w-full"
+                (click)="updateEnabled(false)"
+                [hasScopes]="['automation:subscriptions:update']"
+              >
                 <mat-icon>pause</mat-icon>
                 <label i18n="Disable|Disables a subscription">Disable</label>
               </button>
             }
 
-            <button mat-menu-item color="warn" class="tw-w-full" (click)="delete()" [disabled]="subSource">
+            <button
+              mat-menu-item
+              color="warn"
+              class="tw-w-full"
+              (click)="delete()"
+              [disabled]="subSource"
+              [hasScopes]="['automation:subscriptions:delete']"
+            >
               <mat-icon>delete</mat-icon>
               <label i18n="Delete|Delete an item">Delete</label>
             </button>

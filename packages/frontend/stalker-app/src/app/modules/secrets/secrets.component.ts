@@ -16,11 +16,11 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, combineLatest, firstValueFrom, map, shareReplay, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, catchError, combineLatest, firstValueFrom, map, of, shareReplay, switchMap, tap } from 'rxjs';
 import { ProjectsService } from '../../api/projects/projects.service';
 import { SecretService } from '../../api/secrets/secrets.service';
-import { AvatarComponent } from '../../shared/components/avatar/avatar.component';
 import { ProjectCellComponent } from '../../shared/components/project-cell/project-cell.component';
+import { HasScopesDirective } from '../../shared/directives/has-scopes.directive';
 import { SharedModule } from '../../shared/shared.module';
 import { Secret } from '../../shared/types/secret.type';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/widget/confirm-dialog/confirm-dialog.component';
@@ -42,7 +42,6 @@ import { secretExplanation } from './secrets.constants';
     CommonModule,
     MatIconModule,
     FilteredPaginatedTableComponent,
-    AvatarComponent,
     ProjectCellComponent,
     SharedModule,
     MatButtonModule,
@@ -57,11 +56,13 @@ import { secretExplanation } from './secrets.constants';
     MatOptionModule,
     MatSelectModule,
     TableFormatComponent,
+    HasScopesDirective,
   ],
   providers: [{ provide: TableFiltersSourceBase, useClass: TableFiltersSource }],
 })
 export class SecretsComponent {
   public isLoading$ = new BehaviorSubject(true);
+  public displayColumns = ['select', 'name', 'project', 'description'];
 
   public noDataMessage = $localize`:No secret found|No secret were found:No secret found`;
   public hideValue = true;
@@ -69,7 +70,10 @@ export class SecretsComponent {
   public allProjects = 'all projects';
   public selection = new SelectionModel<Secret>(true, []);
 
-  public projects$ = this.projectsService.getAllSummaries().pipe(shareReplay(1));
+  projects$ = this.projectsService.getAllSummaries().pipe(
+    catchError((err) => of([])),
+    shareReplay(1)
+  );
 
   public newSecretForm = this.fb.group({
     project: new FormControl<string>(this.allProjects),
@@ -91,6 +95,16 @@ export class SecretsComponent {
     map((secrets) => new MatTableDataSource<Secret>(secrets.items)),
     tap(() => this.isLoading$.next(false)),
     shareReplay(1)
+  );
+
+  public displayColumns$ = this.projects$.pipe(
+    map((projects) => {
+      let cols = this.displayColumns;
+
+      if (!projects.length) cols = cols.filter((c) => c !== 'project');
+
+      return cols;
+    })
   );
 
   constructor(

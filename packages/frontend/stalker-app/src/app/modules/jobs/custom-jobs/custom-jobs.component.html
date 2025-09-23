@@ -16,6 +16,7 @@
             [hasBeenSaved]="hasBeenSaved"
             (save)="save()"
             class="tw-mt-[9px]"
+            [hasScopes]="['automation:custom-jobs:update']"
           ></app-saving-button>
         } @else {
           <div
@@ -78,7 +79,7 @@
           </mat-select>
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" [hasScopes]="['manage:config:read']">
           <mat-label i18n="Job pod settings|Job pod settings">Job pod settings</mat-label>
           <mat-select formControlName="podSettings">
             @for (jps of podSettingOptions$ | async; track jps._id) {
@@ -95,7 +96,7 @@
           </mat-select>
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" [hasScopes]="['automation:job-containers:read']">
           <mat-label i18n="Job container|Job container image">Job container image</mat-label>
           <mat-select formControlName="container">
             @for (container of containerOptions$ | async; track container._id) {
@@ -133,7 +134,7 @@
 
       <mat-divider></mat-divider>
 
-      <panel-section class="tw-opacity-60">
+      <panel-section class="tw-opacity-60" [hasScopes]="['automation:custom-jobs:delete']">
         <app-text-menu i18n-buttonText="Manage job|Manage job" [buttonText]="'Manage job'" [iconName]="'settings'">
           <div class="tw-flex tw-flex-col tw-gap-2">
             <button mat-menu-item color="warn" class="tw-w-full" (click)="delete()" [disabled]="jobSource">

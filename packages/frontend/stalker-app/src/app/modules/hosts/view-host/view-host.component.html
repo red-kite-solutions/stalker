@@ -37,7 +37,11 @@
         <panel-section>
           <panel-section-title i18n="Tags|The tags of an item"
             >Tags
-            <span class="manage-tags-menu">
+            <span
+              class="manage-tags-menu"
+              [hasScopes]="['resources:domains:update', 'manage:tags:read']"
+              [requiresAllScopes]="true"
+            >
               —
               <app-text-select-menu
                 [items]="tagsSelectItems$ | async"
@@ -90,7 +94,7 @@
         }
       </panel-section>
       @if (ports$ | async; as ports) {
-        <panel-section>
+        <panel-section [hasScopes]="['resources:ports:read']">
           <panel-section-title i18n="Ports|An IP's related ports">Ports</panel-section-title>
           @if (!ports.items.length) {
             <panel-section-subtitle i18n="No ports yet|There are no ports for this item"
@@ -112,10 +116,19 @@
 
       <mat-divider></mat-divider>
 
-      <panel-section class="tw-opacity-60" #managementPanelSection>
+      <panel-section
+        class="tw-opacity-60"
+        #managementPanelSection
+        [hasScopes]="['resources:hosts:delete', 'resources:hosts:update']"
+      >
         <app-text-menu [buttonText]="manageHostText" [iconName]="'settings'" [xPosition]="'before'">
           <div class="tw-h-full tw-w-full tw-grid tw-gap-y-1">
-            <button mat-menu-item class="tw-w-full" (click)="blockHost(!host.blocked)">
+            <button
+              mat-menu-item
+              class="tw-w-full"
+              (click)="blockHost(!host.blocked)"
+              [hasScopes]="['resources:hosts:update']"
+            >
               <mat-icon>{{ host.blocked ? 'thumb_up' : 'block' }}</mat-icon>
               @if (host.blocked) {
                 <label i18n="Unblock|Unblock an item">Unblock</label>
@@ -124,7 +137,13 @@
               }
             </button>
 
-            <button mat-menu-item color="warn" class="tw-w-full" (click)="deleteHost()">
+            <button
+              mat-menu-item
+              color="warn"
+              class="tw-w-full"
+              (click)="deleteHost()"
+              [hasScopes]="['resources:hosts:delete']"
+            >
               <mat-icon>delete</mat-icon>
               <label i18n="Delete|Delete an item">Delete</label>
             </button>

@@ -23,7 +23,7 @@ export class ApiKeyStrategy extends PassportStrategy(
         const user: UserAuthContext = {
           id: apiKeyDocument.userId.toString(),
           apiKeyId: apiKeyDocument._id.toString(),
-          role: apiKeyDocument.role,
+          scopes: apiKeyDocument.scopes,
         };
 
         return done(null, user);

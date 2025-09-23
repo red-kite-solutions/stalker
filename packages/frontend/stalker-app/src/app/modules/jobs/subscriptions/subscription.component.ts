@@ -34,6 +34,7 @@ import {
   timer,
 } from 'rxjs';
 import { parse } from 'yaml';
+import { AuthService } from '../../../api/auth/auth.service';
 import { allProjectsSubscriptions } from '../../../api/constants';
 import { cronSubscriptionKey } from '../../../api/jobs/subscriptions/cron-subscriptions.service';
 import { eventSubscriptionKey } from '../../../api/jobs/subscriptions/event-subscriptions.service';
@@ -42,6 +43,7 @@ import { ProjectsService } from '../../../api/projects/projects.service';
 import { ThemeService } from '../../../services/theme.service';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PanelSectionModule } from '../../../shared/components/panel-section/panel-section.module';
+import { HasScopesDirective } from '../../../shared/directives/has-scopes.directive';
 import { HasUnsavedChanges } from '../../../shared/guards/unsaved-changes-can-deactivate.component';
 import { SharedModule } from '../../../shared/shared.module';
 import { DataSource } from '../../../shared/types/data-source/data-source.type';
@@ -97,6 +99,7 @@ import { cronSubscriptionTemplate, eventSubscriptionTemplate } from './subscript
     SavingButtonComponent,
     DisabledPillTagComponent,
     DataSourceComponent,
+    HasScopesDirective,
   ],
 })
 export class SubscriptionComponent implements OnInit, OnDestroy, HasUnsavedChanges {
@@ -173,12 +176,14 @@ export class SubscriptionComponent implements OnInit, OnDestroy, HasUnsavedChang
     private router: Router,
     private subscriptionService: SubscriptionService,
     private subscriptionInteractor: SubscriptionInteractionService,
-    private themeService: ThemeService
+    private themeService: ThemeService,
+    private authService: AuthService
   ) {
     this.titleService.setTitle($localize`:Subscriptions list page title|:Subscriptions`);
   }
 
   public async forceSave() {
+    if (!this.authService.userHasScope('automation:subscriptions:update')) return;
     this.hasConfigChanged = true;
     await this.save();
   }

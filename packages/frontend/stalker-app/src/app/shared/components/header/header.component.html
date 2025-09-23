@@ -53,7 +53,7 @@
 </mat-toolbar>
 
 <mat-menu #menu="matMenu">
-  <button mat-menu-item routerLink="/profile">
+  <button mat-menu-item routerLink="/profile" [hasScopes]="['manage:users:read', 'manage:api-key:read']">
     <mat-icon>badge</mat-icon>
     <label i18n="Profile|The user's profile">Profile</label>
   </button>

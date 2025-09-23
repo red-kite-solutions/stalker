@@ -12,6 +12,7 @@
     (click)="stopJob()"
     i18n="Stop|Stop the job"
     [disabled]="!(jobIsRunning$ | async)"
+    [hasScopes]="['automation:custom-jobs:update']"
     >Stop</app-spinner-button
   >
 </div>

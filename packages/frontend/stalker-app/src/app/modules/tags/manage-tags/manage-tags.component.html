@@ -4,12 +4,18 @@
       <mat-card-title class="tw-flex-1" i18n="Tags|Tags or labels">Tags</mat-card-title>
 
       <div class="tw-flex tw-gap-sm tw-pb-4">
-        <button mat-stroked-button (click)="openNewTagDialog(addTagDialog)">
+        <button mat-stroked-button (click)="openNewTagDialog(addTagDialog)" [hasScopes]="['manage:tags:create']">
           <mat-icon>add</mat-icon>
           <label i18n="New tag|Button to create a new tag">New tag</label>
         </button>
 
-        <button mat-stroked-button color="warn" class="left-action-button" (click)="deleteTags()">
+        <button
+          mat-stroked-button
+          color="warn"
+          class="left-action-button"
+          (click)="deleteTags()"
+          [hasScopes]="['manage:tags:delete']"
+        >
           <mat-icon>delete_outline</mat-icon>
           <label i18n="Delete|Delete an item">Delete</label>
         </button>

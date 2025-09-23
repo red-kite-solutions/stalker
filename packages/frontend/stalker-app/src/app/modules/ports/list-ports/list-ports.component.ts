@@ -1,5 +1,5 @@
 import { SelectionModel } from '@angular/cdk/collections';
-import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/layout';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -27,11 +27,13 @@ import {
   tagSuggestion,
 } from '@red-kite/frontend/app/shared/widget/filtered-paginated-table/autocomplete';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, catchError, combineLatest, EMPTY, map, shareReplay, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, catchError, combineLatest, EMPTY, map, of, shareReplay, switchMap, tap } from 'rxjs';
+import { AuthService } from '../../../api/auth/auth.service';
 import { PortsService } from '../../../api/ports/ports.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { TagsService } from '../../../api/tags/tags.service';
 import { ProjectCellComponent } from '../../../shared/components/project-cell/project-cell.component';
+import { HasScopesDirective } from '../../../shared/directives/has-scopes.directive';
 import { SharedModule } from '../../../shared/shared.module';
 import { Port } from '../../../shared/types/ports/port.interface';
 import { ProjectSummary } from '../../../shared/types/project/project.summary';
@@ -71,6 +73,7 @@ import { PortsInteractionsService } from '../ports-interactions.service';
     BlockedPillTagComponent,
     TableFormatComponent,
     PillTagComponent,
+    HasScopesDirective,
   ],
   selector: 'app-list-ports',
   templateUrl: './list-ports.component.html',
@@ -121,7 +124,10 @@ export class ListPortsComponent {
   selection = new SelectionModel<Port>(true, []);
   startDate: Date | null = null;
 
-  allTags$ = this.tagsService.getAllTags().pipe(shareReplay(1));
+  allTags$ = this.tagsService.getAllTags().pipe(
+    shareReplay(1),
+    catchError((err) => of([]))
+  );
 
   private refresh$ = new BehaviorSubject(null);
   public ports$ = combineLatest([this.filtersSource.debouncedFilters$, this.refresh$, globalProjectFilter$]).pipe(
@@ -150,7 +156,11 @@ export class ListPortsComponent {
   maxDomainsPerHost = 35;
 
   projects: ProjectSummary[] = [];
-  projects$ = this.projectsService.getAllSummaries().pipe(tap((x) => (this.projects = x)));
+  projects$ = this.projectsService.getAllSummaries().pipe(
+    catchError((err) => of([])),
+    tap((x) => (this.projects = x)),
+    shareReplay(1)
+  );
 
   private screenSize$ = this.bpObserver.observe([
     Breakpoints.XSmall,
@@ -159,14 +169,16 @@ export class ListPortsComponent {
     Breakpoints.XLarge,
   ]);
 
-  public displayColumns$ = this.screenSize$.pipe(
-    map((screen: BreakpointState) => {
-      if (screen.breakpoints[Breakpoints.XSmall]) return ['select', 'port', 'ip', 'project', 'menu'];
-      else if (screen.breakpoints[Breakpoints.Small])
-        return ['select', 'port', 'ip', 'domains', 'project', 'tags', 'menu'];
-      else if (screen.breakpoints[Breakpoints.Medium])
-        return ['select', 'port', 'ip', 'domains', 'project', 'tags', 'menu'];
-      return this.displayedColumns;
+  public displayColumns$ = combineLatest([this.allTags$, this.projects$]).pipe(
+    map(([tags, projects]) => {
+      let cols = this.displayedColumns;
+      if (!tags.length) cols = cols.filter((c) => c !== 'tags');
+
+      if (!projects || !projects.length) cols = cols.filter((c) => c !== 'project');
+
+      if (!this.authService.userHasScope('resources:domains:read')) cols = cols.filter((c) => c !== 'domains');
+
+      return cols;
     })
   );
 
@@ -179,6 +191,7 @@ export class ListPortsComponent {
     private tagsService: TagsService,
     public dialog: MatDialog,
     private titleService: Title,
+    private authService: AuthService,
     private autocompleteBuilder: AutocompleteBuilder,
     @Inject(TableFiltersSourceBase) private filtersSource: TableFiltersSource
   ) {
@@ -226,12 +239,14 @@ export class ListPortsComponent {
       action: () => this.block(element._id, !element.blocked),
       icon: element.blocked ? 'thumb_up ' : 'block',
       label: element.blocked ? $localize`:Unblock port|Unblock port:Unblock` : $localize`:Block port|Block port:Block`,
+      requiredScopes: ['resources:ports:update'],
     });
 
     menuItems.push({
       action: () => this.deleteBatch([element]),
       icon: 'delete',
       label: $localize`:Delete port|Delete port:Delete`,
+      requiredScopes: ['resources:ports:delete'],
     });
 
     return menuItems;

@@ -2,18 +2,18 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, firstValueFrom, map } from 'rxjs';
+import { Observable, catchError, firstValueFrom, map, of } from 'rxjs';
+import { CustomJobTemplatesService } from '../../../api/jobs/custom-job-templates/custom-job-templates.service';
 import { JobsService } from '../../../api/jobs/jobs/jobs.service';
+import { PickerData, PickerDialogComponent } from '../../../shared/components/picker-dialog/picker-dialog.component';
+import { CodePickerData, PickerOption } from '../../../shared/components/picker-dialog/picker-dialog.type';
+import { CustomJobTemplateSummary } from '../../../shared/types/jobs/custom-job-template.type';
 import { CustomJob } from '../../../shared/types/jobs/custom-job.type';
+import { FileTab } from '../../../shared/widget/code-editor/code-editor.type';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from '../../../shared/widget/confirm-dialog/confirm-dialog.component';
-import { CustomJobTemplatesService } from '../../../api/jobs/custom-job-templates/custom-job-templates.service';
-import { PickerData, PickerDialogComponent } from '../../../shared/components/picker-dialog/picker-dialog.component';
-import { CodePickerData, PickerOption } from '../../../shared/components/picker-dialog/picker-dialog.type';
-import { CustomJobTemplateSummary } from '../../../shared/types/jobs/custom-job-template.type';
-import { FileTab } from '../../../shared/widget/code-editor/code-editor.type';
 
 @Injectable({ providedIn: 'root' })
 export class CustomJobsInteractionService {
@@ -116,6 +116,7 @@ export class CustomJobsInteractionService {
       },
       pickerOptionsProvider: (): Observable<PickerOption[]> => {
         return this.templateService.getAllSummaries().pipe(
+          catchError((err) => of([])),
           map((templateSummaries: CustomJobTemplateSummary[]) => {
             const sortedTemplates = templateSummaries.sort((a, b) => {
               const aCategory = a.category ? a.category.toLowerCase() : '/';

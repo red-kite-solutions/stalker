@@ -14,7 +14,19 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { BehaviorSubject, Subject, combineLatest, debounceTime, filter, map, shareReplay, switchMap, tap } from 'rxjs';
+import {
+  BehaviorSubject,
+  Subject,
+  catchError,
+  combineLatest,
+  debounceTime,
+  filter,
+  map,
+  of,
+  shareReplay,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { FindingsService } from '../../../../api/findings/findings.service';
 import { SharedModule } from '../../../../shared/shared.module';
 import { Website } from '../../../../shared/types/websites/website.type';
@@ -77,6 +89,7 @@ export class WebsiteOverviewComponent {
       this.selectedEndpoint = endpoint;
       return this.findingService.getLatestWebsiteEndpoint([website!.correlationKey], endpoint);
     }),
+    catchError((err) => of(null)),
     tap(() => {
       this.endpointLoading = false;
     }),
@@ -90,6 +103,7 @@ export class WebsiteOverviewComponent {
     switchMap((website) => {
       return this.findingService.getLatestWebsitePreview([website!.correlationKey]);
     }),
+    catchError((err) => of(null)),
     tap(() => {
       this.previewLoading = false;
     })

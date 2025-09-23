@@ -12,8 +12,13 @@
 
   <div class="content-wrapper">
     <div class="tw-flex tw-flex-col tw-gap-2">
-      <div class="tw-grid tw-grid-cols-5 tw-gap-2">
-        <mat-card class="tw-col-span-1 tw-cursor-pointer host-count" appearance="outlined" (click)="openHosts()">
+      <div class="tw-flex tw-flex-row tw-gap-2">
+        <mat-card
+          class="tw-flex-grow"
+          appearance="outlined"
+          (click)="openHosts()"
+          [hasScopes]="['resources:hosts:read']"
+        >
           <mat-icon class="tw-self-end tw-opacity-60 tw-text-sm tw-mr-[-8px] tw-mb-[-4px]">open_in_new</mat-icon>
           <mat-card-content class="tw-h-full">
             <number-of-hosts-metric
@@ -23,9 +28,9 @@
             ></number-of-hosts-metric>
           </mat-card-content>
         </mat-card>
-        <mat-card class="tw-col-span-4" appearance="outlined">
+        <mat-card class="tw-flex-grow-[4]" appearance="outlined">
           <mat-card-content class="tw-h-full">
-            <div class="tw-grid tw-grid-cols-3 tw-gap-2s">
+            <div class="tw-grid tw-grid-cols-3 tw-gap-2">
               <div class="tw-col-span-1">
                 <h3 class="metric-title" i18n="IP|IP address">IP</h3>
                 <div class="metric-info">{{ ipRangeExt.ip }}</div>
@@ -89,7 +94,11 @@
         <panel-section>
           <panel-section-title i18n="Tags|The tags of an item"
             >Tags
-            <span class="manage-tags-menu">
+            <span
+              class="manage-tags-menu"
+              [hasScopes]="['resources:ip-ranges:update', 'manage:tags:read']"
+              [requiresAllScopes]="true"
+            >
               —
               <app-text-select-menu
                 [items]="tagsSelectItems$ | async"
@@ -123,10 +132,19 @@
 
       <mat-divider></mat-divider>
 
-      <panel-section class="tw-opacity-60" #managementPanelSection>
+      <panel-section
+        class="tw-opacity-60"
+        #managementPanelSection
+        [hasScopes]="['resources:ip-ranges:delete', 'resources:ip-ranges:update']"
+      >
         <app-text-menu [buttonText]="manageIpRangeText" [iconName]="'settings'" [xPosition]="'before'">
           <div class="tw-h-full tw-w-full tw-grid tw-gap-y-1">
-            <button mat-menu-item class="tw-w-full" (click)="block(!ipRange.blocked)">
+            <button
+              mat-menu-item
+              class="tw-w-full"
+              (click)="block(!ipRange.blocked)"
+              [hasScopes]="['resources:ip-ranges:update']"
+            >
               <mat-icon>{{ ipRange.blocked ? 'thumb_up' : 'block' }}</mat-icon>
               @if (ipRange.blocked) {
                 <label i18n="Unblock|Unblock an item">Unblock</label>
@@ -135,7 +153,13 @@
               }
             </button>
 
-            <button mat-menu-item color="warn" class="tw-w-full" (click)="delete()">
+            <button
+              mat-menu-item
+              color="warn"
+              class="tw-w-full"
+              (click)="delete()"
+              [hasScopes]="['resources:ip-ranges:delete']"
+            >
               <mat-icon>delete</mat-icon>
               <label i18n="Delete|Delete an item">Delete</label>
             </button>

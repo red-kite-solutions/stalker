@@ -26,6 +26,7 @@ import { ProjectsService } from '../../../api/projects/projects.service';
 import { TagsService } from '../../../api/tags/tags.service';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PanelSectionModule } from '../../../shared/components/panel-section/panel-section.module';
+import { HasScopesDirective } from '../../../shared/directives/has-scopes.directive';
 import { SharedModule } from '../../../shared/shared.module';
 import { Domain } from '../../../shared/types/domain/domain.interface';
 import { Page } from '../../../shared/types/page.type';
@@ -57,6 +58,7 @@ import { DomainsInteractionsService } from '../domains-interactions.service';
     TextMenuComponent,
     BlockedPillTagComponent,
     PillTagComponent,
+    HasScopesDirective,
   ],
   selector: 'app-view-domain',
   templateUrl: './view-domain.component.html',

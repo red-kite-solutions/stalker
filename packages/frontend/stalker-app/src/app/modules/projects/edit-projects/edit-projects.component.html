@@ -50,9 +50,13 @@
       </form>
 
       <div class="tw-w-full tw-flex tw-gap tw-justify-center">
-        <app-spinner-button (click)="saveChanges()" buttonColor="primary" [loadingState]="editLoading">{{
-          spinnerButtonText
-        }}</app-spinner-button>
+        <app-spinner-button
+          (click)="saveChanges()"
+          buttonColor="primary"
+          [loadingState]="editLoading"
+          [hasScopes]="['manage:projects:update']"
+          >{{ spinnerButtonText }}</app-spinner-button
+        >
 
         <button
           i18n="Delete project|Delete a project"
@@ -60,6 +64,7 @@
           mat-stroked-button
           color="warn"
           (click)="deleteProject()"
+          [hasScopes]="['manage:projects:delete']"
         >
           Delete project
         </button>

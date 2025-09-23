@@ -18,20 +18,24 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { map, shareReplay, startWith, switchMap, tap } from 'rxjs';
+import { GroupsService } from '../../../api/groups/groups.service';
 import { UsersService } from '../../../api/users/users.service';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { HasScopesDirective } from '../../../shared/directives/has-scopes.directive';
 import { SharedModule } from '../../../shared/shared.module';
+import { Group } from '../../../shared/types/group/group.type';
 import { HttpStatus } from '../../../shared/types/http-status.type';
-import { User } from '../../../shared/types/user.interface';
+import { Page } from '../../../shared/types/page.type';
+import { ExtendedUser, User } from '../../../shared/types/user.interface';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from '../../../shared/widget/confirm-dialog/confirm-dialog.component';
-import { Role, roles, rolesInfoDialogText } from '../roles';
 
 @Component({
   standalone: true,
@@ -53,6 +57,8 @@ import { Role, roles, rolesInfoDialogText } from '../roles';
     MatInputModule,
     MatCheckboxModule,
     ReactiveFormsModule,
+    MatTableModule,
+    HasScopesDirective,
   ],
 })
 export class EditUserComponent {
@@ -61,7 +67,11 @@ export class EditUserComponent {
   userId = '';
   invalidPassword = false;
 
-  roles = roles;
+  allGroups$ = this.groupsService.getPage(0, 100).pipe(
+    map((page: Page<Group>) => {
+      return page.items;
+    })
+  );
 
   form = this.fb.group({
     firstName: [
@@ -96,7 +106,6 @@ export class EditUserComponent {
         },
       ],
     ],
-    role: ['', [Validators.required]],
     active: [true],
   });
 
@@ -108,6 +117,7 @@ export class EditUserComponent {
     public dialog: MatDialog,
     private route: ActivatedRoute,
     private usersService: UsersService,
+    private groupsService: GroupsService,
     private toastr: ToastrService,
     private router: Router,
     private titleService: Title
@@ -163,12 +173,28 @@ export class EditUserComponent {
 
   public userFullName$ = this.user$.pipe(map((x) => [x?.firstName, x?.lastName].filter((p) => p).join(' ')));
 
-  public routeSub$ = this.user$.pipe(
-    map((user: any) => {
+  public userWithGroups$ = this.user$.pipe(
+    switchMap((user: User) => {
+      return this.usersService.getUserGroups(user._id).pipe(
+        map((groups: Group[]) => {
+          return <ExtendedUser>{
+            ...user,
+            groups,
+          };
+        })
+      );
+    }),
+    shareReplay(1)
+  );
+
+  public displayedColumns = ['name', 'description'];
+  public groupsDataSource$ = this.userWithGroups$.pipe(map((user) => user.groups));
+
+  public routeSub$ = this.userWithGroups$.pipe(
+    map((user) => {
       this.form.controls['firstName'].setValue(user.firstName);
       this.form.controls['lastName'].setValue(user.lastName);
       this.form.controls['email'].setValue(user.email);
-      this.form.controls['role'].setValue(this.roles.find((role: Role) => role.name === user?.role));
       this.form.controls['active'].setValue(user.active);
     })
   );
@@ -186,7 +212,6 @@ export class EditUserComponent {
       lastName: this.form.controls['lastName'].value,
       email: this.form.controls['email'].value,
       active: this.form.controls['active'].value,
-      role: this.form.controls['role'].value.name,
     };
 
     this.currentPasswordForm.controls['password'].setErrors(null);
@@ -238,26 +263,6 @@ export class EditUserComponent {
         this.toastr.error($localize`:Invalid password|The provided password was invalid:Invalid password`);
       }
     }
-  }
-
-  showUserRolesHelp() {
-    const bulletPoints: string[] = Array<string>();
-    this.roles.forEach((role: Role) => {
-      bulletPoints.push(`${role.displayName} : ${role.description}`);
-    });
-
-    const data: ConfirmDialogData = {
-      ...rolesInfoDialogText,
-      listElements: bulletPoints,
-      onPrimaryButtonClick: () => {
-        this.dialog.closeAll();
-      },
-    };
-
-    this.dialog.open(ConfirmDialogComponent, {
-      data,
-      restoreFocus: false,
-    });
   }
 
   deleteUser() {
