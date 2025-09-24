@@ -17,16 +17,16 @@ export class ResourcesServiceFactory {
 
   public create(resource: ResourceType): ResourceService<Resource> {
     switch (resource) {
-      case 'domains':
+      case 'domain':
         return this.domainsService;
 
-      case 'hosts':
+      case 'host':
         return this.hostsService;
 
-      case 'ports':
+      case 'port':
         return this.portsService;
 
-      case 'websites':
+      case 'website':
         return this.websitesService;
 
       default:
