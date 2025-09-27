@@ -1,6 +1,6 @@
 import { ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { SCOPE_OPTIONS_KEY, SCOPES_KEY } from '../decorators/scopes.decorator';
+import { SCOPE_INFO_KEY } from '../decorators/scopes.decorator';
 import { ApiScope, ExtendedScope, ScopeOptions } from '../scopes.constants';
 
 export interface ScopeActivationContext {
@@ -21,21 +21,10 @@ export function getRequiredScopes(
   reflector: Reflector,
   context: ExecutionContext,
 ): ScopeActivationContext {
-  let requiredScopesArray = reflector.getAllAndOverride<
-    (ApiScope | ExtendedScope)[]
-  >(SCOPES_KEY, [context.getHandler(), context.getClass()]);
-
-  const scopeOptions = reflector.getAllAndOverride<ScopeOptions>(
-    SCOPE_OPTIONS_KEY,
+  let requiredScopesInfo = reflector.getAllAndOverride<ScopeActivationContext>(
+    SCOPE_INFO_KEY,
     [context.getHandler(), context.getClass()],
   );
 
-  requiredScopesArray = Array.isArray(requiredScopesArray)
-    ? requiredScopesArray
-    : [];
-
-  return {
-    scopes: requiredScopesArray,
-    scopeOptions,
-  };
+  return requiredScopesInfo;
 }
