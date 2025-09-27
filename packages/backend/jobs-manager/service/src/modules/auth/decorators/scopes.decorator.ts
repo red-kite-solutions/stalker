@@ -1,8 +1,9 @@
 import { SetMetadata } from '@nestjs/common';
+import { ScopeActivationContext } from '../guards/scope-guard.utils';
 import { ApiScope, ExtendedScope, ScopeOptions } from '../scopes.constants';
 
-export const SCOPES_KEY = 'scopes';
-export const SCOPE_OPTIONS_KEY = 'scopeOptions';
+export const SCOPE_INFO_KEY = 'scopes';
+
 /**
  * One or many scopes that can access a route. By default, all the given scopes are required.
  *
@@ -13,8 +14,11 @@ export const Scopes = (
   options: ScopeOptions = { mode: 'allOf' },
 ) => {
   const scopeArray = Array.isArray(scope) ? scope : [scope];
-  return (
-    SetMetadata(SCOPES_KEY, scopeArray) &&
-    SetMetadata(SCOPE_OPTIONS_KEY, options)
-  );
+
+  const scopeInfo: ScopeActivationContext = {
+    scopes: scopeArray,
+    scopeOptions: options,
+  };
+
+  return SetMetadata(SCOPE_INFO_KEY, scopeInfo);
 };
