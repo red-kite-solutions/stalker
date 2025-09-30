@@ -2,12 +2,12 @@ import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
 import { AppModule } from '../../app.module';
+import { simplifyScopes } from '../../auth/utils/auth.utils';
+import { User } from '../users/users.model';
+import { UsersService } from '../users/users.service';
+import { ADMIN_GROUP } from './groups.constants';
 import { Group } from './groups.model';
 import { GroupsService } from './groups.service';
-import { UsersService } from '../users/users.service';
-import { User } from '../users/users.model';
-import { simplifyScopes } from '../../auth/utils/auth.utils';
-import { ADMIN_GROUP } from './groups.constants';
 
 describe('Users Service', () => {
   let moduleFixture: TestingModule;
@@ -168,6 +168,46 @@ describe('Users Service', () => {
       // Assert
       const groups = await groupService.getGroupMemberships(u1._id.toString());
       expect(groups.length).toStrictEqual(0);
+    });
+
+    it('Should set the membership to a group for a user (isMember: true)', async () => {
+      // Arrange
+      const u1 = await user('admin@example.com');
+      const scopes = ['qwerty', 'asdf:*', 'asdf:qwerty', 'uiop:asdf'];
+      const g1 = await group('a', [u1._id.toString()], scopes);
+      const g2 = await group('b', [], scopes);
+      const g3 = await group('c', [u1._id.toString()], scopes);
+
+      // Act
+      await groupService.setUserGroupMembership(
+        g2._id.toString(),
+        u1._id.toString(),
+        true,
+      );
+
+      // Assert
+      const groups = await groupService.getGroupMemberships(u1._id.toString());
+      expect(groups.length).toStrictEqual(3);
+    });
+
+    it('Should set the membership to a group for a user (isMember: false)', async () => {
+      // Arrange
+      const u1 = await user('admin@example.com');
+      const scopes = ['qwerty', 'asdf:*', 'asdf:qwerty', 'uiop:asdf'];
+      const g1 = await group('a', [u1._id.toString()], scopes);
+      const g2 = await group('b', [], scopes);
+      const g3 = await group('c', [u1._id.toString()], scopes);
+
+      // Act
+      await groupService.setUserGroupMembership(
+        g1._id.toString(),
+        u1._id.toString(),
+        false,
+      );
+
+      // Assert
+      const groups = await groupService.getGroupMemberships(u1._id.toString());
+      expect(groups.length).toStrictEqual(1);
     });
 
     it('Should tell if a user is a member of the admins group', async () => {

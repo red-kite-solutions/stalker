@@ -4,10 +4,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { Title } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
 import { map, startWith } from 'rxjs';
-import { UsersService } from '../../../api/users/users.service';
-import { HttpStatus } from '../../../shared/types/http-status.type';
-import { Group } from '../../../shared/types/group/group.type';
 import { GroupsService } from '../../../api/groups/groups.service';
+import { UsersService } from '../../../api/users/users.service';
+import { Group } from '../../../shared/types/group/group.type';
+import { HttpStatus } from '../../../shared/types/http-status.type';
 import { Page } from '../../../shared/types/page.type';
 
 @Component({
@@ -124,7 +124,7 @@ export class CreateUserComponent {
         this.form.controls['password'].value,
         this.currentPasswordForm.controls['password'].value
       );
-      await this.groupsService.addUserToGroup(user._id, this.form.controls['group'].value);
+      await this.groupsService.setUserGroupMembership(user._id, this.form.controls['group'].value, true);
 
       this.form.reset();
       this.form.controls['group'].setValue('');
