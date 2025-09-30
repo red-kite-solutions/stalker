@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Group } from '../../shared/types/group/group.type';
 import { Page } from '../../shared/types/page.type';
@@ -24,6 +24,6 @@ export class GroupsService {
   }
 
   public async setUserGroupMembership(userId: string, groupId: string, isMember: boolean) {
-    return await this.http.patch(`${environment.fmUrl}/groups/${groupId}`, { userId, isMember });
+    return await firstValueFrom(this.http.patch(`${environment.fmUrl}/groups/${groupId}`, { userId, isMember }));
   }
 }
