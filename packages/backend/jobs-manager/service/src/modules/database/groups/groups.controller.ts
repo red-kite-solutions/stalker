@@ -5,19 +5,17 @@ import {
   Logger,
   Param,
   Patch,
-  Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { MongoIdDto } from '../../../types/dto/mongo-id.dto';
 import { Page } from '../../../types/page.type';
-import { Role } from '../../auth/constants';
 import { Scopes } from '../../auth/decorators/scopes.decorator';
 import { ScopesGuard } from '../../auth/guards/scope.guard';
 import { ApiKeyStrategy } from '../../auth/strategies/api-key.strategy';
 import { JwtStrategy } from '../../auth/strategies/jwt.strategy';
-import { AddUserToGroupDto, GetGroupsDto } from './groups.dto';
+import { GetGroupsDto, SetUserGroupMembershipDto } from './groups.dto';
 import { GroupDocument } from './groups.model';
 import { GroupsService } from './groups.service';
 
@@ -50,10 +48,14 @@ export class GroupsController {
 
   @Scopes('manage:groups:update')
   @Patch(':id')
-  public async addUserToGroup(
+  public async setUserGroupMembership(
     @Param() groupIdDto: MongoIdDto,
-    @Body() dto: AddUserToGroupDto,
+    @Body() dto: SetUserGroupMembershipDto,
   ) {
-    return await this.groupsService.addToGroupById(groupIdDto.id, dto.userId);
+    return await this.groupsService.setUserGroupMembership(
+      groupIdDto.id,
+      dto.userId,
+      dto.isMember,
+    );
   }
 }
