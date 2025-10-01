@@ -188,6 +188,9 @@ describe('Users Service', () => {
       // Assert
       const groups = await groupService.getGroupMemberships(u1._id.toString());
       expect(groups.length).toStrictEqual(3);
+      expect(groups[0].name).toStrictEqual('a');
+      expect(groups[1].name).toStrictEqual('b');
+      expect(groups[2].name).toStrictEqual('c');
     });
 
     it('Should set the membership to a group for a user (isMember: false)', async () => {
@@ -208,6 +211,7 @@ describe('Users Service', () => {
       // Assert
       const groups = await groupService.getGroupMemberships(u1._id.toString());
       expect(groups.length).toStrictEqual(1);
+      expect(groups[0].name).toStrictEqual('c');
     });
 
     it('Should tell if a user is a member of the admins group', async () => {
