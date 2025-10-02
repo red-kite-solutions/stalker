@@ -4,13 +4,11 @@ import { MatDialog } from '@angular/material/dialog';
 import { Title } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
 import { map, startWith } from 'rxjs';
+import { GroupsService } from '../../../api/groups/groups.service';
 import { UsersService } from '../../../api/users/users.service';
+import { Group } from '../../../shared/types/group/group.type';
 import { HttpStatus } from '../../../shared/types/http-status.type';
-import {
-  ConfirmDialogComponent,
-  ConfirmDialogData,
-} from '../../../shared/widget/confirm-dialog/confirm-dialog.component';
-import { Role, roles, rolesInfoDialogText } from '../roles';
+import { Page } from '../../../shared/types/page.type';
 
 @Component({
   selector: 'app-create-user',
@@ -20,7 +18,11 @@ import { Role, roles, rolesInfoDialogText } from '../roles';
 export class CreateUserComponent {
   newUserValid = true;
   invalidPassword = false;
-  roles = roles;
+  groups$ = this.groupsService.getPage(0, 100).pipe(
+    map((page: Page<Group>) => {
+      return page.items;
+    })
+  );
 
   form = this.fb.group({
     firstName: [
@@ -45,7 +47,7 @@ export class CreateUserComponent {
       },
     ],
     password: ['', [Validators.minLength(12)]],
-    role: ['', [Validators.required]],
+    group: ['', [Validators.required]],
     active: [true],
   });
 
@@ -93,6 +95,7 @@ export class CreateUserComponent {
     public dialog: MatDialog,
     private toastr: ToastrService,
     private usersService: UsersService,
+    private groupsService: GroupsService,
     private titleService: Title
   ) {
     this.titleService.setTitle($localize`:New users page title|:New user`);
@@ -111,19 +114,20 @@ export class CreateUserComponent {
     this.conflictEmail = false;
 
     try {
-      await this.usersService.createUser(
+      const user = await this.usersService.createUser(
         {
           email: this.form.controls['email'].value,
           firstName: this.form.controls['firstName'].value,
           lastName: this.form.controls['lastName'].value,
-          role: this.form.controls['role'].value.name,
           active: this.form.controls['active'].value,
         },
         this.form.controls['password'].value,
         this.currentPasswordForm.controls['password'].value
       );
+      await this.groupsService.setUserGroupMembership(user._id, this.form.controls['group'].value, true);
+
       this.form.reset();
-      this.form.controls['role'].setValue('');
+      this.form.controls['group'].setValue('');
       this.currentPasswordForm.reset();
       this.currentPasswordForm.controls['password'].setErrors(null);
       this.form.controls['active'].setValue(true);
@@ -144,25 +148,5 @@ export class CreateUserComponent {
         );
       }
     }
-  }
-
-  showUserRolesHelp() {
-    const bulletPoints: string[] = Array<string>();
-    roles.forEach((role: Role) => {
-      bulletPoints.push(`${role.displayName} : ${role.description}`);
-    });
-
-    const data: ConfirmDialogData = {
-      ...rolesInfoDialogText,
-      listElements: bulletPoints,
-      onPrimaryButtonClick: () => {
-        this.dialog.closeAll();
-      },
-    };
-
-    this.dialog.open(ConfirmDialogComponent, {
-      data,
-      restoreFocus: false,
-    });
   }
 }

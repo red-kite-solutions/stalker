@@ -1,11 +1,11 @@
 <app-page-header class="tw-w-full" [parts]="[profileBreadCrumbs]"></app-page-header>
 
 <div class="container">
-  <mat-card appearance="outlined">
+  <mat-card appearance="outlined" [hasScopes]="['manage:users:read']">
     <mat-card-content>
       @if ((form$ | async) || true) {
         <form [formGroup]="form" class="tw-flex tw-flex-col tw-gap">
-          <h4 i18n="Edit profile|Page for the user to change their profile">Edit Profile</h4>
+          <h4 i18n="Profile Information|Page for the user to change their profile">Profile Information</h4>
 
           <div class="tw-flex tw-gap">
             <mat-form-field class="tw-flex-1">
@@ -48,37 +48,38 @@
             >
           </mat-form-field>
 
-          <mat-divider></mat-divider>
+          <div [hasScopes]="['manage:users:update']" class="tw-flex-col tw-flex tw-gap">
+            <mat-divider></mat-divider>
+            <h4 i18n="Change password|Title of a section for a user to chagne their password">Change Password</h4>
 
-          <h4 i18n="Change password|Title of a section for a user to chagne their password">Change Password</h4>
-
-          <mat-form-field>
-            <input
-              matInput
-              type="password"
-              i18n-placeholder="New password|Placeholder for a password form"
-              placeholder="New Password"
-              name="newPassword"
-              formControlName="newPassword"
-              autocomplete="new-password"
-            />
-            <mat-error i18n="Password minimal length|The password must meet the length requirement to be accepted"
-              >Password must have a minimal length of 12 characters</mat-error
-            >
-          </mat-form-field>
-          <mat-form-field>
-            <input
-              matInput
-              type="password"
-              i18n-placeholder="Confirm new password|Placeholder for a password confirmation form"
-              placeholder="Confirm New Password"
-              name="passwordConfirm"
-              formControlName="passwordConfirm"
-            />
-            <mat-error i18n="Passwords not identical|The two passwords must be identical for the form to be valid"
-              >The two passwords are not identical</mat-error
-            >
-          </mat-form-field>
+            <mat-form-field>
+              <input
+                matInput
+                type="password"
+                i18n-placeholder="New password|Placeholder for a password form"
+                placeholder="New Password"
+                name="newPassword"
+                formControlName="newPassword"
+                autocomplete="new-password"
+              />
+              <mat-error i18n="Password minimal length|The password must meet the length requirement to be accepted"
+                >Password must have a minimal length of 12 characters</mat-error
+              >
+            </mat-form-field>
+            <mat-form-field>
+              <input
+                matInput
+                type="password"
+                i18n-placeholder="Confirm new password|Placeholder for a password confirmation form"
+                placeholder="Confirm New Password"
+                name="passwordConfirm"
+                formControlName="passwordConfirm"
+              />
+              <mat-error i18n="Passwords not identical|The two passwords must be identical for the form to be valid"
+                >The two passwords are not identical</mat-error
+              >
+            </mat-form-field>
+          </div>
         </form>
       }
 
@@ -87,6 +88,7 @@
         (ngSubmit)="onSubmit()"
         [formGroup]="currentPasswordForm"
         class="tw-flex tw-flex-col tw-gap"
+        [hasScopes]="['manage:users:update']"
       >
         <mat-divider></mat-divider>
 
@@ -121,7 +123,7 @@
           >
         }
 
-        <div class="tw-flex tw-justify-center">
+        <div class="tw-flex tw-justify-center" [hasScopes]="['manage:users:update']">
           <button
             i18n="Save changes|Save the changes done to an item"
             class="button"
@@ -135,11 +137,11 @@
     </mat-card-content>
   </mat-card>
 
-  <mat-card appearance="outlined">
+  <mat-card appearance="outlined" [hasScopes]="['manage:api-key:read', 'manage:api-key:create']">
     <mat-card-content>
       <h4 i18n="API Keys|Page title of the API keys management section">API Keys</h4>
       @if (form$ | async) {
-        <app-api-key [userId]="this.userId"></app-api-key>
+        <app-api-key [userId]="this.userId" [hasScopes]="['manage:api-key:create']"></app-api-key>
       }
     </mat-card-content>
   </mat-card>

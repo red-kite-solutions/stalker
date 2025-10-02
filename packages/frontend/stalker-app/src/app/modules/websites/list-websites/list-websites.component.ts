@@ -1,5 +1,5 @@
 import { SelectionModel } from '@angular/cdk/collections';
-import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/layout';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
 import { Component, Inject, Injectable } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -26,12 +26,24 @@ import {
   tagSuggestion,
 } from '@red-kite/frontend/app/shared/widget/filtered-paginated-table/autocomplete';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, catchError, combineLatest, EMPTY, map, Observable, shareReplay, switchMap, tap } from 'rxjs';
+import {
+  BehaviorSubject,
+  catchError,
+  combineLatest,
+  EMPTY,
+  map,
+  Observable,
+  of,
+  shareReplay,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { FindingsService } from '../../../api/findings/findings.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { TagsService } from '../../../api/tags/tags.service';
 import { WebsitesService } from '../../../api/websites/websites.service';
 import { ProjectCellComponent } from '../../../shared/components/project-cell/project-cell.component';
+import { HasScopesDirective } from '../../../shared/directives/has-scopes.directive';
 import { IntersectionDirective } from '../../../shared/directives/intersection.directive';
 import { SharedModule } from '../../../shared/shared.module';
 import { CustomFinding, CustomFindingField } from '../../../shared/types/finding/finding.type';
@@ -127,6 +139,7 @@ class WebsiteFiltersSource extends TableFiltersSourceBase<WebsiteFilters> {
     FindingsModule,
     IntersectionDirective,
     PillTagComponent,
+    HasScopesDirective,
   ],
   selector: 'app-list-websites',
   templateUrl: './list-websites.component.html',
@@ -175,7 +188,10 @@ export class ListWebsitesComponent {
   startDate: Date | null = null;
   public readonly gridColumnsOptions: number[] = [1, 2, 3, 4, 5, 6, 7, 8];
 
-  allTags$ = this.tagsService.getAllTags().pipe(shareReplay(1));
+  allTags$ = this.tagsService.getAllTags().pipe(
+    catchError((err) => of([])),
+    shareReplay(1)
+  );
 
   refresh$ = new BehaviorSubject(null);
   websites$ = combineLatest([this.filtersSource.debouncedFilters$, this.refresh$, globalProjectFilter$]).pipe(
@@ -197,7 +213,11 @@ export class ListWebsitesComponent {
   public numberOfColumns$ = this.filtersSource.debouncedFilters$.pipe(map((x) => x.numberOfColumns));
 
   projects: ProjectSummary[] = [];
-  projects$ = this.projectsService.getAllSummaries().pipe(tap((x) => (this.projects = x)));
+  projects$ = this.projectsService.getAllSummaries().pipe(
+    tap((x) => (this.projects = x)),
+    catchError((err) => of([])),
+    shareReplay(1)
+  );
 
   private screenSize$ = this.bpObserver.observe([
     Breakpoints.XSmall,
@@ -206,14 +226,14 @@ export class ListWebsitesComponent {
     Breakpoints.XLarge,
   ]);
 
-  public displayColumns$ = this.screenSize$.pipe(
-    map((screen: BreakpointState) => {
-      if (screen.breakpoints[Breakpoints.XSmall]) return ['select', 'url', 'project', 'menu'];
-      else if (screen.breakpoints[Breakpoints.Small])
-        return ['select', 'url', 'domain', 'port', 'ip', 'project', 'tags', 'menu'];
-      else if (screen.breakpoints[Breakpoints.Medium])
-        return ['select', 'url', 'domain', 'port', 'ip', 'project', 'tags', 'menu'];
-      return this.displayedColumns;
+  public displayColumns$ = combineLatest([this.allTags$, this.projects$]).pipe(
+    map(([tags, projects]) => {
+      let cols = this.displayedColumns;
+      if (!tags.length) cols = cols.filter((c) => c !== 'tags');
+
+      if (!projects || !projects.length) cols = cols.filter((c) => c !== 'project');
+
+      return cols;
     })
   );
 
@@ -272,12 +292,14 @@ export class ListWebsitesComponent {
       label: element.blocked
         ? $localize`:Unblock website|Unblock website:Unblock`
         : $localize`:Block website|Block website:Block`,
+      requiredScopes: ['resources:websites:update'],
     });
 
     menuItems.push({
       action: () => this.deleteBatch([element]),
       icon: 'delete',
       label: $localize`:Delete website|Delete website:Delete`,
+      requiredScopes: ['resources:websites:delete'],
     });
 
     menuItems.push({
@@ -285,6 +307,7 @@ export class ListWebsitesComponent {
       icon: 'call_split',
       label: $localize`:Unmerge|Unmerge websites that were previously merged together:Unmerge`,
       hidden: !element.mergedInId,
+      requiredScopes: ['resources:websites:update'],
     });
 
     return menuItems;

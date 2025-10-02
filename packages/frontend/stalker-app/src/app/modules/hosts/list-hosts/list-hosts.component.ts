@@ -1,5 +1,5 @@
 import { SelectionModel } from '@angular/cdk/collections';
-import { BreakpointObserver, BreakpointState, Breakpoints } from '@angular/cdk/layout';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
 import { Component, Inject, TemplateRef } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -24,11 +24,12 @@ import {
   tagSuggestion,
 } from '@red-kite/frontend/app/shared/widget/filtered-paginated-table/autocomplete';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, combineLatest, map, shareReplay, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, catchError, combineLatest, map, of, shareReplay, switchMap, tap } from 'rxjs';
 import { HostsService } from '../../../api/hosts/hosts.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { TagsService } from '../../../api/tags/tags.service';
 import { ProjectCellComponent } from '../../../shared/components/project-cell/project-cell.component';
+import { HasScopesDirective } from '../../../shared/directives/has-scopes.directive';
 import { SharedModule } from '../../../shared/shared.module';
 import { Host } from '../../../shared/types/host/host.interface';
 import { HttpStatus } from '../../../shared/types/http-status.type';
@@ -70,6 +71,7 @@ import { HostsInteractionsService } from '../hosts-interactions.service';
     RouterModule,
     TableFormatComponent,
     PillTagComponent,
+    HasScopesDirective,
   ],
   selector: 'app-list-hosts',
   templateUrl: './list-hosts.component.html',
@@ -105,7 +107,16 @@ export class ListHostsComponent {
   selection = new SelectionModel<Host>(true, []);
   startDate: Date | null = null;
 
-  tags$ = this.tagsService.getAllTags().pipe(shareReplay(1));
+  projects: ProjectSummary[] = [];
+  projects$ = this.projectsService.getAllSummaries().pipe(
+    shareReplay(1),
+    catchError((err) => of([])),
+    tap((x) => (this.projects = x))
+  );
+  tags$ = this.tagsService.getAllTags().pipe(
+    shareReplay(1),
+    catchError((err) => of([]))
+  );
 
   private refresh$ = new BehaviorSubject(null);
   dataSource$ = combineLatest([this.filtersSource.debouncedFilters$, this.refresh$, globalProjectFilter$]).pipe(
@@ -124,9 +135,6 @@ export class ListHostsComponent {
     })
   );
 
-  projects: ProjectSummary[] = [];
-  projects$ = this.projectsService.getAllSummaries().pipe(tap((x) => (this.projects = x)));
-
   // #addHostsDialog template variables
   selectedProject = '';
   selectedNewHosts = '';
@@ -138,12 +146,14 @@ export class ListHostsComponent {
     Breakpoints.XLarge,
   ]);
 
-  public displayColumns$ = this.screenSize$.pipe(
-    map((screen: BreakpointState) => {
-      if (screen.breakpoints[Breakpoints.XSmall]) return ['select', 'ip', 'project', 'menu'];
-      else if (screen.breakpoints[Breakpoints.Small]) return ['select', 'ip', 'project', 'tags', 'menu'];
-      else if (screen.breakpoints[Breakpoints.Medium]) return ['select', 'ip', 'domains', 'project', 'tags', 'menu'];
-      return this.displayedColumns;
+  public displayColumns$ = combineLatest([this.tags$, this.projects$]).pipe(
+    map(([tags, projects]) => {
+      let cols = this.displayedColumns;
+      if (!tags.length) cols = cols.filter((c) => c !== 'tags');
+
+      if (!projects || !projects.length) cols = cols.filter((c) => c !== 'project');
+
+      return cols;
     })
   );
 
@@ -249,12 +259,14 @@ export class ListHostsComponent {
       action: () => this.block(element._id, !element.blocked),
       icon: element.blocked ? 'thumb_up ' : 'block',
       label: element.blocked ? $localize`:Unblock host|Unblock host:Unblock` : $localize`:Block host|Block host:Block`,
+      requiredScopes: ['resources:hosts:update'],
     });
 
     menuItems.push({
       action: () => this.deleteBatch([element]),
       icon: 'delete',
       label: $localize`:Delete host|Delete host:Delete`,
+      requiredScopes: ['resources:hosts:delete'],
     });
 
     return menuItems;

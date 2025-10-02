@@ -18,14 +18,10 @@ import { TagsModule } from './tags/tag.module';
 const mongooseModuleOptions: MongooseModuleOptions =
   process.env.JM_ENVIRONMENT === 'tests' && process.env.TEST_TYPE === 'unit'
     ? {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
         dbName: process.env.MONGO_DATABASE_NAME,
         replicaSet: process.env.MONGO_REPLICA_SET_NAME,
       }
     : {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
         dbName: process.env.MONGO_DATABASE_NAME,
         authSource: process.env.MONGO_DATABASE_NAME,
         replicaSet: process.env.MONGO_REPLICA_SET_NAME,

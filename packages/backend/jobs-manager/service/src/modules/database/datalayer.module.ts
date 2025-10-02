@@ -21,6 +21,8 @@ import { EventSubscriptionModelModule } from './subscriptions/event-subscription
 import { TableModelModule } from './tables/tables-model.module';
 import { TagModelModule } from './tags/tag-model.module';
 import { UserModelModule } from './users/users-model.module';
+import { GroupModelModule } from './groups/groups-model.module';
+import { groupInitProvider } from './groups/groups.provider';
 
 @Module({
   imports: [
@@ -45,6 +47,7 @@ import { UserModelModule } from './users/users-model.module';
     IpRangeModelModule,
     FindingDefinitionsModelModule,
     TableModelModule,
+    GroupModelModule,
   ],
   providers: [...databaseConfigInitProvider],
   exports: [
@@ -69,6 +72,7 @@ import { UserModelModule } from './users/users-model.module';
     IpRangeModelModule,
     FindingDefinitionsModelModule,
     TableModelModule,
+    GroupModelModule,
   ],
 })
 export class DatalayerModule {}

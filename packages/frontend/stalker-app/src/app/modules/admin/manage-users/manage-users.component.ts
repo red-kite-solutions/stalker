@@ -16,12 +16,12 @@ import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { map } from 'rxjs';
 import { UsersService } from '../../../api/users/users.service';
+import { HasScopesDirective } from '../../../shared/directives/has-scopes.directive';
 import { User } from '../../../shared/types/user.interface';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from '../../../shared/widget/confirm-dialog/confirm-dialog.component';
-import { RolesName, rolesName } from '../roles';
 
 @Component({
   standalone: true,
@@ -36,13 +36,14 @@ import { RolesName, rolesName } from '../roles';
     MatCheckboxModule,
     MatPaginatorModule,
     MatTooltipModule,
+    HasScopesDirective,
   ],
   selector: 'app-manage-users',
   templateUrl: './manage-users.component.html',
   styleUrls: ['./manage-users.component.scss'],
 })
 export class ManageUsersComponent implements OnDestroy {
-  displayedColumns: string[] = ['select', 'firstName', 'lastName', 'email', 'role', 'active'];
+  displayedColumns: string[] = ['select', 'firstName', 'lastName', 'email', 'active'];
   dataSource = new MatTableDataSource<User>();
   private dataSource$ = this.usersService.getAllUsers().subscribe((next) => {
     this.dataSource.data = next;
@@ -56,17 +57,15 @@ export class ManageUsersComponent implements OnDestroy {
     Breakpoints.XLarge,
   ]);
 
-  public roles: RolesName = rolesName;
-
   ngOnDestroy() {
     this.dataSource$.unsubscribe();
   }
 
   public displayColumns$ = this.screenSize$.pipe(
     map((screen: BreakpointState) => {
-      if (screen.breakpoints[Breakpoints.XSmall]) return ['firstName', 'lastName', 'role'];
-      else if (screen.breakpoints[Breakpoints.Small]) return ['firstName', 'lastName', 'role', 'active'];
-      else if (screen.breakpoints[Breakpoints.Medium]) return ['select', 'firstName', 'lastName', 'role', 'active'];
+      if (screen.breakpoints[Breakpoints.XSmall]) return ['firstName', 'lastName', 'groups'];
+      else if (screen.breakpoints[Breakpoints.Small]) return ['firstName', 'lastName', 'groups', 'active'];
+      else if (screen.breakpoints[Breakpoints.Medium]) return ['select', 'firstName', 'lastName', 'groups', 'active'];
       return this.displayedColumns;
     })
   );

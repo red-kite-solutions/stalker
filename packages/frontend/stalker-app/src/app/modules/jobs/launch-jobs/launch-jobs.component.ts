@@ -30,12 +30,14 @@ import { BehaviorSubject, Observable, combineLatest, map, tap } from 'rxjs';
 import { parse, parseDocument, stringify } from 'yaml';
 import { AuthService } from '../../../api/auth/auth.service';
 import { JobExecutionsService } from '../../../api/jobs/job-executions/job-executions.service';
+import { JobsService } from '../../../api/jobs/jobs/jobs.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { ThemeService } from '../../../services/theme.service';
 import { AvatarComponent } from '../../../shared/components/avatar/avatar.component';
 import { JobLogsComponent } from '../../../shared/components/job-logs/job-logs.component';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PanelSectionModule } from '../../../shared/components/panel-section/panel-section.module';
+import { HasScopesDirective } from '../../../shared/directives/has-scopes.directive';
 import { SharedModule } from '../../../shared/shared.module';
 import { JobListEntry, JobParameterDefinition, StartedJob } from '../../../shared/types/jobs/job.type';
 import { ProjectSummary } from '../../../shared/types/project/project.summary';
@@ -85,6 +87,7 @@ import { JobExecutionInteractionsService } from '../job-executions/job-execution
     CodeEditorComponent,
     AvatarComponent,
     SpinnerButtonComponent,
+    HasScopesDirective,
   ],
 })
 export class LaunchJobsComponent implements AfterViewInit {
@@ -136,6 +139,7 @@ export class LaunchJobsComponent implements AfterViewInit {
 
   constructor(
     private jobsService: JobExecutionsService,
+    private customJobsService: JobsService,
     private toastr: ToastrService,
     private projectsService: ProjectsService,
     private titleService: Title,
@@ -147,7 +151,7 @@ export class LaunchJobsComponent implements AfterViewInit {
   }
 
   private refreshData() {
-    return combineLatest([this.filterChange$, this.jobsService.getJobSummaries()]).pipe(
+    return combineLatest([this.filterChange$, this.customJobsService.getJobSummaries()]).pipe(
       map(([filter, data]) => {
         this.data = data.filter((x) => this.filterJob(x, filter));
         this.dataSource.data = this.data;

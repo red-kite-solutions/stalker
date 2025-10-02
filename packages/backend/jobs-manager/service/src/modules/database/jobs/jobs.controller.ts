@@ -18,13 +18,11 @@ import {
 } from '../../../exceptions/http.exceptions';
 import { MongoIdDto } from '../../../types/dto/mongo-id.dto';
 import { JobLog } from '../../../types/job-log.model';
-import { JobSummary } from '../../../types/job-summary.type';
 import { Page } from '../../../types/page.type';
 import { ProjectUnassigned } from '../../../validators/is-project-id.validator';
-import { Role } from '../../auth/constants';
-import { Roles } from '../../auth/decorators/roles.decorator';
+import { Scopes } from '../../auth/decorators/scopes.decorator';
 import { CronApiTokenGuard } from '../../auth/guards/cron-api-token.guard';
-import { RolesGuard } from '../../auth/guards/role.guard';
+import { ScopesGuard } from '../../auth/guards/scope.guard';
 import { ApiKeyStrategy } from '../../auth/strategies/api-key.strategy';
 import { JwtStrategy } from '../../auth/strategies/jwt.strategy';
 import { ConfigService } from '../admin/config/config.service';
@@ -33,10 +31,8 @@ import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
 import { SecretsService } from '../secrets/secrets.service';
 import { JobParameter } from '../subscriptions/subscriptions.type';
 import { JobExecutionsService } from './job-executions.service';
-import { JobDefinitions } from './job-model.module';
 import { JobExecutionsDto, JobManagementDto, StartJobDto } from './jobs.dto';
 import { JobFactory, JobFactoryUtils } from './jobs.factory';
-import { CustomJob } from './models/custom-job.model';
 import { JobDocument } from './models/jobs.model';
 
 @Controller('jobs')
@@ -48,8 +44,8 @@ export class JobsController {
     private readonly secretsService: SecretsService,
   ) {}
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.ReadOnly)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes('automation:job-executions:read')
   @Get()
   async getAllJobs(
     @Query()
@@ -58,35 +54,15 @@ export class JobsController {
     return await this.jobsService.getAll(dto);
   }
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.ReadOnly)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes('automation:job-executions:read')
   @Get(':id/logs')
   async getJobLogs(@Param() id: MongoIdDto): Promise<Page<JobLog>> {
     return await this.jobsService.getLogs(id.id);
   }
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.ReadOnly)
-  @Get('summaries')
-  async getAllJobSummaries(): Promise<JobSummary[]> {
-    const jd = JobDefinitions.map((jd): JobSummary => {
-      return {
-        name: jd.name,
-        parameters: jd.params,
-      };
-    });
-
-    jd.splice(
-      jd.findIndex((v) => v.name === CustomJob.name),
-      1,
-    );
-
-    const cjd = await this.customJobsService.getAllSummaries();
-    return jd.concat(cjd);
-  }
-
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.User)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes('automation:job-executions:create')
   @Post()
   async startJob(@Body() dto: StartJobDto) {
     let jpConfig: JobPodConfiguration = null;
@@ -133,8 +109,8 @@ export class JobsController {
     return await this.jobsService.publish(job);
   }
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.User)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes('automation:job-executions:update')
   @Patch(':id')
   async stopJob(@Param() id: MongoIdDto, @Body() dto: JobManagementDto) {
     switch (dto.task) {
@@ -146,8 +122,8 @@ export class JobsController {
     }
   }
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.User)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes('automation:job-executions:delete')
   @Delete()
   async deleteAllJobs() {
     return await this.jobsService.deleteAll();
@@ -159,15 +135,15 @@ export class JobsController {
     await this.jobsService.cleanup();
   }
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.User)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes('automation:job-executions:delete')
   @Delete(':id')
   async deleteJob(@Param() dto: MongoIdDto) {
     return await this.jobsService.delete(dto.id);
   }
 
-  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
-  @Roles(Role.ReadOnly)
+  @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
+  @Scopes('automation:job-executions:read')
   @Get(':id')
   async getJob(@Param() dto: MongoIdDto): Promise<any> {
     return await this.jobsService.getById(dto.id);

@@ -4,17 +4,32 @@
       <mat-card-title class="tw-flex-1" i18n="IP Ranges|IP Ranges">IP Ranges</mat-card-title>
 
       <div class="tw-flex tw-gap-sm tw-pb-4">
-        <button mat-stroked-button (click)="blockBatch(selection.selected)">
+        <button
+          mat-stroked-button
+          (click)="blockBatch(selection.selected)"
+          [hasScopes]="['resources:ip-ranges:update']"
+        >
           <mat-icon>block</mat-icon>
           <label i18n="Block|Block an item">Block</label>
         </button>
 
-        <button mat-stroked-button (click)="openNewIpRangesDialog(addIpRangesDialog)">
+        <button
+          mat-stroked-button
+          (click)="openNewIpRangesDialog(addIpRangesDialog)"
+          [hasScopes]="['resources:ip-ranges:create', 'manage:projects:read']"
+          [requiresAllScopes]="true"
+        >
           <mat-icon>add</mat-icon>
           <label i18n="Add ip ranges|Add a new ip range to a project">Add IP ranges</label>
         </button>
 
-        <button mat-stroked-button color="warn" class="left-action-button" (click)="deleteBatch(selection.selected)">
+        <button
+          mat-stroked-button
+          color="warn"
+          class="left-action-button"
+          (click)="deleteBatch(selection.selected)"
+          [hasScopes]="['resources:ip-ranges:delete']"
+        >
           <mat-icon>delete_outline</mat-icon>
           <label i18n="Delete|Delete an item">Delete</label>
         </button>

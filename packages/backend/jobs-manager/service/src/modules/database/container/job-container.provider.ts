@@ -36,6 +36,7 @@ export const jobContainerInitProvider = [
         await containerModel.create({
           image: c,
         });
+        logger.debug(`Added container ${c}`);
       }
     },
   },

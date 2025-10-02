@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { AuthService } from '../../../api/auth/auth.service';
 
 export interface ElementMenuItems {
   label: string;
@@ -10,6 +11,7 @@ export interface ElementMenuItems {
   hidden?: boolean;
   disabled?: boolean;
   tooltip?: string;
+  requiredScopes?: string[];
 }
 
 @Component({
@@ -17,7 +19,7 @@ export interface ElementMenuItems {
   selector: 'app-menu-icon',
   template: `
     @if (menuFactory != null) {
-      <button mat-icon-button [matMenuTriggerFor]="menu">
+      <button mat-icon-button [matMenuTriggerFor]="menu" class="menu-button">
         @if (orientation === 'vertical') {
           <mat-icon>more_vert</mat-icon>
         } @else {
@@ -31,7 +33,7 @@ export interface ElementMenuItems {
             <button
               mat-menu-item
               (click)="menuItem.action()"
-              [disabled]="menuItem.disabled === true"
+              [disabled]="menuItem.disabled === true || !this.authService.userHasOneScopeOf(menuItem.requiredScopes)"
               [matTooltip]="menuItem.tooltip || ''"
             >
               @if (menuItem.icon) {
@@ -51,4 +53,6 @@ export class MenuIconComponent {
   @Input() orientation: 'vertical' | 'horizontal' = 'vertical';
   @Input() item!: any;
   @Input() menuFactory?: (element: any) => ElementMenuItems[];
+
+  constructor(public authService: AuthService) {}
 }

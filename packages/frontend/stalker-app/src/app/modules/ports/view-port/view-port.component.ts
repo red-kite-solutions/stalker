@@ -21,11 +21,13 @@ import {
   BehaviorSubject,
   Observable,
   Subject,
+  catchError,
   combineLatest,
   concatMap,
   firstValueFrom,
   map,
   merge,
+  of,
   scan,
   shareReplay,
   switchMap,
@@ -37,6 +39,7 @@ import { ProjectsService } from '../../../api/projects/projects.service';
 import { TagsService } from '../../../api/tags/tags.service';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PanelSectionModule } from '../../../shared/components/panel-section/panel-section.module';
+import { HasScopesDirective } from '../../../shared/directives/has-scopes.directive';
 import { SharedModule } from '../../../shared/shared.module';
 import { Domain } from '../../../shared/types/domain/domain.interface';
 import { DomainSummary } from '../../../shared/types/domain/domain.summary';
@@ -77,6 +80,7 @@ import { PortsInteractionsService } from '../ports-interactions.service';
     TextMenuComponent,
     BlockedPillTagComponent,
     PillTagComponent,
+    HasScopesDirective,
   ],
   selector: 'app-view-port',
   templateUrl: './view-port.component.html',
@@ -121,7 +125,8 @@ export class ViewPortComponent implements OnDestroy {
       }
       this.projects = comp;
       return this.projects;
-    })
+    }),
+    catchError((err) => of([]))
   );
 
   public hostId = '';
@@ -134,18 +139,16 @@ export class ViewPortComponent implements OnDestroy {
   public portNumber$ = this.route.params.pipe(map((params) => params['port'] as string));
   public port!: Port;
 
-  public host$ = this.hostId$.pipe(switchMap((hostId) => this.hostsService.get(hostId)));
-
   public portPage$ = new BehaviorSubject(-1);
-  public ports$ = combineLatest([this.host$, this.portPage$]).pipe(
-    concatMap(([host, page]) => {
+  public ports$ = combineLatest([this.hostId$, this.portPage$]).pipe(
+    concatMap(([hostId, page]) => {
       const size = page >= 0 ? 100 : 5;
       page = page < 0 ? 0 : page;
 
       return this.portsService.getPage(
         page,
         size,
-        [{ type: 'host.id', value: host._id, not: false }],
+        [{ type: 'host.id', value: hostId, not: false }],
         undefined,
         'number'
       );
@@ -164,19 +167,12 @@ export class ViewPortComponent implements OnDestroy {
     shareReplay(1)
   );
 
-  public portTitle$ = combineLatest([this.portNumber$, this.host$]).pipe(
-    tap(([portNumber, host]) =>
-      this.titleService.setTitle($localize`:Hosts port page title|:Hosts · ${host.ip}\:${portNumber}`)
-    ),
-    map(([portNumber]) => portNumber),
-    shareReplay(1)
-  );
-
   public portId = '';
   public port$ = combineLatest([this.hostId$, this.portNumber$]).pipe(
     switchMap(([hostId, portNumber]) => this.hostsService.getPort(hostId, +portNumber)),
     tap((port) => {
       this.portId = port._id;
+      this.titleService.setTitle($localize`:Hosts port page title|:Hosts · ${port ? port.host.ip : ''}\:${port.port}`);
     }),
     shareReplay(1),
     tap((p: Port) => (this.port = p))
@@ -191,7 +187,10 @@ export class ViewPortComponent implements OnDestroy {
     })
   );
 
-  allTags$ = this.tagsService.getAllTags().pipe(shareReplay(1));
+  allTags$ = this.tagsService.getAllTags().pipe(
+    shareReplay(1),
+    catchError((err) => of([]))
+  );
 
   public tagsSelectItems$ = combineLatest([this.portTags$, this.allTags$]).pipe(
     map(([portTags, allTags]) => {

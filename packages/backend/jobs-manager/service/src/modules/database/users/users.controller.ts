@@ -20,25 +20,31 @@ import {
 } from '../../../exceptions/http.exceptions';
 import { MongoIdDto } from '../../../types/dto/mongo-id.dto';
 import { AuthenticatedRequest } from '../../auth/auth.types';
-import { Role } from '../../auth/constants';
-import { Roles } from '../../auth/decorators/roles.decorator';
-import { RolesGuard } from '../../auth/guards/role.guard';
+import { Scopes } from '../../auth/decorators/scopes.decorator';
+import { ScopesGuard } from '../../auth/guards/scope.guard';
+import {
+  MANAGE_USER_READ_ALL_SCOPE,
+  MANAGE_USER_UPDATE_ALL_SCOPE,
+  RESET_PASSWORD_SCOPE,
+} from '../../auth/scopes.constants';
 import { ApiKeyStrategy } from '../../auth/strategies/api-key.strategy';
 import { JwtStrategy } from '../../auth/strategies/jwt.strategy';
+import { userHasScope } from '../../auth/utils/auth.utils';
 import { MONGO_DUPLICATE_ERROR } from '../database.constants';
+import { GroupDocument } from '../groups/groups.model';
 import { ResetPasswordRequestDto } from './reset-password-request.dto';
 import { ChangePasswordDto, CreateUserDto, EditUserDto } from './users.dto';
 import { User, UserDocument } from './users.model';
 import { UsersService } from './users.service';
 
-@UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), RolesGuard)
+@UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
 @Controller('/users')
 export class UsersController {
   private logger = new Logger(UsersController.name);
 
   constructor(private readonly usersService: UsersService) {}
 
-  @Roles(Role.Admin)
+  @Scopes('manage:users:read-all')
   @Get()
   public async getUsers(): Promise<User[]> {
     try {
@@ -49,7 +55,20 @@ export class UsersController {
     }
   }
 
-  @Roles(Role.Admin)
+  @Scopes('manage:groups:read')
+  @Get(':id/groups')
+  public async getUserGroups(
+    @Param() dto: MongoIdDto,
+  ): Promise<GroupDocument[]> {
+    try {
+      return await this.usersService.getUserGroups(dto.id);
+    } catch (err) {
+      this.logger.error(err);
+      throw new HttpServerErrorException();
+    }
+  }
+
+  @Scopes('manage:users:create')
   @Post()
   public async createUser(
     @Request() req: AuthenticatedRequest,
@@ -73,7 +92,6 @@ export class UsersController {
         firstName: dto.firstName,
         lastName: dto.lastName,
         password: dto.password,
-        role: dto.role,
         active: dto.active,
       });
     } catch (err) {
@@ -86,13 +104,16 @@ export class UsersController {
     }
   }
 
-  @Roles(Role.ReadOnly)
+  @Scopes(['manage:users:read', MANAGE_USER_READ_ALL_SCOPE], { mode: 'oneOf' })
   @Get(':id')
   public async getUser(
     @Request() req: AuthenticatedRequest,
     @Param() dto: MongoIdDto,
   ): Promise<User> {
-    if (req.user.role !== Role.Admin && req.user.id !== dto.id) {
+    if (
+      !userHasScope(MANAGE_USER_READ_ALL_SCOPE, req.user.scopes) &&
+      req.user.id !== dto.id
+    ) {
       throw new HttpForbiddenException();
     }
     try {
@@ -103,14 +124,20 @@ export class UsersController {
     }
   }
 
-  @Roles(Role.ReadOnly)
+  @Scopes(['manage:users:update', MANAGE_USER_UPDATE_ALL_SCOPE], {
+    mode: 'oneOf',
+  })
   @Put(':id')
   public async editUser(
     @Request() req: AuthenticatedRequest,
     @Param() idDto: MongoIdDto,
     @Body() dto: EditUserDto,
   ): Promise<void> {
-    if (req.user.role !== Role.Admin && req.user.id !== idDto.id) {
+    const canEditUsers = userHasScope(
+      MANAGE_USER_UPDATE_ALL_SCOPE,
+      req.user.scopes,
+    );
+    if (!canEditUsers && req.user.id !== idDto.id) {
       throw new HttpForbiddenException();
     }
 
@@ -129,10 +156,9 @@ export class UsersController {
 
     const update: Partial<User> = {};
 
-    if (req.user.role === Role.Admin) {
+    if (canEditUsers) {
       if (dto.active || dto.active === false) update.active = dto.active;
       if (dto.email) update.email = dto.email;
-      if (dto.role) update.role = dto.role;
     }
 
     update.firstName = dto.firstName;
@@ -150,19 +176,25 @@ export class UsersController {
     }
   }
 
-  @Roles(Role.UserResetPassword)
+  @Scopes(
+    [RESET_PASSWORD_SCOPE, 'manage:users:update', MANAGE_USER_UPDATE_ALL_SCOPE],
+    { mode: 'oneOf' },
+  )
   @Put(':id/password')
   public async editUserPassword(
     @Request() req: AuthenticatedRequest,
     @Param() idDto: MongoIdDto,
     @Body() dto: ChangePasswordDto,
   ): Promise<void> {
-    if (req.user.role !== Role.Admin && req.user.id !== idDto.id) {
+    if (
+      !userHasScope(MANAGE_USER_UPDATE_ALL_SCOPE, req.user.scopes) &&
+      req.user.id !== idDto.id
+    ) {
       throw new HttpForbiddenException();
     }
 
-    // When the user role is not UserResetPassword, we require the user to validate their password.
-    if (req.user.role !== Role.UserResetPassword) {
+    // If the user is not resetting their password, validate the current password
+    if (!userHasScope(RESET_PASSWORD_SCOPE, req.user.scopes)) {
       const valid: boolean | null = await this.usersService.validateIdentity(
         req.user.email,
         dto.currentPassword,
@@ -185,7 +217,7 @@ export class UsersController {
     }
   }
 
-  @Roles(Role.Admin)
+  @Scopes('manage:users:delete')
   @Delete(':id')
   public async deleteUser(@Param() dto: MongoIdDto): Promise<DeleteResult> {
     try {

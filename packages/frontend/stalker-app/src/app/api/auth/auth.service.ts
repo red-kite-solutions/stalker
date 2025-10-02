@@ -20,7 +20,7 @@ export interface IsServerSetup {
 })
 export class AuthService implements AuthTokenProvider {
   private _token: string | undefined;
-  private _role: string | undefined;
+  private _scopes: string[] | undefined;
   private _email: string | undefined;
   private _id: string | undefined;
   private refreshToken: string | undefined;
@@ -31,8 +31,8 @@ export class AuthService implements AuthTokenProvider {
     return this._token ? this._token : '';
   }
 
-  public get role(): string {
-    return this._role ? this._role : '';
+  public get scopes(): string[] {
+    return this._scopes ? this._scopes : [];
   }
 
   public get email(): string {
@@ -61,7 +61,7 @@ export class AuthService implements AuthTokenProvider {
     if (this.decodedToken.exp > epochNow) {
       localStorage.setItem(tokenName, token);
       this._token = token;
-      this._role = this.decodedToken.role;
+      this._scopes = this.decodedToken.scopes;
       this._email = this.decodedToken.email;
       this._id = this.decodedToken.id;
     } else {
@@ -147,7 +147,7 @@ export class AuthService implements AuthTokenProvider {
       localStorage.removeItem(refreshTokenName);
       this._token = '';
       this._email = '';
-      this._role = '';
+      this._scopes = [];
       this._id = '';
       this.refreshToken = '';
       this.decodedRefreshToken = {};
@@ -178,5 +178,46 @@ export class AuthService implements AuthTokenProvider {
   public isRefreshValid(): boolean {
     const epoch = Math.floor(Date.now() / 1000);
     return this.decodedRefreshToken?.exp > epoch;
+  }
+
+  public userHasOneScopeOf(scopes: string[] | undefined) {
+    if (!scopes || !scopes.length) return true;
+
+    for (const scope of scopes) {
+      if (this.userHasScope(scope)) return true;
+    }
+    return false;
+  }
+
+  public userHasAllScopesOf(scopes: string[] | undefined) {
+    if (!scopes || !scopes.length) return true;
+
+    for (const scope of scopes) {
+      if (!this.userHasScope(scope)) return false;
+    }
+    return true;
+  }
+
+  public userHasScope(scope: string) {
+    // '*' is explicitely excluded as a possible valid scope to prevent including the reset password scope
+    // Therefore, do not write: const possibleValidScopes = new Set(['*', requiredScope]);
+    const possibleValidScopes: Set<string> = new Set([scope]);
+    const splitRequiredScope = scope.split(':');
+
+    for (let i = 0; i < splitRequiredScope.length - 1; ++i) {
+      const newPossibility: string[] = [];
+      for (let j = 0; j <= i; ++j) {
+        newPossibility.push(splitRequiredScope[j]);
+      }
+      newPossibility.push('*');
+      possibleValidScopes.add(newPossibility.join(':'));
+    }
+
+    const validScopes = [...possibleValidScopes];
+
+    for (const userScope of this.scopes) {
+      if (validScopes.findIndex((v) => userScope === v) !== -1) return true;
+    }
+    return false;
   }
 }

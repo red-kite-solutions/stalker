@@ -14,6 +14,7 @@ import {
   globalProjectFilter$,
   setGlobalProjectFilter,
 } from '../../../utils/global-project-filter';
+import { HasScopesDirective } from '../../directives/has-scopes.directive';
 import { SharedModule } from '../../shared.module';
 import { ProjectSummary } from '../../types/project/project.summary';
 import { PillTagComponent } from '../../widget/pill-tag/pill-tag.component';
@@ -33,6 +34,7 @@ import { AvatarComponent } from '../avatar/avatar.component';
     MatButtonModule,
     PillTagComponent,
     RouterModule,
+    HasScopesDirective,
   ],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],

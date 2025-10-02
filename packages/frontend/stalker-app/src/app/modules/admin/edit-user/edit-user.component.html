@@ -49,45 +49,39 @@
           <mat-error> {{ emailErr$ | async }} </mat-error>
         </mat-form-field>
 
-        <div class="tw-flex tw-items-center tw-gap-2">
-          <mat-form-field class="tw-flex-1">
-            <mat-select
-              formControlName="role"
-              required
-              i18n-placeholder="User role|The role of a user in the application. Relates to its authorization level"
-              placeholder="Role"
-            >
-              @for (role of roles; track role) {
-                <mat-option [value]="role">
-                  {{ role.displayName }}
-                </mat-option>
-              }
-            </mat-select>
-            <mat-hint>{{ form.controls['role'].value.shortDescription }}</mat-hint>
-            <mat-error i18n="Role required|A user must have a role, otherwise the form is invalid"
-              >You must pick a role</mat-error
-            >
-          </mat-form-field>
-          <button
-            type="button"
-            mat-icon-button
-            (click)="showUserRolesHelp()"
-            i18n-matTooltip="Role information|Tooltip giving more information about the application roles"
-            matTooltip="Role information"
-          >
-            <mat-icon>help_outline</mat-icon>
-          </button>
-        </div>
-
         <mat-checkbox formControlName="active" class="formfieldblock" color="accent">
           {{ userEnabled$ | async }}
         </mat-checkbox>
 
-        <mat-divider></mat-divider>
+        <div class="tw-flex tw-flex-col tw-gap-2" [hasScopes]="['manage:groups:read']">
+          <table mat-table [dataSource]="this.groupsDataSource$">
+            <!-- Name Column -->
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef i18n="Groups|">Groups</th>
+              <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+            </ng-container>
 
-        <h4 i18n="Set password|Title of a subsection of a form to set the user's password">Set Password</h4>
+            <!-- Description Column -->
+            <ng-container matColumnDef="description">
+              <th mat-header-cell *matHeaderCellDef i18n="Description|">Description</th>
+              <td mat-cell *matCellDef="let element">{{ element.description }}</td>
+            </ng-container>
 
-        <mat-form-field class="formfieldblock">
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          </table>
+        </div>
+
+        <mat-divider [hasScopes]="['manage:users:delete-all', 'manage:users:update-all']"></mat-divider>
+
+        <h4
+          i18n="Set password|Title of a subsection of a form to set the user's password"
+          [hasScopes]="['manage:users:update-all']"
+        >
+          Set Password
+        </h4>
+
+        <mat-form-field class="formfieldblock" [hasScopes]="['manage:users:update-all']">
           <input
             matInput
             [type]="hideUserPassword ? 'password' : 'text'"
@@ -112,7 +106,12 @@
         </mat-form-field>
       </form>
 
-      <form #profileForm="ngForm" [formGroup]="currentPasswordForm" class="tw-flex tw-flex-col tw-gap">
+      <form
+        #profileForm="ngForm"
+        [formGroup]="currentPasswordForm"
+        class="tw-flex tw-flex-col tw-gap"
+        [hasScopes]="['manage:users:delete-all', 'manage:users:update-all']"
+      >
         <mat-divider></mat-divider>
 
         <h4 i18n="Validate identity|Asking the user to validate their identity by providing their password">
@@ -152,6 +151,7 @@
             mat-stroked-button
             color="primary"
             (click)="onSubmit()"
+            [hasScopes]="['manage:users:update-all']"
           >
             Save changes
           </button>
@@ -162,6 +162,7 @@
             mat-stroked-button
             color="warn"
             (click)="deleteUser()"
+            [hasScopes]="['manage:users:delete-all']"
           >
             Delete user
           </button>

@@ -1,5 +1,5 @@
 import { SelectionModel } from '@angular/cdk/collections';
-import { BreakpointObserver, BreakpointState, Breakpoints } from '@angular/cdk/layout';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
 import { Component, Inject, TemplateRef } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -15,11 +15,12 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, catchError, combineLatest, firstValueFrom, map, shareReplay, switchMap } from 'rxjs';
+import { BehaviorSubject, catchError, combineLatest, firstValueFrom, map, of, shareReplay, switchMap } from 'rxjs';
 import { DomainsService } from '../../../api/domains/domains.service';
 import { ProjectsService } from '../../../api/projects/projects.service';
 import { TagsService } from '../../../api/tags/tags.service';
 import { ProjectCellComponent } from '../../../shared/components/project-cell/project-cell.component';
+import { HasScopesDirective } from '../../../shared/directives/has-scopes.directive';
 import { SharedModule } from '../../../shared/shared.module';
 import { Domain } from '../../../shared/types/domain/domain.interface';
 import { HttpStatus } from '../../../shared/types/http-status.type';
@@ -69,6 +70,7 @@ import { DomainsInteractionsService } from '../domains-interactions.service';
     BlockedPillTagComponent,
     TableFormatComponent,
     PillTagComponent,
+    HasScopesDirective,
   ],
   selector: 'app-list-domains',
   templateUrl: './list-domains.component.html',
@@ -103,8 +105,14 @@ export class ListDomainsComponent {
   selection = new SelectionModel<Domain>(true, []);
   startDate: Date | null = null;
 
-  projects$ = this.projectsService.getAllSummaries().pipe(shareReplay(1));
-  tags$ = this.tagsService.getAllTags().pipe(shareReplay(1));
+  projects$ = this.projectsService.getAllSummaries().pipe(
+    catchError((err) => of([])),
+    shareReplay(1)
+  );
+  tags$ = this.tagsService.getAllTags().pipe(
+    catchError((err) => of([])),
+    shareReplay(1)
+  );
 
   private refresh$ = new BehaviorSubject(null);
   dataSource$ = combineLatest([
@@ -147,12 +155,14 @@ export class ListDomainsComponent {
     Breakpoints.XLarge,
   ]);
 
-  public displayColumns$ = this.screenSize$.pipe(
-    map((screen: BreakpointState) => {
-      // if (screen.breakpoints[Breakpoints.XSmall]) return ['select', 'domain', 'project', 'menu'];
-      // else if (screen.breakpoints[Breakpoints.Small]) return ['select', 'domain', 'project', 'tags', 'menu'];
-      // else if (screen.breakpoints[Breakpoints.Medium]) return ['select', 'domain', 'hosts', 'project', 'tags', 'menu'];
-      return this.displayedColumns;
+  public displayColumns$ = combineLatest([this.tags$, this.projects$]).pipe(
+    map(([tags, projects]) => {
+      let cols = this.displayedColumns;
+      if (!tags.length) cols = cols.filter((c) => c !== 'tags');
+
+      if (!projects || !projects.length) cols = cols.filter((c) => c !== 'project');
+
+      return cols;
     })
   );
 
@@ -264,12 +274,14 @@ export class ListDomainsComponent {
       label: element.blocked
         ? $localize`:Unblock domain|Unblock domain:Unblock`
         : $localize`:Block domain|Block domain:Block`,
+      requiredScopes: ['resources:domains:update'],
     });
 
     menuItems.push({
       action: () => this.deleteBatch([element]),
       icon: 'delete',
       label: $localize`:Delete domain|Delete domain:Delete`,
+      requiredScopes: ['resources:domains:delete'],
     });
 
     return menuItems;

@@ -46,7 +46,11 @@
         <panel-section>
           <panel-section-title i18n="Tags|The tags of an item"
             >Tags
-            <span class="manage-tags-menu">
+            <span
+              class="manage-tags-menu"
+              [hasScopes]="['resources:websites:update', 'manage:tags:read']"
+              [requiresAllScopes]="true"
+            >
               —
               <app-text-select-menu
                 [items]="tagsSelectItems$ | async"
@@ -144,10 +148,19 @@
 
       <mat-divider></mat-divider>
 
-      <panel-section class="tw-opacity-60" #managementPanelSection>
+      <panel-section
+        class="tw-opacity-60"
+        #managementPanelSection
+        [hasScopes]="['resources:websites:delete', 'resources:websites:update']"
+      >
         <app-text-menu [buttonText]="manageWebsiteText" [iconName]="'settings'" [xPosition]="'before'">
           <div class="tw-h-full tw-w-full tw-grid tw-gap-y-1">
-            <button mat-menu-item class="tw-w-full" (click)="blockWebsite(!wsite.blocked)">
+            <button
+              mat-menu-item
+              class="tw-w-full"
+              (click)="blockWebsite(!wsite.blocked)"
+              [hasScopes]="['resources:websites:update']"
+            >
               <mat-icon>{{ wsite.blocked ? 'thumb_up' : 'block' }}</mat-icon>
               @if (wsite.blocked) {
                 <label i18n="Unblock|Unblock an item">Unblock</label>
@@ -155,13 +168,25 @@
                 <label i18n="Block|Block an item">Block</label>
               }
             </button>
-            <button mat-menu-item color="warn" class="tw-w-full" (click)="deleteWebsite()">
+            <button
+              mat-menu-item
+              color="warn"
+              class="tw-w-full"
+              (click)="deleteWebsite()"
+              [hasScopes]="['resources:websites:delete']"
+            >
               <mat-icon>delete</mat-icon>
               <label i18n="Delete|Delete an item">Delete</label>
             </button>
 
             @if (website.mergedInId) {
-              <button mat-menu-item color="warn" class="tw-w-full" (click)="unmergeWebsite()">
+              <button
+                mat-menu-item
+                color="warn"
+                class="tw-w-full"
+                (click)="unmergeWebsite()"
+                [hasScopes]="['resources:websites:update']"
+              >
                 <mat-icon>call_split</mat-icon>
                 <label i18n="Unmerge|Unmerge an item">Unmerge</label>
               </button>

@@ -29,6 +29,7 @@ import {
   pairwise,
   startWith,
 } from 'rxjs';
+import { AuthService } from '../../../api/auth/auth.service';
 import { ContainerService } from '../../../api/containers/container.service';
 import { CustomJobTemplatesService } from '../../../api/jobs/custom-job-templates/custom-job-templates.service';
 import { JobsService } from '../../../api/jobs/jobs/jobs.service';
@@ -36,6 +37,7 @@ import { SettingsService } from '../../../api/settings/settings.service';
 import { ThemeService } from '../../../services/theme.service';
 import { AppHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PanelSectionModule } from '../../../shared/components/panel-section/panel-section.module';
+import { HasScopesDirective } from '../../../shared/directives/has-scopes.directive';
 import { HasUnsavedChanges } from '../../../shared/guards/unsaved-changes-can-deactivate.component';
 import { SharedModule } from '../../../shared/shared.module';
 import { DataSource } from '../../../shared/types/data-source/data-source.type';
@@ -95,6 +97,7 @@ import { nucleiFindingHandlerTemplate } from './nuclei-finding-handler-template'
     MatCheckboxModule,
     SavingButtonComponent,
     DataSourceComponent,
+    HasScopesDirective,
   ],
 })
 export class CustomJobsComponent implements OnInit, OnDestroy, HasUnsavedChanges {
@@ -165,7 +168,8 @@ export class CustomJobsComponent implements OnInit, OnDestroy, HasUnsavedChanges
     private activatedRoute: ActivatedRoute,
     private themeService: ThemeService,
     private templateService: CustomJobTemplatesService,
-    private containerService: ContainerService
+    private containerService: ContainerService,
+    private authService: AuthService
   ) {
     this.titleService.setTitle($localize`:Custom Jobs|:Custom Jobs`);
   }
@@ -366,6 +370,7 @@ export class CustomJobsComponent implements OnInit, OnDestroy, HasUnsavedChanges
   }
 
   public async forceSave() {
+    if (!this.authService.userHasScope('automation:custom-jobs:update')) return;
     this.canSave = true;
     await this.save();
   }
