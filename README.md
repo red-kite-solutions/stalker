@@ -1,6 +1,6 @@
 # Red Kite
 
-> Interested in Red Kite for your business? [We offer enterprise deployments!](https://red-kite.io/product.html)
+> Interested in Red Kite for your business? [We offer enterprise deployments!](https://red-kite.io/)
 
 Red Kite is an Attack Surface Management (ASM) tool with a big focus on extensibility. It streamlines and automates reconnaissance operations while giving you the flexibility to expand its functionalities. Its web interface enables easy data access and sharing with all stakeholders.
 
