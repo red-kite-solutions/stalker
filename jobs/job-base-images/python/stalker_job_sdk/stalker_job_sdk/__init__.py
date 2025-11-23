@@ -176,6 +176,51 @@ def convert_value(value: Any, target_type: str, classes: Dict[str, type]):
     return value
 
 
+def get_all_domains(domainNames: list['str']) -> list['str']:
+    """
+    Gets all the possible domains and subdomains from a list of domain names.
+
+    For instance, input such as: ["*.asdf.example.com", "qwerty.co.uk.", "abc.asd.asd.com"]
+
+    Would return the following domain findings in no particular order:
+
+    example.com
+    asdf.example.com
+    qwerty.co.uk
+    asd.com
+    asd.asd.com
+    abc.asd.asd.com
+    """
+    domain_regex = r"(?:(?:[a-z0-9](?:[a-z0-9\x2d]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9\x2d]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9\x2d]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])"
+    all_domains = set()
+    for domain in domainNames:
+        match = re.search(domain_regex, domain) 
+        if match is None:
+            continue
+
+        full_domain = match.group()
+        tld_obj = tldextract.extract(full_domain)
+        domain_no_tld = tld_obj.domain
+        subdomains_no_tld = tld_obj.subdomain
+        tld = tld_obj.suffix
+
+        
+        all_domains.add(f"{domain_no_tld}.{tld}")
+        if subdomains_no_tld == '':
+            continue
+
+        subdomains_list = subdomains_no_tld.split('.')
+        subdomains_list.reverse()
+        for i in range(len(subdomains_list)):
+            sublist = subdomains_list[:i+1]
+            sublist.reverse()
+            sublist.append(f"{domain_no_tld}.{tld}")
+            
+            all_domains.add(f"{".".join(sublist)}")
+
+    return all_domains
+
+
 def emit_all_domains(domainNames: list['str']):
     """
     Emits domain findings for all domains and subdomains of the strings in domainNames. It also manages leading dots and wildcards and trailing dots.
@@ -192,33 +237,7 @@ def emit_all_domains(domainNames: list['str']):
     abc.asd.asd.com
     """
     # https://stackoverflow.com/questions/201323/how-can-i-validate-an-email-address-using-a-regular-expression
-    domain_regex = r"(?:(?:[a-z0-9](?:[a-z0-9\x2d]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9\x2d]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9\x2d]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])"
-    all_domains = set()
-    for domain in domainNames:
-        match = re.search(domain_regex, domain) 
-        if match is None:
-            continue
-
-        full_domain = match.group()
-        tld_obj = tldextract.extract(full_domain)
-        domain_no_tld = tld_obj.domain
-        subdomains_no_tld = tld_obj.subdomain
-        tld = tld_obj.suffix
-
-        if subdomains_no_tld == '':
-            all_domains.add(f"{domain_no_tld}.{tld}")
-            continue
-
-        subdomains_list = subdomains_no_tld.split('.')
-        subdomains_list.reverse()
-        for i in range(0, len(subdomains_list)):
-            sublist = subdomains_list[:i+1]
-            sublist.reverse()
-            sublist.append(f"{domain_no_tld}.{tld}")
-            
-            all_domains.add(f"{".".join(sublist)}")
-
-    all_domains = sorted(all_domains)
+    all_domains = get_all_domains(domainNames)
     for domain in all_domains:
         log_finding(
             DomainFinding(
