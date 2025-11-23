@@ -1,6 +1,9 @@
+from typing import Any, Dict
 import httpx
 import json
 import sys
+import re
+import tldextract
 from abc import ABC
 from ipaddress import ip_address
 from os import getenv
@@ -137,6 +140,91 @@ class TagFinding(Finding):
         self.path = path
         self.tag = tag
         self.mask = mask
+
+def convert_value(value: Any, target_type: str, classes: Dict[str, type]):
+    """
+    Convert the value into the target_type. target_type can be an object contained in classes.
+
+    @param value The value containing the data to convert
+    @param target_type The target type as a string, can be as simple as "str" but as complex as "List[List[MyClass]]"
+    @param classes Custom classes available to convert values into. All custom classes must implement the class method from_dict
+    """
+    # target_type is a string like 'MyClass', 'List[MyClass]', 'Optional[MyClass]', 'List[List[MyClass]]', etc.
+    if value is None:
+        return None
+    # handle List[...]
+    if target_type.startswith('List[') and isinstance(value, list):
+        inner = target_type[5:-1]
+        return [convert_value(v, inner, classes) for v in value]
+    # handle Optional[...]
+    if target_type.startswith('Optional['):
+        inner = target_type[9:-1]
+        return convert_value(value, inner, classes)
+    # handle Union[...] -> try to convert with first matching simple strategy
+    if target_type.startswith('Union['):
+        opts = [o.strip() for o in target_type[6:-1].split(',')]
+        for o in opts:
+            try:
+                return convert_value(value, o, classes)
+            except Exception:
+                continue
+        return value
+    # handle class types
+    if target_type in classes and isinstance(value, dict):
+        return classes[target_type].from_dict(value)
+    # primitives: assume already correct or let Python coerce where sensible
+    return value
+
+
+def emit_all_domains(domainNames: list['str']):
+    """
+    Emits domain findings for all domains and subdomains of the strings in domainNames. It also manages leading dots and wildcards and trailing dots.
+
+    For instance, input such as: ["*.asdf.example.com", "qwerty.co.uk.", "abc.asd.asd.com"]
+
+    Would emit the following domain findings:
+
+    example.com
+    asdf.example.com
+    qwerty.co.uk
+    asd.com
+    asd.asd.com
+    abc.asd.asd.com
+    """
+    # https://stackoverflow.com/questions/201323/how-can-i-validate-an-email-address-using-a-regular-expression
+    domain_regex = r"(?:(?:[a-z0-9](?:[a-z0-9\x2d]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9\x2d]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9\x2d]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])"
+    all_domains = set()
+    for domain in domainNames:
+        match = re.search(domain_regex, domain) 
+        if match is None:
+            continue
+
+        full_domain = match.group()
+        tld_obj = tldextract.extract(full_domain)
+        domain_no_tld = tld_obj.domain
+        subdomains_no_tld = tld_obj.subdomain
+        tld = tld_obj.suffix
+
+        if subdomains_no_tld == '':
+            all_domains.add(f"{domain_no_tld}.{tld}")
+            continue
+
+        subdomains_list = subdomains_no_tld.split('.')
+        subdomains_list.reverse()
+        for i in range(0, len(subdomains_list)):
+            sublist = subdomains_list[:i+1]
+            sublist.reverse()
+            sublist.append(f"{domain_no_tld}.{tld}")
+            
+            all_domains.add(f"{".".join(sublist)}")
+
+    all_domains = sorted(all_domains)
+    for domain in all_domains:
+        log_finding(
+            DomainFinding(
+                "HostnameFinding", domain, None, "New domain", [], "HostnameFinding"
+            )
+        )
 
 class JobStatus:
     SUCCESS = "Success"
