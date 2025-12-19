@@ -14,6 +14,7 @@ import { ApiExcludeEndpoint } from '@nestjs/swagger';
 import { DeleteResult, UpdateResult } from 'mongodb';
 import { HttpBadRequestException } from '../../../../exceptions/http.exceptions';
 import { MongoIdDto } from '../../../../types/dto/mongo-id.dto';
+import { ApiDefaultResponseExtendModelId } from '../../../../utils/swagger.utils';
 import { Scopes } from '../../../auth/decorators/scopes.decorator';
 import { CronApiTokenGuard } from '../../../auth/guards/cron-api-token.guard';
 import { ScopesGuard } from '../../../auth/guards/scope.guard';
@@ -24,7 +25,10 @@ import {
   PatchSubscriptionDto,
 } from '../subscriptions.dto';
 import { CronSubscriptionDto } from './cron-subscriptions.dto';
-import { CronSubscriptionsDocument } from './cron-subscriptions.model';
+import {
+  CronSubscription,
+  CronSubscriptionsDocument,
+} from './cron-subscriptions.model';
 import { CronSubscriptionsService } from './cron-subscriptions.service';
 
 @Controller('cron-subscriptions')
@@ -38,9 +42,8 @@ export class CronSubscriptionsController {
    * Create a new cron subscription to start jobs based on a cron expression.
    *
    * If the `subscriptionId` parameter is provided, the subscription is duplicated for local changes.
-   *
-   * @scopes automation:subscriptions:create
    */
+  @ApiDefaultResponseExtendModelId(CronSubscription)
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('automation:subscriptions:create')
   @Post()
@@ -57,9 +60,8 @@ export class CronSubscriptionsController {
    *
    * @remarks
    * Read all the cron subscriptions without paging.
-   *
-   * @scopes automation:subscriptions:read
    */
+  @ApiDefaultResponseExtendModelId([CronSubscription])
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('automation:subscriptions:read')
   @Get()
@@ -72,9 +74,8 @@ export class CronSubscriptionsController {
    *
    * @remarks
    * Read a single cron subscription by id.
-   *
-   * @scopes automation:subscriptions:read
    */
+  @ApiDefaultResponseExtendModelId(CronSubscription)
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('automation:subscriptions:read')
   @Get(':id')
@@ -89,8 +90,6 @@ export class CronSubscriptionsController {
    *
    * @remarks
    * This route can be used to enable and disable a cron subscription.
-   *
-   * @scopes automation:subscriptions:update
    */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('automation:subscriptions:update')
@@ -109,7 +108,6 @@ export class CronSubscriptionsController {
     }
   }
 
-  // Excluded from OpenAPI documentation
   @ApiExcludeEndpoint()
   @UseGuards(CronApiTokenGuard)
   @Post(':id/notify')
@@ -122,8 +120,6 @@ export class CronSubscriptionsController {
    *
    * @remarks
    * Update a single cron subscription by id.
-   *
-   * @scopes automation:subscriptions:update
    */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('automation:subscriptions:update')
@@ -140,8 +136,6 @@ export class CronSubscriptionsController {
    *
    * @remarks
    * Delete a single cron subscription by id.
-   *
-   * @scopes automation:subscriptions:delete
    */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('automation:subscriptions:delete')

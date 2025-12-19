@@ -19,24 +19,24 @@ import {
   HttpServerErrorException,
 } from '../../../exceptions/http.exceptions';
 import { MongoIdDto } from '../../../types/dto/mongo-id.dto';
+import { ApiDefaultResponseExtendModelId } from '../../../utils/swagger.utils';
 import { AuthenticatedRequest } from '../../auth/auth.types';
-import { Role } from '../../auth/constants';
 import { Scopes } from '../../auth/decorators/scopes.decorator';
 import { ScopesGuard } from '../../auth/guards/scope.guard';
+import {
+  MANAGE_USER_READ_ALL_SCOPE,
+  MANAGE_USER_UPDATE_ALL_SCOPE,
+  RESET_PASSWORD_SCOPE,
+} from '../../auth/scopes.constants';
 import { ApiKeyStrategy } from '../../auth/strategies/api-key.strategy';
 import { JwtStrategy } from '../../auth/strategies/jwt.strategy';
+import { userHasScope } from '../../auth/utils/auth.utils';
 import { MONGO_DUPLICATE_ERROR } from '../database.constants';
+import { Group, GroupDocument } from '../groups/groups.model';
 import { ResetPasswordRequestDto } from './reset-password-request.dto';
 import { ChangePasswordDto, CreateUserDto, EditUserDto } from './users.dto';
 import { User, UserDocument } from './users.model';
 import { UsersService } from './users.service';
-import { userHasScope } from '../../auth/utils/auth.utils';
-import {
-  RESET_PASSWORD_SCOPE,
-  MANAGE_USER_READ_ALL_SCOPE,
-  MANAGE_USER_UPDATE_ALL_SCOPE,
-} from '../../auth/scopes.constants';
-import { GroupDocument } from '../groups/groups.model';
 
 @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
 @Controller('/users')
@@ -45,6 +45,13 @@ export class UsersController {
 
   constructor(private readonly usersService: UsersService) {}
 
+  /**
+   * Read multiple users.
+   *
+   * @remarks
+   * Read multiple users.
+   */
+  @ApiDefaultResponseExtendModelId([User])
   @Scopes('manage:users:read-all')
   @Get()
   public async getUsers(): Promise<User[]> {
@@ -56,6 +63,13 @@ export class UsersController {
     }
   }
 
+  /**
+   * Read a user's groups.
+   *
+   * @remarks
+   * Read the groups in which a user is a member.
+   */
+  @ApiDefaultResponseExtendModelId([Group])
   @Scopes('manage:groups:read')
   @Get(':id/groups')
   public async getUserGroups(
@@ -69,6 +83,13 @@ export class UsersController {
     }
   }
 
+  /**
+   * Create a new user.
+   *
+   * @remarks
+   * Create a new user.
+   */
+  @ApiDefaultResponseExtendModelId(User)
   @Scopes('manage:users:create')
   @Post()
   public async createUser(
@@ -105,7 +126,14 @@ export class UsersController {
     }
   }
 
-  @Scopes(['manage:users:read', MANAGE_USER_READ_ALL_SCOPE])
+  /**
+   * Read a user by ID.
+   *
+   * @remarks
+   * Read the current user, or any user information, depending on the current user scopes.
+   */
+  @ApiDefaultResponseExtendModelId(User)
+  @Scopes(['manage:users:read', MANAGE_USER_READ_ALL_SCOPE], { mode: 'oneOf' })
   @Get(':id')
   public async getUser(
     @Request() req: AuthenticatedRequest,
@@ -125,7 +153,15 @@ export class UsersController {
     }
   }
 
-  @Scopes(['manage:users:update', MANAGE_USER_UPDATE_ALL_SCOPE])
+  /**
+   * Modify a user by ID.
+   *
+   * @remarks
+   * Modify the current user, or any user information, depending on the current user scopes.
+   */
+  @Scopes(['manage:users:update', MANAGE_USER_UPDATE_ALL_SCOPE], {
+    mode: 'oneOf',
+  })
   @Put(':id')
   public async editUser(
     @Request() req: AuthenticatedRequest,
@@ -175,11 +211,18 @@ export class UsersController {
     }
   }
 
-  @Scopes([
-    RESET_PASSWORD_SCOPE,
-    'manage:users:update',
-    MANAGE_USER_UPDATE_ALL_SCOPE,
-  ])
+  /**
+   * Modify a user's password.
+   *
+   * @remarks
+   * Modify the current user, or any user's password, depending on the current user scopes.
+   *
+   * This route is also used when reseting a password following a password reset request.
+   */
+  @Scopes(
+    [RESET_PASSWORD_SCOPE, 'manage:users:update', MANAGE_USER_UPDATE_ALL_SCOPE],
+    { mode: 'oneOf' },
+  )
   @Put(':id/password')
   public async editUserPassword(
     @Request() req: AuthenticatedRequest,
@@ -217,6 +260,12 @@ export class UsersController {
     }
   }
 
+  /**
+   * Delete a user.
+   *
+   * @remarks
+   * Delete a user.
+   */
   @Scopes('manage:users:delete')
   @Delete(':id')
   public async deleteUser(@Param() dto: MongoIdDto): Promise<DeleteResult> {
@@ -236,7 +285,11 @@ export class UnprotectedUsersController {
   constructor(private readonly usersService: UsersService) {}
 
   /**
-   * This route is unprotected on purpose. It allows users to update their password.
+   * Send a reset password email to a user.
+   *
+   * @remarks
+   * This route is unprotected on purpose. It allows users to request a reset
+   * password link sent to their email address.
    */
   @Post('reset-password-requests')
   async requestPasswordReset(@Body() dto: ResetPasswordRequestDto) {

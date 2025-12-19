@@ -13,11 +13,14 @@ RUN yarn set version 4.1.0
 
 COPY yarn.lock yarn.lock
 COPY package.json package.json
+COPY packages/common/package.json packages/common/package.json 
 COPY packages/frontend/stalker-app/package.json packages/frontend/stalker-app/package.json 
 COPY packages/backend/jobs-manager/service/package.json packages/backend/jobs-manager/service/package.json 
 COPY packages/backend/cron/service/package.json packages/backend/cron/service/package.json 
 COPY packages/backend/orchestrator/service/package.json packages/backend/orchestrator/service/package.json 
 COPY .yarnrc.yml .yarnrc.yml
+COPY tsconfig.base.json tsconfig.base.json
+COPY tsconfig.json tsconfig.json
 
 RUN yarn install --immutable
 

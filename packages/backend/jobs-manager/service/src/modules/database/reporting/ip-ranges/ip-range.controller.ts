@@ -15,7 +15,10 @@ import { DeleteResult } from 'mongodb';
 import { MongoIdDto } from '../../../../types/dto/mongo-id.dto';
 import { TagItemDto } from '../../../../types/dto/tag-item.dto';
 import { Page } from '../../../../types/page.type';
-import { Role } from '../../../auth/constants';
+import {
+  ApiDefaultResponseExtendModelId,
+  ApiDefaultResponsePage,
+} from '../../../../utils/swagger.utils';
 import { Scopes } from '../../../auth/decorators/scopes.decorator';
 import { ScopesGuard } from '../../../auth/guards/scope.guard';
 import { ApiKeyStrategy } from '../../../auth/strategies/api-key.strategy';
@@ -26,13 +29,19 @@ import {
   IpRangesPagingDto,
   SubmitIpRangesDto,
 } from './ip-range.dto';
-import { ExtendedIpRange, IpRangeDocument } from './ip-range.model';
+import { ExtendedIpRange, IpRange, IpRangeDocument } from './ip-range.model';
 import { IpRangeService } from './ip-range.service';
 
 @Controller('ip-ranges')
 export class IpRangeController {
   constructor(private readonly ipRangesService: IpRangeService) {}
 
+  /**
+   * Batch block IP ranges.
+   *
+   * @remarks
+   * Block multiple IP ranges at the same time.
+   */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('resources:ip-ranges:update')
   @Patch()
@@ -40,6 +49,12 @@ export class IpRangeController {
     return await this.ipRangesService.batchEdit(dto);
   }
 
+  /**
+   * Tag an IP range.
+   *
+   * @remarks
+   * Tag an IP range.
+   */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('resources:ip-ranges:update')
   @Put(':id/tags')
@@ -51,6 +66,13 @@ export class IpRangeController {
     );
   }
 
+  /**
+   * Read an IP range by ID.
+   *
+   * @remarks
+   * Read an IP range by ID.
+   */
+  @ApiDefaultResponseExtendModelId(IpRange)
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('resources:ip-ranges:read')
   @Get(':id')
@@ -58,6 +80,12 @@ export class IpRangeController {
     return await this.ipRangesService.get(dto.id);
   }
 
+  /**
+   * Delete an IP range by ID.
+   *
+   * @remarks
+   * Delete an IP range by ID.
+   */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('resources:ip-ranges:delete')
   @Delete(':id')
@@ -65,6 +93,13 @@ export class IpRangeController {
     return await this.ipRangesService.delete(dto.id);
   }
 
+  /**
+   * Read multiple IP ranges.
+   *
+   * @remarks
+   * Read multiple IP ranges.
+   */
+  @ApiDefaultResponsePage(ExtendedIpRange)
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('resources:ip-ranges:read')
   @Get()
@@ -84,6 +119,12 @@ export class IpRangeController {
     };
   }
 
+  /**
+   * Delete multiple IP ranges.
+   *
+   * @remarks
+   * Delete multiple IP ranges.
+   */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('resources:ip-ranges:delete')
   @Delete()
@@ -91,6 +132,13 @@ export class IpRangeController {
     return await this.ipRangesService.deleteMany(dto.ipRangeIds);
   }
 
+  /**
+   * Create multiple IP ranges.
+   *
+   * @remarks
+   * Create multiple IP ranges.
+   */
+  @ApiDefaultResponseExtendModelId([IpRange])
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('resources:ip-ranges:create')
   @Post()

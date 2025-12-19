@@ -163,7 +163,7 @@ export class ViewWebsiteComponent implements OnDestroy {
       return !website.mergedInId;
     }),
     switchMap(([website, page]) => {
-      return this.websitesService.getPage(page, 5, { mergedInId: website._id });
+      return this.websitesService.getPage(page, 5, [{ type: 'mergedIn.id', value: website._id }]);
     }),
     scan((acc: Page<Website>, value: Page<Website>) => {
       acc.items = acc.items.concat(value.items);

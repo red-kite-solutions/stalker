@@ -163,7 +163,13 @@ export class ViewDomainComponent implements OnDestroy {
     const page$ = new BehaviorSubject<number>(0);
     return page$.pipe(
       concatMap((page: number) => {
-        return this.portsService.getPage(page, pageSize, { hostId: hostId }, undefined, 'number');
+        return this.portsService.getPage(
+          page,
+          pageSize,
+          [{ type: 'host.id', value: hostId, not: false }],
+          undefined,
+          'number'
+        );
       }),
       scan((acc: Page<PortNumber>, value: Page<PortNumber>) => {
         return { items: acc.items.concat(value.items), totalRecords: value.totalRecords };

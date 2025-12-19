@@ -9,9 +9,12 @@ export class FirstUserController {
   constructor(private readonly usersService: UsersService) {}
 
   /**
-   * This method is intentionnally without authentication and authorization guards
-   * because it can only create the first user, and will return an error otherwise
-   * @param dto
+   * Create the application first user.
+   *
+   * @remarks
+   * This method can only create the first user, and will return an error otherwise.
+   *
+   * This method is intentionnally without authentication and authorization guards.
    */
   @Post()
   public async createFirstUser(@Body() dto: CreateFirstUserDto) {

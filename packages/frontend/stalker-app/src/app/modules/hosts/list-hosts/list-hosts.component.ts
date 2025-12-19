@@ -14,6 +14,15 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
+import {
+  AutocompleteBuilder,
+  domainSuggestion,
+  excludeSuggestion,
+  hostSuggestion,
+  isSuggestion,
+  projectSuggestion,
+  tagSuggestion,
+} from '@red-kite/frontend/app/shared/widget/filtered-paginated-table/autocomplete';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, catchError, combineLatest, map, of, shareReplay, switchMap, tap } from 'rxjs';
 import { HostsService } from '../../../api/hosts/hosts.service';
@@ -26,7 +35,6 @@ import { Host } from '../../../shared/types/host/host.interface';
 import { HttpStatus } from '../../../shared/types/http-status.type';
 import { Page } from '../../../shared/types/page.type';
 import { ProjectSummary } from '../../../shared/types/project/project.summary';
-import { Tag } from '../../../shared/types/tag.type';
 import { ElementMenuItems } from '../../../shared/widget/dynamic-icons/menu-icon.component';
 import { FilteredPaginatedTableComponent } from '../../../shared/widget/filtered-paginated-table/filtered-paginated-table.component';
 import {
@@ -39,11 +47,7 @@ import { TableFormatComponent } from '../../../shared/widget/filtered-paginated-
 import { BlockedPillTagComponent } from '../../../shared/widget/pill-tag/blocked-pill-tag.component';
 import { defaultNewTimeMs } from '../../../shared/widget/pill-tag/new-pill-tag.component';
 import { PillTagComponent } from '../../../shared/widget/pill-tag/pill-tag.component';
-import {
-  getGlobalProjectFilter,
-  globalProjectFilter$,
-  hasGlobalProjectFilter,
-} from '../../../utils/global-project-filter';
+import { appendGlobalFiltersToQuery, globalProjectFilter$ } from '../../../utils/global-project-filter';
 import { HostsInteractionsService } from '../hosts-interactions.service';
 
 @Component({
@@ -77,7 +81,7 @@ import { HostsInteractionsService } from '../hosts-interactions.service';
     {
       provide: TABLE_FILTERS_SOURCE_INITAL_FILTERS,
       useValue: {
-        filters: ['-is: blocked'],
+        filters: ['-is:blocked '],
         pagination: { page: 0, pageSize: 25 },
       } as TableFilters,
     },
@@ -87,8 +91,17 @@ export class ListHostsComponent {
   maxDomainsPerHost = 35;
   dataLoading = true;
   displayedColumns: string[] = ['select', 'ip', 'domains', 'project', 'tags', 'menu'];
-  filterOptions: string[] = ['host', 'domain', 'range', 'project', 'tags', 'is'];
   public readonly noDataMessage = $localize`:No host found|No host was found:No host found`;
+
+  public readonly autocomplete = this.autocompleteBuilder
+    .build('key')
+    .suggestion(hostSuggestion)
+    .suggestion(domainSuggestion)
+    .suggestion(tagSuggestion)
+    .suggestion(projectSuggestion)
+    .suggestion(isSuggestion)
+    .divider()
+    .suggestion(excludeSuggestion);
 
   count = 0;
   selection = new SelectionModel<Host>(true, []);
@@ -106,17 +119,12 @@ export class ListHostsComponent {
   );
 
   private refresh$ = new BehaviorSubject(null);
-  dataSource$ = combineLatest([
-    this.filtersSource.debouncedFilters$,
-    this.tags$,
-    this.refresh$,
-    globalProjectFilter$,
-  ]).pipe(
-    switchMap(([{ dateRange, filters, pagination }, tags]) => {
+  dataSource$ = combineLatest([this.filtersSource.debouncedFilters$, this.refresh$, globalProjectFilter$]).pipe(
+    switchMap(([{ dateRange, filters, pagination }]) => {
       return this.hostsService.getPage(
         pagination?.page || 0,
         pagination?.pageSize || 25,
-        this.buildFilters(filters || [], tags),
+        appendGlobalFiltersToQuery(filters[0]),
         dateRange ?? new DateRange<Date>(null, null)
       );
     }),
@@ -158,81 +166,10 @@ export class ListHostsComponent {
     private tagsService: TagsService,
     public dialog: MatDialog,
     private titleService: Title,
+    private autocompleteBuilder: AutocompleteBuilder,
     @Inject(TableFiltersSourceBase) private filtersSource: TableFiltersSource
   ) {
     this.titleService.setTitle($localize`:Hosts list page title|:Hosts`);
-  }
-
-  buildFilters(stringFilters: string[], tags: Tag[]): any {
-    const SEPARATOR = ':';
-    const NEGATING_CHAR = '-';
-    const filterObject: any = {};
-    const includedTags = [];
-    const domains = [];
-    const ranges = [];
-    const hosts = [];
-    const projects = [];
-    let blocked: boolean | null = null;
-
-    for (const filter of stringFilters) {
-      if (filter.indexOf(SEPARATOR) === -1) continue;
-
-      const keyValuePair = filter.split(SEPARATOR);
-
-      if (keyValuePair.length !== 2) continue;
-
-      let key = keyValuePair[0].trim().toLowerCase();
-      const value = keyValuePair[1].trim().toLowerCase();
-      const negated = key.length > 0 && key[0] === NEGATING_CHAR;
-      if (negated) key = key.substring(1);
-
-      if (!key || !value) continue;
-
-      switch (key) {
-        case 'project':
-          const project = this.projects.find((c) => c.name.trim().toLowerCase() === value.trim().toLowerCase());
-          if (project) projects.push(project.id);
-          else
-            this.toastr.warning(
-              $localize`:Project does not exist|The given project name is not known to the application:Project name not recognized`
-            );
-          break;
-        case 'host':
-          if (value) hosts.push(value.trim().toLowerCase());
-          break;
-        case 'tags':
-          const tag = tags.find((t) => t.text.trim().toLowerCase() === value.trim().toLowerCase());
-          if (tag) includedTags.push(tag._id);
-          else
-            this.toastr.warning(
-              $localize`:Tag does not exist|The given tag is not known to the application:Tag not recognized`
-            );
-          break;
-        case 'domain':
-          domains.push(value);
-          break;
-        case 'range':
-          ranges.push(value);
-          break;
-        case 'is':
-          switch (value) {
-            case 'blocked':
-              blocked = !negated;
-              break;
-          }
-          break;
-      }
-    }
-
-    if (hasGlobalProjectFilter()) projects.push(getGlobalProjectFilter()?.id);
-
-    if (includedTags?.length) filterObject['tags'] = includedTags;
-    if (domains?.length) filterObject['domains'] = domains;
-    if (hosts?.length) filterObject['hosts'] = hosts;
-    if (ranges?.length) filterObject['ranges'] = ranges;
-    if (projects?.length) filterObject['projects'] = projects;
-    if (blocked !== null) filterObject['blocked'] = blocked;
-    return filterObject;
   }
 
   openNewHostsDialog(templateRef: TemplateRef<any>) {

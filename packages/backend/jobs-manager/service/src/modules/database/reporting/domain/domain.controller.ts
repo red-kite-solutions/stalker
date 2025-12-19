@@ -16,7 +16,10 @@ import { AuthGuard } from '@nestjs/passport';
 import { MongoIdDto } from '../../../../types/dto/mongo-id.dto';
 import { TagItemDto } from '../../../../types/dto/tag-item.dto';
 import { Page } from '../../../../types/page.type';
-import { Role } from '../../../auth/constants';
+import {
+  ApiDefaultResponseExtendModelId,
+  ApiDefaultResponsePage,
+} from '../../../../utils/swagger.utils';
 import { Scopes } from '../../../auth/decorators/scopes.decorator';
 import { ScopesGuard } from '../../../auth/guards/scope.guard';
 import { ApiKeyStrategy } from '../../../auth/strategies/api-key.strategy';
@@ -28,13 +31,20 @@ import {
   EditDomainDto,
   SubmitDomainsDto,
 } from './domain.dto';
-import { DomainDocument } from './domain.model';
+import { Domain, DomainDocument } from './domain.model';
 import { DomainsService } from './domain.service';
 
 @Controller('domains')
 export class DomainsController {
   constructor(private readonly domainsService: DomainsService) {}
 
+  /**
+   * Read multiple domain names.
+   *
+   * @remarks
+   * Read multiple domain names.
+   */
+  @ApiDefaultResponsePage(Domain)
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('resources:domains:read')
   @Get()
@@ -50,6 +60,15 @@ export class DomainsController {
     };
   }
 
+  /**
+   * Create multiple domain names.
+   *
+   * @remarks
+   * Batch submit domain names to create multiple at once.
+   *
+   * Duplicates are handled and will not be created.
+   */
+  @ApiDefaultResponseExtendModelId([Domain])
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('resources:domains:create')
   @Post()
@@ -57,6 +76,12 @@ export class DomainsController {
     return await this.domainsService.addDomains(dto.domains, dto.projectId);
   }
 
+  /**
+   * Tag a domain.
+   *
+   * @remarks
+   * Tag a domain by ID.
+   */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('resources:domains:update')
   @Put(':id/tags')
@@ -68,6 +93,12 @@ export class DomainsController {
     );
   }
 
+  /**
+   * Batch block domain names.
+   *
+   * @remarks
+   * Block multiple domain names at once, removing them from the automation.
+   */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('resources:domains:update')
   @Patch()
@@ -75,6 +106,13 @@ export class DomainsController {
     return await this.domainsService.batchEdit(dto);
   }
 
+  /**
+   * Read a domain name by ID.
+   *
+   * @remarks
+   * Read a domain name by ID.
+   */
+  @ApiDefaultResponseExtendModelId(Domain)
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('resources:domains:read')
   @Get(':id')
@@ -82,6 +120,12 @@ export class DomainsController {
     return await this.domainsService.getDomain(dto.id);
   }
 
+  /**
+   * Edit a domain.
+   *
+   * @remarks
+   * Edit a domain by ID.
+   */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('resources:domains:update')
   @Put(':id')
@@ -92,6 +136,12 @@ export class DomainsController {
     return await this.domainsService.editDomain(idDto.id, dto);
   }
 
+  /**
+   * Delete a domain.
+   *
+   * @remarks
+   * Delete a domain by ID.
+   */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('resources:domains:delete')
   @Delete(':id')
@@ -99,6 +149,12 @@ export class DomainsController {
     return await this.domainsService.delete(idDto.id);
   }
 
+  /**
+   * Delete multiple domains.
+   *
+   * @remarks
+   * Delete multiple domains by ID.
+   */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('resources:domains:delete')
   @Delete()

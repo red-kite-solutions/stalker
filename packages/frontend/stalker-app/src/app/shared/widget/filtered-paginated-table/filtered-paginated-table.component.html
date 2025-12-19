@@ -9,6 +9,9 @@
         @case ('fulltext') {
           <ng-container *ngTemplateOutlet="fulltextSearch"> </ng-container>
         }
+        @case ('kiteQl') {
+          <ng-container *ngTemplateOutlet="kiteQl"> </ng-container>
+        }
       }
     }
     @if (dateSearchEnabled) {
@@ -92,6 +95,15 @@
       (keyup)="fulltextSearchChange([fulltextInput.value])"
     />
   </mat-form-field>
+</ng-template>
+
+<ng-template #kiteQl>
+  <rks-search-input
+    class="tw-w-full"
+    [(query)]="kiteQlSearch"
+    (queryChange)="kiteQlQueryChanges$.next($event || '')"
+    [autocomplete]="queryAutocomplete"
+  ></rks-search-input>
 </ng-template>
 
 <ng-template #dateSearch>

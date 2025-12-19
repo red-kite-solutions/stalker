@@ -3,10 +3,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { DeleteResult, UpdateResult } from 'mongodb';
 import { Model, PipelineStage, Query, Types } from 'mongoose';
 import { HttpNotFoundException } from '../../../../exceptions/http.exceptions';
-import escapeStringRegexp from '../../../../utils/escape-string-regexp';
 import {
   ipv4RangeValuesToMinMax,
-  ipv4ToNumber,
   numberToIpv4,
 } from '../../../../utils/ip-address.utils';
 import { IpRangeFinding } from '../../../findings/findings.service';
@@ -16,6 +14,7 @@ import { CorrelationKeyUtils } from '../correlation.utils';
 import { Host } from '../host/host.model';
 import { HostSummary } from '../host/host.summary';
 import { Project } from '../project.model';
+import { IpRangeFilterParser } from './ip-range-filter-parser';
 import {
   BatchEditIpRangesDto,
   IpRangeDto,
@@ -34,6 +33,7 @@ export class IpRangeService {
     @InjectModel('project') private readonly projectModel: Model<Project>,
     private tagsService: TagsService,
     private findingsQueue: FindingsQueue,
+    private ipRangeFilterParser: IpRangeFilterParser,
   ) {}
 
   public async getAll(
@@ -45,7 +45,13 @@ export class IpRangeService {
     let query: Query<IpRangeDocument[], IpRangeDocument, any, IpRange> =
       undefined;
     if (filter) {
-      query = this.ipRangeModel.find(this.buildFilters(filter));
+      query = this.ipRangeModel.find(
+        await this.ipRangeFilterParser.buildFilter(
+          filter.query,
+          filter.firstSeenStartDate,
+          filter.firstSeenEndDate,
+        ),
+      );
     } else {
       query = this.ipRangeModel.find({});
     }
@@ -123,7 +129,13 @@ export class IpRangeService {
     if (!filter) {
       return await this.ipRangeModel.estimatedDocumentCount();
     } else {
-      return await this.ipRangeModel.countDocuments(this.buildFilters(filter));
+      return await this.ipRangeModel.countDocuments(
+        await this.ipRangeFilterParser.buildFilter(
+          filter.query,
+          filter.firstSeenStartDate,
+          filter.firstSeenEndDate,
+        ),
+      );
     }
   }
 
@@ -135,86 +147,6 @@ export class IpRangeService {
 
   public async get(id: string) {
     return this.ipRangeModel.findById(id);
-  }
-
-  private buildFilters(dto: IpRangesFilterDto) {
-    const finalFilter = { $and: [] };
-
-    // Filter by ip
-    if (dto.ips) {
-      const ips = dto.ips
-        .filter((x) => x)
-        .map((x) => x.toLowerCase().trim())
-        .map((x) => escapeStringRegexp(x))
-        .map((x) => new RegExp(`.*${x}.*`));
-
-      if (ips.length > 0) {
-        finalFilter['ip'] = { $in: ips };
-      }
-    }
-
-    // Filter by ip contained in range
-    if (dto.contains) {
-      const or = [];
-      for (const ip of dto.contains) {
-        const ipInt = ipv4ToNumber(ip);
-        const and = {
-          $and: [{ ipMinInt: { $lte: ipInt } }, { ipMaxInt: { $gte: ipInt } }],
-        };
-        or.push(and);
-      }
-      finalFilter.$and.push({ $or: or });
-    }
-
-    // Filter by project
-    if (dto.projects) {
-      const projectIds = dto.projects
-        .filter((x) => x)
-        .map((x) => new Types.ObjectId(x));
-
-      if (projectIds.length > 0) {
-        finalFilter['projectId'] = { $in: projectIds };
-      }
-    }
-
-    // Filter by tag
-    if (dto.tags) {
-      const preppedTagsArray = dto.tags.map((x) => new Types.ObjectId(x));
-      finalFilter['tags'] = { $all: preppedTagsArray };
-    }
-
-    // Filter by createdAt
-    if (dto.firstSeenStartDate || dto.firstSeenEndDate) {
-      let createdAtFilter = {};
-
-      if (dto.firstSeenStartDate && dto.firstSeenEndDate) {
-        createdAtFilter = [
-          { createdAt: { $gte: dto.firstSeenStartDate } },
-          { createdAt: { $lte: dto.firstSeenEndDate } },
-        ];
-        finalFilter.$and.push(createdAtFilter);
-      } else {
-        if (dto.firstSeenStartDate)
-          createdAtFilter = { $gte: dto.firstSeenStartDate };
-        else if (dto.firstSeenEndDate)
-          createdAtFilter = { $lte: dto.firstSeenEndDate };
-        finalFilter['createdAt'] = createdAtFilter;
-      }
-    }
-
-    // Filter by blocked
-    if (dto.blocked === false) {
-      finalFilter['$or'] = [
-        { blocked: { $exists: false } },
-        { blocked: { $eq: false } },
-      ];
-    } else if (dto.blocked === true) {
-      finalFilter['blocked'] = { $eq: true };
-    }
-
-    if (finalFilter.$and.length === 0) delete finalFilter.$and;
-
-    return finalFilter;
   }
 
   public async tagIpRange(

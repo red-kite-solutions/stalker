@@ -1,11 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { randomUUID } from 'crypto';
 import { AppModule } from '../../../app.module';
+import { TagsDocument } from '../../tags/tag.model';
 import { TagsService } from '../../tags/tag.service';
-import { Domain } from '../domain/domain.model';
+import { Domain, DomainDocument } from '../domain/domain.model';
 import { DomainsService } from '../domain/domain.service';
+import { CreateProjectDto } from '../project.dto';
 import { ProjectDocument } from '../project.model';
 import { ProjectService } from '../project.service';
+import { HostDocument } from './host.model';
 import { HostService } from './host.service';
 
 describe('Host Service', () => {
@@ -30,6 +33,10 @@ describe('Host Service', () => {
     for (const c of allProjects) {
       await projectService.delete(c._id);
     }
+    const allTags = await tagsService.getAll();
+    for (const t of allTags) {
+      await tagsService.delete(t._id.toString());
+    }
   });
 
   afterAll(async () => {
@@ -37,7 +44,7 @@ describe('Host Service', () => {
   });
 
   describe('Add hosts', () => {
-    it('Should only return new hosts', async () => {
+    it('Should only return hosts', async () => {
       // Arrange
       const c = await projectService.addProject({
         name: randomUUID(),
@@ -55,7 +62,7 @@ describe('Host Service', () => {
       newHosts = await host(d, c, [], '1.1.1.1');
 
       // Assert
-      expect(newHosts.length).toBe(0);
+      expect(newHosts.length).toBe(1);
     });
 
     it('Should support same ip for multiple hosts', async () => {
@@ -83,180 +90,112 @@ describe('Host Service', () => {
   });
 
   describe('Get all', () => {
-    it('Filter by project', async () => {
+    let project1: ProjectDocument;
+    let project2: ProjectDocument;
+
+    let domain1: DomainDocument;
+    let domain2: DomainDocument;
+    let domain3: DomainDocument;
+
+    let foo: TagsDocument;
+    let bar: TagsDocument;
+    let baz: TagsDocument;
+    let qux: TagsDocument;
+
+    let h1: HostDocument;
+    let h2: HostDocument;
+    let h3: HostDocument;
+
+    beforeEach(async () => {
       // Arrange
-      const c1 = await project('my first project');
-      const d1 = await domain('project5.example.org', c1);
+      project1 = await project('project 1');
+      project2 = await project('project 2');
+      [foo, bar, baz, qux] = await tags('foo', 'bar', 'baz', 'qux');
 
-      const c2 = await project('my second project');
-      const d2 = await domain('project6.example.org', c2);
+      domain1 = await domain('d1', project1);
+      domain2 = await domain('d2', project1);
+      domain3 = await domain('d3', project2);
 
-      await host(d1, c1, [], '8.8.8.8', '1.2.3.4');
-      await host(d2, c2, [], '2.3.4.5', '6.7.8.9');
+      [h1, h2] = await host(domain1, project1, [foo], '1.1.1.1', '1.2.2.2');
+      [h2] = await host(domain3, project2, [foo, bar], '1.2.2.2');
+      [h3] = await host(domain3, project2, [foo, baz, qux], '1.2.2.3');
 
-      // Act
-      const allHosts = await hostService.getAll(0, 10, {
-        projects: [c1.id],
-      });
-
-      // Assert
-      expect(allHosts.length).toBe(2);
-
-      const h1 = allHosts[0];
-      expect(h1.projectId.toString()).toBe(c1._id.toString());
-      expect(h1.ip).toBe('8.8.8.8');
-
-      const h2 = allHosts[1];
-      expect(h2.projectId.toString()).toBe(c1._id.toString());
-      expect(h2.ip).toBe('1.2.3.4');
+      await block(h3);
     });
 
     it.each([
-      [['foo'], '1.1.1.1', '2.2.2.2', '3.3.3.3', '4.4.4.4', '5.5.5.5'],
-      [['foo', 'bar'], '1.1.1.1', '3.3.3.3', '4.4.4.4', '5.5.5.5'],
+      ['', ['1.1.1.1', '1.2.2.2', '1.2.2.2', '1.2.2.3']],
+
+      // Projects
+      ['project: "project*"', ['1.1.1.1', '1.2.2.2', '1.2.2.2', '1.2.2.3']],
+      ['project: "project 1"', ['1.1.1.1', '1.2.2.2']],
+      ['project: "project 2"', ['1.2.2.2', '1.2.2.3']],
+      ['-project: "project 2"', ['1.1.1.1', '1.2.2.2']],
+      [
+        'project.name: "project*"',
+        ['1.1.1.1', '1.2.2.2', '1.2.2.2', '1.2.2.3'],
+      ],
+      ['project.name: "project 1"', ['1.1.1.1', '1.2.2.2']],
+      ['project.name: "project 2"', ['1.2.2.2', '1.2.2.3']],
+      ['-project.name: "project 2"', ['1.1.1.1', '1.2.2.2']],
+      [() => `project.id: ${project1.id}`, ['1.1.1.1', '1.2.2.2']],
+      [() => `project.id: ${project2.id}`, ['1.2.2.2', '1.2.2.3']],
+      [() => `-project.id: ${project2.id}`, ['1.1.1.1', '1.2.2.2']],
+
+      // Domain
+      ['domain: d1', ['1.1.1.1', '1.2.2.2']],
+      ['domain.name: d1', ['1.1.1.1', '1.2.2.2']],
+      ['domain.name: d*', ['1.1.1.1', '1.2.2.2', '1.2.2.2', '1.2.2.3']],
+      ['-domain: d1', ['1.2.2.2', '1.2.2.3']],
+      ['-domain.name: d1', ['1.2.2.2', '1.2.2.3']],
+      ['-domain.name: d*', []],
+      [() => `domain.id: ${domain1.id}`, ['1.1.1.1', '1.2.2.2']],
+      [() => `-domain.id: ${domain1.id}`, ['1.2.2.2', '1.2.2.3']],
+
+      // Host
+      ['host: 1.1.1.1', ['1.1.1.1']],
+      ['host.ip: 1.1.1.1', ['1.1.1.1']],
+      [() => `host.id: ${h1.id}`, ['1.1.1.1']],
+      ['host: 1.*', ['1.1.1.1', '1.2.2.2', '1.2.2.2', '1.2.2.3']],
+      ['host: 1.2.2*', ['1.2.2.2', '1.2.2.2', '1.2.2.3']],
+      ['-host: 1.1.1.1', ['1.2.2.2', '1.2.2.2', '1.2.2.3']],
+      ['-host.ip: 1.1.1.1', ['1.2.2.2', '1.2.2.2', '1.2.2.3']],
+      [() => `-host.id: ${h1.id}`, ['1.2.2.2', '1.2.2.2', '1.2.2.3']],
+      ['-host: 1.2.2*', ['1.1.1.1']],
+      ['host.ip: 1.1.1.1/16', ['1.1.1.1']],
+      ['-host.ip: 1.1.1.1/16', ['1.2.2.2', '1.2.2.2', '1.2.2.3']],
+      ['host.ip: 1.1.1.1/8', ['1.1.1.1', '1.2.2.2', '1.2.2.2', '1.2.2.3']],
+      ['host.ip: 1.2.1.1/16', ['1.2.2.2', '1.2.2.2', '1.2.2.3']],
+
+      // Tag
+      ['tag: foo', ['1.1.1.1', '1.2.2.2', '1.2.2.2', '1.2.2.3']],
+      [() => `tag.id: ${foo.id}`, ['1.1.1.1', '1.2.2.2', '1.2.2.2', '1.2.2.3']],
+      [() => `-tag.id: ${foo.id}`, []],
+      ['-tag: ba*', ['1.1.1.1', '1.2.2.2']],
+      ['tag: qux', ['1.2.2.3']],
+      ['tag: foo tag: bar', ['1.2.2.2']],
+      ['-tag: foo tag: qux', []],
+
+      // Is
+      ['is: blocked', ['1.2.2.3']],
+      ['-is: blocked', ['1.1.1.1', '1.2.2.2', '1.2.2.2']],
     ])(
-      'Filter by domain',
-      async (domains: string[], ...expectedIps: string[]) => {
+      'Filter by "%s"',
+      async (query: string | (() => string), expected: string[]) => {
         // Arrange
-        const c1 = await project('c1');
-        const c2 = await project('c2');
-
-        const d1 = await domain('foo.example.org', c1);
-        await host(d1, c1, [], '1.1.1.1', '2.2.2.2');
-
-        const d2 = await domain('bar.foo.project.example.org', c1);
-        await host(d2, c1, [], '1.1.1.1', '3.3.3.3');
-
-        const d3 = await domain('foo.bar.somethingelse.example.org', c2);
-        await host(d3, c2, [], '4.4.4.4', '5.5.5.5');
-
-        const d4 = await domain('unrelated.example.org', c2);
-        await host(d4, c2, [], '6.6.6.6');
+        if (typeof query !== 'string') query = query();
 
         // Act
-        const allHosts = await hostService.getAll(0, 10, {
-          domains: domains,
+
+        const allhosts = await hostService.getAll(0, 10);
+        const hosts = await hostService.getAll(0, 10, {
+          query,
         });
 
         // Assert
-        expect(allHosts.map((x) => x.ip).sort()).toStrictEqual(
-          expectedIps.sort(),
-        );
+        expect(hosts.map((x) => x.ip).sort()).toStrictEqual(expected.sort());
       },
     );
-
-    it.each([
-      [['159'], '1.1.159.1', '6.6.159.6'],
-      [['1.1.159.1'], '1.1.159.1'],
-      [['  1.1.159.1  '], '1.1.159.1'],
-      [['2.2.2.2', '6.6.159.6'], '2.2.2.2', '6.6.159.6'],
-    ])('Filter by host', async (hosts: string[], ...expectedIps: string[]) => {
-      // Arrange
-      const c1 = await project('c1');
-      const c2 = await project('c2');
-
-      const d1 = await domain('foo.example.org', c1);
-      await host(d1, c1, [], '1.1.159.1', '2.2.2.2');
-
-      const d2 = await domain('bar.foo.project.example.org', c1);
-      await host(d2, c1, [], '1.1.159.1', '3.3.3.3');
-
-      const d3 = await domain('foo.bar.somethingelse.example.org', c2);
-      await host(d3, c2, [], '4.4.4.4', '5.5.5.5');
-
-      const d4 = await domain('unrelated.example.org', c2);
-      await host(d4, c2, [], '6.6.159.6');
-
-      // Act
-      const allHosts = await hostService.getAll(0, 10, {
-        hosts: hosts,
-      });
-
-      // Assert
-      expect(allHosts.map((x) => x.ip).sort()).toStrictEqual(
-        expectedIps.sort(),
-      );
-    });
-
-    it.each([
-      {
-        ranges: ['1.1.1.1/16', '4.4.4.4/32'],
-        expectedIps: ['1.1.159.1', '4.4.4.4'],
-      },
-      {
-        ranges: ['0.0.0.0/0'],
-        expectedIps: [
-          '1.1.159.1',
-          '2.2.2.2',
-          '3.3.3.3',
-          '4.4.4.4',
-          '5.5.5.5',
-          '6.6.159.6',
-        ],
-      },
-      {
-        ranges: ['5.0.0.1/8'],
-        expectedIps: ['5.5.5.5'],
-      },
-    ])('Filter by ip range', async ({ ranges, expectedIps }) => {
-      // Arrange
-      const c1 = await project('c1');
-      const c2 = await project('c2');
-
-      const d1 = await domain('foo.example.org', c1);
-      await host(d1, c1, [], '1.1.159.1', '2.2.2.2');
-
-      const d2 = await domain('bar.foo.project.example.org', c1);
-      await host(d2, c1, [], '1.1.159.1', '3.3.3.3');
-
-      const d3 = await domain('foo.bar.somethingelse.example.org', c2);
-      await host(d3, c2, [], '4.4.4.4', '5.5.5.5');
-
-      const d4 = await domain('unrelated.example.org', c2);
-      await host(d4, c2, [], '6.6.159.6');
-
-      // Act
-      const allHosts = await hostService.getAll(0, 10, { ranges });
-
-      // Assert
-      expect(allHosts.map((x) => x.ip).sort()).toStrictEqual(
-        expectedIps.sort(),
-      );
-    });
-
-    it('Filter by tag', async () => {
-      // Arrange
-      const c1 = await project('c1');
-      const c2 = await project('c2');
-
-      const t1 = await tag('t1');
-      const t2 = await tag('t2');
-
-      const d1 = await domain('abc.example.org', c1);
-      await host(d1, c1, [t1._id.toString()], '1.1.1.1', '2.2.2.2');
-
-      const d2 = await domain('abc.project.example.org', c1);
-      await host(d2, c1, [t1._id.toString()], '1.1.1.1', '3.3.3.3');
-
-      const d3 = await domain('xyz.example.org', c2);
-      await host(d3, c2, [t2._id.toString()], '4.4.4.4', '5.5.5.5');
-
-      const d4 = await domain('unrelated.example.org', c2);
-      await host(d4, c2, [], '6.6.6.6');
-
-      // Act
-      const allHosts = await hostService.getAll(0, 10, {
-        tags: [t1._id.toString()],
-      });
-      const allHosts2 = await hostService.getAll(0, 10, {});
-
-      // Assert
-      expect(allHosts.map((x) => x.ip).sort()).toStrictEqual([
-        '1.1.1.1',
-        '2.2.2.2',
-        '3.3.3.3',
-      ]);
-    });
   });
 
   describe('Delete hosts', () => {
@@ -279,13 +218,20 @@ describe('Host Service', () => {
       const c1 = await project('my first project');
       const d2 = await domain('project6.example.org', c1);
 
-      const h = await host(d2, c1, [], '2.3.4.5', '1.1.1.1', '3.3.3.3');
+      const [h1, h2, h3] = await host(
+        d2,
+        c1,
+        [],
+        '2.3.4.5',
+        '1.1.1.1',
+        '3.3.3.3',
+      );
 
       // Act
       const res = await hostService.deleteMany([
-        h[0]._id.toString(),
-        h[1]._id.toString(),
-        h[2]._id.toString(),
+        h1._id.toString(),
+        h2._id.toString(),
+        h3._id.toString(),
       ]);
 
       // Assert
@@ -293,33 +239,42 @@ describe('Host Service', () => {
     });
   });
 
+  async function project(name: string = '') {
+    const ccDto: CreateProjectDto = { name };
+    return await projectService.addProject(ccDto);
+  }
+
   async function host(
     domain: Domain,
     project: ProjectDocument,
-    tags: string[],
+    tags: TagsDocument[],
     ...ips: string[]
   ) {
     return await hostService.addHostsWithDomain(
       ips,
       domain.name,
       project._id.toString(),
-      tags,
+      tags.map((x) => x.id),
     );
   }
 
-  async function tag(name: string) {
-    return await tagsService.create(name, '#cccccc');
-  }
+  async function tags(...tags: string[]) {
+    const createdTags: TagsDocument[] = [];
+    for (const tag of tags) {
+      createdTags.push(await tagsService.create(tag, '#ffffff'));
+    }
 
-  async function project(name: string) {
-    return await projectService.addProject({
-      name: name,
-      imageType: null,
-      logo: null,
-    });
+    return createdTags;
   }
 
   async function domain(domain: string, project: ProjectDocument) {
-    return (await domainService.addDomains([domain], project._id))[0] as Domain;
+    return (await domainService.addDomains([domain], project._id))[0];
+  }
+
+  async function block(...hosts: HostDocument[]) {
+    await hostService.batchEdit({
+      block: true,
+      hostIds: hosts.map((x) => x.id),
+    });
   }
 });

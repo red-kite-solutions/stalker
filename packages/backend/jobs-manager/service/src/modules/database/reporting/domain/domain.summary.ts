@@ -1,15 +1,9 @@
 import { Prop } from '@nestjs/mongoose';
-import { Types } from 'mongoose';
+import { ApiProperty } from '@nestjs/swagger';
 import { Summary } from '../resource.summary';
 
-export interface DomainSummary extends Summary {
-  name: string;
-}
-
-export class DomainSummaryType implements DomainSummary {
-  @Prop()
-  id: Types.ObjectId;
-
+export class DomainSummary extends Summary {
+  @ApiProperty({ example: 'example.com' })
   @Prop()
   name: string;
 }

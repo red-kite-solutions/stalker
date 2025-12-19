@@ -18,7 +18,7 @@ export class HasScopesDirective implements OnChanges {
 
   ngOnChanges(): void {
     let display = true;
-    if (this.scopes && this.scopes.length) {
+    if (this.scopes?.length) {
       if (this.requiresAllScopes) {
         display = this.authService.userHasAllScopesOf(this.scopes);
       } else {

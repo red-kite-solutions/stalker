@@ -1,39 +1,27 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { UserAuthContext } from '../auth.types';
-import { SCOPES_KEY } from '../decorators/scopes.decorator';
-import { userHasScope } from '../utils/auth.utils';
+import { canActivateScopes } from '../utils/auth.utils';
+import { getRequiredScopes } from './scope-guard.utils';
 
 @Injectable()
 export class ScopesGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    // This code gets the scope given in the decorator scopes.decorator.ts, ex: @Scopes(['manage:users:update'])
-    // It is then validated against the scopes contained in the user's JWT  (user.role)
-    const requiredScope = this.reflector.getAllAndOverride<string>(SCOPES_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+    const requiredScopes = getRequiredScopes(this.reflector, context);
 
-    if (!requiredScope) {
+    if (!requiredScopes.scopes.length) {
       return false;
-    }
-
-    let requiredScopesArray = [];
-    if (Array.isArray(requiredScope)) {
-      requiredScopesArray = requiredScope;
-    } else {
-      requiredScopesArray.push(requiredScope);
     }
 
     const request = context.switchToHttp().getRequest();
     const user: UserAuthContext = request.user;
 
-    // If user has any of the scopes required, the request can go through
-    for (const scope of requiredScopesArray)
-      if (userHasScope(scope, user.scopes)) return true;
-
-    return false;
+    return canActivateScopes(
+      requiredScopes.scopes,
+      user.scopes,
+      requiredScopes.scopeOptions,
+    );
   }
 }

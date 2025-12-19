@@ -1,4 +1,5 @@
 export class WebsiteFilterModel {
+  query: string;
   domains?: Array<string>;
   tags?: Array<string>;
   projects?: Array<string>;

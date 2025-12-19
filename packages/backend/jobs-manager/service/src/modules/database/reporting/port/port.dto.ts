@@ -1,4 +1,3 @@
-// import { Type } from 'class-transformer';
 import { IntersectionType } from '@nestjs/swagger';
 import {
   IsArray,
@@ -7,9 +6,7 @@ import {
   IsMongoId,
   IsNotEmpty,
   IsOptional,
-  IsString,
 } from 'class-validator';
-import { Types } from 'mongoose';
 import { PortDetailsLevel, portDetailsLevel } from '../../database.constants';
 import { PagingDto } from '../../database.dto';
 import {
@@ -30,25 +27,6 @@ export class PortFilterDto extends IntersectionType(
   @IsNotEmpty()
   @IsIn(portDetailsLevel)
   detailsLevel: PortDetailsLevel = 'full';
-
-  @IsOptional()
-  @IsMongoId()
-  hostId: string;
-
-  @IsOptional()
-  @IsString({ each: true })
-  @IsArray()
-  services: string[];
-
-  @IsOptional()
-  @IsString({ each: true })
-  @IsArray()
-  products: string[];
-
-  @IsOptional()
-  @IsString({ each: true })
-  @IsArray()
-  versions: string[];
 }
 
 export class GetPortsDto extends IntersectionType(PagingDto, PortFilterDto) {}
@@ -62,7 +40,7 @@ export class DeleteManyPortsDto {
 export class BatchEditPortsDto {
   @IsArray()
   @IsMongoId({ each: true })
-  portIds: Types.ObjectId[];
+  portIds: string[];
 
   @IsOptional()
   @IsBoolean()

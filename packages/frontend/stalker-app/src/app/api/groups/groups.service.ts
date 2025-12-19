@@ -1,10 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { firstValueFrom, Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { Group } from '../../shared/types/group/group.type';
 import { Page } from '../../shared/types/page.type';
-import { Observable } from 'rxjs';
 import { filtersToParams } from '../../utils/filters-to-params';
-import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -23,7 +23,7 @@ export class GroupsService {
     return this.http.get<Page<Group>>(`${environment.fmUrl}/groups`, { params });
   }
 
-  public async addUserToGroup(userId: string, groupId: string) {
-    return await this.http.patch(`${environment.fmUrl}/groups/${groupId}`, { userId });
+  public async setUserGroupMembership(userId: string, groupId: string, isMember: boolean) {
+    return await firstValueFrom(this.http.patch(`${environment.fmUrl}/groups/${groupId}`, { userId, isMember }));
   }
 }

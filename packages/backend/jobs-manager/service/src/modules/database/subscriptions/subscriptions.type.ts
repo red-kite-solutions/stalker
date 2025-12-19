@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { CronSubscription } from './cron-subscriptions/cron-subscriptions.model';
 import { EventSubscription } from './event-subscriptions/event-subscriptions.model';
 
@@ -8,7 +9,9 @@ export type SubscriptionWithType = (CronSubscription | EventSubscription) & {
 };
 
 export class JobParameter {
+  @ApiProperty()
   public name!: string;
+  @ApiProperty()
   public value!: unknown;
 }
 

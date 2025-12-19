@@ -3,7 +3,8 @@ name: stalker-vars-dev
 
 vars:
   RK_APP_BASE_URL: https://your-base-url
-  
+  JM_ENVIRONMENT: "dev"
+
   ### Mailing-related configs
   # A comma-separated list of email addresses. Acts as an exclusive allow-list in dev, and as a block-list in production
   JM_EMAIL_RECIPIENTS_FILTER_LIST: 

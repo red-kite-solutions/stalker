@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { ApiProperty } from '@nestjs/swagger';
 import { isNullOrUndefined } from '@typegoose/typegoose/lib/internal/utils';
 import {
   isArray,
@@ -75,21 +76,27 @@ export class CustomJob {
   public endTime: number;
   public createdAt: number;
 
+  @ApiProperty()
   @Prop()
   public name: string;
 
+  @ApiProperty()
   @Prop()
   public customJobParameters!: JobParameter[];
 
+  @ApiProperty()
   @Prop()
   public jobPodConfigId!: Types.ObjectId;
 
+  @ApiProperty()
   @Prop()
   public jobPodMilliCpuLimit: number;
 
+  @ApiProperty()
   @Prop()
   public jobPodMemoryKbLimit: number;
 
+  @ApiProperty()
   @Prop()
   public jobModelId: string;
 

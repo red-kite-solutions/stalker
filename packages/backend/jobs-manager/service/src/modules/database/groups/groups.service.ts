@@ -3,9 +3,9 @@ import { InjectModel } from '@nestjs/mongoose';
 import { DeleteResult } from 'mongodb';
 import { ClientSession, FilterQuery, Model, Query, Types } from 'mongoose';
 import { simplifyScopes } from '../../auth/utils/auth.utils';
+import { ADMIN_GROUP } from './groups.constants';
 import { GroupsFilterDto } from './groups.dto';
 import { Group, GroupDocument } from './groups.model';
-import { ADMIN_GROUP } from './groups.constants';
 
 @Injectable()
 export class GroupsService {
@@ -56,13 +56,39 @@ export class GroupsService {
   }
 
   public async addToGroupById(groupId: string, userId: string) {
-    return await this.addToGroup({ _id: { $eq: groupId } }, userId);
+    return await this.addToGroup(
+      { _id: { $eq: new Types.ObjectId(groupId) } },
+      userId,
+    );
   }
 
   private async addToGroup(filter: FilterQuery<Group>, userId: string) {
     return await this.groupModel.updateOne(filter, {
       $addToSet: { members: new Types.ObjectId(userId) },
     });
+  }
+
+  private async removeUserFromGroup(groupId: string, userId: string) {
+    return await this.groupModel.updateOne(
+      { _id: { $eq: new Types.ObjectId(groupId) } },
+      {
+        $pull: {
+          members: { $eq: new Types.ObjectId(userId) },
+        },
+      },
+    );
+  }
+
+  public async setUserGroupMembership(
+    groupId: string,
+    userId: string,
+    isMember: boolean,
+  ) {
+    if (isMember) {
+      return await this.addToGroupById(groupId, userId);
+    } else {
+      return await this.removeUserFromGroup(groupId, userId);
+    }
   }
 
   public async getUserScopes(

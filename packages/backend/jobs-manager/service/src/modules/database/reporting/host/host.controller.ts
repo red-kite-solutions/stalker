@@ -15,7 +15,10 @@ import { DeleteResult } from 'mongodb';
 import { MongoIdDto } from '../../../../types/dto/mongo-id.dto';
 import { TagItemDto } from '../../../../types/dto/tag-item.dto';
 import { Page } from '../../../../types/page.type';
-import { Role } from '../../../auth/constants';
+import {
+  ApiDefaultResponseExtendModelId,
+  ApiDefaultResponsePage,
+} from '../../../../utils/swagger.utils';
 import { Scopes } from '../../../auth/decorators/scopes.decorator';
 import { ScopesGuard } from '../../../auth/guards/scope.guard';
 import { ApiKeyStrategy } from '../../../auth/strategies/api-key.strategy';
@@ -29,7 +32,7 @@ import {
   HostsPagingDto,
   SubmitHostsDto,
 } from './host.dto';
-import { HostDocument } from './host.model';
+import { Host, HostDocument } from './host.model';
 import { HostService } from './host.service';
 
 @Controller('hosts')
@@ -39,6 +42,13 @@ export class HostController {
     private readonly portsService: PortService,
   ) {}
 
+  /**
+   * Create multiple hosts.
+   *
+   * @remarks
+   * Create multiple hosts at the same time.
+   */
+  @ApiDefaultResponseExtendModelId([Host])
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('resources:hosts:create')
   @Post('')
@@ -46,6 +56,12 @@ export class HostController {
     return await this.hostsService.addHosts(dto.ips, dto.projectId);
   }
 
+  /**
+   * Batch block hosts.
+   *
+   * @remarks
+   * Block multiple hosts at once, removing them from the automation.
+   */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('resources:hosts:update')
   @Patch()
@@ -53,6 +69,12 @@ export class HostController {
     return await this.hostsService.batchEdit(dto);
   }
 
+  /**
+   * Tag a host.
+   *
+   * @remarks
+   * Tag a host by ID.
+   */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('resources:hosts:update')
   @Put(':id/tags')
@@ -64,6 +86,13 @@ export class HostController {
     );
   }
 
+  /**
+   * Read a host.
+   *
+   * @remarks
+   * Read a host by ID.
+   */
+  @ApiDefaultResponseExtendModelId(Host)
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('resources:hosts:read')
   @Get(':id')
@@ -71,6 +100,13 @@ export class HostController {
     return await this.hostsService.getHost(dto.id);
   }
 
+  /**
+   * Get the port of a host.
+   *
+   * @remarks
+   * Get the port of a host using the port number and the host ID.
+   */
+  @ApiDefaultResponseExtendModelId(Port)
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('resources:ports:read')
   @Get(':id/ports/:portNumber')
@@ -78,6 +114,12 @@ export class HostController {
     return await this.portsService.getHostPort(dto.id, dto.portNumber);
   }
 
+  /**
+   * Delete a host.
+   *
+   * @remarks
+   * Delete a host by ID.
+   */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('resources:hosts:delete')
   @Delete(':id')
@@ -85,6 +127,13 @@ export class HostController {
     return await this.hostsService.delete(dto.id);
   }
 
+  /**
+   * Read multiple hosts.
+   *
+   * @remarks
+   * Read multiple hosts.
+   */
+  @ApiDefaultResponsePage(Host)
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('resources:hosts:read')
   @Get()
@@ -98,6 +147,12 @@ export class HostController {
     };
   }
 
+  /**
+   * Delete multiple hosts.
+   *
+   * @remarks
+   * Delete multiple hosts.
+   */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('resources:hosts:delete')
   @Delete()

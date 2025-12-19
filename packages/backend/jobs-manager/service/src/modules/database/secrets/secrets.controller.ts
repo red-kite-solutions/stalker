@@ -15,27 +15,42 @@ import {
   HttpServerErrorException,
 } from '../../../exceptions/http.exceptions';
 import { MongoIdDto } from '../../../types/dto/mongo-id.dto';
+import { ApiDefaultResponseExtendModelId } from '../../../utils/swagger.utils';
 import { ProjectUnassigned } from '../../../validators/is-project-id.validator';
-import { Role } from '../../auth/constants';
 import { Scopes } from '../../auth/decorators/scopes.decorator';
 import { ScopesGuard } from '../../auth/guards/scope.guard';
 import { ApiKeyStrategy } from '../../auth/strategies/api-key.strategy';
 import { JwtStrategy } from '../../auth/strategies/jwt.strategy';
 import { MONGO_DUPLICATE_ERROR } from '../database.constants';
 import { CreateSecretDto } from './secrets.dto';
+import { Secret } from './secrets.model';
 import { SecretsService } from './secrets.service';
 
 @Controller('secrets')
 export class SecretsController {
   constructor(private secretsService: SecretsService) {}
 
+  /**
+   * Read the secrets metadata.
+   *
+   * @remarks
+   * Read the secrets metadata.
+   */
+  @ApiDefaultResponseExtendModelId([Secret])
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('manage:secrets:read')
   @Get()
-  async getSecrets() {
+  async getSecrets(): Promise<Secret[]> {
     return await this.secretsService.getAll();
   }
 
+  /**
+   * Read a secret metadata.
+   *
+   * @remarks
+   * Read a secret metadata.
+   */
+  @ApiDefaultResponseExtendModelId(Secret)
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('manage:secrets:read')
   @Get(':id')
@@ -45,6 +60,14 @@ export class SecretsController {
     return s;
   }
 
+  /**
+   * Create a secret.
+   *
+   * @remarks
+   * Create a new secret that can then be referenced in the subscriptions to be used in jobs.
+   *
+   * A secret for a project will override a global secret with the same name.
+   */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('manage:secrets:create')
   @Post()
@@ -67,6 +90,12 @@ export class SecretsController {
     }
   }
 
+  /**
+   * Delete a secret.
+   *
+   * @remarks
+   * Deelte a secret.
+   */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('manage:secrets:delete')
   @Delete(':id')

@@ -1,0 +1,32 @@
+name: Common
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/common-tests.yml
+      - "packages/common/**"
+
+jobs:
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - run: yarn install --immutable
+        working-directory: .
+
+      - run: yarn workspace @red-kite/common test:cicd
+        working-directory: .
+
+      - uses: tanmen/jest-reporter@v1
+        if: always()
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          result-file: ./packages/common/test/jest-output.json

@@ -1,6 +1,6 @@
 import { Controller, Get, Logger, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { Role } from '../../../auth/constants';
+import { ApiDefaultResponseExtendModelId } from '../../../../utils/swagger.utils';
 import { Scopes } from '../../../auth/decorators/scopes.decorator';
 import { ScopesGuard } from '../../../auth/guards/scope.guard';
 import { ApiKeyStrategy } from '../../../auth/strategies/api-key.strategy';
@@ -15,6 +15,15 @@ export class ConfigController {
 
   constructor(private readonly configService: ConfigService) {}
 
+  /**
+   * Read the job pod configurations.
+   *
+   * @remarks
+   * Read the job pod configurations.
+   *
+   * These configurations dictate how many resources are available to a single job pod.
+   */
+  @ApiDefaultResponseExtendModelId([JobPodConfiguration])
   @Scopes('manage:config:read')
   @Get('job-pods')
   async getJobPodConfigs(): Promise<JobPodConfiguration[]> {

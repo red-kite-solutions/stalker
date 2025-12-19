@@ -182,7 +182,13 @@ export class ViewHostComponent implements OnDestroy {
       const size = page >= 0 ? 100 : 5;
       page = page < 0 ? 0 : page;
 
-      return this.portsService.getPage(page, size, { hostId: host._id }, undefined, 'number');
+      return this.portsService.getPage(
+        page,
+        size,
+        [{ type: 'host.id', value: host._id, not: false }],
+        undefined,
+        'number'
+      );
     }),
     scan((acc: Page<PortNumber>, value: Page<PortNumber>) => {
       const found = new Set<number>();

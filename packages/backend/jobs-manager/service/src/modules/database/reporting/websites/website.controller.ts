@@ -13,7 +13,10 @@ import { AuthGuard } from '@nestjs/passport';
 import { MongoIdDto } from '../../../../types/dto/mongo-id.dto';
 import { TagItemDto } from '../../../../types/dto/tag-item.dto';
 import { Page } from '../../../../types/page.type';
-import { Role } from '../../../auth/constants';
+import {
+  ApiDefaultResponseExtendModelId,
+  ApiDefaultResponsePage,
+} from '../../../../utils/swagger.utils';
 import { Scopes } from '../../../auth/decorators/scopes.decorator';
 import { ScopesGuard } from '../../../auth/guards/scope.guard';
 import { ApiKeyStrategy } from '../../../auth/strategies/api-key.strategy';
@@ -25,13 +28,20 @@ import {
   MergeWebsitesDto,
   UnmergeWebsitesDto,
 } from './website.dto';
-import { WebsiteDocument } from './website.model';
+import { Website, WebsiteDocument } from './website.model';
 import { WebsiteService } from './website.service';
 
 @Controller('websites')
 export class WebsiteController {
   constructor(private readonly websiteService: WebsiteService) {}
 
+  /**
+   * Read mutliple websites.
+   *
+   * @remarks
+   * Read mutliple websites.
+   */
+  @ApiDefaultResponsePage(Website)
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('resources:websites:read')
   @Get()
@@ -47,10 +57,16 @@ export class WebsiteController {
     };
   }
 
+  /**
+   * Tag a website.
+   *
+   * @remarks
+   * Tag a website by ID.
+   */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('resources:websites:update')
   @Put(':id/tags')
-  async tagPort(@Param() idDto: MongoIdDto, @Body() tagDto: TagItemDto) {
+  async tagWebsite(@Param() idDto: MongoIdDto, @Body() tagDto: TagItemDto) {
     return await this.websiteService.tagWebsite(
       idDto.id,
       tagDto.tagId,
@@ -58,6 +74,13 @@ export class WebsiteController {
     );
   }
 
+  /**
+   * Read a website by ID.
+   *
+   * @remarks
+   * Read a website by ID.
+   */
+  @ApiDefaultResponseExtendModelId(Website)
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('resources:websites:read')
   @Get(':id')
@@ -65,6 +88,12 @@ export class WebsiteController {
     return await this.websiteService.get(idDto.id);
   }
 
+  /**
+   * Delete multiple website by ID.
+   *
+   * @remarks
+   * Delete multiple website by ID.
+   */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('resources:websites:delete')
   @Delete()
@@ -72,6 +101,12 @@ export class WebsiteController {
     return await this.websiteService.deleteMany(dto.websiteIds);
   }
 
+  /**
+   * Delete a website by ID.
+   *
+   * @remarks
+   * Delte a website by ID.
+   */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('resources:websites:delete')
   @Delete(':id')
@@ -79,6 +114,12 @@ export class WebsiteController {
     return await this.websiteService.delete(idDto.id);
   }
 
+  /**
+   * Batch block websites.
+   *
+   * @remarks
+   * Block multiple websites at the same time.
+   */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('resources:websites:update')
   @Patch()
@@ -86,6 +127,15 @@ export class WebsiteController {
     return await this.websiteService.batchEdit(dto);
   }
 
+  /**
+   * Merge websites.
+   *
+   * @remarks
+   * Merge multiple websites together so that they can be represented by a single website instance.
+   *
+   * Merging websites together also ensures that they are scan only once on the main website instance,
+   * instead of once for every instance.
+   */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('resources:websites:update')
   @Patch('merge')
@@ -93,6 +143,14 @@ export class WebsiteController {
     return await this.websiteService.merge(dto.mergeInto, dto.mergeFrom);
   }
 
+  /**
+   * Unmerge websites.
+   *
+   * @remarks
+   * Unmerging websites so that they are represented as themselves instead of by the main website.
+   *
+   * Unmerging websites ensures that they are scanned individually instead of only once on the main website instance.
+   */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('resources:websites:update')
   @Patch('unmerge')

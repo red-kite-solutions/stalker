@@ -1,10 +1,5 @@
 ﻿using Confluent.Kafka;
-using k8s.Models;
-using Orchestrator.Jobs;
 using Orchestrator.Jobs.JobModelCache;
-using Orchestrator.K8s;
-using Orchestrator.Queue.JobsConsumer;
-using static Confluent.Kafka.ConfigPropertyNames;
 
 namespace Orchestrator.Queue.JobModelsConsumer
 {
@@ -13,7 +8,7 @@ namespace Orchestrator.Queue.JobModelsConsumer
         protected override string[] Topics => new[] { Constants.JobModelsTopic };
         protected override string GroupId => "stalker";
 
-        public JobModelsConsumer(IConfiguration config, ILogger<JobModelsConsumer> logger) 
+        public JobModelsConsumer(IConfiguration config, ILogger<JobModelsConsumer> logger)
             : base(config, new JobModelSerializer<JobModelUpdateRequest>(), logger, Confluent.Kafka.AutoOffsetReset.Earliest)
         {
         }

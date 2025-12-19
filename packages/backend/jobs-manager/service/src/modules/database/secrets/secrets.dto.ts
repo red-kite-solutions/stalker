@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional, IsString, Matches } from 'class-validator';
 import { IsProjectId } from '../../../validators/is-project-id.validator';
 
@@ -6,6 +7,7 @@ export class CreateSecretDto {
   // no "{" or "}"
   // These characters would interfere with the injection of secrets in jobs
   // https://regex101.com/r/A8LsG9/1
+  @ApiProperty({ example: 'MySecretName' })
   @IsNotEmpty()
   @IsString()
   @Matches(/^\s*[^\s\{\}]+\s*$/)
