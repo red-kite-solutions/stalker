@@ -23,3 +23,9 @@ Authenticated `GET` request to `/api/`:
 export MY_KEY="my key value"
 curl -H "x-api-key: $MY_KEY" https://your-red-kite-url/api/
 ```
+
+## Open API Documentation
+
+Your OpenAPI documentation is available in json format and through the swagger UI interface.
+
+The swagger UI is available at `/api/api/`, while the JSON format is available at `/api/api-json`.
