@@ -5,6 +5,7 @@ import {
   getSchemaPath,
 } from '@nestjs/swagger';
 import {
+  OpenAPIObject,
   ReferenceObject,
   SchemaObject,
 } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
@@ -104,3 +105,36 @@ export const ApiDefaultResponseExtendModelId = <
     }),
   );
 };
+
+/**
+ * Extracts the API scopes from the security fields from the OpenAPIObject and adds
+ * the scope information as a markdown array in the route description.
+ *
+ * @param doc
+ * @returns
+ */
+export function mapSecurityScopesToDescription(doc: OpenAPIObject) {
+  const paths = doc.paths;
+  for (const routeKey in paths) {
+    const route = paths[routeKey];
+    for (const methodKey in route) {
+      const method = route[methodKey];
+      if (Array.isArray(method['security']) && method['security'].length > 0) {
+        // Building markdown array of API Scopes
+        let scopes: string = '\n\n| API Scope(s) |\n|-|\n ';
+        for (const security of method['security']) {
+          if (security['apiKey']) {
+            for (const scope of security['apiKey']) {
+              scopes += '|' + scope + '|\n';
+            }
+          }
+        }
+        if (!doc.paths[routeKey][methodKey]['description'])
+          doc.paths[routeKey][methodKey]['description'] = '';
+        doc.paths[routeKey][methodKey]['description'] =
+          doc.paths[routeKey][methodKey]['description'] + scopes;
+      }
+    }
+  }
+  return doc;
+}

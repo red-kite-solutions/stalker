@@ -6,7 +6,6 @@ import {
   SwaggerDocumentOptions,
   SwaggerModule,
 } from '@nestjs/swagger';
-import { OpenAPIObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
 import { useContainer } from 'class-validator';
 import { json } from 'express';
 import { readFileSync } from 'node:fs';
@@ -15,32 +14,7 @@ import { isConsumerMode } from './modules/app.constants';
 import { AppModule } from './modules/app.module';
 import { DataSource } from './modules/database/data-source/data-source.model';
 import { JobParameter } from './modules/database/subscriptions/subscriptions.type';
-
-function mapSecurityScopesToDescription(doc: OpenAPIObject) {
-  const paths = doc.paths;
-  for (const routeKey in paths) {
-    const route = paths[routeKey];
-    for (const methodKey in route) {
-      const method = route[methodKey];
-      if (Array.isArray(method['security']) && method['security'].length > 0) {
-        // Building markdown array of API Scopes
-        let scopes: string = '\n\n| API Scope(s) |\n|-|\n ';
-        for (const security of method['security']) {
-          if (security['apiKey']) {
-            for (const scope of security['apiKey']) {
-              scopes += '|' + scope + '|\n';
-            }
-          }
-        }
-        if (!doc.paths[routeKey][methodKey]['description'])
-          doc.paths[routeKey][methodKey]['description'] = '';
-        doc.paths[routeKey][methodKey]['description'] =
-          doc.paths[routeKey][methodKey]['description'] + scopes;
-      }
-    }
-  }
-  return doc;
-}
+import { mapSecurityScopesToDescription } from './utils/swagger.utils';
 
 async function bootstrap() {
   const adapter = new ExpressAdapter();
