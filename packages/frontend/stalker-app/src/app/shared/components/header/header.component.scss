@@ -65,3 +65,10 @@ ul li {
     opacity: 1;
   }
 }
+
+.external-link:hover,
+.external-link label:hover {
+  color: var(--mat-menu-item-label-text-color);
+  text-decoration: none;
+  cursor: pointer;
+}

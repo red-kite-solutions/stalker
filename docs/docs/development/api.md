@@ -28,4 +28,4 @@ curl -H "x-api-key: $MY_KEY" https://your-red-kite-url/api/
 
 Your OpenAPI documentation is available in json format and through the swagger UI interface.
 
-The swagger UI is available at `/api/api/`, while the JSON format is available at `/api/api-json`.
+The swagger UI is available at `/api/docs/`, while the JSON format is available at `/api/docs-json`.

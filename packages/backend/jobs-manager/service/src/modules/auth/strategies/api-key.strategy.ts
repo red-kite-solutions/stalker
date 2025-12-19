@@ -11,11 +11,10 @@ export class ApiKeyStrategy extends PassportStrategy(
   'ApiKeyStrategy',
 ) {
   constructor(private authService: AuthService) {
-    super({ header: 'x-api-key', prefix: '' }, true);
+    super({ header: 'x-api-key', prefix: '' }, false);
   }
 
   async validate(apikey: string) {
-    // TODO::::::: VALIDATE THAT IT STILL WORKS
     const apiKeyDocument: ApiKeyDocument =
       await this.authService.findValidApiKey(apikey);
 

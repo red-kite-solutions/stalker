@@ -118,7 +118,7 @@ async function bootstrap() {
 
       return mapSecurityScopesToDescription(doc);
     };
-    SwaggerModule.setup('api', app, documentFactory);
+    SwaggerModule.setup('docs', app, documentFactory);
 
     useContainer(app.select(AppModule), { fallbackOnErrors: true });
     await app.listen(3000);
