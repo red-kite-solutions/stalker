@@ -172,7 +172,6 @@ export class HostService {
               _id: mongoId,
               ipInt: ipv4ToNumber(ip),
               projectId: new Types.ObjectId(projectId),
-              projectName: project.name,
               correlationKey: CorrelationKeyUtils.hostCorrelationKey(
                 projectId,
                 ip,
