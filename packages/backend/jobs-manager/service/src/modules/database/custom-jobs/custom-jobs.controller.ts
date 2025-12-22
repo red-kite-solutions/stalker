@@ -36,10 +36,10 @@ export class CustomJobsController {
   constructor(private customJobsService: CustomJobsService) {}
 
   /**
-   * Read the custom job summaries.
+   * Read the job summaries.
    *
    * @remarks
-   * Read the custom job summaries. The summaries are a lighter way to read custom jobs, where the code is not returned.
+   * Read the job summaries. The summaries are a lighter way to read jobs, where the code is not returned.
    */
   @ApiDefaultResponseExtendModelId([JobSummary])
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
@@ -50,11 +50,11 @@ export class CustomJobsController {
   }
 
   /**
-   * Create or duplicate a custom job.
+   * Create or duplicate a job.
    *
    * @remarks
-   * Create or duplicate a custom job. If the `jobId` parameter is included, the identified
-   * custom job will be duplicated.
+   * Create or duplicate a job. If the `jobId` parameter is included, the identified
+   * job will be duplicated.
    */
   @ApiDefaultResponseExtendModelId(CustomJobEntry)
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
@@ -86,10 +86,10 @@ export class CustomJobsController {
   }
 
   /**
-   * Read multiple custom jobs.
+   * Read multiple jobs.
    *
    * @remarks
-   * Read multiple custom jobs and all their data.
+   * Read multiple jobs and all their data.
    */
   @ApiDefaultResponseExtendModelId([CustomJobEntry])
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
@@ -100,10 +100,10 @@ export class CustomJobsController {
   }
 
   /**
-   * Read a custom job.
+   * Read a job.
    *
    * @remarks
-   * Read a custom job and all its data.
+   * Read a job and all its data.
    */
   @ApiDefaultResponseExtendModelId(CustomJobEntry)
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
@@ -114,10 +114,10 @@ export class CustomJobsController {
   }
 
   /**
-   * Modify a custom job.
+   * Modify a job.
    *
    * @remarks
-   * Modify an existing custom job data.
+   * Modify an existing job data.
    */
   @ApiDefaultResponseExtendModelId(CustomJobEntry)
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
@@ -139,10 +139,10 @@ export class CustomJobsController {
   }
 
   /**
-   * Delete a custom job.
+   * Delete a job.
    *
    * @remarks
-   * Delete a custom job by ID.
+   * Delete a job by ID.
    */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('automation:custom-jobs:delete')
@@ -156,7 +156,7 @@ export class CustomJobsController {
    *
    * @remarks
    * Used for debugging purposes, this call synchronizes the orchestrator cache with the
-   * current custom jobs in the database.
+   * current jobs in the database.
    */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('automation:custom-jobs:cache-sync')
