@@ -1,15 +1,9 @@
 import { Prop } from '@nestjs/mongoose';
-import { Types } from 'mongoose';
+import { ApiProperty } from '@nestjs/swagger';
 import { Summary } from '../resource.summary';
 
-export interface HostSummary extends Summary {
-  ip: string;
-}
-
-export class HostSummaryType implements HostSummary {
-  @Prop()
-  id: Types.ObjectId;
-
+export class HostSummary extends Summary {
+  @ApiProperty({ example: '1.1.1.1' })
   @Prop()
   ip: string;
 }

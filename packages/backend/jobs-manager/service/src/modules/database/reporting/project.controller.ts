@@ -15,7 +15,6 @@ import {
   HttpServerErrorException,
 } from '../../../exceptions/http.exceptions';
 import { MongoIdDto } from '../../../types/dto/mongo-id.dto';
-import { Role } from '../../auth/constants';
 import { Scopes } from '../../auth/decorators/scopes.decorator';
 import { ScopesGuard } from '../../auth/guards/scope.guard';
 import { ConfigService } from '../admin/config/config.service';
@@ -23,6 +22,8 @@ import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
 import { MONGO_DUPLICATE_ERROR } from '../database.constants';
 
 import { AuthGuard } from '@nestjs/passport';
+import { PickType } from '@nestjs/swagger';
+import { ApiDefaultResponseExtendModelId } from '../../../utils/swagger.utils';
 import { ApiKeyStrategy } from '../../auth/strategies/api-key.strategy';
 import { JwtStrategy } from '../../auth/strategies/jwt.strategy';
 import { CreateProjectDto, EditProjectDto } from './project.dto';
@@ -37,6 +38,13 @@ export class ProjectController {
     private readonly configService: ConfigService,
   ) {}
 
+  /**
+   * Read all projects.
+   *
+   * @remarks
+   * Read the details of all projects.
+   */
+  @ApiDefaultResponseExtendModelId([Project])
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('manage:projects:read')
   @Get()
@@ -44,6 +52,15 @@ export class ProjectController {
     return await this.projectService.getAll();
   }
 
+  /**
+   * Read a project summary.
+   *
+   * @remarks
+   * Read all project summaries.
+   *
+   * Project summaries are used by the frontend for autocompletion and mapping project IDs to project names.
+   */
+  @ApiDefaultResponseExtendModelId([PickType(Project, ['name'])])
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('manage:projects:read')
   @Get('summary')
@@ -51,6 +68,13 @@ export class ProjectController {
     return await this.projectService.getAllSummaries();
   }
 
+  /**
+   * Create a new project.
+   *
+   * @remarks
+   * Create a new project to organize your data and share with stakeholders.
+   */
+  @ApiDefaultResponseExtendModelId(Project)
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('manage:projects:create')
   @Post()
@@ -69,6 +93,13 @@ export class ProjectController {
     }
   }
 
+  /**
+   * Read a project by ID.
+   *
+   * @remarks
+   * Read a project by ID.
+   */
+  @ApiDefaultResponseExtendModelId(Project)
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('manage:projects:read')
   @Get(':id')
@@ -76,6 +107,12 @@ export class ProjectController {
     return await this.projectService.get(id.id);
   }
 
+  /**
+   * Update a project.
+   *
+   * @remarks
+   * Update the values of a project.
+   */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('manage:projects:update')
   @Put(':id')
@@ -116,6 +153,12 @@ export class ProjectController {
     }
   }
 
+  /**
+   * Delete a project.
+   *
+   * @remarks
+   * Delete a project and all its related data.
+   */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('manage:projects:delete')
   @Delete(':id')

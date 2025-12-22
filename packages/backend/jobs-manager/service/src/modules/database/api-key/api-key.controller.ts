@@ -17,6 +17,10 @@ import {
 } from '../../../exceptions/http.exceptions';
 import { MongoIdDto } from '../../../types/dto/mongo-id.dto';
 import { Page } from '../../../types/page.type';
+import {
+  ApiDefaultResponseExtendModelId,
+  ApiDefaultResponsePage,
+} from '../../../utils/swagger.utils';
 import { AuthenticatedRequest, UserAuthContext } from '../../auth/auth.types';
 import { Scopes } from '../../auth/decorators/scopes.decorator';
 import { ScopesGuard } from '../../auth/guards/scope.guard';
@@ -28,7 +32,7 @@ import { ApiKeyStrategy } from '../../auth/strategies/api-key.strategy';
 import { JwtStrategy } from '../../auth/strategies/jwt.strategy';
 import { userHasScope } from '../../auth/utils/auth.utils';
 import { MONGO_DUPLICATE_ERROR } from '../database.constants';
-import { ApiKeyDocument } from './api-key.model';
+import { ApiKey, ApiKeyDocument } from './api-key.model';
 import { ApiKeyService } from './api-key.service';
 import { ApiKeyFilterModel } from './api-key.types';
 import { ApiKeyFilterDto, CreateApiKeyDto } from './api.key.dto';
@@ -45,6 +49,13 @@ export class ApiKeyController {
     return req.user;
   }
 
+  /**
+   * Read API keys.
+   *
+   * @remarks
+   * Read a user's API keys, or all users' API keys, depending on the current user scopes.
+   */
+  @ApiDefaultResponsePage(ApiKey)
   @Scopes(['manage:api-key:read', MANAGE_APIKEY_READ_ALL], { mode: 'oneOf' })
   @Get()
   async getAll(
@@ -65,6 +76,13 @@ export class ApiKeyController {
     };
   }
 
+  /**
+   * Read API key by ID.
+   *
+   * @remarks
+   * Read a user's API key by ID, or any users' API key, depending on the current user scopes.
+   */
+  @ApiDefaultResponseExtendModelId(ApiKey)
   @Scopes(['manage:api-key:read', MANAGE_APIKEY_READ_ALL], { mode: 'oneOf' })
   @Get(':id')
   async get(
@@ -82,6 +100,18 @@ export class ApiKeyController {
     return await this.apiKeyService.getById(dto.id, userId);
   }
 
+  /**
+   * Create an API key.
+   *
+   * @remarks
+   * Create an API key for the current user with the current scopes.
+   */
+  @ApiDefaultResponseExtendModelId(ApiKey, {
+    type: 'object',
+    properties: {
+      key: { type: 'string', example: '4c79cd97-e4e9-4262-a88a-11bd9e77b7e4' },
+    },
+  })
   @Scopes('manage:api-key:create')
   @Post()
   async createKey(
@@ -105,6 +135,12 @@ export class ApiKeyController {
     }
   }
 
+  /**
+   * Delete an API key.
+   *
+   * @remarks
+   * Delete a user's API key by ID, or any users' API key, depending on the current user scopes.
+   */
   @Scopes(['manage:api-key:delete', MANAGE_APIKEY_DELETE_ALL], {
     mode: 'oneOf',
   })

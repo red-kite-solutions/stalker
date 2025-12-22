@@ -9,11 +9,7 @@ export abstract class FindingCommand {
 }
 
 export abstract class JobFindingCommand extends FindingCommand {
-  constructor(
-    public readonly jobId,
-    projectId: string,
-    commandType: string,
-  ) {
+  constructor(public readonly jobId, projectId: string, commandType: string) {
     super(projectId, commandType);
   }
 }

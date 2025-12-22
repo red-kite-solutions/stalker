@@ -10,6 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiExcludeEndpoint } from '@nestjs/swagger';
 import { isNotEmpty, isString } from 'class-validator';
 import {
   HttpBadRequestException,
@@ -19,6 +20,10 @@ import {
 import { MongoIdDto } from '../../../types/dto/mongo-id.dto';
 import { JobLog } from '../../../types/job-log.model';
 import { Page } from '../../../types/page.type';
+import {
+  ApiDefaultResponseExtendModelId,
+  ApiDefaultResponsePage,
+} from '../../../utils/swagger.utils';
 import { ProjectUnassigned } from '../../../validators/is-project-id.validator';
 import { Scopes } from '../../auth/decorators/scopes.decorator';
 import { CronApiTokenGuard } from '../../auth/guards/cron-api-token.guard';
@@ -33,7 +38,7 @@ import { JobParameter } from '../subscriptions/subscriptions.type';
 import { JobExecutionsService } from './job-executions.service';
 import { JobExecutionsDto, JobManagementDto, StartJobDto } from './jobs.dto';
 import { JobFactory, JobFactoryUtils } from './jobs.factory';
-import { JobDocument } from './models/jobs.model';
+import { Job, JobDocument } from './models/jobs.model';
 
 @Controller('jobs')
 export class JobsController {
@@ -44,6 +49,13 @@ export class JobsController {
     private readonly secretsService: SecretsService,
   ) {}
 
+  /**
+   * Get job executions.
+   *
+   * @remarks
+   * Get the latest job executions.
+   */
+  @ApiDefaultResponsePage(Job)
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('automation:job-executions:read')
   @Get()
@@ -54,6 +66,13 @@ export class JobsController {
     return await this.jobsService.getAll(dto);
   }
 
+  /**
+   * Get a job execution.
+   *
+   * @remarks
+   * Get a job execution by ID.
+   */
+  @ApiDefaultResponsePage(JobLog)
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('automation:job-executions:read')
   @Get(':id/logs')
@@ -61,6 +80,15 @@ export class JobsController {
     return await this.jobsService.getLogs(id.id);
   }
 
+  /**
+   * Start a job.
+   *
+   * @remarks
+   * Launch a job with its parameters. The job parameters depend on the job to launch.
+   *
+   * A job launched on a project will contribute to the project data, while a job launched without
+   * a projectId will and return data, but will not affect any project.
+   */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('automation:job-executions:create')
   @Post()
@@ -109,6 +137,12 @@ export class JobsController {
     return await this.jobsService.publish(job);
   }
 
+  /**
+   * Terminate a running job.
+   *
+   * @remarks
+   * Terminate a running job.
+   */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('automation:job-executions:update')
   @Patch(':id')
@@ -122,6 +156,12 @@ export class JobsController {
     }
   }
 
+  /**
+   * Delete all the jobs.
+   *
+   * @remarks
+   * Delete all the jobs from the database.
+   */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('automation:job-executions:delete')
   @Delete()
@@ -129,12 +169,19 @@ export class JobsController {
     return await this.jobsService.deleteAll();
   }
 
+  @ApiExcludeEndpoint()
   @UseGuards(CronApiTokenGuard)
   @Post('cleanup')
   async cleanup() {
     await this.jobsService.cleanup();
   }
 
+  /**
+   * Delete a job.
+   *
+   * @remarks
+   * Delete a job from the database by ID.
+   */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('automation:job-executions:delete')
   @Delete(':id')
@@ -142,10 +189,17 @@ export class JobsController {
     return await this.jobsService.delete(dto.id);
   }
 
+  /**
+   * Read a job.
+   *
+   * @remarks
+   * Read a job by ID.
+   */
+  @ApiDefaultResponseExtendModelId(Job)
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('automation:job-executions:read')
   @Get(':id')
-  async getJob(@Param() dto: MongoIdDto): Promise<any> {
+  async getJob(@Param() dto: MongoIdDto): Promise<JobDocument> {
     return await this.jobsService.getById(dto.id);
   }
 }

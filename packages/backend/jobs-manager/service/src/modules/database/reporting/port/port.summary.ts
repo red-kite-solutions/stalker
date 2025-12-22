@@ -1,15 +1,9 @@
 import { Prop } from '@nestjs/mongoose';
-import { Types } from 'mongoose';
+import { ApiProperty } from '@nestjs/swagger';
 import { Summary } from '../resource.summary';
 
-export interface PortSummary extends Summary {
-  port: number;
-}
-
-export class PortSummaryType implements PortSummary {
-  @Prop()
-  id: Types.ObjectId;
-
+export class PortSummary extends Summary {
+  @ApiProperty({ example: 443 })
   @Prop()
   port: number;
 }

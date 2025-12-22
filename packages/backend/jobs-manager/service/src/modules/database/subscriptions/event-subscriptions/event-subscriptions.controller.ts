@@ -13,7 +13,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { DeleteResult, UpdateResult } from 'mongodb';
 import { HttpBadRequestException } from '../../../../exceptions/http.exceptions';
 import { MongoIdDto } from '../../../../types/dto/mongo-id.dto';
-import { Role } from '../../../auth/constants';
+import { ApiDefaultResponseExtendModelId } from '../../../../utils/swagger.utils';
 import { Scopes } from '../../../auth/decorators/scopes.decorator';
 import { ScopesGuard } from '../../../auth/guards/scope.guard';
 import { ApiKeyStrategy } from '../../../auth/strategies/api-key.strategy';
@@ -23,13 +23,25 @@ import {
   PatchSubscriptionDto,
 } from '../subscriptions.dto';
 import { EventSubscriptionDto } from './event-subscriptions.dto';
-import { EventSubscriptionsDocument } from './event-subscriptions.model';
+import {
+  EventSubscription,
+  EventSubscriptionsDocument,
+} from './event-subscriptions.model';
 import { EventSubscriptionsService } from './event-subscriptions.service';
 
 @Controller('event-subscriptions')
 export class EventSubscriptionsController {
   constructor(private subscriptionsService: EventSubscriptionsService) {}
 
+  /**
+   * Create or duplicate an event subscription.
+   *
+   * @remarks
+   * Create a new event subscription to start jobs based on findings.
+   *
+   * If the `subscriptionId` parameter is provided, the subscription is duplicated for local changes.
+   */
+  @ApiDefaultResponseExtendModelId(EventSubscription)
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('automation:subscriptions:create')
   @Post()
@@ -41,6 +53,13 @@ export class EventSubscriptionsController {
     }
   }
 
+  /**
+   * Read all event subscriptions
+   *
+   * @remarks
+   * Read all event subscriptions.
+   */
+  @ApiDefaultResponseExtendModelId([EventSubscription])
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('automation:subscriptions:read')
   @Get()
@@ -48,6 +67,13 @@ export class EventSubscriptionsController {
     return await this.subscriptionsService.getAll();
   }
 
+  /**
+   * Get an event susbcription by ID.
+   *
+   * @remarks
+   * Get an event susbcription by ID.
+   */
+  @ApiDefaultResponseExtendModelId(EventSubscription)
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('automation:subscriptions:read')
   @Get(':id')
@@ -57,6 +83,12 @@ export class EventSubscriptionsController {
     return await this.subscriptionsService.get(IdDto.id);
   }
 
+  /**
+   * Enable and disable an event subscription by ID.
+   *
+   * @remarks
+   * Enable and disable an event subscription by ID. To enable, set isEnabled to true.
+   */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('automation:subscriptions:update')
   @Patch(':id')
@@ -74,6 +106,12 @@ export class EventSubscriptionsController {
     }
   }
 
+  /**
+   * Modify an existing event subscription with new values.
+   *
+   * @remarks
+   * Modify an existing event subscription with new values by ID.
+   */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('automation:subscriptions:update')
   @Put(':id')
@@ -84,6 +122,12 @@ export class EventSubscriptionsController {
     return await this.subscriptionsService.edit(IdDto.id, dto);
   }
 
+  /**
+   * Delete an existing event subscription.
+   *
+   * @remarks
+   * Delete an existing event subscription by ID.
+   */
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('automation:subscriptions:delete')
   @Delete(':id')

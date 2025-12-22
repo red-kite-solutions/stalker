@@ -362,6 +362,8 @@ deployments:
         repo: https://charts.bitnami.com/bitnami
         version: "13.9.1"
       values:
+        image:
+          repository: bitnamilegacy/mongodb
         architecture: replicaset
         nodeSelector: $(echo ${MONGO_K8S_NODE_SELECTOR})
         replicaCount: ${MONGO_REPLICA_SET_COUNT}
@@ -384,6 +386,10 @@ deployments:
           caKey: ${MONGO_CA_KEY}
           mTls:
             enabled: true
+          image:
+            registry: docker.io
+            repository: bitnamilegacy/nginx
+
         service:
           ports:
             mongodb: 27017
@@ -443,6 +449,8 @@ deployments:
         - --timeout
         - 1200s
       values:
+        image:
+          repository: bitnamilegacy/kafka
         controller:
           nodeSelector: $(echo ${KAFKA_K8S_NODE_SELECTOR})
           persistence:
@@ -688,6 +696,9 @@ dev:
     labelSelector:
       app.kubernetes.io/instance: kafka
 
+  # For devspace sync no space left on device error, if there is still space left
+  # on your device, increase Linux inotify count
+  # https://dev.to/rubiin/ubuntu-increase-inotify-watcher-file-watch-limit-kf4
   jobs-manager:
     labelSelector:
       app.kubernetes.io/component: jobs-manager

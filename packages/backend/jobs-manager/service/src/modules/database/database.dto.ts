@@ -8,7 +8,7 @@ import {
 export class PagingDto {
   @IsInt()
   @Type(() => Number)
-  page: number;
+  page: number = 0;
 
   @IsInt()
   @Min(1)

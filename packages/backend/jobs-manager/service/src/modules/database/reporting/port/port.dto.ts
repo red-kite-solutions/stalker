@@ -7,7 +7,6 @@ import {
   IsNotEmpty,
   IsOptional,
 } from 'class-validator';
-import { Types } from 'mongoose';
 import { PortDetailsLevel, portDetailsLevel } from '../../database.constants';
 import { PagingDto } from '../../database.dto';
 import {
@@ -41,7 +40,7 @@ export class DeleteManyPortsDto {
 export class BatchEditPortsDto {
   @IsArray()
   @IsMongoId({ each: true })
-  portIds: Types.ObjectId[];
+  portIds: string[];
 
   @IsOptional()
   @IsBoolean()

@@ -1,4 +1,3 @@
-import { ICommandHandler } from '@nestjs/cqrs';
 import { ConfigService } from '../../database/admin/config/config.service';
 import { CustomJobsService } from '../../database/custom-jobs/custom-jobs.service';
 import { JobExecutionsService } from '../../database/jobs/job-executions.service';
@@ -8,10 +7,10 @@ import { SubscriptionTriggersService } from '../../database/subscriptions/subscr
 import { FindingHandlerBase } from './findings-handler-base';
 import { FindingCommand } from './findings.command';
 
-export abstract class UserFindingHandlerBase<T extends FindingCommand>
-  extends FindingHandlerBase<T>
-  implements ICommandHandler<T>
-{
+// implements ICommandHandler<T>
+export abstract class UserFindingHandlerBase<
+  T extends FindingCommand,
+> extends FindingHandlerBase<T> {
   constructor(
     subscriptionService: EventSubscriptionsService,
     jobsService: JobExecutionsService,

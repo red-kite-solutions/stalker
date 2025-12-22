@@ -1,4 +1,4 @@
-import { IntersectionType } from '@nestjs/swagger';
+import { ApiProperty, IntersectionType } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
@@ -66,8 +66,12 @@ export class ResourceFilterDto extends IntersectionType(FilterByProjectDto) {
   @Type(() => Number)
   firstSeenEndDate?: number;
 
+  /**
+   * Query filter as seen in the resource table UI.
+   */
   @IsOptional()
   @IsString()
+  @ApiProperty({ example: '-is: blocked' })
   query: string;
 
   // TODO 319: REMOVE ME

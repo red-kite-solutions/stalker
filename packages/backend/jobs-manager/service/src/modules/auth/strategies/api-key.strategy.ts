@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { HeaderAPIKeyStrategy } from 'passport-headerapikey';
 import { ApiKeyDocument } from '../../database/api-key/api-key.model';
@@ -11,23 +11,21 @@ export class ApiKeyStrategy extends PassportStrategy(
   'ApiKeyStrategy',
 ) {
   constructor(private authService: AuthService) {
-    super(
-      { header: 'x-api-key', prefix: '' },
-      true,
-      async (apikey, done, req) => {
-        const apiKeyDocument: ApiKeyDocument =
-          await authService.findValidApiKey(apikey);
+    super({ header: 'x-api-key', prefix: '' }, false);
+  }
 
-        if (!apiKeyDocument) return done(null, false);
+  async validate(apikey: string) {
+    const apiKeyDocument: ApiKeyDocument =
+      await this.authService.findValidApiKey(apikey);
 
-        const user: UserAuthContext = {
-          id: apiKeyDocument.userId.toString(),
-          apiKeyId: apiKeyDocument._id.toString(),
-          scopes: apiKeyDocument.scopes,
-        };
+    if (!apiKeyDocument) throw new UnauthorizedException();
 
-        return done(null, user);
-      },
-    );
+    const user: UserAuthContext = {
+      id: apiKeyDocument.userId.toString(),
+      apiKeyId: apiKeyDocument._id.toString(),
+      scopes: apiKeyDocument.scopes,
+    };
+
+    return user;
   }
 }

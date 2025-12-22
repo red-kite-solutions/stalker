@@ -1,4 +1,5 @@
-import { SetMetadata } from '@nestjs/common';
+import { applyDecorators, SetMetadata } from '@nestjs/common';
+import { ApiSecurity } from '@nestjs/swagger';
 import { ScopeActivationContext } from '../guards/scope-guard.utils';
 import { ApiScope, ExtendedScope, ScopeOptions } from '../scopes.constants';
 
@@ -20,5 +21,9 @@ export const Scopes = (
     scopeOptions: options,
   };
 
-  return SetMetadata(SCOPE_INFO_KEY, scopeInfo);
+  return applyDecorators(
+    ApiSecurity('apiKey', scopeInfo.scopes),
+    ApiSecurity('bearer', scopeInfo.scopes),
+    SetMetadata(SCOPE_INFO_KEY, scopeInfo),
+  );
 };

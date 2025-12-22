@@ -11,6 +11,7 @@ import { IsValidFindingHandlerLanguage } from '../../../validators/is-valid-find
 import {
   CustomJobFindingHandlerLanguage,
   CustomJobLanguage,
+  customJobLanguages,
   CustomJobType,
   customJobTypes,
 } from '../jobs/models/custom-job.model';
@@ -43,6 +44,7 @@ export class JobDto {
   public type!: CustomJobType;
 
   @IsValidCustomJobLanguage()
+  @IsIn(customJobLanguages)
   public language!: CustomJobLanguage;
 
   @IsMongoId()
