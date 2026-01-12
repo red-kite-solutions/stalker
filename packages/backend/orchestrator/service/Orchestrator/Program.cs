@@ -77,7 +77,7 @@ app.MapFallback(() => "V1");
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Jobs}/{id}/{action=Index}/");
+    pattern: "{controller=Jobs}/{action=Index}/");
 
 app.Run();
 

@@ -455,6 +455,10 @@ deployments:
           nodeSelector: $(echo ${KAFKA_K8S_NODE_SELECTOR})
           persistence:
             storageClass: ${KAFKA_STORAGE_CLASS}
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "300m"
 
         resources:
           nodeSelector: $(echo ${KAFKA_K8S_NODE_SELECTOR})
@@ -577,6 +581,8 @@ deployments:
                 value: ${KAFKA_URI}
               - name: SECRET_PRIVATE_RSA_KEY
                 value: ${SECRET_PRIVATE_RSA_KEY}
+              - name: SECRET_HMAC_KEY
+                value: ${SECRET_HMAC_KEY}
               - name: ORCHESTRATOR_KAFKA_KEY_PASSWORD
                 value: ${ORCHESTRATOR_KAFKA_KEY_PASSWORD}
               - name: JOBS_K8S_NODE_SELECTOR

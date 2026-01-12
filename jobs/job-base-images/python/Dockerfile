@@ -1,5 +1,6 @@
 FROM python:3.12.4-slim-bullseye AS base
 
+# Red Kite SDK
 COPY requirements.txt /usr/src
 COPY stalker_job_sdk /usr/src/stalker_job_sdk
 RUN python -m pip install -r /usr/src/requirements.txt

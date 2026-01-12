@@ -271,46 +271,46 @@ def log_error(message: str):
     
 
 def _log(prefix: str, message: str):
-    jobId = getenv('RedKiteJobId')
+    context = getenv('RedKiteContext')
     orchestratorUrl = getenv('RedKiteOrchestratorUrl') or 'http://orchestrator.stalker.svc.cluster.local.'
     output = f"{prefix} {message}"
-    if(not jobId):
+    if(not context):
         print(output)
         sys.stdout.flush()
         return
 
     client = get_http_client()
-    client.post(f"{orchestratorUrl}/Jobs/{jobId}/Finding", json={ "Finding": output})
+    client.post(f"{orchestratorUrl}/Jobs/Finding", json={ "Finding": output, "RedKiteContext": context})
 
 def log_status(status: str):
     """Reports the status to the orchestrator. Status can be Success of Failed."""
     if status != JobStatus.SUCCESS and status != JobStatus.FAILED:
         return
     
-    jobId = getenv('RedKiteJobId')
+    context = getenv('RedKiteContext')
     orchestratorUrl = getenv('RedKiteOrchestratorUrl') or 'http://orchestrator.stalker.svc.cluster.local.'
     
-    if(not jobId):
+    if(not context):
         print(f"Status: {status}")
         sys.stdout.flush()
         return
     
     client = get_http_client()
-    client.post(f"{orchestratorUrl}/Jobs/{jobId}/Status", json={ "Status": status})
+    client.post(f"{orchestratorUrl}/Jobs/Status", json={ "Status": status, "RedKiteContext": context})
 
 
 def _log_done():
     """Reports the job has ended."""
-    jobId = getenv('RedKiteJobId')
+    context = getenv('RedKiteContext')
     orchestratorUrl = getenv('RedKiteOrchestratorUrl') or 'http://orchestrator.stalker.svc.cluster.local.'
     
-    if(not jobId):
+    if(not context):
         print(f"Status: Ended")
         sys.stdout.flush()
         return
     
     client = get_http_client()
-    client.post(f"{orchestratorUrl}/Jobs/{jobId}/Status", json={ "Status": "Ended"})
+    client.post(f"{orchestratorUrl}/Jobs/Status", json={ "Status": "Ended", "RedKiteContext": context})
     
 def is_valid_ip(ip: str):
     """Validates an IP address. Returns false if the IP is invalid, true otherwise."""
@@ -330,6 +330,7 @@ def is_valid_port(port: int):
     return True
 
 def build_url(ip: str, port: int, domain: str, path: str, ssl: bool):
+    """Build a valid website URL out of current job input"""
     url = "https://" if ssl else "http://"
     url += domain if domain else ip
     url += f":{str(port)}" if port != 80 and port != 443 else ""

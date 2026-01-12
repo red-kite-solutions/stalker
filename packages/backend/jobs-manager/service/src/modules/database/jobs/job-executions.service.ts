@@ -130,7 +130,7 @@ export class JobExecutionsService {
       await this.addJobOutputLine(
         createdJob.id,
         Date.now(),
-        `Job ${createdJob.id} sent to orchestrator.`,
+        `Job ${createdJob.id} queued for execution.`,
         'debug',
       );
     } else {

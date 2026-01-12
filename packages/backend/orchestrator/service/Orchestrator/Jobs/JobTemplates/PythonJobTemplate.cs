@@ -15,13 +15,13 @@ public abstract class PythonJobTemplate : KubernetesJobTemplate
     /// </summary>
     /// <param name="id"></param>
     /// <param name="config"></param>
-    public PythonJobTemplate(string? id, IConfiguration config, string containerImage)
+    public PythonJobTemplate(JobContext context, IConfiguration config, string containerImage)
     {
-        Id = id!;
+        Context = context;
         Config = config;
         SetNamespace();
         PythonCommand = "";
-        EnvironmentVariable["RedKiteJobId"] = Id;
+        EnvironmentVariable["RedKiteContext"] = context.ToJsonSignedString();
         Image = containerImage;
     }
 

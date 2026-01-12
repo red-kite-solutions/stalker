@@ -31,7 +31,7 @@ public class KubernetesFacade : IKubernetesFacade
 
         var jobPrefix = "";
         var randomId = Guid.NewGuid().ToString(); // This id is used to avoid job name collisions in K8s
-        var jobNameParts = new[] { jobPrefix, jobTemplate.Id, randomId };
+        var jobNameParts = new[] { jobPrefix, jobTemplate.Context.Id, randomId };
         var jobName = string.Join("-", jobNameParts.Where(x => !string.IsNullOrEmpty(x)));
 
         // The ResourceQuota for the jobs' namespace requires an explicit resource allocation for every pod
@@ -62,7 +62,7 @@ public class KubernetesFacade : IKubernetesFacade
                 Labels = new Dictionary<string, string>()
                 {
                     ["red-kite.io/component"] = "job",
-                    ["red-kite.io/jobid"] = jobTemplate.Id
+                    ["red-kite.io/jobid"] = jobTemplate.Context.Id
                 }
             },
             new V1JobSpec
@@ -74,7 +74,7 @@ public class KubernetesFacade : IKubernetesFacade
                         Labels = new Dictionary<string, string>()
                         {
                             ["red-kite.io/component"] = "job",
-                            ["red-kite.io/jobid"] = jobTemplate.Id
+                            ["red-kite.io/jobid"] = jobTemplate.Context.Id
                         }
                     },
                     Spec = new V1PodSpec
@@ -93,7 +93,7 @@ public class KubernetesFacade : IKubernetesFacade
                         NodeSelector = nodeSelector,
                         RestartPolicy = "Never",
                         TerminationGracePeriodSeconds = 100,
-                        
+
                     },
                 },
                 BackoffLimit = jobTemplate.MaxRetries,
@@ -147,7 +147,7 @@ public class KubernetesFacade : IKubernetesFacade
             await RetryableCall(() => client.DeleteNamespacedJobAsync(runningJob.Metadata.Name, jobNamespace, options));
             return true;
         }
-        
+
         return false;
     }
 

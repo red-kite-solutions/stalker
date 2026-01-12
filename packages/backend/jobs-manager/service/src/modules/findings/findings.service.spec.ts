@@ -10,6 +10,7 @@ import {
   CustomFinding,
   FindingTextField,
 } from '../database/reporting/findings/finding.model';
+import { Project } from '../database/reporting/project.model';
 import { ProjectService } from '../database/reporting/project.service';
 import { CustomFindingFieldDto } from './finding.dto';
 import { CustomFindingsConstants } from './findings.constants';
@@ -19,6 +20,7 @@ describe('Findings Service Spec', () => {
   let moduleFixture: TestingModule;
   let findingsService: FindingsService;
   let projectService: ProjectService;
+  let projectModel: Model<Project>;
   let findingsModel: Model<CustomFinding>;
   let jobsModel: Model<Job>;
 
@@ -28,6 +30,7 @@ describe('Findings Service Spec', () => {
     }).compile();
     findingsService = moduleFixture.get(FindingsService);
     projectService = moduleFixture.get(ProjectService);
+    projectModel = moduleFixture.get<Model<Project>>(getModelToken('project'));
     findingsModel = moduleFixture.get<Model<CustomFinding>>(
       getModelToken('finding'),
     );
@@ -535,18 +538,25 @@ describe('Findings Service Spec', () => {
 
     it('Should delete findings that are older than the time limit', async () => {
       // Arrange
-      const c = await project();
+      const p1 = await project();
 
       const j = await jobsModel.create({
-        projectId: c.id,
+        projectId: p1.id,
         task: 'CustomJob',
       });
 
-      const nonFilteredKey = 'my-finding-1';
-      const filteredKey = 'my-finding-2';
+      const domain = 'example.org';
+      const nonFilteredKey = CorrelationKeyUtils.generateCorrelationKey(
+        p1._id.toString(),
+        domain,
+      );
+      const filteredKey = CorrelationKeyUtils.generateCorrelationKey(
+        p1._id.toString(),
+        domain,
+      );
 
-      const f1 = await customDomainFinding(c.id, j.id, filteredKey);
-      const f2 = await customDomainFinding(c.id, j.id, nonFilteredKey);
+      const f1 = await customDomainFinding(p1.id, j.id, filteredKey, domain);
+      const f2 = await customDomainFinding(p1.id, j.id, nonFilteredKey, domain);
       const now = Date.now();
       const yearMs = 60 * 60 * 24 * 365 * 1000;
       await findingsModel.updateOne(
@@ -560,6 +570,41 @@ describe('Findings Service Spec', () => {
 
       // Assert
       expect(findings.totalRecords).toBe(1);
+    });
+
+    it('Should delete findings that are not associated with an existing project', async () => {
+      // Arrange
+      const p1 = await project();
+      const p2 = await project();
+
+      const j = await jobsModel.create({
+        projectId: p1.id,
+        task: 'CustomJob',
+      });
+
+      const domain = 'example.org';
+      const deletedKey = CorrelationKeyUtils.generateCorrelationKey(
+        p1._id.toString(),
+        domain,
+      );
+      const nonDeletedKey = CorrelationKeyUtils.generateCorrelationKey(
+        p2._id.toString(),
+        domain,
+      );
+
+      const f1 = await customDomainFinding(p1.id, j.id, deletedKey, domain);
+      const f2 = await customDomainFinding(p2.id, j.id, nonDeletedKey, domain);
+      const now = Date.now();
+      const yearMs = 60 * 60 * 24 * 365 * 1000;
+      await projectModel.deleteOne({ _id: { $eq: p1._id } });
+
+      // Act
+      await findingsService.cleanup(now, yearMs);
+
+      // Assert
+      const findings = await findingsService.getAll(0, 100, {});
+      expect(findings.totalRecords).toBe(1);
+      expect(findings.items[0].key).toStrictEqual(f2.correlationKey);
     });
   });
 

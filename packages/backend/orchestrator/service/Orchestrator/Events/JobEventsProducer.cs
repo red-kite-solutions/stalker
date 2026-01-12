@@ -2,6 +2,7 @@
 using System.Linq;
 using Confluent.Kafka;
 using k8s.Models;
+using Orchestrator.Jobs.JobTemplates;
 using Orchestrator.Queue;
 
 namespace Orchestrator.Events;
@@ -18,9 +19,9 @@ public class JobEventsProducer : MessagesProducer<JobEventMessage>
         Started
     }
 
-    private static readonly Dictionary<JobStatus, string> JobStatusMapping = new Dictionary<JobStatus, string>()  { 
-        { JobStatus.Success, "Success" }, 
-        { JobStatus.Failed, "Failed" }, 
+    private static readonly Dictionary<JobStatus, string> JobStatusMapping = new Dictionary<JobStatus, string>()  {
+        { JobStatus.Success, "Success" },
+        { JobStatus.Failed, "Failed" },
         { JobStatus.Ended, "Ended" },
         { JobStatus.Started, "Started" }
     };
@@ -43,9 +44,28 @@ public class JobEventsProducer : MessagesProducer<JobEventMessage>
     { }
 
 
+    public async Task LogStatus(JobContext context, JobStatus status)
+    {
+        await LogStatus(context, JobStatusMapping[status]);
+    }
+
     public async Task LogStatus(string jobId, JobStatus status)
     {
         await LogStatus(jobId, JobStatusMapping[status]);
+    }
+
+    public async Task LogStatus(JobContext context, string status)
+    {
+        if (!JobStatusInvertedMapping.ContainsKey(status))
+            throw new ArgumentException("Invalid job status");
+
+        await Produce(new JobEventMessage
+        {
+            JobId = context.Id,
+            ProjectId = context.ProjectId,
+            FindingsJson = $"{{ \"findings\": [{{ \"type\": \"JobStatusFinding\", \"status\": \"{status}\" }}]}}",
+            Timestamp = TimeUtils.CurrentTimeMs(),
+        });
     }
 
     public async Task LogStatus(string jobId, string status)
@@ -56,6 +76,7 @@ public class JobEventsProducer : MessagesProducer<JobEventMessage>
         await Produce(new JobEventMessage
         {
             JobId = jobId,
+            ProjectId = "",
             FindingsJson = $"{{ \"findings\": [{{ \"type\": \"JobStatusFinding\", \"status\": \"{status}\" }}]}}",
             Timestamp = TimeUtils.CurrentTimeMs(),
         });

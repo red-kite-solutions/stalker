@@ -8,12 +8,12 @@ public class NucleiCustomJobTemplate : KubernetesJobTemplate
 {
     protected IConfiguration Config { get; init; }
 
-    public NucleiCustomJobTemplate(string? id, IConfiguration config, JobParameter[]? jobParameters, string? code, int? jobPodMilliCpuLimit, ulong? jobPodMemoryKbLimit, string? findingHandler, string containerImage)
+    public NucleiCustomJobTemplate(JobContext context, IConfiguration config, JobParameter[]? jobParameters, string? code, int? jobPodMilliCpuLimit, ulong? jobPodMemoryKbLimit, string? findingHandler, string containerImage)
     {
-        Id = id;
+        Context = context;
         Config = config;
         SetNamespace();
-        EnvironmentVariable["RedKiteJobId"] = Id;
+        EnvironmentVariable["RedKiteContext"] = Context.ToJsonSignedString();
 
         // Adding parameters as environment variables
         if (!jobParameters.IsNullOrEmpty())

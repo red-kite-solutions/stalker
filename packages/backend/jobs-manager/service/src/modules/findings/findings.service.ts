@@ -205,6 +205,7 @@ export interface Findings {
 
 export interface JobFindings extends Findings {
   jobId: string;
+  projectId: string;
   timestamp: number;
 }
 
@@ -224,6 +225,7 @@ export class FindingsService {
 
   /**
    * Deletes all the findings runs older than `config.findingRetentionTimeSeconds`.
+   * Also deletes the findings not associated with a project.
    */
   public async cleanup(
     now: number = Date.now(),
@@ -235,8 +237,15 @@ export class FindingsService {
     }
 
     const oldestValidCreationDate = now - ttlMilliseconds;
+    const projectIds = await this.projectService.getAllIds();
+    const correlationKeys = projectIds.map(
+      (p) => new RegExp(`^${CorrelationKeyUtils.generateCorrelationKey(p)}`),
+    );
     await this.findingModel.deleteMany({
-      created: { $lte: new Date(oldestValidCreationDate) },
+      $or: [
+        { created: { $lte: new Date(oldestValidCreationDate) } },
+        { correlationKey: { $nin: correlationKeys } },
+      ],
     });
   }
 
@@ -467,9 +476,12 @@ export class FindingsService {
    */
   public handleJobFindings(findings: JobFindings) {
     for (const finding of findings.findings) {
-      this.handleFinding(finding, findings.timestamp, findings.jobId).catch(
-        (e) => this.logger.error(e),
-      );
+      this.handleFinding(
+        finding,
+        findings.timestamp,
+        findings.jobId,
+        findings.projectId,
+      ).catch((e) => this.logger.error(e));
     }
   }
 
@@ -489,28 +501,11 @@ export class FindingsService {
     finding: Finding,
     timestamp: number,
     jobId: string = '',
+    projectId: string = '',
   ) {
-    let projectId = '';
     if (jobId) {
-      const job = await this.jobsService.getById(jobId);
-      if (job === null) {
-        this.logger.error(`The given job does not exist (jobId=${jobId})`);
-        return;
-      }
       finding.jobId = jobId;
 
-      if (job.projectId !== undefined) {
-        const project = await this.projectService.get(job.projectId);
-        if (project === null) {
-          this.logger.error(
-            `The project for the given job does not exist (jobId=${jobId}, projectId=${job.projectId})`,
-          );
-          return;
-        }
-        projectId = project._id.toString();
-      } else {
-        projectId = ProjectUnassigned;
-      }
       if (finding.type !== 'JobStatusFinding') {
         await this.jobsService.addJobOutputLine(
           jobId,

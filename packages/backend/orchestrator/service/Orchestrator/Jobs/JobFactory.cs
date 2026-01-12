@@ -3,6 +3,7 @@ using Orchestrator.Events;
 using Orchestrator.Jobs.Commands;
 using Orchestrator.Jobs.JobManagementCommand;
 using Orchestrator.Jobs.JobModelCache;
+using Orchestrator.Jobs.JobTemplates;
 using Orchestrator.K8s;
 using Orchestrator.Queue;
 using Orchestrator.Queue.JobManagementConsumer;
@@ -60,6 +61,7 @@ public class JobFactory : IJobFactory
     private JobCommand CreateCustomJobCommand(CustomJobRequest request)
     {
         if (request.JobModelId == null) throw new InvalidOperationException();
+        var context = new JobContext(request.JobId!, request.ProjectId!);
 
         int maxParamValueDisplayLength = 100;
         string truncatedString = "[REDACTED]";
@@ -69,7 +71,7 @@ public class JobFactory : IJobFactory
         if (!request.CustomJobParameters.IsNullOrEmpty())
         {
             List<string> logInfo = new List<string>();
-            JobLogsProducer.LogDebug(request.JobId!, "Job started with the following input:");
+            JobLogsProducer.LogDebug(context, "Job started with the following input:");
             foreach (var parameter in request.CustomJobParameters!)
             {
                 string value = parameter.Value ?? "";
@@ -77,16 +79,16 @@ public class JobFactory : IJobFactory
                 {
                     value = truncatedString;
                 }
-                else if (value.Length > maxParamValueDisplayLength) 
+                else if (value.Length > maxParamValueDisplayLength)
                 {
                     value = string.Concat(value.AsSpan(0, maxParamValueDisplayLength), "[...]");
                 }
-                JobLogsProducer.LogDebug(request.JobId!, string.Concat("- ", parameter.Name, ": ", value));
+                JobLogsProducer.LogDebug(context, string.Concat("- ", parameter.Name, ": ", value));
             }
-        } 
+        }
         else
         {
-            JobLogsProducer.LogDebug(request.JobId!, "No parameters provided");
+            JobLogsProducer.LogDebug(context, "No parameters provided");
         }
 
         if (model.Type?.ToLower() == "code")
