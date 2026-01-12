@@ -48,6 +48,7 @@ cron_api_token="$(tr -dc A-Za-z0-9 </dev/urandom | head -c $PASSWORD_LENGTH)"
 jm_jwt="$(tr -dc A-Za-z0-9 </dev/urandom | head -c $PASSWORD_LENGTH)"
 jm_refresh="$(tr -dc A-Za-z0-9 </dev/urandom | head -c $PASSWORD_LENGTH)"
 jm_kafka_password="$(tr -dc A-Za-z0-9 </dev/urandom | head -c $PASSWORD_LENGTH)"
+secret_hmac_key="$(tr -dc A-Za-z0-9 </dev/urandom | head -c $PASSWORD_LENGTH)"
 
 echo "##############################"
 echo "# You will be prompted several times for your root CA key's password."
@@ -88,6 +89,7 @@ vars:
   CRON_MONGO_ADDRESS: mongodb://\${MONGO_CRON_USER}:\${MONGO_CRON_PASSWORD}@mongo-mongodb-headless:27017/
   SECRET_PRIVATE_RSA_KEY: $secrets_private_key
   SECRET_PUBLIC_RSA_KEY: $secrets_public_key
+  SECRET_HMAC_KEY: $secret_hmac_key
   RK_PORT: $RK_PORT
   RK_URL: "https://$RK_HOSTNAME:\${RK_PORT}"
   DOCKERFILE_NAME: Dockerfile

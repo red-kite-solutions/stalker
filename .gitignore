@@ -166,5 +166,6 @@ lerna-debug.log*
 /coverage
 /.nyc_output
 **/certificates.yml
+**/jest-storage
 *.zip
 /aws

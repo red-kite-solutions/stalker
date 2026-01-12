@@ -28,6 +28,7 @@ export class FindingsConsumer extends KafkaConsumer {
     if (findingsRaw.JobId) {
       const findings = {
         jobId: findingsRaw.JobId,
+        projectId: findingsRaw.ProjectId,
         timestamp: findingsRaw.Timestamp,
         findings: JSON.parse(findingsRaw.FindingsJson).findings,
       };

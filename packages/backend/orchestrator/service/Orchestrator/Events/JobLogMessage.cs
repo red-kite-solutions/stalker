@@ -8,6 +8,11 @@ public class JobLogMessage
     public string? JobId { get; init; }
 
     /// <summary>
+    /// Gets the project id associated with this JobId.
+    /// </summary>
+    public string? ProjectId { get; init; }
+
+    /// <summary>
     /// Gets the log content.
     /// </summary>
     public string? Log { get; init; }

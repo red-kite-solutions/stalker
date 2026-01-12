@@ -7,7 +7,7 @@ namespace Orchestrator.Jobs.JobTemplates;
 public class PythonCustomJobTemplate : PythonJobTemplate
 {
 
-    public PythonCustomJobTemplate(string? id, IConfiguration config, JobParameter[]? jobParameters, string? code, int? jobPodMilliCpuLimit, ulong? jobPodMemoryKbLimit, string containerImage) : base(id, config, containerImage)
+    public PythonCustomJobTemplate(JobContext context, IConfiguration config, JobParameter[]? jobParameters, string? code, int? jobPodMilliCpuLimit, ulong? jobPodMemoryKbLimit, string containerImage) : base(context, config, containerImage)
     {
         // Adding parameters as environment variables
         if (!jobParameters.IsNullOrEmpty())

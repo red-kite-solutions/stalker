@@ -1,3 +1,5 @@
+using Orchestrator.Jobs.JobTemplates;
+
 namespace Orchestrator.K8s;
 
 public class KubernetesJobTemplate
@@ -7,7 +9,7 @@ public class KubernetesJobTemplate
     private readonly int DefaultCpu = 100;
     private readonly ulong DefaultMemory = 300 * 1024;
 
-    public string Id { get; init; }
+    public JobContext Context { get; init; }
 
     /// <summary>
     /// Gets the docker image for this job.

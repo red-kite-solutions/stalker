@@ -14,6 +14,6 @@ public class NucleiCustomJobCommand : KubernetesJobCommand<CustomJobRequest>
     public NucleiCustomJobCommand(CustomJobRequest request, JobModel model, IKubernetesFacade kubernetes, JobEventsProducer eventsProducer, JobLogsProducer jobLogsProducer, IFindingsParser parser, ILogger<NucleiCustomJobCommand> logger, IConfiguration config)
         : base(request, kubernetes, eventsProducer, jobLogsProducer, parser, logger)
     {
-        JobTemplate = new NucleiCustomJobTemplate(request.JobId, config, request.CustomJobParameters, model.Code, request.JobPodMilliCpuLimit, request.JobPodMemoryKbLimit, model.FindingHandler, model.Image);
+        JobTemplate = new NucleiCustomJobTemplate(new JobContext(request.JobId!, request.ProjectId ?? ""), config, request.CustomJobParameters, model.Code, request.JobPodMilliCpuLimit, request.JobPodMemoryKbLimit, model.FindingHandler, model.Image);
     }
 }

@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Orchestrator.Controllers.dto;
 using Orchestrator.Events;
+using Orchestrator.Jobs.JobTemplates;
 using Orchestrator.Queue;
-using System.Text.RegularExpressions;
 
 namespace Orchestrator.Controllers
 {
@@ -21,18 +21,6 @@ namespace Orchestrator.Controllers
             }
         }
 
-        /// <summary>
-        /// Validates that a string is a valid Mongodb Id by ensuring that it is 24 hexadecimal characters long
-        /// </summary>
-        /// <param name="jobId"></param>
-        /// <returns></returns>
-        private static bool IsValidJobId(string jobId)
-        {
-            if (string.IsNullOrEmpty(jobId)) return false;
-            if (!Regex.IsMatch(jobId, @"^[a-f0-9]{24}$")) return false;
-            return true;
-        }
-
         public JobsController(IMessagesProducer<JobEventMessage> eventsProducer, IMessagesProducer<JobLogMessage> jobLogsProducer, IFindingsParser parser)
         {
             EventsProducer = eventsProducer as JobEventsProducer;
@@ -40,13 +28,15 @@ namespace Orchestrator.Controllers
             Parser = parser;
         }
 
-        private async Task HandleEvent(EventModel evt, string jobId)
+        private async Task HandleEvent(EventModel evt, JobContext context)
         {
+
             if (evt is JobLogModel jobLog)
             {
                 await LogsProducer.Produce(new JobLogMessage()
                 {
-                    JobId = jobId,
+                    JobId = context.Id,
+                    ProjectId = context.ProjectId,
                     Log = jobLog.data,
                     LogLevel = jobLog.LogType,
                     Timestamp = CurrentTimeMs
@@ -57,7 +47,8 @@ namespace Orchestrator.Controllers
             {
                 await EventsProducer.Produce(new JobEventMessage
                 {
-                    JobId = jobId,
+                    JobId = context.Id,
+                    ProjectId = context.ProjectId,
                     FindingsJson = evt.data,
                     Timestamp = CurrentTimeMs
                 });
@@ -66,15 +57,15 @@ namespace Orchestrator.Controllers
 
         // POST /Jobs/Finding
         [HttpPost]
-        public async Task<ActionResult> Finding([FromBody] JobFindingDto dto, string id = "")
+        public async Task<ActionResult> Finding([FromBody] JobFindingDto dto)
         {
-            if (!IsValidJobId(id)) return BadRequest("Job id is invalid");
             try
             {
-                var evt = Parser.Parse(dto.Finding);
+                var context = new JobContext(dto.RedKiteContext);
 
+                var evt = Parser.Parse(dto.Finding);
                 if (evt == null) return BadRequest("Invalid finding");
-                await HandleEvent(evt, id);
+                await HandleEvent(evt, context);
             }
             catch (Exception)
             {
@@ -86,19 +77,24 @@ namespace Orchestrator.Controllers
 
         // POST /Jobs/Status
         [HttpPost]
-        public async Task<ActionResult> Status([FromBody] StatusUpdateDto dto, string id = "")
+        public async Task<ActionResult> Status([FromBody] StatusUpdateDto dto)
         {
             var acceptableStatuses = new HashSet<string>() { "Success", "Failed", "Ended" };
             if (!acceptableStatuses.Contains(dto.Status))
             {
-                Console.WriteLine("bad status");
                 return BadRequest("Status should be Success, Failed or Ended");
             }
 
-            if (!IsValidJobId(id)) return BadRequest("Job id is invalid");
+            try
+            {
+                var context = new JobContext(dto.RedKiteContext);
 
-            await EventsProducer.LogStatus(id, dto.Status);
-
+                await EventsProducer.LogStatus(context, dto.Status);
+            }
+            catch
+            {
+                return BadRequest("Error with job.");
+            }
             return Ok();
         }
     }
