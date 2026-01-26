@@ -226,12 +226,12 @@ export class WebsiteService {
       });
 
       if (findings.length >= 10) {
-        await this.findingsQueue.publishForJob(jobId, ...findings);
+        await this.findingsQueue.publishForJob(jobId, projectId, ...findings);
         findings = [];
       }
     }
 
-    this.findingsQueue.publishForJob(jobId, ...findings);
+    this.findingsQueue.publishForJob(jobId, projectId, ...findings);
   }
 
   public async deleteAllForProject(projectId: string): Promise<DeleteResult> {

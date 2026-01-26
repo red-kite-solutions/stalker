@@ -145,7 +145,7 @@ images:
     dockerfile: jobs/job-base-images/python/Dockerfile
     tags:
       - "latest"
-      - "2"
+      - "3"
     context: jobs/job-base-images/python
     rebuildStrategy: always
 
@@ -154,7 +154,7 @@ images:
     dockerfile: jobs/job-base-images/python/Dockerfile.nuclei
     tags:
       - "latest"
-      - "2"
+      - "3"
     context: jobs/job-base-images/python/
     rebuildStrategy: always
 
