@@ -12,7 +12,14 @@ export abstract class KafkaConsumer {
   }
 
   protected async start() {
-    const consumer = this.kafka.consumer({ groupId: this.groupId });
+    const consumer = this.kafka.consumer({
+      groupId: this.groupId,
+      retry: {
+        initialRetryTime: 300, // ms
+        maxRetryTime: 60000, // 1 minute
+        retries: 30,
+      },
+    });
     await consumer.connect();
     await consumer.subscribe({
       topic: this.topic,
