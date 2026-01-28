@@ -10,12 +10,13 @@ export class KafkaFindingsQueue implements FindingsQueue {
 
   constructor(private producer: Producer) {}
 
-  public async publish(...findings: any[]) {
-    this.publishForJob(undefined, ...findings);
+  public async publish(projectId: string, ...findings: any[]) {
+    this.publishForJob(undefined, projectId, ...findings);
   }
 
   public async publishForJob(
-    jobId?: string,
+    jobId: string,
+    projectId: string,
     ...findings: Finding[]
   ): Promise<void> {
     if (!findings.length) return;
@@ -32,6 +33,7 @@ export class KafkaFindingsQueue implements FindingsQueue {
         value: JSON.stringify({
           FindingsJson: JSON.stringify({ findings: findings }),
           JobId: jobId,
+          ProjectId: projectId,
           Timestamp: Date.now(),
         }),
       },

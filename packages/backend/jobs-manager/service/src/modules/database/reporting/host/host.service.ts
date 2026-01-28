@@ -251,7 +251,7 @@ export class HostService {
         projectId: projectId,
       });
     });
-    this.findingsQueue.publish(...findings);
+    this.findingsQueue.publish(projectId, ...findings);
 
     return insertedHosts;
   }

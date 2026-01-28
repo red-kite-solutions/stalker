@@ -49,6 +49,65 @@ Red Kite understands. It comes with a built-in parser, but if it does not suit y
 custom finding handler will be responsible for parsing the Nuclei Findings as well as outputing the Red Kite compatible findings. It is
 implemented in python. Don't worry though, a template, a custom class and the python SDK are avalailable to help you.
 
+To launch a Nuclei job from the launcher, you have to specify the following parameters:
+
+| Name              | Example value    | Identifies a resource | Description                                                                                                                                  |
+| ----------------- | ---------------- | :-------------------: | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| targetIp          | 1.1.1.1          |           x           | The IP address at which the target server is located.                                                                                        |
+| port              | 443              |           x           | The port to connect to reach the server.                                                                                                     |
+| domainName        | example.com      |           x           | The domain name to target, or, for websites, used to access the virtual host.                                                                |
+| path              | /                |           x           | The server path at which the website is located. Used to identify the website.                                                               |
+| ssl               | true             |                       | Specifies if the protocol used should be HTTP ou HTTPS                                                                                       |
+| endpoint          | /example.php     |                       | Used to target websites at a particular endpoint without changing the targeted website.                                                      |
+| stalkerOutputType | domain           |                       | The target resource type to emit findings to. Possible values are "domain", "host", "port" and "website".                                    |
+| outputFindingName | MyExampleFinding |                       | Will be the name of the finding when emitted. This is the value that an event subscription would react to in the subscription finding array. |
+
+Targeting a website identified by the IP `1.1.1.1`, the port `443`, the domain `example.com` and the path `/` on the endpoint `/example.txt`
+would result in targeting the URL `https://example.com/example.txt`. The IP and path value, in that case, are only used to attach the
+findings to the correct website.
+
+The different possible combination of parameters to target different types of resources are the following:
+
+| Resource | Required parameters                   | Optional parameters |
+| -------- | ------------------------------------- | ------------------- |
+| Domain   | domainName                            |                     |
+| Host     | targetIp                              |                     |
+| Port     | targetIp, port                        |                     |
+| Website  | domainName, targetIp, port, path, ssl | endpoint            |
+
+Regardless of the resource type that you are targeting, **if no custom handler is provided**, you require the two following parameters as
+well:
+
+| Name              | Example value    | Description                                                                                                                                  |
+| ----------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| stalkerOutputType | domain           | The target resource type to emit findings to. Possible values are "domain", "host", "port" and "website".                                    |
+| outputFindingName | MyExampleFinding | Will be the name of the finding when emitted. This is the value that an event subscription would react to in the subscription finding array. |
+
+> If a custom handler is provided, you can omit the `stalkerOutputType` and the `outputFindingName` values.
+
+Here is what it would look like to manually launch the job for a `website` at `https://example.com/`, targeting the endpoint at
+`https://example.com/example.txt`, without a custom handler:
+
+```yaml
+parameters:
+  - name: stalkerOutputType
+    value: website
+  - name: outputFindingName
+    value: MyWebsiteFinding
+  - name: targetIp
+    value: "1.1.1.1"
+  - name: port
+    value: 443
+  - name: domainName
+    value: example.com
+  - name: path
+    value: "/"
+  - name: ssl
+    value: true
+  - name: endpoint
+    value: "/example.txt"
+```
+
 ## Built-in Jobs
 
 Red Kite comes preloaded with a robust selection of built-in jobs directly sourced from our
@@ -57,18 +116,20 @@ Red Kite comes preloaded with a robust selection of built-in jobs directly sourc
 Built-in jobs are managed by Red Kite and therefore cannot be modified. If you wish to tweak one of our jobs, you may simply duplicate it
 and edit the copy. When you are ready, use the copy and disable the original.
 
-| Name                                                | Description                                        | Type   | Language |
-| --------------------------------------------------- | -------------------------------------------------- | ------ | -------- |
-| [DomainNameResolvingJob](#domainnameresolvingjob)   | Resolves a domain name to an IP address            | Code   | Python   |
-| [TcpPortScanningJob](#tcpportscanningjob)           | Scans the tcp ports of an IP address               | Code   | Python   |
-| [TcpIpRangeScanningJob](#tcpiprangescanningjob)     | Scan an IP range for open ports                    | Code   | Python   |
-| [BannerGrabbingJob](#bannergrabbingjob)             | Identifies the service running on a port           | Code   | Python   |
-| [WebsiteCrawlingJob](#websitecrawlingjob)           | Crawls a website for its valid endpoints           | Code   | Python   |
-| [LoginDetectionJob](#logindetectionjob)             | Detects login portals on websites                  | Nuclei | Yaml     |
-| [WebsiteScreenshotJob](#websitescreenshotjob)       | Takes a screenshot of a web page.                  | Code   | Python   |
-| [AmassDomainDiscoveryJob](#amassdomaindiscoveryjob) | Leverages Amass to find domain related information | Code   | Python   |
-
-While
+| Name                                                  | Description                                                             | Type | Language |
+| ----------------------------------------------------- | ----------------------------------------------------------------------- | ---- | -------- |
+| [DomainNameResolvingJob](#domainnameresolvingjob)     | Resolves a domain name to an IP address                                 | Code | Python   |
+| [TcpPortScanningJob](#tcpportscanningjob)             | Scans the tcp ports of an IP address                                    | Code | Python   |
+| [TcpIpRangeScanningJob](#tcpiprangescanningjob)       | Scan an IP range for open ports                                         | Code | Python   |
+| [BannerGrabbingJob](#bannergrabbingjob)               | Identifies the service running on a port                                | Code | Python   |
+| [WebsiteCrawlingJob](#websitecrawlingjob)             | Crawls a website for its valid endpoints                                | Code | Python   |
+| [WebsiteScreenshotJob](#websitescreenshotjob)         | Takes a screenshot of a web page.                                       | Code | Python   |
+| [AmassDomainDiscoveryJob](#amassdomaindiscoveryjob)   | Leverages Amass to find domain related information                      | Code | Python   |
+| [CertificateValidationJob](#certificatevalidationjob) | Parses and analyzes a certificate for validation                        | Code | Python   |
+| [DomainSecurityScannerJob](#domainsecurityscannerjob) | Validates the mail configurations of a domain such as dkim, dmarc, etc. | Code | Python   |
+| [IpGeolocationJob](#ipgeolocationjob)                 | Geolocates an IP address.                                               | Code | Python   |
+| [SubdomainBruteforceJob](#subdomainbruteforcejob)     | Bruteforces the subdomains of a domain to find new unknown domains.     | Code | Python   |
+| [WafIdentificationJob](#wafidentificationjob)         | Identifies if a WAF, and which WAF, is running on a website.            | Code | Python   |
 
 ### DomainNameResolvingJob
 
@@ -166,26 +227,6 @@ Crawls a website for its differents valid endpoints. It can also find website te
 - WebsitePathFinding
 - WebsiteTechnologyFinding
 
-### LoginDetectionJob
-
-Detects a login page based on regex and word match.
-
-**Input variables :**
-
-| Variable Name | Type   | Value description                |
-| ------------- | ------ | -------------------------------- |
-| targetIp      | string | The website's IP address         |
-| port          | number | The website's port               |
-| domainName    | string | The website's domain name        |
-| path          | string | The website's base path          |
-| ssl           | bool   | If the website is https          |
-| endpoint      | string | The website's endpoint to target |
-
-**Possible generated findings :**
-
-- WebsiteLoginPortal
-- Login
-
 ### WebsiteScreenshotJob
 
 Takes a screenshot of a web page.
@@ -229,17 +270,21 @@ Leverages OWASP's Amass to find domain relationships, subdomains, IP addresses, 
 - AmassHostReportFinding
 - RirOrgFinding
 
-Also, Amass uses the `datasources.yaml` file to store the API keys of several possible data sources. To use this feature in Red Kite's job, you can dynamically provide the `datasources.yaml` values as parameters from [Red Kite secrets](./secrets) by following the proper syntax.
+Also, Amass uses the `datasources.yaml` file to store the API keys of several possible data sources. To use this feature in Red Kite's job,
+you can dynamically provide the `datasources.yaml` values as parameters from [Red Kite secrets](./secrets) by following the proper syntax.
 
 #### Setting a datasource API key for Amass
 
-To set an API key in the `datasources.yaml` content from a Red Kite parameter, simply follow the variable naming convention `s_NAME_path_to_key`, which consits of the prefix `s_`, the targeted datasource name in place of `NAME`, an underscore `_`, and then the full yaml path to the API key to set. The job looks for parameters named that way to dynamically fill the yaml file.
+To set an API key in the `datasources.yaml` content from a Red Kite parameter, simply follow the variable naming convention
+`s_NAME_path_to_key`, which consits of the prefix `s_`, the targeted datasource name in place of `NAME`, an underscore `_`, and then the
+full yaml path to the API key to set. The job looks for parameters named that way to dynamically fill the yaml file.
 
 As an example, the API key for the Shodan datasource will be set:
 
 First, [create a secret](./secrets) containing Shodan's API key. Use a meaningful name like `ShodanApiKey`.
 
-Second, use the `ShodanApiKey` secret in a job parameter. To do so, we need to locate where in the `datasources.yaml` file structure the key is located. 
+Second, use the `ShodanApiKey` secret in a job parameter. To do so, we need to locate where in the `datasources.yaml` file structure the key
+is located.
 
 Here is, for reference, part of the `datasources.yaml` file where we want to set the Shodan API key :
 
@@ -248,28 +293,29 @@ datasources:
   - name: 360PassiveDNS
     ttl: 3600
     creds:
-      account: 
+      account:
         apikey: null
   # [...]
   - name: Shodan # The targeted datasource name
     ttl: 10080
     creds:
-      account: 
+      account:
         apikey: null # Where we set the API key
   - name: Spamhaus
     ttl: 1440
     creds:
-      account: 
+      account:
         username: null
         password: null
   # [...]
-global_options: 
+global_options:
   minimum_ttl: 1440
 ```
 
 > The full file structure is available on [the repository](https://github.com/owasp-amass/amass/blob/master/examples/datasources.yaml).
 
-Here, to set Shodan's API key, you would have to name your job parameter `s_Shodan_creds_account_apikey` and set the value from the created secret `ShodanApiKey`.
+Here, to set Shodan's API key, you would have to name your job parameter `s_Shodan_creds_account_apikey` and set the value from the created
+secret `ShodanApiKey`.
 
 For an ad-hoc job launch, your parameters would therefore look like the following:
 
@@ -285,4 +331,85 @@ parameters:
     value: ${ secrets.ShodanApiKey } # The injection of the secret value
 ```
 
-To include your `ShodanApiKey` secret in the subcription that launches this job (named *Extended discovery for domain names*), include it in its parameters in the same way.
+To include your `ShodanApiKey` secret in the subcription that launches this job (named _Extended discovery for domain names_), include it in
+its parameters in the same way.
+
+### CertificateValidationJob
+
+Parses and analyzes a certificate for validation.
+
+**Input variables :**
+
+| Variable Name | Type   | Value description         |
+| ------------- | ------ | ------------------------- |
+| targetIp      | string | The website's IP address  |
+| port          | number | The website's port        |
+| domainName    | string | The website's domain name |
+| path          | string | The website's base path   |
+| ssl           | bool   | If the website is https   |
+
+**Possible generated findings :**
+
+- CertificateFinding
+
+### DomainSecurityScannerJob
+
+Validates the mail configurations of a domain such as dkim, dmarc, etc.
+
+**Input variables :**
+
+| Variable Name | Type     | Value description       |
+| ------------- | -------- | ----------------------- |
+| domainNames   | string[] | The domains to validate |
+
+**Possible generated findings :**
+
+- DomainSecurityReportFinding
+
+### IpGeolocationJob
+
+Geolocates an IP address.
+
+**Input variables :**
+
+| Variable Name | Type   | Value description           |
+| ------------- | ------ | --------------------------- |
+| targetIp      | string | The IP address to geolocate |
+
+**Possible generated findings :**
+
+- IpGeolocationFinding
+
+### SubdomainBruteforceJob
+
+Bruteforces the subdomains of a domain to find new unknown domains.
+
+**Input variables :**
+
+| Variable Name | Type   | Value description        |
+| ------------- | ------ | ------------------------ |
+| domainName    | string | The domain to bruteforce |
+
+**Possible generated findings :**
+
+- HostnameFinding
+- HostnameIpFinding
+- WildcardDomainFinding
+
+### WafIdentificationJob
+
+Identifies if a WAF, and which WAF, is running on a website.
+
+**Input variables :**
+
+| Variable Name | Type   | Value description         |
+| ------------- | ------ | ------------------------- |
+| targetIp      | string | The website's IP address  |
+| port          | number | The website's port        |
+| domainName    | string | The website's domain name |
+| path          | string | The website's base path   |
+| ssl           | bool   | If the website is https   |
+
+**Possible generated findings :**
+
+- WafFinding

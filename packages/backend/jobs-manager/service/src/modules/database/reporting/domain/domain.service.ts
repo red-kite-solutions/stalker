@@ -115,11 +115,11 @@ export class DomainsService {
         projectId: projectId,
       });
       if (i % batchSize === 0) {
-        await this.findingsQueue.publish(...findings);
+        await this.findingsQueue.publish(projectId, ...findings);
         findings = [];
       }
     }
-    this.findingsQueue.publish(...findings);
+    this.findingsQueue.publish(projectId, ...findings);
   }
 
   /**

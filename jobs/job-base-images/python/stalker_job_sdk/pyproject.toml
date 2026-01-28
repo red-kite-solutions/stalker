@@ -8,6 +8,7 @@ packages = [{include = "stalker_job_sdk"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
+tldextract = "^5.3.0"
 
 
 [build-system]

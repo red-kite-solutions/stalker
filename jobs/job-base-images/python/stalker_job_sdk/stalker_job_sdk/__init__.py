@@ -216,7 +216,7 @@ def get_all_domains(domainNames: list['str']) -> list['str']:
             sublist.reverse()
             sublist.append(f"{domain_no_tld}.{tld}")
             
-            all_domains.add(f"{".".join(sublist)}")
+            all_domains.add(f"{'.'.join(sublist)}")
 
     return all_domains
 
