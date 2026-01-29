@@ -41,7 +41,7 @@ export class JobExecutionsService {
 
     let itemsQuery = this.jobModel.find(
       filters,
-      {},
+      { output: 0, customJobParameters: 0 },
       { sort: { startTime: -1 } },
     );
     if (dto.page != null && dto.pageSize != null) {

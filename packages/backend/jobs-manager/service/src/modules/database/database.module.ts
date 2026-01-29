@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule, MongooseModuleOptions } from '@nestjs/mongoose';
+import { Connection } from 'mongoose';
 import { ConfigModule } from './admin/config/config.module';
 import { AlarmModule } from './alarm/alarm.module';
 import { ApiKeyModule } from './api-key/api-key.module';
@@ -32,6 +33,29 @@ const mongooseModuleOptions: MongooseModuleOptions =
         tlsCertificateFile: '/certs/client-signed.crt',
         tlsCertificateKeyFile: '/certs/client.key',
         tlsCertificateKeyFilePassword: process.env.JM_MONGO_KEY_PASSWORD,
+        maxPoolSize: 120,
+        retryAttempts: 30,
+        retryDelay: 3000,
+        onConnectionCreate: (connection: Connection) => {
+          const logPrefix = `Mongo connection [ID:${connection.id}]`;
+          connection.on('reconnected', () => {
+            console.log(
+              `${logPrefix} Reconnected to the database. ID: ${connection.id}`,
+            );
+          });
+          connection.on('disconnected', () => {
+            console.log(`${logPrefix} Disconnected from database.`);
+          });
+
+          connection.on('connected', () => {
+            console.log(`${logPrefix} Connected to the database.`);
+          });
+
+          connection.on('error', (err) => {
+            console.log(err);
+            console.log(`${logPrefix} ${err.name} detected. Reconnecting...`);
+          });
+        },
       };
 
 @Module({

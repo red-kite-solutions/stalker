@@ -21,7 +21,7 @@ export class Job {
   task: string;
 
   @ApiProperty()
-  @Prop()
+  @Prop({ index: true })
   public projectId!: string;
 
   @ApiProperty()
@@ -37,7 +37,7 @@ export class Job {
   public publishTime: number;
 
   @ApiProperty()
-  @Prop()
+  @Prop({ index: -1 })
   public startTime: number;
 
   @ApiProperty()

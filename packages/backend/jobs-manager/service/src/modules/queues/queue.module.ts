@@ -24,6 +24,11 @@ const certTestExtension =
 export const kafkaConfig: KafkaConfig = {
   clientId: orchestratorConstants.clientId,
   brokers: orchestratorConstants.brokers,
+  retry: {
+    initialRetryTime: 300, // ms
+    maxRetryTime: 60000, // 1 minute
+    retries: 30,
+  },
   ssl: {
     rejectUnauthorized: true,
     requestCert: true,
