@@ -6,6 +6,7 @@ import {
   ContentChild,
   ContentChildren,
   EventEmitter,
+  HostListener,
   Input,
   Output,
   QueryList,
@@ -30,6 +31,7 @@ import {
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
+import { BehaviorSubject, firstValueFrom, ReplaySubject } from 'rxjs';
 import { AvatarComponent } from '../../../components/avatar/avatar.component';
 import { IdentifiedElement } from '../../../types/identified-element.type';
 import { ElementMenuItems, MenuIconComponent } from '../../dynamic-icons/menu-icon.component';
@@ -91,6 +93,7 @@ export class TableFormatComponent<T extends IdentifiedElement> implements AfterC
   @Output() selectionChange = new EventEmitter<SelectionModel<T>>();
   @Input() selection = new SelectionModel<T>(true, []);
 
+  selectionSubject$ = new ReplaySubject<T>();
   masterToggleState = false;
 
   constructor() {}
@@ -119,8 +122,38 @@ export class TableFormatComponent<T extends IdentifiedElement> implements AfterC
     this.table.setNoDataRow(this.noDataRow);
   }
 
-  toggleSelectedRow(row: T) {
+  shiftHolding$ = new BehaviorSubject<boolean>(false);
+  @HostListener('document:keydown.shift', ['$event'])
+  shiftDown(event: Event) {
+    this.shiftHolding$.next(true);
+  }
+  @HostListener('document:keyup.shift', ['$event'])
+  shiftUp(event: Event) {
+    this.shiftHolding$.next(false);
+  }
+
+  private lastSelectIndex: number | undefined = undefined;
+  async toggleSelectedRow(row: T, index: number) {
     this.selection.toggle(row);
     this.selectionChange.emit(this.selection);
+
+    if (
+      this.lastSelectIndex !== undefined &&
+      this.lastSelectIndex >= 0 &&
+      this.lastSelectIndex <= this._dataSource!.data.length &&
+      (await firstValueFrom(this.shiftHolding$))
+    ) {
+      const start = this.lastSelectIndex < index ? this.lastSelectIndex : index;
+      const end = this.lastSelectIndex >= index ? this.lastSelectIndex : index;
+      const set = this.selection.isSelected(row);
+      const data = this._dataSource!.data.slice(start, end + 1);
+      if (set) {
+        this.selection.select(...data);
+      } else {
+        this.selection.deselect(...data);
+      }
+      this.selectionChange.emit(this.selection);
+    }
+    this.lastSelectIndex = index;
   }
 }
