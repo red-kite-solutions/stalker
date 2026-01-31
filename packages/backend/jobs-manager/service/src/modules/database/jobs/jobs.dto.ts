@@ -1,4 +1,4 @@
-import { IntersectionType } from '@nestjs/swagger';
+import { IntersectionType, OmitType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsArray,
@@ -13,6 +13,7 @@ import { PagingDto } from '../database.dto';
 import { FilterByProjectDto } from '../reporting/resource.dto';
 import { JobParameterDto } from '../subscriptions/subscriptions.dto';
 import { JobParameter } from '../subscriptions/subscriptions.type';
+import { Job } from './models/jobs.model';
 
 export class JobExecutionsDto extends IntersectionType(
   PagingDto,
@@ -49,4 +50,11 @@ export class JobManagementDto {
   @IsNotEmpty()
   @IsIn(jobManagementTasks)
   task: JobManagementTask;
+}
+
+export class StartedJobDto extends OmitType(Job, ['output'] as const) {
+  _id: string;
+  numberOfErrors: number;
+  numberOfWarnings: number;
+  numberOfFindings: number;
 }

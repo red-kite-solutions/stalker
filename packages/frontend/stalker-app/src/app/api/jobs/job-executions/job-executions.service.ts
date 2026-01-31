@@ -2,7 +2,12 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom, map, Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { StartedJob, StartedJobState, StartedJobViewModel } from '../../../shared/types/jobs/job.type';
+import {
+  StartedJob,
+  StartedJobOutputMetadata,
+  StartedJobState,
+  StartedJobViewModel,
+} from '../../../shared/types/jobs/job.type';
 import { Page } from '../../../shared/types/page.type';
 import { JobParameter } from '../../../shared/types/subscriptions/subscription.type';
 import { filtersToParams } from '../../../utils/filters-to-params';
@@ -23,7 +28,7 @@ export class JobExecutionsService {
     params = params.append('page', page);
     params = params.append('pageSize', pageSize);
 
-    return this.http.get<Page<StartedJob>>(`${environment.fmUrl}/jobs`, { params }).pipe(
+    return this.http.get<Page<StartedJobOutputMetadata>>(`${environment.fmUrl}/jobs`, { params }).pipe(
       map((page) => ({
         totalRecords: page.totalRecords,
         items: page.items.map((i) => this.toStartedJobViewModel(i)),
@@ -33,7 +38,7 @@ export class JobExecutionsService {
 
   public getJobExecution(jobId: string): Observable<StartedJobViewModel> {
     return this.http
-      .get<StartedJob>(`${environment.fmUrl}/jobs/${jobId}`)
+      .get<StartedJobOutputMetadata>(`${environment.fmUrl}/jobs/${jobId}`)
       .pipe(map((model) => this.toStartedJobViewModel(model)));
   }
 
@@ -41,27 +46,10 @@ export class JobExecutionsService {
     return this.http.get<Page<JobOutputResponse>>(`${environment.fmUrl}/jobs/${jobId}/logs`);
   }
 
-  private toStartedJobViewModel(job: StartedJob): StartedJobViewModel {
-    const logsPerLevel = job.output.reduce(
-      (prev, current) => {
-        prev[current.level] += 1;
-        return prev;
-      },
-      {
-        debug: 0,
-        info: 0,
-        warning: 0,
-        error: 0,
-        finding: 0,
-      }
-    );
-
+  private toStartedJobViewModel(job: StartedJobOutputMetadata): StartedJobViewModel {
     return {
       ...job,
       id: job._id,
-      numberOfWarnings: logsPerLevel.warning,
-      numberOfErrors: logsPerLevel.error,
-      numberOfFindings: logsPerLevel.finding,
       state: this.toStartedJobState(job),
       startTimestamp: job.startTime,
       endTimestamp: job.endTime,
@@ -70,14 +58,14 @@ export class JobExecutionsService {
     };
   }
 
-  private toStartedJobState(job: StartedJob): StartedJobState | undefined {
+  private toStartedJobState(job: StartedJobOutputMetadata): StartedJobState | undefined {
     if (job == null) return undefined;
 
     if (job.endTime == null) {
       return 'in-progress';
     }
 
-    if (job.output.find((x) => x.level === 'error')) return 'errored';
+    if (job.numberOfErrors > 0) return 'errored';
 
     return 'done';
   }

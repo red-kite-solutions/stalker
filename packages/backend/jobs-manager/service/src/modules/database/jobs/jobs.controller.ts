@@ -36,7 +36,12 @@ import { CustomJobsService } from '../custom-jobs/custom-jobs.service';
 import { SecretsService } from '../secrets/secrets.service';
 import { JobParameter } from '../subscriptions/subscriptions.type';
 import { JobExecutionsService } from './job-executions.service';
-import { JobExecutionsDto, JobManagementDto, StartJobDto } from './jobs.dto';
+import {
+  JobExecutionsDto,
+  JobManagementDto,
+  StartedJobDto,
+  StartJobDto,
+} from './jobs.dto';
 import { JobFactory, JobFactoryUtils } from './jobs.factory';
 import { Job, JobDocument } from './models/jobs.model';
 
@@ -55,14 +60,14 @@ export class JobsController {
    * @remarks
    * Get the latest job executions.
    */
-  @ApiDefaultResponsePage(Job)
+  @ApiDefaultResponsePage(StartedJobDto)
   @UseGuards(AuthGuard([JwtStrategy.name, ApiKeyStrategy.name]), ScopesGuard)
   @Scopes('automation:job-executions:read')
   @Get()
   async getAllJobs(
     @Query()
     dto: JobExecutionsDto,
-  ): Promise<Page<JobDocument>> {
+  ): Promise<Page<StartedJobDto>> {
     return await this.jobsService.getAll(dto);
   }
 

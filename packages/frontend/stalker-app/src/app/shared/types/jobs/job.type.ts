@@ -29,6 +29,12 @@ export interface StartedJob extends JobInput {
   output: JobOutputResponse[];
 }
 
+export interface StartedJobOutputMetadata extends StartedJob {
+  numberOfErrors: number;
+  numberOfWarnings: number;
+  numberOfFindings: number;
+}
+
 export type StartedJobState = 'in-progress' | 'done' | 'errored';
 
 export interface StartedJobViewModel {
