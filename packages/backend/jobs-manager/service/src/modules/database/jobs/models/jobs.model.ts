@@ -33,10 +33,6 @@ export class Job {
   public output: TimestampedString[];
 
   @ApiProperty()
-  @Prop()
-  public publishTime: number;
-
-  @ApiProperty()
   @Prop({ index: -1 })
   public startTime: number;
 
@@ -45,7 +41,7 @@ export class Job {
   public endTime: number;
 
   @ApiProperty()
-  @Prop()
+  @Prop({ index: -1 })
   public createdAt: number;
 }
 

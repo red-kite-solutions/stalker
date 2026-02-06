@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Logger,
   Param,
   Post,
   Put,
@@ -37,6 +38,8 @@ export class ProjectController {
     private readonly customJobsService: CustomJobsService,
     private readonly configService: ConfigService,
   ) {}
+
+  private logger = new Logger(ProjectController.name);
 
   /**
    * Read all projects.
@@ -86,6 +89,9 @@ export class ProjectController {
       return await this.projectService.addProject(dto);
     } catch (err) {
       if (err.code === MONGO_DUPLICATE_ERROR) {
+        this.logger.log(
+          `Conflict when creating the project ${dto.name}: ${err}`,
+        );
         // Duplicate key error
         throw new HttpConflictException();
       }

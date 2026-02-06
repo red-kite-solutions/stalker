@@ -16,7 +16,7 @@ import { KafkaJobManagementTask } from '../../queues/job-management-queue/kafka-
 import { JobQueue } from '../../queues/job-queue/job-queue';
 import { ConfigService } from '../admin/config/config.service';
 import { Project } from '../reporting/project.model';
-import { JobExecutionsDto } from './jobs.dto';
+import { JobExecutionsDto, StartedJobDto } from './jobs.dto';
 import { CustomJob } from './models/custom-job.model';
 import { Job, JobDocument } from './models/jobs.model';
 
@@ -30,7 +30,7 @@ export class JobExecutionsService {
     private jobManagementQueue: JobManagementQueue,
   ) {}
 
-  public async getAll(dto: JobExecutionsDto): Promise<Page<JobDocument>> {
+  public async getAll(dto: JobExecutionsDto): Promise<Page<StartedJobDto>> {
     // Build filter
     const filters = {};
     if (dto.project) {
@@ -41,7 +41,7 @@ export class JobExecutionsService {
 
     let itemsQuery = this.jobModel.find(
       filters,
-      { output: 0, customJobParameters: 0 },
+      { customJobParameters: 0 },
       { sort: { startTime: -1 } },
     );
     if (dto.page != null && dto.pageSize != null) {
@@ -50,12 +50,38 @@ export class JobExecutionsService {
         .limit(+dto.pageSize);
     }
 
-    const items = await itemsQuery;
+    const items = await itemsQuery.lean();
     const totalRecords = await this.jobModel.countDocuments(filters);
 
     return {
-      items,
+      items: items.map((it) => this.toStartedJobDto(it)),
       totalRecords,
+    };
+  }
+
+  private toStartedJobDto(job: Job & { _id: Types.ObjectId }): StartedJobDto {
+    const logsPerLevel = job.output.reduce(
+      (prev, current) => {
+        prev[current.level] += 1;
+        return prev;
+      },
+      {
+        debug: 0,
+        info: 0,
+        warning: 0,
+        error: 0,
+        finding: 0,
+      },
+    );
+
+    delete job.output;
+
+    return {
+      ...job,
+      _id: job._id.toString(),
+      numberOfWarnings: logsPerLevel.warning,
+      numberOfErrors: logsPerLevel.error,
+      numberOfFindings: logsPerLevel.finding,
     };
   }
 
@@ -83,7 +109,6 @@ export class JobExecutionsService {
       createdJob = await this.jobModel.create({
         ...job,
         projectId: undefined,
-        publishTime: Date.now(),
       });
       createdJob.projectId = job.projectId;
     } else {
